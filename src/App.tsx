@@ -1,11 +1,8 @@
-import React from 'react'
+import React, { Suspense } from 'react'
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { Sidebar } from './components/Sidebar/Sidebar'
-import Dashboard from './pages/Dashboard'
-import Transactions from './pages/Transactions'
-import Reports from './pages/Reports'
-import AddTransaction from './pages/AddTransaction'
+import { routes } from './routes'
 
 const queryClient = new QueryClient()
 
@@ -48,43 +45,26 @@ const App: React.FC<AppProps> = () => {
           <div className="app">
             <Sidebar />
             <main className="main">
-              <Routes>
-                <Route path="/login" element={<div>Login Page (to be implemented)</div>} />
-                <Route path="/signup" element={<div>Signup Page (to be implemented)</div>} />
-                <Route 
-                  path="/" 
-                  element={
-                    <PrivateRoute>
-                      <Dashboard />
-                    </PrivateRoute>
-                  } 
-                />
-                <Route 
-                  path="/transactions" 
-                  element={
-                    <PrivateRoute>
-                      <Transactions />
-                    </PrivateRoute>
-                  } 
-                />
-                <Route 
-                  path="/reports" 
-                  element={
-                    <PrivateRoute>
-                      <Reports />
-                    </PrivateRoute>
-                  } 
-                />
-                <Route 
-                  path="/add" 
-                  element={
-                    <PrivateRoute>
-                      <AddTransaction />
-                    </PrivateRoute>
-                  } 
-                />
-                <Route path="*" element={<Navigate to="/" replace />} />
-              </Routes>
+              <Suspense fallback={<div className="flex items-center justify-center min-h-screen bg-bg">Loading...</div>}>
+                <Routes>
+                  {routes.map((route) => (
+                    <Route
+                      key={route.path}
+                      path={route.path}
+                      element={
+                        route.isPrivate ? (
+                          <PrivateRoute>
+                            {route.element}
+                          </PrivateRoute>
+                        ) : (
+                          route.element
+                        )
+                      }
+                    />
+                  ))}
+                  <Route path="*" element={<Navigate to="/" replace />} />
+                </Routes>
+              </Suspense>
             </main>
           </div>
         </Router>
