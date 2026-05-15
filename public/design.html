@@ -1,0 +1,1081 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>家庭记账 - Family Bookkeeping</title>
+  <style>
+    :root {
+      --bg: oklch(99% 0.002 240);
+      --surface: oklch(100% 0 0);
+      --fg: oklch(18% 0.012 250);
+      --muted: oklch(54% 0.012 250);
+      --border: oklch(92% 0.005 250);
+      --accent: oklch(58% 0.18 255);
+      --accent-hover: oklch(52% 0.18 255);
+      --success: oklch(70% 0.15 145);
+      --danger: oklch(60% 0.18 25);
+      --warning: oklch(80% 0.12 85);
+
+      --font-display: -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif;
+      --font-body: -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif;
+      --font-mono: 'JetBrains Mono', 'IBM Plex Mono', ui-monospace, Menlo, monospace;
+
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 16px;
+
+      --shadow-sm: 0 1px 2px oklch(0% 0 0 / 0.04);
+      --shadow-md: 0 4px 12px oklch(0% 0 0 / 0.06);
+      --shadow-lg: 0 8px 24px oklch(0% 0 0 / 0.08);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: var(--font-body);
+      background: var(--bg);
+      color: var(--fg);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Layout */
+    .app {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* Sidebar Navigation */
+    .sidebar {
+      width: 260px;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      padding: 24px 16px;
+      position: fixed;
+      height: 100vh;
+      left: 0;
+      top: 0;
+      z-index: 100;
+    }
+
+    .logo {
+      font-family: var(--font-display);
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--fg);
+      margin-bottom: 32px;
+      padding: 0 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .logo-icon {
+      width: 32px;
+      height: 32px;
+      background: var(--accent);
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 700;
+      font-size: 18px;
+    }
+
+    .nav {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .nav-item {
+      padding: 12px 16px;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--muted);
+      transition: all 0.2s ease;
+    }
+
+    .nav-item:hover {
+      background: var(--bg);
+      color: var(--fg);
+    }
+
+    .nav-item.active {
+      background: var(--accent);
+      color: white;
+    }
+
+    .nav-icon {
+      width: 20px;
+      height: 20px;
+      flex-shrink: 0;
+    }
+
+    /* Main Content */
+    .main {
+      flex: 1;
+      margin-left: 260px;
+      padding: 32px 40px;
+      max-width: 1400px;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 32px;
+    }
+
+    .header h1 {
+      font-family: var(--font-display);
+      font-size: 28px;
+      font-weight: 600;
+      color: var(--fg);
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 12px;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border-radius: var(--radius-md);
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s ease;
+      font-family: var(--font-body);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--accent-hover);
+    }
+
+    .btn-secondary {
+      background: var(--surface);
+      color: var(--fg);
+      border: 1px solid var(--border);
+    }
+
+    .btn-secondary:hover {
+      background: var(--bg);
+    }
+
+    /* Dashboard Cards */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      margin-bottom: 32px;
+    }
+
+    .card {
+      background: var(--surface);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .balance-card {
+      background: var(--accent);
+      color: white;
+    }
+
+    .card-label {
+      font-size: 13px;
+      font-weight: 500;
+      opacity: 0.9;
+      margin-bottom: 8px;
+    }
+
+    .card-value {
+      font-family: var(--font-display);
+      font-size: 32px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+    }
+
+    .card-trend {
+      font-size: 13px;
+      margin-top: 8px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .card-trend.positive {
+      color: var(--success);
+    }
+
+    .card-trend.negative {
+      color: var(--danger);
+    }
+
+    /* Views */
+    .view {
+      display: none;
+    }
+
+    .view.active {
+      display: block;
+    }
+
+    /* Recent Transactions */
+    .section-title {
+      font-family: var(--font-display);
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--fg);
+      margin-bottom: 16px;
+    }
+
+    .transactions-list {
+      background: var(--surface);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+      overflow: hidden;
+    }
+
+    .transaction-item {
+      display: flex;
+      align-items: center;
+      padding: 16px 24px;
+      border-bottom: 1px solid var(--border);
+      transition: background 0.2s ease;
+    }
+
+    .transaction-item:last-child {
+      border-bottom: none;
+    }
+
+    .transaction-item:hover {
+      background: var(--bg);
+    }
+
+    .transaction-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      margin-right: 16px;
+      background: var(--bg);
+    }
+
+    .transaction-info {
+      flex: 1;
+    }
+
+    .transaction-name {
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--fg);
+      margin-bottom: 2px;
+    }
+
+    .transaction-meta {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .transaction-amount {
+      font-family: var(--font-mono);
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .transaction-amount.income {
+      color: var(--success);
+    }
+
+    .transaction-amount.expense {
+      color: var(--fg);
+    }
+
+    /* Transaction Entry Form */
+    .form-section {
+      background: var(--surface);
+      border-radius: var(--radius-lg);
+      padding: 32px;
+      border: 1px solid var(--border);
+      max-width: 600px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-label {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--fg);
+      margin-bottom: 8px;
+      display: block;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      font-size: 15px;
+      font-family: var(--font-body);
+      transition: border-color 0.2s ease;
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
+    .form-select {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      font-size: 15px;
+      font-family: var(--font-body);
+      background: var(--surface);
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M6 8L2 4h8z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 16px center;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    /* Image Upload */
+    .image-upload {
+      border: 2px dashed var(--border);
+      border-radius: var(--radius-lg);
+      padding: 40px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      margin-bottom: 24px;
+    }
+
+    .image-upload:hover {
+      border-color: var(--accent);
+      background: var(--bg);
+    }
+
+    .image-upload.has-image {
+      padding: 0;
+      border-style: solid;
+    }
+
+    .image-upload-icon {
+      width: 48px;
+      height: 48px;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+
+    .image-upload-text {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .image-preview {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      border-radius: var(--radius-md);
+      display: none;
+    }
+
+    .image-upload.has-image .image-preview {
+      display: block;
+    }
+
+    .image-upload.has-image .upload-placeholder {
+      display: none;
+    }
+
+    .remove-image {
+      display: none;
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: rgba(0,0,0,0.7);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      cursor: pointer;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+
+    .image-upload.has-image .remove-image {
+      display: flex;
+    }
+
+    /* Charts */
+    .charts-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 20px;
+      margin-bottom: 32px;
+    }
+
+    .chart-card {
+      background: var(--surface);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      border: 1px solid var(--border);
+      height: 320px;
+    }
+
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .chart-title {
+      font-family: var(--font-display);
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .chart-placeholder {
+      width: 100%;
+      height: 220px;
+      background: var(--bg);
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    /* Category Pills */
+    .category-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .category-pill.food {
+      background: oklch(95% 0.02 45);
+      color: oklch(50% 0.12 45);
+    }
+
+    .category-pill.shopping {
+      background: oklch(95% 0.02 340);
+      color: oklch(50% 0.12 340);
+    }
+
+    .category-pill.transport {
+      background: oklch(95% 0.02 250);
+      color: oklch(50% 0.12 250);
+    }
+
+    .category-pill.utilities {
+      background: oklch(95% 0.02 145);
+      color: oklch(50% 0.12 145);
+    }
+
+    .category-pill.other {
+      background: var(--bg);
+      color: var(--muted);
+    }
+
+    /* Filter Bar */
+    .filter-bar {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .filter-chip {
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--muted);
+      transition: all 0.2s ease;
+    }
+
+    .filter-chip:hover {
+      border-color: var(--accent);
+      color: var(--fg);
+    }
+
+    .filter-chip.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: white;
+    }
+
+    /* Scan Animation */
+    .scan-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(180deg,
+        transparent 0%,
+        rgba(88, 163, 255, 0.1) 50%,
+        transparent 100%
+      );
+      animation: scan 2s ease-in-out infinite;
+      pointer-events: none;
+      display: none;
+    }
+
+    .scanning .scan-overlay {
+      display: block;
+    }
+
+    @keyframes scan {
+      0%, 100% { transform: translateY(-100%); }
+      50% { transform: translateY(100%); }
+    }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+      .cards-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .charts-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+        padding: 16px;
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .main {
+        margin-left: 0;
+        padding: 24px 16px;
+      }
+
+      .nav {
+        flex-direction: row;
+        overflow-x: auto;
+        padding-bottom: 4px;
+      }
+
+      .nav-item {
+        white-space: nowrap;
+      }
+
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+
+      .header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+      }
+
+      .header-actions {
+        width: 100%;
+      }
+
+      .header-actions .btn {
+        flex: 1;
+        justify-content: center;
+      }
+    }
+
+    /* Hidden file input */
+    #fileInput {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="logo">
+        <div class="logo-icon">¥</div>
+        <span>家庭记账</span>
+      </div>
+      <nav class="nav">
+        <div class="nav-item active" data-view="dashboard">
+          <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor">
+            <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4z"/>
+            <path fill-rule="evenodd" d="M3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zm8-1a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z" clip-rule="evenodd"/>
+          </svg>
+          概览
+        </div>
+        <div class="nav-item" data-view="transactions">
+          <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm3 1a1 1 0 000 2h6a1 1 0 100-2H7z" clip-rule="evenodd"/>
+            <path d="M7 8a1 1 0 011-1h4a1 1 0 011 1v2a1 1 0 01-1 1H8a1 1 0 01-1-1V8z"/>
+          </svg>
+          交易记录
+        </div>
+        <div class="nav-item" data-view="reports">
+          <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor">
+            <path d="M2 10a8 8 0 018-8v8h8a8 8 0 11-16 0z"/>
+            <path d="M12 2.252A8.014 8.014 0 0117.748 8H12V2.252z"/>
+          </svg>
+          统计报表
+        </div>
+        <div class="nav-item" data-view="add">
+          <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd"/>
+          </svg>
+          记一笔
+        </div>
+      </nav>
+    </aside>
+
+    <main class="main">
+      <!-- Dashboard View -->
+      <div class="view active" id="view-dashboard">
+        <div class="header">
+          <h1>概览</h1>
+          <div class="header-actions">
+            <button class="btn btn-secondary" onclick="showView('reports')">
+              <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
+                <path d="M2 10a8 8 0 018-8v8h8a8 8 0 11-16 0z"/>
+              </svg>
+              查看报表
+            </button>
+            <button class="btn btn-primary" onclick="showView('add')">
+              <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd"/>
+              </svg>
+              记一笔
+            </button>
+          </div>
+        </div>
+
+        <div class="cards-grid">
+          <div class="card balance-card">
+            <div class="card-label">账户余额</div>
+            <div class="card-value">¥ 28,560.00</div>
+            <div class="card-trend positive">
+              <svg width="12" height="12" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M12 7a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0V8.414l-4.293 4.293a1 1 0 01-1.414 0L8 10.414l-4.293 4.293a1 1 0 01-1.414-1.414l5-5a1 1 0 011.414 0L11 10.586 14.586 7H12z" clip-rule="evenodd"/>
+              </svg>
+              较上月 +12.5%
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-label">本月收入</div>
+            <div class="card-value">¥ 15,800.00</div>
+            <div class="card-trend positive">
+              <svg width="12" height="12" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M12 7a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0V8.414l-4.293 4.293a1 1 0 01-1.414 0L8 10.414l-4.293 4.293a1 1 0 01-1.414-1.414l5-5a1 1 0 011.414 0L11 10.586 14.586 7H12z" clip-rule="evenodd"/>
+              </svg>
+              +5 笔
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-label">本月支出</div>
+            <div class="card-value">¥ 8,340.00</div>
+            <div class="card-trend negative">
+              <svg width="12" height="12" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M12 13a1 1 0 110 2h5a1 1 0 011-1v-5a1 1 0 11-2 0v1.586l-4.293-4.293a1 1 0 01-1.414 0L8 9.586l-4.293-4.293a1 1 0 01-1.414 1.414l5 5a1 1 0 011.414 0L11 9.414 14.586 13H12z" clip-rule="evenodd"/>
+              </svg>
+              +23 笔
+            </div>
+          </div>
+        </div>
+
+        <h2 class="section-title">最近交易</h2>
+        <div class="transactions-list">
+          <div class="transaction-item">
+            <div class="transaction-icon">🛒</div>
+            <div class="transaction-info">
+              <div class="transaction-name">超市购物</div>
+              <div class="transaction-meta">今天 14:32 · 食品</div>
+            </div>
+            <div class="transaction-amount expense">-¥ 256.80</div>
+          </div>
+          <div class="transaction-item">
+            <div class="transaction-icon">🚗</div>
+            <div class="transaction-info">
+              <div class="transaction-name">加油</div>
+              <div class="transaction-meta">今天 10:15 · 交通</div>
+            </div>
+            <div class="transaction-amount expense">-¥ 380.00</div>
+          </div>
+          <div class="transaction-item">
+            <div class="transaction-icon">💰</div>
+            <div class="transaction-info">
+              <div class="transaction-name">工资收入</div>
+              <div class="transaction-meta">昨天 09:00 · 收入</div>
+            </div>
+            <div class="transaction-amount income">+¥ 12,000.00</div>
+          </div>
+          <div class="transaction-item">
+            <div class="transaction-icon">📱</div>
+            <div class="transaction-info">
+              <div class="transaction-name">话费充值</div>
+              <div class="transaction-meta">5月12日 · 通讯</div>
+            </div>
+            <div class="transaction-amount expense">-¥ 100.00</div>
+          </div>
+          <div class="transaction-item">
+            <div class="transaction-icon">🍜</div>
+            <div class="transaction-info">
+              <div class="transaction-name">外卖</div>
+              <div class="transaction-meta">5月11日 · 餐饮</div>
+            </div>
+            <div class="transaction-amount expense">-¥ 45.00</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Transactions View -->
+      <div class="view" id="view-transactions">
+        <div class="header">
+          <h1>交易记录</h1>
+          <div class="header-actions">
+            <button class="btn btn-primary" onclick="showView('add')">
+              <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd"/>
+              </svg>
+              记一笔
+            </button>
+          </div>
+        </div>
+
+        <div class="filter-bar">
+          <div class="filter-chip active">全部</div>
+          <div class="filter-chip">收入</div>
+          <div class="filter-chip">支出</div>
+          <div class="filter-chip">食品</div>
+          <div class="filter-chip">交通</div>
+          <div class="filter-chip">购物</div>
+          <div class="filter-chip">通讯</div>
+        </div>
+
+        <div class="transactions-list">
+          <div class="transaction-item">
+            <div class="transaction-icon">🛒</div>
+            <div class="transaction-info">
+              <div class="transaction-name">超市购物</div>
+              <div class="transaction-meta">2025年5月14日 14:32 · 食品</div>
+            </div>
+            <div class="transaction-amount expense">-¥ 256.80</div>
+          </div>
+          <div class="transaction-item">
+            <div class="transaction-icon">🚗</div>
+            <div class="transaction-info">
+              <div class="transaction-name">加油</div>
+              <div class="transaction-meta">2025年5月14日 10:15 · 交通</div>
+            </div>
+            <div class="transaction-amount expense">-¥ 380.00</div>
+          </div>
+          <div class="transaction-item">
+            <div class="transaction-icon">💰</div>
+            <div class="transaction-info">
+              <div class="transaction-name">工资收入</div>
+              <div class="transaction-meta">2025年5月13日 09:00 · 收入</div>
+            </div>
+            <div class="transaction-amount income">+¥ 12,000.00</div>
+          </div>
+          <div class="transaction-item">
+            <div class="transaction-icon">📱</div>
+            <div class="transaction-info">
+              <div class="transaction-name">话费充值</div>
+              <div class="transaction-meta">2025年5月12日 16:30 · 通讯</div>
+            </div>
+            <div class="transaction-amount expense">-¥ 100.00</div>
+          </div>
+          <div class="transaction-item">
+            <div class="transaction-icon">🍜</div>
+            <div class="transaction-info">
+              <div class="transaction-name">外卖</div>
+              <div class="transaction-meta">2025年5月11日 19:45 · 餐饮</div>
+            </div>
+            <div class="transaction-amount expense">-¥ 45.00</div>
+          </div>
+          <div class="transaction-item">
+            <div class="transaction-icon">🛍️</div>
+            <div class="transaction-info">
+              <div class="transaction-name">网上购物</div>
+              <div class="transaction-meta">2025年5月10日 14:20 · 购物</div>
+            </div>
+            <div class="transaction-amount expense">-¥ 1,299.00</div>
+          </div>
+          <div class="transaction-item">
+            <div class="transaction-icon">🏠</div>
+            <div class="transaction-info">
+              <div class="transaction-name">房租</div>
+              <div class="transaction-meta">2025年5月1日 09:00 · 居住</div>
+            </div>
+            <div class="transaction-amount expense">-¥ 3,500.00</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Reports View -->
+      <div class="view" id="view-reports">
+        <div class="header">
+          <h1>统计报表</h1>
+        </div>
+
+        <div class="charts-grid">
+          <div class="chart-card">
+            <div class="chart-header">
+              <div class="chart-title">支出趋势</div>
+              <select class="form-select" style="width: auto; padding: 6px 32px 6px 12px;">
+                <option>最近6个月</option>
+                <option>最近3个月</option>
+                <option>最近1年</option>
+              </select>
+            </div>
+            <div class="chart-placeholder">
+              <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M3 12h4l3 9 4-16 3 6h4"/>
+              </svg>
+              <span style="margin-left: 12px;">支出趋势图表</span>
+            </div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-header">
+              <div class="chart-title">支出分类</div>
+            </div>
+            <div class="chart-placeholder">
+              <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M12 2a10 10 0 0 1 10 10"/>
+              </svg>
+              <span style="margin-left: 12px;">分类占比</span>
+            </div>
+          </div>
+        </div>
+
+        <h2 class="section-title">本月支出分类</h2>
+        <div class="cards-grid" style="grid-template-columns: repeat(5, 1fr);">
+          <div class="card" style="text-align: center;">
+            <div class="card-label" style="margin-bottom: 12px;">🛒 食品</div>
+            <div class="card-value" style="font-size: 24px;">¥2,450</div>
+            <div class="card-trend">29%</div>
+          </div>
+          <div class="card" style="text-align: center;">
+            <div class="card-label" style="margin-bottom: 12px;">🏠 居住</div>
+            <div class="card-value" style="font-size: 24px;">¥3,500</div>
+            <div class="card-trend">42%</div>
+          </div>
+          <div class="card" style="text-align: center;">
+            <div class="card-label" style="margin-bottom: 12px;">🚗 交通</div>
+            <div class="card-value" style="font-size: 24px;">¥1,200</div>
+            <div class="card-trend">14%</div>
+          </div>
+          <div class="card" style="text-align: center;">
+            <div class="card-label" style="margin-bottom: 12px;">📱 通讯</div>
+            <div class="card-value" style="font-size: 24px;">¥280</div>
+            <div class="card-trend">3%</div>
+          </div>
+          <div class="card" style="text-align: center;">
+            <div class="card-label" style="margin-bottom: 12px;">🛍️ 购物</div>
+            <div class="card-value" style="font-size: 24px;">¥910</div>
+            <div class="card-trend">11%</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Add Transaction View -->
+      <div class="view" id="view-add">
+        <div class="header">
+          <h1>记一笔</h1>
+          <div class="header-actions">
+            <button class="btn btn-secondary" onclick="showView('dashboard')">取消</button>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <div class="image-upload" id="imageUpload" onclick="document.getElementById('fileInput').click()">
+            <div class="scan-overlay"></div>
+            <input type="file" id="fileInput" accept="image/*" onchange="handleFileSelect(event)">
+            <div class="upload-placeholder">
+              <svg class="image-upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="17,8 12,3 7,8"/>
+                <line x1="12" y1="3" x2="12" y2="15"/>
+              </svg>
+              <div class="image-upload-text">点击上传收据图片，自动识别金额和分类</div>
+            </div>
+            <img class="image-preview" id="imagePreview" alt="预览">
+            <button class="remove-image" onclick="event.stopPropagation(); removeImage()">×</button>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">金额</label>
+            <input type="number" class="form-input" placeholder="¥ 0.00" id="amountInput">
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">分类</label>
+              <select class="form-select" id="categorySelect">
+                <option value="">选择分类</option>
+                <option value="food">🛒 食品</option>
+                <option value="transport">🚗 交通</option>
+                <option value="shopping">🛍️ 购物</option>
+                <option value="utilities">📱 通讯</option>
+                <option value="housing">🏠 居住</option>
+                <option value="entertainment">🎮 娱乐</option>
+                <option value="medical">💊 医疗</option>
+                <option value="education">📚 教育</option>
+                <option value="income">💰 收入</option>
+                <option value="other">📌 其他</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">日期</label>
+              <input type="date" class="form-input" id="dateInput">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">备注</label>
+            <input type="text" class="form-input" placeholder="添加备注..." id="noteInput">
+          </div>
+
+          <div style="display: flex; gap: 12px; margin-top: 32px;">
+            <button class="btn btn-secondary" style="flex: 1;" onclick="showView('dashboard')">取消</button>
+            <button class="btn btn-primary" style="flex: 2;" onclick="saveTransaction()">保存</button>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    // Initialize date input with today's date
+    document.addEventListener('DOMContentLoaded', () => {
+      const today = new Date().toISOString().split('T')[0];
+      document.getElementById('dateInput').value = today;
+
+      // Navigation
+      document.querySelectorAll('.nav-item').forEach(item => {
+        item.addEventListener('click', () => {
+          const viewId = item.dataset.view;
+          if (viewId) showView(viewId);
+        });
+      });
+
+      // Filter chips
+      document.querySelectorAll('.filter-chip').forEach(chip => {
+        chip.addEventListener('click', () => {
+          document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+          chip.classList.add('active');
+        });
+      });
+    });
+
+    // View navigation
+    function showView(viewId) {
+      // Update nav items
+      document.querySelectorAll('.nav-item').forEach(item => {
+        item.classList.toggle('active', item.dataset.view === viewId);
+      });
+
+      // Update views
+      document.querySelectorAll('.view').forEach(view => {
+        view.classList.toggle('active', view.id === `view-${viewId}`);
+      });
+    }
+
+    // File upload handling
+    function handleFileSelect(event) {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const preview = document.getElementById('imagePreview');
+          preview.src = e.target.result;
+          document.getElementById('imageUpload').classList.add('has-image', 'scanning');
+
+          // Simulate AI scanning
+          setTimeout(() => {
+            document.getElementById('imageUpload').classList.remove('scanning');
+
+            // Simulate OCR result
+            document.getElementById('amountInput').value = '156.80';
+            document.getElementById('categorySelect').value = 'food';
+            document.getElementById('noteInput').value = '超市购物 - 识别自收据';
+          }, 2000);
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+
+    function removeImage() {
+      document.getElementById('fileInput').value = '';
+      document.getElementById('imagePreview').src = '';
+      document.getElementById('imageUpload').classList.remove('has-image', 'scanning');
+    }
+
+    function saveTransaction() {
+      const amount = document.getElementById('amountInput').value;
+      const category = document.getElementById('categorySelect').value;
+      const date = document.getElementById('dateInput').value;
+      const note = document.getElementById('noteInput').value;
+
+      if (!amount || !category) {
+        alert('请填写金额和分类');
+        return;
+      }
+
+      // Simulate saving
+      alert(`交易已保存\n金额: ¥${amount}\n分类: ${category}\n日期: ${date}`);
+      showView('dashboard');
+    }
+  </script>
+</body>
+</html>
