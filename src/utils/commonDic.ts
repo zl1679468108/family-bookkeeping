@@ -1,5 +1,6 @@
-export const categoryDict = {
+export const expenseCategoryDict = {
   food: { name: '食品', icon: '🛒' },
+  food_delivery: { name: '餐饮', icon: '🍜' },
   transport: { name: '交通', icon: '🚗' },
   shopping: { name: '购物', icon: '🛍️' },
   utilities: { name: '通讯', icon: '📱' },
@@ -7,19 +8,38 @@ export const categoryDict = {
   entertainment: { name: '娱乐', icon: '🎮' },
   medical: { name: '医疗', icon: '💊' },
   education: { name: '教育', icon: '📚' },
-  income: { name: '收入', icon: '💰' },
-  other: { name: '其他', icon: '📌' },
-  food_delivery: { name: '餐饮', icon: '🍜' }
+  other: { name: '其他', icon: '📌' }
 }
 
-export type CategoryKey = keyof typeof categoryDict
+export const incomeCategoryDict = {
+  salary: { name: '工资', icon: '💼' },
+  bonus: { name: '奖金', icon: '🎁' },
+  investment: { name: '投资', icon: '📈' },
+  freelance: { name: '兼职', icon: '💻' },
+  gift: { name: '礼金', icon: '🎁' },
+  other_income: { name: '其他收入', icon: '💰' }
+}
 
-export const categoryOptions = Object.entries(categoryDict).map(([value, { name, icon }]) => ({
+export type ExpenseCategoryKey = keyof typeof expenseCategoryDict
+export type IncomeCategoryKey = keyof typeof incomeCategoryDict
+export type CategoryKey = ExpenseCategoryKey | IncomeCategoryKey
+
+export const expenseCategoryOptions = Object.entries(expenseCategoryDict).map(([value, { name, icon }]) => ({
   value,
   label: `${icon} ${name}`
 }))
 
-export const categoryLabels = Object.entries(categoryDict).map(([value, { name }]) => ({
+export const incomeCategoryOptions = Object.entries(incomeCategoryDict).map(([value, { name, icon }]) => ({
+  value,
+  label: `${icon} ${name}`
+}))
+
+export const expenseCategoryLabels = Object.entries(expenseCategoryDict).map(([value, { name }]) => ({
+  value,
+  label: name
+}))
+
+export const incomeCategoryLabels = Object.entries(incomeCategoryDict).map(([value, { name }]) => ({
   value,
   label: name
 }))

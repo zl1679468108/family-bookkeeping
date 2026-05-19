@@ -1,7 +1,7 @@
 import React, { Suspense } from 'react'
 import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { Sidebar } from './components/Sidebar/Sidebar'
+import { Sidebar } from './components/Sidebar'
 import { routes } from './routes'
 
 const queryClient = new QueryClient()

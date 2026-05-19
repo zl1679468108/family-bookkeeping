@@ -1,8 +1,8 @@
 import React from 'react'
-import { Header } from '../components/Header/Header'
-import { ChartCard } from '../components/ChartCard/ChartCard'
-import { StatCard } from '../components/StatCard/StatCard'
-import { categoryDict } from '../utils/commonDic'
+import { Header } from '../components/Header'
+import { ChartCard } from '../components/ChartCard'
+import { StatCard } from '../components/StatCard'
+import { expenseCategoryDict } from '../utils/commonDic'
 import { formatAmount } from '../utils/common'
 
 interface CategoryStatData {
@@ -21,7 +21,7 @@ const categoryStatsData: CategoryStatData[] = [
 const totalAmount = categoryStatsData.reduce((sum, item) => sum + item.amount, 0)
 
 const categoryStats = categoryStatsData.map((item) => {
-  const categoryInfo = categoryDict[item.category as keyof typeof categoryDict] || { name: '其他', icon: '📌' }
+  const categoryInfo = expenseCategoryDict[item.category as keyof typeof expenseCategoryDict] || { name: '其他', icon: '📌' }
   const percentage = ((item.amount / totalAmount) * 100).toFixed(0)
   
   return {

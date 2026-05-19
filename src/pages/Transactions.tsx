@@ -1,17 +1,17 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
-import { Header } from '../components/Header/Header'
-import { Button } from '../components/Button/Button'
-import { FilterBar } from '../components/FilterBar/FilterBar'
-import { TransactionsList } from '../components/TransactionsList/TransactionsList'
-import { categoryDict, filterOptions } from '../utils/commonDic'
+import { Header } from '../components/Header'
+import { Button } from '../components/Button'
+import { FilterBar } from '../components/FilterBar'
+import { TransactionsList } from '../components/TransactionsList'
+import { expenseCategoryDict, incomeCategoryDict } from '../utils/commonDic'
 import { formatAmountWithType, formatDate } from '../utils/common'
 import { getTransactions, hasSupabaseConfig } from '../services/supabase'
 
 const Transactions: React.FC = () => {
   const navigate = useNavigate()
-  const [selectedFilter, setSelectedFilter] = useState<string>('all')
+  const [filter, setFilter] = useState({ type: 'all' as 'all' | 'income' | 'expense', category: '' })
 
   const { data: transactions = [], isLoading } = useQuery({
     queryKey: ['transactions'],
@@ -24,19 +24,17 @@ const Transactions: React.FC = () => {
   useEffect(() => {
     let filtered = transactions
 
-    if (selectedFilter !== 'all') {
-      if (selectedFilter === 'income') {
-        filtered = transactions.filter((t: any) => t.type === 'income')
-      } else if (selectedFilter === 'expense') {
-        filtered = transactions.filter((t: any) => t.type === 'expense')
-      } else {
-        filtered = transactions.filter((t: any) => t.category === selectedFilter)
-      }
+    if (filter.type !== 'all') {
+      filtered = transactions.filter((t: any) => t.type === filter.type)
+    }
+
+    if (filter.category) {
+      filtered = filtered.filter((t: any) => t.category === filter.category)
     }
 
     const mapped = filtered.map((item: any) => {
-      const categoryInfo = categoryDict[item.category as keyof typeof categoryDict] || { name: item.category || '其他', icon: '📌' }
       const isIncome = item.type === 'income'
+      const categoryInfo: { name: string; icon: string } = (isIncome ? incomeCategoryDict[item.category as keyof typeof incomeCategoryDict] : expenseCategoryDict[item.category as keyof typeof expenseCategoryDict]) || { name: item.category || '其他', icon: '📌' }
       
       return {
         id: item.id,
@@ -49,7 +47,14 @@ const Transactions: React.FC = () => {
     })
 
     setFilteredTransactions(mapped)
-  }, [transactions, selectedFilter])
+  }, [transactions, filter])
+
+  const handleFilterChange = (newFilter: { type: string; category: string }) => {
+    setFilter({
+      type: newFilter.type as 'all' | 'income' | 'expense',
+      category: newFilter.category
+    })
+  }
 
   return (
     <div>
@@ -62,7 +67,7 @@ const Transactions: React.FC = () => {
         </Button>
       </Header>
 
-      <FilterBar filters={filterOptions} selectedFilter={selectedFilter} onFilterChange={setSelectedFilter} />
+      <FilterBar selectedType={filter.type} selectedCategory={filter.category} onFilterChange={handleFilterChange} />
 
       {isLoading ? (
         <div style={{ textAlign: 'center', padding: '40px', color: '#666' }}>加载中...</div>

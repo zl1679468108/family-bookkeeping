@@ -467,9 +467,13 @@ body {
 }
 
 .filter-bar {
+  margin-bottom: 20px;
+}
+
+.filter-row {
   display: flex;
   gap: 12px;
-  margin-bottom: 20px;
+  margin-bottom: 12px;
   flex-wrap: wrap;
 }
 

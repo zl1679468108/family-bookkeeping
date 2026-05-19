@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { Header } from '../components/Header/Header'
-import { Button } from '../components/Button/Button'
-import { ImageUploader } from '../components/ImageUploader/ImageUploader'
-import { FormGroup } from '../components/Form/FormGroup'
-import { FormRow } from '../components/Form/FormRow'
-import { categoryOptions, typeOptions } from '../utils/commonDic'
+import { Header } from '../components/Header'
+import { Button } from '../components/Button'
+import { ImageUploader } from '../components/ImageUploader'
+import { FormGroup, FormRow } from '../components/Form'
+import { typeOptions, expenseCategoryOptions, incomeCategoryOptions } from '../utils/commonDic'
 import { createTransaction, hasSupabaseConfig } from '../services/supabase'
 
 const AddTransaction: React.FC = () => {
@@ -15,7 +14,7 @@ const AddTransaction: React.FC = () => {
   const [formData, setFormData] = useState({
     amount: '',
     category: '',
-    type: 'expense',
+    type: 'expense' as 'expense' | 'income',
     date: '',
     note: ''
   })
@@ -36,6 +35,10 @@ const AddTransaction: React.FC = () => {
     const today = new Date().toISOString().split('T')[0]
     setFormData(prev => ({ ...prev, date: today }))
   }, [])
+
+  useEffect(() => {
+    setFormData(prev => ({ ...prev, category: '' }))
+  }, [formData.type])
 
   const handleOcrComplete = (data: { amount: string; category: string; note: string }) => {
     setFormData({
@@ -61,11 +64,13 @@ const AddTransaction: React.FC = () => {
     mutation.mutate({
       amount: parseFloat(formData.amount),
       category: formData.category,
-      type: formData.type as 'income' | 'expense',
+      type: formData.type,
       date: formData.date,
       description: formData.note
     })
   }
+
+  const currentCategoryOptions = formData.type === 'expense' ? expenseCategoryOptions : incomeCategoryOptions
 
   return (
     <div>
@@ -96,7 +101,7 @@ const AddTransaction: React.FC = () => {
             <select 
               className="form-select" 
               value={formData.type}
-              onChange={(e) => setFormData(prev => ({ ...prev, type: e.target.value }))}
+              onChange={(e) => setFormData(prev => ({ ...prev, type: e.target.value as 'expense' | 'income' }))}
             >
               {typeOptions.map((item) => (
                 <option key={item.value} value={item.value}>{item.label}</option>
@@ -110,7 +115,7 @@ const AddTransaction: React.FC = () => {
               onChange={(e) => setFormData(prev => ({ ...prev, category: e.target.value }))}
             >
               <option value="">选择分类</option>
-              {categoryOptions.map((cat) => (
+              {currentCategoryOptions.map((cat) => (
                 <option key={cat.value} value={cat.value}>{cat.label}</option>
               ))}
             </select>

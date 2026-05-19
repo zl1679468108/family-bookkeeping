@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
-import { Header } from '../components/Header/Header'
-import { Button } from '../components/Button/Button'
-import { StatCard } from '../components/StatCard/StatCard'
-import { TransactionsList } from '../components/TransactionsList/TransactionsList'
-import { categoryDict } from '../utils/commonDic'
+import { Header } from '../components/Header'
+import { Button } from '../components/Button'
+import { StatCard } from '../components/StatCard'
+import { TransactionsList } from '../components/TransactionsList'
+import { expenseCategoryDict, incomeCategoryDict } from '../utils/commonDic'
 import { formatAmount, formatAmountWithType, formatDate } from '../utils/common'
 import { getTransactions, hasSupabaseConfig } from '../services/supabase'
 
@@ -36,8 +36,8 @@ const Dashboard: React.FC = () => {
   useEffect(() => {
     if (transactions.length > 0) {
       const mapped = transactions.slice(0, 5).map((item: any) => {
-        const categoryInfo = categoryDict[item.category as keyof typeof categoryDict] || { name: item.category || '其他', icon: '📌' }
         const isIncome = item.type === 'income'
+        const categoryInfo: { name: string; icon: string } = (isIncome ? incomeCategoryDict[item.category as keyof typeof incomeCategoryDict] : expenseCategoryDict[item.category as keyof typeof expenseCategoryDict]) || { name: item.category || '其他', icon: '📌' }
         return {
           id: item.id,
           name: item.description || categoryInfo.name,
