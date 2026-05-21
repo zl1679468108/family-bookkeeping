@@ -11,6 +11,9 @@ async function bootstrap() {
     credentials: true,
   });
   
+  // 设置全局路由前缀
+  app.setGlobalPrefix('api');
+  
   // 获取端口配置
   const configService = app.get(ConfigService);
   const port = configService.get<number>('PORT') || 3000;

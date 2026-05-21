@@ -16,7 +16,12 @@ export class SupabaseService implements OnModuleInit {
       throw new Error('Supabase 配置缺失，请检查环境变量 SUPABASE_URL 和 SUPABASE_ANON_KEY');
     }
 
-    this.supabase = createClient(supabaseUrl, supabaseAnonKey);
+    const ws = require('ws');
+    this.supabase = createClient(supabaseUrl, supabaseAnonKey, {
+      realtime: {
+        transport: ws,
+      },
+    });
   }
 
   getClient(): SupabaseClient {
