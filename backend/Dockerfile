@@ -1,5 +1,5 @@
 # 构建阶段 - 使用官方 Node.js 镜像
-FROM node:18 AS builder
+FROM node:20 AS builder
 
 WORKDIR /app
 COPY package*.json ./
@@ -8,7 +8,7 @@ COPY . .
 RUN npm run build:prod
 
 # 运行阶段
-FROM node:18
+FROM node:20
 
 WORKDIR /app
 COPY package*.json ./
