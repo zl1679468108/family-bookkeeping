@@ -1,0 +1,21 @@
+# 开发环境 Dockerfile
+FROM node:20 AS builder
+
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
+COPY . .
+RUN npm run build:prod
+
+FROM node:20
+
+WORKDIR /app
+COPY package*.json ./
+RUN npm install --production
+COPY --from=builder /app/dist ./dist
+COPY .env.development ./.env
+
+EXPOSE 3000
+ENV NODE_ENV=development
+
+CMD ["node", "dist/main.js"]
