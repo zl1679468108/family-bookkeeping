@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { apiClient } from '../../services/api';
+import { notify } from '../../utils/notifications';
+import { resetPasswordByCode, sendResetCode } from '../../services/api';
 
 const ForgotPassword: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -10,27 +11,25 @@ const ForgotPassword: React.FC = () => {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
-  const [error, setError] = useState('');
   const [countdown, setCountdown] = useState(0);
   const navigate = useNavigate();
 
   const handleSendCode = async () => {
     if (!email) {
-      setError('请输入邮箱地址');
+      notify({ type: 'error', message: '请输入邮箱地址' });
       return;
     }
 
     setLoading(true);
-    setError('');
     setMessage('');
 
     try {
-      await apiClient.post('/auth/send-reset-code', { email });
+      await sendResetCode(email);
       setMessage('验证码已发送到您的邮箱，请注意查收');
       setStep(2);
       setCountdown(60);
-    } catch (err: any) {
-      setError(err.message || '发送验证码失败，请稍后重试');
+    } catch {
+      // 错误已由全局通知处理
     } finally {
       setLoading(false);
     }
@@ -39,40 +38,34 @@ const ForgotPassword: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError('');
     setMessage('');
 
     if (!code) {
-      setError('请输入验证码');
+      notify({ type: 'error', message: '请输入验证码' });
       setLoading(false);
       return;
     }
 
     if (!password) {
-      setError('请输入新密码');
+      notify({ type: 'error', message: '请输入新密码' });
       setLoading(false);
       return;
     }
 
     if (password !== confirmPassword) {
-      setError('两次输入的密码不一致');
+      notify({ type: 'error', message: '两次输入的密码不一致' });
       setLoading(false);
       return;
     }
 
     try {
-      await apiClient.post('/auth/reset-password-by-code', {
-        email,
-        code,
-        password,
-        confirmPassword,
-      });
+      await resetPasswordByCode(email, code, password, confirmPassword);
       setMessage('密码重置成功！即将跳转到登录页面...');
       setTimeout(() => {
         navigate('/login');
       }, 2000);
-    } catch (err: any) {
-      setError(err.message || '密码重置失败，请稍后重试');
+    } catch {
+      // 错误已由全局通知处理
     } finally {
       setLoading(false);
     }
@@ -106,11 +99,6 @@ const ForgotPassword: React.FC = () => {
               {message && (
                 <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg text-green-700 text-sm">
                   {message}
-                </div>
-              )}
-              {error && (
-                <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
-                  {error}
                 </div>
               )}
               <div className="space-y-6">

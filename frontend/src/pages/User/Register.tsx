@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../utils/auth';
+import { notify } from '../../utils/notifications';
 import { Button } from '../../components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../../components/ui/card';
 import { Input } from '../../components/ui/input';
@@ -11,22 +12,20 @@ const RegisterPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const { signUp } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
 
     if (password !== confirmPassword) {
-      setError('两次输入的密码不一致');
+      notify({ type: 'error', message: '两次输入的密码不一致' });
       return;
     }
 
     if (password.length < 6) {
-      setError('密码长度至少为6位');
+      notify({ type: 'error', message: '密码长度至少为6位' });
       return;
     }
 
@@ -35,8 +34,8 @@ const RegisterPage: React.FC = () => {
     try {
       await signUp(email, password, username);
       navigate('/');
-    } catch (err) {
-      setError('注册失败，请稍后重试');
+    } catch {
+      // 错误已由全局通知处理
     } finally {
       setLoading(false);
     }
@@ -101,11 +100,6 @@ const RegisterPage: React.FC = () => {
                   required
                 />
               </div>
-              {error && (
-                <div className="text-sm text-red-600 bg-red-50 p-3 rounded-md">
-                  {error}
-                </div>
-              )}
               <Button type="submit" className="w-full" disabled={loading}>
                 {loading ? '注册中...' : '注册'}
               </Button>

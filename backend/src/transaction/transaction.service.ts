@@ -1,4 +1,8 @@
-import { Injectable, ForbiddenException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { SupabaseService } from '../supabase/supabase.service';
 
 export interface Transaction {
@@ -32,9 +36,11 @@ export class TransactionService {
       .select('*')
       .order('date', { ascending: false });
 
-    if (filters?.userId) {
-      query = query.eq('user_id', filters.userId);
+    if (!filters?.userId) {
+      throw new ForbiddenException('需要登录才能访问交易记录');
     }
+    
+    query = query.eq('user_id', filters.userId);
 
     if (filters?.type) {
       query = query.eq('type', filters.type);
@@ -55,7 +61,7 @@ export class TransactionService {
     const { data, error } = await query;
 
     if (error) {
-      throw new Error(`获取交易记录失败: ${error.message}`);
+      throw new InternalServerErrorException(`获取交易记录失败: ${error.message}`);
     }
 
     return data;
@@ -63,22 +69,23 @@ export class TransactionService {
 
   async findOne(id: number, userId?: string): Promise<Transaction> {
     const supabase = this.supabaseService.getClient();
-    let query = supabase
+    
+    if (!userId) {
+      throw new ForbiddenException('需要登录才能访问交易记录');
+    }
+
+    const { data, error } = await supabase
       .from('transactions')
       .select('*')
-      .eq('id', id);
-
-    if (userId) {
-      query = query.eq('user_id', userId);
-    }
-
-    const { data, error } = await query.single();
+      .eq('id', id)
+      .eq('user_id', userId)
+      .single();
 
     if (error) {
-      throw new Error(`获取交易记录失败: ${error.message}`);
+      throw new InternalServerErrorException(`获取交易记录失败: ${error.message}`);
     }
 
-    if (userId && data.user_id !== userId) {
+    if (!data) {
       throw new ForbiddenException('无权访问此交易记录');
     }
 
@@ -88,9 +95,13 @@ export class TransactionService {
   async create(transaction: Partial<Transaction>, userId?: string): Promise<Transaction> {
     const supabase = this.supabaseService.getClient();
     
+    if (!userId) {
+      throw new ForbiddenException('需要登录才能创建交易记录');
+    }
+
     const transactionData = {
       ...transaction,
-      ...(userId && { user_id: userId }),
+      user_id: userId,
     };
 
     const { data, error } = await supabase
@@ -100,7 +111,7 @@ export class TransactionService {
       .single();
 
     if (error) {
-      throw new Error(`创建交易记录失败: ${error.message}`);
+      throw new InternalServerErrorException(`创建交易记录失败: ${error.message}`);
     }
 
     return data;
@@ -113,23 +124,25 @@ export class TransactionService {
   ): Promise<Transaction> {
     const supabase = this.supabaseService.getClient();
     
-    // 先检查权限
-    if (userId) {
-      const existing = await this.findOne(id, userId);
-      if (!existing || existing.user_id !== userId) {
-        throw new ForbiddenException('无权修改此交易记录');
-      }
+    if (!userId) {
+      throw new ForbiddenException('需要登录才能更新交易记录');
+    }
+
+    const existing = await this.findOne(id, userId);
+    if (!existing) {
+      throw new ForbiddenException('无权修改此交易记录');
     }
 
     const { data, error } = await supabase
       .from('transactions')
       .update(transaction)
       .eq('id', id)
+      .eq('user_id', userId)
       .select()
       .single();
 
     if (error) {
-      throw new Error(`更新交易记录失败: ${error.message}`);
+      throw new InternalServerErrorException(`更新交易记录失败: ${error.message}`);
     }
 
     return data;
@@ -138,21 +151,23 @@ export class TransactionService {
   async remove(id: number, userId?: string): Promise<void> {
     const supabase = this.supabaseService.getClient();
     
-    // 先检查权限
-    if (userId) {
-      const existing = await this.findOne(id, userId);
-      if (!existing || existing.user_id !== userId) {
-        throw new ForbiddenException('无权删除此交易记录');
-      }
+    if (!userId) {
+      throw new ForbiddenException('需要登录才能删除交易记录');
+    }
+
+    const existing = await this.findOne(id, userId);
+    if (!existing) {
+      throw new ForbiddenException('无权删除此交易记录');
     }
 
     const { error } = await supabase
       .from('transactions')
       .delete()
-      .eq('id', id);
+      .eq('id', id)
+      .eq('user_id', userId);
 
     if (error) {
-      throw new Error(`删除交易记录失败: ${error.message}`);
+      throw new InternalServerErrorException(`删除交易记录失败: ${error.message}`);
     }
   }
 }

@@ -1,8 +1,18 @@
 import React, { createContext, useContext, useState, useEffect, useRef } from 'react'
-import { checkHealth, login as apiLogin, register as apiRegister, getProfile, logout as apiLogout } from '../services/api'
+import {
+  checkHealth,
+  clearStoredToken,
+  getProfile,
+  hasToken,
+  login as apiLogin,
+  logout as apiLogout,
+  register as apiRegister,
+  storeToken,
+  UserProfile,
+} from '../services/api'
 
 interface AuthContextType {
-  user: any
+  user: UserProfile | null
   loading: boolean
   isConnected: boolean
   signIn: (email: string, password: string) => Promise<void>
@@ -14,7 +24,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<any>(null)
+  const [user, setUser] = useState<UserProfile | null>(null)
   const [loading, setLoading] = useState(true)
   const [isConnected, setIsConnected] = useState(false)
   const initialized = useRef(false)
@@ -32,7 +42,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const connected = await checkHealth()
       setIsConnected(connected)
       
-      if (connected) {
+      if (connected && hasToken()) {
         // 尝试获取用户信息
         await refreshUser()
       }
@@ -56,7 +66,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signIn = async (email: string, password: string) => {
     try {
-      const { user: userData } = await apiLogin(email, password)
+      const { user: userData, token } = await apiLogin(email, password)
+      storeToken(token)
       setUser(userData)
     } catch (error) {
       console.error('登录失败:', error)
@@ -66,7 +77,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signUp = async (email: string, password: string, username: string) => {
     try {
-      const { user: userData } = await apiRegister(email, password, username)
+      const { user: userData, token } = await apiRegister(email, password, username)
+      storeToken(token)
       setUser(userData)
     } catch (error) {
       console.error('注册失败:', error)
@@ -76,8 +88,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signOut = async () => {
     try {
-      apiLogout()
+      if (hasToken()) {
+        await apiLogout().catch(() => undefined)
+      }
     } finally {
+      clearStoredToken()
       setUser(null)
     }
   }

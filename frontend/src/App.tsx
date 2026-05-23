@@ -1,11 +1,8 @@
 import React, { Suspense } from 'react'
 import { HashRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { Sidebar } from './components/Sidebar'
 import { routes } from './routes'
 import { AuthProvider, useAuth } from './utils/auth'
-
-const queryClient = new QueryClient()
 
 const PrivateRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, loading } = useAuth()
@@ -80,13 +77,11 @@ interface AppProps {
 
 const App: React.FC<AppProps> = () => {
   return (
-    <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <Router>
-          <AppLayout />
-        </Router>
-      </AuthProvider>
-    </QueryClientProvider>
+    <AuthProvider>
+      <Router>
+        <AppLayout />
+      </Router>
+    </AuthProvider>
   )
 }
 

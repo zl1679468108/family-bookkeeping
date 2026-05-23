@@ -4,12 +4,16 @@ import {
   Query,
   Res,
   BadRequestException,
+  UseGuards,
 } from '@nestjs/common';
 import { Response } from 'express';
 import { ExportService } from './export.service';
 import { TransactionFilters } from '../transaction/transaction.service';
+import { TokenAuthGuard } from '../auth/token-auth.guard';
+import { CurrentUser } from '../auth/current-user.decorator';
 
 @Controller('export')
+@UseGuards(TokenAuthGuard)
 export class ExportController {
   constructor(private readonly exportService: ExportService) {}
 
@@ -19,6 +23,7 @@ export class ExportController {
   @Get('excel')
   async exportExcel(
     @Res() res: Response,
+    @CurrentUser('id') userId: string,
     @Query('type') type?: 'income' | 'expense',
     @Query('category') category?: string,
     @Query('startDate') startDate?: string,
@@ -30,6 +35,7 @@ export class ExportController {
         category,
         startDate,
         endDate,
+        userId,
       };
 
       const buffer = await this.exportService.exportToExcel(filters);
@@ -56,6 +62,7 @@ export class ExportController {
   @Get('pdf')
   async exportPdf(
     @Res() res: Response,
+    @CurrentUser('id') userId: string,
     @Query('type') type?: 'income' | 'expense',
     @Query('category') category?: string,
     @Query('startDate') startDate?: string,
@@ -67,6 +74,7 @@ export class ExportController {
         category,
         startDate,
         endDate,
+        userId,
       };
 
       const buffer = await this.exportService.exportToPDF(filters);

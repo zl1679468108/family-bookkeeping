@@ -28,7 +28,18 @@ CREATE TABLE IF NOT EXISTS password_resets (
 );
 
 -- ==============================================
--- 3. 交易记录表
+-- 3. 会话表
+-- ==============================================
+CREATE TABLE IF NOT EXISTS user_sessions (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  token_hash VARCHAR(255) UNIQUE NOT NULL,
+  expires_at TIMESTAMP WITH TIME ZONE NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- ==============================================
+-- 4. 交易记录表
 -- ==============================================
 CREATE TABLE IF NOT EXISTS transactions (
   id SERIAL PRIMARY KEY,
@@ -43,7 +54,7 @@ CREATE TABLE IF NOT EXISTS transactions (
 );
 
 -- ==============================================
--- 4. 预算表
+-- 5. 预算表
 -- ==============================================
 CREATE TABLE IF NOT EXISTS budgets (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -62,6 +73,9 @@ CREATE TABLE IF NOT EXISTS budgets (
 DROP INDEX IF EXISTS idx_users_email;
 DROP INDEX IF EXISTS idx_password_resets_token;
 DROP INDEX IF EXISTS idx_password_resets_user_id;
+DROP INDEX IF EXISTS idx_user_sessions_token_hash;
+DROP INDEX IF EXISTS idx_user_sessions_user_id;
+DROP INDEX IF EXISTS idx_user_sessions_expires_at;
 DROP INDEX IF EXISTS idx_transactions_user_id;
 DROP INDEX IF EXISTS idx_transactions_date;
 DROP INDEX IF EXISTS idx_transactions_type;
@@ -72,6 +86,9 @@ DROP INDEX IF EXISTS idx_budgets_user_month;
 CREATE INDEX idx_users_email ON users(email);
 CREATE INDEX idx_password_resets_token ON password_resets(token);
 CREATE INDEX idx_password_resets_user_id ON password_resets(user_id);
+CREATE INDEX idx_user_sessions_token_hash ON user_sessions(token_hash);
+CREATE INDEX idx_user_sessions_user_id ON user_sessions(user_id);
+CREATE INDEX idx_user_sessions_expires_at ON user_sessions(expires_at);
 CREATE INDEX idx_transactions_user_id ON transactions(user_id);
 CREATE INDEX idx_transactions_date ON transactions(date);
 CREATE INDEX idx_transactions_type ON transactions(type);
@@ -84,6 +101,7 @@ CREATE INDEX idx_budgets_user_month ON budgets(user_id, month);
 -- ==============================================
 COMMENT ON TABLE users IS '用户表';
 COMMENT ON TABLE password_resets IS '密码重置表';
+COMMENT ON TABLE user_sessions IS '用户会话表';
 COMMENT ON TABLE transactions IS '交易记录表';
 COMMENT ON TABLE budgets IS '预算表';
 
@@ -110,4 +128,3 @@ CREATE TRIGGER update_budgets_updated_at BEFORE UPDATE ON budgets
 DROP TRIGGER IF EXISTS update_password_resets_updated_at ON password_resets;
 CREATE TRIGGER update_password_resets_updated_at BEFORE UPDATE ON password_resets
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-

@@ -175,6 +175,10 @@ export class ExportService {
       .select('*')
       .order('date', { ascending: false });
 
+    if (filters?.userId) {
+      query = query.eq('user_id', filters.userId);
+    }
+
     if (filters?.type) {
       query = query.eq('type', filters.type);
     }

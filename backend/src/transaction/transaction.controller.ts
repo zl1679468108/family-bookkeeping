@@ -11,18 +11,18 @@ import {
   HttpStatus,
   UseGuards,
 } from '@nestjs/common';
-import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { TokenAuthGuard } from '../auth/token-auth.guard';
 import { CurrentUser } from '../auth/current-user.decorator';
 import { TransactionService, TransactionFilters } from './transaction.service';
 
 @Controller('transactions')
-@UseGuards(JwtAuthGuard)
+@UseGuards(TokenAuthGuard)
 export class TransactionController {
   constructor(private readonly transactionService: TransactionService) {}
 
   @Get()
   async findAll(
-    @CurrentUser('sub') userId: string,
+    @CurrentUser('id') userId: string,
     @Query('type') type?: 'income' | 'expense',
     @Query('category') category?: string,
     @Query('startDate') startDate?: string,
@@ -36,41 +36,46 @@ export class TransactionController {
       userId,
     };
 
-    return await this.transactionService.findAll(filters);
+    const data = await this.transactionService.findAll(filters);
+    return { message: '获取交易记录成功', data };
   }
 
   @Get(':id')
   async findOne(
-    @CurrentUser('sub') userId: string,
+    @CurrentUser('id') userId: string,
     @Param('id') id: string,
   ) {
-    return await this.transactionService.findOne(+id, userId);
+    const data = await this.transactionService.findOne(+id, userId);
+    return { message: '获取交易记录成功', data };
   }
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
   async create(
-    @CurrentUser('sub') userId: string,
+    @CurrentUser('id') userId: string,
     @Body() transaction: any,
   ) {
-    return await this.transactionService.create(transaction, userId);
+    const data = await this.transactionService.create(transaction, userId);
+    return { message: '创建交易记录成功', data };
   }
 
   @Put(':id')
   async update(
-    @CurrentUser('sub') userId: string,
+    @CurrentUser('id') userId: string,
     @Param('id') id: string,
     @Body() transaction: any,
   ) {
-    return await this.transactionService.update(+id, transaction, userId);
+    const data = await this.transactionService.update(+id, transaction, userId);
+    return { message: '更新交易记录成功', data };
   }
 
   @Delete(':id')
-  @HttpCode(HttpStatus.NO_CONTENT)
+  @HttpCode(HttpStatus.OK)
   async remove(
-    @CurrentUser('sub') userId: string,
+    @CurrentUser('id') userId: string,
     @Param('id') id: string,
   ) {
     await this.transactionService.remove(+id, userId);
+    return { message: '删除交易记录成功', data: null };
   }
 }

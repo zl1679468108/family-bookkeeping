@@ -1,10 +1,16 @@
-import { Injectable, UnauthorizedException, ConflictException, BadRequestException } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  InternalServerErrorException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import * as bcrypt from 'bcryptjs';
 import { SupabaseService } from '../supabase/supabase.service';
 import { MailService } from '../mail/mail.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
+import { TokenService } from './token.service';
 
 export interface User {
   id: string;
@@ -19,15 +25,19 @@ export interface UpdateProfileDto {
   email?: string;
 }
 
+type SafeUser = Omit<User, 'password_hash'>;
+
 @Injectable()
 export class AuthService {
   constructor(
     private readonly supabaseService: SupabaseService,
-    private readonly jwtService: JwtService,
     private readonly mailService: MailService,
+    private readonly tokenService: TokenService,
   ) {}
 
-  async register(dto: RegisterDto): Promise<{ user: Omit<User, 'password_hash'>; token: string }> {
+  async register(
+    dto: RegisterDto,
+  ): Promise<{ user: SafeUser; token: string }> {
     const supabase = this.supabaseService.getClient();
 
     // 检查邮箱是否已注册
@@ -56,14 +66,14 @@ export class AuthService {
       .single();
 
     if (error) {
-      throw new Error('用户注册失败: ' + error.message);
+      throw new InternalServerErrorException(`用户注册失败: ${error.message}`);
     }
 
-    const token = this.generateToken(newUser.id, newUser.email);
+    const token = await this.createSession(newUser.id);
     return { user: newUser, token };
   }
 
-  async login(dto: LoginDto): Promise<{ user: Omit<User, 'password_hash'>; token: string }> {
+  async login(dto: LoginDto): Promise<{ user: SafeUser; token: string }> {
     const supabase = this.supabaseService.getClient();
 
     const { data: user, error } = await supabase
@@ -81,12 +91,12 @@ export class AuthService {
       throw new UnauthorizedException('邮箱或密码错误');
     }
 
-    const token = this.generateToken(user.id, user.email);
+    const token = await this.createSession(user.id);
     const { password_hash, ...userWithoutPassword } = user;
     return { user: userWithoutPassword, token };
   }
 
-  async getUserById(id: string): Promise<Omit<User, 'password_hash'> | null> {
+  async getUserById(id: string): Promise<SafeUser | null> {
     const supabase = this.supabaseService.getClient();
 
     const { data: user, error } = await supabase
@@ -116,75 +126,68 @@ export class AuthService {
       return;
     }
 
-    // 生成重置令牌并保存到数据库
-    const resetToken = this.jwtService.sign(
-      { sub: user.id, email, purpose: 'reset-password' },
-      { expiresIn: '1h' },
-    );
+    const resetToken = this.tokenService.generateResetToken();
 
-    await supabase
+    const { error: resetInsertError } = await supabase
       .from('password_resets')
       .insert({
         user_id: user.id,
-        token: resetToken,
-        expires_at: new Date(Date.now() + 3600000).toISOString(),
+        token: this.tokenService.hashToken(resetToken),
+        expires_at: this.tokenService.getResetTokenExpiresAt(),
       });
+
+    if (resetInsertError) {
+      throw new InternalServerErrorException(`创建重置令牌失败: ${resetInsertError.message}`);
+    }
 
     await this.mailService.sendPasswordResetEmail(email, resetToken);
   }
 
   async resetPassword(token: string, newPassword: string): Promise<void> {
     const supabase = this.supabaseService.getClient();
+    const tokenHash = this.tokenService.hashToken(token);
 
-    try {
-      const decoded = this.jwtService.verify(token) as { sub: string; purpose: string };
-      
-      if (decoded.purpose !== 'reset-password') {
-        throw new BadRequestException('无效的重置令牌');
-      }
+    const { data: resetRecord, error: recordError } = await supabase
+      .from('password_resets')
+      .select('id, user_id, expires_at, used_at')
+      .eq('token', tokenHash)
+      .single();
 
-      const { data: resetRecord, error: recordError } = await supabase
-        .from('password_resets')
-        .select('*')
-        .eq('token', token)
-        .single();
+    if (recordError || !resetRecord) {
+      throw new BadRequestException('无效的重置令牌');
+    }
 
-      if (recordError || !resetRecord) {
-        throw new BadRequestException('无效的重置令牌');
-      }
+    if (resetRecord.used_at) {
+      throw new BadRequestException('令牌已被使用');
+    }
 
-      if (resetRecord.used_at) {
-        throw new BadRequestException('令牌已被使用');
-      }
+    const expiresAt = new Date(resetRecord.expires_at);
+    if (expiresAt < new Date()) {
+      throw new BadRequestException('令牌已过期');
+    }
 
-      const expiresAt = new Date(resetRecord.expires_at);
-      if (expiresAt < new Date()) {
-        throw new BadRequestException('令牌已过期');
-      }
+    const passwordHash = await bcrypt.hash(newPassword, 10);
 
-      const passwordHash = await bcrypt.hash(newPassword, 10);
+    const { error: userUpdateError } = await supabase
+      .from('users')
+      .update({ password_hash: passwordHash })
+      .eq('id', resetRecord.user_id);
 
-      await supabase
-        .from('users')
-        .update({ password_hash: passwordHash })
-        .eq('id', decoded.sub);
+    if (userUpdateError) {
+      throw new InternalServerErrorException(`重置密码失败: ${userUpdateError.message}`);
+    }
 
-      await supabase
-        .from('password_resets')
-        .update({ used_at: new Date().toISOString() })
-        .eq('token', token);
+    const { error: resetUpdateError } = await supabase
+      .from('password_resets')
+      .update({ used_at: new Date().toISOString() })
+      .eq('id', resetRecord.id);
 
-    } catch (error) {
-      if (error.name === 'TokenExpiredError') {
-        throw new BadRequestException('令牌已过期');
-      } else if (error.name === 'JsonWebTokenError') {
-        throw new BadRequestException('无效的重置令牌');
-      }
-      throw error;
+    if (resetUpdateError) {
+      throw new InternalServerErrorException(`更新重置令牌失败: ${resetUpdateError.message}`);
     }
   }
 
-  async updateProfile(userId: string, dto: UpdateProfileDto): Promise<Omit<User, 'password_hash'> | null> {
+  async updateProfile(userId: string, dto: UpdateProfileDto): Promise<SafeUser | null> {
     const supabase = this.supabaseService.getClient();
 
     if (dto.email) {
@@ -208,7 +211,7 @@ export class AuthService {
       .single();
 
     if (error || !updatedUser) {
-      return null;
+      throw new InternalServerErrorException('更新用户信息失败');
     }
 
     return updatedUser;
@@ -245,18 +248,15 @@ export class AuthService {
       }
     }
 
-    const resetToken = this.jwtService.sign(
-      { sub: user.id, email, purpose: 'reset-password' },
-      { expiresIn: '5m' },
-    );
+    const resetToken = this.tokenService.generateResetToken();
 
     await supabase
       .from('password_resets')
       .insert({
         user_id: user.id,
-        token: resetToken,
+        token: this.tokenService.hashToken(resetToken),
         code: code,
-        expires_at: new Date(Date.now() + 300000).toISOString(),
+        expires_at: this.tokenService.getResetCodeExpiresAt(),
       });
 
     await this.mailService.sendVerificationCodeEmail(email, code);
@@ -268,11 +268,6 @@ export class AuthService {
     const trimmedEmail = email.trim();
     const trimmedCode = code.trim();
 
-    console.log('=== 验证码验证调试 ===');
-    console.log('输入的邮箱:', trimmedEmail);
-    console.log('输入的验证码:', trimmedCode);
-    console.log('验证码长度:', trimmedCode.length);
-
     if (!trimmedCode || trimmedCode.length !== 6) {
       throw new BadRequestException('验证码必须是6位数字');
     }
@@ -283,31 +278,17 @@ export class AuthService {
       .eq('email', trimmedEmail)
       .single();
 
-    console.log('查询到的用户:', user);
-
     if (!user) {
       throw new BadRequestException('验证码错误');
     }
 
-    const { data: resetRecords, error: listError } = await supabase
+    const { data: resetRecord } = await supabase
       .from('password_resets')
-      .select('*')
-      .eq('user_id', user.id)
-      .order('created_at', { ascending: false })
-      .limit(5);
-
-    console.log('用户的密码重置记录:', resetRecords);
-
-    const { data: resetRecord, error: recordError } = await supabase
-      .from('password_resets')
-      .select('*')
+      .select('id, code, expires_at, used_at')
       .eq('user_id', user.id)
       .order('created_at', { ascending: false })
       .limit(1)
       .single();
-
-    console.log('最新的重置记录:', resetRecord);
-    console.log('数据库中的验证码:', resetRecord?.code);
 
     if (!resetRecord) {
       throw new BadRequestException('请先获取验证码');
@@ -316,8 +297,6 @@ export class AuthService {
     if (resetRecord.code !== trimmedCode) {
       throw new BadRequestException('验证码错误');
     }
-
-    console.log('查询错误:', recordError);
 
     if (resetRecord.used_at) {
       throw new BadRequestException('验证码已被使用');
@@ -330,22 +309,62 @@ export class AuthService {
 
     const passwordHash = await bcrypt.hash(newPassword, 10);
 
-    await supabase
+    const { error: userUpdateError } = await supabase
       .from('users')
       .update({ password_hash: passwordHash })
       .eq('id', user.id);
 
-    await supabase
+    if (userUpdateError) {
+      throw new InternalServerErrorException(`重置密码失败: ${userUpdateError.message}`);
+    }
+
+    const { error: resetUpdateError } = await supabase
       .from('password_resets')
       .update({ used_at: new Date().toISOString() })
       .eq('id', resetRecord.id);
+
+    if (resetUpdateError) {
+      throw new InternalServerErrorException(`更新验证码状态失败: ${resetUpdateError.message}`);
+    }
+  }
+
+  async logout(userId: string, tokenHash: string): Promise<void> {
+    const supabase = this.supabaseService.getClient();
+
+    if (!tokenHash) {
+      throw new UnauthorizedException('登录状态已失效，请重新登录');
+    }
+
+    const { error } = await supabase
+      .from('user_sessions')
+      .delete()
+      .eq('user_id', userId)
+      .eq('token_hash', tokenHash);
+
+    if (error) {
+      throw new InternalServerErrorException(`退出登录失败: ${error.message}`);
+    }
   }
 
   private generateVerificationCode(): string {
     return Math.floor(100000 + Math.random() * 900000).toString();
   }
 
-  private generateToken(userId: string, email: string): string {
-    return this.jwtService.sign({ sub: userId, email });
+  private async createSession(userId: string): Promise<string> {
+    const supabase = this.supabaseService.getClient();
+    const token = this.tokenService.generateSessionToken();
+    const tokenHash = this.tokenService.hashToken(token);
+
+    const { error } = await supabase.from('user_sessions').insert({
+      user_id: userId,
+      token_hash: tokenHash,
+      expires_at: this.tokenService.getSessionExpiresAt(),
+    });
+
+    if (error) {
+      throw new InternalServerErrorException(`创建会话失败: ${error.message}`);
+    }
+
+    return token;
   }
 }

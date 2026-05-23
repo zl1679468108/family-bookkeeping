@@ -9,7 +9,6 @@ import { Label } from '../../components/ui/label';
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const { signIn } = useAuth();
   const navigate = useNavigate();
@@ -17,15 +16,14 @@ const LoginPage: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
     setLoading(true);
 
     try {
       await signIn(email, password);
       const redirect = searchParams.get('redirect') || '/';
       navigate(redirect);
-    } catch (err) {
-      setError('登录失败，请检查邮箱和密码');
+    } catch {
+      // 错误已由全局通知处理
     } finally {
       setLoading(false);
     }
@@ -68,11 +66,6 @@ const LoginPage: React.FC = () => {
                   required
                 />
               </div>
-              {error && (
-                <div className="text-sm text-red-600 bg-red-50 p-3 rounded-md">
-                  {error}
-                </div>
-              )}
               <div className="flex items-center justify-between">
                 <Link
                   to="/forgot-password"
