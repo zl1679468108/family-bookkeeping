@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { incomeCategoryLabels, expenseCategoryLabels } from '../../utils/commonDic'
+import './index.scss'
 
 interface FilterBarProps {
   onFilterChange?: (filter: { type: string; category: string }) => void

@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Header } from '../components/Header'
-import { Button } from '../components/Button'
+import { Button } from '../components/ui/button'
 import { ImageUploader } from '../components/ImageUploader'
 import { FormGroup, FormRow } from '../components/Form'
 import { typeOptions, expenseCategoryOptions, incomeCategoryOptions } from '../utils/commonDic'
@@ -10,6 +10,7 @@ import { createTransaction } from '../services/api'
 
 const AddTransaction: React.FC = () => {
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
   const queryClient = useQueryClient()
   const [formData, setFormData] = useState({
     amount: '',
@@ -33,12 +34,26 @@ const AddTransaction: React.FC = () => {
 
   useEffect(() => {
     const today = new Date().toISOString().split('T')[0]
-    setFormData(prev => ({ ...prev, date: today }))
-  }, [])
+    const type = searchParams.get('type') as 'expense' | 'income' | null
+    const category = searchParams.get('category') || ''
+
+    const initialType = (type === 'income' || type === 'expense') ? type : 'expense'
+    const initialCategory = category
+
+    setFormData({
+      amount: '',
+      category: initialCategory,
+      type: initialType,
+      date: today,
+      note: ''
+    })
+  }, [searchParams])
 
   useEffect(() => {
-    setFormData(prev => ({ ...prev, category: '' }))
-  }, [formData.type])
+    if (!searchParams.get('category')) {
+      setFormData(prev => ({ ...prev, category: '' }))
+    }
+  }, [formData.type, searchParams])
 
   const handleOcrComplete = (data: { amount: string; category: string; note: string }) => {
     setFormData({

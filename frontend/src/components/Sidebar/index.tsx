@@ -1,5 +1,7 @@
 import React from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
+import { useAuth } from '../../utils/auth'
+import './index.scss'
 
 interface NavItem {
   id: string
@@ -57,6 +59,7 @@ const navItems: NavItem[] = [
 export const Sidebar: React.FC = () => {
   const navigate = useNavigate()
   const location = useLocation()
+  const { user, signOut } = useAuth()
 
   const getActiveItemId = () => {
     const path = location.pathname
@@ -69,12 +72,32 @@ export const Sidebar: React.FC = () => {
 
   const activeItemId = getActiveItemId()
 
+  const handleLogout = async () => {
+    try {
+      await signOut()
+      navigate('/login')
+    } catch (error) {
+      console.error('退出登录失败:', error)
+    }
+  }
+
   return (
     <aside className="sidebar">
       <div className="logo">
         <div className="logo-icon">¥</div>
         <span>家庭记账</span>
       </div>
+      
+      <div className="user-info">
+        <div className="user-avatar">
+          {user?.username?.charAt(0) || user?.email?.charAt(0) || 'U'}
+        </div>
+        <div className="user-details">
+          <div className="user-name">{user?.username || '用户'}</div>
+          <div className="user-email">{user?.email || '未设置邮箱'}</div>
+        </div>
+      </div>
+
       <nav className="nav">
         {navItems.map((item) => (
           <button
@@ -86,6 +109,16 @@ export const Sidebar: React.FC = () => {
             {item.name}
           </button>
         ))}
+        
+        <button
+          className="nav-item logout-button"
+          onClick={handleLogout}
+        >
+          <svg viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5">
+            <path fillRule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 001 1h12a1 1 0 001-1V4a1 1 0 00-1-1H3zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z" clipRule="evenodd"/>
+          </svg>
+          退出登录
+        </button>
       </nav>
     </aside>
   )

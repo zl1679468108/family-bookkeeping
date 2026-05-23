@@ -4,6 +4,7 @@ import { TransactionModule } from './transaction/transaction.module';
 import { ExportModule } from './export/export.module';
 import { HealthModule } from './health/health.module';
 import { SupabaseModule } from './supabase/supabase.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { SupabaseModule } from './supabase/supabase.module';
       ],
     }),
     SupabaseModule,
+    AuthModule,
     TransactionModule,
     ExportModule,
     HealthModule,

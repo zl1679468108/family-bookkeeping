@@ -5,16 +5,24 @@ const Dashboard = lazy(() => import('../pages/Dashboard'))
 const Transactions = lazy(() => import('../pages/Transactions'))
 const Reports = lazy(() => import('../pages/Reports'))
 const AddTransaction = lazy(() => import('../pages/AddTransaction'))
+const Login = lazy(() => import('../pages/User/Login'))
+const Register = lazy(() => import('../pages/User/Register'))
+const ForgotPassword = lazy(() => import('../pages/User/ForgotPassword'))
 
 export const routes: RouteConfig[] = [
   {
     path: '/login',
-    element: <div>Login Page (to be implemented)</div>,
+    element: <Login />,
     isPrivate: false,
   },
   {
-    path: '/signup',
-    element: <div>Signup Page (to be implemented)</div>,
+    path: '/register',
+    element: <Register />,
+    isPrivate: false,
+  },
+  {
+    path: '/forgot-password',
+    element: <ForgotPassword />,
     isPrivate: false,
   },
   {

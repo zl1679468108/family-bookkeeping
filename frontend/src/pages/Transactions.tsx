@@ -2,12 +2,19 @@ import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { Header } from '../components/Header'
-import { Button } from '../components/Button'
+import { Button } from '../components/ui/button'
 import { FilterBar } from '../components/FilterBar'
 import { TransactionsList } from '../components/TransactionsList'
 import { expenseCategoryDict, incomeCategoryDict } from '../utils/commonDic'
 import { formatAmountWithType, formatDate } from '../utils/common'
 import { getTransactions } from '../services/api'
+
+const buildAddUrl = (type: string, category: string): string => {
+  const params = new URLSearchParams()
+  if (type && type !== 'all') params.append('type', type)
+  if (category) params.append('category', category)
+  return `/add${params.toString() ? '?' + params.toString() : ''}`
+}
 
 const Transactions: React.FC = () => {
   const navigate = useNavigate()
@@ -58,7 +65,7 @@ const Transactions: React.FC = () => {
   return (
     <div>
       <Header title="交易记录">
-        <Button onClick={() => navigate('/add')}>
+        <Button onClick={() => navigate(buildAddUrl(filter.type, filter.category))}>
           <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
             <path fillRule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clipRule="evenodd"/>
           </svg>
@@ -73,7 +80,7 @@ const Transactions: React.FC = () => {
       ) : filteredTransactions.length === 0 ? (
         <div style={{ textAlign: 'center', padding: '40px', color: '#666' }}>
           <p>暂无交易记录</p>
-          <Button onClick={() => navigate('/add')} style={{ marginTop: '16px' }}>
+          <Button onClick={() => navigate(buildAddUrl(filter.type, filter.category))} style={{ marginTop: '16px' }}>
             添加第一笔交易
           </Button>
         </div>

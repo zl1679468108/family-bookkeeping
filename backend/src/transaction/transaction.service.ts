@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, ForbiddenException } from '@nestjs/common';
 import { SupabaseService } from '../supabase/supabase.service';
 
 export interface Transaction {
@@ -10,6 +10,7 @@ export interface Transaction {
   description: string;
   image_url?: string;
   created_at: string;
+  user_id?: string;
 }
 
 export interface TransactionFilters {
@@ -17,6 +18,7 @@ export interface TransactionFilters {
   category?: string;
   startDate?: string;
   endDate?: string;
+  userId?: string;
 }
 
 @Injectable()
@@ -29,6 +31,10 @@ export class TransactionService {
       .from('transactions')
       .select('*')
       .order('date', { ascending: false });
+
+    if (filters?.userId) {
+      query = query.eq('user_id', filters.userId);
+    }
 
     if (filters?.type) {
       query = query.eq('type', filters.type);
@@ -55,26 +61,41 @@ export class TransactionService {
     return data;
   }
 
-  async findOne(id: number): Promise<Transaction> {
+  async findOne(id: number, userId?: string): Promise<Transaction> {
     const supabase = this.supabaseService.getClient();
-    const { data, error } = await supabase
+    let query = supabase
       .from('transactions')
       .select('*')
-      .eq('id', id)
-      .single();
+      .eq('id', id);
+
+    if (userId) {
+      query = query.eq('user_id', userId);
+    }
+
+    const { data, error } = await query.single();
 
     if (error) {
       throw new Error(`获取交易记录失败: ${error.message}`);
     }
 
+    if (userId && data.user_id !== userId) {
+      throw new ForbiddenException('无权访问此交易记录');
+    }
+
     return data;
   }
 
-  async create(transaction: Partial<Transaction>): Promise<Transaction> {
+  async create(transaction: Partial<Transaction>, userId?: string): Promise<Transaction> {
     const supabase = this.supabaseService.getClient();
+    
+    const transactionData = {
+      ...transaction,
+      ...(userId && { user_id: userId }),
+    };
+
     const { data, error } = await supabase
       .from('transactions')
-      .insert([transaction])
+      .insert([transactionData])
       .select()
       .single();
 
@@ -88,8 +109,18 @@ export class TransactionService {
   async update(
     id: number,
     transaction: Partial<Transaction>,
+    userId?: string,
   ): Promise<Transaction> {
     const supabase = this.supabaseService.getClient();
+    
+    // 先检查权限
+    if (userId) {
+      const existing = await this.findOne(id, userId);
+      if (!existing || existing.user_id !== userId) {
+        throw new ForbiddenException('无权修改此交易记录');
+      }
+    }
+
     const { data, error } = await supabase
       .from('transactions')
       .update(transaction)
@@ -104,8 +135,17 @@ export class TransactionService {
     return data;
   }
 
-  async remove(id: number): Promise<void> {
+  async remove(id: number, userId?: string): Promise<void> {
     const supabase = this.supabaseService.getClient();
+    
+    // 先检查权限
+    if (userId) {
+      const existing = await this.findOne(id, userId);
+      if (!existing || existing.user_id !== userId) {
+        throw new ForbiddenException('无权删除此交易记录');
+      }
+    }
+
     const { error } = await supabase
       .from('transactions')
       .delete()
