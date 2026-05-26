@@ -6,6 +6,7 @@ import { HealthModule } from './health/health.module';
 import { SupabaseModule } from './supabase/supabase.module';
 import { AuthModule } from './auth/auth.module';
 import { StatisticsModule } from './statistics/statistics.module';
+import { CategoriesModule } from './categories/categories.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { StatisticsModule } from './statistics/statistics.module';
     ExportModule,
     HealthModule,
     StatisticsModule,
+    CategoriesModule,
   ],
 })
 export class AppModule {}

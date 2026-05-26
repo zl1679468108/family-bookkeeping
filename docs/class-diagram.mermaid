@@ -1,0 +1,59 @@
+classDiagram
+    class Category {
+        +string id
+        +string user_id
+        +string name
+        +string icon
+        +string type
+        +int sort_order
+        +string created_at
+        +string updated_at
+    }
+
+    class CreateCategoryDto {
+        +string name
+        +string icon
+        +string type
+        +int? sort_order
+    }
+
+    class UpdateCategoryDto {
+        +string? name
+        +string? icon
+        +int? sort_order
+    }
+
+    class MergedCategory {
+        +string value
+        +string label
+        +string icon
+        +string name
+        +boolean isDefault
+        +string? categoryId
+    }
+
+    class CategoryController {
+        +findAll(userId, type?) Promise~Category[]~
+        +create(userId, dto) Promise~Category~
+        +update(userId, id, dto) Promise~Category~
+        +remove(userId, id) Promise~void~
+    }
+
+    class CategoryService {
+        +findAll(userId, type?) Promise~Category[]~
+        +create(userId, dto) Promise~Category~
+        +update(userId, id, dto) Promise~Category~
+        +remove(userId, id) Promise~void~
+    }
+
+    class CategoryDict {
+        +expenseCategoryDict: Record~string, {name, icon}~
+        +incomeCategoryDict: Record~string, {name, icon}~
+        +mergeCategories(defaultDict, customCategories) MergedCategory[]
+    }
+
+    CategoryController --> CategoryService : uses
+    CategoryService --> Category : manages
+    CreateCategoryDto --> Category : creates
+    UpdateCategoryDto --> Category : updates
+    MergedCategory --> CategoryDict : produces

@@ -1,18 +1,24 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Header } from '../components/Header'
 import { Button } from '../components/ui/button'
 import { ImageUploader } from '../components/ImageUploader'
 import { FormGroup, FormRow } from '../components/Form'
 import { typeOptions, expenseCategoryOptions, incomeCategoryOptions } from '../utils/commonDic'
-import { createTransaction } from '../services/api'
+import { createTransaction, getTransaction, updateTransaction } from '../services/api'
+import { fetchCategories } from '../services/categoriesApi'
+import type { Category } from '../types/category'
 import { notify } from '../utils/notifications'
 
 const AddTransaction: React.FC = () => {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const queryClient = useQueryClient()
+
+  const editId = searchParams.get('edit')
+  const isEditMode = !!editId
+
   const [formData, setFormData] = useState({
     amount: '',
     category: '',
@@ -21,19 +27,38 @@ const AddTransaction: React.FC = () => {
     note: ''
   })
 
-  const mutation = useMutation({
-    mutationFn: createTransaction,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['transactions'] })
-      notify({ type: 'success', message: '交易已保存成功！' })
-      navigate('/')
-    },
-    onError: (error) => {
-      notify({ type: 'error', message: `保存失败: ${error.message}` })
-    }
+  // Load existing transaction in edit mode
+  const { data: editData, isLoading: editLoading } = useQuery({
+    queryKey: ['transaction', editId],
+    queryFn: () => getTransaction(Number(editId)),
+    enabled: isEditMode,
   })
 
+  // 获取自定义分类
+  const { data: customCategories = [] } = useQuery({
+    queryKey: ['categories'],
+    queryFn: () => fetchCategories(),
+  })
+
+  // Pre-fill form when edit data is loaded
   useEffect(() => {
+    if (editData) {
+      setFormData({
+        amount: String(editData.amount),
+        category: editData.category,
+        type: editData.type,
+        date: editData.date,
+        note: editData.description || '',
+      })
+    }
+  }, [editData])
+
+  // Initialize form for new transaction
+  useEffect(() => {
+    if (isEditMode) {
+      return // Handled by the editData effect above
+    }
+
     const today = new Date().toISOString().split('T')[0]
     const type = searchParams.get('type') as 'expense' | 'income' | null
     const category = searchParams.get('category') || ''
@@ -48,13 +73,31 @@ const AddTransaction: React.FC = () => {
       date: today,
       note: ''
     })
-  }, [searchParams])
+  }, [searchParams, isEditMode])
 
   useEffect(() => {
-    if (!searchParams.get('category')) {
+    if (!isEditMode && !searchParams.get('category')) {
       setFormData(prev => ({ ...prev, category: '' }))
     }
-  }, [formData.type, searchParams])
+  }, [formData.type, searchParams, isEditMode])
+
+  const mutation = useMutation({
+    mutationFn: (data: { amount: number; category: string; type: 'expense' | 'income'; date: string; description: string }) =>
+      isEditMode
+        ? updateTransaction(Number(editId), data)
+        : createTransaction(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['transactions'] })
+      if (isEditMode) {
+        queryClient.invalidateQueries({ queryKey: ['transaction', editId] })
+      }
+      notify({ type: 'success', message: isEditMode ? '交易已更新！' : '交易已保存成功！' })
+      navigate(isEditMode ? '/transactions' : '/')
+    },
+    onError: (error: Error) => {
+      notify({ type: 'error', message: `保存失败: ${error.message}` })
+    }
+  })
 
   const handleOcrComplete = (data: { amount: string; category: string; note: string }) => {
     setFormData({
@@ -81,12 +124,31 @@ const AddTransaction: React.FC = () => {
     })
   }
 
-  const currentCategoryOptions = formData.type === 'expense' ? expenseCategoryOptions : incomeCategoryOptions
+  /** 合并静态默认分类 + 自定义分类 */
+  const categoryOptions = useMemo(() => {
+    const staticOptions = formData.type === 'expense' ? expenseCategoryOptions : incomeCategoryOptions
+    const customOptions = customCategories
+      .filter((c: Category) => c.type === formData.type)
+      .map((c: Category) => ({
+        value: c.name,
+        label: `${c.icon} ${c.name}`,
+      }))
+    return [...staticOptions, ...customOptions]
+  }, [formData.type, customCategories])
+
+  if (isEditMode && editLoading) {
+    return (
+      <div>
+        <Header title="编辑交易" />
+        <div style={{ textAlign: 'center', padding: '40px', color: '#666' }}>加载中...</div>
+      </div>
+    )
+  }
 
   return (
     <div>
-      <Header title="记一笔">
-        <Button variant="secondary" onClick={() => navigate('/')}>
+      <Header title={isEditMode ? '编辑交易' : '记一笔'}>
+        <Button variant="secondary" onClick={() => navigate(isEditMode ? '/transactions' : '/')}>
           <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
             <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd"/>
           </svg>
@@ -126,7 +188,7 @@ const AddTransaction: React.FC = () => {
               onChange={(e) => setFormData(prev => ({ ...prev, category: e.target.value }))}
             >
               <option value="">选择分类</option>
-              {currentCategoryOptions.map((cat) => (
+              {categoryOptions.map((cat) => (
                 <option key={cat.value} value={cat.value}>{cat.label}</option>
               ))}
             </select>
@@ -153,9 +215,9 @@ const AddTransaction: React.FC = () => {
         </FormGroup>
 
         <div style={{ display: 'flex', gap: '12px', marginTop: '32px' }}>
-          <Button variant="secondary" style={{ flex: 1 }} onClick={() => navigate('/')}>取消</Button>
+          <Button variant="secondary" style={{ flex: 1 }} onClick={() => navigate(isEditMode ? '/transactions' : '/')}>取消</Button>
           <Button style={{ flex: 2 }} onClick={handleSubmit} disabled={mutation.isPending}>
-            {mutation.isPending ? '保存中...' : '保存'}
+            {mutation.isPending ? '保存中...' : (isEditMode ? '更新' : '保存')}
           </Button>
         </div>
       </div>

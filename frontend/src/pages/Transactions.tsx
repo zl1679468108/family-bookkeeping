@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Header } from '../components/Header'
 import { Button } from '../components/ui/button'
 import { FilterBar } from '../components/FilterBar'
 import { TransactionsList } from '../components/TransactionsList'
+import { ConfirmDialog } from '../components/ConfirmDialog'
 import { expenseCategoryDict, incomeCategoryDict } from '../utils/commonDic'
 import { formatAmountWithType, formatDate } from '../utils/common'
-import { getTransactions } from '../services/api'
+import { getTransactions, deleteTransaction } from '../services/api'
+import { notify } from '../utils/notifications'
 
 const buildAddUrl = (type: string, category: string): string => {
   const params = new URLSearchParams()
@@ -16,13 +18,31 @@ const buildAddUrl = (type: string, category: string): string => {
   return `/add${params.toString() ? '?' + params.toString() : ''}`
 }
 
+interface DeleteTarget {
+  id: number
+}
+
 const Transactions: React.FC = () => {
   const navigate = useNavigate()
+  const queryClient = useQueryClient()
   const [filter, setFilter] = useState({ type: 'all' as 'all' | 'income' | 'expense', category: '' })
+  const [deleteTarget, setDeleteTarget] = useState<DeleteTarget | null>(null)
 
   const { data: transactions = [], isLoading } = useQuery({
     queryKey: ['transactions'],
     queryFn: () => getTransactions()
+  })
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: number) => deleteTransaction(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['transactions'] })
+      notify({ type: 'success', message: '删除成功' })
+      setDeleteTarget(null)
+    },
+    onError: (error: Error) => {
+      notify({ type: 'error', message: `删除失败: ${error.message}` })
+    }
   })
 
   const [filteredTransactions, setFilteredTransactions] = useState<any[]>([])
@@ -62,6 +82,20 @@ const Transactions: React.FC = () => {
     })
   }
 
+  const handleEdit = (id: number) => {
+    navigate(`/add?edit=${id}`)
+  }
+
+  const handleDelete = (id: number) => {
+    setDeleteTarget({ id })
+  }
+
+  const handleDeleteConfirm = () => {
+    if (deleteTarget) {
+      deleteMutation.mutate(deleteTarget.id)
+    }
+  }
+
   return (
     <div>
       <Header title="交易记录">
@@ -85,8 +119,21 @@ const Transactions: React.FC = () => {
           </Button>
         </div>
       ) : (
-        <TransactionsList transactions={filteredTransactions} />
+        <TransactionsList
+          transactions={filteredTransactions}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+        />
       )}
+
+      <ConfirmDialog
+        open={!!deleteTarget}
+        title="确认删除"
+        message="确定要删除这笔交易吗？删除后不可恢复。"
+        onConfirm={handleDeleteConfirm}
+        onCancel={() => setDeleteTarget(null)}
+        loading={deleteMutation.isPending}
+      />
     </div>
   )
 }

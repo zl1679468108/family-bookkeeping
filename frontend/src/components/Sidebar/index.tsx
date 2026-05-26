@@ -45,6 +45,16 @@ const navItems: NavItem[] = [
     )
   },
   {
+    id: 'categories',
+    name: '分类管理',
+    path: '/categories',
+    icon: (
+      <svg viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5">
+        <path fillRule="evenodd" d="M2 5a2 2 0 012-2h12a2 2 0 012 2v2a2 2 0 01-2 2H4a2 2 0 01-2-2V5zm14 1a1 1 0 11-2 0 1 1 0 012 0zM2 13a2 2 0 012-2h12a2 2 0 012 2v2a2 2 0 01-2 2H4a2 2 0 01-2-2v-2zm14 1a1 1 0 11-2 0 1 1 0 012 0z" clipRule="evenodd"/>
+      </svg>
+    )
+  },
+  {
     id: 'add',
     name: '记一笔',
     path: '/add',
@@ -67,6 +77,7 @@ export const Sidebar: React.FC = () => {
     if (path === '/transactions') return 'transactions'
     if (path === '/reports') return 'reports'
     if (path === '/add') return 'add'
+    if (path === '/categories') return 'categories'
     return 'dashboard'
   }
 

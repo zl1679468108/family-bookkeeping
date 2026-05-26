@@ -128,3 +128,26 @@ CREATE TRIGGER update_budgets_updated_at BEFORE UPDATE ON budgets
 DROP TRIGGER IF EXISTS update_password_resets_updated_at ON password_resets;
 CREATE TRIGGER update_password_resets_updated_at BEFORE UPDATE ON password_resets
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+-- ==============================================
+-- 6. 自定义分类表 (2026-05-26: P0 自定义分类功能)
+-- ==============================================
+CREATE TABLE IF NOT EXISTS categories (
+  id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id     UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  name        VARCHAR(50) NOT NULL,
+  icon        VARCHAR(50) NOT NULL DEFAULT '📌',
+  type        VARCHAR(10) NOT NULL CHECK (type IN ('expense', 'income')),
+  sort_order  INTEGER NOT NULL DEFAULT 0,
+  created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_categories_user_id ON categories(user_id);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_categories_user_name_type ON categories(user_id, name, type);
+
+COMMENT ON TABLE categories IS '用户自定义分类表';
+
+DROP TRIGGER IF EXISTS update_categories_updated_at ON categories;
+CREATE TRIGGER update_categories_updated_at BEFORE UPDATE ON categories
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();

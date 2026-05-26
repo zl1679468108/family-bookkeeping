@@ -7,8 +7,10 @@ import { StatCard } from '../components/StatCard'
 import { DateRangeFilter } from '../components/DateRangeFilter'
 import { CategoryRanking } from '../components/CategoryRanking'
 import { fetchSummary, fetchMonthlyTrend, fetchCategoryBreakdown } from '../services/statisticsApi'
+import { exportToExcel, exportToPDF } from '../services/api'
 import type { MonthlyTrendItem, CategoryBreakdownItem } from '../types/statistics'
 import { formatAmount } from '../utils/common'
+import { notify } from '../utils/notifications'
 
 /** 格式化环比趋势数据，匹配 StatCard 的 trend 属性 */
 const formatTrend = (
@@ -36,6 +38,7 @@ const Reports: React.FC = () => {
   })
 
   const [trendType, setTrendType] = useState<'expense' | 'income'>('expense')
+  const [exporting, setExporting] = useState<'excel' | 'pdf' | null>(null)
 
   // 根据选中的日期范围计算趋势图应展示的月数
   const trendMonths = useMemo(() => {
@@ -77,16 +80,51 @@ const Reports: React.FC = () => {
       }),
   })
 
+  /** 导出报表（Excel / PDF） */
+  const handleExport = async (type: 'excel' | 'pdf') => {
+    setExporting(type)
+    try {
+      const fn = type === 'excel' ? exportToExcel : exportToPDF
+      await fn({
+        startDate: dateRange.startDate,
+        endDate: dateRange.endDate,
+      })
+      notify({ type: 'success', message: `${type === 'excel' ? 'Excel' : 'PDF'} 导出成功` })
+    } catch (error: any) {
+      notify({ type: 'error', message: error?.message || '导出失败，请重试' })
+    } finally {
+      setExporting(null)
+    }
+  }
+
   return (
     <div>
       <Header title="统计报表" />
 
-      {/* 时间范围筛选器 */}
-      <DateRangeFilter
-        startDate={dateRange.startDate}
-        endDate={dateRange.endDate}
-        onChange={(start, end) => setDateRange({ startDate: start, endDate: end })}
-      />
+      {/* 时间筛选器 + 导出按钮 */}
+      <div className="flex items-center justify-between" style={{ marginBottom: '20px' }}>
+        <DateRangeFilter
+          startDate={dateRange.startDate}
+          endDate={dateRange.endDate}
+          onChange={(start, end) => setDateRange({ startDate: start, endDate: end })}
+        />
+        <div className="flex gap-2">
+          <button
+            onClick={() => handleExport('excel')}
+            disabled={!!exporting}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-sm border border-[var(--border)] rounded-lg bg-[var(--surface)] text-[var(--fg)] hover:border-[var(--accent)] hover:text-[var(--accent)] transition-colors disabled:opacity-50"
+          >
+            {exporting === 'excel' ? '导出中...' : '📊 Excel'}
+          </button>
+          <button
+            onClick={() => handleExport('pdf')}
+            disabled={!!exporting}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-sm border border-[var(--border)] rounded-lg bg-[var(--surface)] text-[var(--fg)] hover:border-[var(--accent)] hover:text-[var(--accent)] transition-colors disabled:opacity-50"
+          >
+            {exporting === 'pdf' ? '导出中...' : '📄 PDF'}
+          </button>
+        </div>
+      </div>
 
       {/* 概览卡片组: 收入 / 支出 / 结余 */}
       <div className="cards-grid" style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}>

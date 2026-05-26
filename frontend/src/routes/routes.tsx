@@ -8,6 +8,7 @@ const AddTransaction = lazy(() => import('../pages/AddTransaction'))
 const Login = lazy(() => import('../pages/User/Login'))
 const Register = lazy(() => import('../pages/User/Register'))
 const ForgotPassword = lazy(() => import('../pages/User/ForgotPassword'))
+const Categories = lazy(() => import('../pages/Categories'))
 
 export const routes: RouteConfig[] = [
   {
@@ -43,6 +44,11 @@ export const routes: RouteConfig[] = [
   {
     path: '/add',
     element: <AddTransaction />,
+    isPrivate: true,
+  },
+  {
+    path: '/categories',
+    element: <Categories />,
     isPrivate: true,
   },
 ]
