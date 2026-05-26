@@ -106,7 +106,7 @@ const parseErrorPayload = async (response: Response): Promise<ApiErrorPayload> =
   }
 }
 
-const request = async <T>(path: string, options: RequestOptions = {}): Promise<T> => {
+export const request = async <T>(path: string, options: RequestOptions = {}): Promise<T> => {
   const {
     body,
     requiresAuth = false,

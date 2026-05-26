@@ -1,0 +1,33 @@
+.date-range-filter {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.date-range-filter__btn {
+  padding: 6px 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  color: var(--fg);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  user-select: none;
+
+  &:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  &--active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+
+    &:hover {
+      color: #fff;
+    }
+  }
+}

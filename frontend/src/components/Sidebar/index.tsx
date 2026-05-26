@@ -109,9 +109,11 @@ export const Sidebar: React.FC = () => {
             {item.name}
           </button>
         ))}
-        
+      </nav>
+
+      <div className="sidebar-footer">
         <button
-          className="nav-item logout-button"
+          className="logout-button"
           onClick={handleLogout}
         >
           <svg viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5">
@@ -119,7 +121,7 @@ export const Sidebar: React.FC = () => {
           </svg>
           退出登录
         </button>
-      </nav>
+      </div>
     </aside>
   )
 }

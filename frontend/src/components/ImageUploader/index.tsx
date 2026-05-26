@@ -44,68 +44,126 @@ const detectCategory = (text: string, amount: string): string => {
 }
 
 const extractAmount = (text: string): string => {
-  const patterns = [
-    /-(\d+(?:\.\d{1,2})?)\s*元/,
-    /-¥\s?(\d+(?:\.\d{1,2})?)/,
-    /-(\d+(?:\.\d{1,2})?)\s*元/,
-    /金额\s*[：:]\s*(-?\d+(?:\.\d{1,2})?)/,
-    /支付金额\s*[：:]\s*(-?\d+(?:\.\d{1,2})?)/,
-    /实付\s*[：:]\s*(-?\d+(?:\.\d{1,2})?)/,
-    /付款\s*[：:]\s*(-?\d+(?:\.\d{1,2})?)/,
-    /-?\d+(?:\.\d{1,2})?\s*元/,
-    /-?¥\s?\d+(?:\.\d{1,2})?/,
-    /-?\d+(?:\.\d{1,2})?\s*元整/,
-    /消费\s*(-?\d+(?:\.\d{1,2})?)/,
+  // 清洗 OCR 常见错误
+  const cleaned = text
+    .replace(/O/g, '0')
+    .replace(/o/g, '0')
+    .replace(/l/g, '1')
+    .replace(/I/g, '1')
+    .replace(/Z/g, '2')
+    .replace(/S/g, '5')
+    .replace(/B/g, '8')
+    .replace(/G/g, '6')
+    // 将中文逗号、空格等替换为普通符号
+    .replace(/，/g, '.')
+    .replace(/。/g, '.')
+    .replace(/:/g, ':')
+
+  // ---- 优先级1: 带负号 + 货币符号的金额（微信/支付宝账单特征） ----
+  // 匹配: -¥2182.00、- ¥ 2182.00、-2182.00元、-¥2182.00元 等
+  const negMoneyPatterns = [
+    /-?\s*[¥￥]\s*(\d+(?:\.\d{1,2})?)/,
+    /(-?\d+(?:\.\d{1,2})?)\s*[元圆]/,
+    /-?\s*(\d+(?:\.\d{1,2})?)/,
   ]
 
-  for (const pattern of patterns) {
-    const match = text.match(pattern)
+  for (const pattern of negMoneyPatterns) {
+    const match = cleaned.match(pattern)
     if (match) {
-      let result = match[1] || match[0]
-      result = result.replace(/[^\d.-]/g, '')
-      if (isValidAmount(result)) {
-        return Math.abs(parseFloat(result)).toFixed(2)
+      const raw = match[1] || match[2]
+      if (raw) {
+        const num = parseFloat(raw)
+        // 允许负金额
+        if (Math.abs(num) >= 0.01 && Math.abs(num) <= 999999.99) {
+          const absAmount = Math.abs(num).toFixed(2)
+          console.log('【P1匹配】pattern:', pattern, '→', absAmount)
+          return absAmount
+        }
       }
     }
   }
 
-  const numberRegex = /(\d+(?:\.\d{1,2})?)/g
-  const numbers = text.match(numberRegex) || []
-  
-  const validNumbers = numbers.filter(n => {
-    const num = parseFloat(n)
-    return isValidAmount(n) && !isLikelyCardNumber(n) && !isLikelyPhoneNumber(n) && !isLikelyLastFourDigits(n, text)
+  // ---- 优先级2: 支付语义上下文 ----
+  const contextualPatterns = [
+    /支付金额\s*[：:]?\s*-?[¥￥]?\s*(\d+(?:\.\d{1,2})?)/,
+    /实付\s*[：:]?\s*-?[¥￥]?\s*(\d+(?:\.\d{1,2})?)/,
+    /应付\s*[：:]?\s*-?[¥￥]?\s*(\d+(?:\.\d{1,2})?)/,
+    /消费\s*[：:]?\s*-?[¥￥]?\s*(\d+(?:\.\d{1,2})?)/,
+    /合计\s*[：:]?\s*-?[¥￥]?\s*(\d+(?:\.\d{1,2})?)/,
+    /金额\s*[：:]?\s*-?[¥￥]?\s*(\d+(?:\.\d{1,2})?)/,
+    /付款\s*[：:]?\s*-?[¥￥]?\s*(\d+(?:\.\d{1,2})?)/,
+    /扣款\s*[：:]?\s*-?[¥￥]?\s*(\d+(?:\.\d{1,2})?)/,
+  ]
+
+  for (const pattern of contextualPatterns) {
+    const match = cleaned.match(pattern)
+    if (match && match[1]) {
+      const raw = match[1].replace(/[^\d.]/g, '')
+      const num = parseFloat(raw)
+      if (num >= 0.01 && num <= 999999.99) {
+        console.log('【P2匹配】pattern:', pattern, '→', num.toFixed(2))
+        return num.toFixed(2)
+      }
+    }
+  }
+
+  // ---- 优先级3: 找所有候选数字，智能排序 ----
+  // 匹配所有可能金额格式的数字
+  const candidateRegex = /(-?\d+(?:\.\d{1,2})?)/g
+  const candidates: { raw: string; num: number; hasPoint: boolean; isNegative: boolean; context: string }[] = []
+  let match: RegExpExecArray | null
+
+  while ((match = candidateRegex.exec(cleaned)) !== null) {
+    let raw = match[1]
+    const isNegative = raw.startsWith('-')
+    raw = raw.replace(/^-/, '')  // 去负号
+    const num = parseFloat(raw)
+    const absNum = Math.abs(num)
+
+    // 过滤明显不是金额的
+    if (absNum < 0.01 || absNum > 999999.99) continue
+    // 排除银行卡号（14-19位连续数字）
+    if (raw.length >= 14) continue
+    // 排除手机号（11位连续数字且前面有"电话"等）
+    if (raw.length === 11 && /电话|手机|TEL/i.test(cleaned.substring(Math.max(0, match.index - 10), match.index))) continue
+    // 排除银行卡尾号（4位且前面有长数字串）
+    if (raw.length === 4) {
+      const before = cleaned.substring(Math.max(0, match.index - 30), match.index).replace(/\s/g, '')
+      if (/\d{8,}$/.test(before)) continue
+    }
+
+    // 获取上下文（前后20字符）
+    const ctx = cleaned.substring(Math.max(0, match.index - 20), match.index + raw.length + 20)
+    candidates.push({ raw, num: absNum, hasPoint: raw.includes('.'), isNegative, context: ctx })
+  }
+
+  console.log('【P3候选】', candidates.map(c => `${c.raw}(${c.hasPoint?'dot':'int'},${c.isNegative?'neg':'pos'})`).join(', '))
+
+  if (candidates.length === 0) return ''
+
+  // 排序策略
+  candidates.sort((a, b) => {
+    // 1. 负号优先（支付账单中带负号的通常是金额）
+    if (a.isNegative && !b.isNegative) return -1
+    if (!a.isNegative && b.isNegative) return 1
+    // 2. 带小数点优先（金额格式特征）
+    if (a.hasPoint && !b.hasPoint) return -1
+    if (!a.hasPoint && b.hasPoint) return 1
+    // 3. 靠近支付关键词优先
+    const aNear = /支付|实付|应付|消费|合计|金额|付款|扣款|交易/.test(a.context)
+    const bNear = /支付|实付|应付|消费|合计|金额|付款|扣款|交易/.test(b.context)
+    if (aNear && !bNear) return -1
+    if (!aNear && bNear) return 1
+    // 4. 排除4位及以下的小数字（很可能是尾号/日期）
+    if (a.raw.length <= 4 && b.raw.length > 4) return 1
+    if (b.raw.length <= 4 && a.raw.length > 4) return -1
+    // 5. 金额较大的优先（账单金额通常不很小）
+    return b.num - a.num
   })
 
-  if (validNumbers.length > 0) {
-    const sorted = validNumbers.sort((a, b) => parseFloat(b) - parseFloat(a))
-    for (const num of sorted) {
-      if (parseFloat(num) > 0) {
-        return parseFloat(num).toFixed(2)
-      }
-    }
-  }
-  
-  return ''
-}
-
-const isValidAmount = (value: string): boolean => {
-  const num = parseFloat(value)
-  return !isNaN(num) && num >= 0.01 && num <= 999999.99
-}
-
-const isLikelyCardNumber = (value: string): boolean => {
-  return value.length >= 14 && value.length <= 19 && /^\d+$/.test(value)
-}
-
-const isLikelyPhoneNumber = (value: string): boolean => {
-  return value.length >= 11 && value.length <= 15 && /^\d+$/.test(value)
-}
-
-const isLikelyLastFourDigits = (value: string, text: string): boolean => {
-  if (value.length !== 4) return false
-  const cardPattern = new RegExp(`\\d{4}${value}`)
-  return cardPattern.test(text)
+  const result = candidates[0].num.toFixed(2)
+  console.log('【P3结果】', result)
+  return result
 }
 
 const generateNote = (text: string): string => {
@@ -189,13 +247,19 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({ onOcrComplete }) =
         const progressInterval = simulateProgress()
 
         try {
-          const worker = await createWorker('chi_sim')
-          
+          const worker = await createWorker('chi_sim+eng')
+
           const { data: { text } } = await worker.recognize(imageDataUrl)
-          
+
+          // DEBUG: 打印 OCR 原始识别结果
+          console.log('【OCR原始文本】', text)
+          console.log('【OCR文本长度】', text.length)
+
           await worker.terminate()
 
           const amount = extractAmount(text)
+          console.log('【提取金额】', amount)
+
           const category = detectCategory(text, amount)
           const note = generateNote(text)
 

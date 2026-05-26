@@ -7,6 +7,7 @@ import { ImageUploader } from '../components/ImageUploader'
 import { FormGroup, FormRow } from '../components/Form'
 import { typeOptions, expenseCategoryOptions, incomeCategoryOptions } from '../utils/commonDic'
 import { createTransaction } from '../services/api'
+import { notify } from '../utils/notifications'
 
 const AddTransaction: React.FC = () => {
   const navigate = useNavigate()
@@ -24,11 +25,11 @@ const AddTransaction: React.FC = () => {
     mutationFn: createTransaction,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['transactions'] })
-      alert('交易已保存成功！')
+      notify({ type: 'success', message: '交易已保存成功！' })
       navigate('/')
     },
     onError: (error) => {
-      alert(`保存失败: ${error.message}`)
+      notify({ type: 'error', message: `保存失败: ${error.message}` })
     }
   })
 
@@ -67,7 +68,7 @@ const AddTransaction: React.FC = () => {
 
   const handleSubmit = () => {
     if (!formData.amount || !formData.category) {
-      alert('请填写金额和分类')
+      notify({ type: 'error', message: '请填写金额和分类' })
       return
     }
 
