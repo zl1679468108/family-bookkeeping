@@ -46,3 +46,17 @@ export interface CategoryBreakdownParams {
   endDate: string;
   type: 'income' | 'expense';
 }
+
+/** 年度对比 - 单条数据 */
+export interface YoYComparisonItem {
+  month: string;      // "01"
+  monthLabel: string; // "1月"
+  currentYear: number;
+  lastYear: number;
+}
+
+/** 年度对比请求参数 */
+export interface YoYComparisonParams {
+  year?: number;
+  type?: 'income' | 'expense';
+}

@@ -1,11 +1,13 @@
 import { Controller, Get, Query, UseGuards } from '@nestjs/common';
 import { TokenAuthGuard } from '../auth/token-auth.guard';
 import { CurrentUser } from '../auth/current-user.decorator';
+import { BookId } from '../books/book-id.decorator';
 import { StatisticsService } from './statistics.service';
 import {
   SummaryQueryDto,
   MonthlyTrendQueryDto,
   CategoryBreakdownQueryDto,
+  YoYComparisonQueryDto,
 } from './dto/statistics-query.dto';
 
 @Controller('statistics')
@@ -13,33 +15,25 @@ import {
 export class StatisticsController {
   constructor(private readonly statisticsService: StatisticsService) {}
 
-  /**
-   * GET /api/statistics/summary
-   *
-   * Returns income, expense, and balance for the requested date range together
-   * with period-over-period changes.
-   */
   @Get('summary')
   async getSummary(
     @CurrentUser('id') userId: string,
+    @BookId() bookId: string | undefined,
     @Query() query: SummaryQueryDto,
   ) {
     const data = await this.statisticsService.getSummary(
       userId,
       query.startDate,
       query.endDate,
+      bookId,
     );
     return { message: '获取统计概览成功', data };
   }
 
-  /**
-   * GET /api/statistics/monthly-trend
-   *
-   * Returns monthly aggregated amounts for the last N months.
-   */
   @Get('monthly-trend')
   async getMonthlyTrend(
     @CurrentUser('id') userId: string,
+    @BookId() bookId: string | undefined,
     @Query() query: MonthlyTrendQueryDto,
   ) {
     const monthsNum = query.months ?? 6;
@@ -49,18 +43,15 @@ export class StatisticsController {
       userId,
       monthsNum,
       normalizedType,
+      bookId,
     );
     return { message: '获取月度趋势成功', data };
   }
 
-  /**
-   * GET /api/statistics/category-breakdown
-   *
-   * Returns category breakdown with top-7 + "other" aggregation.
-   */
   @Get('category-breakdown')
   async getCategoryBreakdown(
     @CurrentUser('id') userId: string,
+    @BookId() bookId: string | undefined,
     @Query() query: CategoryBreakdownQueryDto,
   ) {
     const normalizedType: 'income' | 'expense' =
@@ -70,7 +61,23 @@ export class StatisticsController {
       query.startDate,
       query.endDate,
       normalizedType,
+      bookId,
     );
     return { message: '获取分类统计成功', data };
+  }
+
+  @Get('yoy-comparison')
+  async getYearOverYear(
+    @CurrentUser('id') userId: string,
+    @BookId() bookId: string | undefined,
+    @Query() query: YoYComparisonQueryDto,
+  ) {
+    const data = await this.statisticsService.getYearOverYear(
+      userId,
+      query.year,
+      query.type,
+      bookId,
+    );
+    return { message: '获取年度对比成功', data };
   }
 }

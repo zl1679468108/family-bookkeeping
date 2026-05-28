@@ -2,6 +2,7 @@ import React from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../../utils/auth'
 import { ThemeToggle } from '../../utils/theme'
+import { BookSwitcher } from '../BookSwitcher'
 import './index.scss'
 
 interface NavItem {
@@ -119,6 +120,10 @@ export const Sidebar: React.FC = () => {
           <div className="user-name">{user?.username || '用户'}</div>
           <div className="user-email">{user?.email || '未设置邮箱'}</div>
         </div>
+      </div>
+
+      <div className="sidebar-book-switcher">
+        <BookSwitcher />
       </div>
 
       <nav className="nav">

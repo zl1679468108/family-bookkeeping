@@ -69,6 +69,9 @@ export class AuthService {
       throw new InternalServerErrorException(`用户注册失败: ${error.message}`);
     }
 
+    // 自动创建默认账本
+    await this.ensureDefaultBook(newUser.id);
+
     const token = await this.createSession(newUser.id);
     return { user: newUser, token };
   }
@@ -366,5 +369,28 @@ export class AuthService {
     }
 
     return token;
+  }
+
+  /** 为新注册用户自动创建默认账本 */
+  private async ensureDefaultBook(userId: string): Promise<void> {
+    const supabase = this.supabaseService.getClient();
+
+    const { data: book, error } = await supabase
+      .from('books')
+      .insert({ name: '默认账本', owner_id: userId })
+      .select('id')
+      .single();
+
+    if (error) {
+      // 默认账本创建失败不应阻塞注册流程
+      console.error(`创建默认账本失败 (user ${userId}):`, error.message);
+      return;
+    }
+
+    await supabase.from('book_members').insert({
+      book_id: book.id,
+      user_id: userId,
+      role: 'owner',
+    });
   }
 }

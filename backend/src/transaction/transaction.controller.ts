@@ -13,6 +13,7 @@ import {
 } from '@nestjs/common';
 import { TokenAuthGuard } from '../auth/token-auth.guard';
 import { CurrentUser } from '../auth/current-user.decorator';
+import { BookId } from '../books/book-id.decorator';
 import { TransactionService, TransactionFilters } from './transaction.service';
 
 @Controller('transactions')
@@ -23,6 +24,7 @@ export class TransactionController {
   @Get()
   async findAll(
     @CurrentUser('id') userId: string,
+    @BookId() bookId: string | undefined,
     @Query('type') type?: 'income' | 'expense',
     @Query('category') category?: string,
     @Query('startDate') startDate?: string,
@@ -39,6 +41,7 @@ export class TransactionController {
       startDate,
       endDate,
       userId,
+      bookId,
       page: page ? parseInt(page, 10) : undefined,
       pageSize: pageSize ? parseInt(pageSize, 10) : undefined,
       sortBy,

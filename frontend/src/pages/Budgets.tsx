@@ -99,9 +99,6 @@ const Budgets: React.FC = () => {
       queryClient.invalidateQueries({ queryKey: ['budgets', month] })
       queryClient.invalidateQueries({ queryKey: ['budgets', 'status', month] })
     },
-    onError: (error: Error) => {
-      notify({ type: 'error', message: `保存失败: ${error.message}` })
-    },
   })
 
   const handleSave = useCallback(() => {
@@ -130,9 +127,6 @@ const Budgets: React.FC = () => {
       notify({ type: 'success', message: '已复制上月预算' })
       queryClient.invalidateQueries({ queryKey: ['budgets', month] })
       queryClient.invalidateQueries({ queryKey: ['budgets', 'status', month] })
-    },
-    onError: (error: Error) => {
-      notify({ type: 'error', message: `复制失败: ${error.message}` })
     },
   })
 

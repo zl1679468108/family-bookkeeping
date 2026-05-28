@@ -9,6 +9,7 @@ import {
 } from '@nestjs/common';
 import { TokenAuthGuard } from '../auth/token-auth.guard';
 import { CurrentUser } from '../auth/current-user.decorator';
+import { BookId } from '../books/book-id.decorator';
 import { BudgetsService } from './budgets.service';
 import { UpsertBudgetDto } from './dto/upsert-budget.dto';
 import { CopyBudgetDto } from './dto/copy-budget.dto';
@@ -22,11 +23,12 @@ export class BudgetsController {
   @Get()
   async getBudgets(
     @CurrentUser('id') userId: string,
+    @BookId() bookId: string | undefined,
     @Query('month') month: string,
   ) {
     return {
       message: '获取预算成功',
-      data: await this.budgetsService.getBudgets(userId, month),
+      data: await this.budgetsService.getBudgets(userId, month, bookId),
     };
   }
 
@@ -34,11 +36,12 @@ export class BudgetsController {
   @Put()
   async upsertBudgets(
     @CurrentUser('id') userId: string,
+    @BookId() bookId: string | undefined,
     @Body() body: UpsertBudgetDto,
   ) {
     return {
       message: '保存预算成功',
-      data: await this.budgetsService.upsertBudgets(userId, body),
+      data: await this.budgetsService.upsertBudgets(userId, bookId, body),
     };
   }
 
@@ -46,11 +49,12 @@ export class BudgetsController {
   @Get('status')
   async getBudgetStatus(
     @CurrentUser('id') userId: string,
+    @BookId() bookId: string | undefined,
     @Query('month') month: string,
   ) {
     return {
       message: '获取预算状态成功',
-      data: await this.budgetsService.getStatus(userId, month),
+      data: await this.budgetsService.getStatus(userId, month, bookId),
     };
   }
 
@@ -58,11 +62,12 @@ export class BudgetsController {
   @Post('copy')
   async copyBudgets(
     @CurrentUser('id') userId: string,
+    @BookId() bookId: string | undefined,
     @Body() body: CopyBudgetDto,
   ) {
     return {
       message: '复制预算成功',
-      data: await this.budgetsService.copyFromPrevious(userId, body.targetMonth),
+      data: await this.budgetsService.copyFromPrevious(userId, body.targetMonth, bookId),
     };
   }
 }

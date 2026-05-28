@@ -23,6 +23,7 @@ export interface TransactionFilters {
   startDate?: string;
   endDate?: string;
   userId?: string;
+  bookId?: string;
   page?: number;
   pageSize?: number;
   sortBy?: 'amount' | 'date';
@@ -59,6 +60,10 @@ export class TransactionService {
       .from('transactions')
       .select('*', { count: 'exact' })
       .eq('user_id', filters.userId);
+
+    if (filters?.bookId) {
+      baseQuery = baseQuery.eq('book_id', filters.bookId);
+    }
 
     if (filters?.type) {
       baseQuery = baseQuery.eq('type', filters.type);

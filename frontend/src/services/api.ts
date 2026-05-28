@@ -7,6 +7,7 @@ import { notify } from '../utils/notifications'
 
 const API_BASE = process.env.REACT_APP_API_BASE_URL || 'http://localhost:3000/api'
 const AUTH_TOKEN_KEY = 'auth_token'
+const BOOK_ID_KEY = 'current_book_id'
 
 export interface Transaction {
   id: number
@@ -141,6 +142,11 @@ export const request = async <T>(path: string, options: RequestOptions = {}): Pr
     const token = getToken()
     if (token) {
       requestHeaders.Authorization = `Bearer ${token}`
+    }
+    // 传递当前选中的账本 ID
+    const bookId = localStorage.getItem(BOOK_ID_KEY)
+    if (bookId) {
+      requestHeaders['x-book-id'] = bookId
     }
   }
 

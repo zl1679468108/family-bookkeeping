@@ -47,13 +47,17 @@ export class BudgetsService {
   /**
    * 获取用户某月所有预算记录
    */
-  async getBudgets(userId: string, month: string): Promise<BudgetRecord[]> {
+  async getBudgets(userId: string, month: string, bookId?: string): Promise<BudgetRecord[]> {
     const supabase = this.supabaseService.getClient();
-    const { data, error } = await supabase
+    let query = supabase
       .from('budgets')
       .select('*')
       .eq('user_id', userId)
       .eq('month', month);
+
+    if (bookId) query = query.eq('book_id', bookId);
+
+    const { data, error } = await query;
 
     if (error) {
       throw new InternalServerErrorException(`获取预算失败: ${error.message}`);
@@ -65,23 +69,23 @@ export class BudgetsService {
    * 批量保存预算（upsert 语义）
    * 如果 user_id + category + month 已存在则更新 amount，否则插入
    */
-  async upsertBudgets(userId: string, dto: UpsertBudgetDto): Promise<BudgetRecord[]> {
+  async upsertBudgets(userId: string, bookId: string | undefined, dto: UpsertBudgetDto): Promise<BudgetRecord[]> {
     const supabase = this.supabaseService.getClient();
     const results: BudgetRecord[] = [];
 
     for (const entry of dto.budgets) {
+      const record: any = {
+        user_id: userId,
+        category: entry.category,
+        amount: entry.amount,
+        month: dto.month,
+        updated_at: new Date().toISOString(),
+      };
+      if (bookId) record.book_id = bookId;
+
       const { data, error } = await supabase
         .from('budgets')
-        .upsert(
-          {
-            user_id: userId,
-            category: entry.category,
-            amount: entry.amount,
-            month: dto.month,
-            updated_at: new Date().toISOString(),
-          },
-          { onConflict: 'user_id,category,month' },
-        )
+        .upsert(record, { onConflict: 'user_id,category,month' })
         .select()
         .single();
 
@@ -100,12 +104,12 @@ export class BudgetsService {
    * 获取预算执行状态
    * 同时被 Budgets 页面和 Dashboard 使用
    */
-  async getStatus(userId: string, month: string): Promise<BudgetStatus> {
+  async getStatus(userId: string, month: string, bookId?: string): Promise<BudgetStatus> {
     // 1. 获取该月所有预算
-    const budgets = await this.getBudgets(userId, month);
+    const budgets = await this.getBudgets(userId, month, bookId);
 
     // 2. 计算已花费：从 transactions 表按 category + 月份汇总
-    const spentMap = await this.calculateSpent(userId, month);
+    const spentMap = await this.calculateSpent(userId, month, bookId);
 
     // 3. 逐分类计算进度
     const categories: BudgetCategoryStatus[] = budgets.map((b) => {
@@ -140,14 +144,14 @@ export class BudgetsService {
   /**
    * 复制上月预算到指定月份
    */
-  async copyFromPrevious(userId: string, targetMonth: string): Promise<BudgetRecord[]> {
+  async copyFromPrevious(userId: string, targetMonth: string, bookId?: string): Promise<BudgetRecord[]> {
     // 1. 计算上月月份
     const [y, m] = targetMonth.split('-').map(Number);
     const prevDate = new Date(y, m - 2, 1); // JS month 0-indexed, m-2 = 上个月
     const prevMonth = `${prevDate.getFullYear()}-${String(prevDate.getMonth() + 1).padStart(2, '0')}-01`;
 
     // 2. 获取上月预算
-    const prevBudgets = await this.getBudgets(userId, prevMonth);
+    const prevBudgets = await this.getBudgets(userId, prevMonth, bookId);
     if (prevBudgets.length === 0) {
       return []; // 上月无预算，返回空数组
     }
@@ -157,14 +161,14 @@ export class BudgetsService {
       month: targetMonth,
       budgets: prevBudgets.map((b) => ({ category: b.category, amount: b.amount })),
     };
-    return this.upsertBudgets(userId, dto);
+    return this.upsertBudgets(userId, bookId, dto);
   }
 
   /**
    * 按分类 + 自然月汇总已花费金额
    * month 格式 "YYYY-MM-01"
    */
-  private async calculateSpent(userId: string, month: string): Promise<Map<string, number>> {
+  private async calculateSpent(userId: string, month: string, bookId?: string): Promise<Map<string, number>> {
     const supabase = this.supabaseService.getClient();
     const [y, m] = month.split('-').map(Number);
 
@@ -172,13 +176,17 @@ export class BudgetsService {
     const lastDay = new Date(y, m, 0).getDate();
     const endDate = `${y}-${String(m).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`;
 
-    const { data, error } = await supabase
+    let query = supabase
       .from('transactions')
       .select('category, amount')
       .eq('user_id', userId)
       .eq('type', 'expense')
       .gte('date', startDate)
       .lte('date', endDate);
+
+    if (bookId) query = query.eq('book_id', bookId);
+
+    const { data, error } = await query;
 
     if (error) {
       throw new InternalServerErrorException(`查询花费失败: ${error.message}`);

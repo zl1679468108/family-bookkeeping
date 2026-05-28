@@ -4,6 +4,7 @@ import { Sidebar } from './components/Sidebar'
 import { routes } from './routes'
 import { AuthProvider, useAuth } from './utils/auth'
 import { ThemeProvider } from './utils/theme'
+import { BookProvider } from './hooks/useBook'
 import { hasToken } from './services/api'
 
 const PrivateRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -106,9 +107,11 @@ const App: React.FC<AppProps> = () => {
   return (
     <ThemeProvider>
       <AuthProvider>
-        <Router>
-          <AppLayout />
-        </Router>
+        <BookProvider>
+          <Router>
+            <AppLayout />
+          </Router>
+        </BookProvider>
       </AuthProvider>
     </ThemeProvider>
   )

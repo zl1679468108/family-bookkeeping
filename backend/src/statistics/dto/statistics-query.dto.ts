@@ -41,3 +41,18 @@ export class CategoryBreakdownQueryDto {
   @IsIn(['income', 'expense'])
   type: 'income' | 'expense';
 }
+
+/**
+ * DTO for GET /api/statistics/yoy-comparison query parameters.
+ */
+export class YoYComparisonQueryDto {
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  @Min(2020)
+  year?: number;
+
+  @IsOptional()
+  @IsIn(['income', 'expense'])
+  type?: 'income' | 'expense';
+}

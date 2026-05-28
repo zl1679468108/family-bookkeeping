@@ -71,9 +71,6 @@ const Transactions: React.FC = () => {
       notify({ type: 'success', message: '删除成功' })
       setDeleteTarget(null)
     },
-    onError: (error: Error) => {
-      notify({ type: 'error', message: `删除失败: ${error.message}` })
-    }
   })
 
   const handleFilterChange = (newFilter: { type: string; category: string }) => {

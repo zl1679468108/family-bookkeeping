@@ -10,7 +10,7 @@
     ↕ axios HTTP
 后端 NestJS 10 :3000, 路由前缀 /api
     ↕ Supabase SDK
-Supabase PostgreSQL (6张表, 无ORM)
+Supabase PostgreSQL (8张表, 无ORM)
 ```
 
 部署: 前端→CloudBase | 后端→Docker(CloudBase) | 数据库→Supabase
@@ -21,7 +21,7 @@ Supabase PostgreSQL (6张表, 无ORM)
 |---|---|---|---|
 | 前端 | React 18 (CRA) | TS | Tailwind v3, react-query v5, React Router v6(HashRouter), ECharts |
 | 后端 | NestJS 10 | TS | Supabase SDK, JWT(bcryptjs), exceljs, pdfkit |
-| 数据库 | Supabase PostgreSQL | SQL | 6张表, 直接 SDK 操作, 无 ORM |
+| 数据库 | Supabase PostgreSQL | SQL | 8张表, 直接 SDK 操作, 无 ORM |
 
 ## 端口和启动
 
@@ -29,21 +29,21 @@ Supabase PostgreSQL (6张表, 无ORM)
 - 后端 dev: `npm run start:dev` → :3000 (backend/)
 - 前端 prod: `PORT=3002 npm start`
 
-## 后端 7 模块 (backend/src/)
+## 后端 8 模块 (backend/src/)
 
-Config → Supabase → Auth → Transaction → Categories → Statistics → Export
+Config → Supabase → Auth → Transaction → Categories → Statistics → Export → Budgets → Books
 另有 mail/, health/, common/(异常过滤器+响应拦截器)
 
 ## 前端目录 (frontend/src/)
 
-components/ (Layout,Sidebar,Header,ChartCard,TransactionsList,StatCard,ImageUploader,Form,FilterBar,ui/)
-pages/ (Dashboard,Transactions,Reports,AddTransaction,Categories,User/Login,Register)
-services/ (api.ts,categoriesApi.ts,statisticsApi.ts)
-utils/ (auth.tsx,common.ts,emojiPresets.ts)
+components/ (Layout,Sidebar,Header,ChartCard,TransactionsList,StatCard,ImageUploader,Form,FilterBar,ui,BookSwitcher,DateRangeFilter)
+pages/ (Dashboard,Transactions,Reports,AddTransaction,Categories,Budgets,Books,User/Login,Register)
+services/ (api.ts,categoriesApi.ts,statisticsApi.ts,budgetsApi.ts,booksApi.ts)
+hooks/ (useCategories.ts,useFocusItem.ts,useBook.tsx)
 
 ## 数据库表
 
-users, password_resets, user_sessions, transactions, budgets, categories(16预设)
+users, password_resets, user_sessions, transactions, budgets, categories(16预设), books, book_members
 初始化: docs/database-init.sql
 文档: docs/01-项目结构.md ~ 04-项目需求.md
 
@@ -88,5 +88,7 @@ users, password_resets, user_sessions, transactions, budgets, categories(16预�
 
 | 日期 | 变更类型 | 描述 |
 |------|---------|------|
+| 2026-05-28 | 新增表 | P2-5: 新增 books(账本表) + book_members(成员表), transactions/budgets 增加 book_id 列和索引 |
+| 2026-05-28 | 新增模块 | P2-1+P2-5: 后端新增 BooksModule (4文件) + YoY comparison API, 前端新增 BookSwitcher+BookProvider+BooksPage |
 | 2026-05-26 | 新增表 + 迁移 | 新增 categories 表（自定义分类功能），支持 ALTER 兼容旧表结构 |
 | 2026-05-26 | 初始化 | 首次创建 6 张表（users, password_resets, user_sessions, transactions, budgets, categories）

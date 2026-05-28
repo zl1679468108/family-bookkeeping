@@ -7,9 +7,9 @@ import { ChartCard } from '../components/ChartCard'
 import { StatCard } from '../components/StatCard'
 import { DateRangeFilter } from '../components/DateRangeFilter'
 import { CategoryRanking } from '../components/CategoryRanking'
-import { fetchSummary, fetchMonthlyTrend, fetchCategoryBreakdown } from '../services/statisticsApi'
+import { fetchSummary, fetchMonthlyTrend, fetchCategoryBreakdown, fetchYearOverYear } from '../services/statisticsApi'
 import { exportToExcel, exportToPDF } from '../services/api'
-import type { MonthlyTrendItem, CategoryBreakdownItem } from '../types/statistics'
+import type { MonthlyTrendItem, CategoryBreakdownItem, YoYComparisonItem } from '../types/statistics'
 import { formatAmount } from '../utils/common'
 import { notify } from '../utils/notifications'
 
@@ -42,6 +42,7 @@ const Reports: React.FC = () => {
   const [trendType, setTrendType] = useState<'expense' | 'income'>('expense')
   const [analysisTab, setAnalysisTab] = useState<'expense' | 'income'>('expense')
   const [exporting, setExporting] = useState<'excel' | 'pdf' | null>(null)
+  const [yoyYear] = useState(new Date().getFullYear())
 
   // 根据选中的日期范围计算趋势图应展示的月数
   const trendMonths = useMemo(() => {
@@ -81,6 +82,15 @@ const Reports: React.FC = () => {
         endDate: dateRange.endDate,
         type: analysisTab,
       }),
+  })
+
+  // 年度对比（本年 vs 去年）
+  const {
+    data: yoyData = [],
+    isLoading: yoyLoading,
+  } = useQuery({
+    queryKey: ['statistics', 'yoy-comparison', yoyYear, analysisTab],
+    queryFn: () => fetchYearOverYear({ year: yoyYear, type: analysisTab }),
   })
 
   /** 饼图下钻回调 */
@@ -220,6 +230,17 @@ const Reports: React.FC = () => {
           data={breakdownData as CategoryBreakdownItem[]}
           loading={breakdownLoading}
           onCategoryClick={handleCategoryClick}
+        />
+      </div>
+
+      {/* 年度对比柱状图 —— 全宽 */}
+      <div style={{ marginBottom: '32px' }}>
+        <ChartCard
+          title={`${yoyYear}年 vs ${yoyYear - 1}年 月度${analysisTab === 'expense' ? '支出' : '收入'}对比`}
+          chartType="yoy"
+          data={yoyData as YoYComparisonItem[]}
+          loading={yoyLoading}
+          seriesLabels={[`${yoyYear}年`, `${yoyYear - 1}年`]}
         />
       </div>
 

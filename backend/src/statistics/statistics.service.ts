@@ -40,6 +40,14 @@ export interface CategoryBreakdownItem {
   percentage: number;
 }
 
+/** Return type for YoY comparison — single month pair. */
+export interface YoYComparisonItem {
+  month: string;      // "01", "02", … "12"
+  monthLabel: string; // "1月", "2月", …
+  currentYear: number;
+  lastYear: number;
+}
+
 @Injectable()
 export class StatisticsService {
   constructor(private readonly supabaseService: SupabaseService) {}
@@ -58,6 +66,7 @@ export class StatisticsService {
     startDate: string,
     endDate: string,
     type?: 'income' | 'expense',
+    bookId?: string,
   ): Promise<Transaction[]> {
     const supabase = this.supabaseService.getClient();
     let query = supabase
@@ -69,6 +78,10 @@ export class StatisticsService {
 
     if (type) {
       query = query.eq('type', type);
+    }
+
+    if (bookId) {
+      query = query.eq('book_id', bookId);
     }
 
     const { data, error } = await query;
@@ -148,13 +161,14 @@ export class StatisticsService {
     userId: string,
     startDate: string,
     endDate: string,
+    bookId?: string,
   ): Promise<SummaryResult> {
     const prevStartDate = this.subMonths(startDate, 1);
     const prevEndDate = this.subMonths(endDate, 1);
 
     const [currentTxs, prevTxs] = await Promise.all([
-      this.queryTransactions(userId, startDate, endDate),
-      this.queryTransactions(userId, prevStartDate, prevEndDate),
+      this.queryTransactions(userId, startDate, endDate, undefined, bookId),
+      this.queryTransactions(userId, prevStartDate, prevEndDate, undefined, bookId),
     ]);
 
     const cur = this.aggregate(currentTxs);
@@ -204,6 +218,7 @@ export class StatisticsService {
     userId: string,
     months: number = 6,
     type: 'income' | 'expense' = 'expense',
+    bookId?: string,
   ): Promise<MonthlyTrendItem[]> {
     const now = new Date();
     // First day of the earliest month in the window
@@ -216,6 +231,7 @@ export class StatisticsService {
       startDateStr,
       endDateStr,
       type,
+      bookId,
     );
 
     // Group by YYYY-MM
@@ -248,12 +264,14 @@ export class StatisticsService {
     startDate: string,
     endDate: string,
     type: 'income' | 'expense',
+    bookId?: string,
   ): Promise<CategoryBreakdownItem[]> {
     const transactions = await this.queryTransactions(
       userId,
       startDate,
       endDate,
       type,
+      bookId,
     );
 
     // Aggregate by category
@@ -289,6 +307,51 @@ export class StatisticsService {
         totalAmount === 0
           ? 0
           : Math.round((item.amount / totalAmount) * 1000) / 10,
+    }));
+  }
+
+  /**
+   * GET /api/statistics/yoy-comparison
+   *
+   * Returns monthly amounts for the given year and the previous year,
+   * for side-by-side bar chart comparison.
+   */
+  async getYearOverYear(
+    userId: string,
+    year: number = new Date().getFullYear(),
+    type: 'income' | 'expense' = 'expense',
+    bookId?: string,
+  ): Promise<YoYComparisonItem[]> {
+    const currentStart = `${year}-01-01`;
+    const currentEnd = `${year}-12-31`;
+    const lastStart = `${year - 1}-01-01`;
+    const lastEnd = `${year - 1}-12-31`;
+
+    const [currentTxs, lastTxs] = await Promise.all([
+      this.queryTransactions(userId, currentStart, currentEnd, type, bookId),
+      this.queryTransactions(userId, lastStart, lastEnd, type, bookId),
+    ]);
+
+    // Aggregate by month
+    const aggregate = (txs: Transaction[]): number[] => {
+      const months = new Array(12).fill(0);
+      for (const t of txs) {
+        const m = parseInt(t.date.slice(5, 7), 10) - 1; // 0-based
+        if (m >= 0 && m < 12) {
+          months[m] += t.amount;
+        }
+      }
+      return months;
+    };
+
+    const curMonths = aggregate(currentTxs);
+    const lastMonths = aggregate(lastTxs);
+
+    return curMonths.map((cur, i) => ({
+      month: String(i + 1).padStart(2, '0'),
+      monthLabel: `${i + 1}月`,
+      currentYear: cur,
+      lastYear: lastMonths[i],
     }));
   }
 }

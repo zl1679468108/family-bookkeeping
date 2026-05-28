@@ -8,9 +8,11 @@ import type {
   StatisticsSummary,
   MonthlyTrendItem,
   CategoryBreakdownItem,
+  YoYComparisonItem,
   SummaryParams,
   MonthlyTrendParams,
   CategoryBreakdownParams,
+  YoYComparisonParams,
 } from '../types/statistics';
 
 /**
@@ -50,6 +52,21 @@ export const fetchCategoryBreakdown = async (
 ): Promise<CategoryBreakdownItem[]> => {
   const query = new URLSearchParams(params as unknown as Record<string, string>).toString();
   return request<CategoryBreakdownItem[]>(`/statistics/category-breakdown?${query}`, {
+    requiresAuth: true,
+  });
+};
+
+/**
+ * 获取年度对比数据
+ * GET /api/statistics/yoy-comparison?year=2026&type=expense
+ */
+export const fetchYearOverYear = async (
+  params: YoYComparisonParams,
+): Promise<YoYComparisonItem[]> => {
+  const query = new URLSearchParams();
+  if (params.year !== undefined) query.append('year', String(params.year));
+  if (params.type !== undefined) query.append('type', params.type);
+  return request<YoYComparisonItem[]>(`/statistics/yoy-comparison?${query.toString()}`, {
     requiresAuth: true,
   });
 };

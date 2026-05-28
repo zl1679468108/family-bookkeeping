@@ -195,9 +195,6 @@ const Categories: React.FC = () => {
       notify({ type: 'success', message: '分类已创建' })
       setModalOpen(false)
     },
-    onError: (error: Error) => {
-      notify({ type: 'error', message: `创建失败: ${error.message}` })
-    },
   })
 
   const updateMutation = useMutation({
@@ -209,9 +206,6 @@ const Categories: React.FC = () => {
       setModalOpen(false)
       setEditingCategory(null)
     },
-    onError: (error: Error) => {
-      notify({ type: 'error', message: `更新失败: ${error.message}` })
-    },
   })
 
   const deleteMutation = useMutation({
@@ -220,9 +214,6 @@ const Categories: React.FC = () => {
       queryClient.invalidateQueries({ queryKey: ['categories'] })
       notify({ type: 'success', message: '已删除' })
       setDeleteTarget(null)
-    },
-    onError: (error: Error) => {
-      notify({ type: 'error', message: `删除失败: ${error.message}` })
     },
   })
 

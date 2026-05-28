@@ -89,9 +89,6 @@ const AddTransaction: React.FC = () => {
       notify({ type: 'success', message: isEditMode ? '交易已更新！' : '交易已保存成功！' })
       navigate(isEditMode ? '/transactions' : '/')
     },
-    onError: (error: Error) => {
-      notify({ type: 'error', message: `保存失败: ${error.message}` })
-    }
   })
 
   const handleOcrComplete = (data: { amount: string; category: string; note: string }) => {

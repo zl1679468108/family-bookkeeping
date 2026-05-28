@@ -203,3 +203,64 @@ INSERT INTO categories (user_id, name, icon, type, is_default, sort_order) VALUE
   (NULL, '礼金', '🎁', 'income', true, 15),
   (NULL, '其他收入', '💰', 'income', true, 16)
 ON CONFLICT (name, type) WHERE user_id IS NULL DO NOTHING;
+
+-- ==============================================
+-- 7. 账本表（2026-05-28: P2 多账本功能）
+-- ==============================================
+CREATE TABLE IF NOT EXISTS books (
+  id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name        VARCHAR(100) NOT NULL,
+  owner_id    UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_books_owner_id ON books(owner_id);
+
+COMMENT ON TABLE books IS '账本表';
+
+DROP TRIGGER IF EXISTS update_books_updated_at ON books;
+CREATE TRIGGER update_books_updated_at BEFORE UPDATE ON books
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+-- ==============================================
+-- 8. 账本成员表（2026-05-28: P2 多账本功能）
+-- ==============================================
+CREATE TABLE IF NOT EXISTS book_members (
+  id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  book_id     UUID NOT NULL REFERENCES books(id) ON DELETE CASCADE,
+  user_id     UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  role        VARCHAR(10) NOT NULL DEFAULT 'member' CHECK (role IN ('owner', 'member')),
+  joined_at   TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  UNIQUE(book_id, user_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_book_members_book_id ON book_members(book_id);
+CREATE INDEX IF NOT EXISTS idx_book_members_user_id ON book_members(user_id);
+
+COMMENT ON TABLE book_members IS '账本成员表';
+
+-- ==============================================
+-- 迁移：为现有表添加 book_id 字段
+-- ==============================================
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_name = 'transactions' AND column_name = 'book_id'
+  ) THEN
+    ALTER TABLE transactions ADD COLUMN book_id UUID REFERENCES books(id) ON DELETE SET NULL;
+    CREATE INDEX idx_transactions_book_id ON transactions(book_id);
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_name = 'budgets' AND column_name = 'book_id'
+  ) THEN
+    ALTER TABLE budgets ADD COLUMN book_id UUID REFERENCES books(id) ON DELETE SET NULL;
+    CREATE INDEX idx_budgets_book_id ON budgets(book_id);
+  END IF;
+END $$;
+
+COMMENT ON COLUMN transactions.book_id IS '所属账本 ID（NULL = 迁移前数据，等同于默认账本）';
+COMMENT ON COLUMN budgets.book_id IS '所属账本 ID（NULL = 迁移前数据，等同于默认账本）';

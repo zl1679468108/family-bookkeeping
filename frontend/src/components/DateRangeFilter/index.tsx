@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback } from 'react';
+import React, { useMemo, useCallback, useState } from 'react';
 import { startOfMonth, endOfMonth, subMonths, format } from 'date-fns';
 import './index.scss';
 
@@ -22,6 +22,8 @@ export const DateRangeFilter: React.FC<DateRangeFilterProps> = ({
   endDate,
   onChange,
 }) => {
+  const [customOpen, setCustomOpen] = useState(false);
+
   const presets: PresetOption[] = useMemo(
     () => [
       {
@@ -30,6 +32,15 @@ export const DateRangeFilter: React.FC<DateRangeFilterProps> = ({
         getRange: () => {
           const now = new Date();
           return { start: fmt(startOfMonth(now)), end: fmt(endOfMonth(now)) };
+        },
+      },
+      {
+        label: '上月',
+        key: 'last-month',
+        getRange: () => {
+          const now = new Date();
+          const prev = subMonths(now, 1);
+          return { start: fmt(startOfMonth(prev)), end: fmt(endOfMonth(prev)) };
         },
       },
       {
@@ -77,16 +88,30 @@ export const DateRangeFilter: React.FC<DateRangeFilterProps> = ({
         return preset.key;
       }
     }
-    return null;
-  }, [startDate, endDate, presets]);
+    // 如果有自定义区间在展示，则高亮"自定义"
+    return customOpen ? 'custom' : null;
+  }, [startDate, endDate, presets, customOpen]);
 
   const handlePresetClick = useCallback(
     (preset: PresetOption) => {
       const { start, end } = preset.getRange();
+      setCustomOpen(false);
       onChange(start, end);
     },
     [onChange],
   );
+
+  const handleCustomToggle = () => {
+    setCustomOpen((prev) => !prev);
+  };
+
+  const handleCustomDateChange = (field: 'start' | 'end', value: string) => {
+    const newStart = field === 'start' ? value : startDate;
+    const newEnd = field === 'end' ? value : endDate;
+    if (newStart && newEnd) {
+      onChange(newStart, newEnd);
+    }
+  };
 
   return (
     <div className="date-range-filter">
@@ -100,6 +125,42 @@ export const DateRangeFilter: React.FC<DateRangeFilterProps> = ({
           {preset.label}
         </button>
       ))}
+
+      {/* 自定义时间按钮 */}
+      <button
+        className={`date-range-filter__btn ${activeKey === 'custom' ? 'date-range-filter__btn--active' : ''}`}
+        onClick={handleCustomToggle}
+        type="button"
+      >
+        自定义
+      </button>
+
+      {/* 自定义时间范围输入框 */}
+      {customOpen && (
+        <div className="date-range-filter__custom">
+          <div className="date-range-filter__custom-field">
+            <label className="date-range-filter__custom-label">起</label>
+            <input
+              type="date"
+              className="date-range-filter__custom-input"
+              value={startDate}
+              max={endDate}
+              onChange={(e) => handleCustomDateChange('start', e.target.value)}
+            />
+          </div>
+          <span className="date-range-filter__custom-sep">—</span>
+          <div className="date-range-filter__custom-field">
+            <label className="date-range-filter__custom-label">止</label>
+            <input
+              type="date"
+              className="date-range-filter__custom-input"
+              value={endDate}
+              min={startDate}
+              onChange={(e) => handleCustomDateChange('end', e.target.value)}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -1,20 +1,22 @@
 import React, { useMemo } from 'react';
 import ReactECharts from 'echarts-for-react';
 import type { EChartsOption } from 'echarts';
-import { MonthlyTrendItem, CategoryBreakdownItem } from '../../types/statistics';
+import { MonthlyTrendItem, CategoryBreakdownItem, YoYComparisonItem } from '../../types/statistics';
 import { useCategoryLookup } from '../../hooks/useCategories';
 import { useTheme } from '../../utils/theme';
 import './index.scss';
 
 interface ChartCardProps {
   title: string;
-  chartType: 'trend' | 'pie';
-  data?: MonthlyTrendItem[] | CategoryBreakdownItem[];
+  chartType: 'trend' | 'pie' | 'yoy';
+  data?: MonthlyTrendItem[] | CategoryBreakdownItem[] | YoYComparisonItem[];
   loading?: boolean;
   typeOptions?: { value: string; label: string }[];
   onTypeChange?: (value: string) => void;
   activeType?: string;
   onCategoryClick?: (category: string) => void;
+  /** For YoY chart: labels for the two series */
+  seriesLabels?: [string, string];
 }
 
 /** Build echarts option for trend line chart */
@@ -157,6 +159,81 @@ const buildPieOption = (data: CategoryBreakdownItem[], getCategoryName: (v: stri
   };
 };
 
+/** Build echarts option for year-over-year bar chart */
+const buildYoYOption = (
+  data: YoYComparisonItem[],
+  isDark: boolean,
+  labels: [string, string],
+): EChartsOption => {
+  const months = data.map((item) => item.monthLabel);
+  const curData = data.map((item) => item.currentYear);
+  const lastData = data.map((item) => item.lastYear);
+  const axisColor = isDark ? '#888' : '#999';
+  const splitLineColor = isDark ? '#333' : '#f0f0f0';
+
+  return {
+    tooltip: {
+      trigger: 'axis',
+      axisPointer: { type: 'shadow' },
+      formatter: (params: unknown) => {
+        const p = params as { seriesName: string; value: number; axisValue: string }[];
+        if (!p || p.length === 0) return '';
+        let html = `<strong>${p[0].axisValue}</strong><br/>`;
+        p.forEach(s => {
+          html += `${s.seriesName}: ¥${s.value.toLocaleString('zh-CN', { minimumFractionDigits: 2 })}<br/>`;
+        });
+        return html;
+      },
+    },
+    legend: {
+      data: labels,
+      bottom: 0,
+      textStyle: { color: axisColor, fontSize: 12 },
+    },
+    grid: { left: 20, right: 20, top: 20, bottom: 36 },
+    xAxis: {
+      type: 'category',
+      data: months,
+      axisLine: { lineStyle: { color: splitLineColor } },
+      axisTick: { show: false },
+      axisLabel: { color: axisColor, fontSize: 12 },
+    },
+    yAxis: {
+      type: 'value',
+      axisLine: { show: false },
+      axisTick: { show: false },
+      splitLine: { lineStyle: { color: splitLineColor } },
+      axisLabel: {
+        color: axisColor,
+        fontSize: 12,
+        formatter: (value: number) => `¥${value.toLocaleString('zh-CN')}`,
+      },
+    },
+    series: [
+      {
+        name: labels[0],
+        type: 'bar',
+        data: curData,
+        itemStyle: {
+          borderRadius: [4, 4, 0, 0],
+          color: isDark ? '#818cf8' : '#6366f1',
+        },
+        barMaxWidth: 20,
+      },
+      {
+        name: labels[1],
+        type: 'bar',
+        data: lastData,
+        itemStyle: {
+          borderRadius: [4, 4, 0, 0],
+          color: isDark ? '#6b7280' : '#d1d5db',
+        },
+        barMaxWidth: 20,
+      },
+    ],
+  };
+};
+
 export const ChartCard: React.FC<ChartCardProps> = ({
   title,
   chartType,
@@ -166,6 +243,7 @@ export const ChartCard: React.FC<ChartCardProps> = ({
   onTypeChange,
   activeType,
   onCategoryClick,
+  seriesLabels = ['今年', '去年'],
 }) => {
   const { getCategoryName, getCategoryIcon } = useCategoryLookup();
   const { resolvedTheme } = useTheme();
@@ -177,8 +255,11 @@ export const ChartCard: React.FC<ChartCardProps> = ({
     if (chartType === 'trend') {
       return buildTrendOption(data as MonthlyTrendItem[], isDark);
     }
+    if (chartType === 'yoy') {
+      return buildYoYOption(data as YoYComparisonItem[], isDark, seriesLabels);
+    }
     return buildPieOption(data as CategoryBreakdownItem[], getCategoryName, getCategoryIcon, isDark);
-  }, [chartType, data, getCategoryName, getCategoryIcon, isDark]);
+  }, [chartType, data, getCategoryName, getCategoryIcon, isDark, seriesLabels]);
 
   const handleTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     if (onTypeChange) {
