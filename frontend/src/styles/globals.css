@@ -33,12 +33,63 @@
   box-sizing: border-box;
 }
 
+[data-theme="dark"] {
+  --bg: oklch(18% 0.012 250);
+  --surface: oklch(24% 0.012 250);
+  --fg: oklch(90% 0.006 250);
+  --muted: oklch(64% 0.012 250);
+  --border: oklch(30% 0.010 250);
+  --accent: oklch(65% 0.18 255);
+  --accent-hover: oklch(72% 0.18 255);
+  --success: oklch(72% 0.15 145);
+  --danger: oklch(65% 0.18 25);
+  --warning: oklch(78% 0.14 85);
+  --shadow-sm: 0 1px 2px oklch(0% 0 0 / 0.2);
+  --shadow-md: 0 4px 12px oklch(0% 0 0 / 0.3);
+  --shadow-lg: 0 8px 24px oklch(0% 0 0 / 0.4);
+}
+
+/* Tooltip 气泡样式 */
+.tooltip-bubble {
+  background: var(--fg);
+  color: var(--bg);
+  font-size: 12px;
+  font-weight: 500;
+  padding: 4px 10px;
+  border-radius: 6px;
+  line-height: 1.5;
+  box-shadow: var(--shadow-md);
+  animation: tooltipFadeIn 0.15s ease;
+}
+.tooltip-bubble::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.tooltip-top::after {
+  top: 100%;
+  border: 5px solid transparent;
+  border-top-color: var(--fg);
+}
+.tooltip-bottom::after {
+  bottom: 100%;
+  border: 5px solid transparent;
+  border-bottom-color: var(--fg);
+}
+
+@keyframes tooltipFadeIn {
+  from { opacity: 0; transform: translateX(-50%) translateY(2px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
 body {
   font-family: var(--font-body);
   background: var(--bg);
   color: var(--fg);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .app {
@@ -123,4 +174,71 @@ body {
     margin-left: 0;
     padding: 24px 16px;
   }
+}
+
+/* ========== Spotlight 聚焦高亮动画 ========== */
+@keyframes spotlightPulse {
+  0%, 100% {
+    box-shadow:
+      0 0 0 2px oklch(58% 0.18 255),
+      0 0 12px oklch(58% 0.18 255 / 30%);
+  }
+  50% {
+    box-shadow:
+      0 0 0 3px oklch(58% 0.18 255),
+      0 0 24px oklch(58% 0.18 255 / 50%);
+  }
+}
+
+@keyframes spotlightBorderGlow {
+  0%   { border-color: oklch(58% 0.18 255); }
+  50%  { border-color: oklch(70% 0.18 255); }
+  100% { border-color: oklch(58% 0.18 255); }
+}
+
+.spotlight--focused {
+  position: relative;
+  z-index: 1;
+  animation: spotlightPulse 1.2s ease-in-out infinite;
+  border-color: oklch(58% 0.18 255) !important;
+  border-radius: var(--radius-md);
+  transition: box-shadow 0.3s ease;
+}
+
+/* 为带边框的元素使用 border 动画 */
+.spotlight--focused.budgets-table-row {
+  animation: spotlightBorderGlow 0.8s ease-in-out infinite;
+  border: 2px solid oklch(58% 0.18 255);
+  border-radius: var(--radius-md);
+  background: oklch(58% 0.18 255 / 4%);
+}
+
+/* 深色模式适配 */
+[data-theme="dark"] .spotlight--focused {
+  animation: spotlightPulseDark 1.2s ease-in-out infinite;
+}
+
+@keyframes spotlightPulseDark {
+  0%, 100% {
+    box-shadow:
+      0 0 0 2px oklch(65% 0.18 255),
+      0 0 16px oklch(65% 0.18 255 / 30%);
+  }
+  50% {
+    box-shadow:
+      0 0 0 3px oklch(65% 0.18 255),
+      0 0 28px oklch(65% 0.18 255 / 50%);
+  }
+}
+
+[data-theme="dark"] .spotlight--focused.budgets-table-row {
+  animation: spotlightBorderGlowDark 0.8s ease-in-out infinite;
+  border-color: oklch(65% 0.18 255);
+  background: oklch(65% 0.18 255 / 4%);
+}
+
+@keyframes spotlightBorderGlowDark {
+  0%   { border-color: oklch(65% 0.18 255); }
+  50%  { border-color: oklch(78% 0.18 255); }
+  100% { border-color: oklch(65% 0.18 255); }
 }

@@ -5,10 +5,9 @@ import { Header } from '../components/Header'
 import { Button } from '../components/ui/button'
 import { ImageUploader } from '../components/ImageUploader'
 import { FormGroup, FormRow } from '../components/Form'
-import { typeOptions, expenseCategoryOptions, incomeCategoryOptions } from '../utils/commonDic'
+import { typeOptions } from '../utils/commonDic'
 import { createTransaction, getTransaction, updateTransaction } from '../services/api'
-import { fetchCategories } from '../services/categoriesApi'
-import type { Category } from '../types/category'
+import { useCategories, buildCategoryOptions } from '../hooks/useCategories'
 import { notify } from '../utils/notifications'
 
 const AddTransaction: React.FC = () => {
@@ -27,18 +26,14 @@ const AddTransaction: React.FC = () => {
     note: ''
   })
 
-  // Load existing transaction in edit mode
   const { data: editData, isLoading: editLoading } = useQuery({
     queryKey: ['transaction', editId],
     queryFn: () => getTransaction(Number(editId)),
     enabled: isEditMode,
   })
 
-  // 获取自定义分类
-  const { data: customCategories = [] } = useQuery({
-    queryKey: ['categories'],
-    queryFn: () => fetchCategories(),
-  })
+  // 从 API 获取所有分类（默认 + 自定义）
+  const { data: categories = [] } = useCategories()
 
   // Pre-fill form when edit data is loaded
   useEffect(() => {
@@ -124,17 +119,10 @@ const AddTransaction: React.FC = () => {
     })
   }
 
-  /** 合并静态默认分类 + 自定义分类 */
+  // 分类选项：从 API 获取（已包含默认 + 自定义）
   const categoryOptions = useMemo(() => {
-    const staticOptions = formData.type === 'expense' ? expenseCategoryOptions : incomeCategoryOptions
-    const customOptions = customCategories
-      .filter((c: Category) => c.type === formData.type)
-      .map((c: Category) => ({
-        value: c.name,
-        label: `${c.icon} ${c.name}`,
-      }))
-    return [...staticOptions, ...customOptions]
-  }, [formData.type, customCategories])
+    return buildCategoryOptions(categories, formData.type)
+  }, [formData.type, categories])
 
   if (isEditMode && editLoading) {
     return (

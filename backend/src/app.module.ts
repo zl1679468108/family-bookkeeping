@@ -2,11 +2,11 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TransactionModule } from './transaction/transaction.module';
 import { ExportModule } from './export/export.module';
-import { HealthModule } from './health/health.module';
 import { SupabaseModule } from './supabase/supabase.module';
 import { AuthModule } from './auth/auth.module';
 import { StatisticsModule } from './statistics/statistics.module';
 import { CategoriesModule } from './categories/categories.module';
+import { BudgetsModule } from './budgets/budgets.module';
 
 @Module({
   imports: [
@@ -22,9 +22,9 @@ import { CategoriesModule } from './categories/categories.module';
     AuthModule,
     TransactionModule,
     ExportModule,
-    HealthModule,
     StatisticsModule,
     CategoriesModule,
+    BudgetsModule,
   ],
 })
 export class AppModule {}

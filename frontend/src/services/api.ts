@@ -24,6 +24,18 @@ export interface TransactionFilters {
   category?: string
   startDate?: string
   endDate?: string
+  page?: number
+  pageSize?: number
+  sortBy?: 'amount' | 'date'
+  sortOrder?: 'asc' | 'desc'
+  search?: string
+}
+
+export interface PaginatedResponse<T> {
+  data: T[]
+  total: number
+  page: number
+  pageSize: number
 }
 
 export interface UserProfile {
@@ -174,16 +186,21 @@ const downloadBlob = (blob: Blob, filename: string): void => {
   window.URL.revokeObjectURL(downloadUrl)
 }
 
-export const getTransactions = async (filters?: TransactionFilters): Promise<Transaction[]> => {
+export const getTransactions = async (filters?: TransactionFilters): Promise<PaginatedResponse<Transaction>> => {
   const params = new URLSearchParams()
 
   if (filters?.type) params.append('type', filters.type)
   if (filters?.category) params.append('category', filters.category)
   if (filters?.startDate) params.append('startDate', filters.startDate)
   if (filters?.endDate) params.append('endDate', filters.endDate)
+  if (filters?.page) params.append('page', String(filters.page))
+  if (filters?.pageSize) params.append('pageSize', String(filters.pageSize))
+  if (filters?.sortBy) params.append('sortBy', filters.sortBy)
+  if (filters?.sortOrder) params.append('sortOrder', filters.sortOrder)
+  if (filters?.search) params.append('search', filters.search)
 
   const query = params.toString() ? `?${params.toString()}` : ''
-  return request<Transaction[]>(`/transactions${query}`, { requiresAuth: true })
+  return request<PaginatedResponse<Transaction>>(`/transactions${query}`, { requiresAuth: true })
 }
 
 export const getTransaction = async (id: number): Promise<Transaction> => {
@@ -245,15 +262,6 @@ export const exportToPDF = async (filters?: TransactionFilters): Promise<void> =
   })
 
   downloadBlob(blob, `transactions_${Date.now()}.pdf`)
-}
-
-export const checkHealth = async (): Promise<boolean> => {
-  try {
-    const response = await fetch(`${API_BASE}/health`)
-    return response.ok
-  } catch {
-    return false
-  }
 }
 
 export const register = async (

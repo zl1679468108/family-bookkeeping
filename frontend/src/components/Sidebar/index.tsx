@@ -1,6 +1,7 @@
 import React from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../../utils/auth'
+import { ThemeToggle } from '../../utils/theme'
 import './index.scss'
 
 interface NavItem {
@@ -63,6 +64,16 @@ const navItems: NavItem[] = [
         <path fillRule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clipRule="evenodd"/>
       </svg>
     )
+  },
+  {
+    id: 'budgets',
+    name: '预算管理',
+    path: '/budgets',
+    icon: (
+      <svg viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5">
+        <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/>
+      </svg>
+    )
   }
 ]
 
@@ -78,6 +89,7 @@ export const Sidebar: React.FC = () => {
     if (path === '/reports') return 'reports'
     if (path === '/add') return 'add'
     if (path === '/categories') return 'categories'
+    if (path === '/budgets') return 'budgets'
     return 'dashboard'
   }
 
@@ -123,6 +135,7 @@ export const Sidebar: React.FC = () => {
       </nav>
 
       <div className="sidebar-footer">
+        <ThemeToggle />
         <button
           className="logout-button"
           onClick={handleLogout}

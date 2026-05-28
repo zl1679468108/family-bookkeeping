@@ -2,7 +2,8 @@ import React, { useMemo } from 'react';
 import ReactECharts from 'echarts-for-react';
 import type { EChartsOption } from 'echarts';
 import { MonthlyTrendItem, CategoryBreakdownItem } from '../../types/statistics';
-import { expenseCategoryDict, incomeCategoryDict } from '../../utils/commonDic';
+import { useCategoryLookup } from '../../hooks/useCategories';
+import { useTheme } from '../../utils/theme';
 import './index.scss';
 
 interface ChartCardProps {
@@ -13,12 +14,18 @@ interface ChartCardProps {
   typeOptions?: { value: string; label: string }[];
   onTypeChange?: (value: string) => void;
   activeType?: string;
+  onCategoryClick?: (category: string) => void;
 }
 
 /** Build echarts option for trend line chart */
-const buildTrendOption = (data: MonthlyTrendItem[]): EChartsOption => {
+const buildTrendOption = (data: MonthlyTrendItem[], isDark: boolean): EChartsOption => {
   const months = data.map((item) => item.month);
   const amounts = data.map((item) => item.amount);
+  const axisColor = isDark ? '#888' : '#999';
+  const splitLineColor = isDark ? '#333' : '#f0f0f0';
+  const lineColor = isDark ? '#818cf8' : '#6366f1';
+  const areaTopColor = isDark ? 'rgba(129, 140, 248, 0.15)' : 'rgba(99, 102, 241, 0.24)';
+  const areaBotColor = isDark ? 'rgba(129, 140, 248, 0.01)' : 'rgba(99, 102, 241, 0.02)';
 
   return {
     tooltip: {
@@ -40,13 +47,12 @@ const buildTrendOption = (data: MonthlyTrendItem[]): EChartsOption => {
     xAxis: {
       type: 'category',
       data: months,
-      axisLine: { lineStyle: { color: '#e0e0e0' } },
+      axisLine: { lineStyle: { color: splitLineColor } },
       axisTick: { show: false },
       axisLabel: {
-        color: '#999',
+        color: axisColor,
         fontSize: 12,
         formatter: (value: string) => {
-          // Show only the month part (e.g. "2025-01" -> "01月")
           const parts = value.split('-');
           return parts.length === 2 ? `${parseInt(parts[1], 10)}月` : value;
         },
@@ -56,9 +62,9 @@ const buildTrendOption = (data: MonthlyTrendItem[]): EChartsOption => {
       type: 'value',
       axisLine: { show: false },
       axisTick: { show: false },
-      splitLine: { lineStyle: { color: '#f0f0f0' } },
+      splitLine: { lineStyle: { color: splitLineColor } },
       axisLabel: {
-        color: '#999',
+        color: axisColor,
         fontSize: 12,
         formatter: (value: number) => `¥${value.toLocaleString('zh-CN')}`,
       },
@@ -71,11 +77,11 @@ const buildTrendOption = (data: MonthlyTrendItem[]): EChartsOption => {
         symbol: 'circle',
         symbolSize: 6,
         lineStyle: {
-          color: '#6366f1',
+          color: lineColor,
           width: 2,
         },
         itemStyle: {
-          color: '#6366f1',
+          color: lineColor,
         },
         areaStyle: {
           color: {
@@ -85,8 +91,8 @@ const buildTrendOption = (data: MonthlyTrendItem[]): EChartsOption => {
             x2: 0,
             y2: 1,
             colorStops: [
-              { offset: 0, color: 'rgba(99, 102, 241, 0.24)' },
-              { offset: 1, color: 'rgba(99, 102, 241, 0.02)' },
+              { offset: 0, color: areaTopColor },
+              { offset: 1, color: areaBotColor },
             ],
           },
         },
@@ -96,17 +102,15 @@ const buildTrendOption = (data: MonthlyTrendItem[]): EChartsOption => {
 };
 
 /** Build echarts option for pie (doughnut) chart */
-const buildPieOption = (data: CategoryBreakdownItem[]): EChartsOption => {
-  const mergedDict = { ...expenseCategoryDict, ...incomeCategoryDict };
+const buildPieOption = (data: CategoryBreakdownItem[], getCategoryName: (v: string) => string, getCategoryIcon: (v: string) => string, isDark: boolean): EChartsOption => {
+  const chartData = data.map((item) => ({
+    name: `${getCategoryIcon(item.category)} ${getCategoryName(item.category)}`,
+    value: item.amount,
+    categoryKey: item.category,
+  }));
 
-  const chartData = data.map((item) => {
-    const catInfo = mergedDict[item.category as keyof typeof mergedDict];
-    const label = catInfo ? `${catInfo.icon} ${catInfo.name}` : item.category;
-    return {
-      name: label,
-      value: item.amount,
-    };
-  });
+  const legendColor = isDark ? '#aaa' : '#666';
+  const borderColor = isDark ? '#2a2a2a' : '#fff';
 
   return {
     tooltip: {
@@ -115,7 +119,7 @@ const buildPieOption = (data: CategoryBreakdownItem[]): EChartsOption => {
         const p = params as { name: string; value: number; percent: number };
         return `${p.name}<br/>金额: ¥${p.value.toLocaleString('zh-CN', {
           minimumFractionDigits: 2,
-        })} (${p.percent}%)`;
+        })} (${p.percent}%)<br/><span style="color:var(--accent);font-size:11px;">点击查看明细</span>`;
       },
     },
     legend: {
@@ -126,7 +130,7 @@ const buildPieOption = (data: CategoryBreakdownItem[]): EChartsOption => {
       itemHeight: 10,
       textStyle: {
         fontSize: 12,
-        color: '#666',
+        color: legendColor,
       },
     },
     series: [
@@ -145,7 +149,7 @@ const buildPieOption = (data: CategoryBreakdownItem[]): EChartsOption => {
           show: false,
         },
         itemStyle: {
-          borderColor: '#fff',
+          borderColor: borderColor,
           borderWidth: 2,
         },
       },
@@ -161,21 +165,40 @@ export const ChartCard: React.FC<ChartCardProps> = ({
   typeOptions,
   onTypeChange,
   activeType,
+  onCategoryClick,
 }) => {
+  const { getCategoryName, getCategoryIcon } = useCategoryLookup();
+  const { resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === 'dark';
+
   const option = useMemo(() => {
     if (!data || data.length === 0) return null;
 
     if (chartType === 'trend') {
-      return buildTrendOption(data as MonthlyTrendItem[]);
+      return buildTrendOption(data as MonthlyTrendItem[], isDark);
     }
-    return buildPieOption(data as CategoryBreakdownItem[]);
-  }, [chartType, data]);
+    return buildPieOption(data as CategoryBreakdownItem[], getCategoryName, getCategoryIcon, isDark);
+  }, [chartType, data, getCategoryName, getCategoryIcon, isDark]);
 
   const handleTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     if (onTypeChange) {
       onTypeChange(e.target.value);
     }
   };
+
+  /** Pie chart click handler for category drill-down */
+  const handlePieClick = (params: any) => {
+    if (chartType !== 'pie' || !onCategoryClick) return;
+    if (!params?.data?.categoryKey) return;
+    if (params.data.categoryKey === 'other') return;
+    onCategoryClick(params.data.categoryKey);
+  };
+
+  const pieEvents = useMemo(() => {
+    if (chartType !== 'pie' || !onCategoryClick) return undefined;
+    return { click: handlePieClick };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [chartType, onCategoryClick]);
 
   const renderBody = () => {
     if (loading) {
@@ -192,6 +215,7 @@ export const ChartCard: React.FC<ChartCardProps> = ({
           option={option!}
           style={{ width: '100%', height: '240px' }}
           opts={{ renderer: 'canvas' }}
+          onEvents={pieEvents}
         />
       </div>
     );

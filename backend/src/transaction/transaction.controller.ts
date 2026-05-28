@@ -27,6 +27,11 @@ export class TransactionController {
     @Query('category') category?: string,
     @Query('startDate') startDate?: string,
     @Query('endDate') endDate?: string,
+    @Query('page') page?: string,
+    @Query('pageSize') pageSize?: string,
+    @Query('sortBy') sortBy?: 'amount' | 'date',
+    @Query('sortOrder') sortOrder?: 'asc' | 'desc',
+    @Query('search') search?: string,
   ) {
     const filters: TransactionFilters = {
       type,
@@ -34,6 +39,11 @@ export class TransactionController {
       startDate,
       endDate,
       userId,
+      page: page ? parseInt(page, 10) : undefined,
+      pageSize: pageSize ? parseInt(pageSize, 10) : undefined,
+      sortBy,
+      sortOrder,
+      search,
     };
 
     const data = await this.transactionService.findAll(filters);

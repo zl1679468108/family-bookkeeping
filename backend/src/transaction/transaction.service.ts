@@ -23,48 +23,81 @@ export interface TransactionFilters {
   startDate?: string;
   endDate?: string;
   userId?: string;
+  page?: number;
+  pageSize?: number;
+  sortBy?: 'amount' | 'date';
+  sortOrder?: 'asc' | 'desc';
+  search?: string;
+}
+
+export interface PaginatedResponse<T> {
+  data: T[];
+  total: number;
+  page: number;
+  pageSize: number;
 }
 
 @Injectable()
 export class TransactionService {
   constructor(private supabaseService: SupabaseService) {}
 
-  async findAll(filters?: TransactionFilters): Promise<Transaction[]> {
+  async findAll(filters?: TransactionFilters): Promise<PaginatedResponse<Transaction>> {
     const supabase = this.supabaseService.getClient();
-    let query = supabase
-      .from('transactions')
-      .select('*')
-      .order('date', { ascending: false });
 
     if (!filters?.userId) {
       throw new ForbiddenException('需要登录才能访问交易记录');
     }
-    
-    query = query.eq('user_id', filters.userId);
+
+    const page = filters?.page || 1;
+    const pageSize = filters?.pageSize || 10;
+    const sortBy = filters?.sortBy || 'date';
+    const sortOrder = filters?.sortOrder || 'desc';
+    const offset = (page - 1) * pageSize;
+
+    // 构建查询
+    let baseQuery = supabase
+      .from('transactions')
+      .select('*', { count: 'exact' })
+      .eq('user_id', filters.userId);
 
     if (filters?.type) {
-      query = query.eq('type', filters.type);
+      baseQuery = baseQuery.eq('type', filters.type);
     }
 
     if (filters?.category) {
-      query = query.eq('category', filters.category);
+      baseQuery = baseQuery.eq('category', filters.category);
     }
 
     if (filters?.startDate) {
-      query = query.gte('date', filters.startDate);
+      baseQuery = baseQuery.gte('date', filters.startDate);
     }
 
     if (filters?.endDate) {
-      query = query.lte('date', filters.endDate);
+      baseQuery = baseQuery.lte('date', filters.endDate);
     }
 
-    const { data, error } = await query;
+    if (filters?.search) {
+      baseQuery = baseQuery.ilike('description', `%${filters.search}%`);
+    }
+
+    // 排序 + 分页
+    baseQuery = baseQuery
+      .order(sortBy, { ascending: sortOrder === 'asc' })
+      .order('id', { ascending: false })  // 第二排序字段确保稳定
+      .range(offset, offset + pageSize - 1);
+
+    const { data, error, count } = await baseQuery;
 
     if (error) {
       throw new InternalServerErrorException(`获取交易记录失败: ${error.message}`);
     }
 
-    return data;
+    return {
+      data: data || [],
+      total: count || 0,
+      page,
+      pageSize,
+    };
   }
 
   async findOne(id: number, userId?: string): Promise<Transaction> {

@@ -130,24 +130,76 @@ CREATE TRIGGER update_password_resets_updated_at BEFORE UPDATE ON password_reset
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 -- ==============================================
--- 6. 自定义分类表 (2026-05-26: P0 自定义分类功能)
+-- 6. 分类表（2026-05-26: P0 自定义分类功能）
+-- 2026-05-26 更新：user_id 改为可空（系统默认分类为 NULL），新增 is_default 标记
 -- ==============================================
 CREATE TABLE IF NOT EXISTS categories (
   id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id     UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  user_id     UUID REFERENCES users(id) ON DELETE CASCADE,  -- NULL = 系统默认分类
   name        VARCHAR(50) NOT NULL,
   icon        VARCHAR(50) NOT NULL DEFAULT '📌',
   type        VARCHAR(10) NOT NULL CHECK (type IN ('expense', 'income')),
+  is_default  BOOLEAN NOT NULL DEFAULT false,
   sort_order  INTEGER NOT NULL DEFAULT 0,
   created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX IF NOT EXISTS idx_categories_user_id ON categories(user_id);
-CREATE UNIQUE INDEX IF NOT EXISTS idx_categories_user_name_type ON categories(user_id, name, type);
+-- 迁移：如果 categories 表已存在，补齐缺失的列（兼容旧表结构）
+DO $$
+BEGIN
+    -- user_id 改为可空（系统默认分类为 NULL）
+    IF EXISTS (
+        SELECT 1 FROM information_schema.columns
+        WHERE table_name = 'categories' AND column_name = 'user_id' AND is_nullable = 'NO'
+    ) THEN
+        ALTER TABLE categories ALTER COLUMN user_id DROP NOT NULL;
+    END IF;
 
-COMMENT ON TABLE categories IS '用户自定义分类表';
+    -- 新增 is_default 列（2026-05-26: 区分系统默认分类与用户自定义分类）
+    IF NOT EXISTS (
+        SELECT 1 FROM information_schema.columns
+        WHERE table_name = 'categories' AND column_name = 'is_default'
+    ) THEN
+        ALTER TABLE categories ADD COLUMN is_default BOOLEAN NOT NULL DEFAULT false;
+    END IF;
+END $$;
+
+CREATE INDEX IF NOT EXISTS idx_categories_user_id ON categories(user_id);
+CREATE INDEX IF NOT EXISTS idx_categories_is_default ON categories(is_default);
+
+-- 唯一约束：同一用户下分类名+类型不能重复
+-- 注意：PostgreSQL UNIQUE 索引中 NULL != NULL，所以 user_id=NULL 的行不会被去重
+-- 因此额外加一个部分唯一索引，确保系统默认分类(user_id IS NULL)不会重复
+CREATE UNIQUE INDEX IF NOT EXISTS idx_categories_user_name_type ON categories(user_id, name, type);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_categories_default_name_type ON categories(name, type) WHERE user_id IS NULL;
+
+COMMENT ON TABLE categories IS '分类表（系统默认 + 用户自定义）';
 
 DROP TRIGGER IF EXISTS update_categories_updated_at ON categories;
 CREATE TRIGGER update_categories_updated_at BEFORE UPDATE ON categories
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+-- ==============================================
+-- 初始化系统默认分类（16个：10支出 + 6收入）
+-- ==============================================
+INSERT INTO categories (user_id, name, icon, type, is_default, sort_order) VALUES
+  -- 支出分类
+  (NULL, '食品', '🛒', 'expense', true, 1),
+  (NULL, '餐饮', '🍜', 'expense', true, 2),
+  (NULL, '交通', '🚗', 'expense', true, 3),
+  (NULL, '购物', '🛍️', 'expense', true, 4),
+  (NULL, '通讯', '📱', 'expense', true, 5),
+  (NULL, '居住', '🏠', 'expense', true, 6),
+  (NULL, '娱乐', '🎮', 'expense', true, 7),
+  (NULL, '医疗', '💊', 'expense', true, 8),
+  (NULL, '教育', '📚', 'expense', true, 9),
+  (NULL, '其他', '📌', 'expense', true, 10),
+  -- 收入分类
+  (NULL, '工资', '💼', 'income', true, 11),
+  (NULL, '奖金', '🎁', 'income', true, 12),
+  (NULL, '投资', '📈', 'income', true, 13),
+  (NULL, '兼职', '💻', 'income', true, 14),
+  (NULL, '礼金', '🎁', 'income', true, 15),
+  (NULL, '其他收入', '💰', 'income', true, 16)
+ON CONFLICT (name, type) WHERE user_id IS NULL DO NOTHING;

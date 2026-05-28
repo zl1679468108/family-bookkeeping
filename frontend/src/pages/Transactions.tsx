@@ -1,13 +1,11 @@
 import React, { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Header } from '../components/Header'
 import { Button } from '../components/ui/button'
 import { FilterBar } from '../components/FilterBar'
 import { TransactionsList } from '../components/TransactionsList'
 import { ConfirmDialog } from '../components/ConfirmDialog'
-import { expenseCategoryDict, incomeCategoryDict } from '../utils/commonDic'
-import { formatAmountWithType, formatDate } from '../utils/common'
 import { getTransactions, deleteTransaction } from '../services/api'
 import { notify } from '../utils/notifications'
 
@@ -22,16 +20,49 @@ interface DeleteTarget {
   id: number
 }
 
+const PAGE_SIZE = 10
+
 const Transactions: React.FC = () => {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
-  const [filter, setFilter] = useState({ type: 'all' as 'all' | 'income' | 'expense', category: '' })
+  const [searchParams] = useSearchParams()
+
+  // 从 URL searchParams 初始化筛选条件（支持饼图下钻跳转）
+  const [filter, setFilter] = useState(() => {
+    const category = searchParams.get('category') || ''
+    const type = (searchParams.get('type') as 'all' | 'income' | 'expense') || 'all'
+    const startDate = searchParams.get('startDate') || ''
+    const endDate = searchParams.get('endDate') || ''
+    return { type, category, startDate, endDate }
+  })
+
+  const [search, setSearch] = useState('')
+  const [page, setPage] = useState(1)
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc' | undefined>(undefined)
   const [deleteTarget, setDeleteTarget] = useState<DeleteTarget | null>(null)
 
-  const { data: transactions = [], isLoading } = useQuery({
-    queryKey: ['transactions'],
-    queryFn: () => getTransactions()
+  // 筛选条件变化时重置页码
+  useEffect(() => {
+    setPage(1)
+  }, [filter, search])
+
+  const { data: paginated, isLoading } = useQuery({
+    queryKey: ['transactions', filter.type, filter.category, filter.startDate, filter.endDate, search, page, sortOrder],
+    queryFn: () => getTransactions({
+      type: filter.type !== 'all' ? filter.type : undefined,
+      category: filter.category || undefined,
+      startDate: filter.startDate || undefined,
+      endDate: filter.endDate || undefined,
+      search: search || undefined,
+      page,
+      pageSize: PAGE_SIZE,
+      ...(sortOrder ? { sortBy: 'amount' as const, sortOrder } : {}),
+    }),
   })
+
+  const transactions = paginated?.data || []
+  const total = paginated?.total || 0
+  const totalPages = Math.ceil(total / PAGE_SIZE)
 
   const deleteMutation = useMutation({
     mutationFn: (id: number) => deleteTransaction(id),
@@ -45,41 +76,17 @@ const Transactions: React.FC = () => {
     }
   })
 
-  const [filteredTransactions, setFilteredTransactions] = useState<any[]>([])
-
-  useEffect(() => {
-    let filtered = transactions
-
-    if (filter.type !== 'all') {
-      filtered = transactions.filter((t: any) => t.type === filter.type)
-    }
-
-    if (filter.category) {
-      filtered = filtered.filter((t: any) => t.category === filter.category)
-    }
-
-    const mapped = filtered.map((item: any) => {
-      const isIncome = item.type === 'income'
-      const categoryInfo: { name: string; icon: string } = (isIncome ? incomeCategoryDict[item.category as keyof typeof incomeCategoryDict] : expenseCategoryDict[item.category as keyof typeof expenseCategoryDict]) || { name: item.category || '其他', icon: '📌' }
-      
-      return {
-        id: item.id,
-        name: item.description || categoryInfo.name,
-        icon: categoryInfo.icon,
-        meta: `${formatDate(item.date)} · ${categoryInfo.name}`,
-        amount: formatAmountWithType(parseFloat(item.amount), isIncome),
-        isIncome
-      }
-    })
-
-    setFilteredTransactions(mapped)
-  }, [transactions, filter])
-
   const handleFilterChange = (newFilter: { type: string; category: string }) => {
     setFilter({
       type: newFilter.type as 'all' | 'income' | 'expense',
-      category: newFilter.category
+      category: newFilter.category,
+      startDate: filter.startDate,
+      endDate: filter.endDate,
     })
+  }
+
+  const handleSearchChange = (value: string) => {
+    setSearch(value)
   }
 
   const handleEdit = (id: number) => {
@@ -107,23 +114,113 @@ const Transactions: React.FC = () => {
         </Button>
       </Header>
 
-      <FilterBar selectedType={filter.type} selectedCategory={filter.category} onFilterChange={handleFilterChange} />
+      <FilterBar
+        selectedType={filter.type}
+        selectedCategory={filter.category}
+        onFilterChange={handleFilterChange}
+        search={search}
+        onSearchChange={handleSearchChange}
+      />
+
+      {/* 排序 + 总数 */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+        <div style={{ fontSize: '13px', color: 'var(--muted)' }}>
+          共 {total} 条交易
+        </div>
+        <button
+          onClick={() => setSortOrder(sortOrder === undefined ? 'asc' : sortOrder === 'asc' ? 'desc' : undefined)}
+          style={{
+            display: 'flex', alignItems: 'center', gap: '4px', padding: '4px 10px',
+            fontSize: '13px', border: '1px solid var(--border)', borderRadius: 'var(--radius-md)',
+            background: 'var(--surface)', color: 'var(--fg)', cursor: 'pointer',
+          }}
+        >
+          {sortOrder === undefined ? (
+            <>金额 ▾</>
+          ) : sortOrder === 'desc' ? (
+            <>金额 <svg width="12" height="12" viewBox="0 0 20 20" fill="currentColor" style={{ display: 'inline' }}><path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd"/></svg></>
+          ) : (
+            <>金额 <svg width="12" height="12" viewBox="0 0 20 20" fill="currentColor" style={{ display: 'inline' }}><path fillRule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clipRule="evenodd"/></svg></>
+          )}
+        </button>
+      </div>
 
       {isLoading ? (
         <div style={{ textAlign: 'center', padding: '40px', color: '#666' }}>加载中...</div>
-      ) : filteredTransactions.length === 0 ? (
+      ) : transactions.length === 0 ? (
         <div style={{ textAlign: 'center', padding: '40px', color: '#666' }}>
-          <p>暂无交易记录</p>
-          <Button onClick={() => navigate(buildAddUrl(filter.type, filter.category))} style={{ marginTop: '16px' }}>
-            添加第一笔交易
-          </Button>
+          {search ? (
+            <p>未找到包含「{search}」的交易</p>
+          ) : (
+            <>
+              <p>暂无交易记录</p>
+              <Button onClick={() => navigate(buildAddUrl(filter.type, filter.category))} style={{ marginTop: '16px' }}>
+                添加第一笔交易
+              </Button>
+            </>
+          )}
         </div>
       ) : (
-        <TransactionsList
-          transactions={filteredTransactions}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
-        />
+        <>
+          <TransactionsList
+            transactions={transactions}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+          />
+
+          {/* 分页器 */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginTop: '20px' }}>
+            <button
+              onClick={() => setPage(p => Math.max(1, p - 1))}
+              disabled={page <= 1}
+              style={{
+                padding: '6px 12px', fontSize: '13px', border: '1px solid var(--border)',
+                borderRadius: 'var(--radius-md)', background: 'var(--surface)', color: page <= 1 ? 'var(--muted)' : 'var(--fg)',
+                cursor: page <= 1 ? 'default' : 'pointer',
+              }}
+            >
+              上一页
+            </button>
+            {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
+              let pageNum: number
+              if (totalPages <= 5) {
+                pageNum = i + 1
+              } else if (page <= 3) {
+                pageNum = i + 1
+              } else if (page >= totalPages - 2) {
+                pageNum = totalPages - 4 + i
+              } else {
+                pageNum = page - 2 + i
+              }
+              return (
+                <button
+                  key={pageNum}
+                  onClick={() => setPage(pageNum)}
+                  style={{
+                    minWidth: '32px', padding: '6px 8px', fontSize: '13px', textAlign: 'center',
+                    border: '1px solid var(--border)', borderRadius: 'var(--radius-md)',
+                    background: pageNum === page ? 'var(--accent)' : 'var(--surface)',
+                    color: pageNum === page ? '#fff' : 'var(--fg)',
+                    cursor: 'pointer', fontWeight: pageNum === page ? 600 : 400,
+                  }}
+                >
+                  {pageNum}
+                </button>
+              )
+            })}
+            <button
+              onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+              disabled={page >= totalPages}
+              style={{
+                padding: '6px 12px', fontSize: '13px', border: '1px solid var(--border)',
+                borderRadius: 'var(--radius-md)', background: 'var(--surface)', color: page >= totalPages ? 'var(--muted)' : 'var(--fg)',
+                cursor: page >= totalPages ? 'default' : 'pointer',
+              }}
+            >
+              下一页
+            </button>
+          </div>
+        </>
       )}
 
       <ConfirmDialog

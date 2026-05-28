@@ -51,7 +51,7 @@ export function formatDate(dateStr: string, mode: 'full' | 'dashboard' = 'full')
     } else if (transactionDay.getTime() === yesterday.getTime()) {
       return `昨天 ${hours}:${minutes}`
     } else {
-      return `${month}月${day}日`
+      return `${month}月${day}日 ${hours}:${minutes}`
     }
   }
 

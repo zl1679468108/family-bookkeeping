@@ -3,31 +3,9 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Header } from '../components/Header'
 import { Button } from '../components/ui/button'
 import { fetchCategories, createCategory, updateCategory, deleteCategory } from '../services/categoriesApi'
-import { expenseCategoryDict, incomeCategoryDict } from '../utils/commonDic'
 import { EMOJI_PRESETS } from '../utils/emojiPresets'
 import { notify } from '../utils/notifications'
 import type { Category, CreateCategoryInput } from '../types/category'
-
-/** 默认分类 id 集合，用于判断是否可操作 */
-const DEFAULT_EXPENSE_IDS = Object.keys(expenseCategoryDict)
-const DEFAULT_INCOME_IDS = Object.keys(incomeCategoryDict)
-
-/** 将默认分类 + 自定义分类合并为统一列表 */
-function mergeCategories(
-  customCategories: Category[],
-  type: 'expense' | 'income',
-): Category[] {
-  const dict = type === 'expense' ? expenseCategoryDict : incomeCategoryDict
-  const defaults: Category[] = Object.entries(dict).map(([key, val]) => ({
-    id: key,
-    name: val.name,
-    icon: val.icon,
-    type,
-    sort_order: 0,
-    isDefault: true,
-  }))
-  return [...defaults, ...customCategories.filter((c) => c.type === type)]
-}
 
 // ─── Modal 组件 ──────────────────────────────────────────────────────────────
 
@@ -112,11 +90,10 @@ const CategoryModal: React.FC<CategoryModalProps> = ({
               <button
                 key={emoji}
                 type="button"
-                className={`flex h-9 w-9 items-center justify-center rounded-lg text-lg transition-all ${
-                  icon === emoji
-                    ? 'bg-primary/15 ring-2 ring-primary scale-110'
-                    : 'hover:bg-white hover:shadow-sm'
-                }`}
+                className={`flex h-9 w-9 items-center justify-center rounded-lg text-lg transition-all ${icon === emoji
+                  ? 'bg-primary/15 ring-2 ring-primary scale-110'
+                  : 'hover:bg-white hover:shadow-sm'
+                  }`}
                 onClick={() => setIcon(emoji)}
                 title={emoji}
               >
@@ -204,10 +181,10 @@ const Categories: React.FC = () => {
     queryFn: () => fetchCategories(),
   })
 
-  const mergedCategories = mergeCategories(customCategories, activeTab)
-  const defaultIds = activeTab === 'expense' ? DEFAULT_EXPENSE_IDS : DEFAULT_INCOME_IDS
+  // 直接使用 API 数据（已包含默认 + 自定义）
+  const filteredCategories = (customCategories || []).filter((c) => c.type === activeTab)
   const isDefaultCategory = (cat: Category): boolean =>
-    cat.isDefault === true || defaultIds.includes(cat.id)
+    cat.isDefault === true
 
   // ── 变更 ───────────────────────────────────────────────────────────────────
 
@@ -303,21 +280,19 @@ const Categories: React.FC = () => {
       {/* Tab 切换 */}
       <div className="mx-auto mt-5 flex max-w-lg gap-1 rounded-xl bg-slate-100 p-1">
         <button
-          className={`flex-1 rounded-lg px-4 py-2 text-sm font-medium transition-all ${
-            activeTab === 'expense'
-              ? 'bg-white text-slate-800 shadow-sm'
-              : 'text-slate-500 hover:text-slate-700'
-          }`}
+          className={`flex-1 rounded-lg px-4 py-2 text-sm font-medium transition-all ${activeTab === 'expense'
+            ? 'bg-white text-slate-800 shadow-sm'
+            : 'text-slate-500 hover:text-slate-700'
+            }`}
           onClick={() => setActiveTab('expense')}
         >
           支出分类
         </button>
         <button
-          className={`flex-1 rounded-lg px-4 py-2 text-sm font-medium transition-all ${
-            activeTab === 'income'
-              ? 'bg-white text-slate-800 shadow-sm'
-              : 'text-slate-500 hover:text-slate-700'
-          }`}
+          className={`flex-1 rounded-lg px-4 py-2 text-sm font-medium transition-all ${activeTab === 'income'
+            ? 'bg-white text-slate-800 shadow-sm'
+            : 'text-slate-500 hover:text-slate-700'
+            }`}
           onClick={() => setActiveTab('income')}
         >
           收入分类
@@ -325,12 +300,12 @@ const Categories: React.FC = () => {
       </div>
 
       {/* 分类列表 */}
-      <div className="mx-auto mt-5 max-w-lg">
+      <div className="mx-auto mt-5">
         {isLoading ? (
           <div className="flex items-center justify-center py-20">
             <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
           </div>
-        ) : mergedCategories.length === 0 ? (
+        ) : filteredCategories.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 text-slate-400">
             <svg className="mb-3 h-12 w-12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
               <path strokeLinecap="round" strokeLinejoin="round" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
@@ -338,60 +313,51 @@ const Categories: React.FC = () => {
             <p className="text-sm">暂无分类数据</p>
           </div>
         ) : (
-          <div className="space-y-2">
-            {mergedCategories.map((cat) => {
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
+            {filteredCategories.map((cat) => {
               const isDefault = isDefaultCategory(cat)
               return (
                 <div
                   key={cat.id}
-                  className="flex items-center justify-between rounded-xl border border-slate-100 bg-white px-4 py-3 shadow-sm transition-shadow hover:shadow-md"
+                  className="flex flex-col items-center rounded-xl border border-slate-100 bg-white px-3 py-4 shadow-sm transition-shadow hover:shadow-md"
+                  style={{ width: '160px', position: 'relative' }}
                 >
-                  <div className="flex items-center gap-3">
-                    <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-50 text-xl">
-                      {cat.icon}
+                  {/* 默认标签 */}
+                  {isDefault && (
+                    <span className="absolute top-1 right-1 rounded bg-slate-100 px-1.5 py-0.5 text-[10px] text-slate-400">
+                      默认
                     </span>
-                    <span className="text-sm font-medium text-slate-700">
-                      {cat.name}
-                    </span>
-                  </div>
+                  )}
 
-                  <div className="flex items-center gap-1">
-                    {/* 编辑按钮 */}
-                    <button
-                      className={`flex h-8 w-8 items-center justify-center rounded-lg transition-colors ${
-                        isDefault
-                          ? 'cursor-not-allowed text-slate-300'
-                          : 'text-slate-400 hover:bg-slate-100 hover:text-slate-600'
-                      }`}
-                      onClick={() => (isDefault ? undefined : handleOpenEdit(cat))}
-                      disabled={isDefault}
-                      title={isDefault ? '默认分类不可操作' : '编辑'}
-                    >
-                      <svg className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                        <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-                      </svg>
-                    </button>
+                  <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-slate-50 text-2xl mb-2">
+                    {cat.icon}
+                  </span>
+                  <span className="text-sm font-medium text-slate-700 text-center">
+                    {cat.name}
+                  </span>
 
-                    {/* 删除按钮 */}
-                    <button
-                      className={`flex h-8 w-8 items-center justify-center rounded-lg transition-colors ${
-                        isDefault
-                          ? 'cursor-not-allowed text-slate-300'
-                          : 'text-slate-400 hover:bg-red-50 hover:text-red-500'
-                      }`}
-                      onClick={() => (isDefault ? undefined : setDeleteTarget(cat))}
-                      disabled={isDefault}
-                      title={isDefault ? '默认分类不可操作' : '删除'}
-                    >
-                      <svg className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                        <path
-                          fillRule="evenodd"
-                          d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                    </button>
-                  </div>
+                  {!isDefault && (
+                    <div className="flex items-center gap-1 mt-3">
+                      <button
+                        className="flex h-7 w-7 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors"
+                        onClick={() => handleOpenEdit(cat)}
+                        title="编辑"
+                      >
+                        <svg className="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
+                          <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                        </svg>
+                      </button>
+                      <button
+                        className="flex h-7 w-7 items-center justify-center rounded-lg text-slate-400 hover:bg-red-50 hover:text-red-500 transition-colors"
+                        onClick={() => setDeleteTarget(cat)}
+                        title="删除"
+                      >
+                        <svg className="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
+                          <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+                        </svg>
+                      </button>
+                    </div>
+                  )}
                 </div>
               )
             })}

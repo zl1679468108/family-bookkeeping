@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { startOfMonth, endOfMonth, format, differenceInMonths, subMonths } from 'date-fns'
 import { Header } from '../components/Header'
@@ -27,6 +28,7 @@ const formatTrend = (
 }
 
 const Reports: React.FC = () => {
+  const navigate = useNavigate()
   const today = new Date()
 
   const [dateRange, setDateRange] = useState(() => {
@@ -38,6 +40,7 @@ const Reports: React.FC = () => {
   })
 
   const [trendType, setTrendType] = useState<'expense' | 'income'>('expense')
+  const [analysisTab, setAnalysisTab] = useState<'expense' | 'income'>('expense')
   const [exporting, setExporting] = useState<'excel' | 'pdf' | null>(null)
 
   // 根据选中的日期范围计算趋势图应展示的月数
@@ -66,19 +69,26 @@ const Reports: React.FC = () => {
     queryFn: () => fetchMonthlyTrend({ months: trendMonths, type: trendType }),
   })
 
-  // 分类占比
+  // 分类占比 — 联动 analysisTab
   const {
     data: breakdownData = [],
     isLoading: breakdownLoading,
   } = useQuery({
-    queryKey: ['statistics', 'category-breakdown', dateRange.startDate, dateRange.endDate, 'expense'],
+    queryKey: ['statistics', 'category-breakdown', dateRange.startDate, dateRange.endDate, analysisTab],
     queryFn: () =>
       fetchCategoryBreakdown({
         startDate: dateRange.startDate,
         endDate: dateRange.endDate,
-        type: 'expense',
+        type: analysisTab,
       }),
   })
+
+  /** 饼图下钻回调 */
+  const handleCategoryClick = (categoryKey: string) => {
+    navigate(
+      `/transactions?category=${encodeURIComponent(categoryKey)}&startDate=${dateRange.startDate}&endDate=${dateRange.endDate}&type=${analysisTab}`
+    )
+  }
 
   /** 导出报表（Excel / PDF） */
   const handleExport = async (type: 'excel' | 'pdf') => {
@@ -102,7 +112,7 @@ const Reports: React.FC = () => {
       <Header title="统计报表" />
 
       {/* 时间筛选器 + 导出按钮 */}
-      <div className="flex items-center justify-between" style={{ marginBottom: '20px' }}>
+      <div className="flex items-center justify-between" style={{ marginBottom: '16px' }}>
         <DateRangeFilter
           startDate={dateRange.startDate}
           endDate={dateRange.endDate}
@@ -124,6 +134,50 @@ const Reports: React.FC = () => {
             {exporting === 'pdf' ? '导出中...' : '📄 PDF'}
           </button>
         </div>
+      </div>
+
+      {/* Tab 切换: 支出分析 / 收入分析 */}
+      <div style={{
+        display: 'flex',
+        gap: '4px',
+        marginBottom: '20px',
+        background: 'var(--bg)',
+        borderRadius: 'var(--radius-md)',
+        padding: '4px',
+        width: 'fit-content',
+      }}>
+        <button
+          onClick={() => setAnalysisTab('expense')}
+          style={{
+            padding: '8px 20px',
+            borderRadius: 'var(--radius-sm)',
+            border: 'none',
+            cursor: 'pointer',
+            fontSize: '14px',
+            fontWeight: 500,
+            background: analysisTab === 'expense' ? 'var(--accent)' : 'transparent',
+            color: analysisTab === 'expense' ? '#fff' : 'var(--muted)',
+            transition: 'all 0.2s ease',
+          }}
+        >
+          支出分析
+        </button>
+        <button
+          onClick={() => setAnalysisTab('income')}
+          style={{
+            padding: '8px 20px',
+            borderRadius: 'var(--radius-sm)',
+            border: 'none',
+            cursor: 'pointer',
+            fontSize: '14px',
+            fontWeight: 500,
+            background: analysisTab === 'income' ? 'var(--accent)' : 'transparent',
+            color: analysisTab === 'income' ? '#fff' : 'var(--muted)',
+            transition: 'all 0.2s ease',
+          }}
+        >
+          收入分析
+        </button>
       </div>
 
       {/* 概览卡片组: 收入 / 支出 / 结余 */}
@@ -161,19 +215,22 @@ const Reports: React.FC = () => {
           activeType={trendType}
         />
         <ChartCard
-          title="支出分类"
+          title={analysisTab === 'expense' ? '支出分类' : '收入来源'}
           chartType="pie"
           data={breakdownData as CategoryBreakdownItem[]}
           loading={breakdownLoading}
+          onCategoryClick={handleCategoryClick}
         />
       </div>
 
       {/* 分类排行表 */}
-      <h2 className="section-title">本月支出分类</h2>
+      <h2 className="section-title">
+        {analysisTab === 'expense' ? '本月支出分类排行' : '本月收入来源排行'}
+      </h2>
       <CategoryRanking
         data={breakdownData || []}
-        type="expense"
-        totalAmount={summary?.totalExpense || 0}
+        type={analysisTab}
+        totalAmount={analysisTab === 'expense' ? (summary?.totalExpense || 0) : (summary?.totalIncome || 0)}
       />
     </div>
   )

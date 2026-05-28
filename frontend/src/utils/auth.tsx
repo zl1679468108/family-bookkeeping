@@ -1,6 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useRef } from 'react'
 import {
-  checkHealth,
   clearStoredToken,
   getProfile,
   hasToken,
@@ -14,7 +13,6 @@ import {
 interface AuthContextType {
   user: UserProfile | null
   loading: boolean
-  isConnected: boolean
   signIn: (email: string, password: string) => Promise<void>
   signUp: (email: string, password: string, username: string) => Promise<void>
   signOut: () => Promise<void>
@@ -26,7 +24,6 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined)
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<UserProfile | null>(null)
   const [loading, setLoading] = useState(true)
-  const [isConnected, setIsConnected] = useState(false)
   const initialized = useRef(false)
 
   useEffect(() => {
@@ -38,17 +35,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const initializeAuth = async () => {
     try {
-      // 检查后端连接
-      const connected = await checkHealth()
-      setIsConnected(connected)
-      
-      if (connected && hasToken()) {
-        // 尝试获取用户信息
+      if (hasToken()) {
         await refreshUser()
       }
     } catch (error) {
       console.error('认证初始化失败:', error)
-      setIsConnected(false)
     } finally {
       setLoading(false)
     }
@@ -100,7 +91,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const value = {
     user,
     loading,
-    isConnected,
     signIn,
     signUp,
     signOut,

@@ -1,16 +1,31 @@
-import React, { useState, useEffect } from 'react'
-import { incomeCategoryLabels, expenseCategoryLabels } from '../../utils/commonDic'
+import React, { useState, useEffect, useRef, useCallback } from 'react'
+import { useCategories, getCategoryKey } from '../../hooks/useCategories'
 import './index.scss'
 
 interface FilterBarProps {
   onFilterChange?: (filter: { type: string; category: string }) => void
   selectedType?: string
   selectedCategory?: string
+  search?: string
+  onSearchChange?: (value: string) => void
 }
 
-export const FilterBar: React.FC<FilterBarProps> = ({ onFilterChange, selectedType, selectedCategory }) => {
+export const FilterBar: React.FC<FilterBarProps> = ({
+  onFilterChange,
+  selectedType,
+  selectedCategory,
+  search = '',
+  onSearchChange,
+}) => {
   const [activeType, setActiveType] = useState(selectedType || 'all')
   const [activeCategory, setActiveCategory] = useState(selectedCategory || '')
+  const [searchValue, setSearchValue] = useState(search)
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  // 获取分类数据
+  const { data: categories = [] } = useCategories()
+  const incomeCategories = categories.filter(c => c.type === 'income')
+  const expenseCategories = categories.filter(c => c.type === 'expense')
 
   useEffect(() => {
     if (selectedType !== undefined) {
@@ -23,6 +38,38 @@ export const FilterBar: React.FC<FilterBarProps> = ({ onFilterChange, selectedTy
       setActiveCategory(selectedCategory)
     }
   }, [selectedCategory])
+
+  useEffect(() => {
+    setSearchValue(search)
+  }, [search])
+
+  // 搜索 debounce（300ms）
+  const handleSearchChange = useCallback((value: string) => {
+    setSearchValue(value)
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current)
+    }
+    debounceRef.current = setTimeout(() => {
+      onSearchChange?.(value)
+    }, 300)
+  }, [onSearchChange])
+
+  const handleSearchClear = useCallback(() => {
+    setSearchValue('')
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current)
+    }
+    onSearchChange?.('')
+  }, [onSearchChange])
+
+  // 清理 debounce timer
+  useEffect(() => {
+    return () => {
+      if (debounceRef.current) {
+        clearTimeout(debounceRef.current)
+      }
+    }
+  }, [])
 
   const handleTypeClick = (type: string) => {
     setActiveType(type)
@@ -43,6 +90,36 @@ export const FilterBar: React.FC<FilterBarProps> = ({ onFilterChange, selectedTy
 
   return (
     <div className="filter-bar">
+      {/* 搜索输入框 */}
+      {onSearchChange && (
+        <div className="filter-search">
+          <div className="filter-search-input-wrapper">
+            <svg className="filter-search-icon" viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
+              <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd"/>
+            </svg>
+            <input
+              type="text"
+              className="filter-search-input"
+              placeholder="搜索交易描述…"
+              value={searchValue}
+              onChange={(e) => handleSearchChange(e.target.value)}
+            />
+            {searchValue && (
+              <button
+                className="filter-search-clear"
+                onClick={handleSearchClear}
+                type="button"
+                aria-label="清空搜索"
+              >
+                <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14">
+                  <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd"/>
+                </svg>
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+
       <div className="filter-row">
         {typeOptions.map((item) => (
           <button
@@ -56,27 +133,27 @@ export const FilterBar: React.FC<FilterBarProps> = ({ onFilterChange, selectedTy
       </div>
 
       <div className="filter-row">
-        {incomeCategoryLabels.map((item) => (
+        {incomeCategories.map((item) => (
           <button
-            key={item.value}
-            className={`filter-chip category-chip ${activeCategory === item.value ? 'active' : ''} ${activeType === 'expense' ? 'disabled' : ''}`}
-            onClick={() => activeType !== 'expense' && handleCategoryClick(item.value)}
+            key={item.id}
+            className={`filter-chip category-chip ${activeCategory === getCategoryKey(item.name) ? 'active' : ''} ${activeType === 'expense' ? 'disabled' : ''}`}
+            onClick={() => activeType !== 'expense' && handleCategoryClick(getCategoryKey(item.name))}
             disabled={activeType === 'expense'}
           >
-            {item.label}
+            {item.icon} {item.name}
           </button>
         ))}
       </div>
 
       <div className="filter-row">
-        {expenseCategoryLabels.map((item) => (
+        {expenseCategories.map((item) => (
           <button
-            key={item.value}
-            className={`filter-chip category-chip ${activeCategory === item.value ? 'active' : ''} ${activeType === 'income' ? 'disabled' : ''}`}
-            onClick={() => activeType !== 'income' && handleCategoryClick(item.value)}
+            key={item.id}
+            className={`filter-chip category-chip ${activeCategory === getCategoryKey(item.name) ? 'active' : ''} ${activeType === 'income' ? 'disabled' : ''}`}
+            onClick={() => activeType !== 'income' && handleCategoryClick(getCategoryKey(item.name))}
             disabled={activeType === 'income'}
           >
-            {item.label}
+            {item.icon} {item.name}
           </button>
         ))}
       </div>

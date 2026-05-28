@@ -1,6 +1,6 @@
 import React from 'react';
 import { CategoryBreakdownItem } from '../../types/statistics';
-import { expenseCategoryDict, incomeCategoryDict } from '../../utils/commonDic';
+import { useCategoryLookup } from '../../hooks/useCategories';
 import { formatAmount } from '../../utils/common';
 import './index.scss';
 
@@ -12,10 +12,10 @@ interface CategoryRankingProps {
 
 export const CategoryRanking: React.FC<CategoryRankingProps> = ({
   data,
-  type,
+  type: _type,
   totalAmount,
 }) => {
-  const catDict = type === 'income' ? incomeCategoryDict : expenseCategoryDict;
+  const { getCategoryName, getCategoryIcon } = useCategoryLookup();
 
   const sortedData = [...data].sort((a, b) => b.amount - a.amount);
 
@@ -40,10 +40,7 @@ export const CategoryRanking: React.FC<CategoryRankingProps> = ({
         </thead>
         <tbody>
           {sortedData.map((item, index) => {
-            const catInfo = catDict[item.category as keyof typeof catDict] as { icon: string; name: string } | undefined;
-            const displayLabel = catInfo
-              ? `${catInfo.icon} ${catInfo.name}`
-              : item.category;
+            const displayLabel = `${getCategoryIcon(item.category)} ${getCategoryName(item.category)}`;
             const displayPercentage =
               totalAmount > 0
                 ? ((item.amount / totalAmount) * 100).toFixed(1)
