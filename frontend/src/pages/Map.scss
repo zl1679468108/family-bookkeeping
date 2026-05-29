@@ -92,3 +92,24 @@
 .map-stat-item strong {
   color: var(--fg);
 }
+
+/* 面板容器：始终渲染，CSS 切显隐（避免地图重新初始化） */
+.map-content {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+}
+
+.map-panel {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: none;
+}
+
+.map-panel.active {
+  display: flex;
+  flex-direction: column;
+}

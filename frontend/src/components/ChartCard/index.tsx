@@ -186,10 +186,10 @@ const buildYoYOption = (
     },
     legend: {
       data: labels,
-      bottom: 0,
+      top: 0,
       textStyle: { color: axisColor, fontSize: 12 },
     },
-    grid: { left: 60, right: 10, top: 20, bottom: 36 },
+    grid: { left: 60, right: 10, top: 30, bottom: 24 },
     xAxis: {
       type: 'category',
       data: months,

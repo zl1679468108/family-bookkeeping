@@ -36,17 +36,18 @@ Config → Supabase → Auth → Transaction → Categories → Statistics → E
 
 ## 前端目录 (frontend/src/)
 
-components/ (Layout,Sidebar,Header,ChartCard,TransactionsList,StatCard,ImageUploader,Form,FilterBar,ui,BookSwitcher,DateRangeFilter)
+components/ (Layout,Sidebar,Header,ChartCard,TransactionsList,StatCard,ImageUploader,Form,FilterBar,ui,BookSwitcher,DateRangeFilter,MapCanvas,MerchantList,TransactionHistoryModal)
 pages/ (Dashboard,Transactions,Reports,AddTransaction,Categories,Budgets,Books,Map,User/Login,Register)
 services/ (api.ts,categoriesApi.ts,statisticsApi.ts,budgetsApi.ts,booksApi.ts)
 hooks/ (useCategories.ts,useFocusItem.ts,useBook.tsx)
 
-## 地图模块 (2026-05-28新增)
+## 地图模块 (2026-05-28新增，2026-05-29重构)
 - 地图 API: 高德地图 JS API 2.0, @uiw/react-amap
 - 后端: backend/src/map/ (module/controller/service/dto)
-- 前端: pages/Map.tsx, 路由 /map
-- API: GET /api/map/transactions, GET /api/map/merchants
+- 前端: pages/Map.tsx + components/MapCanvas + MerchantList + TransactionHistoryModal, 路由 /map
+- API: GET /api/map/transactions, GET /api/map/merchants, GET /api/map/merchants/transactions
 - 数据库: transactions 新增 latitude/longitude/location_name/poi_id
+- 子功能: 足迹(商户聚合+交易历史弹窗) / 热力 / 列表
 - 文档: docs/05-地图功能需求.md, docs/06-地图功能-架构设计.md
 
 ## 数据库表

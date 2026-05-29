@@ -5,7 +5,6 @@ import { startOfMonth, endOfMonth, format, differenceInMonths, subMonths } from 
 import { Header } from '../components/Header'
 import { ChartCard } from '../components/ChartCard'
 import { DateRangeFilter } from '../components/DateRangeFilter'
-import { CategoryRanking } from '../components/CategoryRanking'
 import { fetchMonthlyTrend, fetchCategoryBreakdown, fetchYearOverYear } from '../services/statisticsApi'
 import { exportToExcel, exportToPDF } from '../services/api'
 import type { MonthlyTrendItem, CategoryBreakdownItem, YoYComparisonItem } from '../types/statistics'
@@ -15,7 +14,6 @@ import './Reports.scss'
 
 const Reports: React.FC = () => {
   const navigate = useNavigate()
-  const today = new Date()
 
   const [dateRange, setDateRange] = useState(() => {
     const now = new Date()
@@ -27,7 +25,15 @@ const Reports: React.FC = () => {
 
   const [analysisTab, setAnalysisTab] = useState<'expense' | 'income'>('expense')
   const [exporting, setExporting] = useState<'excel' | 'pdf' | null>(null)
-  const [yoyYear] = useState(new Date().getFullYear())
+  const currentYear = new Date().getFullYear()
+  const [yoyYear, setYoyYear] = useState(currentYear)
+  const [yoyCompareYear, setYoyCompareYear] = useState(currentYear - 1)
+
+  // 从 dateRange 推导起止月份（用于过滤年度对比数据）
+  const rangeMonths = useMemo(() => ({
+    start: parseInt(format(new Date(dateRange.startDate), 'M'), 10),
+    end: parseInt(format(new Date(dateRange.endDate), 'M'), 10),
+  }), [dateRange.startDate, dateRange.endDate])
 
   const trendMonths = useMemo(() => {
     const months = differenceInMonths(
@@ -42,8 +48,8 @@ const Reports: React.FC = () => {
     data: trendData = [],
     isLoading: trendLoading,
   } = useQuery({
-    queryKey: ['statistics', 'monthly-trend', trendMonths, analysisTab],
-    queryFn: () => fetchMonthlyTrend({ months: trendMonths, type: analysisTab }),
+    queryKey: ['statistics', 'monthly-trend', trendMonths, dateRange.endDate, analysisTab],
+    queryFn: () => fetchMonthlyTrend({ months: trendMonths, endDate: dateRange.endDate, type: analysisTab }),
   })
 
   // 分类占比
@@ -60,14 +66,22 @@ const Reports: React.FC = () => {
       }),
   })
 
-  // 年度对比
+  // 年度对比 — 跟随时间筛选，只显示范围内的月份
   const {
-    data: yoyData = [],
+    data: yoyDataRaw = [],
     isLoading: yoyLoading,
   } = useQuery({
-    queryKey: ['statistics', 'yoy-comparison', yoyYear, analysisTab],
-    queryFn: () => fetchYearOverYear({ year: yoyYear, type: analysisTab }),
+    queryKey: ['statistics', 'yoy-comparison', yoyYear, yoyCompareYear, analysisTab],
+    queryFn: () => fetchYearOverYear({ year: yoyYear, compareYear: yoyCompareYear, type: analysisTab }),
   })
+
+  const yoyData = useMemo(() =>
+    yoyDataRaw.filter((item) => {
+      const m = parseInt(item.month, 10)
+      return m >= rangeMonths.start && m <= rangeMonths.end
+    }),
+    [yoyDataRaw, rangeMonths],
+  )
 
   const handleCategoryClick = (categoryKey: string) => {
     navigate(
@@ -167,24 +181,46 @@ const Reports: React.FC = () => {
 
       {/* 年度对比 */}
       <div style={{ marginBottom: '32px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+          <h3 className="section-title" style={{ margin: 0 }}>
+            {isExpense ? '支出对比' : '收入对比'}
+          </h3>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px' }}>
+            <select
+              value={yoyYear}
+              onChange={(e) => setYoyYear(Number(e.target.value))}
+              style={{
+                padding: '4px 8px', border: '1px solid var(--border)',
+                borderRadius: 'var(--radius-sm)', background: 'var(--surface)', color: 'var(--fg)',
+              }}
+            >
+              {Array.from({ length: 7 }, (_, i) => currentYear - i).map(y => (
+                <option key={y} value={y}>{y}年</option>
+              ))}
+            </select>
+            <span style={{ color: 'var(--muted)' }}>vs</span>
+            <select
+              value={yoyCompareYear}
+              onChange={(e) => setYoyCompareYear(Number(e.target.value))}
+              style={{
+                padding: '4px 8px', border: '1px solid var(--border)',
+                borderRadius: 'var(--radius-sm)', background: 'var(--surface)', color: 'var(--fg)',
+              }}
+            >
+              {Array.from({ length: 7 }, (_, i) => currentYear - i).map(y => (
+                <option key={y} value={y}>{y}年</option>
+              ))}
+            </select>
+          </div>
+        </div>
         <ChartCard
-          title={isExpense ? '支出对比' : '收入对比'}
+          title=""
           chartType="yoy"
           data={yoyData as YoYComparisonItem[]}
           loading={yoyLoading}
-          seriesLabels={[`${yoyYear}年`, `${yoyYear - 1}年`]}
+          seriesLabels={[`${yoyYear}年`, `${yoyCompareYear}年`]}
         />
       </div>
-
-      {/* 排行 */}
-      <h2 className="section-title">
-        {isExpense ? '支出排行' : '收入排行'}
-      </h2>
-      <CategoryRanking
-        data={breakdownData || []}
-        type={analysisTab}
-        totalAmount={(breakdownData || []).reduce((sum, item) => sum + item.amount, 0)}
-      />
     </div>
   )
 }

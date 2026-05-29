@@ -10,7 +10,7 @@ import type { MapFilters } from '../types/map';
 import { startOfMonth, format } from 'date-fns';
 import './Map.scss';
 
-type ViewMode = 'marker' | 'heatmap' | 'merchant-map' | 'merchant-list';
+type ViewMode = 'footprints' | 'heatmap' | 'list';
 
 const MapPage: React.FC = () => {
   const today = new Date();
@@ -18,21 +18,20 @@ const MapPage: React.FC = () => {
     startDate: format(startOfMonth(today), 'yyyy-MM-dd'),
     endDate: format(today, 'yyyy-MM-dd'),
   });
-  const [viewMode, setViewMode] = useState<ViewMode>('marker');
+  const [viewMode, setViewMode] = useState<ViewMode>('footprints');
 
   const { data: categories = [] } = useCategories();
 
-  // 获取交易数据
+  // 获取交易数据（热力图需要原始交易数据）
   const { data: transactions = [], isLoading } = useQuery({
     queryKey: ['map', 'transactions', filters.startDate, filters.endDate, filters.type, filters.categories?.join(',')],
     queryFn: () => fetchMapTransactions(filters),
   });
 
-  // 获取商户汇总（商户视图时使用）
+  // 获取商户汇总（始终获取，避免切换时重新请求）
   const { data: merchants = [] } = useQuery({
     queryKey: ['map', 'merchants', filters.startDate, filters.endDate, filters.type],
     queryFn: () => fetchMerchantSummary(filters),
-    enabled: viewMode === 'merchant-map' || viewMode === 'merchant-list',
   });
 
   const handleDateRangeChange = (startDate: string, endDate: string) => {
@@ -53,13 +52,13 @@ const MapPage: React.FC = () => {
     setFilters((prev) => ({ ...prev, type }));
   }, []);
 
-  // 分类ID → 显示名映射
-  const categoryNameMap: Record<string, string> = {};
-  categories.forEach((cat: any) => {
-    categoryNameMap[cat.id] = cat.icon ? `${cat.icon} ${cat.name}` : cat.name;
-  });
-
-  const isListView = viewMode === 'merchant-list';
+  // 统计摘要
+  const totalPoints = viewMode === 'footprints' || viewMode === 'list'
+    ? merchants.length
+    : transactions.length;
+  const totalAmount = viewMode === 'footprints' || viewMode === 'list'
+    ? merchants.reduce((sum, m) => sum + m.total_amount, 0)
+    : transactions.reduce((sum, t) => sum + Number(t.amount), 0);
 
   return (
     <div className="map-page">
@@ -110,38 +109,39 @@ const MapPage: React.FC = () => {
         {/* 视图切换 */}
         <div className="map-toolbar-row map-toolbar-bottom">
           <div className="map-view-toggle">
-            <button className={`map-chip ${viewMode === 'marker' ? 'active' : ''}`} onClick={() => setViewMode('marker')}>📍 标记</button>
+            <button className={`map-chip ${viewMode === 'footprints' ? 'active' : ''}`} onClick={() => setViewMode('footprints')}>👣 足迹</button>
             <button
               className={`map-chip ${viewMode === 'heatmap' ? 'active' : ''} ${transactions.length < 5 ? 'disabled' : ''}`}
               onClick={() => transactions.length >= 5 && setViewMode('heatmap')}
               disabled={transactions.length < 5}
               title={transactions.length < 5 ? '至少需要5个消费点' : '热力图'}
             >🔥 热力</button>
-            <button className={`map-chip ${viewMode === 'merchant-map' ? 'active' : ''}`} onClick={() => setViewMode('merchant-map')}>🏪 商户地图</button>
-            <button className={`map-chip ${viewMode === 'merchant-list' ? 'active' : ''}`} onClick={() => setViewMode('merchant-list')}>📋 列表</button>
+            <button className={`map-chip ${viewMode === 'list' ? 'active' : ''}`} onClick={() => setViewMode('list')}>📋 列表</button>
           </div>
           <div className="map-stats">
             <span className="map-stat-item">
-              📌 <strong>{transactions.length}</strong> 个消费点
+              📌 <strong>{totalPoints}</strong> 个{viewMode === 'heatmap' ? '消费点' : '商户'}
             </span>
             <span className="map-stat-item">
-              💰 <strong>¥ {transactions.reduce((sum, t) => sum + Number(t.amount), 0).toLocaleString('zh-CN', { minimumFractionDigits: 2 })}</strong>
+              💰 <strong>¥ {totalAmount.toLocaleString('zh-CN', { minimumFractionDigits: 2 })}</strong>
             </span>
           </div>
         </div>
       </div>
 
-      {/* 主体内容 */}
-      {isListView ? (
-        <MerchantList merchants={merchants} loading={isLoading} />
-      ) : (
-        <MapCanvas
-          data={transactions}
-          merchants={merchants}
-          loading={isLoading}
-          viewMode={viewMode}
-        />
-      )}
+      {/* 主体内容 — 三个面板始终渲染，CSS 切显隐，避免地图重新初始化 */}
+      <div className="map-content">
+        <div className={`map-panel ${viewMode === 'footprints' || viewMode === 'heatmap' ? 'active' : ''}`}>
+          <MapCanvas
+            data={transactions}
+            merchants={merchants}
+            viewMode={viewMode === 'list' ? 'footprints' : viewMode}
+          />
+        </div>
+        <div className={`map-panel ${viewMode === 'list' ? 'active' : ''}`}>
+          <MerchantList merchants={merchants} loading={isLoading} />
+        </div>
+      </div>
     </div>
   );
 };

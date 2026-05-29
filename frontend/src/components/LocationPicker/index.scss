@@ -10,6 +10,11 @@
   backdrop-filter: blur(2px);
 }
 
+.location-picker-overlay.hidden {
+  visibility: hidden;
+  pointer-events: none;
+}
+
 /* 弹窗容器 */
 .location-picker-modal {
   background: var(--surface);

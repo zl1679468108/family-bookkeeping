@@ -1,216 +1,207 @@
 import React, { useMemo, useState, useCallback, useEffect, useRef } from 'react';
 import { APILoader, Map, Marker, InfoWindow } from '@uiw/react-amap';
 import type { MapTransaction, MerchantSummary } from '../../types/map';
-import { getCategoryColor } from '../../utils/categoryColors';
-import { formatAmountWithType } from '../../utils/common';
-import { useCategoryLookup } from '../../hooks/useCategories';
+import { TransactionHistoryModal } from '../TransactionHistoryModal';
 import './index.scss';
-
-interface MapCanvasProps {
-  data: MapTransaction[];
-  merchants: MerchantSummary[];
-  loading: boolean;
-  viewMode: 'marker' | 'heatmap' | 'merchant-map';
-}
 
 const AnyMap = Map as any;
 const AnyMarker = Marker as any;
 const AnyInfoWindow = InfoWindow as any;
 
-// 高德 JS API 2.0 安全密钥配置
 const scode = process.env.REACT_APP_AMAP_SECRET;
 if (scode && typeof window !== 'undefined') {
   (window as any)._AMapSecurityConfig = { securityJsCode: scode };
 }
 
-function createMarkerContent(category: string, amount: number, maxAmount: number): string {
-  const color = getCategoryColor(category);
-  const minSize = 8;
-  const maxSize = 32;
-  const size = maxAmount > 0
-    ? minSize + (amount / maxAmount) * (maxSize - minSize)
-    : 12;
-  const clamped = Math.min(Math.max(size, minSize), maxSize);
+/* ⚠️ 静态初值，永不随 state 变化，避免二次变更视口取消瓦片 */
+function getMerchantColor(expenseTotal: number, incomeTotal: number): string {
+  const total = expenseTotal + incomeTotal;
+  if (total === 0) return '#aaa';
+  const expenseRatio = expenseTotal / total;
+  if (expenseRatio >= 0.9) return '#EE6666';
+  if (expenseRatio <= 0.1) return '#91CC75';
+  const r = Math.round(238 - (238 - 145) * (1 - expenseRatio));
+  const g = Math.round(102 + (204 - 102) * (1 - expenseRatio));
+  const b = Math.round(102 - (102 - 117) * (1 - expenseRatio));
+  return `rgb(${r},${g},${b})`;
+}
+
+function createFootprintContent(merchant: MerchantSummary): string {
+  const size = 36;
+  const color = getMerchantColor(merchant.expense_total, merchant.income_total);
+  const shortName = merchant.location_name.length > 2
+    ? merchant.location_name.slice(0, 2)
+    : merchant.location_name;
   return `
     <div style="
-      width: ${clamped}px;
-      height: ${clamped}px;
-      border-radius: 50%;
-      background: ${color};
-      border: 2px solid white;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-      cursor: pointer;
-    "></div>
+      width: ${size}px; height: ${size}px;
+      border-radius: 50%; background: ${color};
+      border: 3px solid white; box-shadow: 0 2px 10px rgba(0,0,0,0.35);
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      color: white; font-size: 12px; font-weight: 700; white-space: nowrap;
+    ">${shortName}</div>
   `;
 }
 
-function createMerchantContent(totalAmount: number, maxAmount: number): string {
-  const minSize = 16;
-  const maxSize = 48;
-  const ratio = maxAmount > 0 ? totalAmount / maxAmount : 0.2;
-  const size = minSize + ratio * (maxSize - minSize);
-  const opacity = 0.5 + ratio * 0.5;
-  return `
-    <div style="
-      width: ${size}px;
-      height: ${size}px;
-      border-radius: 50%;
-      background: rgba(238,102,102,${opacity});
-      border: 2px solid rgba(238,102,102,0.8);
-      box-shadow: 0 2px 8px rgba(238,102,102,0.4);
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      font-size: ${Math.max(10, size / 3)}px;
-      font-weight: bold;
-    ">¥</div>
-  `;
+interface MapCanvasProps {
+  data: MapTransaction[];
+  merchants: MerchantSummary[];
+  viewMode: 'footprints' | 'heatmap';
 }
 
-export const MapCanvas: React.FC<MapCanvasProps> = ({ data, merchants, loading, viewMode }) => {
-  const [activeItem, setActiveItem] = useState<MapTransaction | MerchantSummary | null>(null);
-  const [activeType, setActiveType] = useState<'transaction' | 'merchant'>('transaction');
-  const [infoPos, setInfoPos] = useState<[number, number] | null>(null);
+export const MapCanvas: React.FC<MapCanvasProps> = ({ data, merchants, viewMode }) => {
+  const [activeInfo, setActiveInfo] = useState<{ merchant: MerchantSummary; pos: [number, number] } | null>(null);
+  const [historyMerchant, setHistoryMerchant] = useState<MerchantSummary | null>(null);
   const [searchText, setSearchText] = useState('');
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [searching, setSearching] = useState(false);
+  const [locateError, setLocateError] = useState('');
+
   const mapRef = useRef<any>(null);
-  const hasLocated = useRef(false);
-  const { getCategoryName, getCategoryIcon } = useCategoryLookup();
+  const locateDone = useRef(false);
+  const fitCount = useRef(0);         // 上次 fit 的点位数，避免重复
 
-  // 定位到当前位置
-  const handleLocate = useCallback(() => {
-    const AMapWin = (window as any).AMap;
-    if (!AMapWin?.Geolocation) return;
-    const geo = new AMapWin.Geolocation({ enableHighAccuracy: true, timeout: 8000 });
-    geo.getCurrentPosition((status: string, result: any) => {
-      const map = mapRef.current?.map;
-      if (!map) return;
-      if (status === 'complete' && result.position) {
-        map.setCenter([result.position.lng, result.position.lat]);
-        map.setZoom(15);
-      } else {
-        // 定位失败，回退到北京
-        map.setCenter([116.397428, 39.90923]);
-        map.setZoom(11);
-      }
-    });
-  }, []);
-
-  // 自动定位到当前位置（只在首次加载时触发一次）
+  // 筛选/视图切换时关闭已打开的信息窗
   useEffect(() => {
-    if (hasLocated.current) return;
-    const timer = setInterval(() => {
-      if (mapRef.current?.map && (window as any).AMap?.Geolocation) {
-        clearInterval(timer);
-        hasLocated.current = true;
-        handleLocate();
-      }
-    }, 200);
-    const timeout = setTimeout(() => { clearInterval(timer); hasLocated.current = true; }, 8000);
-    return () => { clearInterval(timer); clearTimeout(timeout); };
-  }, [handleLocate]);
+    setActiveInfo(null);
+  }, [viewMode, data, merchants]);
 
-  const center: [number, number] = useMemo(() => {
-    if (data.length === 0 && merchants.length === 0) return [116.397428, 39.90923];
-    const points = viewMode === 'merchant-map'
-      ? data // 商户视图用交易数据算中心
-      : data;
-    if (points.length === 0) return [116.397428, 39.90923];
-    const avgLng = points.reduce((sum, t) => sum + t.longitude, 0) / points.length;
-    const avgLat = points.reduce((sum, t) => sum + t.latitude, 0) / points.length;
-    return [avgLng, avgLat];
-  }, [data, viewMode]);
-
-  const maxAmount = useMemo(() => {
-    if (viewMode === 'merchant-map') {
-      return merchants.reduce((max, m) => Math.max(max, m.total_amount), 0);
+  const allPoints: [number, number][] = useMemo(() => {
+    if (viewMode === 'footprints') {
+      return merchants
+        .map((m) => {
+          const tx = data.find((t) => t.location_name === m.location_name);
+          return tx ? ([tx.longitude, tx.latitude] as [number, number]) : null;
+        })
+        .filter((p): p is [number, number] => p !== null);
     }
-    return data.reduce((max, t) => Math.max(max, Number(t.amount)), 0);
+    return data.map((t) => [t.longitude, t.latitude] as [number, number]);
   }, [data, merchants, viewMode]);
 
-  // 热力图效果
+  /* ====== 数据到了就 fit ====== */
   useEffect(() => {
-    if (viewMode !== 'heatmap') return;
     const map = mapRef.current?.map;
-    if (!map || data.length === 0) return;
-
     const AMapWin = (window as any).AMap;
-    if (!AMapWin?.HeatMap) return;
+    if (!map || !AMapWin?.LngLat || allPoints.length === 0) return;
+    if (allPoints.length === fitCount.current) return;
+    fitCount.current = allPoints.length;
+    setLocateError('');
+    if (allPoints.length >= 2) {
+      // 手动计算 bounds，避免 setFitView 格式问题
+      const lngs = allPoints.map(p => p[0]);
+      const lats = allPoints.map(p => p[1]);
+      const sw = new AMapWin.LngLat(Math.min(...lngs), Math.min(...lats));
+      const ne = new AMapWin.LngLat(Math.max(...lngs), Math.max(...lats));
+      const bounds = new AMapWin.Bounds(sw, ne);
+      map.setBounds(bounds, false, [60, 40, 80, 40]);
+    } else {
+      map.setCenter(allPoints[0]);
+      map.setZoom(15);
+    }
+  }, [allPoints]);
 
-    // 清除已有热力图
-    const existingLayers = map.getLayers?.() || [];
-    existingLayers.forEach((layer: any) => {
-      if (layer?.CLASS_NAME === 'AMap.HeatMap') map.remove(layer);
-    });
+  /* ====== 超时无数据 → 定位当前位置 ====== */
+  useEffect(() => {
+    // 等地图实例到位，再加数据加载的超时
+    const checkMap = setInterval(() => {
+      if (mapRef.current?.map) {
+        clearInterval(checkMap);
+        // 给数据 3 秒时间
+        const timer = setTimeout(() => {
+          if (fitCount.current > 0 || locateDone.current) return;
+          const map = mapRef.current?.map;
+          const AMapWin = (window as any).AMap;
+          if (!map || !AMapWin?.Geolocation) {
+            setLocateError('定位功能不可用');
+            locateDone.current = true;
+            return;
+          }
+          const geo = new AMapWin.Geolocation({ enableHighAccuracy: true, timeout: 8000 });
+          geo.getCurrentPosition((status: string, result: any) => {
+            locateDone.current = true;
+            if (status === 'complete' && result.position) {
+              map.setCenter([result.position.lng, result.position.lat]);
+              map.setZoom(15);
+            } else {
+              setLocateError('无法获取当前位置，请确认已授权位置权限');
+            }
+          });
+        }, 3000);
+        return () => clearTimeout(timer);
+      }
+    }, 100);
+    return () => clearInterval(checkMap);
+  }, []);
+
+  /* ====== 其余逻辑 ====== */
+
+  const heatmapRef = useRef<any>(null);
+
+  // 热力图
+  useEffect(() => {
+    const map = mapRef.current?.map;
+    if (!map) return;
+    const AMapWin = (window as any).AMap;
+
+    // 先清理旧图层
+    if (heatmapRef.current) {
+      heatmapRef.current.setMap(null);
+      heatmapRef.current = null;
+    }
+
+    if (viewMode !== 'heatmap' || data.length === 0 || !AMapWin?.HeatMap) return;
 
     const heatmapData = data.map((t) => ({
       lng: t.longitude,
       lat: t.latitude,
       count: Math.max(1, Math.floor(Number(t.amount) / 10)),
     }));
-
     const heatmap = new AMapWin.HeatMap(map, {
-      radius: 40,
-      opacity: [0, 0.8],
-      gradient: { 0.2: '#91CC75', 0.4: '#FAC858', 0.6: '#EE6666', 0.8: '#9A60B4', 1.0: '#9A60B4' },
+      radius: 30,
+      opacity: [0.15, 0.95],
+      gradient: {
+        0.2: 'rgb(0,200,0)',
+        0.4: 'rgb(255,255,0)',
+        0.6: 'rgb(255,140,0)',
+        0.8: 'rgb(255,0,0)',
+        1.0: 'rgb(150,0,0)',
+      },
     });
     heatmap.setDataSet({ data: heatmapData, max: 100 });
+    heatmapRef.current = heatmap;
 
     return () => {
-      const map = mapRef.current?.map;
-      if (map) {
-        const layers = map.getLayers?.() || [];
-        layers.forEach((layer: any) => {
-          if (layer?.CLASS_NAME === 'AMap.HeatMap') {
-            map.remove(layer);
-          }
-        });
+      if (heatmapRef.current) {
+        heatmapRef.current.setMap(null);
+        heatmapRef.current = null;
       }
     };
   }, [viewMode, data]);
 
-  const handleMarkerClick = useCallback(
-    (item: MapTransaction, pos: [number, number]) => {
-      setActiveItem(item);
-      setActiveType('transaction');
-      setInfoPos(pos);
-    },
-    []
-  );
+  const dataRef = useRef(data);
+  dataRef.current = data;
 
   const handleMerchantClick = useCallback(
-    (merchant: MerchantSummary, idx: number) => {
-      // 查找该商户的交易获取坐标
-      const tx = data.find((t) => t.location_name === merchant.location_name);
-      const pos: [number, number] = tx
-        ? [tx.longitude, tx.latitude]
-        : [116.397428, 39.90923];
-      setActiveItem(merchant);
-      setActiveType('merchant');
-      setInfoPos(pos);
+    (merchant: MerchantSummary) => {
+      const tx = dataRef.current.find((t) => t.location_name === merchant.location_name);
+      if (tx) {
+        setActiveInfo({ merchant, pos: [tx.longitude, tx.latitude] });
+      }
     },
-    [data]
+    [] // 用 dataRef 避免 data 变化导致回调重建
   );
 
-  const handleInfoClose = useCallback(() => {
-    setActiveItem(null);
-    setInfoPos(null);
+  const handleShowHistory = useCallback((merchant: MerchantSummary) => {
+    setActiveInfo(null);
+    setHistoryMerchant(merchant);
   }, []);
 
-  // POI 搜索
   const handleSearch = useCallback(() => {
     if (!searchText.trim()) return;
     const AMapWin = (window as any).AMap;
     if (!AMapWin?.PlaceSearch) return;
     setSearching(true);
-    const placeSearch = new AMapWin.PlaceSearch({
-      pageSize: 20,
-      pageIndex: 1,
-      city: '全国',
-    });
+    const placeSearch = new AMapWin.PlaceSearch({ pageSize: 20, pageIndex: 1, city: '全国' });
     placeSearch.search(searchText, (status: string, result: any) => {
       setSearching(false);
       if (status === 'complete' && result.poiList?.pois) {
@@ -220,175 +211,113 @@ export const MapCanvas: React.FC<MapCanvasProps> = ({ data, merchants, loading, 
   }, [searchText]);
 
   const handleSearchResultClick = useCallback((poi: any) => {
-    const pos: [number, number] = [poi.location.lng, poi.location.lat];
     if (mapRef.current?.map) {
-      mapRef.current.map.setCenter(pos);
+      mapRef.current.map.setCenter([poi.location.lng, poi.location.lat]);
       mapRef.current.map.setZoom(16);
     }
   }, []);
 
-  // 点击地图关闭搜索列表
-  const handleMapClick = useCallback(() => {
-    setSearchResults([]);
-  }, []);
-
-  if (loading) {
-    return (
-      <div className="map-loading">
-        <div className="map-loading-spinner" />
-        <span>加载数据中...</span>
-      </div>
-    );
-  }
-
   const amapKey = process.env.REACT_APP_AMAP_KEY || '';
 
   return (
-    <div className="map-canvas-wrapper">
-      {/* POI 搜索栏 */}
-      <div className="map-search-overlay">
-        <input
-          type="text"
-          className="map-search-input"
-          placeholder="搜索附近商户..."
-          value={searchText}
-          onChange={(e) => setSearchText(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-        />
-        <button className="map-search-btn" onClick={handleSearch} disabled={searching}>
-          {searching ? '...' : '🔍'}
-        </button>
-        <button className="map-search-btn map-locate-btn" onClick={handleLocate} title="定位到当前位置">
-          📍
-        </button>
-        {/* 搜索结果列表 */}
-        {searchResults.length > 0 && (
-          <div className="map-search-results">
-            {searchResults.map((poi: any, i: number) => {
-              const hasData = data.some((t) => t.poi_id === poi.id);
-              return (
-                <div
-                  key={i}
-                  className={`map-search-item ${hasData ? 'has-data' : ''}`}
-                  onClick={() => handleSearchResultClick(poi)}
-                >
-                  <span>{hasData ? '✅' : '📍'}</span>
-                  <span>{poi.name}</span>
-                  <span className="map-search-addr">{poi.address}</span>
-                </div>
-              );
-            })}
-            <button className="map-search-clear" onClick={() => setSearchResults([])}>关闭</button>
-          </div>
-        )}
-      </div>
-
-      {data.length === 0 && merchants.length === 0 ? (
-        <div className="map-empty">
-          <div className="map-empty-icon">🗺️</div>
-          <h3>暂无消费标记</h3>
-          <p>记一笔时添加位置信息，消费点就会出现在地图上</p>
+    <>
+      <div className="map-canvas-wrapper">
+        <div className="map-search-overlay">
+          <input
+            type="text" className="map-search-input"
+            placeholder="搜索附近商户..."
+            value={searchText}
+            onChange={(e) => setSearchText(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+          />
+          <button className="map-search-btn" onClick={handleSearch} disabled={searching}>
+            {searching ? '...' : '🔍'}
+          </button>
+          {searchResults.length > 0 && (
+            <div className="map-search-results">
+              {searchResults.map((poi: any, i: number) => {
+                const hasData = data.some((t) => t.poi_id === poi.id);
+                return (
+                  <div
+                    key={i}
+                    className={`map-search-item ${hasData ? 'has-data' : ''}`}
+                    onClick={() => handleSearchResultClick(poi)}
+                  >
+                    <span>{hasData ? '✅' : '📍'}</span>
+                    <span>{poi.name}</span>
+                    <span className="map-search-addr">{poi.address}</span>
+                  </div>
+                );
+              })}
+              <button className="map-search-clear" onClick={() => setSearchResults([])}>关闭</button>
+            </div>
+          )}
         </div>
-      ) : (
+
+        {locateError && <div className="map-locate-error">{locateError}</div>}
+
         <APILoader akey={amapKey} version="2.0" plugins={['AMap.PlaceSearch', 'AMap.HeatMap', 'AMap.Geolocation']}>
           <AnyMap
             ref={mapRef}
-            center={center}
-            zoom={13}
-            onClick={handleMapClick}
             style={{ width: '100%', height: '100%' }}
           >
-            {/* 标记视图 */}
-            {viewMode === 'marker' &&
-              data.map((transaction) => {
-                const pos: [number, number] = [transaction.longitude, transaction.latitude];
+            {viewMode === 'footprints' &&
+              merchants.map((merchant, idx) => {
+                const tx = data.find((t) => t.location_name === merchant.location_name);
+                if (!tx) return null;
                 return (
                   <AnyMarker
-                    key={transaction.id}
-                    position={pos}
-                    content={createMarkerContent(transaction.category, Number(transaction.amount), maxAmount)}
-                    onClick={() => handleMarkerClick(transaction, pos)}
+                    key={`fp-${idx}`}
+                    position={[tx.longitude, tx.latitude]}
+                    content={createFootprintContent(merchant)}
+                    onClick={() => handleMerchantClick(merchant)}
                   />
                 );
               })}
 
-            {/* 商户地图视图 */}
-            {viewMode === 'merchant-map' &&
-              merchants.map((m, idx) => {
-                const tx = data.find((t) => t.location_name === m.location_name);
-                const pos: [number, number] = tx
-                  ? [tx.longitude, tx.latitude]
-                  : [116.397428 + (idx % 10) * 0.01, 39.90923 + Math.floor(idx / 10) * 0.01];
-                return (
-                  <AnyMarker
-                    key={idx}
-                    position={pos}
-                    content={createMerchantContent(m.total_amount, maxAmount)}
-                    onClick={() => handleMerchantClick(m, idx)}
-                  />
-                );
-              })}
-
-            {/* InfoWindow */}
-            {activeItem && infoPos && (
-              <AnyInfoWindow
-                position={infoPos}
-                visible={true}
-                onClose={handleInfoClose}
-                offset={[0, -20]}
-              >
-                {activeType === 'transaction' ? (
-                  <div className="marker-info-window">
-                    <div className="marker-info-header">
-                      <span className="marker-info-icon">
-                        {getCategoryIcon((activeItem as MapTransaction).category)}
-                      </span>
-                      <span className="marker-info-category">
-                        {getCategoryName((activeItem as MapTransaction).category)}
-                      </span>
-                    </div>
-                    <div className="marker-info-amount">
-                      {formatAmountWithType(
-                        (activeItem as MapTransaction).amount,
-                        (activeItem as MapTransaction).type === 'income'
-                      )}
-                    </div>
-                    <div className="marker-info-location">
-                      📍 {(activeItem as MapTransaction).location_name}
-                    </div>
-                    {(activeItem as MapTransaction).description && (
-                      <div className="marker-info-note">
-                        💬 {(activeItem as MapTransaction).description}
-                      </div>
-                    )}
-                    <div className="marker-info-date">
-                      {(activeItem as MapTransaction).date}
-                    </div>
+            <AnyInfoWindow
+              position={activeInfo?.pos ?? [0, 0]}
+              visible={activeInfo !== null}
+              onClose={() => setActiveInfo(null)}
+              offset={[0, -25]}
+            >
+              {activeInfo ? (
+                <div className="marker-info-window footprint-info">
+                  <div className="marker-info-header">
+                    <span className="marker-info-icon">🏪</span>
+                    <span className="marker-info-category">{activeInfo.merchant.location_name}</span>
                   </div>
-                ) : (
-                  <div className="marker-info-window">
-                    <div className="marker-info-header">
-                      <span className="marker-info-icon">🏪</span>
-                      <span className="marker-info-category">
-                        {(activeItem as MerchantSummary).location_name}
+                  {activeInfo.merchant.expense_count > 0 && (
+                    <div className="footprint-info-row expense clickable" onClick={() => handleShowHistory(activeInfo.merchant)}>
+                      <span className="footprint-info-label">支出</span>
+                      <span className="footprint-info-amount expense">
+                        ¥ {activeInfo.merchant.expense_total.toLocaleString('zh-CN', { minimumFractionDigits: 2 })}
                       </span>
+                      <span className="footprint-info-count">{activeInfo.merchant.expense_count} 次</span>
                     </div>
-                    <div className="marker-info-amount" style={{ color: '#EE6666' }}>
-                      -¥ {(activeItem as MerchantSummary).total_amount.toLocaleString('zh-CN', { minimumFractionDigits: 2 })}
+                  )}
+                  {activeInfo.merchant.income_count > 0 && (
+                    <div className="footprint-info-row income clickable" onClick={() => handleShowHistory(activeInfo.merchant)}>
+                      <span className="footprint-info-label">收入</span>
+                      <span className="footprint-info-amount income">
+                        ¥ {activeInfo.merchant.income_total.toLocaleString('zh-CN', { minimumFractionDigits: 2 })}
+                      </span>
+                      <span className="footprint-info-count">{activeInfo.merchant.income_count} 次</span>
                     </div>
-                    <div className="marker-info-location">
-                      📊 {(activeItem as MerchantSummary).transaction_count} 次消费
-                    </div>
-                    <div className="marker-info-date">
-                      最近: {(activeItem as MerchantSummary).last_transaction_date}
-                    </div>
-                  </div>
-                )}
-              </AnyInfoWindow>
-            )}
+                  )}
+                  <div className="marker-info-date">最近交易: {activeInfo.merchant.last_transaction_date}</div>
+                </div>
+              ) : (
+                <div />
+              )}
+            </AnyInfoWindow>
           </AnyMap>
         </APILoader>
+      </div>
+
+      {historyMerchant && (
+        <TransactionHistoryModal merchant={historyMerchant} onClose={() => setHistoryMerchant(null)} />
       )}
-    </div>
+    </>
   );
 };

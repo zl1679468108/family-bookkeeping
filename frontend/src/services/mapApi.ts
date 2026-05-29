@@ -27,3 +27,24 @@ export const fetchMerchantSummary = (filters: MapFilters): Promise<MerchantSumma
 
   return request<MerchantSummary[]>(`/map/merchants?${params}`, { requiresAuth: true });
 };
+
+/**
+ * 获取商户交易记录历史
+ */
+export const fetchMerchantTransactions = (
+  poiId: string | null,
+  locationName: string,
+  startDate?: string,
+  endDate?: string,
+): Promise<MapTransaction[]> => {
+  const params = new URLSearchParams();
+  if (poiId) {
+    params.append('poi_id', poiId);
+  } else {
+    params.append('location_name', locationName);
+  }
+  if (startDate) params.append('startDate', startDate);
+  if (endDate) params.append('endDate', endDate);
+
+  return request<MapTransaction[]>(`/map/merchants/transactions?${params}`, { requiresAuth: true });
+};

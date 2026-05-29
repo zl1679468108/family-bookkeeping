@@ -3,7 +3,7 @@ import { TokenAuthGuard } from '../auth/token-auth.guard';
 import { CurrentUser } from '../auth/current-user.decorator';
 import { BookId } from '../books/book-id.decorator';
 import { MapService } from './map.service';
-import { MapTransactionsQueryDto, MerchantQueryDto } from './dto/map-query.dto';
+import { MapTransactionsQueryDto, MerchantQueryDto, MerchantTransactionsQueryDto } from './dto/map-query.dto';
 
 @Controller('map')
 @UseGuards(TokenAuthGuard)
@@ -28,5 +28,15 @@ export class MapController {
   ) {
     const data = await this.mapService.getMerchantSummary(userId, bookId, query);
     return { message: '获取商户消费汇总成功', data };
+  }
+
+  @Get('merchants/transactions')
+  async getMerchantTransactions(
+    @CurrentUser('id') userId: string,
+    @BookId() bookId: string | undefined,
+    @Query() query: MerchantTransactionsQueryDto,
+  ) {
+    const data = await this.mapService.getMerchantTransactions(userId, bookId, query);
+    return { message: '获取商户交易记录成功', data };
   }
 }

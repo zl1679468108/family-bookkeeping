@@ -37,11 +37,13 @@
   background: var(--bg);
   border-radius: 10px;
   border: 1px solid var(--border);
-  transition: box-shadow 0.2s;
+  transition: box-shadow 0.2s, border-color 0.2s;
+  cursor: pointer;
 }
 
 .merchant-row:hover {
   box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  border-color: var(--accent, #5470C6);
 }
 
 .merchant-row-rank {
@@ -127,6 +129,31 @@
   font-size: 11px;
   color: var(--muted);
   margin-top: 4px;
+}
+
+/* 收入/支出明细标签 */
+.merchant-row-detail {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+  flex-wrap: wrap;
+}
+
+.detail-tag {
+  font-size: 11px;
+  padding: 1px 8px;
+  border-radius: 8px;
+  white-space: nowrap;
+}
+
+.detail-tag.expense {
+  background: rgba(238, 102, 102, 0.08);
+  color: #EE6666;
+}
+
+.detail-tag.income {
+  background: rgba(145, 204, 117, 0.08);
+  color: #52c41a;
 }
 
 .merchant-list-loading,

@@ -28,7 +28,11 @@ export const TransactionsList: React.FC<TransactionsListProps> = ({
         const icon = getCategoryIcon(item.category)
 
         const name = item.description || categoryName
-        const meta = `${formatDate(item.date, dateMode)} · ${categoryName}`
+        const metaParts = [formatDate(item.date, dateMode), categoryName]
+        if (item.location_name) {
+          metaParts.push(item.location_name)
+        }
+        const meta = metaParts.join(' · ')
         const amount = formatAmountWithType(parseFloat(String(item.amount)), isIncome)
 
         return (

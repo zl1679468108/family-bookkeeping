@@ -7,6 +7,7 @@ import { FilterBar } from '../components/FilterBar'
 import { TransactionsList } from '../components/TransactionsList'
 import { ConfirmDialog } from '../components/ConfirmDialog'
 import { getTransactions, deleteTransaction } from '../services/api'
+import { formatAmount } from '../utils/common'
 import { notify } from '../utils/notifications'
 
 const buildAddUrl = (type: string, category: string): string => {
@@ -63,6 +64,12 @@ const Transactions: React.FC = () => {
   const transactions = paginated?.data || []
   const total = paginated?.total || 0
   const totalPages = Math.ceil(total / PAGE_SIZE)
+  const pageExpense = transactions
+    .filter(t => t.type === 'expense')
+    .reduce((sum, t) => sum + Number(t.amount), 0)
+  const pageIncome = transactions
+    .filter(t => t.type === 'income')
+    .reduce((sum, t) => sum + Number(t.amount), 0)
 
   const deleteMutation = useMutation({
     mutationFn: (id: number) => deleteTransaction(id),
@@ -119,10 +126,20 @@ const Transactions: React.FC = () => {
         onSearchChange={handleSearchChange}
       />
 
-      {/* 排序 + 总数 */}
+      {/* 排序 + 总数 + 本页总金额 */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
         <div style={{ fontSize: '13px', color: 'var(--muted)' }}>
           共 {total} 条交易
+          {pageExpense > 0 && (
+            <span style={{ marginLeft: '12px', fontWeight: 600, color: 'var(--danger)' }}>
+              本页支出 {formatAmount(pageExpense)}
+            </span>
+          )}
+          {pageIncome > 0 && (
+            <span style={{ marginLeft: '8px', fontWeight: 600, color: 'var(--success)' }}>
+              本页收入 {formatAmount(pageIncome)}
+            </span>
+          )}
         </div>
         <button
           onClick={() => setSortOrder(sortOrder === undefined ? 'asc' : sortOrder === 'asc' ? 'desc' : undefined)}

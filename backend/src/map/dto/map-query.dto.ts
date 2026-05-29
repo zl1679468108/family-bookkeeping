@@ -44,3 +44,21 @@ export class MerchantQueryDto {
   @IsString()
   type?: 'income' | 'expense';
 }
+
+export class MerchantTransactionsQueryDto {
+  @IsOptional()
+  @IsString()
+  poi_id?: string;
+
+  @IsOptional()
+  @IsString()
+  location_name?: string;
+
+  @IsOptional()
+  @IsString()
+  startDate?: string;
+
+  @IsOptional()
+  @IsString()
+  endDate?: string;
+}

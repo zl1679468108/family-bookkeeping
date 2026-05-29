@@ -38,6 +38,9 @@ export const fetchMonthlyTrend = async (
   if (params.type !== undefined) {
     query.append('type', params.type);
   }
+  if (params.endDate !== undefined) {
+    query.append('endDate', params.endDate);
+  }
   return request<MonthlyTrendItem[]>(`/statistics/monthly-trend?${query.toString()}`, {
     requiresAuth: true,
   });
@@ -58,13 +61,14 @@ export const fetchCategoryBreakdown = async (
 
 /**
  * 获取年度对比数据
- * GET /api/statistics/yoy-comparison?year=2026&type=expense
+ * GET /api/statistics/yoy-comparison?year=2026&compareYear=2024&type=expense
  */
 export const fetchYearOverYear = async (
   params: YoYComparisonParams,
 ): Promise<YoYComparisonItem[]> => {
   const query = new URLSearchParams();
   if (params.year !== undefined) query.append('year', String(params.year));
+  if (params.compareYear !== undefined) query.append('compareYear', String(params.compareYear));
   if (params.type !== undefined) query.append('type', params.type);
   return request<YoYComparisonItem[]>(`/statistics/yoy-comparison?${query.toString()}`, {
     requiresAuth: true,

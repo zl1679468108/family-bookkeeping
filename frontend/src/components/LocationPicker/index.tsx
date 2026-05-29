@@ -7,7 +7,6 @@ import './index.scss';
 const AnyMap = Map as any;
 const AnyMarker = Marker as any;
 
-// 高德 JS API 2.0 安全密钥配置（必须在 SDK 加载前设置）
 const scode = process.env.REACT_APP_AMAP_SECRET;
 if (scode && typeof window !== 'undefined') {
   (window as any)._AMapSecurityConfig = { securityJsCode: scode };
@@ -21,78 +20,94 @@ interface LocationPickerProps {
 }
 
 export const LocationPicker: React.FC<LocationPickerProps> = ({
-  visible,
-  onClose,
-  onConfirm,
-  initialLocation,
+  visible, onClose, onConfirm, initialLocation,
 }) => {
-  const [selectedPos, setSelectedPos] = useState<[number, number] | null>(
-    initialLocation && initialLocation.latitude !== 0
-      ? [initialLocation.longitude, initialLocation.latitude]
-      : null
-  );
-  const [selectedAddress, setSelectedAddress] = useState<string>(initialLocation?.locationName || '');
-  const [poiId, setPoiId] = useState<string | null>(initialLocation?.poiId || null);
+  /* ---- state ---- */
+  const [selectedPos, setSelectedPos] = useState<[number, number] | null>(null);
+  const [selectedAddress, setSelectedAddress] = useState('');
+  const [poiId, setPoiId] = useState<string | null>(null);
   const [searchText, setSearchText] = useState('');
   const [searching, setSearching] = useState(false);
-  const [searchError, setSearchError] = useState('');
-  const mapRef = useRef<any>(null);
+  const [error, setError] = useState('');
 
-  // 定位到当前位置
-  const handleLocate = useCallback(() => {
-    const AMapWin = (window as any).AMap;
-    if (!AMapWin?.Geolocation) {
-      setSearchError('定位功能不可用');
-      return;
+  /* ---- refs ---- */
+  const mapRef = useRef<any>(null);
+  const initDone = useRef(false);   // 本次弹窗是否已初始化（每次打开重置）
+  const locating = useRef(false);   // doLocate 防重入锁
+
+  const hasInitialPos = !!(initialLocation && initialLocation.latitude !== 0);
+
+  /* ---- 弹窗显隐时重置 ---- */
+  useEffect(() => {
+    if (!visible) return;
+    initDone.current = false;
+    locating.current = false;
+    setSearchText('');
+    setError('');
+
+    if (hasInitialPos && initialLocation) {
+      setSelectedPos([initialLocation.longitude, initialLocation.latitude]);
+      setSelectedAddress(initialLocation.locationName);
+      setPoiId(initialLocation.poiId);
+    } else {
+      setSelectedPos(null);
+      setSelectedAddress('');
+      setPoiId(null);
     }
-    setSearchError('');
+  }, [visible, hasInitialPos, initialLocation]);
+
+  /* ====== 定位（自动 + 手动共用）====== */
+  const doLocate = useCallback(() => {
+    if (locating.current) return;
+    const AMapWin = (window as any).AMap;
+    const map = mapRef.current?.map;
+    if (!map || !AMapWin?.Geolocation) { setError('定位功能不可用'); return; }
+    setError('');
+    locating.current = true;
     const geo = new AMapWin.Geolocation({ enableHighAccuracy: true, timeout: 8000 });
     geo.getCurrentPosition((status: string, result: any) => {
+      locating.current = false;
       if (status === 'complete' && result.position) {
         const pos: [number, number] = [result.position.lng, result.position.lat];
         setSelectedPos(pos);
-        const map = mapRef.current?.map;
         if (map) { map.setCenter(pos); map.setZoom(15); }
-        // 逆地理编码获取地址
         const geocoder = new AMapWin.Geocoder({});
         geocoder.getAddress(pos, (gs: string, gr: any) => {
           if (gs === 'complete' && gr.regeocode) {
-            const addr = gr.regeocode.formattedAddress;
-            setSelectedAddress(addr);
+            setSelectedAddress(gr.regeocode.formattedAddress);
             if (gr.regeocode.pois?.[0]) {
-              const p = gr.regeocode.pois[0];
-              setPoiId(p.id || null);
+              setPoiId(gr.regeocode.pois[0].id || null);
             }
           }
         });
       } else {
-        // 定位失败，回退到北京
-        const beijing: [number, number] = [116.397428, 39.90923];
-        setSelectedPos(null);
-        const map = mapRef.current?.map;
-        if (map) { map.setCenter(beijing); map.setZoom(11); }
-        setSearchError('定位失败，已切换到北京。请确认浏览器已授权位置权限或手动搜索');
+        setError('无法获取当前位置，请确认已授权位置权限后手动搜索或点击地图选择位置');
       }
     });
   }, []);
 
-  // 弹窗打开时自动定位（地图创建完成后触发，不抢跑）
+  /* ---- 弹窗打开 + 地图就绪 → 初始化（有点位回显/定位当前位置） ---- */
   useEffect(() => {
-    if (!visible || selectedPos) return;
-    // 等地图实例就绪再定位
-    const timer = setInterval(() => {
-      if (mapRef.current?.map && (window as any).AMap?.Geolocation) {
-        clearInterval(timer);
-        handleLocate();
+    if (!visible || initDone.current) return;
+
+    // 轮询等 map 实例就绪
+    const check = setInterval(() => {
+      const map = mapRef.current?.map;
+      if (!map) return;
+      clearInterval(check);
+      initDone.current = true;
+
+      if (hasInitialPos && initialLocation) {
+        map.setCenter([initialLocation.longitude, initialLocation.latitude]);
+        map.setZoom(16);
+      } else {
+        doLocate();
       }
-    }, 200);
-    const timeout = setTimeout(() => clearInterval(timer), 8000);
-    return () => { clearInterval(timer); clearTimeout(timeout); };
-  }, [visible, handleLocate]);
+    }, 100);
+    return () => clearInterval(check);
+  }, [visible, hasInitialPos, initialLocation, doLocate]);
 
-  const amapKey = process.env.REACT_APP_AMAP_KEY || '';
-
-  // 逆地理编码
+  /* ====== 逆地理编码 ====== */
   const reverseGeocode = useCallback((lng: number, lat: number) => {
     const AMapWin = (window as any).AMap;
     if (!AMapWin?.Geocoder) return;
@@ -101,32 +116,30 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
       if (status === 'complete' && result.regeocode) {
         const address = result.regeocode.formattedAddress || `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
         setSelectedAddress(address);
-        if (result.regeocode.pois && result.regeocode.pois.length > 0) {
-          const nearestPoi = result.regeocode.pois[0];
-          setPoiId(nearestPoi.id || null);
-          if (nearestPoi.name && nearestPoi.name !== address) {
-            setSelectedAddress(nearestPoi.name + ' ' + address);
-          }
+        if (result.regeocode.pois?.[0]) {
+          const p = result.regeocode.pois[0];
+          setPoiId(p.id || null);
+          if (p.name && p.name !== address) setSelectedAddress(p.name + ' ' + address);
         }
       }
     });
   }, []);
 
+  /* ====== 交互回调 ====== */
   const handleMapClick = useCallback((e: any) => {
-    const lng = e.lnglat.getLng();
-    const lat = e.lnglat.getLat();
-    setSelectedPos([lng, lat]);
-    reverseGeocode(lng, lat);
+    const pos: [number, number] = [e.lnglat.getLng(), e.lnglat.getLat()];
+    setSelectedPos(pos);
+    reverseGeocode(pos[0], pos[1]);
   }, [reverseGeocode]);
 
-  // 搜索地址
+  const handleLocate = doLocate;
+
   const handleSearch = useCallback(() => {
     if (!searchText.trim()) return;
     const AMapWin = (window as any).AMap;
     if (!AMapWin?.PlaceSearch) return;
-
     setSearching(true);
-    setSearchError('');
+    setError('');
     const placeSearch = new AMapWin.PlaceSearch({ pageSize: 10, pageIndex: 1, city: '全国' });
     placeSearch.search(searchText, (status: string, result: any) => {
       setSearching(false);
@@ -141,7 +154,7 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
         const map = mapRef.current?.map;
         if (map) { map.setCenter(pos); map.setZoom(15); }
       } else {
-        setSearchError(status === 'complete' ? '未找到匹配的地点' : '搜索失败，请重试');
+        setError(status === 'complete' ? '未找到匹配的地点' : '搜索失败，请重试');
       }
     });
   }, [searchText]);
@@ -164,13 +177,13 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
     setSelectedAddress('');
     setPoiId(null);
     setSearchText('');
-    setSearchError('');
+    setError('');
   };
 
-  if (!visible) return null;
+  const amapKey = process.env.REACT_APP_AMAP_KEY || '';
 
   return (
-    <div className="location-picker-overlay" onClick={onClose}>
+    <div className={`location-picker-overlay${visible ? '' : ' hidden'}`} onClick={visible ? onClose : undefined}>
       <div className="location-picker-modal" onClick={(e) => e.stopPropagation()}>
         <div className="location-picker-header">
           <h3>选择消费位置</h3>
@@ -193,14 +206,12 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
           </Button>
         </div>
 
-        {searchError && <div className="location-picker-error">{searchError}</div>}
+        {error && <div className="location-picker-error">{error}</div>}
 
         <div className="location-picker-map">
           <APILoader akey={amapKey} version="2.0" plugins={['AMap.Geocoder', 'AMap.PlaceSearch', 'AMap.Geolocation']}>
             <AnyMap
               ref={mapRef}
-              center={selectedPos || [116.397428, 39.90923]}
-              zoom={selectedPos ? 16 : 11}
               onClick={handleMapClick}
               style={{ width: '100%', height: '100%' }}
             >

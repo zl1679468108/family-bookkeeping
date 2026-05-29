@@ -39,6 +39,7 @@ export interface SummaryParams {
 /** 月度趋势请求参数 */
 export interface MonthlyTrendParams {
   months?: number;
+  endDate?: string;
   type?: 'income' | 'expense';
 }
 
@@ -60,5 +61,6 @@ export interface YoYComparisonItem {
 /** 年度对比请求参数 */
 export interface YoYComparisonParams {
   year?: number;
+  compareYear?: number;
   type?: 'income' | 'expense';
 }

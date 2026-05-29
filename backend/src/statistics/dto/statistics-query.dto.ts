@@ -24,6 +24,10 @@ export class MonthlyTrendQueryDto {
   months?: number;
 
   @IsOptional()
+  @IsString()
+  endDate?: string;
+
+  @IsOptional()
   @IsIn(['income', 'expense'])
   type?: 'income' | 'expense';
 }
@@ -51,6 +55,12 @@ export class YoYComparisonQueryDto {
   @IsNumber()
   @Min(2020)
   year?: number;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  @Min(2020)
+  compareYear?: number;
 
   @IsOptional()
   @IsIn(['income', 'expense'])

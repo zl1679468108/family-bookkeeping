@@ -16,6 +16,7 @@ export interface Transaction {
   type: 'income' | 'expense'
   date: string
   description?: string
+  location_name?: string
   image_url?: string
   created_at: string
 }

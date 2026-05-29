@@ -221,12 +221,16 @@ export class StatisticsService {
     months: number = 6,
     type: 'income' | 'expense' = 'expense',
     bookId?: string,
+    endDate?: string,
   ): Promise<MonthlyTrendItem[]> {
-    const now = new Date();
-    // First day of the earliest month in the window
-    const rangeStart = new Date(now.getFullYear(), now.getMonth() - (months - 1), 1);
+    const referenceDate = endDate
+      ? new Date(endDate)
+      : new Date();
+    // Set to the last day of that month to include the full month
+    const refEnd = new Date(referenceDate.getFullYear(), referenceDate.getMonth() + 1, 0);
+    const endDateStr = refEnd.toISOString().slice(0, 10);
+    const rangeStart = new Date(refEnd.getFullYear(), refEnd.getMonth() - (months - 1), 1);
     const startDateStr = rangeStart.toISOString().slice(0, 10);
-    const endDateStr = now.toISOString().slice(0, 10);
 
     const transactions = await this.queryTransactions(
       userId,
@@ -246,7 +250,7 @@ export class StatisticsService {
     // Build ordered result, filling missing months with 0
     const result: MonthlyTrendItem[] = [];
     for (let i = months - 1; i >= 0; i--) {
-      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const d = new Date(refEnd.getFullYear(), refEnd.getMonth() - i, 1);
       const key = this.toYearMonth(d);
       result.push({ month: key, amount: monthMap[key] || 0 });
     }
@@ -338,23 +342,25 @@ export class StatisticsService {
   /**
    * GET /api/statistics/yoy-comparison
    *
-   * Returns monthly amounts for the given year and the previous year,
-   * for side-by-side bar chart comparison.
+   * Returns monthly amounts for two years side-by-side.
+   * Default: current year vs previous year.
    */
   async getYearOverYear(
     userId: string,
     year: number = new Date().getFullYear(),
     type: 'income' | 'expense' = 'expense',
     bookId?: string,
+    compareYear?: number,
   ): Promise<YoYComparisonItem[]> {
-    const currentStart = `${year}-01-01`;
-    const currentEnd = `${year}-12-31`;
-    const lastStart = `${year - 1}-01-01`;
-    const lastEnd = `${year - 1}-12-31`;
+    const actualCompareYear = compareYear ?? year - 1;
+    const yearAStart = `${year}-01-01`;
+    const yearAEnd = `${year}-12-31`;
+    const yearBStart = `${actualCompareYear}-01-01`;
+    const yearBEnd = `${actualCompareYear}-12-31`;
 
-    const [currentTxs, lastTxs] = await Promise.all([
-      this.queryTransactions(userId, currentStart, currentEnd, type, bookId),
-      this.queryTransactions(userId, lastStart, lastEnd, type, bookId),
+    const [yearATxs, yearBTxs] = await Promise.all([
+      this.queryTransactions(userId, yearAStart, yearAEnd, type, bookId),
+      this.queryTransactions(userId, yearBStart, yearBEnd, type, bookId),
     ]);
 
     // Aggregate by month
@@ -369,14 +375,14 @@ export class StatisticsService {
       return months;
     };
 
-    const curMonths = aggregate(currentTxs);
-    const lastMonths = aggregate(lastTxs);
+    const yearAMonths = aggregate(yearATxs);
+    const yearBMonths = aggregate(yearBTxs);
 
-    return curMonths.map((cur, i) => ({
+    return yearAMonths.map((cur, i) => ({
       month: String(i + 1).padStart(2, '0'),
       monthLabel: `${i + 1}月`,
       currentYear: cur,
-      lastYear: lastMonths[i],
+      lastYear: yearBMonths[i],
     }));
   }
 }

@@ -21,6 +21,13 @@ export interface MerchantSummary {
   total_amount: number;
   transaction_count: number;
   last_transaction_date: string;
+  // 区分收入/支出
+  expense_count: number;
+  income_count: number;
+  expense_total: number;
+  income_total: number;
+  last_expense_date: string | null;
+  last_income_date: string | null;
 }
 
 /** 地图筛选条件 */

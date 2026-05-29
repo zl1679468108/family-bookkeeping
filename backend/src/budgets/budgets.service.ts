@@ -85,14 +85,12 @@ export class BudgetsService {
         month: dto.month,
         updated_at: new Date().toISOString(),
       };
-      if (bookId) record.book_id = bookId;
+      record.book_id = bookId || null;
 
       const { data, error } = await supabase
         .from('budgets')
         .upsert(record, {
-          onConflict: bookId
-            ? 'user_id,category,month,book_id'
-            : 'user_id,category,month',
+          onConflict: 'user_id,book_id,category,month',
         })
         .select()
         .single();

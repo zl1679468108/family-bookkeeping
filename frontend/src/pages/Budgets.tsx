@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react'
+import React, { useState, useCallback, useRef } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { format, startOfMonth } from 'date-fns'
 import { Header } from '../components/Header'
@@ -71,6 +71,8 @@ const Budgets: React.FC = () => {
     return initial
   })
 
+  const lastSynced = useRef('');
+
   // 当 budgets 或分类数据加载完成，同步到 editValues
   React.useEffect(() => {
     if (expenseCategories.length === 0) return
@@ -78,7 +80,12 @@ const Budgets: React.FC = () => {
     expenseCategories.forEach((cat) => {
       synced[cat.name] = budgetMap.get(cat.id) || 0
     })
-    setEditValues(synced)
+    // 只在内容真正变化时才更新 state，避免无限循环
+    const hash = JSON.stringify(synced)
+    if (hash !== lastSynced.current) {
+      lastSynced.current = hash
+      setEditValues(synced)
+    }
   }, [month, budgets, expenseCategories.length])
 
   // 编辑处理

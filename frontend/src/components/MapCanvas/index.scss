@@ -7,42 +7,21 @@
   position: relative;
 }
 
-.map-loading,
-.map-empty {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 500px;
-  background: var(--surface);
+/* 定位失败提示 */
+.map-locate-error {
+  position: absolute;
+  top: 56px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  background: #fff2f0;
+  border: 1px solid #ffccc7;
   border-radius: 8px;
-  color: var(--muted);
-}
-
-.map-loading-spinner {
-  width: 36px;
-  height: 36px;
-  border: 3px solid var(--border);
-  border-top-color: var(--accent);
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-  margin-bottom: 12px;
-}
-
-.map-empty-icon {
-  font-size: 48px;
-  margin-bottom: 12px;
-}
-
-.map-empty h3 {
-  margin: 0 0 8px 0;
-  color: var(--fg);
-  font-size: 16px;
-}
-
-.map-empty p {
-  margin: 0;
-  font-size: 14px;
+  padding: 6px 16px;
+  color: #ff4d4f;
+  font-size: 12px;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
 }
 
 /* POI 搜索覆盖层 */
@@ -83,10 +62,6 @@
   cursor: pointer;
   font-size: 16px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-}
-
-.map-locate-btn {
-  margin-left: 4px;
 }
 
 .map-search-results {
@@ -147,53 +122,105 @@
   border-radius: 0 0 8px 8px;
 }
 
-/* Info Window */
+/* Info Window 基类 */
 .marker-info-window {
   padding: 4px;
-  min-width: 180px;
   color: #333;
+}
+
+/* 足迹 InfoWindow */
+.footprint-info {
+  width: 200px;
+  max-width: 200px;
 }
 
 .marker-info-header {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 6px;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #f0f0f0;
 }
 
 .marker-info-icon {
   font-size: 18px;
+  line-height: 1;
+  flex-shrink: 0;
 }
 
 .marker-info-category {
   font-weight: 600;
-  font-size: 14px;
+  font-size: 13px;
+  line-height: 1.4;
+  word-break: break-all;
 }
 
-.marker-info-amount {
-  font-size: 20px;
-  font-weight: 700;
-  margin-bottom: 6px;
-}
-
-.marker-info-location {
-  font-size: 12px;
-  color: #666;
+.footprint-info-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 8px;
   margin-bottom: 4px;
+  border-radius: 6px;
+  background: #f8f8f8;
+  font-size: 12px;
+  transition: background 0.15s;
 }
 
-.marker-info-note {
+.footprint-info-row.clickable {
+  cursor: pointer;
+}
+
+.footprint-info-row.clickable:hover {
+  background: #f0f0f0;
+}
+
+.footprint-info-row.expense {
+  border-left: 3px solid #EE6666;
+}
+
+.footprint-info-row.income {
+  border-left: 3px solid #91CC75;
+}
+
+.footprint-info-label {
+  font-size: 11px;
+  color: #888;
+  min-width: 28px;
+}
+
+.footprint-info-amount {
+  font-weight: 600;
+  flex: 1;
+}
+
+.footprint-info-amount.expense {
+  color: #EE6666;
+}
+
+.footprint-info-amount.income {
+  color: #52c41a;
+}
+
+.footprint-info-count {
   font-size: 12px;
-  color: #666;
-  margin-bottom: 4px;
+  color: var(--accent, #5470C6);
+  background: rgba(84, 112, 198, 0.08);
+  padding: 1px 8px;
+  border-radius: 10px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.footprint-info-row.clickable:hover .footprint-info-count {
+  background: rgba(84, 112, 198, 0.15);
+  color: var(--accent, #5470C6);
 }
 
 .marker-info-date {
   font-size: 11px;
   color: #999;
   margin-top: 6px;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
+  text-align: center;
 }

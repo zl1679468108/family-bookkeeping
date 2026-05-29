@@ -44,6 +44,7 @@ export class StatisticsController {
       monthsNum,
       normalizedType,
       bookId,
+      query.endDate,
     );
     return { message: '获取月度趋势成功', data };
   }
@@ -77,6 +78,7 @@ export class StatisticsController {
       query.year,
       query.type,
       bookId,
+      query.compareYear,
     );
     return { message: '获取年度对比成功', data };
   }

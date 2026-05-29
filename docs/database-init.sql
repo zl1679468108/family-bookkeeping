@@ -358,8 +358,8 @@ BEGIN
     ALTER TABLE budgets DROP COLUMN category;
     ALTER TABLE budgets RENAME COLUMN category_id TO category;
 
-    -- Step 4: 重建唯一约束
+    -- Step 4: 重建唯一约束（含 book_id，支持多账本独立预算）
     ALTER TABLE budgets DROP CONSTRAINT IF EXISTS budgets_user_id_category_month_key;
-    ALTER TABLE budgets ADD CONSTRAINT budgets_user_id_category_month_key UNIQUE (user_id, category, month);
+    ALTER TABLE budgets ADD CONSTRAINT budgets_user_id_category_month_key UNIQUE NULLS NOT DISTINCT (user_id, book_id, category, month);
   END IF;
 END $$;
