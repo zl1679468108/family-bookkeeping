@@ -29,23 +29,31 @@ Supabase PostgreSQL (8张表, 无ORM)
 - 后端 dev: `npm run start:dev` → :3000 (backend/)
 - 前端 prod: `PORT=3002 npm start`
 
-## 后端 8 模块 (backend/src/)
+## 后端 9 模块 (backend/src/)
 
-Config → Supabase → Auth → Transaction → Categories → Statistics → Export → Budgets → Books
+Config → Supabase → Auth → Transaction → Categories → Statistics → Export → Budgets → Books → Map
 另有 mail/, health/, common/(异常过滤器+响应拦截器)
 
 ## 前端目录 (frontend/src/)
 
 components/ (Layout,Sidebar,Header,ChartCard,TransactionsList,StatCard,ImageUploader,Form,FilterBar,ui,BookSwitcher,DateRangeFilter)
-pages/ (Dashboard,Transactions,Reports,AddTransaction,Categories,Budgets,Books,User/Login,Register)
+pages/ (Dashboard,Transactions,Reports,AddTransaction,Categories,Budgets,Books,Map,User/Login,Register)
 services/ (api.ts,categoriesApi.ts,statisticsApi.ts,budgetsApi.ts,booksApi.ts)
 hooks/ (useCategories.ts,useFocusItem.ts,useBook.tsx)
+
+## 地图模块 (2026-05-28新增)
+- 地图 API: 高德地图 JS API 2.0, @uiw/react-amap
+- 后端: backend/src/map/ (module/controller/service/dto)
+- 前端: pages/Map.tsx, 路由 /map
+- API: GET /api/map/transactions, GET /api/map/merchants
+- 数据库: transactions 新增 latitude/longitude/location_name/poi_id
+- 文档: docs/05-地图功能需求.md, docs/06-地图功能-架构设计.md
 
 ## 数据库表
 
 users, password_resets, user_sessions, transactions, budgets, categories(16预设), books, book_members
 初始化: docs/database-init.sql
-文档: docs/01-项目结构.md ~ 04-项目需求.md
+文档: docs/01-项目结构.md ~ 06-地图功能-架构设计.md
 
 ## 环境变量
 

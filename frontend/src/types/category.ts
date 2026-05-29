@@ -7,8 +7,8 @@ export interface Category {
   icon: string;
   type: 'expense' | 'income';
   sort_order: number;
-  /** 前端标注，默认分类为 true */
-  isDefault?: boolean;
+  /** 是否为默认分类（后端使用 is_default） */
+  is_default?: boolean;
 }
 
 export interface CreateCategoryInput {

@@ -23,7 +23,9 @@ export interface MonthlyTrendItem {
 
 /** 分类占比 - 单条数据 */
 export interface CategoryBreakdownItem {
-  category: string; // category key, e.g. "food", "other"
+  category_id: string;   // categories.id (UUID) 或 "other"
+  category_name: string; // 分类名称
+  category_icon: string; // emoji
   amount: number;
   percentage: number; // 0-100
 }

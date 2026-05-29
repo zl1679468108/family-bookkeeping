@@ -15,6 +15,11 @@ export interface Transaction {
   image_url?: string;
   created_at: string;
   user_id?: string;
+  book_id?: string;
+  latitude?: number;
+  longitude?: number;
+  location_name?: string;
+  poi_id?: string;
 }
 
 export interface TransactionFilters {
@@ -105,19 +110,24 @@ export class TransactionService {
     };
   }
 
-  async findOne(id: number, userId?: string): Promise<Transaction> {
+  async findOne(id: number, userId?: string, bookId?: string): Promise<Transaction> {
     const supabase = this.supabaseService.getClient();
     
     if (!userId) {
       throw new ForbiddenException('需要登录才能访问交易记录');
     }
 
-    const { data, error } = await supabase
+    let query = supabase
       .from('transactions')
       .select('*')
       .eq('id', id)
-      .eq('user_id', userId)
-      .single();
+      .eq('user_id', userId);
+
+    if (bookId) {
+      query = query.eq('book_id', bookId);
+    }
+
+    const { data, error } = await query.single();
 
     if (error) {
       throw new InternalServerErrorException(`获取交易记录失败: ${error.message}`);
@@ -130,17 +140,32 @@ export class TransactionService {
     return data;
   }
 
-  async create(transaction: Partial<Transaction>, userId?: string): Promise<Transaction> {
+  async create(transaction: Partial<Transaction>, userId?: string, bookId?: string): Promise<Transaction> {
     const supabase = this.supabaseService.getClient();
     
     if (!userId) {
       throw new ForbiddenException('需要登录才能创建交易记录');
     }
 
-    const transactionData = {
+    const transactionData: any = {
       ...transaction,
       user_id: userId,
     };
+
+    // 绑定账本
+    if (bookId) {
+      transactionData.book_id = bookId;
+    }
+
+    // 映射前端驼峰字段到数据库下划线字段
+    if (transactionData.locationName !== undefined) {
+      transactionData.location_name = transactionData.locationName;
+      delete transactionData.locationName;
+    }
+    if (transactionData.poiId !== undefined) {
+      transactionData.poi_id = transactionData.poiId;
+      delete transactionData.poiId;
+    }
 
     const { data, error } = await supabase
       .from('transactions')
@@ -159,6 +184,7 @@ export class TransactionService {
     id: number,
     transaction: Partial<Transaction>,
     userId?: string,
+    bookId?: string,
   ): Promise<Transaction> {
     const supabase = this.supabaseService.getClient();
     
@@ -166,18 +192,33 @@ export class TransactionService {
       throw new ForbiddenException('需要登录才能更新交易记录');
     }
 
-    const existing = await this.findOne(id, userId);
+    const existing = await this.findOne(id, userId, bookId);
     if (!existing) {
       throw new ForbiddenException('无权修改此交易记录');
     }
 
-    const { data, error } = await supabase
+    // 映射前端驼峰字段到数据库下划线字段
+    const updateData: any = { ...transaction };
+    if ('locationName' in updateData) {
+      updateData.location_name = updateData.locationName;
+      delete updateData.locationName;
+    }
+    if ('poiId' in updateData) {
+      updateData.poi_id = updateData.poiId;
+      delete updateData.poiId;
+    }
+
+    let updateQuery = supabase
       .from('transactions')
-      .update(transaction)
+      .update(updateData)
       .eq('id', id)
-      .eq('user_id', userId)
-      .select()
-      .single();
+      .eq('user_id', userId);
+
+    if (bookId) {
+      updateQuery = updateQuery.eq('book_id', bookId);
+    }
+
+    const { data, error } = await updateQuery.select().single();
 
     if (error) {
       throw new InternalServerErrorException(`更新交易记录失败: ${error.message}`);
@@ -186,23 +227,29 @@ export class TransactionService {
     return data;
   }
 
-  async remove(id: number, userId?: string): Promise<void> {
+  async remove(id: number, userId?: string, bookId?: string): Promise<void> {
     const supabase = this.supabaseService.getClient();
     
     if (!userId) {
       throw new ForbiddenException('需要登录才能删除交易记录');
     }
 
-    const existing = await this.findOne(id, userId);
+    const existing = await this.findOne(id, userId, bookId);
     if (!existing) {
       throw new ForbiddenException('无权删除此交易记录');
     }
 
-    const { error } = await supabase
+    let query = supabase
       .from('transactions')
       .delete()
       .eq('id', id)
       .eq('user_id', userId);
+
+    if (bookId) {
+      query = query.eq('book_id', bookId);
+    }
+
+    const { error } = await query;
 
     if (error) {
       throw new InternalServerErrorException(`删除交易记录失败: ${error.message}`);

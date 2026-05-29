@@ -1,0 +1,39 @@
+/* 位置选择已选样式 */
+.location-selected {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: var(--accent-light, #f0f5ff);
+  border: 1px solid var(--accent, #5470C6);
+  border-radius: 8px;
+}
+
+.location-selected-icon {
+  flex-shrink: 0;
+}
+
+.location-selected-text {
+  flex: 1;
+  font-size: 13px;
+  color: var(--fg);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.location-selected-change {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  color: var(--accent);
+  font-size: 13px;
+  cursor: pointer;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.location-selected-change:hover {
+  background: var(--accent, #5470C6);
+  color: #fff;
+}

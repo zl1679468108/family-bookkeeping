@@ -71,6 +71,8 @@ export class AuthService {
 
     // 自动创建默认账本
     await this.ensureDefaultBook(newUser.id);
+    // 自动创建默认分类
+    await this.ensureDefaultCategories(newUser.id);
 
     const token = await this.createSession(newUser.id);
     return { user: newUser, token };
@@ -150,23 +152,18 @@ export class AuthService {
     const supabase = this.supabaseService.getClient();
     const tokenHash = this.tokenService.hashToken(token);
 
-    const { data: resetRecord, error: recordError } = await supabase
+    const { data: resetRecords } = await supabase
       .from('password_resets')
       .select('id, user_id, expires_at, used_at')
       .eq('token', tokenHash)
-      .single();
+      .is('used_at', null)
+      .gt('expires_at', new Date().toISOString())
+      .limit(1);
 
-    if (recordError || !resetRecord) {
-      throw new BadRequestException('无效的重置令牌');
-    }
+    const resetRecord = resetRecords?.[0];
 
-    if (resetRecord.used_at) {
-      throw new BadRequestException('令牌已被使用');
-    }
-
-    const expiresAt = new Date(resetRecord.expires_at);
-    if (expiresAt < new Date()) {
-      throw new BadRequestException('令牌已过期');
+    if (!resetRecord) {
+      throw new BadRequestException('无效或已过期的重置令牌');
     }
 
     const passwordHash = await bcrypt.hash(newPassword, 10);
@@ -182,7 +179,7 @@ export class AuthService {
 
     const { error: resetUpdateError } = await supabase
       .from('password_resets')
-      .update({ used_at: new Date().toISOString() })
+      .update({ used_at: new Date().toISOString(), updated_at: new Date().toISOString() })
       .eq('id', resetRecord.id);
 
     if (resetUpdateError) {
@@ -285,29 +282,23 @@ export class AuthService {
       throw new BadRequestException('验证码错误');
     }
 
-    const { data: resetRecord } = await supabase
+    const { data: resetRecords } = await supabase
       .from('password_resets')
       .select('id, code, expires_at, used_at')
       .eq('user_id', user.id)
+      .is('used_at', null)
+      .gt('expires_at', new Date().toISOString())
       .order('created_at', { ascending: false })
-      .limit(1)
-      .single();
+      .limit(1);
+
+    const resetRecord = resetRecords?.[0];
 
     if (!resetRecord) {
-      throw new BadRequestException('请先获取验证码');
+      throw new BadRequestException('请先获取验证码或验证码已过期');
     }
 
     if (resetRecord.code !== trimmedCode) {
       throw new BadRequestException('验证码错误');
-    }
-
-    if (resetRecord.used_at) {
-      throw new BadRequestException('验证码已被使用');
-    }
-
-    const expiresAt = new Date(resetRecord.expires_at);
-    if (expiresAt < new Date()) {
-      throw new BadRequestException('验证码已过期');
     }
 
     const passwordHash = await bcrypt.hash(newPassword, 10);
@@ -323,7 +314,7 @@ export class AuthService {
 
     const { error: resetUpdateError } = await supabase
       .from('password_resets')
-      .update({ used_at: new Date().toISOString() })
+      .update({ used_at: new Date().toISOString(), updated_at: new Date().toISOString() })
       .eq('id', resetRecord.id);
 
     if (resetUpdateError) {
@@ -392,5 +383,21 @@ export class AuthService {
       user_id: userId,
       role: 'owner',
     });
+  }
+
+  /** 为新注册用户自动创建 2 个默认分类 */
+  private async ensureDefaultCategories(userId: string): Promise<void> {
+    const supabase = this.supabaseService.getClient();
+
+    const defaults = [
+      { user_id: userId, name: '购物', icon: '🛒', type: 'expense', is_default: true, sort_order: 0 },
+      { user_id: userId, name: '工资', icon: '💼', type: 'income', is_default: true, sort_order: 0 },
+    ];
+
+    const { error } = await supabase.from('categories').insert(defaults);
+
+    if (error) {
+      console.error(`创建默认分类失败 (user ${userId}):`, error.message);
+    }
   }
 }

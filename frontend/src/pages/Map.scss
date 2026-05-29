@@ -1,0 +1,94 @@
+/* Map 页面样式 */
+
+.map-page {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 64px);
+}
+
+/* 工具栏 */
+.map-toolbar {
+  display: flex;
+  flex-direction: column;
+  padding: 12px 24px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  gap: 8px;
+}
+
+.map-toolbar-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.map-toolbar-bottom {
+  justify-content: space-between;
+}
+
+/* 筛选 Chip */
+.map-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 12px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--bg);
+  color: var(--muted);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+.map-chip:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.map-chip.active {
+  background: var(--accent, #5470C6);
+  border-color: var(--accent, #5470C6);
+  color: #fff;
+}
+
+.map-chip.mini {
+  padding: 2px 8px;
+  font-size: 11px;
+}
+
+.map-chip.disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* 分类、视图、类型筛选 */
+.map-category-filter {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.map-view-toggle {
+  display: flex;
+  gap: 8px;
+}
+
+.map-type-filter {
+  display: flex;
+  gap: 4px;
+}
+
+/* 统计摘要 */
+.map-stats {
+  display: flex;
+  gap: 20px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.map-stat-item strong {
+  color: var(--fg);
+}

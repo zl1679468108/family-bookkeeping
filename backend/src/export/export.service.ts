@@ -25,17 +25,17 @@ export class ExportService {
   constructor(private supabaseService: SupabaseService) {}
 
   /**
-   * 从数据库加载所有分类，构建 name→{name,icon} 映射
+   * 从数据库加载所有分类，构建 id→{name,icon} 映射
    */
   private async loadCategoryMap(): Promise<Map<string, { name: string; icon: string }>> {
     if (this.categoryCache) return this.categoryCache;
 
     const supabase = this.supabaseService.getClient();
-    const { data } = await supabase.from('categories').select('name,icon');
+    const { data } = await supabase.from('categories').select('id,name,icon');
     
     const map = new Map<string, { name: string; icon: string }>();
     (data || []).forEach((c: any) => {
-      map.set(c.name, { name: c.name, icon: c.icon });
+      map.set(c.id, { name: c.name, icon: c.icon });
     });
 
     this.categoryCache = map;
@@ -43,24 +43,13 @@ export class ExportService {
   }
 
   /**
-   * 获取分类展示文本（emoji + 中文名）
+   * 获取分类展示文本（emoji + 中文名），根据 category UUID 查找
    */
-  private async getCategoryDisplay(category: string): Promise<string> {
+  private async getCategoryDisplay(categoryId: string): Promise<string> {
     const map = await this.loadCategoryMap();
-    const info = map.get(category);
-    // 如果数据库有该分类 → emoji + name，否则兜底用原始值
+    const info = map.get(categoryId);
     if (info) return `${info.icon} ${info.name}`;
-    
-    // 向后兼容：旧的英文 key（food, food_delivery 等）
-    const legacyMap: Record<string, string> = {
-      food: '🛒 食品', food_delivery: '🍜 餐饮', transport: '🚗 交通',
-      shopping: '🛍️ 购物', utilities: '📱 通讯', housing: '🏠 居住',
-      entertainment: '🎮 娱乐', medical: '💊 医疗', education: '📚 教育',
-      other: '📌 其他', salary: '💼 工资', bonus: '🎁 奖金',
-      investment: '📈 投资', freelance: '💻 兼职', gift: '🎁 礼金',
-      other_income: '💰 其他收入',
-    };
-    return legacyMap[category] || `📌 ${category}`;
+    return `📌 未知`;
   }
 
   /**
@@ -136,19 +125,11 @@ export class ExportService {
     const transactions = await this.getTransactionData(filters);
     const categoryMap = await this.loadCategoryMap();
 
-    // 同步版本的分类展示函数（数据已在 Promise 外加载好）
-    const getDisplay = (category: string): string => {
-      const info = categoryMap.get(category);
+    // 同步版本的分类展示函数（数据已在 Promise 外加载好，按 UUID 查找）
+    const getDisplay = (categoryId: string): string => {
+      const info = categoryMap.get(categoryId);
       if (info) return `${info.icon} ${info.name}`;
-      const legacyMap: Record<string, string> = {
-        food: '🛒 食品', food_delivery: '🍜 餐饮', transport: '🚗 交通',
-        shopping: '🛍️ 购物', utilities: '📱 通讯', housing: '🏠 居住',
-        entertainment: '🎮 娱乐', medical: '💊 医疗', education: '📚 教育',
-        other: '📌 其他', salary: '💼 工资', bonus: '🎁 奖金',
-        investment: '📈 投资', freelance: '💻 兼职', gift: '🎁 礼金',
-        other_income: '💰 其他收入',
-      };
-      return legacyMap[category] || `📌 ${category}`;
+      return `📌 未知`;
     };
 
     return new Promise((resolve, reject) => {
@@ -332,6 +313,10 @@ export class ExportService {
 
     if (filters?.userId) {
       query = query.eq('user_id', filters.userId);
+    }
+
+    if (filters?.bookId) {
+      query = query.eq('book_id', filters.bookId);
     }
 
     if (filters?.type) {

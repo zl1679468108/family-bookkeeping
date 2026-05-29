@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react'
-import { useCategories, getCategoryKey } from '../../hooks/useCategories'
+import { useCategories } from '../../hooks/useCategories'
 import './index.scss'
 
 interface FilterBarProps {
@@ -136,8 +136,8 @@ export const FilterBar: React.FC<FilterBarProps> = ({
         {incomeCategories.map((item) => (
           <button
             key={item.id}
-            className={`filter-chip category-chip ${activeCategory === getCategoryKey(item.name) ? 'active' : ''} ${activeType === 'expense' ? 'disabled' : ''}`}
-            onClick={() => activeType !== 'expense' && handleCategoryClick(getCategoryKey(item.name))}
+            className={`filter-chip category-chip ${activeCategory === item.id ? 'active' : ''} ${activeType === 'expense' ? 'disabled' : ''}`}
+            onClick={() => activeType !== 'expense' && handleCategoryClick(item.id)}
             disabled={activeType === 'expense'}
           >
             {item.icon} {item.name}
@@ -149,8 +149,8 @@ export const FilterBar: React.FC<FilterBarProps> = ({
         {expenseCategories.map((item) => (
           <button
             key={item.id}
-            className={`filter-chip category-chip ${activeCategory === getCategoryKey(item.name) ? 'active' : ''} ${activeType === 'income' ? 'disabled' : ''}`}
-            onClick={() => activeType !== 'income' && handleCategoryClick(getCategoryKey(item.name))}
+            className={`filter-chip category-chip ${activeCategory === item.id ? 'active' : ''} ${activeType === 'income' ? 'disabled' : ''}`}
+            onClick={() => activeType !== 'income' && handleCategoryClick(item.id)}
             disabled={activeType === 'income'}
           >
             {item.icon} {item.name}

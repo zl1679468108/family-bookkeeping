@@ -12,7 +12,9 @@ export interface BudgetRecord {
 }
 
 export interface BudgetCategoryStatus {
-  category: string;
+  category_id: string;
+  category_name: string;
+  category_icon: string;
   budget: number;
   spent: number;
   progress: number;
@@ -20,7 +22,9 @@ export interface BudgetCategoryStatus {
 }
 
 export interface BudgetAlert {
-  category: string;
+  category_id: string;
+  category_name: string;
+  category_icon: string;
   budget: number;
   spent: number;
   progress: number;
@@ -85,7 +89,11 @@ export class BudgetsService {
 
       const { data, error } = await supabase
         .from('budgets')
-        .upsert(record, { onConflict: 'user_id,category,month' })
+        .upsert(record, {
+          onConflict: bookId
+            ? 'user_id,category,month,book_id'
+            : 'user_id,category,month',
+        })
         .select()
         .single();
 
@@ -111,13 +119,23 @@ export class BudgetsService {
     // 2. 计算已花费：从 transactions 表按 category + 月份汇总
     const spentMap = await this.calculateSpent(userId, month, bookId);
 
-    // 3. 逐分类计算进度
+    // 3. 获取所有涉及的分类信息
+    const categoryIds = [...new Set(budgets.map((b) => b.category))];
+    const categoryInfoMap = await this.loadCategoryInfo(categoryIds);
+
+    // 4. 逐分类计算进度
     const categories: BudgetCategoryStatus[] = budgets.map((b) => {
       const spent = spentMap.get(b.category) || 0;
       const progress = b.amount > 0 ? Math.round((spent / b.amount) * 1000) / 10 : 0;
       const status: 'safe' | 'warning' | 'over' =
         progress >= 100 ? 'over' : progress >= 80 ? 'warning' : 'safe';
-      return { category: b.category, budget: b.amount, spent, progress, status };
+      const info = categoryInfoMap.get(b.category);
+      return {
+        category_id: b.category,
+        category_name: info?.name || '未知',
+        category_icon: info?.icon || '📌',
+        budget: b.amount, spent, progress, status,
+      };
     });
 
     // 4. 聚合计算
@@ -131,7 +149,9 @@ export class BudgetsService {
     const alerts: BudgetAlert[] = categories
       .filter((c) => c.status !== 'safe')
       .map((c) => ({
-        category: c.category,
+        category_id: c.category_id,
+        category_name: c.category_name,
+        category_icon: c.category_icon,
         budget: c.budget,
         spent: c.spent,
         progress: c.progress,
@@ -162,6 +182,23 @@ export class BudgetsService {
       budgets: prevBudgets.map((b) => ({ category: b.category, amount: b.amount })),
     };
     return this.upsertBudgets(userId, bookId, dto);
+  }
+
+  /**
+   * 获取分类信息（name + icon）by ID 列表
+   */
+  private async loadCategoryInfo(categoryIds: string[]): Promise<Map<string, { name: string; icon: string }>> {
+    const supabase = this.supabaseService.getClient();
+    const { data } = await supabase
+      .from('categories')
+      .select('id, name, icon')
+      .in('id', categoryIds);
+
+    const map = new Map<string, { name: string; icon: string }>();
+    (data || []).forEach((c: any) => {
+      map.set(c.id, { name: c.name, icon: c.icon });
+    });
+    return map;
   }
 
   /**

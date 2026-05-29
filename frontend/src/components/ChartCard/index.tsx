@@ -2,7 +2,6 @@ import React, { useMemo } from 'react';
 import ReactECharts from 'echarts-for-react';
 import type { EChartsOption } from 'echarts';
 import { MonthlyTrendItem, CategoryBreakdownItem, YoYComparisonItem } from '../../types/statistics';
-import { useCategoryLookup } from '../../hooks/useCategories';
 import { useTheme } from '../../utils/theme';
 import './index.scss';
 
@@ -41,8 +40,8 @@ const buildTrendOption = (data: MonthlyTrendItem[], isDark: boolean): EChartsOpt
       },
     },
     grid: {
-      left: 20,
-      right: 20,
+      left: 60,
+      right: 10,
       top: 20,
       bottom: 20,
     },
@@ -104,11 +103,11 @@ const buildTrendOption = (data: MonthlyTrendItem[], isDark: boolean): EChartsOpt
 };
 
 /** Build echarts option for pie (doughnut) chart */
-const buildPieOption = (data: CategoryBreakdownItem[], getCategoryName: (v: string) => string, getCategoryIcon: (v: string) => string, isDark: boolean): EChartsOption => {
+const buildPieOption = (data: CategoryBreakdownItem[], isDark: boolean): EChartsOption => {
   const chartData = data.map((item) => ({
-    name: `${getCategoryIcon(item.category)} ${getCategoryName(item.category)}`,
+    name: `${item.category_icon} ${item.category_name}`,
     value: item.amount,
-    categoryKey: item.category,
+    categoryKey: item.category_id,
   }));
 
   const legendColor = isDark ? '#aaa' : '#666';
@@ -190,7 +189,7 @@ const buildYoYOption = (
       bottom: 0,
       textStyle: { color: axisColor, fontSize: 12 },
     },
-    grid: { left: 20, right: 20, top: 20, bottom: 36 },
+    grid: { left: 60, right: 10, top: 20, bottom: 36 },
     xAxis: {
       type: 'category',
       data: months,
@@ -245,7 +244,6 @@ export const ChartCard: React.FC<ChartCardProps> = ({
   onCategoryClick,
   seriesLabels = ['今年', '去年'],
 }) => {
-  const { getCategoryName, getCategoryIcon } = useCategoryLookup();
   const { resolvedTheme } = useTheme();
   const isDark = resolvedTheme === 'dark';
 
@@ -258,8 +256,8 @@ export const ChartCard: React.FC<ChartCardProps> = ({
     if (chartType === 'yoy') {
       return buildYoYOption(data as YoYComparisonItem[], isDark, seriesLabels);
     }
-    return buildPieOption(data as CategoryBreakdownItem[], getCategoryName, getCategoryIcon, isDark);
-  }, [chartType, data, getCategoryName, getCategoryIcon, isDark, seriesLabels]);
+    return buildPieOption(data as CategoryBreakdownItem[], isDark);
+  }, [chartType, data, isDark, seriesLabels]);
 
   const handleTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     if (onTypeChange) {
@@ -278,7 +276,6 @@ export const ChartCard: React.FC<ChartCardProps> = ({
   const pieEvents = useMemo(() => {
     if (chartType !== 'pie' || !onCategoryClick) return undefined;
     return { click: handlePieClick };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chartType, onCategoryClick]);
 
   const renderBody = () => {

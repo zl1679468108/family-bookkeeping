@@ -4,7 +4,7 @@ import { format, startOfMonth } from 'date-fns'
 import { Header } from '../components/Header'
 import { Button } from '../components/ui/button'
 import { fetchBudgets, fetchBudgetStatus, upsertBudgets, copyBudgets } from '../services/budgetsApi'
-import { useCategoryLookup, getCategoryKey } from '../hooks/useCategories'
+import { useCategoryLookup } from '../hooks/useCategories'
 import { useFocusItem } from '../hooks/useFocusItem'
 import type { BudgetRecord, UpsertBudgetInput } from '../types/budget'
 import { notify } from '../utils/notifications'
@@ -58,7 +58,7 @@ const Budgets: React.FC = () => {
   const statusMap = new Map<string, { spent: number; progress: number; status: string }>()
   if (budgetStatus?.categories) {
     budgetStatus.categories.forEach((c) => {
-      statusMap.set(c.category, { spent: c.spent, progress: c.progress, status: c.status })
+      statusMap.set(c.category_id, { spent: c.spent, progress: c.progress, status: c.status })
     })
   }
 
@@ -66,7 +66,7 @@ const Budgets: React.FC = () => {
   const [editValues, setEditValues] = useState<Record<string, number>>(() => {
     const initial: Record<string, number> = {}
     expenseCategories.forEach((cat) => {
-      initial[cat.name] = budgetMap.get(getCategoryKey(cat.name)) || 0
+      initial[cat.name] = budgetMap.get(cat.id) || 0
     })
     return initial
   })
@@ -76,10 +76,9 @@ const Budgets: React.FC = () => {
     if (expenseCategories.length === 0) return
     const synced: Record<string, number> = {}
     expenseCategories.forEach((cat) => {
-      synced[cat.name] = budgetMap.get(getCategoryKey(cat.name)) || 0
+      synced[cat.name] = budgetMap.get(cat.id) || 0
     })
     setEditValues(synced)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [month, budgets, expenseCategories.length])
 
   // 编辑处理
@@ -105,7 +104,7 @@ const Budgets: React.FC = () => {
     const budgetsArray = expenseCategories
       .filter((cat) => (editValues[cat.name] || 0) > 0)
       .map((cat) => ({
-        category: getCategoryKey(cat.name),
+        category: cat.id,
         amount: editValues[cat.name] || 0,
       }))
 
@@ -190,8 +189,8 @@ const Budgets: React.FC = () => {
 
           {/* 每行 */}
           {expenseCategories.map((cat) => {
-            const catKey = getCategoryKey(cat.name)
-            const catStatus = statusMap.get(catKey)
+            const catKey = cat.id
+            const catStatus = statusMap.get(cat.id)
             const spent = catStatus?.spent || 0
             const progress = catStatus?.progress || 0
             const status = catStatus?.status || 'safe'

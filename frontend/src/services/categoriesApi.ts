@@ -56,3 +56,15 @@ export const deleteCategory = async (id: string): Promise<void> => {
     requiresAuth: true,
   });
 };
+
+/**
+ * 批量更新分类排序
+ * PATCH /categories/reorder
+ */
+export const reorderCategories = async (orders: { id: string; sort_order: number }[]): Promise<void> => {
+  await request<null>('/categories/reorder', {
+    method: 'PATCH',
+    requiresAuth: true,
+    body: orders,
+  });
+};

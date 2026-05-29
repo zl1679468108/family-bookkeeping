@@ -83,7 +83,6 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const resolved = resolveTheme(theme);
     resolvedRef.current = resolved;
     document.documentElement.setAttribute(THEME_ATTR, resolved);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

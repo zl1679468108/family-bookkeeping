@@ -4,6 +4,7 @@ import {
   Post,
   Put,
   Delete,
+  Patch,
   Body,
   Param,
   Query,
@@ -59,5 +60,15 @@ export class CategoriesController {
   ) {
     await this.categoriesService.remove(id, userId);
     return { message: '删除分类成功', data: null };
+  }
+
+  @Patch('reorder')
+  @HttpCode(HttpStatus.OK)
+  async reorder(
+    @CurrentUser('id') userId: string,
+    @Body() orders: { id: string; sort_order: number }[],
+  ) {
+    await this.categoriesService.reorder(orders, userId);
+    return { message: '排序更新成功', data: null };
   }
 }

@@ -1,6 +1,5 @@
 import React from 'react';
 import { CategoryBreakdownItem } from '../../types/statistics';
-import { useCategoryLookup } from '../../hooks/useCategories';
 import { formatAmount } from '../../utils/common';
 import './index.scss';
 
@@ -15,7 +14,6 @@ export const CategoryRanking: React.FC<CategoryRankingProps> = ({
   type: _type,
   totalAmount,
 }) => {
-  const { getCategoryName, getCategoryIcon } = useCategoryLookup();
 
   const sortedData = [...data].sort((a, b) => b.amount - a.amount);
 
@@ -40,14 +38,14 @@ export const CategoryRanking: React.FC<CategoryRankingProps> = ({
         </thead>
         <tbody>
           {sortedData.map((item, index) => {
-            const displayLabel = `${getCategoryIcon(item.category)} ${getCategoryName(item.category)}`;
+            const displayLabel = `${item.category_icon} ${item.category_name}`;
             const displayPercentage =
               totalAmount > 0
                 ? ((item.amount / totalAmount) * 100).toFixed(1)
                 : '0.0';
 
             return (
-              <tr key={item.category} className="category-ranking__row">
+              <tr key={item.category_id} className="category-ranking__row">
                 <td className="category-ranking__cell category-ranking__cell--rank">
                   {index + 1}
                 </td>

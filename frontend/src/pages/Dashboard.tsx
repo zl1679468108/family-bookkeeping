@@ -8,6 +8,7 @@ import { Button } from '../components/ui/button'
 import { StatCard } from '../components/StatCard'
 import { TransactionsList } from '../components/TransactionsList'
 import { Tooltip } from '../components/ui/tooltip'
+import '../styles/layout.scss'
 import { formatAmount } from '../utils/common'
 import { getTransactions } from '../services/api'
 import { fetchSummary } from '../services/statisticsApi'
@@ -43,10 +44,10 @@ const Dashboard: React.FC = () => {
     queryFn: () => fetchSummary({ startDate: monthStart, endDate: monthEnd }),
   })
 
-  // 2. 最近交易（pageSize=5）
+  // 2. 最近交易（本月，与统计口径一致）
   const { data: recentPaginated, isLoading: recentLoading } = useQuery({
-    queryKey: ['transactions', 'recent'],
-    queryFn: () => getTransactions({ pageSize: 5 }),
+    queryKey: ['transactions', 'recent', monthStart, monthEnd],
+    queryFn: () => getTransactions({ pageSize: 5, startDate: monthStart, endDate: monthEnd }),
   })
 
   // 3. 预算状态
@@ -65,18 +66,6 @@ const Dashboard: React.FC = () => {
   return (
     <div>
       <Header title="概览">
-        <Button variant="secondary" onClick={() => navigate('/reports')}>
-          <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
-            <path d="M2 10a8 8 0 018-8v8h8a8 8 0 11-16 0z"/>
-          </svg>
-          查看报表
-        </Button>
-        <Button onClick={() => navigate('/add?type=expense')}>
-          <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
-            <path fillRule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clipRule="evenodd"/>
-          </svg>
-          记一笔
-        </Button>
       </Header>
 
       {isLoading ? (
@@ -122,30 +111,14 @@ const Dashboard: React.FC = () => {
                 <h3 style={{ fontFamily: 'var(--font-display)', fontSize: '16px', fontWeight: 600 }}>
                   📊 预算概览
                 </h3>
-                <Button
-                  variant="secondary"
-                  onClick={() => {
-                    const firstAlertCategory = budgetStatus.alerts[0]?.category
-                    const focusParam = firstAlertCategory ? `?focus=${encodeURIComponent(firstAlertCategory)}` : ''
-                    navigate(`/budgets${focusParam}`)
-                  }}
-                  style={{ fontSize: '13px', padding: '6px 12px' }}
-                >
-                  管理预算
-                </Button>
               </div>
 
-              {/* 总进度条 */}
-              <div style={{ marginBottom: '12px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px', fontSize: '13px' }}>
-                  <span style={{ color: 'var(--muted)' }}>
-                    总预算 ¥{budgetStatus.totalBudget.toLocaleString('zh-CN')}
-                  </span>
-                  <span style={{ color: 'var(--muted)' }}>
-                    已花费 ¥{budgetStatus.totalSpent.toLocaleString('zh-CN')} / 剩余 ¥{budgetStatus.remaining.toLocaleString('zh-CN')}
-                  </span>
-                </div>
-                <div style={{ height: '8px', background: 'var(--border)', borderRadius: '4px', overflow: 'hidden' }}>
+              {/* 总预算 + 进度条 + 百分比 —— 同一行 */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px' }}>
+                <span style={{ color: 'var(--muted)', fontSize: '13px', whiteSpace: 'nowrap' }}>
+                  总预算 ¥{budgetStatus.totalBudget.toLocaleString('zh-CN')}
+                </span>
+                <div style={{ flex: 1, height: '8px', background: 'var(--border)', borderRadius: '4px', overflow: 'hidden' }}>
                   <div style={{
                     height: '100%',
                     width: `${Math.min(budgetStatus.overallProgress, 100)}%`,
@@ -154,9 +127,17 @@ const Dashboard: React.FC = () => {
                     transition: 'width 0.5s ease',
                   }} />
                 </div>
-                <div style={{ textAlign: 'right', marginTop: '4px', fontSize: '12px', color: 'var(--muted)' }}>
+                <span style={{
+                  fontSize: '13px', fontWeight: 600, whiteSpace: 'nowrap',
+                  color: budgetStatus.overallProgress >= 100 ? 'var(--danger)' : budgetStatus.overallProgress >= 80 ? 'var(--warning)' : 'var(--muted)',
+                }}>
                   {budgetStatus.overallProgress}%
-                </div>
+                </span>
+              </div>
+
+              {/* 已花费 / 剩余 */}
+              <div style={{ fontSize: '13px', color: 'var(--muted)', marginBottom: '12px' }}>
+                已花费 ¥{budgetStatus.totalSpent.toLocaleString('zh-CN')} / 剩余 ¥{budgetStatus.remaining.toLocaleString('zh-CN')}
               </div>
 
               {/* 预警详情 —— 嵌入卡片内部 */}
@@ -179,8 +160,8 @@ const Dashboard: React.FC = () => {
                   {/* 详细条目 */}
                   {budgetStatus.alerts.slice(0, 3).map((a) => (
                     <div
-                      key={a.category}
-                      onClick={() => navigate(`/budgets?focus=${encodeURIComponent(a.category)}`)}
+                      key={a.category_id}
+                      onClick={() => navigate(`/budgets?focus=${encodeURIComponent(a.category_id)}`)}
                       style={{
                         display: 'flex', alignItems: 'center', gap: '6px',
                         fontSize: '13px', marginBottom: '6px', cursor: 'pointer',
@@ -190,7 +171,7 @@ const Dashboard: React.FC = () => {
                       onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.75' }}
                       onMouseLeave={(e) => { e.currentTarget.style.opacity = '1' }}
                     >
-                      {getCategoryIcon(a.category)} {getCategoryName(a.category)}
+                      {getCategoryIcon(a.category_id)} {getCategoryName(a.category_id)}
                       <span style={{ color: 'var(--muted)', marginLeft: '4px' }}>
                         预算 ¥{a.budget.toLocaleString('zh-CN')} / 已花 ¥{a.spent.toLocaleString('zh-CN')}
                       </span>
@@ -212,7 +193,7 @@ const Dashboard: React.FC = () => {
                   <div style={{ marginTop: '12px' }}>
                     <Button
                       onClick={() => {
-                        const firstAlertCategory = budgetStatus.alerts[0]?.category
+                        const firstAlertCategory = budgetStatus.alerts[0]?.category_id
                         const focusParam = firstAlertCategory ? `?focus=${encodeURIComponent(firstAlertCategory)}` : ''
                         navigate(`/budgets${focusParam}`)
                       }}
@@ -226,9 +207,9 @@ const Dashboard: React.FC = () => {
             </div>
           )}
 
-          {/* 最近交易 */}
+          {/* 本月最近交易 */}
           <h2 className="section-title" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            最近交易
+            本月最近交易
             <Tooltip content="近5个交易">
               <span style={{ display: 'inline-flex', cursor: 'help', color: 'var(--muted)' }}>
                 <Info size={14} />

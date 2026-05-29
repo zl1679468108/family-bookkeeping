@@ -35,7 +35,9 @@ export interface MonthlyTrendItem {
 
 /** Return type for a single category entry in GET /api/statistics/category-breakdown. */
 export interface CategoryBreakdownItem {
-  category: string;
+  category_id: string;
+  category_name: string;
+  category_icon: string;
   amount: number;
   percentage: number;
 }
@@ -274,7 +276,7 @@ export class StatisticsService {
       bookId,
     );
 
-    // Aggregate by category
+    // Aggregate by category UUID
     const catMap: Record<string, number> = {};
     for (const t of transactions) {
       catMap[t.category] = (catMap[t.category] || 0) + t.amount;
@@ -282,13 +284,17 @@ export class StatisticsService {
 
     // Sort descending by amount
     const entries = Object.entries(catMap)
-      .map(([category, amount]) => ({ category, amount }))
+      .map(([categoryId, amount]) => ({ categoryId, amount }))
       .sort((a, b) => b.amount - a.amount);
+
+    // Fetch category names/icons for the involved category IDs
+    const categoryIds = entries.map((e) => e.categoryId);
+    const categoryInfoMap = await this.loadCategoryInfo(categoryIds);
 
     const totalAmount = entries.reduce((sum, e) => sum + e.amount, 0);
 
     // Top 7 + "other" if more than 7 categories
-    let merged: { category: string; amount: number }[];
+    let merged: { categoryId: string; amount: number }[];
     if (entries.length <= 7) {
       merged = entries;
     } else {
@@ -296,18 +302,37 @@ export class StatisticsService {
       const otherAmount = entries
         .slice(7)
         .reduce((sum, e) => sum + e.amount, 0);
-      merged = [...top7, { category: 'other', amount: otherAmount }];
+      merged = [...top7, { categoryId: 'other', amount: otherAmount }];
     }
 
-    // Attach percentages
-    return merged.map((item) => ({
-      category: item.category,
-      amount: item.amount,
-      percentage:
-        totalAmount === 0
-          ? 0
-          : Math.round((item.amount / totalAmount) * 1000) / 10,
-    }));
+    return merged.map((item) => {
+      const info = categoryInfoMap.get(item.categoryId);
+      return {
+        category_id: item.categoryId === 'other' ? 'other' : item.categoryId,
+        category_name: item.categoryId === 'other' ? '其他' : (info?.name || '未知'),
+        category_icon: item.categoryId === 'other' ? '📌' : (info?.icon || '📌'),
+        amount: item.amount,
+        percentage:
+          totalAmount === 0
+            ? 0
+            : Math.round((item.amount / totalAmount) * 1000) / 10,
+      };
+    });
+  }
+
+  /** Load category name + icon for a list of category UUIDs */
+  private async loadCategoryInfo(categoryIds: string[]): Promise<Map<string, { name: string; icon: string }>> {
+    const supabase = this.supabaseService.getClient();
+    const { data } = await supabase
+      .from('categories')
+      .select('id, name, icon')
+      .in('id', categoryIds);
+
+    const map = new Map<string, { name: string; icon: string }>();
+    (data || []).forEach((c: any) => {
+      map.set(c.id, { name: c.name, icon: c.icon });
+    });
+    return map;
   }
 
   /**

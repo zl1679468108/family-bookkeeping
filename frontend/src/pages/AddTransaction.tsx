@@ -4,11 +4,14 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Header } from '../components/Header'
 import { Button } from '../components/ui/button'
 import { ImageUploader } from '../components/ImageUploader'
+import { LocationPicker } from '../components/LocationPicker'
 import { FormGroup, FormRow } from '../components/Form'
 import { typeOptions } from '../utils/commonDic'
 import { createTransaction, getTransaction, updateTransaction } from '../services/api'
-import { useCategories, buildCategoryOptions } from '../hooks/useCategories'
+import { useCategories, buildCategoryOptions, useCategoryLookup } from '../hooks/useCategories'
 import { notify } from '../utils/notifications'
+import type { LocationResult } from '../types/map'
+import './AddTransaction.scss'
 
 const AddTransaction: React.FC = () => {
   const navigate = useNavigate()
@@ -26,6 +29,9 @@ const AddTransaction: React.FC = () => {
     note: ''
   })
 
+  const [location, setLocation] = useState<LocationResult | null>(null)
+  const [showLocationPicker, setShowLocationPicker] = useState(false)
+
   const { data: editData, isLoading: editLoading } = useQuery({
     queryKey: ['transaction', editId],
     queryFn: () => getTransaction(Number(editId)),
@@ -34,6 +40,7 @@ const AddTransaction: React.FC = () => {
 
   // 从 API 获取所有分类（默认 + 自定义）
   const { data: categories = [] } = useCategories()
+  const { getCategoryId } = useCategoryLookup()
 
   // Pre-fill form when edit data is loaded
   useEffect(() => {
@@ -45,6 +52,15 @@ const AddTransaction: React.FC = () => {
         date: editData.date,
         note: editData.description || '',
       })
+      // 加载已有位置信息
+      if ((editData as any).latitude && (editData as any).longitude) {
+        setLocation({
+          latitude: (editData as any).latitude,
+          longitude: (editData as any).longitude,
+          locationName: (editData as any).location_name || '',
+          poiId: (editData as any).poi_id || null,
+        })
+      }
     }
   }, [editData])
 
@@ -77,7 +93,7 @@ const AddTransaction: React.FC = () => {
   }, [formData.type, searchParams, isEditMode])
 
   const mutation = useMutation({
-    mutationFn: (data: { amount: number; category: string; type: 'expense' | 'income'; date: string; description: string }) =>
+    mutationFn: (data: { amount: number; category: string; type: 'expense' | 'income'; date: string; description: string; latitude?: number; longitude?: number; locationName?: string; poiId?: string }) =>
       isEditMode
         ? updateTransaction(Number(editId), data)
         : createTransaction(data),
@@ -91,11 +107,13 @@ const AddTransaction: React.FC = () => {
     },
   })
 
-  const handleOcrComplete = (data: { amount: string; category: string; note: string }) => {
+  const handleOcrComplete = (data: { amount: string; categoryName: string; note: string }) => {
+    // 将 OCR 识别的分类名转换为 category UUID
+    const categoryId = getCategoryId(data.categoryName) || '';
     setFormData({
       amount: data.amount,
-      category: data.category,
-      type: data.category === 'income' ? 'income' : 'expense',
+      category: categoryId,
+      type: formData.type, // OCR 不改交易类型，保持用户当前选择
       date: new Date().toISOString().split('T')[0],
       note: data.note
     })
@@ -112,8 +130,23 @@ const AddTransaction: React.FC = () => {
       category: formData.category,
       type: formData.type,
       date: formData.date,
-      description: formData.note
+      description: formData.note,
+      ...(location ? {
+        latitude: location.latitude,
+        longitude: location.longitude,
+        locationName: location.locationName,
+        poiId: location.poiId || undefined,
+      } : {}),
     })
+  }
+
+  const handleLocationConfirm = (result: LocationResult) => {
+    if (result.latitude === 0 && result.longitude === 0) {
+      setLocation(null)
+    } else {
+      setLocation(result)
+    }
+    setShowLocationPicker(false)
   }
 
   // 分类选项：从 API 获取（已包含默认 + 自定义）
@@ -199,6 +232,25 @@ const AddTransaction: React.FC = () => {
           />
         </FormGroup>
 
+        <FormGroup label="位置">
+          {location ? (
+            <div className="location-selected">
+              <span className="location-selected-icon">📍</span>
+              <span className="location-selected-text">{location.locationName}</span>
+              <button
+                className="location-selected-change"
+                onClick={() => setShowLocationPicker(true)}
+              >
+                修改
+              </button>
+            </div>
+          ) : (
+            <Button variant="secondary" onClick={() => setShowLocationPicker(true)} style={{ width: '100%' }}>
+              📍 添加位置（可选）
+            </Button>
+          )}
+        </FormGroup>
+
         <div style={{ display: 'flex', gap: '12px', marginTop: '32px' }}>
           <Button variant="secondary" style={{ flex: 1 }} onClick={() => navigate(isEditMode ? '/transactions' : '/')}>取消</Button>
           <Button style={{ flex: 2 }} onClick={handleSubmit} disabled={mutation.isPending}>
@@ -206,6 +258,13 @@ const AddTransaction: React.FC = () => {
           </Button>
         </div>
       </div>
+
+      <LocationPicker
+        visible={showLocationPicker}
+        onClose={() => setShowLocationPicker(false)}
+        onConfirm={handleLocationConfirm}
+        initialLocation={location}
+      />
     </div>
   )
 }

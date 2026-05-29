@@ -3,7 +3,7 @@ import { createWorker } from 'tesseract.js'
 import './index.scss'
 
 interface ImageUploaderProps {
-  onOcrComplete?: (data: { amount: string; category: string; note: string }) => void
+  onOcrComplete?: (data: { amount: string; categoryName: string; note: string }) => void
 }
 
 const categoryKeywords: Record<string, string[]> = {
@@ -260,13 +260,13 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({ onOcrComplete }) =
           const amount = extractAmount(text)
           console.log('【提取金额】', amount)
 
-          const category = detectCategory(text, amount)
+          const detectedCategory = detectCategory(text, amount)
           const note = generateNote(text)
 
           if (onOcrComplete) {
             onOcrComplete({
               amount,
-              category,
+              categoryName: detectedCategory,
               note: note || '识别自收据'
             })
           }

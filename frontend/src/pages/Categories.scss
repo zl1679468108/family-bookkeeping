@@ -1,0 +1,37 @@
+/* 分类卡片 */
+.category-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border-radius: 12px;
+  border: 1px solid var(--border, #e2e8f0);
+  background: var(--surface, #fff);
+  padding: 12px 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  transition: all 0.15s;
+  user-select: none;
+}
+
+.category-card:not(.category-card--sortable) {
+  cursor: default;
+}
+
+.category-card:hover {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.category-card--sortable {
+  cursor: grab;
+  border-color: #f59e0b;
+  border-style: dashed;
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.03) 0%, rgba(245, 158, 11, 0.01) 100%);
+}
+
+.category-card--sortable:active {
+  cursor: grabbing;
+}
+
+.category-card--dragging {
+  opacity: 0.4;
+  border-style: dashed;
+}

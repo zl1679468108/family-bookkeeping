@@ -12,7 +12,7 @@ import { UpdateCategoryDto } from './dto/update-category.dto';
 
 export interface Category {
   id: string;
-  user_id: string | null;
+  user_id: string;
   name: string;
   icon: string;
   type: 'expense' | 'income';
@@ -22,12 +22,18 @@ export interface Category {
   updated_at: string;
 }
 
+const DEFAULT_CATEGORIES = [
+  { name: '购物', icon: '🛒', type: 'expense', is_default: true, sort_order: 0 },
+  { name: '工资', icon: '💼', type: 'income', is_default: true, sort_order: 0 },
+] as const;
+
 @Injectable()
 export class CategoriesService {
   constructor(private readonly supabaseService: SupabaseService) {}
 
   /**
-   * 查询所有可用分类（系统默认 + 用户自定义）
+   * 查询用户所有分类（用户级默认 + 自定义）
+   * 如果用户没有任何分类，自动创建 2 个默认分类
    */
   async findAll(userId: string, type?: 'income' | 'expense'): Promise<Category[]> {
     if (!userId) {
@@ -36,11 +42,10 @@ export class CategoriesService {
 
     const supabase = this.supabaseService.getClient();
 
-    // 查询系统默认分类（is_default=true） + 用户自定义分类
     let query = supabase
       .from('categories')
       .select('*')
-      .or(`is_default.eq.true,user_id.eq.${userId}`)
+      .eq('user_id', userId)
       .order('sort_order', { ascending: true })
       .order('created_at', { ascending: true });
 
@@ -52,18 +57,26 @@ export class CategoriesService {
     if (error) {
       throw new InternalServerErrorException(`获取分类列表失败: ${error.message}`);
     }
-    return data ?? [];
+
+    // 如果用户没有任何分类，自动创建默认分类（兼容已有用户）
+    if (!data || data.length === 0) {
+      await this.createDefaultsForUser(userId);
+      return this.findAll(userId, type);
+    }
+
+    return data;
   }
 
   async create(dto: CreateCategoryDto, userId: string): Promise<Category> {
     if (!userId) throw new ForbiddenException('需要登录才能创建分类');
 
-    // 同时检查默认分类和用户自定义重名
     const supabase = this.supabaseService.getClient();
+
+    // 检查用户自己的分类中是否重名
     const { data: existing } = await supabase
       .from('categories')
       .select('id')
-      .or(`user_id.eq.${userId},is_default.eq.true`)
+      .eq('user_id', userId)
       .eq('name', dto.name)
       .eq('type', dto.type)
       .maybeSingle();
@@ -87,7 +100,7 @@ export class CategoriesService {
 
     const existing = await this.findById(id, userId);
     if (existing.is_default) {
-      throw new BadRequestException('系统默认分类不可修改');
+      throw new BadRequestException('默认分类不可修改');
     }
 
     const updateData: Record<string, unknown> = {};
@@ -115,7 +128,7 @@ export class CategoriesService {
 
     const existing = await this.findById(id, userId);
     if (existing.is_default) {
-      throw new BadRequestException('系统默认分类不可删除');
+      throw new BadRequestException('默认分类不可删除');
     }
 
     const supabase = this.supabaseService.getClient();
@@ -128,27 +141,58 @@ export class CategoriesService {
     if (error) throw new InternalServerErrorException(`删除分类失败: ${error.message}`);
   }
 
+  /**
+   * 批量更新分类排序（仅更新用户自己的分类）
+   */
+  async reorder(orders: { id: string; sort_order: number }[], userId: string): Promise<void> {
+    if (!userId) throw new ForbiddenException('需要登录才能修改排序');
+    if (!orders || orders.length === 0) throw new BadRequestException('排序列表不能为空');
+
+    const supabase = this.supabaseService.getClient();
+
+    for (const item of orders) {
+      const { error } = await supabase
+        .from('categories')
+        .update({ sort_order: item.sort_order })
+        .eq('id', item.id)
+        .eq('user_id', userId);
+
+      if (error) {
+        throw new InternalServerErrorException(`更新排序失败: ${error.message}`);
+      }
+    }
+  }
+
+  /** 为已有用户创建默认分类（幂等：仅在用户无分类时调用） */
+  async createDefaultsForUser(userId: string): Promise<void> {
+    const supabase = this.supabaseService.getClient();
+
+    // 先检查是否已有分类，避免重复创建
+    const { count } = await supabase
+      .from('categories')
+      .select('id', { count: 'exact', head: true })
+      .eq('user_id', userId);
+
+    if (count && count > 0) return;
+
+    const defaults = DEFAULT_CATEGORIES.map((c) => ({
+      ...c,
+      user_id: userId,
+    }));
+
+    await supabase.from('categories').insert(defaults);
+  }
+
   private async findById(id: string, userId: string): Promise<Category> {
     const supabase = this.supabaseService.getClient();
     const { data, error } = await supabase
       .from('categories')
       .select('*')
-      .or(`id.eq.${id},id.eq.${id}`)
-      .single();
-
-    // 简单查询：直接查 id
-    const { data: d, error: e } = await supabase
-      .from('categories')
-      .select('*')
       .eq('id', id)
+      .eq('user_id', userId)
       .single();
 
-    if (e || !d) throw new NotFoundException('分类不存在或无权访问');
-
-    // 默认分类任何人可访问，自定义分类需验证所属权
-    if (!d.is_default && d.user_id !== userId) {
-      throw new NotFoundException('分类不存在或无权访问');
-    }
-    return d;
+    if (error || !data) throw new NotFoundException('分类不存在或无权访问');
+    return data;
   }
 }

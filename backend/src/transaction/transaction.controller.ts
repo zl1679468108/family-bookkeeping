@@ -56,9 +56,10 @@ export class TransactionController {
   @Get(':id')
   async findOne(
     @CurrentUser('id') userId: string,
+    @BookId() bookId: string | undefined,
     @Param('id') id: string,
   ) {
-    const data = await this.transactionService.findOne(+id, userId);
+    const data = await this.transactionService.findOne(+id, userId, bookId);
     return { message: '获取交易记录成功', data };
   }
 
@@ -66,19 +67,21 @@ export class TransactionController {
   @HttpCode(HttpStatus.CREATED)
   async create(
     @CurrentUser('id') userId: string,
+    @BookId() bookId: string | undefined,
     @Body() transaction: any,
   ) {
-    const data = await this.transactionService.create(transaction, userId);
+    const data = await this.transactionService.create(transaction, userId, bookId);
     return { message: '创建交易记录成功', data };
   }
 
   @Put(':id')
   async update(
     @CurrentUser('id') userId: string,
+    @BookId() bookId: string | undefined,
     @Param('id') id: string,
     @Body() transaction: any,
   ) {
-    const data = await this.transactionService.update(+id, transaction, userId);
+    const data = await this.transactionService.update(+id, transaction, userId, bookId);
     return { message: '更新交易记录成功', data };
   }
 
@@ -86,9 +89,10 @@ export class TransactionController {
   @HttpCode(HttpStatus.OK)
   async remove(
     @CurrentUser('id') userId: string,
+    @BookId() bookId: string | undefined,
     @Param('id') id: string,
   ) {
-    await this.transactionService.remove(+id, userId);
+    await this.transactionService.remove(+id, userId, bookId);
     return { message: '删除交易记录成功', data: null };
   }
 }

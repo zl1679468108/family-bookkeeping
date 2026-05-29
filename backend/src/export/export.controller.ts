@@ -11,6 +11,7 @@ import { ExportService } from './export.service';
 import { TransactionFilters } from '../transaction/transaction.service';
 import { TokenAuthGuard } from '../auth/token-auth.guard';
 import { CurrentUser } from '../auth/current-user.decorator';
+import { BookId } from '../books/book-id.decorator';
 
 @Controller('export')
 @UseGuards(TokenAuthGuard)
@@ -24,6 +25,7 @@ export class ExportController {
   async exportExcel(
     @Res() res: Response,
     @CurrentUser('id') userId: string,
+    @BookId() bookId: string | undefined,
     @Query('type') type?: 'income' | 'expense',
     @Query('category') category?: string,
     @Query('startDate') startDate?: string,
@@ -36,6 +38,7 @@ export class ExportController {
         startDate,
         endDate,
         userId,
+        bookId,
       };
 
       const buffer = await this.exportService.exportToExcel(filters);
@@ -63,6 +66,7 @@ export class ExportController {
   async exportPdf(
     @Res() res: Response,
     @CurrentUser('id') userId: string,
+    @BookId() bookId: string | undefined,
     @Query('type') type?: 'income' | 'expense',
     @Query('category') category?: string,
     @Query('startDate') startDate?: string,
@@ -75,6 +79,7 @@ export class ExportController {
         startDate,
         endDate,
         userId,
+        bookId,
       };
 
       const buffer = await this.exportService.exportToPDF(filters);

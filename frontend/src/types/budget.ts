@@ -6,7 +6,7 @@
 export interface BudgetRecord {
   id: string;
   user_id: string;
-  category: string;
+  category: string; // categories.id (UUID)
   amount: number;
   month: string; // "YYYY-MM-01"
   created_at: string;
@@ -15,7 +15,9 @@ export interface BudgetRecord {
 
 /** 单分类预算状态 */
 export interface BudgetCategoryStatus {
-  category: string;
+  category_id: string;
+  category_name: string;
+  category_icon: string;
   budget: number;
   spent: number;
   progress: number; // 0-100+
@@ -24,7 +26,9 @@ export interface BudgetCategoryStatus {
 
 /** 预算预警项 */
 export interface BudgetAlert {
-  category: string;
+  category_id: string;
+  category_name: string;
+  category_icon: string;
   budget: number;
   spent: number;
   progress: number;

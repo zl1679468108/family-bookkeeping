@@ -40,11 +40,12 @@ CREATE TABLE IF NOT EXISTS user_sessions (
 
 -- ==============================================
 -- 4. 交易记录表
+-- 2026-05-29: category 改为 UUID 关联 categories 表
 -- ==============================================
 CREATE TABLE IF NOT EXISTS transactions (
   id SERIAL PRIMARY KEY,
   amount DECIMAL(10, 2) NOT NULL,
-  category VARCHAR(50) NOT NULL,
+  category UUID REFERENCES categories(id) ON DELETE SET NULL,
   type VARCHAR(10) NOT NULL CHECK (type IN ('income', 'expense')),
   date DATE NOT NULL DEFAULT CURRENT_DATE,
   description TEXT,
@@ -55,11 +56,12 @@ CREATE TABLE IF NOT EXISTS transactions (
 
 -- ==============================================
 -- 5. 预算表
+-- 2026-05-29: category 改为 UUID 关联 categories 表
 -- ==============================================
 CREATE TABLE IF NOT EXISTS budgets (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  category VARCHAR(50) NOT NULL,
+  category UUID NOT NULL REFERENCES categories(id) ON DELETE CASCADE,
   amount DECIMAL(10, 2) NOT NULL,
   month DATE NOT NULL,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
@@ -93,6 +95,7 @@ CREATE INDEX idx_transactions_user_id ON transactions(user_id);
 CREATE INDEX idx_transactions_date ON transactions(date);
 CREATE INDEX idx_transactions_type ON transactions(type);
 CREATE INDEX idx_transactions_category ON transactions(category);
+
 CREATE INDEX idx_budgets_user_id ON budgets(user_id);
 CREATE INDEX idx_budgets_user_month ON budgets(user_id, month);
 
@@ -126,16 +129,27 @@ CREATE TRIGGER update_budgets_updated_at BEFORE UPDATE ON budgets
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 DROP TRIGGER IF EXISTS update_password_resets_updated_at ON password_resets;
+
+-- 迁移：确保 password_resets 有 updated_at 列（兼容旧表）
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_name = 'password_resets' AND column_name = 'updated_at'
+  ) THEN
+    ALTER TABLE password_resets ADD COLUMN updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
+  END IF;
+END $$;
+
 CREATE TRIGGER update_password_resets_updated_at BEFORE UPDATE ON password_resets
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 -- ==============================================
--- 6. 分类表（2026-05-26: P0 自定义分类功能）
--- 2026-05-26 更新：user_id 改为可空（系统默认分类为 NULL），新增 is_default 标记
+-- 6. 分类表（2026-05-29: 重构为用户级分类，注册时预设 2 个默认分类）
 -- ==============================================
 CREATE TABLE IF NOT EXISTS categories (
   id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id     UUID REFERENCES users(id) ON DELETE CASCADE,  -- NULL = 系统默认分类
+  user_id     UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   name        VARCHAR(50) NOT NULL,
   icon        VARCHAR(50) NOT NULL DEFAULT '📌',
   type        VARCHAR(10) NOT NULL CHECK (type IN ('expense', 'income')),
@@ -145,64 +159,50 @@ CREATE TABLE IF NOT EXISTS categories (
   updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- 迁移：如果 categories 表已存在，补齐缺失的列（兼容旧表结构）
+-- 迁移：如果 categories 表已存在，确保 user_id 为 NOT NULL，移除全局默认分类
 DO $$
 BEGIN
-    -- user_id 改为可空（系统默认分类为 NULL）
+    -- 删除旧的系统默认分类（user_id IS NULL）
+    DELETE FROM categories WHERE user_id IS NULL;
+
+    -- 改为 NOT NULL
     IF EXISTS (
         SELECT 1 FROM information_schema.columns
-        WHERE table_name = 'categories' AND column_name = 'user_id' AND is_nullable = 'NO'
+        WHERE table_name = 'categories' AND column_name = 'user_id' AND is_nullable = 'YES'
     ) THEN
-        ALTER TABLE categories ALTER COLUMN user_id DROP NOT NULL;
+        ALTER TABLE categories ALTER COLUMN user_id SET NOT NULL;
     END IF;
 
-    -- 新增 is_default 列（2026-05-26: 区分系统默认分类与用户自定义分类）
+    -- 新增 is_default 列
     IF NOT EXISTS (
         SELECT 1 FROM information_schema.columns
         WHERE table_name = 'categories' AND column_name = 'is_default'
     ) THEN
         ALTER TABLE categories ADD COLUMN is_default BOOLEAN NOT NULL DEFAULT false;
     END IF;
+
+    -- 新增 sort_order 列
+    IF NOT EXISTS (
+        SELECT 1 FROM information_schema.columns
+        WHERE table_name = 'categories' AND column_name = 'sort_order'
+    ) THEN
+        ALTER TABLE categories ADD COLUMN sort_order INTEGER NOT NULL DEFAULT 0;
+    END IF;
 END $$;
 
 CREATE INDEX IF NOT EXISTS idx_categories_user_id ON categories(user_id);
-CREATE INDEX IF NOT EXISTS idx_categories_is_default ON categories(is_default);
 
 -- 唯一约束：同一用户下分类名+类型不能重复
--- 注意：PostgreSQL UNIQUE 索引中 NULL != NULL，所以 user_id=NULL 的行不会被去重
--- 因此额外加一个部分唯一索引，确保系统默认分类(user_id IS NULL)不会重复
 CREATE UNIQUE INDEX IF NOT EXISTS idx_categories_user_name_type ON categories(user_id, name, type);
-CREATE UNIQUE INDEX IF NOT EXISTS idx_categories_default_name_type ON categories(name, type) WHERE user_id IS NULL;
 
-COMMENT ON TABLE categories IS '分类表（系统默认 + 用户自定义）';
+-- 清理旧版全局默认分类的唯一索引
+DROP INDEX IF EXISTS idx_categories_default_name_type;
+
+COMMENT ON TABLE categories IS '分类表（用户级，注册时预设购物+工资 2 个默认分类）';
 
 DROP TRIGGER IF EXISTS update_categories_updated_at ON categories;
 CREATE TRIGGER update_categories_updated_at BEFORE UPDATE ON categories
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-
--- ==============================================
--- 初始化系统默认分类（16个：10支出 + 6收入）
--- ==============================================
-INSERT INTO categories (user_id, name, icon, type, is_default, sort_order) VALUES
-  -- 支出分类
-  (NULL, '食品', '🛒', 'expense', true, 1),
-  (NULL, '餐饮', '🍜', 'expense', true, 2),
-  (NULL, '交通', '🚗', 'expense', true, 3),
-  (NULL, '购物', '🛍️', 'expense', true, 4),
-  (NULL, '通讯', '📱', 'expense', true, 5),
-  (NULL, '居住', '🏠', 'expense', true, 6),
-  (NULL, '娱乐', '🎮', 'expense', true, 7),
-  (NULL, '医疗', '💊', 'expense', true, 8),
-  (NULL, '教育', '📚', 'expense', true, 9),
-  (NULL, '其他', '📌', 'expense', true, 10),
-  -- 收入分类
-  (NULL, '工资', '💼', 'income', true, 11),
-  (NULL, '奖金', '🎁', 'income', true, 12),
-  (NULL, '投资', '📈', 'income', true, 13),
-  (NULL, '兼职', '💻', 'income', true, 14),
-  (NULL, '礼金', '🎁', 'income', true, 15),
-  (NULL, '其他收入', '💰', 'income', true, 16)
-ON CONFLICT (name, type) WHERE user_id IS NULL DO NOTHING;
 
 -- ==============================================
 -- 7. 账本表（2026-05-28: P2 多账本功能）
@@ -264,3 +264,102 @@ END $$;
 
 COMMENT ON COLUMN transactions.book_id IS '所属账本 ID（NULL = 迁移前数据，等同于默认账本）';
 COMMENT ON COLUMN budgets.book_id IS '所属账本 ID（NULL = 迁移前数据，等同于默认账本）';
+
+-- ==============================================
+-- 迁移：地图功能 - 交易表新增位置字段（2026-05-28）
+-- ==============================================
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_name = 'transactions' AND column_name = 'latitude'
+  ) THEN
+    ALTER TABLE transactions ADD COLUMN latitude DECIMAL(10, 7);
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_name = 'transactions' AND column_name = 'longitude'
+  ) THEN
+    ALTER TABLE transactions ADD COLUMN longitude DECIMAL(10, 7);
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_name = 'transactions' AND column_name = 'location_name'
+  ) THEN
+    ALTER TABLE transactions ADD COLUMN location_name VARCHAR(200);
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_name = 'transactions' AND column_name = 'poi_id'
+  ) THEN
+    ALTER TABLE transactions ADD COLUMN poi_id VARCHAR(100);
+  END IF;
+END $$;
+
+-- 部分索引：仅索引有位置信息的交易
+CREATE INDEX IF NOT EXISTS idx_transactions_location
+  ON transactions(latitude, longitude)
+  WHERE latitude IS NOT NULL AND longitude IS NOT NULL;
+
+COMMENT ON COLUMN transactions.latitude IS '纬度，范围 -90 ~ 90';
+COMMENT ON COLUMN transactions.longitude IS '经度，范围 -180 ~ 180';
+COMMENT ON COLUMN transactions.location_name IS '地点名称/地址描述';
+COMMENT ON COLUMN transactions.poi_id IS '高德地图 POI ID';
+
+-- ==============================================
+-- 迁移：category 字段从 VARCHAR 改为 UUID（2026-05-29）
+-- 注意：此迁移仅适用于已有数据的库。新库直接使用上方 CREATE TABLE 即可。
+-- ==============================================
+DO $$
+BEGIN
+  -- transactions 表迁移
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_name = 'transactions' AND column_name = 'category'
+      AND data_type = 'character varying'
+  ) THEN
+    -- Step 1: 新增 category_id UUID 列
+    ALTER TABLE transactions ADD COLUMN category_id UUID REFERENCES categories(id) ON DELETE SET NULL;
+
+    -- Step 2: 通过 user_id + category name 匹配回填 category_id
+    UPDATE transactions t
+    SET category_id = c.id
+    FROM categories c
+    WHERE t.user_id = c.user_id AND t.category = c.name;
+
+    -- Step 3: 交换列名
+    ALTER TABLE transactions DROP COLUMN category;
+    ALTER TABLE transactions RENAME COLUMN category_id TO category;
+
+    -- Step 4: 重建索引
+    DROP INDEX IF EXISTS idx_transactions_category;
+    CREATE INDEX idx_transactions_category ON transactions(category);
+  END IF;
+
+  -- budgets 表迁移
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_name = 'budgets' AND column_name = 'category'
+      AND data_type = 'character varying'
+  ) THEN
+    -- Step 1: 新增 category_id UUID 列
+    ALTER TABLE budgets ADD COLUMN category_id UUID REFERENCES categories(id) ON DELETE CASCADE;
+
+    -- Step 2: 通过 user_id + category name 匹配回填
+    UPDATE budgets b
+    SET category_id = c.id
+    FROM categories c
+    WHERE b.user_id = c.user_id AND b.category = c.name;
+
+    -- Step 3: 交换列名
+    ALTER TABLE budgets DROP COLUMN category;
+    ALTER TABLE budgets RENAME COLUMN category_id TO category;
+
+    -- Step 4: 重建唯一约束
+    ALTER TABLE budgets DROP CONSTRAINT IF EXISTS budgets_user_id_category_month_key;
+    ALTER TABLE budgets ADD CONSTRAINT budgets_user_id_category_month_key UNIQUE (user_id, category, month);
+  END IF;
+END $$;
