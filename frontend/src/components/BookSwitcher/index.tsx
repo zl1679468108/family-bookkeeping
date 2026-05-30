@@ -18,7 +18,7 @@ export const BookSwitcher: React.FC = () => {
   }, []);
 
   if (loading) {
-    return <div className="book-switcher book-switcher--loading">加载中...</div>;
+    return <div className="book-switcher book-switcher--loading"> </div>;
   }
 
   return (
@@ -29,7 +29,7 @@ export const BookSwitcher: React.FC = () => {
       >
         <span className="book-switcher__icon">📖</span>
         <span className="book-switcher__name">
-          {currentBook?.name || '加载中...'}
+          {currentBook?.name || ' '}
         </span>
         <span className={`book-switcher__arrow ${open ? 'book-switcher__arrow--open' : ''}`}>▾</span>
       </button>

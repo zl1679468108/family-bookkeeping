@@ -210,3 +210,8 @@ body {
   50%  { border-color: oklch(78% 0.18 255); }
   100% { border-color: oklch(65% 0.18 255); }
 }
+
+@keyframes skeletonShimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}

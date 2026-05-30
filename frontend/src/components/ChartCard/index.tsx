@@ -280,7 +280,7 @@ export const ChartCard: React.FC<ChartCardProps> = ({
 
   const renderBody = () => {
     if (loading) {
-      return <div className="chart-loading">加载中...</div>;
+      return <div className="chart-loading"> </div>;
     }
 
     if (!data || data.length === 0) {

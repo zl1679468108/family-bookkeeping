@@ -13,15 +13,11 @@ const PrivateRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => 
 
   // token 存在但用户信息还在加载中 → 展示空骨架，不跳转
   if (loading && hasToken()) {
-    return <div className="flex items-center justify-center min-h-[60vh]">
-      <div className="text-gray-400">加载中...</div>
-    </div>
+    return <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '60vh' }} />
   }
 
   if (loading) {
-    return <div className="flex items-center justify-center min-h-screen bg-gray-50">
-      <div className="text-gray-500">加载中...</div>
-    </div>
+    return <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', background: '#f9fafb' }} />
   }
 
   if (!user) {
@@ -43,7 +39,7 @@ const AppLayout: React.FC = () => {
   // 公开路由 → 不渲染侧边栏，直接展示页面
   if (isAuthPage) {
     return (
-      <Suspense fallback={<div className="flex items-center justify-center min-h-screen bg-gray-50">加载中...</div>}>
+      <Suspense fallback={<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', background: '#f9fafb' }} />}>
         <Routes>
           {routes.map((route) => (
             <Route key={route.path} path={route.path} element={route.element} />
@@ -64,9 +60,7 @@ const AppLayout: React.FC = () => {
   // 加载中 → 不展示侧边栏
   if (!showLayout) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-50">
-        <div className="text-gray-500">加载中...</div>
-      </div>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', background: '#f9fafb' }} />
     )
   }
 
@@ -74,7 +68,20 @@ const AppLayout: React.FC = () => {
     <div className="app">
       <Sidebar />
       <main className="main">
-        <Suspense fallback={<div className="flex items-center justify-center min-h-screen bg-gray-50">加载中...</div>}>
+        <Suspense fallback={<div style={{ padding: '32px' }}>
+          <div style={{ height: '32px', width: '30%', borderRadius: '8px', marginBottom: '24px', background: 'linear-gradient(90deg, var(--bg) 25%, var(--border) 50%, var(--bg) 75%)', backgroundSize: '200% 100%', animation: 'skeletonShimmer 1.5s ease-in-out infinite' }} />
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '20px', marginBottom: '24px' }}>
+            {[1,2,3].map(i => (
+              <div key={i} style={{ height: '120px', borderRadius: 'var(--radius-lg)', background: 'var(--surface)', padding: '24px' }}>
+                <div style={{ width: '60%', height: '14px', borderRadius: '8px', background: 'linear-gradient(90deg, var(--bg) 25%, var(--border) 50%, var(--bg) 75%)', backgroundSize: '200% 100%', animation: 'skeletonShimmer 1.5s ease-in-out infinite', marginBottom: '12px' }} />
+                <div style={{ width: '80%', height: '28px', borderRadius: '8px', background: 'linear-gradient(90deg, var(--bg) 25%, var(--border) 50%, var(--bg) 75%)', backgroundSize: '200% 100%', animation: 'skeletonShimmer 1.5s ease-in-out infinite' }} />
+              </div>
+            ))}
+          </div>
+          {[1,2,3].map(i => (
+            <div key={i} style={{ height: '56px', borderRadius: 'var(--radius-md)', background: 'linear-gradient(90deg, var(--bg) 25%, var(--border) 50%, var(--bg) 75%)', backgroundSize: '200% 100%', animation: 'skeletonShimmer 1.5s ease-in-out infinite', marginBottom: '8px' }} />
+          ))}
+        </div>}>
           <Routes>
             {routes.map((route) => (
               <Route

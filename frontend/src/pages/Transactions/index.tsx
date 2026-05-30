@@ -160,7 +160,7 @@ const Transactions: React.FC = () => {
       </div>
 
       {isLoading ? (
-        <div style={{ textAlign: 'center', padding: '40px', color: '#666' }}>加载中...</div>
+        <div style={{ textAlign: 'center', padding: '40px', color: '#666' }}> </div>
       ) : transactions.length === 0 ? (
         <div style={{ textAlign: 'center', padding: '40px', color: '#666' }}>
           {search ? (

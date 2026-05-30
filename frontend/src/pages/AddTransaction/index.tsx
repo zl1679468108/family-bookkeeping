@@ -158,7 +158,7 @@ const AddTransaction: React.FC = () => {
     return (
       <div>
         <Header title="编辑交易" />
-        <div style={{ textAlign: 'center', padding: '40px', color: '#666' }}>加载中...</div>
+        <div style={{ textAlign: 'center', padding: '40px', color: '#666' }}> </div>
       </div>
     )
   }

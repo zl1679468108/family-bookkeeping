@@ -63,7 +63,7 @@ export const TransactionHistoryModal: React.FC<TransactionHistoryModalProps> = (
         {/* 交易列表 */}
         <div className="merchant-history-list">
           {isLoading ? (
-            <div className="merchant-history-loading">加载中...</div>
+            <div className="merchant-history-loading"> </div>
           ) : filtered.length === 0 ? (
             <div className="merchant-history-empty">暂无交易记录</div>
           ) : (
