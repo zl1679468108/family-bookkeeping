@@ -29,6 +29,11 @@ export class MapTransactionsQueryDto {
   @IsNumber()
   @Min(0)
   maxAmount?: number;
+
+  /** P1 新增：逗号分隔的 user_id 列表，如 "uuid1,uuid2" */
+  @IsOptional()
+  @IsString()
+  memberIds?: string;
 }
 
 export class MerchantQueryDto {
@@ -43,6 +48,11 @@ export class MerchantQueryDto {
   @IsOptional()
   @IsString()
   type?: 'income' | 'expense';
+
+  /** P1 新增：逗号分隔的 user_id 列表，如 "uuid1,uuid2" */
+  @IsOptional()
+  @IsString()
+  memberIds?: string;
 }
 
 export class MerchantTransactionsQueryDto {

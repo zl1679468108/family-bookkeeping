@@ -12,6 +12,9 @@ export interface MapTransaction {
   longitude: number;
   location_name: string;
   poi_id: string | null;
+  // P1 新增：多成员场景
+  userId?: string;
+  username?: string;
 }
 
 /** 商户消费汇总 */
@@ -28,6 +31,8 @@ export interface MerchantSummary {
   income_total: number;
   last_expense_date: string | null;
   last_income_date: string | null;
+  // P1 新增：成员消费分布
+  memberBreakdown?: MemberBreakdown[];
 }
 
 /** 地图筛选条件 */
@@ -38,6 +43,8 @@ export interface MapFilters {
   categories?: string[];
   minAmount?: number;
   maxAmount?: number;
+  // P1 新增：按成员筛选
+  memberIds?: string[];
 }
 
 /** 位置选择结果 */
@@ -46,4 +53,39 @@ export interface LocationResult {
   longitude: number;
   locationName: string;
   poiId: string | null;
+}
+
+// ===== P1 新增类型 =====
+
+/** 成员位置信息 */
+export interface MemberLocation {
+  userId: string;
+  username: string;
+  email: string;
+  latitude: number;
+  longitude: number;
+  updatedAt: string; // ISO 8601，用于判断离线
+}
+
+/** 成员信息（含颜色分配） */
+export interface MapMember {
+  userId: string;
+  username: string;
+  role: 'owner' | 'member';
+  color: string;
+}
+
+/** 成员消费明细（member_breakdown 子项） */
+export interface MemberBreakdown {
+  userId: string;
+  username: string;
+  expenseTotal: number;
+  expenseCount: number;
+}
+
+/** 位置上报请求体 */
+export interface LocationUpdateRequest {
+  latitude: number;
+  longitude: number;
+  isSharing: boolean;
 }

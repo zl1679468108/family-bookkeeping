@@ -363,3 +363,24 @@ BEGIN
     ALTER TABLE budgets ADD CONSTRAINT budgets_user_id_category_month_key UNIQUE NULLS NOT DISTINCT (user_id, book_id, category, month);
   END IF;
 END $$;
+
+-- ==============================================
+-- P1 地图功能 — 成员位置共享表（2025-06-11）
+-- ==============================================
+CREATE TABLE IF NOT EXISTS member_locations (
+  id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  book_id     UUID NOT NULL REFERENCES books(id) ON DELETE CASCADE,
+  user_id     UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  latitude    DECIMAL(10, 7) NOT NULL,
+  longitude   DECIMAL(10, 7) NOT NULL,
+  is_sharing  BOOLEAN NOT NULL DEFAULT true,
+  updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  UNIQUE(book_id, user_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_member_locations_book_id
+  ON member_locations(book_id)
+  WHERE is_sharing = true;
+
+COMMENT ON TABLE member_locations IS '成员位置共享表';
+COMMENT ON COLUMN member_locations.is_sharing IS '是否正在共享位置，关闭时保留最后位置但不可见';
