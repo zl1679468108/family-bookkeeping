@@ -1,0 +1,83 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  -webkit-tap-highlight-color: transparent;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  min-height: 100%;
+  padding-bottom: calc(72px + env(safe-area-inset-bottom));
+}
+
+/* Scrollbar hide */
+::-webkit-scrollbar {
+  display: none;
+}
+
+/* Safe area padding utility */
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* Fade transition for page changes */
+.page-enter {
+  opacity: 0;
+  transform: translateY(8px);
+}
+.page-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 200ms ease-out, transform 200ms ease-out;
+}
+
+/* Skeleton shimmer animation */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.skeleton {
+  background: linear-gradient(90deg, #e8eceb 25%, #dce3e1 50%, #e8eceb 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+  border-radius: 8px;
+}
+
+/* Category icon dot colors — inline utility helpers */
+.cat-dot-orange { background-color: #FFF0E8; }
+.cat-dot-blue   { background-color: #E8F0FF; }
+.cat-dot-pink   { background-color: #FFE8F0; }
+.cat-dot-purple { background-color: #F0E8FF; }
+.cat-dot-amber  { background-color: #FFF8E0; }
+.cat-dot-teal   { background-color: #E0FFF5; }
+.cat-dot-green  { background-color: #E8FFE8; }
+.cat-dot-red    { background-color: #FFE8E8; }
+
+/* Date bar accent */
+.date-accent {
+  width: 3px;
+  height: 14px;
+  border-radius: 2px;
+  background-color: #0F6E56;
+}
+
+/* Touch optimized - ensure minimum touch target */
+.touch-target {
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
