@@ -12,6 +12,7 @@ const Categories = lazy(() => import('../pages/Categories'))
 const Budgets = lazy(() => import('../pages/Budgets'))
 const Books = lazy(() => import('../pages/Books'))
 const MapPage = lazy(() => import('../pages/Map'))
+const Calendar = lazy(() => import('../pages/Calendar'))
 
 export const routes: RouteConfig[] = [
   {
@@ -67,6 +68,11 @@ export const routes: RouteConfig[] = [
   {
     path: '/map',
     element: <MapPage />,
+    isPrivate: true,
+  },
+  {
+    path: '/calendar',
+    element: <Calendar />,
     isPrivate: true,
   },
 ]

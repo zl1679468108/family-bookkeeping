@@ -8,6 +8,7 @@ import {
   MonthlyTrendQueryDto,
   CategoryBreakdownQueryDto,
   YoYComparisonQueryDto,
+  DailySummaryQueryDto,
 } from './dto/statistics-query.dto';
 
 @Controller('statistics')
@@ -81,5 +82,25 @@ export class StatisticsController {
       query.compareYear,
     );
     return { message: '获取年度对比成功', data };
+  }
+
+  /**
+   * GET /api/statistics/daily-summary?month=YYYY-MM
+   *
+   * 返回当月每天的收入/支出/交易笔数汇总。
+   * book_id 通过 x-book-id 请求头可选传入。
+   */
+  @Get('daily-summary')
+  async getDailySummary(
+    @CurrentUser('id') userId: string,
+    @BookId() bookId: string | undefined,
+    @Query() query: DailySummaryQueryDto,
+  ) {
+    const data = await this.statisticsService.getDailySummary(
+      userId,
+      query.month,
+      bookId,
+    );
+    return { message: '获取每日汇总成功', data };
   }
 }

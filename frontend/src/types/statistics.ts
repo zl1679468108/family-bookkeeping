@@ -64,3 +64,16 @@ export interface YoYComparisonParams {
   compareYear?: number;
   type?: 'income' | 'expense';
 }
+
+/** 每日汇总 - 单条数据 */
+export interface DailySummaryItem {
+  date: string;           // "YYYY-MM-DD"
+  total_income: number;
+  total_expense: number;
+  transaction_count: number;
+}
+
+/** 每日汇总请求参数 */
+export interface DailySummaryParams {
+  month: string; // "YYYY-MM"
+}

@@ -8,10 +8,12 @@ import type {
   StatisticsSummary,
   MonthlyTrendItem,
   CategoryBreakdownItem,
+  DailySummaryItem,
   YoYComparisonItem,
   SummaryParams,
   MonthlyTrendParams,
   CategoryBreakdownParams,
+  DailySummaryParams,
   YoYComparisonParams,
 } from '../types/statistics';
 
@@ -55,6 +57,19 @@ export const fetchCategoryBreakdown = async (
 ): Promise<CategoryBreakdownItem[]> => {
   const query = new URLSearchParams(params as unknown as Record<string, string>).toString();
   return request<CategoryBreakdownItem[]>(`/statistics/category-breakdown?${query}`, {
+    requiresAuth: true,
+  });
+};
+
+/**
+ * 获取每日汇总（现金流日历用）
+ * GET /api/statistics/daily-summary?month=YYYY-MM
+ */
+export const fetchDailySummary = async (
+  params: DailySummaryParams,
+): Promise<DailySummaryItem[]> => {
+  const query = new URLSearchParams({ month: params.month }).toString();
+  return request<DailySummaryItem[]>(`/statistics/daily-summary?${query}`, {
     requiresAuth: true,
   });
 };

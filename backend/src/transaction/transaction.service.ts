@@ -60,10 +60,10 @@ export class TransactionService {
     const sortOrder = filters?.sortOrder || 'desc';
     const offset = (page - 1) * pageSize;
 
-    // 构建查询
+    // 构建查询条件
     let baseQuery = supabase
       .from('transactions')
-      .select('*', { count: 'exact' })
+      .select('*')
       .eq('user_id', filters.userId);
 
     if (filters?.bookId) {
@@ -90,13 +90,39 @@ export class TransactionService {
       baseQuery = baseQuery.ilike('description', `%${filters.search}%`);
     }
 
-    // 排序 + 分页
-    baseQuery = baseQuery
-      .order(sortBy, { ascending: sortOrder === 'asc' })
-      .order('id', { ascending: false })  // 第二排序字段确保稳定
-      .range(offset, offset + pageSize - 1);
+    // 先用独立的 head 查询获取精确 count（不受 range 影响）
+    let countQuery = supabase
+      .from('transactions')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', filters.userId);
 
-    const { data, error, count } = await baseQuery;
+    if (filters?.bookId) countQuery = countQuery.eq('book_id', filters.bookId);
+    if (filters?.type) countQuery = countQuery.eq('type', filters.type);
+    if (filters?.category) countQuery = countQuery.eq('category', filters.category);
+    if (filters?.startDate) countQuery = countQuery.gte('date', filters.startDate);
+    if (filters?.endDate) countQuery = countQuery.lte('date', filters.endDate);
+    if (filters?.search) countQuery = countQuery.ilike('description', `%${filters.search}%`);
+
+    const { count, error: countError } = await countQuery;
+
+    if (countError) {
+      throw new InternalServerErrorException(`获取交易记录计数失败: ${countError.message}`);
+    }
+
+    // DEBUG
+    console.log('[findAll] Filters:', JSON.stringify({
+      userId: filters.userId?.slice(0, 8),
+      bookId: filters.bookId?.slice(0, 8),
+      startDate: filters.startDate,
+      endDate: filters.endDate,
+    }));
+    console.log('[findAll] Count:', count);
+
+    // 再查数据（带 range 分页）
+    const { data, error } = await baseQuery
+      .order(sortBy, { ascending: sortOrder === 'asc' })
+      .order('id', { ascending: false })
+      .range(offset, offset + pageSize - 1);
 
     if (error) {
       throw new InternalServerErrorException(`获取交易记录失败: ${error.message}`);

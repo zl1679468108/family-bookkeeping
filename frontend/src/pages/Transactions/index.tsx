@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { startOfMonth, format } from 'date-fns'
 import { Header } from '../../components/Header'
 import { Button } from '../../components/ui/button'
 import { FilterBar } from '../../components/FilterBar'
@@ -29,11 +30,13 @@ const Transactions: React.FC = () => {
   const [searchParams] = useSearchParams()
 
   // 从 URL searchParams 初始化筛选条件（支持饼图下钻跳转）
+  // 没有指定日期时默认显示本月
   const [filter, setFilter] = useState(() => {
     const category = searchParams.get('category') || ''
     const type = (searchParams.get('type') as 'all' | 'income' | 'expense') || 'all'
-    const startDate = searchParams.get('startDate') || ''
-    const endDate = searchParams.get('endDate') || ''
+    const today = new Date()
+    const startDate = searchParams.get('startDate') || format(startOfMonth(today), 'yyyy-MM-dd')
+    const endDate = searchParams.get('endDate') || format(today, 'yyyy-MM-dd')
     return { type, category, startDate, endDate }
   })
 

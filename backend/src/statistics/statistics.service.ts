@@ -50,6 +50,14 @@ export interface YoYComparisonItem {
   lastYear: number;
 }
 
+/** Return type for GET /api/statistics/daily-summary — single day entry. */
+export interface DailySummaryItem {
+  date: string;           // "YYYY-MM-DD"
+  total_income: number;
+  total_expense: number;
+  transaction_count: number;
+}
+
 @Injectable()
 export class StatisticsService {
   constructor(private readonly supabaseService: SupabaseService) {}
@@ -87,6 +95,16 @@ export class StatisticsService {
     }
 
     const { data, error } = await query;
+
+    // DEBUG: 日志输出以排查计数差异
+    console.log('[queryTransactions] Filters:', JSON.stringify({
+      userId,
+      startDate,
+      endDate,
+      type,
+      bookId,
+    }));
+    console.log('[queryTransactions] Returned rows:', data?.length);
 
     if (error) {
       throw new InternalServerErrorException(
@@ -384,5 +402,72 @@ export class StatisticsService {
       currentYear: cur,
       lastYear: yearBMonths[i],
     }));
+  }
+
+  /**
+   * GET /api/statistics/daily-summary
+   *
+   * Returns daily aggregated income/expense/count for every day in the given
+   * month.  Days without any transactions are included with zero values.
+   *
+   * @param userId   Authenticated user ID
+   * @param month    Month string in "YYYY-MM" format (e.g., "2026-05")
+   * @param bookId   Optional book ID to scope the query
+   */
+  async getDailySummary(
+    userId: string,
+    month: string,
+    bookId?: string,
+  ): Promise<DailySummaryItem[]> {
+    // Parse month into start and end dates
+    const [yearStr, monthStr] = month.split('-');
+    const year = parseInt(yearStr, 10);
+    const mon = parseInt(monthStr, 10);
+
+    // First day of the month
+    const startDate = `${yearStr}-${monthStr}-01`;
+
+    // Last day of the month
+    const lastDay = new Date(year, mon, 0).getDate();
+    const endDate = `${yearStr}-${monthStr}-${String(lastDay).padStart(2, '0')}`;
+
+    // Fetch all transactions for this user in this month
+    const transactions = await this.queryTransactions(
+      userId,
+      startDate,
+      endDate,
+      undefined,
+      bookId,
+    );
+
+    // Aggregate by date (YYYY-MM-DD)
+    const dateMap: Record<string, { income: number; expense: number; count: number }> = {};
+    for (const t of transactions) {
+      const dateKey = t.date.slice(0, 10); // "YYYY-MM-DD"
+      if (!dateMap[dateKey]) {
+        dateMap[dateKey] = { income: 0, expense: 0, count: 0 };
+      }
+      if (t.type === 'income') {
+        dateMap[dateKey].income += t.amount;
+      } else if (t.type === 'expense') {
+        dateMap[dateKey].expense += t.amount;
+      }
+      dateMap[dateKey].count += 1;
+    }
+
+    // Build ordered result for every day of the month, filling gaps with zeros
+    const result: DailySummaryItem[] = [];
+    for (let day = 1; day <= lastDay; day++) {
+      const dateStr = `${yearStr}-${monthStr}-${String(day).padStart(2, '0')}`;
+      const agg = dateMap[dateStr];
+      result.push({
+        date: dateStr,
+        total_income: agg ? Math.round(agg.income * 100) / 100 : 0,
+        total_expense: agg ? Math.round(agg.expense * 100) / 100 : 0,
+        transaction_count: agg ? agg.count : 0,
+      });
+    }
+
+    return result;
   }
 }
