@@ -124,10 +124,6 @@ const AddTransaction: React.FC = () => {
   }, [amount, selectedCategory, type, date, note, location, isEdit, editId, createMut, updateMut, navigate]);
 
   const formatDate = (d: Date) => {
-    const t = new Date();
-    const y = new Date(t); y.setDate(y.getDate() - 1);
-    if (d.toDateString() === t.toDateString()) return '今天';
-    if (d.toDateString() === y.toDateString()) return '昨天';
     return `${d.getMonth() + 1}月${d.getDate()}日`;
   };
 

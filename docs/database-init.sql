@@ -384,3 +384,28 @@ CREATE INDEX IF NOT EXISTS idx_member_locations_book_id
 
 COMMENT ON TABLE member_locations IS '成员位置共享表';
 COMMENT ON COLUMN member_locations.is_sharing IS '是否正在共享位置，关闭时保留最后位置但不可见';
+
+-- ==============================================
+-- 9. 交易模板表（2026-06-01: P1-5 快捷记账）
+-- ==============================================
+CREATE TABLE IF NOT EXISTS transaction_templates (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  name VARCHAR(50) NOT NULL,
+  type VARCHAR(10) NOT NULL DEFAULT 'expense' CHECK (type IN ('expense', 'income')),
+  amount NUMERIC(12,2),
+  category_id UUID REFERENCES categories(id) ON DELETE SET NULL,
+  note VARCHAR(200),
+  latitude DOUBLE PRECISION,
+  longitude DOUBLE PRECISION,
+  location_name VARCHAR(100),
+  poi_id VARCHAR(100),
+  merchant_name VARCHAR(100),
+  book_id UUID REFERENCES books(id) ON DELETE SET NULL,
+  sort_order INT DEFAULT 0,
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS idx_transaction_templates_user_id ON transaction_templates(user_id);
+
+COMMENT ON TABLE transaction_templates IS '交易模板表（P1-5 快捷记账）';

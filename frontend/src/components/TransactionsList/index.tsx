@@ -6,9 +6,14 @@ import './index.scss'
 
 interface TransactionsListProps {
   transactions: Transaction[]
-  dateMode?: 'full' | 'dashboard'  // dashboard: 今天/昨天特殊显示；full: 始终 M月D日 HH:MM
+  dateMode?: 'full' | 'dashboard'
   onEdit?: (id: number) => void
   onDelete?: (id: number) => void
+  /** 批量操作模式 */
+  selectable?: boolean
+  selectedIds?: Set<number>
+  onToggleSelect?: (id: number) => void
+  onToggleSelectAll?: (pageIds: number[]) => void
 }
 
 export const TransactionsList: React.FC<TransactionsListProps> = ({
@@ -16,16 +21,39 @@ export const TransactionsList: React.FC<TransactionsListProps> = ({
   dateMode = 'full',
   onEdit,
   onDelete,
+  selectable = false,
+  selectedIds,
+  onToggleSelect,
+  onToggleSelectAll,
 }) => {
   const { getCategoryName, getCategoryIcon } = useCategoryLookup()
   const showActions = Boolean(onEdit) || Boolean(onDelete)
+  const pageIds = transactions.map(t => t.id)
+  const allSelected = selectable && pageIds.length > 0 && pageIds.every(id => selectedIds?.has(id))
 
   return (
     <div className="transactions-list">
+      {/* 全选表头 */}
+      {selectable && pageIds.length > 0 && (
+        <div className="transaction-item" style={{ background: 'var(--bg)', borderBottom: '2px solid var(--border)', fontWeight: 600 }}>
+          <div style={{ display: 'flex', alignItems: 'center', paddingLeft: 8 }}>
+            <input
+              type="checkbox"
+              checked={allSelected}
+              onChange={() => onToggleSelectAll?.(pageIds)}
+              style={{ width: 16, height: 16, cursor: 'pointer', accentColor: 'var(--accent)' }}
+            />
+          </div>
+          <div style={{ fontSize: 13, color: 'var(--muted)' }}>全选 {pageIds.length} 条</div>
+          <div />
+          {showActions && <div />}
+        </div>
+      )}
       {transactions.map((item) => {
         const isIncome = item.type === 'income'
         const categoryName = getCategoryName(item.category)
         const icon = getCategoryIcon(item.category)
+        const isSelected = selectable && selectedIds?.has(item.id)
 
         const name = item.description || categoryName
         const metaParts = [formatDate(item.date, dateMode), categoryName]
@@ -36,7 +64,21 @@ export const TransactionsList: React.FC<TransactionsListProps> = ({
         const amount = formatAmountWithType(parseFloat(String(item.amount)), isIncome)
 
         return (
-          <div key={item.id} className="transaction-item">
+          <div
+            key={item.id}
+            className="transaction-item"
+            style={isSelected ? { background: 'rgba(var(--accent-rgb, 59,130,246), 0.06)' } : undefined}
+          >
+            {selectable && (
+              <div style={{ display: 'flex', alignItems: 'center', paddingLeft: 8 }}>
+                <input
+                  type="checkbox"
+                  checked={isSelected}
+                  onChange={() => onToggleSelect?.(item.id)}
+                  style={{ width: 16, height: 16, cursor: 'pointer', accentColor: 'var(--accent)' }}
+                />
+              </div>
+            )}
             <div className="transaction-icon">{icon}</div>
             <div className="transaction-info">
               <div className="transaction-name">{name}</div>

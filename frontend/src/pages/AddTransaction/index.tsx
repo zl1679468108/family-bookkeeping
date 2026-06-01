@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { format } from 'date-fns'
 import { Header } from '../../components/Header'
 import { Button } from '../../components/ui/button'
 import { ImageUploader } from '../../components/ImageUploader'
@@ -9,6 +10,7 @@ import { FormGroup, FormRow } from '../../components/Form'
 import { typeOptions } from '../../utils/commonDic'
 import { createTransaction, getTransaction, updateTransaction } from '../../services/api'
 import { useCategories, buildCategoryOptions, useCategoryLookup } from '../../hooks/useCategories'
+import { useTemplates } from '../../hooks/useTemplates'
 import { notify } from '../../utils/notifications'
 import type { LocationResult } from '../../types/map'
 import './index.scss'
@@ -40,6 +42,7 @@ const AddTransaction: React.FC = () => {
 
   // 从 API 获取所有分类（默认 + 自定义）
   const { data: categories = [] } = useCategories()
+  const { data: templates = [] } = useTemplates()
   const { getCategoryId } = useCategoryLookup()
 
   // Pre-fill form when edit data is loaded
@@ -70,7 +73,7 @@ const AddTransaction: React.FC = () => {
       return // Handled by the editData effect above
     }
 
-    const today = new Date().toISOString().split('T')[0]
+    const today = format(new Date(), 'yyyy-MM-dd')
     const type = searchParams.get('type') as 'expense' | 'income' | null
     const category = searchParams.get('category') || ''
 
@@ -114,7 +117,7 @@ const AddTransaction: React.FC = () => {
       amount: data.amount,
       category: categoryId,
       type: formData.type, // OCR 不改交易类型，保持用户当前选择
-      date: new Date().toISOString().split('T')[0],
+      date: format(new Date(), 'yyyy-MM-dd'),
       note: data.note
     })
   }
@@ -149,6 +152,28 @@ const AddTransaction: React.FC = () => {
     setShowLocationPicker(false)
   }
 
+  // 选择模板 — 填充表单但不填金额
+  const handleTemplateSelect = (templateId: string) => {
+    const tpl = templates.find(t => t.id === templateId)
+    if (!tpl) return
+    setFormData(prev => ({
+      ...prev,
+      type: tpl.type,
+      category: tpl.category_id || prev.category,
+      note: tpl.note || prev.note,
+    }))
+    if (tpl.latitude && tpl.longitude) {
+      setLocation({
+        latitude: tpl.latitude,
+        longitude: tpl.longitude,
+        locationName: tpl.location_name || '',
+        poiId: tpl.poi_id || null,
+      })
+    } else {
+      setLocation(null)
+    }
+  }
+
   // 分类选项：从 API 获取（已包含默认 + 自定义）
   const categoryOptions = useMemo(() => {
     return buildCategoryOptions(categories, formData.type)
@@ -176,6 +201,22 @@ const AddTransaction: React.FC = () => {
 
       <div className="form-section">
         <ImageUploader onOcrComplete={handleOcrComplete} />
+
+        {/* 模板快速选择 (P1-5) */}
+        {templates.length > 0 && (
+          <FormGroup label="选择模板">
+            <select
+              className="form-select"
+              value=""
+              onChange={(e) => { if (e.target.value) handleTemplateSelect(e.target.value); e.target.value = ''; }}
+            >
+              <option value="">不使用模板</option>
+              {templates.map(t => (
+                <option key={t.id} value={t.id}>📋 {t.name}</option>
+              ))}
+            </select>
+          </FormGroup>
+        )}
 
         <FormGroup label="金额">
           <input 

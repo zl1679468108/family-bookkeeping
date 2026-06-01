@@ -16,35 +16,60 @@ interface LocationPickerProps {
   onConfirm: (location: LocationInfo) => void;
   onSkip: () => void;
   amapKey?: string;
+  amapSecret?: string;
   amapVersion?: string;
 }
+
+/** Plugins to preload with the SDK */
+const AMAP_PLUGINS = ['AMap.PlaceSearch', 'AMap.Geocoder'];
 
 /** Global promise to track AMap SDK loading */
 let amapLoadPromise: Promise<void> | null = null;
 let amapLoaded = false;
 
-const loadAmap = (key: string, version: string): Promise<void> => {
+const loadAmap = (key: string, secret: string, version: string): Promise<void> => {
   if (amapLoaded) return Promise.resolve();
   if (amapLoadPromise) return amapLoadPromise;
 
   amapLoadPromise = new Promise<void>((resolve, reject) => {
-    const timeout = setTimeout(() => {
-      reject(new Error('AMap SDK load timeout'));
-    }, 15000);
+    try {
+      // Security config MUST be set before the SDK script loads
+      if (secret && typeof window !== 'undefined') {
+        (window as any)._AMapSecurityConfig = { securityJsCode: secret };
+      }
 
-    (window as unknown as Record<string, unknown>)._onAmapLoad = () => {
-      clearTimeout(timeout);
-      amapLoaded = true;
-      resolve();
-    };
+      const script = document.createElement('script');
+      script.type = 'text/javascript';
+      script.async = true;
+      script.defer = true;
 
-    const script = document.createElement('script');
-    script.src = `https://webapi.amap.com/maps?v=${version}&key=${key}&callback=_onAmapLoad`;
-    script.onerror = () => {
-      clearTimeout(timeout);
-      reject(new Error('AMap SDK script load error'));
-    };
-    document.head.appendChild(script);
+      const pluginParam = AMAP_PLUGINS.length
+        ? `&plugin=${AMAP_PLUGINS.join(',')}`
+        : '';
+      script.src = `https://webapi.amap.com/maps?v=${version}&key=${encodeURIComponent(key)}${pluginParam}`;
+
+      const timeout = setTimeout(() => {
+        amapLoadPromise = null; // allow retry
+        reject(new Error('AMap SDK load timeout'));
+      }, 15000);
+
+      script.onload = () => {
+        clearTimeout(timeout);
+        amapLoaded = true;
+        resolve();
+      };
+
+      script.onerror = () => {
+        clearTimeout(timeout);
+        amapLoadPromise = null; // allow retry
+        reject(new Error('AMap SDK script load error'));
+      };
+
+      document.head.appendChild(script);
+    } catch (err) {
+      amapLoadPromise = null;
+      reject(err);
+    }
   });
 
   return amapLoadPromise;
@@ -55,12 +80,13 @@ const LocationPicker: React.FC<LocationPickerProps> = ({
   onConfirm,
   onSkip,
   amapKey = import.meta.env.VITE_AMAP_KEY || '',
+  amapSecret = import.meta.env.VITE_AMAP_SECRET || '',
   amapVersion = '2.0',
 }) => {
   const mapContainerRef = useRef<HTMLDivElement>(null);
-  const mapRef = useRef<unknown>(null);
-  const geocoderRef = useRef<unknown>(null);
-  const placeSearchRef = useRef<unknown>(null);
+  const mapRef = useRef<any>(null);
+  const geocoderRef = useRef<any>(null);
+  const placeSearchRef = useRef<any>(null);
   const searchRef = useRef<HTMLInputElement>(null);
 
   const [currentLocation, setCurrentLocation] = useState<LocationInfo>({
@@ -74,104 +100,13 @@ const LocationPicker: React.FC<LocationPickerProps> = ({
   const [sdkError, setSdkError] = useState(false);
   const [mapReady, setMapReady] = useState(false);
 
-  // Initialize AMap
-  useEffect(() => {
-    if (!visible) return;
-
-    loadAmap(amapKey, amapVersion)
-      .then(() => initMap())
-      .catch(() => {
-        setSdkError(true);
-      });
-
-    return () => {
-      if (mapRef.current) {
-        (mapRef.current as { destroy?: () => void }).destroy?.();
-        mapRef.current = null;
-      }
-    };
-  }, [visible]);
-
-  const initMap = useCallback(() => {
-    if (!mapContainerRef.current) return;
-
-    const AMap = (window as unknown as Record<string, unknown>).AMap as Record<string, unknown>;
-    if (!AMap) {
-      setSdkError(true);
-      return;
-    }
-
-    // Create map
-    const map = new (AMap.Map as new (el: HTMLElement, opts: Record<string, unknown>) => unknown)(
-      mapContainerRef.current,
-      {
-        zoom: 15,
-        resizeEnable: true,
-      },
-    );
-    mapRef.current = map;
-
-    // Create geocoder
-    const Geocoder = AMap.Geocoder as new (opts?: Record<string, unknown>) => unknown;
-    geocoderRef.current = new Geocoder({});
-
-    // Create place search
-    const PlaceSearch = AMap.PlaceSearch as new (opts?: Record<string, unknown>) => unknown;
-    placeSearchRef.current = new PlaceSearch({
-      pageSize: 10,
-      pageIndex: 1,
-    });
-
-    // Get current position
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          const lng = pos.coords.longitude;
-          const lat = pos.coords.latitude;
-          (map as { setCenter?: (pos: [number, number]) => void }).setCenter?.([lng, lat]);
-          reverseGeocode(lng, lat);
-        },
-        () => {
-          // Default to a center point if geolocation fails
-          (map as { setCenter?: (pos: [number, number]) => void }).setCenter?.([116.397428, 39.90923]);
-          reverseGeocode(116.397428, 39.90923);
-        },
-        { timeout: 5000 },
-      );
-    } else {
-      (map as { setCenter?: (pos: [number, number]) => void }).setCenter?.([116.397428, 39.90923]);
-      reverseGeocode(116.397428, 39.90923);
-    }
-
-    // Listen for map move end to update center address
-    (map as { on?: (event: string, cb: () => void) => void }).on?.('moveend', () => {
-      const center = (map as { getCenter?: () => { lng: number; lat: number } }).getCenter?.();
-      if (center) {
-        reverseGeocode(center.lng, center.lat);
-      }
-    });
-
-    setMapReady(true);
-  }, []);
-
   const reverseGeocode = useCallback((lng: number, lat: number) => {
-    const geocoder = geocoderRef.current as {
-      getAddress?: (
-        pos: [number, number],
-        cb: (status: string, result: { regeocode: { formattedAddress: string; addressComponent: Record<string, unknown> } }) => void,
-      ) => void;
-    } | null;
-    if (!geocoder?.getAddress) return;
-
-    geocoder.getAddress([lng, lat], (_status, result) => {
+    if (!geocoderRef.current?.getAddress) return;
+    geocoderRef.current.getAddress([lng, lat], (_status: string, result: any) => {
       if (result?.regeocode) {
         const addr = result.regeocode;
-        const comp = addr.addressComponent as Record<string, string>;
-        const name =
-          (comp.streetNumber || '') +
-          (comp.street || '') ||
-          addr.formattedAddress ||
-          '未知位置';
+        const comp = addr.addressComponent || {};
+        const name = (comp.streetNumber || '') + (comp.street || '') || addr.formattedAddress || '未知位置';
         setCurrentLocation({
           name: name || addr.formattedAddress,
           address: addr.formattedAddress,
@@ -182,23 +117,92 @@ const LocationPicker: React.FC<LocationPickerProps> = ({
     });
   }, []);
 
+  const initMap = useCallback(() => {
+    if (!mapContainerRef.current) return;
+
+    const AMapWin = (window as any).AMap;
+    if (!AMapWin) {
+      setSdkError(true);
+      return;
+    }
+
+    // Create map
+    const map = new AMapWin.Map(mapContainerRef.current, {
+      zoom: 15,
+      resizeEnable: true,
+      dragEnable: true,
+      zoomEnable: true,
+    });
+    mapRef.current = map;
+
+    // Create geocoder
+    geocoderRef.current = new AMapWin.Geocoder({});
+
+    // Create place search
+    placeSearchRef.current = new AMapWin.PlaceSearch({
+      pageSize: 10,
+      pageIndex: 1,
+    });
+
+    // Try geolocation, fallback to Beijing
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const { longitude: lng, latitude: lat } = pos.coords;
+          map.setCenter([lng, lat]);
+          reverseGeocode(lng, lat);
+        },
+        () => {
+          map.setCenter([116.397428, 39.90923]);
+          reverseGeocode(116.397428, 39.90923);
+        },
+        { timeout: 5000 },
+      );
+    } else {
+      map.setCenter([116.397428, 39.90923]);
+      reverseGeocode(116.397428, 39.90923);
+    }
+
+    // Update address when map is moved
+    map.on('moveend', () => {
+      const center = map.getCenter();
+      if (center) {
+        reverseGeocode(center.lng, center.lat);
+      }
+    });
+
+    setMapReady(true);
+  }, [reverseGeocode]);
+
+  // Initialize AMap when visible
+  useEffect(() => {
+    if (!visible) return;
+
+    let cancelled = false;
+
+    loadAmap(amapKey, amapSecret, amapVersion)
+      .then(() => {
+        if (!cancelled) initMap();
+      })
+      .catch(() => {
+        if (!cancelled) setSdkError(true);
+      });
+
+    return () => {
+      cancelled = true;
+      if (mapRef.current) {
+        try { mapRef.current.destroy(); } catch { /* best-effort */ }
+        mapRef.current = null;
+      }
+    };
+  }, [visible, amapKey, amapSecret, amapVersion, initMap]);
+
   const handleSearch = useCallback(() => {
     if (!searchKeyword.trim() || !placeSearchRef.current) return;
 
-    const ps = placeSearchRef.current as {
-      search?: (
-        keyword: string,
-        cb: (status: string, result: { poiCount: { count: number }; pois: Array<{ name: string; pname: string; cityname: string; adname: string; address: string; location: { lng: number; lat: number } }> }) => void,
-      ) => void;
-    };
-
-    ps.search?.(searchKeyword, (_status, result) => {
+    placeSearchRef.current.search(searchKeyword, (_status: string, result: any) => {
       if (result?.pois) {
-        const pois: LocationInfo[] = (result.pois as Array<{
-          name: string;
-          address: string;
-          location: { lng: number; lat: number };
-        }>).map((poi) => ({
+        const pois: LocationInfo[] = result.pois.map((poi: any) => ({
           name: poi.name,
           address: poi.address,
           lat: poi.location.lat,
@@ -209,13 +213,22 @@ const LocationPicker: React.FC<LocationPickerProps> = ({
     });
   }, [searchKeyword]);
 
-  const handleSelectResult = (loc: LocationInfo) => {
-    const map = mapRef.current as { setCenter?: (pos: [number, number]) => void } | null;
-    map?.setCenter?.([loc.lng, loc.lat]);
+  const handleSelectResult = useCallback((loc: LocationInfo) => {
+    mapRef.current?.setCenter?.([loc.lng, loc.lat]);
     setCurrentLocation(loc);
     setSearchResults([]);
     setSearchKeyword('');
-  };
+  }, []);
+
+  const handleRetry = useCallback(() => {
+    setSdkError(false);
+    setMapReady(false);
+    amapLoadPromise = null;
+    amapLoaded = false;
+    loadAmap(amapKey, amapSecret, amapVersion)
+      .then(() => initMap())
+      .catch(() => setSdkError(true));
+  }, [amapKey, amapSecret, amapVersion, initMap]);
 
   if (!visible) return null;
 
@@ -235,15 +248,7 @@ const LocationPicker: React.FC<LocationPickerProps> = ({
                 跳过
               </button>
               <button
-                onClick={() => {
-                  setSdkError(false);
-                  setMapReady(false);
-                  amapLoadPromise = null;
-                  amapLoaded = false;
-                  loadAmap(amapKey, amapVersion)
-                    .then(() => initMap())
-                    .catch(() => setSdkError(true));
-                }}
+                onClick={handleRetry}
                 className="px-6 py-2 rounded-xl bg-primary text-white text-sm"
               >
                 重试
@@ -303,7 +308,7 @@ const LocationPicker: React.FC<LocationPickerProps> = ({
           <div className="absolute top-2 left-4 right-4 bg-white rounded-2xl shadow-lg max-h-60 overflow-y-auto z-10">
             {searchResults.map((result, idx) => (
               <button
-                key={idx}
+                key={`${result.lat}-${result.lng}-${idx}`}
                 onClick={() => handleSelectResult(result)}
                 className="w-full text-left px-4 py-3 border-b border-gray-50 last:border-b-0 active:bg-gray-50"
               >

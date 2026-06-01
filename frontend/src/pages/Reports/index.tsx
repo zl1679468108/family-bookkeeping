@@ -7,6 +7,8 @@ import { ChartCard } from '../../components/ChartCard'
 import { DateRangeFilter } from '../../components/DateRangeFilter'
 import { fetchMonthlyTrend, fetchCategoryBreakdown, fetchYearOverYear } from '../../services/statisticsApi'
 import { exportToExcel, exportToPDF } from '../../services/api'
+import { useBook } from '../../hooks/useBook'
+import { MemberComparison } from './MemberComparison'
 import type { MonthlyTrendItem, CategoryBreakdownItem, YoYComparisonItem } from '../../types/statistics'
 import { notify } from '../../utils/notifications'
 import '../../styles/layout.scss'
@@ -23,9 +25,10 @@ const Reports: React.FC = () => {
     }
   })
 
-  const [analysisTab, setAnalysisTab] = useState<'expense' | 'income'>('expense')
+  const [analysisTab, setAnalysisTab] = useState<'expense' | 'income' | 'member'>('expense')
   const [exporting, setExporting] = useState<'excel' | 'pdf' | null>(null)
   const currentYear = new Date().getFullYear()
+  const { currentBook } = useBook()
   const [yoyYear, setYoyYear] = useState(currentYear)
   const [yoyCompareYear, setYoyCompareYear] = useState(currentYear - 1)
 
@@ -49,7 +52,8 @@ const Reports: React.FC = () => {
     isLoading: trendLoading,
   } = useQuery({
     queryKey: ['statistics', 'monthly-trend', trendMonths, dateRange.endDate, analysisTab],
-    queryFn: () => fetchMonthlyTrend({ months: trendMonths, endDate: dateRange.endDate, type: analysisTab }),
+    queryFn: () => fetchMonthlyTrend({ months: trendMonths, endDate: dateRange.endDate, type: analysisTab as 'expense' | 'income' }),
+    enabled: analysisTab !== 'member',
   })
 
   // 分类占比
@@ -62,8 +66,9 @@ const Reports: React.FC = () => {
       fetchCategoryBreakdown({
         startDate: dateRange.startDate,
         endDate: dateRange.endDate,
-        type: analysisTab,
+        type: analysisTab as 'expense' | 'income',
       }),
+    enabled: analysisTab !== 'member',
   })
 
   // 年度对比 — 跟随时间筛选，只显示范围内的月份
@@ -72,7 +77,8 @@ const Reports: React.FC = () => {
     isLoading: yoyLoading,
   } = useQuery({
     queryKey: ['statistics', 'yoy-comparison', yoyYear, yoyCompareYear, analysisTab],
-    queryFn: () => fetchYearOverYear({ year: yoyYear, compareYear: yoyCompareYear, type: analysisTab }),
+    queryFn: () => fetchYearOverYear({ year: yoyYear, compareYear: yoyCompareYear, type: analysisTab as 'expense' | 'income' }),
+    enabled: analysisTab !== 'member',
   })
 
   const yoyData = useMemo(() =>
@@ -160,9 +166,24 @@ const Reports: React.FC = () => {
             color: !isExpense ? '#fff' : 'var(--muted)', transition: 'all 0.2s ease',
           }}
         >收入分析</button>
+        <button
+          onClick={() => setAnalysisTab('member')}
+          style={{
+            padding: '8px 20px', borderRadius: 'var(--radius-sm)', border: 'none',
+            cursor: 'pointer', fontSize: '14px', fontWeight: 500,
+            background: analysisTab === 'member' ? 'var(--accent)' : 'transparent',
+            color: analysisTab === 'member' ? '#fff' : 'var(--muted)', transition: 'all 0.2s ease',
+          }}
+        >成员对比</button>
       </div>
 
+      {/* 成员对比 (P1-6) */}
+      {analysisTab === 'member' && currentBook && (
+        <MemberComparison bookId={currentBook.id} monthFrom={format(subMonths(new Date(), 5), 'yyyy-MM')} monthTo={format(new Date(), 'yyyy-MM')} />
+      )}
+
       {/* 趋势 + 分类占比 */}
+      {analysisTab !== 'member' && (
       <div className="charts-grid">
         <ChartCard
           title={isExpense ? '支出趋势' : '收入趋势'}
@@ -178,6 +199,7 @@ const Reports: React.FC = () => {
           onCategoryClick={handleCategoryClick}
         />
       </div>
+      )}
 
       {/* 年度对比 */}
       <div style={{ marginBottom: '32px' }}>

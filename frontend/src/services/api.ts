@@ -4,6 +4,7 @@
  */
 
 import { notify } from '../utils/notifications'
+import type { BatchRequest, BatchResponse } from '../types/batch'
 
 const API_BASE = process.env.REACT_APP_API_BASE_URL || 'http://localhost:3000/api'
 const AUTH_TOKEN_KEY = 'auth_token'
@@ -31,6 +32,11 @@ export interface TransactionFilters {
   sortBy?: 'amount' | 'date'
   sortOrder?: 'asc' | 'desc'
   search?: string
+  keyword?: string
+  min_amount?: number
+  max_amount?: number
+  date_from?: string
+  date_to?: string
 }
 
 export interface PaginatedResponse<T> {
@@ -205,6 +211,11 @@ export const getTransactions = async (filters?: TransactionFilters): Promise<Pag
   if (filters?.sortBy) params.append('sortBy', filters.sortBy)
   if (filters?.sortOrder) params.append('sortOrder', filters.sortOrder)
   if (filters?.search) params.append('search', filters.search)
+  if (filters?.keyword) params.append('keyword', filters.keyword)
+  if (filters?.min_amount !== undefined) params.append('min_amount', String(filters.min_amount))
+  if (filters?.max_amount !== undefined) params.append('max_amount', String(filters.max_amount))
+  if (filters?.date_from) params.append('date_from', filters.date_from)
+  if (filters?.date_to) params.append('date_to', filters.date_to)
 
   const query = params.toString() ? `?${params.toString()}` : ''
   return request<PaginatedResponse<Transaction>>(`/transactions${query}`, { requiresAuth: true })
@@ -269,6 +280,18 @@ export const exportToPDF = async (filters?: TransactionFilters): Promise<void> =
   })
 
   downloadBlob(blob, `transactions_${Date.now()}.pdf`)
+}
+
+/**
+ * 批量操作交易 - P1-2
+ * POST /api/transactions/batch
+ */
+export const batchTransactions = async (data: BatchRequest): Promise<BatchResponse> => {
+  return request<BatchResponse>('/transactions/batch', {
+    method: 'POST',
+    requiresAuth: true,
+    body: data,
+  })
 }
 
 export const register = async (

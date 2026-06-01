@@ -4,6 +4,7 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 import { SupabaseService } from '../supabase/supabase.service';
+import { BatchOperation, BatchTransactionDto } from './dto/batch-transaction.dto';
 
 export interface Transaction {
   id: number;
@@ -34,6 +35,11 @@ export interface TransactionFilters {
   sortBy?: 'amount' | 'date';
   sortOrder?: 'asc' | 'desc';
   search?: string;
+  keyword?: string;
+  min_amount?: string;
+  max_amount?: string;
+  date_from?: string;
+  date_to?: string;
 }
 
 export interface PaginatedResponse<T> {
@@ -90,6 +96,26 @@ export class TransactionService {
       baseQuery = baseQuery.ilike('description', `%${filters.search}%`);
     }
 
+    if (filters?.keyword) {
+      baseQuery = baseQuery.ilike('description', `%${filters.keyword}%`);
+    }
+
+    if (filters?.min_amount) {
+      baseQuery = baseQuery.gte('amount', Number(filters.min_amount));
+    }
+
+    if (filters?.max_amount) {
+      baseQuery = baseQuery.lte('amount', Number(filters.max_amount));
+    }
+
+    if (filters?.date_from) {
+      baseQuery = baseQuery.gte('date', filters.date_from);
+    }
+
+    if (filters?.date_to) {
+      baseQuery = baseQuery.lte('date', filters.date_to);
+    }
+
     // 先用独立的 head 查询获取精确 count（不受 range 影响）
     let countQuery = supabase
       .from('transactions')
@@ -102,6 +128,11 @@ export class TransactionService {
     if (filters?.startDate) countQuery = countQuery.gte('date', filters.startDate);
     if (filters?.endDate) countQuery = countQuery.lte('date', filters.endDate);
     if (filters?.search) countQuery = countQuery.ilike('description', `%${filters.search}%`);
+    if (filters?.keyword) countQuery = countQuery.ilike('description', `%${filters.keyword}%`);
+    if (filters?.min_amount) countQuery = countQuery.gte('amount', Number(filters.min_amount));
+    if (filters?.max_amount) countQuery = countQuery.lte('amount', Number(filters.max_amount));
+    if (filters?.date_from) countQuery = countQuery.gte('date', filters.date_from);
+    if (filters?.date_to) countQuery = countQuery.lte('date', filters.date_to);
 
     const { count, error: countError } = await countQuery;
 
@@ -280,5 +311,91 @@ export class TransactionService {
     if (error) {
       throw new InternalServerErrorException(`删除交易记录失败: ${error.message}`);
     }
+  }
+
+  /**
+   * 批量操作交易记录：支持批量更新分类/类型/日期、移动账本、删除
+   * 所有操作在单条 SQL 中完成，不使用 JavaScript 循环逐条更新
+   */
+  async batch(
+    userId: string,
+    bookId: string | undefined,
+    dto: BatchTransactionDto,
+  ): Promise<{ affected: number }> {
+    const supabase = this.supabaseService.getClient();
+
+    // 1. 归属校验：确认所有 ids 属于当前用户（和指定账本）
+    let countQuery = supabase
+      .from('transactions')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', userId)
+      .in('id', dto.ids);
+
+    if (bookId) {
+      countQuery = countQuery.eq('book_id', bookId);
+    }
+
+    const { count, error: countError } = await countQuery;
+
+    if (countError) {
+      throw new InternalServerErrorException(
+        `批量操作校验失败: ${countError.message}`,
+      );
+    }
+
+    if (count !== dto.ids.length) {
+      throw new ForbiddenException('部分交易不存在或不属于当前账本');
+    }
+
+    // 2. 执行批量操作（单条 SQL）
+    const { operation, payload } = dto;
+
+    // 防御性校验（控制器层已通过 class-validator 校验，此处为二次保障）
+    if (operation !== BatchOperation.DELETE && !payload) {
+      throw new InternalServerErrorException(
+        `操作 ${operation} 缺少必需的 payload`,
+      );
+    }
+
+    // 构建更新 / 删除查询
+    let execQuery: any;
+
+    if (operation === BatchOperation.DELETE) {
+      execQuery = supabase.from('transactions').delete();
+    } else {
+      const updateData: Record<string, any> = {};
+
+      switch (operation) {
+        case BatchOperation.UPDATE_CATEGORY:
+          // 数据库列名为 category（与现有代码保持一致）
+          updateData.category = payload!.category_id;
+          break;
+        case BatchOperation.UPDATE_TYPE:
+          updateData.type = payload!.type;
+          break;
+        case BatchOperation.UPDATE_DATE:
+          updateData.date = payload!.date;
+          break;
+        case BatchOperation.MOVE_BOOK:
+          updateData.book_id = payload!.book_id;
+          break;
+      }
+
+      execQuery = supabase.from('transactions').update(updateData);
+    }
+
+    // 链式过滤：user_id + ids + (可选) book_id
+    execQuery = execQuery.eq('user_id', userId).in('id', dto.ids);
+    if (bookId) {
+      execQuery = execQuery.eq('book_id', bookId);
+    }
+
+    const { error } = await execQuery;
+
+    if (error) {
+      throw new InternalServerErrorException(`批量操作失败: ${error.message}`);
+    }
+
+    return { affected: dto.ids.length };
   }
 }

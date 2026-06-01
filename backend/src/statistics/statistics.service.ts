@@ -1,5 +1,6 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { SupabaseService } from '../supabase/supabase.service';
+import { MemberComparisonQueryDto } from './dto/member-comparison.dto';
 
 /** Internal transaction shape from the transactions table. */
 interface Transaction {
@@ -48,6 +49,22 @@ export interface YoYComparisonItem {
   monthLabel: string; // "1月", "2月", …
   currentYear: number;
   lastYear: number;
+}
+
+/** Return type for a single category entry in member comparison. */
+export interface MemberCategoryItem {
+  category_name: string;
+  category_icon: string;
+  amount: number;
+  percentage: number;
+}
+
+/** Return type for a single member in GET /api/statistics/member-comparison. */
+export interface MemberComparisonItem {
+  user_id: string;
+  user_name: string;
+  total_expense: number;
+  categories: MemberCategoryItem[];
 }
 
 /** Return type for GET /api/statistics/daily-summary — single day entry. */
@@ -342,6 +359,112 @@ export class StatisticsService {
     });
   }
 
+  /**
+   * GET /api/statistics/member-comparison
+   *
+   * 多成员消费对比：在指定月份范围内，按 user_id + category 分组聚合支出数据，
+   * 返回每个成员的总额及各分类明细（含分类名称、图标、占比）。
+   *
+   * @param userId  当前用户 ID
+   * @param dto     包含 book_id, month_from, month_to
+   */
+  async getMemberComparison(
+    userId: string,
+    dto: MemberComparisonQueryDto,
+  ): Promise<MemberComparisonItem[]> {
+    const supabase = this.supabaseService.getClient();
+
+    // 日期转换: "2026-05" → "2026-05-01", "2026-07" → "2026-08-01" (左闭右开，含7月全月)
+    const [fy, fm] = dto.month_from.split('-').map(Number);
+    const [ty, tm] = dto.month_to.split('-').map(Number);
+    const startDate = `${String(fy).padStart(4, '0')}-${String(fm).padStart(2, '0')}-01`;
+    // endDate 为 month_to 的下一个月第一天（左闭右开）
+    const endMonth = new Date(ty, tm, 1); // tm is 1-indexed, so this gives the next month's 1st
+    const endDate = endMonth.toISOString().slice(0, 10);
+
+    // 1. 查询指定账本下的所有支出交易
+    const { data: transactions, error } = await supabase
+      .from('transactions')
+      .select('*')
+      .eq('book_id', dto.book_id)
+      .eq('type', 'expense')
+      .gte('date', startDate)
+      .lt('date', endDate);
+
+    if (error) {
+      throw new InternalServerErrorException(
+        `查询成员对比数据失败: ${error.message}`,
+      );
+    }
+
+    if (!transactions || transactions.length === 0) {
+      return [];
+    }
+
+    // 2. 按 user_id + category 分组聚合
+    const userMap: Record<string, { total: number; categories: Record<string, number> }> = {};
+    for (const t of transactions) {
+      const uid = t.user_id;
+      if (!uid) continue;
+      if (!userMap[uid]) {
+        userMap[uid] = { total: 0, categories: {} };
+      }
+      userMap[uid].total += t.amount;
+      const cat = t.category || 'uncategorized';
+      userMap[uid].categories[cat] = (userMap[uid].categories[cat] || 0) + t.amount;
+    }
+
+    // 3. 收集所有涉及的 user_id 和 category_id
+    const allUserIds = Object.keys(userMap);
+    const allCategoryIds = new Set<string>();
+    for (const uid of allUserIds) {
+      for (const catId of Object.keys(userMap[uid].categories)) {
+        allCategoryIds.add(catId);
+      }
+    }
+
+    // 4. 批量查询 users 表获取 user_name
+    const userNames = await this.loadUserNames(allUserIds);
+
+    // 5. 批量查询 categories 表获取 category_name / icon
+    const categoryInfoMap = await this.loadCategoryInfo([...allCategoryIds]);
+
+    // 6. 组装返回格式
+    const result: MemberComparisonItem[] = [];
+    for (const uid of allUserIds) {
+      const userData = userMap[uid];
+      const categories: MemberCategoryItem[] = [];
+      const catEntries = Object.entries(userData.categories).sort(
+        (a, b) => b[1] - a[1],
+      );
+
+      for (const [catId, amount] of catEntries) {
+        const info = categoryInfoMap.get(catId);
+        categories.push({
+          category_name: catId === 'uncategorized' ? '未分类' : (info?.name || '未知'),
+          category_icon: catId === 'uncategorized' ? '📌' : (info?.icon || '📌'),
+          amount,
+          percentage:
+            userData.total === 0
+              ? 0
+              : Math.round((amount / userData.total) * 1000) / 10,
+        });
+      }
+
+      result.push({
+        user_id: uid,
+        user_name: userNames.get(uid) || '未知用户',
+        total_expense: userData.total,
+        categories,
+      });
+    }
+
+    // 按 total_expense 降序排列
+    result.sort((a, b) => b.total_expense - a.total_expense);
+
+    return result;
+  }
+
   /** Load category name + icon for a list of category UUIDs */
   private async loadCategoryInfo(categoryIds: string[]): Promise<Map<string, { name: string; icon: string }>> {
     const supabase = this.supabaseService.getClient();
@@ -353,6 +476,24 @@ export class StatisticsService {
     const map = new Map<string, { name: string; icon: string }>();
     (data || []).forEach((c: any) => {
       map.set(c.id, { name: c.name, icon: c.icon });
+    });
+    return map;
+  }
+
+  /** Load user names for a list of user UUIDs */
+  private async loadUserNames(userIds: string[]): Promise<Map<string, string>> {
+    if (userIds.length === 0) {
+      return new Map();
+    }
+    const supabase = this.supabaseService.getClient();
+    const { data } = await supabase
+      .from('users')
+      .select('id, username')
+      .in('id', userIds);
+
+    const map = new Map<string, string>();
+    (data || []).forEach((u: any) => {
+      map.set(u.id, u.username || '未知用户');
     });
     return map;
   }

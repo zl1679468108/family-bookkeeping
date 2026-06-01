@@ -4,7 +4,7 @@
  */
 
 import { request } from './api';
-import type { BudgetRecord, BudgetStatus, UpsertBudgetInput, CopyBudgetInput } from '../types/budget';
+import type { BudgetRecord, BudgetStatusResponse, UpsertBudgetInput, CopyBudgetInput } from '../types/budget';
 
 /**
  * 获取用户某月所有预算记录
@@ -20,8 +20,8 @@ export const fetchBudgets = async (month: string): Promise<BudgetRecord[]> => {
  * 获取预算执行状态
  * GET /api/budgets/status?month=2025-03-01
  */
-export const fetchBudgetStatus = async (month: string): Promise<BudgetStatus> => {
-  return request<BudgetStatus>(`/budgets/status?month=${encodeURIComponent(month)}`, {
+export const fetchBudgetStatus = async (month: string): Promise<BudgetStatusResponse> => {
+  return request<BudgetStatusResponse>(`/budgets/status?month=${encodeURIComponent(month)}`, {
     requiresAuth: true,
   });
 };

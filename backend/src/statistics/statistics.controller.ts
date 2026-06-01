@@ -10,6 +10,7 @@ import {
   YoYComparisonQueryDto,
   DailySummaryQueryDto,
 } from './dto/statistics-query.dto';
+import { MemberComparisonQueryDto } from './dto/member-comparison.dto';
 
 @Controller('statistics')
 @UseGuards(TokenAuthGuard)
@@ -82,6 +83,22 @@ export class StatisticsController {
       query.compareYear,
     );
     return { message: '获取年度对比成功', data };
+  }
+
+  /**
+   * GET /api/statistics/member-comparison
+   *
+   * 多成员消费对比：按 user_id + category 分组聚合指定月份范围内的支出。
+   */
+  @Get('member-comparison')
+  async getMemberComparison(
+    @CurrentUser('id') userId: string,
+    @Query() query: MemberComparisonQueryDto,
+  ) {
+    return {
+      message: '获取成员对比成功',
+      data: await this.statisticsService.getMemberComparison(userId, query),
+    };
   }
 
   /**

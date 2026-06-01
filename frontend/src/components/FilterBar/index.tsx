@@ -1,6 +1,12 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { useCategories } from '../../hooks/useCategories'
+import { FilterChip } from '../FilterChip'
 import './index.scss'
+
+interface ActiveChip {
+  label: string
+  onRemove: () => void
+}
 
 interface FilterBarProps {
   onFilterChange?: (filter: { type: string; category: string }) => void
@@ -8,6 +14,10 @@ interface FilterBarProps {
   selectedCategory?: string
   search?: string
   onSearchChange?: (value: string) => void
+  /** Optional React node rendered between the search box and category buttons (e.g. FilterPanel) */
+  filterPanel?: React.ReactNode
+  /** Active filter chips displayed below the search box */
+  activeChips?: ActiveChip[]
 }
 
 export const FilterBar: React.FC<FilterBarProps> = ({
@@ -16,6 +26,8 @@ export const FilterBar: React.FC<FilterBarProps> = ({
   selectedCategory,
   search = '',
   onSearchChange,
+  filterPanel,
+  activeChips = [],
 }) => {
   const [activeType, setActiveType] = useState(selectedType || 'all')
   const [activeCategory, setActiveCategory] = useState(selectedCategory || '')
@@ -117,6 +129,22 @@ export const FilterBar: React.FC<FilterBarProps> = ({
               </button>
             )}
           </div>
+        </div>
+      )}
+
+      {/* Active filter chips — displayed below the search box */}
+      {activeChips.length > 0 && (
+        <div className="filter-bar__chips" style={{ marginBottom: '12px', display: 'flex', flexWrap: 'wrap', alignItems: 'center' }}>
+          {activeChips.map((chip, idx) => (
+            <FilterChip key={idx} label={chip.label} onRemove={chip.onRemove} />
+          ))}
+        </div>
+      )}
+
+      {/* Filter panel — inserted between search and category buttons */}
+      {filterPanel && (
+        <div style={{ marginBottom: '12px' }}>
+          {filterPanel}
         </div>
       )}
 

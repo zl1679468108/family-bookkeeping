@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { notify } from '../utils/notifications';
 
 export interface Book {
   id: string;
@@ -94,6 +95,10 @@ export const BookProvider: React.FC<{ children: React.ReactNode }> = ({ children
     queryClient.invalidateQueries({ queryKey: ['transactions'] });
     queryClient.invalidateQueries({ queryKey: ['statistics'] });
     queryClient.invalidateQueries({ queryKey: ['budgets'] });
+    // 切换提示
+    if (book) {
+      notify({ type: 'info', message: `已切换到「${book.name}」` });
+    }
   }, [queryClient]);
 
   return (

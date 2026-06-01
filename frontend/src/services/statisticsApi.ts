@@ -16,6 +16,7 @@ import type {
   DailySummaryParams,
   YoYComparisonParams,
 } from '../types/statistics';
+import type { MemberComparisonItem, MemberComparisonParams } from '../types/memberComparison';
 
 /**
  * 获取统计概览
@@ -86,6 +87,23 @@ export const fetchYearOverYear = async (
   if (params.compareYear !== undefined) query.append('compareYear', String(params.compareYear));
   if (params.type !== undefined) query.append('type', params.type);
   return request<YoYComparisonItem[]>(`/statistics/yoy-comparison?${query.toString()}`, {
+    requiresAuth: true,
+  });
+};
+
+/**
+ * 获取多成员对比数据
+ * GET /api/statistics/member-comparison?book_id=...&month_from=...&month_to=...
+ */
+export const fetchMemberComparison = async (
+  params: MemberComparisonParams,
+): Promise<MemberComparisonItem[]> => {
+  const query = new URLSearchParams({
+    book_id: params.book_id,
+    month_from: params.month_from,
+    month_to: params.month_to,
+  }).toString();
+  return request<MemberComparisonItem[]>(`/statistics/member-comparison?${query}`, {
     requiresAuth: true,
   });
 };

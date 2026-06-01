@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { startOfMonth, format } from 'date-fns'
@@ -8,6 +8,9 @@ import { Button } from '../../components/ui/button'
 import { StatCard } from '../../components/StatCard'
 import { TransactionsList } from '../../components/TransactionsList'
 import { Tooltip } from '../../components/ui/tooltip'
+import { BudgetProgressBar } from '../../components/BudgetProgressBar'
+import { BudgetAlertBanner } from '../../components/BudgetAlertBanner'
+import { useBudgetNavigate } from '../../hooks/useBudgetNavigation'
 import '../../styles/layout.scss'
 import { formatAmount } from '../../utils/common'
 import { getTransactions } from '../../services/api'
@@ -68,6 +71,20 @@ const Dashboard: React.FC = () => {
   const hasBudget = budgetStatus && budgetStatus.totalBudget > 0
   const hasAlerts = budgetStatus && budgetStatus.alerts.length > 0
 
+  const navigateToCategory = useBudgetNavigate()
+  const [alertDismissed, setAlertDismissed] = useState(() => {
+    return localStorage.getItem(`dismissed_alert_${monthStr.substring(0, 7)}`) === 'true'
+  })
+
+  const handleDismissAlert = () => {
+    localStorage.setItem(`dismissed_alert_${monthStr.substring(0, 7)}`, 'true')
+    setAlertDismissed(true)
+  }
+
+  const handleBudgetNavigate = (categoryId: string) => {
+    navigateToCategory(categoryId, monthStr.substring(0, 7))
+  }
+
   return (
     <div>
       <Header title="概览" />
@@ -113,6 +130,15 @@ const Dashboard: React.FC = () => {
           </>
         )}
       </div>
+
+      {/* 预算预警 Banner */}
+      {hasAlerts && !alertDismissed && (
+        <BudgetAlertBanner
+          alerts={budgetStatus!.alerts}
+          monthKey={monthStr.substring(0, 7)}
+          onDismiss={handleDismissAlert}
+        />
+      )}
 
       {/* 2. 预算概览 */}
       {budgetLoading ? (
@@ -198,6 +224,24 @@ const Dashboard: React.FC = () => {
                   style={{ fontSize: '13px' }}
                 >前往调整预算</Button>
               </div>
+            </div>
+          )}
+
+          {/* 各分类预算进度条 */}
+          {budgetStatus.categories.length > 0 && (
+            <div style={{ marginTop: hasAlerts ? '8px' : '16px', borderTop: '1px solid var(--border)', paddingTop: '12px' }}>
+              {budgetStatus.categories.map((cat) => (
+                <BudgetProgressBar
+                  key={cat.category_id}
+                  categoryName={cat.category_name}
+                  categoryIcon={cat.category_icon}
+                  spent={cat.spent}
+                  budget={cat.budget}
+                  progress={cat.progress}
+                  clickable={true}
+                  onClick={() => handleBudgetNavigate(cat.category_id)}
+                />
+              ))}
             </div>
           )}
         </div>

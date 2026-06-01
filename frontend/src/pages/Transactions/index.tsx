@@ -1,13 +1,17 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useMemo, useCallback } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { startOfMonth, format } from 'date-fns'
 import { Header } from '../../components/Header'
 import { Button } from '../../components/ui/button'
 import { FilterBar } from '../../components/FilterBar'
+import { FilterPanel } from '../../components/FilterPanel'
 import { TransactionsList } from '../../components/TransactionsList'
+import { BatchActionBar } from '../../components/BatchActionBar'
 import { ConfirmDialog } from '../../components/ConfirmDialog'
-import { getTransactions, deleteTransaction } from '../../services/api'
+import { getTransactions, deleteTransaction, batchTransactions } from '../../services/api'
+import type { BatchRequest } from '../../types/batch'
+import { useCategories } from '../../hooks/useCategories'
 import { formatAmount } from '../../utils/common'
 import { notify } from '../../utils/notifications'
 
@@ -20,6 +24,11 @@ const buildAddUrl = (type: string, category: string): string => {
 
 interface DeleteTarget {
   id: number
+}
+
+interface ActiveChip {
+  label: string
+  onRemove: () => void
 }
 
 const PAGE_SIZE = 10
@@ -45,19 +54,100 @@ const Transactions: React.FC = () => {
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc' | undefined>(undefined)
   const [deleteTarget, setDeleteTarget] = useState<DeleteTarget | null>(null)
 
+  // ---- Advanced filter state ----
+  const [minAmount, setMinAmount] = useState('')
+  const [maxAmount, setMaxAmount] = useState('')
+  const [dateFrom, setDateFrom] = useState('')
+  const [dateTo, setDateTo] = useState('')
+  const [filterPanelExpanded, setFilterPanelExpanded] = useState(false)
+
+  // ---- 批量操作状态 ----
+  const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set())
+  const [batchDialog, setBatchDialog] = useState<'category' | 'type' | 'date' | 'book' | 'delete' | null>(null)
+  const [batchCategory, setBatchCategory] = useState('')
+  const [batchType, setBatchType] = useState<'income' | 'expense'>('expense')
+  const [batchDate, setBatchDate] = useState(format(new Date(), 'yyyy-MM-dd'))
+  const [batchBookId, setBatchBookId] = useState('')
+  const { data: categories = [] } = useCategories()
+
+  const handleToggleSelect = (id: number) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
+  }
+
+  const handleToggleSelectAll = (pageIds: number[]) => {
+    setSelectedIds(prev => {
+      const allSelected = pageIds.every(id => prev.has(id))
+      const next = new Set(prev)
+      if (allSelected) {
+        pageIds.forEach(id => next.delete(id))
+      } else {
+        pageIds.forEach(id => next.add(id))
+      }
+      return next
+    })
+  }
+
+  const batchMutation = useMutation({
+    mutationFn: (req: BatchRequest) => batchTransactions(req),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['transactions'] })
+      notify({ type: 'success', message: '批量操作成功' })
+      setSelectedIds(new Set())
+      setBatchDialog(null)
+    },
+  })
+
+  const handleBatchAction = (operation: BatchRequest['operation']) => {
+    switch (operation) {
+      case 'update_category': setBatchDialog('category'); break
+      case 'update_type': setBatchDialog('type'); break
+      case 'update_date': setBatchDialog('date'); break
+      case 'move_book': setBatchDialog('book'); break
+      case 'delete': setBatchDialog('delete'); break
+      default: setBatchDialog(null)
+    }
+  }
+
+  const handleBatchConfirm = () => {
+    const ids = Array.from(selectedIds)
+    const operation = batchDialog === 'delete' ? 'delete' :
+      batchDialog === 'category' ? 'update_category' :
+      batchDialog === 'type' ? 'update_type' :
+      batchDialog === 'date' ? 'update_date' :
+      batchDialog === 'book' ? 'move_book' : 'update_category'
+
+    const payload: Record<string, any> = {}
+    if (batchDialog === 'category') payload.category_id = batchCategory
+    else if (batchDialog === 'type') payload.type = batchType
+    else if (batchDialog === 'date') payload.date = batchDate
+    else if (batchDialog === 'book') payload.book_id = batchBookId
+
+    batchMutation.mutate({ ids, operation, ...(Object.keys(payload).length > 0 ? { payload } : {}) })
+  }
+
   // 筛选条件变化时重置页码
   useEffect(() => {
     setPage(1)
-  }, [filter, search])
+  }, [filter, search, minAmount, maxAmount, dateFrom, dateTo])
 
   const { data: paginated, isLoading } = useQuery({
-    queryKey: ['transactions', filter.type, filter.category, filter.startDate, filter.endDate, search, page, sortOrder],
+    queryKey: ['transactions', filter.type, filter.category, filter.startDate, filter.endDate, search, page, sortOrder, minAmount, maxAmount, dateFrom, dateTo],
     queryFn: () => getTransactions({
       type: filter.type !== 'all' ? filter.type : undefined,
       category: filter.category || undefined,
       startDate: filter.startDate || undefined,
       endDate: filter.endDate || undefined,
       search: search || undefined,
+      keyword: search || undefined,
+      min_amount: minAmount ? Number(minAmount) : undefined,
+      max_amount: maxAmount ? Number(maxAmount) : undefined,
+      date_from: dateFrom || undefined,
+      date_to: dateTo || undefined,
       page,
       pageSize: PAGE_SIZE,
       ...(sortOrder ? { sortBy: 'amount' as const, sortOrder } : {}),
@@ -110,6 +200,53 @@ const Transactions: React.FC = () => {
     }
   }
 
+  // ---- Build activeChips from non-empty filter values ----
+  const activeChips: ActiveChip[] = useMemo(() => {
+    const chips: ActiveChip[] = []
+
+    if (search) {
+      chips.push({
+        label: `搜索: ${search}`,
+        onRemove: () => setSearch(''),
+      })
+    }
+
+    if (minAmount) {
+      chips.push({
+        label: `最低金额 ≥ ¥${minAmount}`,
+        onRemove: () => setMinAmount(''),
+      })
+    }
+
+    if (maxAmount) {
+      chips.push({
+        label: `最高金额 ≤ ¥${maxAmount}`,
+        onRemove: () => setMaxAmount(''),
+      })
+    }
+
+    if (dateFrom) {
+      chips.push({
+        label: `日期从 ${dateFrom}`,
+        onRemove: () => setDateFrom(''),
+      })
+    }
+
+    if (dateTo) {
+      chips.push({
+        label: `日期至 ${dateTo}`,
+        onRemove: () => setDateTo(''),
+      })
+    }
+
+    return chips
+  }, [search, minAmount, maxAmount, dateFrom, dateTo])
+
+  // ---- FilterPanel toggle handler ----
+  const handleFilterPanelToggle = useCallback(() => {
+    setFilterPanelExpanded(prev => !prev)
+  }, [])
+
   return (
     <div>
       <Header title="交易记录">
@@ -127,6 +264,21 @@ const Transactions: React.FC = () => {
         onFilterChange={handleFilterChange}
         search={search}
         onSearchChange={handleSearchChange}
+        activeChips={activeChips}
+        filterPanel={
+          <FilterPanel
+            expanded={filterPanelExpanded}
+            minAmount={minAmount}
+            maxAmount={maxAmount}
+            dateFrom={dateFrom}
+            dateTo={dateTo}
+            onMinAmountChange={setMinAmount}
+            onMaxAmountChange={setMaxAmount}
+            onDateFromChange={setDateFrom}
+            onDateToChange={setDateTo}
+            onToggle={handleFilterPanelToggle}
+          />
+        }
       />
 
       {/* 排序 + 总数 + 本页总金额 */}
@@ -183,6 +335,10 @@ const Transactions: React.FC = () => {
             transactions={transactions}
             onEdit={handleEdit}
             onDelete={handleDelete}
+            selectable
+            selectedIds={selectedIds}
+            onToggleSelect={handleToggleSelect}
+            onToggleSelectAll={handleToggleSelectAll}
           />
 
           {/* 分页器 */}
@@ -248,6 +404,112 @@ const Transactions: React.FC = () => {
         onCancel={() => setDeleteTarget(null)}
         loading={deleteMutation.isPending}
       />
+
+      {/* 批量操作栏 */}
+      <BatchActionBar
+        selectedCount={selectedIds.size}
+        loading={batchMutation.isPending}
+        onUpdateCategory={() => handleBatchAction('update_category')}
+        onUpdateType={() => handleBatchAction('update_type')}
+        onUpdateDate={() => handleBatchAction('update_date')}
+        onMoveBook={() => handleBatchAction('move_book')}
+        onDelete={() => handleBatchAction('delete')}
+      />
+
+      {/* 批量操作弹窗 */}
+      {batchDialog && (
+        <div style={{
+          position: 'fixed', inset: 0, zIndex: 200,
+          background: 'rgba(0,0,0,0.4)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+        }} onClick={() => setBatchDialog(null)}>
+          <div style={{
+            background: 'var(--surface)', borderRadius: 'var(--radius-lg)',
+            padding: 24, minWidth: 320, maxWidth: 420,
+            boxShadow: '0 8px 32px rgba(0,0,0,0.15)',
+          }} onClick={e => e.stopPropagation()}>
+            <h3 style={{ fontSize: 16, fontWeight: 600, marginBottom: 16 }}>
+              {batchDialog === 'delete' ? '确认删除' : 
+               batchDialog === 'category' ? '选择分类' :
+               batchDialog === 'type' ? '选择类型' :
+               batchDialog === 'date' ? '选择日期' : '选择账本'}
+              （{selectedIds.size} 条）
+            </h3>
+
+            {batchDialog === 'category' && (
+              <div style={{ maxHeight: 240, overflowY: 'auto', marginBottom: 16 }}>
+                {categories.map(c => (
+                  <div key={c.id}
+                    onClick={() => setBatchCategory(c.id)}
+                    style={{
+                      padding: '8px 12px', cursor: 'pointer', borderRadius: 6,
+                      background: batchCategory === c.id ? 'var(--accent)' : undefined,
+                      color: batchCategory === c.id ? '#fff' : 'var(--fg)',
+                    }}
+                  >{c.icon} {c.name}</div>
+                ))}
+              </div>
+            )}
+
+            {batchDialog === 'type' && (
+              <div style={{ marginBottom: 16, display: 'flex', gap: 12 }}>
+                {(['income', 'expense'] as const).map(t => (
+                  <label key={t} style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer' }}>
+                    <input type="radio" name="batchType" value={t} checked={batchType === t}
+                      onChange={() => setBatchType(t)} />
+                    <span>{t === 'income' ? '💰 收入' : '💸 支出'}</span>
+                  </label>
+                ))}
+              </div>
+            )}
+
+            {batchDialog === 'date' && (
+              <div style={{ marginBottom: 16 }}>
+                <input type="date" value={batchDate}
+                  onChange={e => setBatchDate(e.target.value)}
+                  style={{ width: '100%', padding: 8, borderRadius: 6, border: '1px solid var(--border)', fontSize: 14 }}
+                />
+              </div>
+            )}
+
+            {batchDialog === 'book' && (
+              <div style={{ marginBottom: 16 }}>
+                <p style={{ color: 'var(--muted)', fontSize: 13, marginBottom: 8 }}>
+                  输入目标账本 ID（或从账本列表复制）
+                </p>
+                <input type="text" value={batchBookId}
+                  onChange={e => setBatchBookId(e.target.value)}
+                  placeholder="账本 UUID"
+                  style={{ width: '100%', padding: 8, borderRadius: 6, border: '1px solid var(--border)', fontSize: 14 }}
+                />
+              </div>
+            )}
+
+            {batchDialog === 'delete' && (
+              <p style={{ color: 'var(--danger)', fontSize: 14, marginBottom: 16 }}>
+                确定删除选中的 {selectedIds.size} 条交易？此操作不可撤销。
+              </p>
+            )}
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+              <button onClick={() => setBatchDialog(null)}
+                style={{
+                  padding: '8px 16px', borderRadius: 6, border: '1px solid var(--border)',
+                  background: 'var(--surface)', color: 'var(--fg)', cursor: 'pointer',
+                }}>取消</button>
+              <button onClick={handleBatchConfirm}
+                disabled={batchMutation.isPending}
+                style={{
+                  padding: '8px 16px', borderRadius: 6, border: 'none',
+                  background: batchDialog === 'delete' ? 'var(--danger)' : 'var(--accent)',
+                  color: '#fff', cursor: 'pointer', fontWeight: 600,
+                }}>
+                {batchMutation.isPending ? '执行中...' : '确认'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

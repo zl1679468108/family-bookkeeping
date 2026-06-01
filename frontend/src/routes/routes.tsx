@@ -13,6 +13,7 @@ const Budgets = lazy(() => import('../pages/Budgets'))
 const Books = lazy(() => import('../pages/Books'))
 const MapPage = lazy(() => import('../pages/Map'))
 const Calendar = lazy(() => import('../pages/Calendar'))
+const TemplateManager = lazy(() => import('../pages/TemplateManager'))
 
 export const routes: RouteConfig[] = [
   {
@@ -73,6 +74,11 @@ export const routes: RouteConfig[] = [
   {
     path: '/calendar',
     element: <Calendar />,
+    isPrivate: true,
+  },
+  {
+    path: '/templates',
+    element: <TemplateManager />,
     isPrivate: true,
   },
 ]
