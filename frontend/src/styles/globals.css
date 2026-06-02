@@ -99,9 +99,10 @@ body {
 
 .main {
   flex: 1;
-  margin-left: 260px;
+  margin-left: var(--sidebar-width, 240px);
   padding: 16px 20px;
   max-width: 1400px;
+  transition: margin-left .2s ease;
 }
 
 .btn {

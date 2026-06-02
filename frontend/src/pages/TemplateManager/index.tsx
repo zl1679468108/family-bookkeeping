@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { format } from 'date-fns';
 import { ConfirmDialog } from '../../components/ConfirmDialog';
 import { LocationPicker } from '../AddTransaction/components/LocationPicker';
 import { FormGroup, FormRow } from '../../components/Form';
@@ -26,7 +25,6 @@ const TemplateManager: React.FC = () => {
     name: '',
     type: 'expense' as 'income' | 'expense',
     category_id: '',
-    date: format(new Date(), 'yyyy-MM-dd'),
     note: '',
     latitude: undefined as number | undefined,
     longitude: undefined as number | undefined,
@@ -36,7 +34,7 @@ const TemplateManager: React.FC = () => {
 
   const resetForm = () => {
     setForm({
-      name: '', type: 'expense', category_id: '', date: format(new Date(), 'yyyy-MM-dd'),
+      name: '', type: 'expense', category_id: '',
       note: '', latitude: undefined, longitude: undefined, location_name: '', poi_id: '',
     });
     setShowForm(false);
@@ -65,6 +63,8 @@ const TemplateManager: React.FC = () => {
       type: form.type,
       category_id: form.category_id || undefined,
       note: form.note || undefined,
+      latitude: form.latitude,
+      longitude: form.longitude,
       location_name: form.location_name || undefined,
       poi_id: form.poi_id || undefined,
     };
@@ -82,7 +82,6 @@ const TemplateManager: React.FC = () => {
   const handleEdit = (t: any) => {
     setForm({
       name: t.name, type: t.type, category_id: t.category_id || '',
-      date: t.date || format(new Date(), 'yyyy-MM-dd'),
       note: t.note || '',
       latitude: t.latitude, longitude: t.longitude,
       location_name: t.location_name || '',
@@ -95,7 +94,7 @@ const TemplateManager: React.FC = () => {
   const handleDelete = () => {
     if (deleteId) {
       deleteMutation.mutate(deleteId, {
-        onSuccess: () => { notify({ type: 'success', message: '已删除' }); setDeleteId(null); },
+        onSuccess: () => { notify({ type: 'success', message: '已删除' }); setDeleteId(null); resetForm(); },
       });
     }
   };
@@ -139,13 +138,7 @@ const TemplateManager: React.FC = () => {
             </FormGroup>
           </FormRow>
 
-          {/* 第三行：日期 */}
-          <FormGroup label="日期">
-            <input type="date" className="form-input" value={form.date}
-              onChange={(e) => setForm(prev => ({ ...prev, date: e.target.value }))} />
-          </FormGroup>
-
-          {/* 第五行：备注 */}
+          {/* 备注 */}
           <FormGroup label="备注">
             <input type="text" className="form-input" placeholder="添加备注（可选）"
               value={form.note} onChange={(e) => setForm(prev => ({ ...prev, note: e.target.value }))} />
@@ -174,7 +167,7 @@ const TemplateManager: React.FC = () => {
                   {form.latitude && form.longitude && (
                     <div style={{ fontSize: 11, marginTop: 2 }}>
                       经纬度：{form.latitude.toFixed(6)}, {form.longitude.toFixed(6)}
-                      {form.poi_id && ` · POI: ${form.poi_id.slice(0, 8)}...`}
+                      {form.poi_id && ` · POI: ${form.poi_id}`}
                     </div>
                   )}
                 </div>

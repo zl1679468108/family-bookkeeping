@@ -73,7 +73,7 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
   const reverseGeocode = useCallback((lng: number, lat: number) => {
     const AMap = AmapManager.getInstance().AMap;
     if (!AMap?.Geocoder) return;
-    const geocoder = new AMap.Geocoder({});
+    const geocoder = new AMap.Geocoder({ radius: 200, extensions: 'all' });
     geocoder.getAddress([lng, lat], (status: string, result: any) => {
       if (status === 'complete' && result.regeocode) {
         const address = result.regeocode.formattedAddress || `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
@@ -149,15 +149,7 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
         const pos: [number, number] = [result.position.lng, result.position.lat];
         setSelectedPos(pos);
         if (m) { m.setCenter(pos); m.setZoom(15); }
-        const geocoder = new AMap.Geocoder({});
-        geocoder.getAddress(pos, (gs: string, gr: any) => {
-          if (gs === 'complete' && gr.regeocode) {
-            setSelectedAddress(gr.regeocode.formattedAddress);
-            if (gr.regeocode.pois?.[0]) {
-              setPoiId(gr.regeocode.pois[0].id || null);
-            }
-          }
-        });
+        reverseGeocode(pos[0], pos[1]);
       } else {
         setError('无法获取当前位置，请确认已授权位置权限后手动搜索或点击地图选择位置');
       }
@@ -269,7 +261,7 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
           <Button variant="secondary" onClick={handleClear}>清除位置</Button>
           <div className="location-picker-actions">
             <Button variant="secondary" onClick={onClose}>取消</Button>
-            <Button onClick={handleConfirm} disabled={!selectedPos}>确认位置</Button>
+            <Button onClick={handleConfirm} disabled={!selectedPos || !selectedAddress}>确认位置</Button>
           </div>
         </div>
       </div>

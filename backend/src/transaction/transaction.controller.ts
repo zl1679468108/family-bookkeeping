@@ -13,6 +13,7 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { validate } from 'class-validator';
+import { plainToInstance } from 'class-transformer';
 import { TokenAuthGuard } from '../auth/token-auth.guard';
 import { CurrentUser } from '../auth/current-user.decorator';
 import { BookId } from '../books/book-id.decorator';
@@ -105,8 +106,9 @@ export class TransactionController {
     @BookId() bookId: string | undefined,
     @Body() dto: BatchTransactionDto,
   ) {
-    // 手动触发 class-validator 校验（包括自定义校验器）
-    const errors = await validate(dto);
+    // 手动触发 class-validator 校验（含 @Type 转换）
+    const dtoInstance = plainToInstance(BatchTransactionDto, dto);
+    const errors = await validate(dtoInstance);
     if (errors.length > 0) {
       const messages = errors
         .map((e) => Object.values(e.constraints || {}))

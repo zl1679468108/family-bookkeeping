@@ -44,6 +44,7 @@ const AddTransaction: React.FC = () => {
   const { data: categories = [] } = useCategories()
   const { data: templates = [] } = useTemplates()
   const { getCategoryId } = useCategoryLookup()
+  const showTemplateSelector = !isEditMode && templates.length > 0
 
   // Pre-fill form when edit data is loaded
   useEffect(() => {
@@ -102,11 +103,8 @@ const AddTransaction: React.FC = () => {
         : createTransaction(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['transactions'] })
-      if (isEditMode) {
-        queryClient.invalidateQueries({ queryKey: ['transaction', editId] })
-      }
       notify({ type: 'success', message: isEditMode ? '交易已更新！' : '交易已保存成功！' })
-      navigate(isEditMode ? '/transactions' : '/')
+      navigate(isEditMode ? '/transactions' : '/transactions')
     },
   })
 
@@ -202,8 +200,8 @@ const AddTransaction: React.FC = () => {
       <div className="form-section">
         <ImageUploader onOcrComplete={handleOcrComplete} />
 
-        {/* 模板快速选择 (P1-5) */}
-        {templates.length > 0 && (
+        {/* 模板快速选择 (P1-5) — 仅新建时显示 */}
+        {showTemplateSelector && (
           <FormGroup label="选择模板">
             <select
               className="form-select"

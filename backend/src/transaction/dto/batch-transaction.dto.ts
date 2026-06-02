@@ -12,6 +12,7 @@ import {
   ValidationArguments,
   Validate,
 } from 'class-validator';
+import { Type } from 'class-transformer';
 
 /** 批量操作类型 */
 export enum BatchOperation {
@@ -85,6 +86,7 @@ export class BatchTransactionDto {
   @IsArray({ message: 'ids 必须为数组' })
   @IsInt({ each: true, message: 'ids 中的每个元素必须为整数' })
   @ArrayMinSize(1, { message: 'ids 数组至少需要 1 个元素' })
+  @Type(() => Number)
   ids: number[];
 
   @IsEnum(BatchOperation, { message: 'operation 必须为合法的批量操作类型' })
