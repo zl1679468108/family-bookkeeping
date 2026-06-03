@@ -17,18 +17,7 @@ import { getTransactions } from '../../services/api'
 import { fetchSummary } from '../../services/statisticsApi'
 import { fetchBudgetStatus } from '../../services/budgetsApi'
 import { useCategoryLookup } from '../../hooks/useCategories'
-
-/** 骨架屏占位块 */
-const Skeleton: React.FC<{ w?: string; h?: string; br?: string; mb?: string }> = ({
-  w = '100%', h = '20px', br = '8px', mb = '0',
-}) => (
-  <div style={{
-    width: w, height: h, borderRadius: br, marginBottom: mb,
-    background: 'linear-gradient(90deg, var(--bg) 25%, var(--border) 50%, var(--bg) 75%)',
-    backgroundSize: '200% 100%',
-    animation: 'skeletonShimmer 1.5s ease-in-out infinite',
-  }} />
-)
+import { Skeleton } from '../../components/ui/Skeleton'
 
 /** 格式化环比趋势数据 */
 const formatTrend = (
@@ -94,19 +83,19 @@ const Dashboard: React.FC = () => {
         {summaryLoading ? (
           <>
             <div style={{ padding: '24px', background: 'var(--surface)', borderRadius: 'var(--radius-lg)' }}>
-              <Skeleton w="60%" h="14px" mb="12px" />
-              <Skeleton w="80%" h="28px" mb="8px" />
-              <Skeleton w="40%" h="12px" />
+              <Skeleton width="60%" height="14px" marginBottom="12px" />
+              <Skeleton width="80%" height="28px" marginBottom="8px" />
+              <Skeleton width="40%" height="12px" />
             </div>
             <div style={{ padding: '24px', background: 'var(--surface)', borderRadius: 'var(--radius-lg)' }}>
-              <Skeleton w="60%" h="14px" mb="12px" />
-              <Skeleton w="80%" h="28px" mb="8px" />
-              <Skeleton w="40%" h="12px" />
+              <Skeleton width="60%" height="14px" marginBottom="12px" />
+              <Skeleton width="80%" height="28px" marginBottom="8px" />
+              <Skeleton width="40%" height="12px" />
             </div>
             <div style={{ padding: '24px', background: 'var(--surface)', borderRadius: 'var(--radius-lg)' }}>
-              <Skeleton w="60%" h="14px" mb="12px" />
-              <Skeleton w="80%" h="28px" mb="8px" />
-              <Skeleton w="40%" h="12px" />
+              <Skeleton width="60%" height="14px" marginBottom="12px" />
+              <Skeleton width="80%" height="28px" marginBottom="8px" />
+              <Skeleton width="40%" height="12px" />
             </div>
           </>
         ) : (
@@ -143,9 +132,9 @@ const Dashboard: React.FC = () => {
       {/* 2. 预算概览 */}
       {budgetLoading ? (
         <div style={{ padding: '24px', background: 'var(--surface)', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border)', marginBottom: '24px' }}>
-          <Skeleton w="30%" h="16px" mb="16px" />
-          <Skeleton w="100%" h="8px" br="4px" mb="12px" />
-          <Skeleton w="50%" h="12px" />
+          <Skeleton width="30%" height="16px" marginBottom="16px" />
+          <Skeleton width="100%" height="8px" borderRadius="4px" marginBottom="12px" />
+          <Skeleton width="50%" height="12px" />
         </div>
       ) : hasBudget ? (
         <div style={{
@@ -258,9 +247,9 @@ const Dashboard: React.FC = () => {
       </h2>
       {recentLoading ? (
         <>
-          <Skeleton h="56px" mb="8px" />
-          <Skeleton h="56px" mb="8px" />
-          <Skeleton h="56px" mb="8px" />
+          <Skeleton height="56px" marginBottom="8px" />
+          <Skeleton height="56px" marginBottom="8px" />
+          <Skeleton height="56px" marginBottom="8px" />
         </>
       ) : recentTransactions.length === 0 ? (
         <div style={{ textAlign: 'center', padding: '40px', color: '#666' }}>

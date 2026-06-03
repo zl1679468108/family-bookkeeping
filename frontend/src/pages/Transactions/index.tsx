@@ -7,6 +7,7 @@ import { Button } from '../../components/ui/button'
 import { FilterBar } from '../../components/FilterBar'
 import { FilterPanel } from '../../components/FilterPanel'
 import { TransactionsList } from '../../components/TransactionsList'
+import { TransactionListSkeleton } from '../../components/ui/Skeleton'
 import { BatchActionBar } from '../../components/BatchActionBar'
 import { ConfirmDialog } from '../../components/ConfirmDialog'
 import { getTransactions, deleteTransaction, batchTransactions } from '../../services/api'
@@ -315,7 +316,7 @@ const Transactions: React.FC = () => {
       </div>
 
       {isLoading ? (
-        <div style={{ textAlign: 'center', padding: '40px', color: '#666' }}> </div>
+        <TransactionListSkeleton count={PAGE_SIZE} />
       ) : transactions.length === 0 ? (
         <div style={{ textAlign: 'center', padding: '40px', color: '#666' }}>
           {search ? (

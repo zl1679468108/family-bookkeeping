@@ -13,7 +13,9 @@
     "lint:fix": "eslint src --ext .js,.jsx,.ts,.tsx --fix"
   },
   "eslintConfig": {
-    "extends": ["react-app"],
+    "extends": [
+      "react-app"
+    ],
     "rules": {
       "react-hooks/exhaustive-deps": "off"
     }
@@ -24,6 +26,7 @@
     "date-fns": "^2.30.0",
     "echarts": "^5.6.0",
     "echarts-for-react": "^3.0.6",
+    "html2canvas": "^1.4.1",
     "lucide-react": "^0.382.0",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",

@@ -1,6 +1,7 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { useCategoryLookup } from '../../hooks/useCategories'
 import { formatAmountWithType, formatDate } from '../../utils/common'
+import { ReceiptViewer } from '../receipt/ReceiptViewer'
 import type { Transaction } from '../../services/api'
 import './index.scss'
 
@@ -30,6 +31,7 @@ export const TransactionsList: React.FC<TransactionsListProps> = ({
   const showActions = Boolean(onEdit) || Boolean(onDelete)
   const pageIds = transactions.map(t => t.id)
   const allSelected = selectable && pageIds.length > 0 && pageIds.every(id => selectedIds?.has(id))
+  const [viewingReceiptUrl, setViewingReceiptUrl] = useState<string | null>(null)
 
   return (
     <div className="transactions-list">
@@ -88,8 +90,21 @@ export const TransactionsList: React.FC<TransactionsListProps> = ({
               {amount}
             </div>
 
-            {showActions && (
-              <div className="transaction-actions">
+            {(showActions || item.image_url) && (
+              <div className="action-panel">
+                {item.image_url && (
+                  <button
+                    type="button"
+                    className="action-btn action-btn--receipt"
+                    title="查看收据"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setViewingReceiptUrl(item.image_url || null);
+                    }}
+                  >
+                    📎
+                  </button>
+                )}
                 {onEdit && (
                   <button
                     type="button"
@@ -123,6 +138,10 @@ export const TransactionsList: React.FC<TransactionsListProps> = ({
           </div>
         )
       })}
+      <ReceiptViewer
+        imageUrl={viewingReceiptUrl}
+        onClose={() => setViewingReceiptUrl(null)}
+      />
     </div>
   )
 }

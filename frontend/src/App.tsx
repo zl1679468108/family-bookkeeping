@@ -6,6 +6,7 @@ import { AuthProvider, useAuth } from './utils/auth'
 import { ThemeProvider } from './utils/theme'
 import { BookProvider } from './hooks/useBook'
 import { hasToken } from './services/api'
+import { Skeleton } from './components/ui/Skeleton'
 
 const PrivateRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, loading } = useAuth()
@@ -69,17 +70,17 @@ const AppLayout: React.FC = () => {
       <Sidebar />
       <main className="main">
         <Suspense fallback={<div style={{ padding: '32px' }}>
-          <div style={{ height: '32px', width: '30%', borderRadius: '8px', marginBottom: '24px', background: 'linear-gradient(90deg, var(--bg) 25%, var(--border) 50%, var(--bg) 75%)', backgroundSize: '200% 100%', animation: 'skeletonShimmer 1.5s ease-in-out infinite' }} />
+          <Skeleton width="30%" height="32px" marginBottom="24px" />
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '20px', marginBottom: '24px' }}>
             {[1,2,3].map(i => (
               <div key={i} style={{ height: '120px', borderRadius: 'var(--radius-lg)', background: 'var(--surface)', padding: '24px' }}>
-                <div style={{ width: '60%', height: '14px', borderRadius: '8px', background: 'linear-gradient(90deg, var(--bg) 25%, var(--border) 50%, var(--bg) 75%)', backgroundSize: '200% 100%', animation: 'skeletonShimmer 1.5s ease-in-out infinite', marginBottom: '12px' }} />
-                <div style={{ width: '80%', height: '28px', borderRadius: '8px', background: 'linear-gradient(90deg, var(--bg) 25%, var(--border) 50%, var(--bg) 75%)', backgroundSize: '200% 100%', animation: 'skeletonShimmer 1.5s ease-in-out infinite' }} />
+                <Skeleton width="60%" height="14px" marginBottom="12px" />
+                <Skeleton width="80%" height="28px" />
               </div>
             ))}
           </div>
           {[1,2,3].map(i => (
-            <div key={i} style={{ height: '56px', borderRadius: 'var(--radius-md)', background: 'linear-gradient(90deg, var(--bg) 25%, var(--border) 50%, var(--bg) 75%)', backgroundSize: '200% 100%', animation: 'skeletonShimmer 1.5s ease-in-out infinite', marginBottom: '8px' }} />
+            <Skeleton key={i} height="56px" borderRadius="var(--radius-md)" marginBottom="8px" />
           ))}
         </div>}>
           <Routes>

@@ -5,6 +5,7 @@ import { format } from 'date-fns'
 import { Header } from '../../components/Header'
 import { Button } from '../../components/ui/button'
 import { ImageUploader } from '../../components/ImageUploader'
+import { ReceiptUploader } from '../../components/receipt/ReceiptUploader'
 import { LocationPicker } from './components/LocationPicker'
 import { FormGroup, FormRow } from '../../components/Form'
 import { typeOptions } from '../../utils/commonDic'
@@ -33,6 +34,7 @@ const AddTransaction: React.FC = () => {
 
   const [location, setLocation] = useState<LocationResult | null>(null)
   const [showLocationPicker, setShowLocationPicker] = useState(false)
+  const [receiptImageUrl, setReceiptImageUrl] = useState<string | null>(null)
 
   const { data: editData, isLoading: editLoading } = useQuery({
     queryKey: ['transaction', editId],
@@ -64,6 +66,10 @@ const AddTransaction: React.FC = () => {
           locationName: (editData as any).location_name || '',
           poiId: (editData as any).poi_id || null,
         })
+      }
+      // 加载已有收据
+      if (editData.image_url) {
+        setReceiptImageUrl(editData.image_url)
       }
     }
   }, [editData])
@@ -270,6 +276,12 @@ const AddTransaction: React.FC = () => {
             onChange={(e) => setFormData(prev => ({ ...prev, note: e.target.value }))}
           />
         </FormGroup>
+
+        <ReceiptUploader
+          transactionId={editId ? Number(editId) : undefined}
+          existingImageUrl={receiptImageUrl || undefined}
+          onChange={(imageUrl) => setReceiptImageUrl(imageUrl)}
+        />
 
         <FormGroup label="位置">
           {location ? (

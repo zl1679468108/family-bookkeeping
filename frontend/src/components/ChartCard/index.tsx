@@ -3,6 +3,7 @@ import ReactECharts from 'echarts-for-react';
 import type { EChartsOption } from 'echarts';
 import { MonthlyTrendItem, CategoryBreakdownItem, YoYComparisonItem } from '../../types/statistics';
 import { useTheme } from '../../utils/theme';
+import { Skeleton } from '../ui/Skeleton';
 import './index.scss';
 
 interface ChartCardProps {
@@ -280,7 +281,7 @@ export const ChartCard: React.FC<ChartCardProps> = ({
 
   const renderBody = () => {
     if (loading) {
-      return <div className="chart-loading"> </div>;
+      return <Skeleton width="100%" height="240px" borderRadius="12px" />;
     }
 
     if (!data || data.length === 0) {

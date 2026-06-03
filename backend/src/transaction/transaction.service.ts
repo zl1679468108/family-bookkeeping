@@ -2,6 +2,7 @@ import {
   ForbiddenException,
   Injectable,
   InternalServerErrorException,
+  NotFoundException,
 } from '@nestjs/common';
 import { SupabaseService } from '../supabase/supabase.service';
 import { BatchOperation, BatchTransactionDto } from './dto/batch-transaction.dto';
@@ -160,7 +161,7 @@ export class TransactionService {
     }
 
     return {
-      data: data || [],
+      data: (data || []).map((t) => this.resolveImageUrl(t)),
       total: count || 0,
       page,
       pageSize,
@@ -194,7 +195,7 @@ export class TransactionService {
       throw new ForbiddenException('无权访问此交易记录');
     }
 
-    return data;
+    return this.resolveImageUrl(data);
   }
 
   async create(transaction: Partial<Transaction>, userId?: string, bookId?: string): Promise<Transaction> {
@@ -397,5 +398,106 @@ export class TransactionService {
     }
 
     return { affected: dto.ids.length };
+  }
+
+  /**
+   * 上传收据图片
+   * @param id 交易记录 ID
+   * @param userId 当前用户 ID
+   * @param file 上传的图片文件
+   * @returns 收据的公开访问 URL
+   */
+  async uploadReceipt(
+    id: number,
+    userId: string,
+    file: Express.Multer.File,
+  ): Promise<{ image_url: string }> {
+    const transaction = await this.findOne(id, userId);
+
+    // 生成路径: receipts/{userId}/{year}/{month}/{uuid}.{ext}
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const ext = file.originalname.split('.').pop() || 'jpg';
+    const filename = `${crypto.randomUUID()}.${ext}`;
+    const path = `receipts/${userId}/${year}/${month}/${filename}`;
+
+    const supabase = this.supabaseService.getClient();
+
+    // 上传到 Supabase Storage
+    const { error } = await supabase.storage.from('receipts').upload(path, file.buffer, {
+      contentType: file.mimetype,
+      cacheControl: 'public, max-age=31536000',
+    });
+
+    if (error) {
+      throw new InternalServerErrorException('收据上传失败: ' + error.message);
+    }
+
+    // 获取 public URL
+    const { data: urlData } = supabase.storage.from('receipts').getPublicUrl(path);
+    const publicUrl = urlData.publicUrl;
+
+    // 更新数据库 image_url 字段（存储路径，非完整 URL）
+    const { error: updateErr } = await supabase
+      .from('transactions')
+      .update({ image_url: path })
+      .eq('id', id);
+
+    if (updateErr) {
+      throw new InternalServerErrorException('更新交易记录失败: ' + updateErr.message);
+    }
+
+    return { image_url: publicUrl };
+  }
+
+  /**
+   * 删除收据图片
+   * @param id 交易记录 ID
+   * @param userId 当前用户 ID
+   */
+  async deleteReceipt(id: number, userId: string): Promise<void> {
+    const transaction = await this.findOne(id, userId);
+
+    if (!transaction.image_url) {
+      throw new NotFoundException('该交易记录没有收据');
+    }
+
+    const supabase = this.supabaseService.getClient();
+
+    // 删除存储文件
+    const { error: removeErr } = await supabase.storage
+      .from('receipts')
+      .remove([transaction.image_url]);
+
+    if (removeErr) {
+      // 文件可能已被删除，日志记录但不阻断流程
+      console.warn('删除收据存储文件失败:', removeErr.message);
+    }
+
+    // 清空 image_url 字段
+    const { error: updateErr } = await supabase
+      .from('transactions')
+      .update({ image_url: null })
+      .eq('id', id);
+
+    if (updateErr) {
+      throw new InternalServerErrorException('更新交易记录失败: ' + updateErr.message);
+    }
+  }
+
+  /**
+   * 将相对路径的 image_url 转换为完整的 Supabase Storage 公开 URL
+   */
+  private resolveImageUrl(transaction: any): any {
+    if (!transaction?.image_url || transaction.image_url.startsWith('http')) {
+      return transaction;
+    }
+    const supabase = this.supabaseService.getClient();
+    const { data } = supabase.storage.from('receipts').getPublicUrl(transaction.image_url);
+    return {
+      ...transaction,
+      image_url: data?.publicUrl || transaction.image_url,
+    };
   }
 }

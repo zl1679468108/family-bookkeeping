@@ -294,6 +294,31 @@ export const batchTransactions = async (data: BatchRequest): Promise<BatchRespon
   })
 }
 
+/**
+ * 上传收据图片 - P2-1
+ * POST /api/transactions/:id/receipt
+ */
+export const uploadReceipt = async (transactionId: number, file: Blob): Promise<{ image_url: string }> => {
+  const formData = new FormData();
+  formData.append('file', file, 'receipt.jpg');
+  return request<{ image_url: string }>(`/transactions/${transactionId}/receipt`, {
+    method: 'POST',
+    requiresAuth: true,
+    body: formData,
+  });
+}
+
+/**
+ * 删除收据图片 - P2-1
+ * DELETE /api/transactions/:id/receipt
+ */
+export const deleteReceipt = async (transactionId: number): Promise<void> => {
+  await request<null>(`/transactions/${transactionId}/receipt`, {
+    method: 'DELETE',
+    requiresAuth: true,
+  });
+}
+
 export const register = async (
   email: string,
   password: string,

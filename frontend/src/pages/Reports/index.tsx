@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query'
 import { startOfMonth, endOfMonth, format, differenceInMonths, subMonths } from 'date-fns'
 import { Header } from '../../components/Header'
 import { ChartCard } from '../../components/ChartCard'
+import { ChartSkeleton } from '../../components/ui/Skeleton'
 import { DateRangeFilter } from '../../components/DateRangeFilter'
 import { fetchMonthlyTrend, fetchCategoryBreakdown, fetchYearOverYear } from '../../services/statisticsApi'
 import { exportToExcel, exportToPDF } from '../../services/api'
@@ -162,8 +163,8 @@ const Reports: React.FC = () => {
           style={{
             padding: '8px 20px', borderRadius: 'var(--radius-sm)', border: 'none',
             cursor: 'pointer', fontSize: '14px', fontWeight: 500,
-            background: !isExpense ? 'var(--accent)' : 'transparent',
-            color: !isExpense ? '#fff' : 'var(--muted)', transition: 'all 0.2s ease',
+            background: analysisTab === 'income' ? 'var(--accent)' : 'transparent',
+            color: analysisTab === 'income' ? '#fff' : 'var(--muted)', transition: 'all 0.2s ease',
           }}
         >收入分析</button>
         <button

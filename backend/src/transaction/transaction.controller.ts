@@ -10,8 +10,11 @@ import {
   HttpCode,
   HttpStatus,
   UseGuards,
+  UseInterceptors,
+  UploadedFile,
   BadRequestException,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { validate } from 'class-validator';
 import { plainToInstance } from 'class-transformer';
 import { TokenAuthGuard } from '../auth/token-auth.guard';
@@ -19,6 +22,7 @@ import { CurrentUser } from '../auth/current-user.decorator';
 import { BookId } from '../books/book-id.decorator';
 import { TransactionService, TransactionFilters } from './transaction.service';
 import { BatchTransactionDto, BatchOperation } from './dto/batch-transaction.dto';
+import { FileValidationPipe } from '../common/pipes/file-validation.pipe';
 
 @Controller('transactions')
 @UseGuards(TokenAuthGuard)
@@ -130,5 +134,28 @@ export class TransactionController {
   ) {
     await this.transactionService.remove(+id, userId, bookId);
     return { message: '删除交易记录成功', data: null };
+  }
+
+  @Post(':id/receipt')
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadReceipt(
+    @CurrentUser('id') userId: string,
+    @BookId() bookId: string | undefined,
+    @Param('id') id: string,
+    @UploadedFile(FileValidationPipe) file: Express.Multer.File,
+  ) {
+    const data = await this.transactionService.uploadReceipt(+id, userId, file);
+    return { message: '收据上传成功', data };
+  }
+
+  @Delete(':id/receipt')
+  @HttpCode(HttpStatus.OK)
+  async deleteReceipt(
+    @CurrentUser('id') userId: string,
+    @BookId() bookId: string | undefined,
+    @Param('id') id: string,
+  ) {
+    await this.transactionService.deleteReceipt(+id, userId);
+    return { message: '收据已删除', data: null };
   }
 }

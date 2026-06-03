@@ -1,5 +1,6 @@
 import React, { useRef, useEffect } from 'react';
 import { useBook } from '../../hooks/useBook';
+import { Skeleton } from '../ui/Skeleton';
 import './BookSwitcher.scss';
 
 export const BookSwitcher: React.FC = () => {
@@ -18,7 +19,7 @@ export const BookSwitcher: React.FC = () => {
   }, []);
 
   if (loading) {
-    return <div className="book-switcher book-switcher--loading"> </div>;
+    return <Skeleton width="100%" height="36px" borderRadius="8px" />;
   }
 
   return (

@@ -13,7 +13,7 @@
   display: flex;
   flex-direction: column;
   transition: width .2s ease;
-  overflow: hidden;
+  overflow: visible;
 
   &.collapsed {
     width: 64px;
@@ -227,9 +227,17 @@
 }
 .app-sidebar.collapsed .sidebar-book-area {
   padding: 4px 8px 8px;
+  display: flex;
+  justify-content: center;
   .book-switcher__name,
   .book-switcher__arrow { display: none; }
-  .book-switcher__trigger { justify-content: center; padding: 6px 0; }
+  .book-switcher__trigger {
+    justify-content: center;
+    padding: 6px;
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+  }
 }
 
 /* ---- 导航 ---- */
@@ -240,6 +248,7 @@
   gap: 2px;
   padding: 4px 8px;
   overflow-y: auto;
+  overflow-x: hidden;
 }
 .sidebar-nav-item {
   display: flex;
