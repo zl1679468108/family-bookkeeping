@@ -5,6 +5,7 @@ import { Button } from '../../components/ui/button'
 import { fetchCategories, createCategory, updateCategory, deleteCategory, reorderCategories } from '../../services/categoriesApi'
 import { EMOJI_PRESETS } from '../../utils/emojiPresets'
 import { notify } from '../../utils/notifications'
+import { Skeleton } from '../../components/ui/Skeleton'
 import './index.scss'
 import type { Category, CreateCategoryInput } from '../../types/category'
 
@@ -420,8 +421,16 @@ const Categories: React.FC = () => {
           </div>
         )}
         {isLoading ? (
-          <div className="flex items-center justify-center py-20">
-            <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '12px', padding: '8px 0' }}>
+            {[1,2,3,4,5,6].map(i => (
+              <div key={i} style={{ display: 'flex', alignItems: 'center', padding: '14px', borderRadius: '10px', background: '#fff' }}>
+                <Skeleton width="40px" height="40px" borderRadius="10px" />
+                <div style={{ flex: 1, marginLeft: '12px' }}>
+                  <Skeleton width="60%" height="15px" marginBottom="6px" />
+                  <Skeleton width="40%" height="12px" />
+                </div>
+              </div>
+            ))}
           </div>
         ) : orderedList.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 text-slate-400">

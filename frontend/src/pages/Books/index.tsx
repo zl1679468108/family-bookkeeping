@@ -6,6 +6,7 @@ import { ConfirmDialog } from '../../components/ConfirmDialog';
 import { useBook } from '../../hooks/useBook';
 import { fetchBooks, createBook, renameBook, deleteBook, fetchBookMembers, inviteMember, leaveBook } from '../../services/booksApi';
 import { notify } from '../../utils/notifications';
+import { Skeleton } from '../../components/ui/Skeleton';
 
 /** 默认账本不可删除 */
 const DEFAULT_BOOK_NAME = '默认账本';
@@ -242,7 +243,18 @@ const BooksPage: React.FC = () => {
       </div>
 
       {isLoading ? (
-        <div style={{ textAlign: 'center', padding: '40px', color: '#666' }}> </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          {[1,2,3,4].map(i => (
+            <div key={i} style={{ display: 'flex', alignItems: 'center', padding: '16px 20px', borderRadius: '12px', background: '#fff' }}>
+              <Skeleton width="56px" height="56px" borderRadius="12px" />
+              <div style={{ flex: 1, marginLeft: '16px', marginRight: '12px' }}>
+                <Skeleton width="50%" height="16px" marginBottom="8px" />
+                <Skeleton width="35%" height="13px" />
+              </div>
+              <Skeleton width="60px" height="14px" />
+            </div>
+          ))}
+        </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           {books.map(renderBookCard)}

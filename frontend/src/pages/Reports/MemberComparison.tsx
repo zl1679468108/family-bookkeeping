@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { useMemberComparison } from '../../hooks/useMemberComparison';
 import type { MemberComparisonItem, MemberCategoryBreakdown } from '../../types/memberComparison';
+import { Skeleton } from '../../components/ui/Skeleton';
 import './MemberComparison.scss';
 
 interface MemberComparisonProps {
@@ -301,7 +302,21 @@ export const MemberComparison: React.FC<MemberComparisonProps> = ({
   }
 
   if (isLoading) {
-    return <div className="mc-loading">加载中...</div>;
+    return (
+      <div style={{ padding: '20px 0' }}>
+        <Skeleton width="100%" height="200px" borderRadius="12px" marginBottom="20px" />
+        {[1,2,3,4].map(i => (
+          <div key={i} style={{ display: 'flex', alignItems: 'center', padding: '12px 0', borderBottom: '1px solid var(--border, #f0f0f0)' }}>
+            <Skeleton width="32px" height="32px" borderRadius="50%" />
+            <div style={{ flex: 1, marginLeft: '12px', marginRight: '12px' }}>
+              <Skeleton width="55%" height="14px" marginBottom="6px" />
+              <Skeleton width="40%" height="12px" />
+            </div>
+            <Skeleton width="72px" height="14px" />
+          </div>
+        ))}
+      </div>
+    );
   }
 
   if (error) {

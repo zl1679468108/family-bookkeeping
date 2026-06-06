@@ -5,6 +5,7 @@ import { getTransactions, type Transaction } from '../../services/api';
 import { useCategoryLookup } from '../../hooks/useCategories';
 import { formatAmountWithType, formatDate } from '../../utils/common';
 import type { DailySummaryItem } from '../../types/statistics';
+import { Skeleton } from '../../components/ui/Skeleton';
 import './index.scss';
 
 /** 获取某年某月的天数 */
@@ -199,7 +200,25 @@ const Calendar: React.FC = () => {
       {/* 日历网格 */}
       <div className="calendar-grid-wrapper">
         {summaryLoading ? (
-          <div className="calendar-loading">加载中…</div>
+          <div style={{ padding: '12px 16px' }}>
+            {/* 星期标题 */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7,1fr)', gap: '4px', marginBottom: '8px' }}>
+              {WEEKDAY_LABELS.map((label, i) => (
+                <Skeleton key={i} height="20px" borderRadius="4px" />
+              ))}
+            </div>
+            {/* 日期格子 */}
+            {[1,2,3,4,5].map(row => (
+              <div key={row} style={{ display: 'grid', gridTemplateColumns: 'repeat(7,1fr)', gap: '4px', marginBottom: '4px' }}>
+                {[1,2,3,4,5,6,7].map(col => (
+                  <div key={col} style={{ padding: '6px 4px' }}>
+                    <Skeleton width="24px" height="16px" borderRadius="4px" marginBottom="4px" />
+                    <Skeleton width="80%" height="10px" borderRadius="3px" />
+                  </div>
+                ))}
+              </div>
+            ))}
+          </div>
         ) : (
           <div className="calendar-grid">
             {/* 星期标题行 */}
@@ -292,7 +311,18 @@ const Calendar: React.FC = () => {
             </button>
           </div>
           {txsLoading ? (
-            <div className="calendar-loading">加载中…</div>
+            <div style={{ padding: '8px 0' }}>
+              {[1,2,3].map(i => (
+                <div key={i} style={{ display: 'flex', alignItems: 'center', padding: '10px 0', borderBottom: '1px solid #f0f0f0' }}>
+                  <Skeleton width="36px" height="36px" borderRadius="8px" />
+                  <div style={{ flex: 1, marginLeft: '12px', marginRight: '12px' }}>
+                    <Skeleton width="50%" height="14px" marginBottom="6px" />
+                    <Skeleton width="35%" height="12px" />
+                  </div>
+                  <Skeleton width="64px" height="14px" />
+                </div>
+              ))}
+            </div>
           ) : dayTransactions.length === 0 ? (
             <div className="calendar-empty">当天暂无交易记录</div>
           ) : (

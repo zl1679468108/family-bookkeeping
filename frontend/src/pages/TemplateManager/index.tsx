@@ -3,6 +3,7 @@ import { ConfirmDialog } from '../../components/ConfirmDialog';
 import { LocationPicker } from '../AddTransaction/components/LocationPicker';
 import { FormGroup, FormRow } from '../../components/Form';
 import { notify } from '../../utils/notifications';
+import { Skeleton } from '../../components/ui/Skeleton';
 import { useTemplates, useCreateTemplate, useUpdateTemplate, useDeleteTemplate } from '../../hooks/useTemplates';
 import { useCategories } from '../../hooks/useCategories';
 import { typeOptions } from '../../utils/commonDic';
@@ -186,8 +187,20 @@ const TemplateManager: React.FC = () => {
       )}
 
       {/* 模板列表 */}
-      {isLoading ? <div style={{ textAlign: 'center', color: 'var(--muted)', padding: 40 }}>加载中...</div>
-      : templates.length === 0 ? (
+      {isLoading ? (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', padding: '8px 0' }}>
+          {[1,2,3].map(i => (
+            <div key={i} style={{ display: 'flex', alignItems: 'center', padding: '14px 16px', borderRadius: '10px', background: '#fff' }}>
+              <Skeleton width="44px" height="44px" borderRadius="10px" />
+              <div style={{ flex: 1, marginLeft: '14px', marginRight: '12px' }}>
+                <Skeleton width="50%" height="15px" marginBottom="8px" />
+                <Skeleton width="70%" height="13px" />
+              </div>
+              <Skeleton width="48px" height="14px" />
+            </div>
+          ))}
+        </div>
+      ) : templates.length === 0 ? (
         <div style={{ textAlign: 'center', color: 'var(--muted)', padding: 40 }}>暂无模板，点击上方按钮创建</div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>

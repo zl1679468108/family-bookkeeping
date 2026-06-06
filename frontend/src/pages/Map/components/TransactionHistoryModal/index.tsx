@@ -4,6 +4,7 @@ import type { MapTransaction, MerchantSummary } from '../../../../types/map';
 import { formatAmountWithType } from '../../../../utils/common';
 import { useCategoryLookup } from '../../../../hooks/useCategories';
 import { fetchMerchantTransactions } from '../../../../services/mapApi';
+import { Skeleton } from '../../../../components/ui/Skeleton';
 import './index.scss';
 
 interface TransactionHistoryModalProps {
@@ -63,7 +64,18 @@ export const TransactionHistoryModal: React.FC<TransactionHistoryModalProps> = (
         {/* 交易列表 */}
         <div className="merchant-history-list">
           {isLoading ? (
-            <div className="merchant-history-loading"> </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', padding: '12px 0' }}>
+              {[1,2,3,4,5].map(i => (
+                <div key={i} style={{ display: 'flex', alignItems: 'center', padding: '10px 12px' }}>
+                  <Skeleton width="32px" height="32px" borderRadius="6px" />
+                  <div style={{ flex: 1, marginLeft: '12px', marginRight: '12px' }}>
+                    <Skeleton width="65%" height="14px" marginBottom="6px" />
+                    <Skeleton width="40%" height="12px" />
+                  </div>
+                  <Skeleton width="72px" height="14px" />
+                </div>
+              ))}
+            </div>
           ) : filtered.length === 0 ? (
             <div className="merchant-history-empty">暂无交易记录</div>
           ) : (

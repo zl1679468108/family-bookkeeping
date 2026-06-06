@@ -5,6 +5,7 @@ import { useBook } from '../../hooks/useBook';
 import { useAuth } from '../../utils/auth';
 import { captureLongImage } from '../../utils/exportImage';
 import { notify } from '../../utils/notifications';
+import { Skeleton } from '../../components/ui/Skeleton';
 import ReportCover from './ReportCover';
 import ReportOverview from './ReportOverview';
 import ReportMonthlyTrend from './ReportMonthlyTrend';
@@ -43,8 +44,9 @@ const AnnualReport: React.FC = () => {
     try {
       await captureLongImage(reportRef.current, `${year}年度报告.png`);
       notify({ type: 'success', message: '年度报告已保存为图片' });
-    } catch {
-      notify({ type: 'error', message: '保存图片失败，请重试' });
+    } catch (err) {
+      console.error('AnnualReport captureLongImage error:', err);
+      notify({ type: 'error', message: `保存图片失败: ${(err as Error)?.message || '未知错误'}` });
     }
   };
 
@@ -94,15 +96,33 @@ const AnnualReport: React.FC = () => {
 
       {/* Loading 状态 */}
       {isLoading && (
-        <div
-          style={{
-            textAlign: 'center',
-            padding: '60px 20px',
-            color: 'var(--muted)',
-            fontSize: '14px',
-          }}
-        >
-          加载中...
+        <div style={{ maxWidth: '640px', margin: '0 auto', padding: '24px' }}>
+          {/* 封面骨架 */}
+          <Skeleton width="70%" height="36px" marginBottom="32px" />
+          <Skeleton width="40%" height="20px" marginBottom="48px" />
+          {/* 总览卡片骨架 */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '12px', marginBottom: '32px' }}>
+            {[1,2,3,4].map(i => (
+              <div key={i} style={{ padding: '16px', borderRadius: '12px', background: '#fff' }}>
+                <Skeleton width="60%" height="12px" marginBottom="8px" />
+                <Skeleton width="80%" height="24px" />
+              </div>
+            ))}
+          </div>
+          {/* 图表骨架 */}
+          <Skeleton width="100%" height="200px" borderRadius="12px" marginBottom="24px" />
+          <Skeleton width="100%" height="200px" borderRadius="12px" marginBottom="24px" />
+          {/* 列表骨架 */}
+          {[1,2,3].map(i => (
+            <div key={i} style={{ display: 'flex', alignItems: 'center', padding: '12px 0', borderBottom: '1px solid #f0f0f0' }}>
+              <Skeleton width="40px" height="40px" borderRadius="8px" />
+              <div style={{ flex: 1, marginLeft: '12px', marginRight: '12px' }}>
+                <Skeleton width="55%" height="14px" marginBottom="6px" />
+                <Skeleton width="35%" height="12px" />
+              </div>
+              <Skeleton width="64px" height="14px" />
+            </div>
+          ))}
         </div>
       )}
 

@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import type { MerchantSummary } from '../../../../types/map';
 import { TransactionHistoryModal } from '../TransactionHistoryModal';
+import { Skeleton } from '../../../../components/ui/Skeleton';
 import './index.scss';
 
 interface MerchantListProps {
@@ -25,9 +26,17 @@ export const MerchantList: React.FC<MerchantListProps> = ({ merchants, loading }
 
   if (loading) {
     return (
-      <div className="merchant-list-loading">
-        <div className="map-loading-spinner" />
-        <span>加载商户数据中...</span>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', padding: '8px 0' }}>
+        {[1,2,3,4,5].map(i => (
+          <div key={i} style={{ display: 'flex', alignItems: 'center', padding: '10px 12px', borderRadius: '10px', background: '#fff' }}>
+            <Skeleton width="36px" height="36px" borderRadius="8px" />
+            <div style={{ flex: 1, marginLeft: '12px', marginRight: '12px' }}>
+              <Skeleton width="55%" height="14px" marginBottom="6px" />
+              <Skeleton width="35%" height="12px" />
+            </div>
+            <Skeleton width="64px" height="14px" />
+          </div>
+        ))}
       </div>
     );
   }

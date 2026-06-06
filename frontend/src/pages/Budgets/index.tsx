@@ -8,6 +8,7 @@ import { useCategoryLookup } from '../../hooks/useCategories'
 import { useFocusItem } from '../../hooks/useFocusItem'
 import type { BudgetRecord, UpsertBudgetInput } from '../../types/budget'
 import { notify } from '../../utils/notifications'
+import { Skeleton } from '../../components/ui/Skeleton'
 import './index.scss'
 
 /** 计算上月月份 */
@@ -37,7 +38,7 @@ const Budgets: React.FC = () => {
   const incomeCategories = categories.filter((c) => c.type === 'income')
 
   // 获取已有预算记录
-  const { data: budgets = [] } = useQuery<BudgetRecord[]>({
+  const { data: budgets = [], isLoading: budgetsLoading } = useQuery<BudgetRecord[]>({
     queryKey: ['budgets', month],
     queryFn: () => fetchBudgets(month),
   })
@@ -180,6 +181,24 @@ const Budgets: React.FC = () => {
       </div>
 
       {/* 支出分类预算表 */}
+      {budgetsLoading ? (
+        <div style={{ padding: '8px 0' }}>
+          <Skeleton width="160px" height="22px" marginBottom="20px" />
+          <div style={{ borderRadius: '12px', overflow: 'hidden', border: '1px solid #e5e7eb' }}>
+            {[1,2,3,4,5].map(i => (
+              <div key={i} style={{ display: 'flex', alignItems: 'center', padding: '14px 16px', borderBottom: i < 5 ? '1px solid #f0f0f0' : 'none', background: '#fff' }}>
+                <Skeleton width="36px" height="36px" borderRadius="8px" />
+                <div style={{ flex: 1, marginLeft: '12px', marginRight: '12px' }}>
+                  <Skeleton width="50%" height="14px" />
+                </div>
+                <Skeleton width="80px" height="14px" />
+                <div style={{ marginLeft: '16px' }}><Skeleton width="60px" height="14px" /></div>
+                <div style={{ marginLeft: '16px' }}><Skeleton width="60px" height="14px" /></div>
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : (
       <div className="budgets-table-section">
         <h3 className="budgets-section-title">
           📉 支出分类预算
@@ -250,6 +269,7 @@ const Budgets: React.FC = () => {
           })}
         </div>
       </div>
+      )}
 
       {/* 收入分类区域 */}
       <div className="budgets-table-section">

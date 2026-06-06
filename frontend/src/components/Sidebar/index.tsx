@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../../utils/auth'
 import { ThemeToggle } from '../../utils/theme'
 import { BookSwitcher } from '../BookSwitcher'
+import { Skeleton } from '../ui/Skeleton'
 import './index.scss'
 
 const NAV_ITEMS = [
@@ -23,7 +24,7 @@ const COLLAPSED_KEY = 'sidebar_collapsed'
 export const Sidebar: React.FC = () => {
   const navigate = useNavigate()
   const location = useLocation()
-  const { user, signOut } = useAuth()
+  const { user, signOut, loading } = useAuth()
   const [collapsed, setCollapsed] = useState(() => localStorage.getItem(COLLAPSED_KEY) === 'true')
   const [menuOpen, setMenuOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
@@ -105,6 +106,17 @@ export const Sidebar: React.FC = () => {
 
       {/* 底部：个人中心 + 浮动菜单 */}
       <div className="sidebar-footer" ref={menuRef}>
+        {loading || !user ? (
+          <div style={{ display: 'flex', alignItems: 'center', padding: '8px 12px' }}>
+            <Skeleton width="36px" height="36px" borderRadius="50%" />
+            {!collapsed && (
+              <div style={{ marginLeft: '10px', flex: 1 }}>
+                <Skeleton width="60px" height="14px" marginBottom="4px" />
+                <Skeleton width="100px" height="12px" />
+              </div>
+            )}
+          </div>
+        ) : (
         <button className="sidebar-user-btn" onClick={() => setMenuOpen(!menuOpen)}>
           <div className="sidebar-user-avatar">{avatarChar}</div>
           {!collapsed && (
@@ -116,6 +128,7 @@ export const Sidebar: React.FC = () => {
             </>
           )}
         </button>
+        )}
 
         {/* 浮动菜单 */}
         {menuOpen && (

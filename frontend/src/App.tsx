@@ -12,13 +12,21 @@ const PrivateRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => 
   const { user, loading } = useAuth()
   const location = useLocation()
 
-  // token 存在但用户信息还在加载中 → 展示空骨架，不跳转
-  if (loading && hasToken()) {
-    return <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '60vh' }} />
-  }
-
   if (loading) {
-    return <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', background: '#f9fafb' }} />
+    return (
+      <div style={{ padding: '32px' }}>
+        <Skeleton width="30%" height="32px" marginBottom="24px" />
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '20px', marginBottom: '24px' }}>
+          {[1,2,3].map(i => (
+            <div key={i} style={{ height: '120px', borderRadius: '12px', background: '#fff', padding: '24px' }}>
+              <Skeleton width="60%" height="14px" marginBottom="12px" />
+              <Skeleton width="80%" height="28px" />
+            </div>
+          ))}
+        </div>
+        {[1,2,3,4,5].map(i => <Skeleton key={i} height="52px" borderRadius="8px" marginBottom="8px" />)}
+      </div>
+    )
   }
 
   if (!user) {
@@ -40,7 +48,11 @@ const AppLayout: React.FC = () => {
   // 公开路由 → 不渲染侧边栏，直接展示页面
   if (isAuthPage) {
     return (
-      <Suspense fallback={<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', background: '#f9fafb' }} />}>
+      <Suspense fallback={
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', background: '#f9fafb' }}>
+          <Skeleton width="200px" height="20px" borderRadius="4px" />
+        </div>
+      }>
         <Routes>
           {routes.map((route) => (
             <Route key={route.path} path={route.path} element={route.element} />
@@ -58,10 +70,27 @@ const AppLayout: React.FC = () => {
 
   const showLayout = hasToken() || Boolean(user)
 
-  // 加载中 → 不展示侧边栏
+  // 加载中 → 展示布局骨架屏
   if (!showLayout) {
     return (
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', background: '#f9fafb' }} />
+      <div style={{ display: 'flex', minHeight: '100vh', background: '#f9fafb' }}>
+        <div style={{ width: '240px', padding: '24px 20px', borderRight: '1px solid #e5e7eb' }}>
+          <Skeleton width="120px" height="28px" marginBottom="32px" />
+          {[1,2,3,4].map(i => <Skeleton key={i} height="40px" borderRadius="8px" marginBottom="8px" />)}
+        </div>
+        <div style={{ flex: 1, padding: '32px' }}>
+          <Skeleton width="30%" height="32px" marginBottom="24px" />
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '20px', marginBottom: '24px' }}>
+            {[1,2,3].map(i => (
+              <div key={i} style={{ height: '120px', borderRadius: '12px', background: '#fff', padding: '24px' }}>
+                <Skeleton width="60%" height="14px" marginBottom="12px" />
+                <Skeleton width="80%" height="28px" />
+              </div>
+            ))}
+          </div>
+          {[1,2,3,4,5].map(i => <Skeleton key={i} height="52px" borderRadius="8px" marginBottom="8px" />)}
+        </div>
+      </div>
     )
   }
 
@@ -69,20 +98,11 @@ const AppLayout: React.FC = () => {
     <div className="app">
       <Sidebar />
       <main className="main">
-        <Suspense fallback={<div style={{ padding: '32px' }}>
-          <Skeleton width="30%" height="32px" marginBottom="24px" />
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '20px', marginBottom: '24px' }}>
-            {[1,2,3].map(i => (
-              <div key={i} style={{ height: '120px', borderRadius: 'var(--radius-lg)', background: 'var(--surface)', padding: '24px' }}>
-                <Skeleton width="60%" height="14px" marginBottom="12px" />
-                <Skeleton width="80%" height="28px" />
-              </div>
-            ))}
+        <Suspense fallback={
+          <div style={{ padding: '24px 32px' }}>
+            <Skeleton width="220px" height="20px" borderRadius="4px" />
           </div>
-          {[1,2,3].map(i => (
-            <Skeleton key={i} height="56px" borderRadius="var(--radius-md)" marginBottom="8px" />
-          ))}
-        </div>}>
+        }>
           <Routes>
             {routes.map((route) => (
               <Route

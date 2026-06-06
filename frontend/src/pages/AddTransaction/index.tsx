@@ -13,6 +13,7 @@ import { createTransaction, getTransaction, updateTransaction } from '../../serv
 import { useCategories, buildCategoryOptions, useCategoryLookup } from '../../hooks/useCategories'
 import { useTemplates } from '../../hooks/useTemplates'
 import { notify } from '../../utils/notifications'
+import { Skeleton } from '../../components/ui/Skeleton'
 import type { LocationResult } from '../../types/map'
 import './index.scss'
 
@@ -187,7 +188,28 @@ const AddTransaction: React.FC = () => {
     return (
       <div>
         <Header title="编辑交易" />
-        <div style={{ textAlign: 'center', padding: '40px', color: '#666' }}> </div>
+        <div style={{ maxWidth: '640px', margin: '0 auto', padding: '24px' }}>
+          {/* 交易类型骨架 */}
+          <div style={{ display: 'flex', gap: '12px', marginBottom: '20px' }}>
+            <Skeleton width="120px" height="40px" borderRadius="8px" />
+            <Skeleton width="120px" height="40px" borderRadius="8px" />
+          </div>
+          {/* 金额骨架 */}
+          <Skeleton width="100%" height="48px" borderRadius="8px" marginBottom="16px" />
+          {/* 分类骨架 */}
+          <Skeleton width="100%" height="44px" borderRadius="8px" marginBottom="16px" />
+          {/* 日期骨架 */}
+          <Skeleton width="100%" height="44px" borderRadius="8px" marginBottom="16px" />
+          {/* 备注骨架 */}
+          <Skeleton width="100%" height="44px" borderRadius="8px" marginBottom="16px" />
+          {/* 位置骨架 */}
+          <Skeleton width="100%" height="44px" borderRadius="8px" marginBottom="24px" />
+          {/* 按钮骨架 */}
+          <div style={{ display: 'flex', gap: '12px' }}>
+            <Skeleton width="100px" height="40px" borderRadius="8px" />
+            <Skeleton width="100px" height="40px" borderRadius="8px" />
+          </div>
+        </div>
       </div>
     )
   }
@@ -283,7 +305,7 @@ const AddTransaction: React.FC = () => {
           onChange={(imageUrl) => setReceiptImageUrl(imageUrl)}
         />
 
-        <FormGroup label="位置">
+        <FormGroup label="位置（可选）">
           {location ? (
             <div className="location-selected">
               <span className="location-selected-icon">📍</span>
@@ -297,7 +319,7 @@ const AddTransaction: React.FC = () => {
             </div>
           ) : (
             <Button variant="secondary" onClick={() => setShowLocationPicker(true)} style={{ width: '100%' }}>
-              📍 添加位置（可选）
+              📍 添加位置
             </Button>
           )}
         </FormGroup>
