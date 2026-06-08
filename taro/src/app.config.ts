@@ -1,0 +1,38 @@
+export default defineAppConfig({
+  pages: [
+    "pages/Home/index",
+    "pages/Transactions/index",
+    "pages/AddTransaction/index",
+    "pages/Statistics/index",
+    "pages/Profile/index",
+    "pages/User/Login/index",
+    "pages/User/Register/index",
+    "pages/User/ForgotPassword/index",
+    "pages/Budgets/index",
+    "pages/Categories/index",
+    "pages/Books/index",
+    "pages/TemplateManager/index",
+    "pages/Calendar/index",
+  ],
+  window: {
+    backgroundTextStyle: "dark",
+    navigationBarBackgroundColor: "#FFFFFF",
+    navigationBarTitleText: "家庭记账",
+    navigationBarTextStyle: "black",
+    enablePullDownRefresh: true,
+  },
+  tabBar: {
+    custom: true,
+    color: "#B0ADA6",
+    selectedColor: "#5B9A7A",
+    backgroundColor: "#FFFFFF",
+    borderStyle: "white",
+    list: [
+      { pagePath: "pages/Home/index", text: "首页" },
+      { pagePath: "pages/Transactions/index", text: "流水" },
+      { pagePath: "pages/AddTransaction/index", text: "记账" },
+      { pagePath: "pages/Statistics/index", text: "统计" },
+      { pagePath: "pages/Profile/index", text: "我的" },
+    ],
+  },
+});

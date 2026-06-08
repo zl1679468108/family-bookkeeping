@@ -1,0 +1,109 @@
+.cal-body {
+  padding: var(--spacing-md);
+  padding-bottom: var(--spacing-xl);
+}
+
+/* Month Picker Toolbar */
+.cal-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--spacing-sm);
+  padding: var(--spacing-sm) 0;
+}
+
+.cal-toolbar-picker {
+  display: flex;
+  align-items: center;
+  padding: 8rpx 16rpx;
+}
+
+/* Weekday header */
+.cal-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  margin-bottom: var(--spacing-xs);
+}
+
+.cal-weekday {
+  text-align: center;
+  font-size: var(--font-xs);
+  color: var(--color-text-hint);
+  padding: 8rpx 0;
+}
+
+/* Grid */
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4rpx;
+}
+
+.cal-cell {
+  aspect-ratio: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  font-size: var(--font-sm);
+  position: relative;
+}
+
+.cal-cell--empty {
+  background: transparent;
+}
+
+.cal-cell--today {
+  background-color: var(--color-primary-bg);
+}
+
+.cal-cell--active {
+  background-color: var(--color-primary);
+}
+
+.cal-cell--active .cal-day {
+  color: #fff;
+}
+
+.cal-day {
+  font-size: var(--font-sm);
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.cal-cell--active .cal-amounts text {
+  color: rgba(255, 255, 255, 0.8) !important;
+}
+
+.cal-amounts {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 2rpx;
+}
+
+.cal-expense {
+  font-size: 16rpx;
+  color: var(--color-expense);
+  font-weight: 600;
+}
+
+.cal-income {
+  font-size: 16rpx;
+  color: var(--color-income);
+  font-weight: 600;
+}
+
+/* Stats */
+.cal-stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-md);
+}
+
+/* Detail */
+.cal-detail {
+  margin-top: var(--spacing-md);
+}

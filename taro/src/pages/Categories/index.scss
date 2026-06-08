@@ -1,0 +1,89 @@
+/* Categories v3.0 */
+
+.cats-tabs-wrap {
+  padding: var(--spacing-sm) var(--spacing-md);
+  background-color: var(--color-card);
+  border-bottom: 0.5px solid var(--color-border);
+}
+
+.cats-content {
+  padding: var(--spacing-sm) var(--spacing-md);
+  padding-bottom: 200rpx;
+}
+
+/* Category Grid */
+.cats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--spacing-sm);
+}
+
+.cats-card {
+  background-color: var(--color-card);
+  border-radius: var(--radius-lg);
+  border: 0.5px solid var(--color-border);
+  padding: var(--spacing-sm);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+.cats-default-badge {
+  position: absolute;
+  top: 4rpx;
+  right: 8rpx;
+  background-color: var(--color-bg);
+  border-radius: 4rpx;
+  padding: 0 6rpx;
+}
+
+.cats-action {
+  padding: 4rpx 12rpx;
+  border-radius: var(--radius-sm);
+  border: 0.5px solid var(--color-border);
+}
+
+.cats-action:active {
+  background-color: var(--color-bg);
+}
+
+/* Add Button */
+.cats-add-btn {
+  margin-top: var(--spacing-md);
+  padding: var(--spacing-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-lg);
+  border: 1px dashed var(--color-text-hint);
+}
+
+/* Bottom Sheet Modal */
+.cats-modal {
+  background-color: var(--color-card);
+  border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
+  width: 100%;
+  padding: var(--spacing-lg);
+  padding-bottom: calc(var(--spacing-lg) + env(safe-area-inset-bottom));
+}
+
+/* Emoji Grid */
+.cats-emoji {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: var(--radius-sm);
+  background-color: var(--color-bg);
+}
+
+.cats-emoji:active {
+  opacity: 0.7;
+}
+
+.cats-emoji-selected {
+  background-color: var(--color-primary-bg);
+  box-shadow: 0 0 0 2rpx var(--color-primary);
+}

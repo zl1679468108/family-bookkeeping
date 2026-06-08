@@ -1,0 +1,54 @@
+/* ============================================
+   Login V3.0 — 安静登录页
+   ============================================ */
+
+.login-page {
+  /* Brand section */
+  .brand-section {
+    padding-top: 120rpx;
+    padding-bottom: 80rpx;
+  }
+
+  .app-icon {
+    width: 120rpx;
+    height: 120rpx;
+    border-radius: var(--radius-2xl);
+    background-color: var(--color-primary-bg);
+  }
+
+  .app-icon-text {
+    font-size: 56rpx;
+    font-weight: 700;
+    color: var(--color-primary);
+  }
+
+  .app-name {
+    color: var(--color-text);
+  }
+
+  .app-slogan {
+    margin-top: 8rpx;
+  }
+
+  /* Form */
+  .login-form {
+    flex: 1;
+    padding-top: 0;
+  }
+
+  .input-label {
+    font-size: var(--font-sm);
+    font-weight: 500;
+    color: var(--color-text-secondary);
+    margin-bottom: 10rpx;
+    display: block;
+  }
+
+  .login-error {
+    padding-left: 4rpx;
+  }
+
+  .login-links {
+    padding: 0 4rpx;
+  }
+}

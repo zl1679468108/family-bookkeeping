@@ -1,0 +1,98 @@
+.txi-wrapper {
+  position: relative;
+  overflow: hidden;
+}
+
+.txi-main {
+  display: flex;
+  align-items: center;
+  padding: 20rpx 24rpx;
+  background-color: var(--color-card);
+  border-bottom: 0.5px solid var(--color-divider);
+  position: relative;
+  z-index: 2;
+  transition: transform 0.2s ease;
+}
+
+.txi-main--swiped {
+  transform: translateX(-120rpx);
+}
+
+.txi-delete {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 120rpx;
+  background-color: var(--color-danger);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+}
+
+.txi-delete-text {
+  color: #fff;
+  font-size: var(--font-sm);
+  font-weight: 600;
+}
+
+.txi-icon {
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-right: var(--spacing-sm);
+}
+
+.txi-icon--expense {
+  background-color: var(--color-expense-bg);
+}
+
+.txi-icon--income {
+  background-color: var(--color-primary-bg);
+}
+
+.txi-icon-text {
+  font-size: var(--font-xl);
+}
+
+.txi-body {
+  flex: 1;
+  min-width: 0;
+  margin-right: var(--spacing-sm);
+}
+
+.txi-name {
+  font-size: var(--font-base);
+  font-weight: 600;
+  color: var(--color-text);
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.txi-meta {
+  font-size: var(--font-xs);
+  color: var(--color-text-hint);
+  margin-top: 2rpx;
+  display: block;
+}
+
+.txi-amount {
+  font-size: var(--font-md);
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.txi-amount--expense {
+  color: var(--color-expense);
+}
+
+.txi-amount--income {
+  color: var(--color-income);
+}

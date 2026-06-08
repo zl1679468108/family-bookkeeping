@@ -1,0 +1,142 @@
+/* ============================================
+   AddTransaction V3.0 — 安静记账页
+   ============================================ */
+
+.add-transaction-page {
+  /* Nav close button */
+  .nav-close-btn {
+    width: 56rpx;
+    height: 56rpx;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-full);
+  }
+
+  .nav-close-btn:active {
+    background-color: var(--color-subtle);
+  }
+
+  .nav-close-text {
+    font-size: var(--font-xl);
+    color: var(--color-text-secondary);
+  }
+
+  /* Nav template link */
+  .nav-template-link {
+    font-size: var(--font-sm);
+    color: var(--color-primary);
+    font-weight: 600;
+    padding: 4rpx 8rpx;
+  }
+
+  /* Amount display */
+  .amount-display {
+    padding: 48rpx 0 40rpx;
+    .amount-value {
+      font-size: 88rpx;
+      font-weight: 900;
+      color: var(--color-text);
+      letter-spacing: -2rpx;
+      line-height: 1;
+    }
+    .amount-error {
+      display: block;
+      color: var(--color-danger);
+      font-size: var(--font-sm);
+      margin-top: var(--spacing-sm);
+    }
+  }
+
+  /* Section label */
+  .section-label {
+    font-size: var(--font-sm);
+    font-weight: 500;
+    color: var(--color-text-secondary);
+    display: block;
+    margin-bottom: var(--spacing-sm);
+  }
+
+  /* Category grid — 5 columns */
+  .category-grid-5 {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: var(--spacing-sm);
+  }
+
+  .cat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-sm) 4rpx;
+    border-radius: var(--radius-md);
+    border: 1px solid transparent;
+    transition: all 0.2s ease;
+    cursor: pointer;
+  }
+
+  .cat-item--selected {
+    border-width: 1px;
+    border-style: solid;
+  }
+
+  .cat-item--expense.cat-item--selected {
+    background-color: var(--color-expense-bg);
+    border-color: var(--color-expense);
+  }
+
+  .cat-item--income.cat-item--selected {
+    background-color: var(--color-income-bg);
+    border-color: var(--color-primary);
+  }
+
+  .cat-emoji {
+    font-size: 44rpx;
+    margin-bottom: 4rpx;
+  }
+
+  .cat-name {
+    font-size: var(--font-xs);
+    text-align: center;
+    line-height: 1.2;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 100%;
+    font-weight: 500;
+  }
+
+  /* Detail section */
+  .detail-section {
+    margin-top: var(--spacing-md);
+  }
+
+  .detail-row {
+    background-color: var(--color-card);
+    border-radius: var(--radius-md);
+    border: 0.5px solid var(--color-border);
+    padding: 20rpx var(--spacing-md);
+    margin-bottom: var(--spacing-sm);
+    transition: background-color 0.15s ease;
+  }
+
+  .detail-row:active {
+    background-color: var(--color-subtle);
+  }
+
+  .detail-input {
+    font-size: var(--font-md);
+    color: var(--color-text);
+    width: 100%;
+    height: 100%;
+    background: transparent;
+  }
+
+  /* NumberPad wrapper */
+  .numberpad-wrapper {
+    border-top: 0.5px solid var(--color-border);
+    background-color: var(--color-card);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}

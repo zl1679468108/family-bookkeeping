@@ -1,0 +1,9 @@
+.month-picker-arrow {
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: var(--radius-full);
+}
+
+.month-picker-arrow:active {
+  background-color: var(--color-bg);
+}

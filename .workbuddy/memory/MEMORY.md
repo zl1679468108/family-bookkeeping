@@ -129,3 +129,184 @@ hooks/ (useCategories.ts,useFocusItem.ts,useBook.tsx,useMapInstance.ts,useMember
 | 2026-05-28 | 新增模块 | P2-1+P2-5: 后端新增 BooksModule (4文件) + YoY comparison API, 前端新增 BookSwitcher+BookProvider+BooksPage |
 | 2026-05-26 | 新增表 + 迁移 | 新增 categories 表（自定义分类功能），支持 ALTER 兼容旧表结构 |
 | 2026-05-26 | 初始化 | 首次创建 6 张表（users, password_resets, user_sessions, transactions, budgets, categories）
+
+---
+
+## Taro 项目开发规范
+
+> 以下规范在 2026-06-07 整理确定，所有 Taro 端代码必须遵守。
+
+### 1. 样式：统一 SCSS，禁止 .css
+
+- 全局样式：`app.scss` 负责设计系统（CSS 变量、工具类、动画、全局组件样式）
+- 组件样式：每个组件目录下的 `index.scss` 负责自身样式
+- 页面样式：每个页面目录下的 `index.scss` 负责页面特有的布局和覆盖
+- **禁止**新建 `.css` 文件，存量必须迁移
+
+### 2. Pages 命名：大驼峰，与 components 一致
+
+```
+pages/
+├── Home/              ✅ 大驼峰
+├── AddTransaction/    ✅ 大驼峰
+├── ForgotPassword/    ✅ 大驼峰
+├── home/              ❌ 禁止小写
+├── add-transaction/   ❌ 禁止 kebab-case
+```
+
+- 页面内部跳转路径跟随命名：`Taro.navigateTo({ url: '/pages/AddTransaction/index' })`
+- `app.config.ts` 中页面注册路径同步保持大驼峰
+
+### 3. 日期选择：统一 Picker 弹选，禁止左右箭头
+
+- 年月选择 → `<Picker mode="date" fields="month">`（参考 `MonthPicker`）
+- 日期选择 → `<Picker mode="date">`（参考 `DatePicker`）
+- **禁止**在筛选栏/日历面板中使用 `{'<'}` `{'>'}` 左右箭头切换月份
+- 所有日期/月份交互必须通过弹出原生 Picker 完成
+
+### 4. 组件归属原则
+
+| 场景 | 位置 |
+|------|------|
+| 被 2 个及以上页面/组件使用 | `src/components/` ✅ |
+| 仅被 1 个页面使用 | `src/pages/模块/components/` ✅ |
+| 仅被 1 个组件内部使用 | 内联或放入该组件目录 |
+
+```
+src/
+├── components/           ← 公共：PageLayout, NavHeader, Icon, EmptyState, TabBar, TransactionItem, MonthPicker, ConfirmDialog, PullRefresh, ProgressBar, SegmentedControl, Skeleton, Toast
+├── hooks/                ← 公共：useCategories, useMonthSelector, useTransactions, useBook
+├── utils/                ← 公共：format.ts, categoryColors.ts
+├── pages/
+│   ├── AddTransaction/components/  ← 专属：DatePicker, NumberPad, LocationPicker, CategoryGrid
+│   ├── Books/components/           ← 专属：BookCard
+│   └── Calendar/index.tsx          ← 模块内拆分
+```
+
+### 5. 弹窗：统一 ConfirmDialog
+
+- 所有确认/删除/退出等双按钮弹窗，统一使用 `components/ConfirmDialog`
+- Props: `visible, title, message, confirmText, cancelText, confirmLoading, onCancel, onConfirm`
+- **禁止**页面内各自实现固定遮罩 + 居中卡片的弹窗结构
+
+### 6. 导航栏：统一使用 NavHeader 公共组件
+
+> 2026-06-07 设计 v3.0，2026-06-08 封装为公共组件。
+
+**NavHeader Props**：`title`, `leftContent?`, `rightContent?`
+- 三栏布局：左(80rpx) | 中(标题居中) | 右(80rpx)
+- 固定高度 88rpx，自动处理 safe area
+- 所有 `custom` 导航栏页面统一使用
+
+| 页面类型 | navigationStyle | 导航组件 | 示例 |
+|---------|:---:|------|------|
+| 一级有 TabBar | `custom` | `<PageLayout title="首页" tabBar>` | Home, Transactions, Statistics, Profile |
+| 一级无 TabBar | `custom` | `<NavHeader title="记一笔" leftContent={✕} rightContent={模板} />` | AddTransaction |
+| 二三级无 TabBar | `default` | 系统默认导航栏 | Budgets, Categories, Books, TemplateManager, Calendar |
+
+- **禁止**页面内手写导航栏 HTML/CSS
+- **禁止**使用默认系统导航栏的页面上叠加自定义导航栏
+
+### 7. Taro 端功能对齐 PC 端原则
+
+> 2026-06-07 新增
+
+- **小程序端以移动端界面交互形式，一个不差地实现 PC 端全部功能**
+- 开发前必须先过一遍 PC 端对应模块的代码，确认所有功能点和交互逻辑
+- 移动端适配原则：
+  - PC 的 hover 操作 → 移动端改为点击/长按/左滑
+  - PC 的内联编辑 → 移动端改为底部弹窗编辑
+  - PC 的拖拽排序 → 移动端改为长按拖拽（MovableView）
+  - PC 的多选批量操作 → 移动端改为左滑单选或长按多选
+
+### 8. 代码组织规范（Taro 端强化）
+
+> 2026-06-07 新增，2026-06-08 补充 hooks + PageLayout + 拆分规范
+
+**组件拆分原则**：
+
+| 场景 | 位置 | 文件结构 |
+|------|------|---------|
+| 被 ≥2 个页面/模块引用 | `src/components/组件名/` | `index.tsx` + `index.scss` |
+| 仅被 1 个模块使用 | `src/pages/模块名/components/子组件名/` | `index.tsx` + `index.scss` |
+| 页面本身 | `src/pages/页面名/` | `index.tsx` + `index.scss` + `index.config.ts` |
+
+**文件长度限制**：
+- 单文件（`.tsx`）不得超过 **200 行**，超过则拆分子组件（从严）
+- 单文件（`.scss`）不得超过 **150 行**，超过则拆分样式文件
+
+**强制使用的公共模块**（2026-06-08）：
+- **PageLayout**：所有 TabBar 页面外层容器（统一 NavHeader + 内容 + TabBar）
+- **useMonthSelector**：5 个页面共用的月份选择 hook
+- **useCategoryLookup**：分类名称/图标查询（替代手写 cmap）
+- **fmtAmount / fmtDate / fmtFriendlyDate**：金额和日期格式化统一从 `utils/format.ts` 导入
+
+**样式存放规则**：
+- 全局设计系统（CSS 变量、工具类、动画）→ `src/app.scss`
+- 组件/页面自身样式 → 同目录 `index.scss`
+- **禁止**新建 `.css` 文件，统一使用 SCSS
+- **禁止**大段 inline styles（`style={{}}`），优先 SCSS class
+
+### 8a. Hooks 拆分原则
+
+> 2026-06-08 新增
+
+**何时封装 Hook**：
+- 同一个 state + useEffect + useMemo 组合在 **≥2 个页面**中使用 → 封装为 hook
+- 示例：`useMonthSelector`（5 页），`useCategoryLookup`（3 页）
+
+**Hook 命名和位置**：
+- 通用 hook → `src/hooks/useXxx.ts`
+- 模块专属 hook → `src/pages/模块名/hooks/useXxx.ts`
+- 命名统一 `use` 前缀 + 驼峰
+
+**禁止**：
+- 跨页面复制粘贴相同逻辑（DRY 违反）
+- 页面内定义可复用的数据转换函数
+
+### 9. 骨架屏 & 空状态公共组件规范
+
+> 2026-06-07 新增
+
+`Skeleton` 和 `EmptyState` 是公共组件（放在 `src/components/`），但必须支持各模块的不同形态：
+
+**Skeleton Props**：
+```
+type?: 'list' | 'card' | 'chart' | 'circle'
+count?: number           // 骨架行数/个数，默认 3
+```
+
+各模块用法示例：
+- 交易列表：`<Skeleton type="list" count={5} />`（5 行交易骨架）
+- 分类卡片：`<Skeleton type="card" count={6} />`（6 个卡片骨架）
+- 统计图表：`<Skeleton type="chart" />`（图表占位骨架）
+
+**EmptyState Props**：
+```
+icon?: string            // emoji 图标，默认 '📝'
+title: string            // 主文字，如 '暂无交易' / '暂无数据' / '暂无分类'
+description?: string     // 副文字
+actionText?: string      // 操作按钮文字
+onAction?: () => void    // 操作按钮回调
+mode?: 'empty' | 'error' // 模式：空数据 / 错误
+```
+
+各模块用法示例：
+- 首页：`<EmptyState title="暂无交易记录" description="点击下方 + 开始记账" actionText="记一笔" />`
+- 统计：`<EmptyState icon="📊" title="暂无数据" description="添加交易后可查看统计" />`
+- 分类：`<EmptyState icon="📋" title="暂无分类数据" />`
+- 错误：`<EmptyState mode="error" title="加载失败" description="请检查网络后重试" actionText="重试" />`
+
+### 10. WXSS 兼容性
+
+- **禁止**使用 `*` 通配符选择器（如 `.depth-stagger > *:nth-child(n)`），改用明确的标签选择器（如 `view`）
+- **禁止**使用 CSS 转义符 `\`
+- `!important` 格式需为 `! important`（带空格，WXSS 要求）
+- 需要时参考 `config/strip-wxss-plugin.js` 自动处理兼容问题
+
+### 11. 代码风格
+
+- 样式优先使用 SCSS class 引用，减少 `style={{}}` 内联样式（与 v3.0 设计规范一致）
+- 所有组件和页面使用 TypeScript + JSX
+- 每个页面必须包含 `index.config.ts` 配置文件
+- 全局 CSS 变量（颜色/字号/间距/边框）定义在 `app.scss` 中，通过 `var(--xxx)` 引用

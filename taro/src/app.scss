@@ -1,0 +1,834 @@
+/* ============================================
+   家庭记账 · 安静记账 Design System v3.0
+   Primary: Sage Green (#5B9A7A)
+   Expense: Terracotta (#D4785C)
+   Background: Warm Gray (#F5F2ED)
+   Style: Clean, flat, calm — card+border, no shadows
+   ============================================ */
+
+/* === Design Tokens === */
+page {
+  /* Primary — Sage Green */
+  --color-primary: #5b9a7a;
+  --color-primary-dark: #3d7056;
+  --color-primary-bg: #e8f2ec;
+  --color-primary-hover: #4a8768;
+
+  /* Expense — Terracotta */
+  --color-expense: #d4785c;
+  --color-expense-dark: #b5573a;
+  --color-expense-bg: #fdf0eb;
+
+  /* Income — same as primary */
+  --color-income: #5b9a7a;
+  --color-income-bg: #e8f2ec;
+
+  /* Semantic */
+  --color-danger: #c0503a;
+  --color-danger-bg: #fbe8e2;
+  --color-warning: #d4a34a;
+  --color-warning-bg: #fcf6ed;
+
+  /* Backgrounds */
+  --color-bg: #f5f2ed;
+  --color-card: #ffffff;
+  --color-subtle: #f9f7f3;
+
+  /* Text */
+  --color-text: #1a1a1a;
+  --color-text-secondary: #666666;
+  --color-text-hint: #b0ada6;
+  --color-text-disabled: #cccccc;
+
+  /* Border & Divider */
+  --color-border: #ebe7e0;
+  --color-divider: #f0ede6;
+
+  /* Modal shadow (only for overlays) */
+  --shadow-modal: 0 8px 32px rgba(0, 0, 0, 0.12);
+
+  /* Border Radius */
+  --radius-sm: 8rpx;
+  --radius-md: 12rpx;
+  --radius-lg: 14rpx;
+  --radius-xl: 16rpx;
+  --radius-2xl: 20rpx;
+  --radius-full: 9999px;
+
+  /* Typography */
+  --font-xs: 20rpx;
+  --font-sm: 22rpx;
+  --font-base: 26rpx;
+  --font-md: 28rpx;
+  --font-lg: 30rpx;
+  --font-xl: 36rpx;
+  --font-2xl: 44rpx;
+  --font-3xl: 48rpx;
+
+  /* Spacing (8rpx grid) */
+  --spacing-xs: 8rpx;
+  --spacing-sm: 16rpx;
+  --spacing-md: 24rpx;
+  --spacing-lg: 32rpx;
+  --spacing-xl: 48rpx;
+
+  font-family:
+    -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB",
+    sans-serif;
+  font-size: var(--font-base);
+  color: var(--color-text);
+  background-color: var(--color-bg);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* === Reset === */
+view,
+text,
+image,
+input,
+button,
+scroll-view {
+  box-sizing: border-box;
+}
+
+/* ==============================================
+   LAYOUT
+   ============================================== */
+.flex {
+  display: flex;
+}
+.flex-1 {
+  flex: 1;
+}
+.flex-col {
+  flex-direction: column;
+}
+.flex-wrap {
+  flex-wrap: wrap;
+}
+.flex-shrink-0 {
+  flex-shrink: 0;
+}
+.items-center {
+  align-items: center;
+}
+.items-start {
+  align-items: flex-start;
+}
+.items-end {
+  align-items: flex-end;
+}
+.justify-center {
+  justify-content: center;
+}
+.justify-between {
+  justify-content: space-between;
+}
+.justify-around {
+  justify-content: space-around;
+}
+.self-center {
+  align-self: center;
+}
+
+.w-full {
+  width: 100%;
+}
+.h-full {
+  height: 100%;
+}
+.min-h-screen {
+  min-height: 100vh;
+}
+
+.relative {
+  position: relative;
+}
+.absolute {
+  position: absolute;
+}
+.fixed {
+  position: fixed;
+}
+.inset-0 {
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+.bottom-0 {
+  bottom: 0;
+}
+.left-0 {
+  left: 0;
+}
+.right-0 {
+  right: 0;
+}
+.z-10 {
+  z-index: 10;
+}
+.z-20 {
+  z-index: 20;
+}
+.z-50 {
+  z-index: 50;
+}
+.z-100 {
+  z-index: 100;
+}
+
+.block {
+  display: block;
+}
+.inline-block {
+  display: inline-block;
+}
+.inline-flex {
+  display: inline-flex;
+}
+.hidden {
+  display: none;
+}
+
+.grid {
+  display: grid;
+}
+.grid-cols-2 {
+  grid-template-columns: repeat(2, 1fr);
+}
+.grid-cols-3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+.grid-cols-4 {
+  grid-template-columns: repeat(4, 1fr);
+}
+.grid-cols-5 {
+  grid-template-columns: repeat(5, 1fr);
+}
+.grid-cols-7 {
+  grid-template-columns: repeat(7, 1fr);
+}
+.grid-cols-8 {
+  grid-template-columns: repeat(8, 1fr);
+}
+.gap-1 {
+  gap: var(--spacing-xs);
+}
+.gap-2 {
+  gap: var(--spacing-sm);
+}
+.gap-3 {
+  gap: var(--spacing-md);
+}
+
+.overflow-hidden {
+  overflow: hidden;
+}
+.overflow-y-auto {
+  overflow-y: auto;
+}
+
+/* ==============================================
+   TEXT
+   ============================================== */
+.text-center {
+  text-align: center;
+}
+.text-right {
+  text-align: right;
+}
+.text-left {
+  text-align: left;
+}
+
+.font-normal {
+  font-weight: 400;
+}
+.font-semibold {
+  font-weight: 600;
+}
+.font-bold {
+  font-weight: 700;
+}
+
+.text-xs {
+  font-size: var(--font-xs);
+}
+.text-sm {
+  font-size: var(--font-sm);
+}
+.text-base {
+  font-size: var(--font-base);
+}
+.text-md {
+  font-size: var(--font-md);
+}
+.text-lg {
+  font-size: var(--font-lg);
+}
+.text-xl {
+  font-size: var(--font-xl);
+}
+.text-2xl {
+  font-size: var(--font-2xl);
+}
+.text-3xl {
+  font-size: var(--font-3xl);
+}
+
+.text-primary {
+  color: var(--color-primary);
+}
+.text-expense {
+  color: var(--color-expense);
+}
+.text-income {
+  color: var(--color-income);
+}
+.text-danger {
+  color: var(--color-danger);
+}
+.text-secondary {
+  color: var(--color-text-secondary);
+}
+.text-hint {
+  color: var(--color-text-hint);
+}
+.text-disabled {
+  color: var(--color-text-disabled);
+}
+.text-white {
+  color: #ffffff;
+}
+
+.truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.leading-tight {
+  line-height: 1.2;
+}
+.leading-normal {
+  line-height: 1.5;
+}
+
+/* ==============================================
+   SPACING
+   ============================================== */
+.mt-1 {
+  margin-top: var(--spacing-xs);
+}
+.mt-2 {
+  margin-top: var(--spacing-sm);
+}
+.mt-3 {
+  margin-top: var(--spacing-md);
+}
+.mt-4 {
+  margin-top: var(--spacing-lg);
+}
+.mt-5 {
+  margin-top: var(--spacing-xl);
+}
+.mb-1 {
+  margin-bottom: var(--spacing-xs);
+}
+.mb-2 {
+  margin-bottom: var(--spacing-sm);
+}
+.mb-3 {
+  margin-bottom: var(--spacing-md);
+}
+.mb-4 {
+  margin-bottom: var(--spacing-lg);
+}
+.mb-5 {
+  margin-bottom: var(--spacing-xl);
+}
+.mr-1 {
+  margin-right: var(--spacing-xs);
+}
+.mr-2 {
+  margin-right: var(--spacing-sm);
+}
+.ml-1 {
+  margin-left: var(--spacing-xs);
+}
+.ml-2 {
+  margin-left: var(--spacing-sm);
+}
+.ml-auto {
+  margin-left: auto;
+}
+.mr-auto {
+  margin-right: auto;
+}
+.mx-auto {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.p-1 {
+  padding: var(--spacing-xs);
+}
+.p-2 {
+  padding: var(--spacing-sm);
+}
+.p-3 {
+  padding: var(--spacing-md);
+}
+.p-4 {
+  padding: var(--spacing-lg);
+}
+.px-2 {
+  padding-left: var(--spacing-sm);
+  padding-right: var(--spacing-sm);
+}
+.px-3 {
+  padding-left: var(--spacing-md);
+  padding-right: var(--spacing-md);
+}
+.px-4 {
+  padding-left: var(--spacing-lg);
+  padding-right: var(--spacing-lg);
+}
+.py-1 {
+  padding-top: var(--spacing-xs);
+  padding-bottom: var(--spacing-xs);
+}
+.py-2 {
+  padding-top: var(--spacing-sm);
+  padding-bottom: var(--spacing-sm);
+}
+.py-3 {
+  padding-top: var(--spacing-md);
+  padding-bottom: var(--spacing-md);
+}
+.pt-4 {
+  padding-top: var(--spacing-lg);
+}
+.pb-2 {
+  padding-bottom: var(--spacing-sm);
+}
+.pb-4 {
+  padding-bottom: var(--spacing-lg);
+}
+.pb-safe {
+  padding-bottom: calc(var(--spacing-lg) + env(safe-area-inset-bottom));
+}
+
+/* ==============================================
+   COLORS - Background
+   ============================================== */
+.bg-primary {
+  background-color: var(--color-primary);
+}
+.bg-primary-bg {
+  background-color: var(--color-primary-bg);
+}
+.bg-expense {
+  background-color: var(--color-expense);
+}
+.bg-expense-bg {
+  background-color: var(--color-expense-bg);
+}
+.bg-danger {
+  background-color: var(--color-danger);
+}
+.bg-danger-bg {
+  background-color: var(--color-danger-bg);
+}
+.bg-card {
+  background-color: var(--color-card);
+}
+.bg-bg {
+  background-color: var(--color-bg);
+}
+.bg-subtle {
+  background-color: var(--color-subtle);
+}
+.bg-white {
+  background-color: #ffffff;
+}
+
+/* ==============================================
+   BORDERS
+   ============================================== */
+.rounded-sm {
+  border-radius: var(--radius-sm);
+}
+.rounded-md {
+  border-radius: var(--radius-md);
+}
+.rounded-lg {
+  border-radius: var(--radius-lg);
+}
+.rounded-xl {
+  border-radius: var(--radius-xl);
+}
+.rounded-2xl {
+  border-radius: var(--radius-2xl);
+}
+.rounded-full {
+  border-radius: var(--radius-full);
+}
+
+.border {
+  border: 1px solid var(--color-border);
+}
+.border-b {
+  border-bottom: 1px solid var(--color-border);
+}
+.border-t {
+  border-top: 1px solid var(--color-border);
+}
+.border-primary {
+  border-color: var(--color-primary);
+}
+.border-expense {
+  border-color: var(--color-expense);
+}
+
+/* ==============================================
+   SHADOWS (Modal only)
+   ============================================== */
+.shadow-modal {
+  box-shadow: var(--shadow-modal);
+}
+
+/* ==============================================
+   OPACITY
+   ============================================== */
+.opacity-40 {
+  opacity: 0.4;
+}
+.opacity-50 {
+  opacity: 0.5;
+}
+.opacity-60 {
+  opacity: 0.6;
+}
+.opacity-80 {
+  opacity: 0.8;
+}
+
+/* ==============================================
+   SAFE AREA
+   ============================================== */
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* ==============================================
+   TRANSITIONS & ACTIVE
+   ============================================== */
+.transition {
+  transition: all 0.2s ease;
+}
+.tappable:active {
+  opacity: 0.6;
+  transform: scale(0.97);
+}
+.tappable-card:active {
+  background-color: var(--color-subtle);
+}
+
+/* ==============================================
+   CARD — Flat border style (no shadow)
+   ============================================== */
+.card {
+  background-color: var(--color-card);
+  border-radius: var(--radius-lg);
+  border: 0.5px solid var(--color-border);
+  overflow: hidden;
+}
+
+.card-padded {
+  background-color: var(--color-card);
+  border-radius: var(--radius-lg);
+  border: 0.5px solid var(--color-border);
+  padding: var(--spacing-md);
+}
+
+/* ==============================================
+   BUTTONS
+   ============================================== */
+
+/* Block primary button */
+.btn-primary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 24rpx 0;
+  background-color: var(--color-primary);
+  color: #ffffff;
+  border-radius: var(--radius-md);
+  font-size: var(--font-lg);
+  font-weight: 600;
+  border: none;
+}
+
+.btn-primary:active {
+  opacity: 0.8;
+}
+
+/* Block secondary button */
+.btn-secondary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 24rpx 0;
+  background-color: var(--color-subtle);
+  color: var(--color-text-secondary);
+  border-radius: var(--radius-md);
+  font-size: var(--font-lg);
+  font-weight: 600;
+  border: none;
+}
+
+/* Danger text button (for logout etc) */
+.btn-danger-text {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 24rpx 0;
+  background-color: var(--color-card);
+  color: var(--color-danger);
+  border-radius: var(--radius-md);
+  font-size: var(--font-base);
+  font-weight: 600;
+  border: 0.5px solid var(--color-border);
+}
+
+/* ==============================================
+   SEGMENTED CONTROL
+   ============================================== */
+.segmented-control {
+  display: flex;
+  background-color: var(--color-divider);
+  border-radius: var(--radius-md);
+  padding: 3px;
+}
+
+.segmented-item {
+  flex: 1;
+  padding: 14rpx 0;
+  text-align: center;
+  border-radius: var(--radius-sm);
+  font-size: var(--font-md);
+  font-weight: 600;
+  color: var(--color-text-hint);
+  transition: all 0.15s ease;
+}
+
+.segmented-item-active {
+  background-color: var(--color-card);
+  color: var(--color-text);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+/* ==============================================
+   PROGRESS BAR
+   ============================================== */
+.progress-bar {
+  height: 10rpx;
+  background-color: var(--color-divider);
+  border-radius: 5rpx;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  border-radius: 5rpx;
+  background-color: var(--color-primary);
+  transition: width 0.3s ease;
+}
+
+.progress-bar-fill--danger {
+  background-color: var(--color-expense);
+}
+
+/* ==============================================
+   TAGS / CHIPS
+   ============================================== */
+.tag {
+  display: inline-flex;
+  padding: 6rpx 18rpx;
+  border-radius: var(--radius-sm);
+  font-size: var(--font-sm);
+  font-weight: 600;
+}
+
+.tag-active {
+  background-color: var(--color-primary);
+  color: #ffffff;
+}
+
+.tag-inactive {
+  background-color: var(--color-subtle);
+  color: var(--color-text-hint);
+}
+
+/* ==============================================
+   SKELETON
+   ============================================== */
+@keyframes skeleton-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}
+
+.skeleton {
+  background-color: var(--color-divider);
+  border-radius: var(--radius-sm);
+  animation: skeleton-pulse 1.5s ease-in-out infinite;
+}
+
+.skeleton-circle {
+  border-radius: 50%;
+}
+
+.skeleton-text {
+  height: 22rpx;
+  border-radius: 6rpx;
+}
+
+.skeleton-title {
+  height: 28rpx;
+  border-radius: 6rpx;
+  width: 60%;
+}
+
+/* ==============================================
+   DIVIDER
+   ============================================== */
+.divider {
+  height: 1px;
+  background-color: var(--color-divider);
+  margin: var(--spacing-sm) 0;
+}
+
+/* ==============================================
+   ANIMATIONS (minimal)
+   ============================================== */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.animate-spin {
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+.animate-slide-up {
+  animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.animate-fade-in {
+  animation: fadeIn 0.25s ease;
+}
+
+/* ==============================================
+   AUTH INPUTS
+   ============================================== */
+.auth-input {
+  background-color: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding-left: var(--spacing-md);
+  padding-right: var(--spacing-md);
+  font-size: var(--font-base);
+  color: var(--color-text);
+  width: 100%;
+  height: 88rpx;
+  box-sizing: border-box;
+  transition: border-color 0.2s;
+}
+
+.auth-input:focus {
+  border-color: var(--color-primary);
+}
+
+/* ==============================================
+   CATEGORY DOTS
+   ============================================== */
+.cat-dot-sage {
+  background-color: var(--color-primary-bg);
+}
+.cat-dot-terra {
+  background-color: var(--color-expense-bg);
+}
+.cat-dot-slate {
+  background-color: #edf0f5;
+}
+.cat-dot-stone {
+  background-color: #ede8df;
+}
+.cat-dot-rust {
+  background-color: var(--color-danger-bg);
+}
+
+/* ==============================================
+   DARK MODE (P2)
+   ============================================== */
+@media (prefers-color-scheme: dark) {
+  page {
+    --color-primary: #6baa8a;
+    --color-primary-dark: #4a8768;
+    --color-primary-bg: #1a3324;
+    --color-expense: #e0886c;
+    --color-expense-bg: #2a1a14;
+    --color-income: #6baa8a;
+    --color-income-bg: #1a3324;
+    --color-danger: #d0604a;
+    --color-danger-bg: #2a1410;
+    --color-warning: #e4b35a;
+    --color-warning-bg: #2a2010;
+    --color-bg: #1a1a1a;
+    --color-card: #252525;
+    --color-subtle: #2a2a2a;
+    --color-text: #e8e8e8;
+    --color-text-secondary: #999999;
+    --color-text-hint: #666666;
+    --color-text-disabled: #444444;
+    --color-border: #333333;
+    --color-divider: #2a2a2a;
+  }
+}
+
+/* ==============================================
+   PAGE TRANSITION (P2)
+   ============================================== */
+.page-enter {
+  animation: fadeIn 0.2s ease;
+}
+
+.page-exit {
+  animation: fadeIn 0.15s ease reverse;
+}

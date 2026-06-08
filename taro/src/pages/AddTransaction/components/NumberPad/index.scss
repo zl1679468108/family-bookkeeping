@@ -1,0 +1,79 @@
+/* NumberPad — virtual numeric keypad */
+
+.number-pad {
+  padding: var(--spacing-md);
+  background-color: var(--color-bg);
+}
+
+.number-pad-grid {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.number-pad-row {
+  gap: var(--spacing-sm);
+}
+
+.number-pad-key {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 108rpx;
+  border-radius: var(--radius-lg);
+  transition: transform 0.12s ease;
+}
+
+.number-pad-key-hover {
+  transform: scale(0.95);
+}
+
+.number-pad-key-num {
+  background-color: var(--color-card);
+  border: 1px solid var(--color-border);
+  box-shadow: 0 1rpx 3rpx rgba(44, 36, 22, 0.03);
+}
+
+.number-pad-key-func {
+  background-color: #e5e5ea;
+}
+
+.number-pad-key-text {
+  font-size: var(--font-2xl);
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+.number-pad-key-backspace {
+  font-size: 40rpx;
+  color: var(--color-text-secondary);
+}
+
+/* Confirm button */
+.number-pad-confirm {
+  width: 128rpx;
+  border-radius: var(--radius-lg);
+  background-color: var(--color-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.12s ease;
+  /* height = 4 rows * 108rpx + 3 gaps * 12rpx = 468rpx */
+  height: 468rpx;
+}
+
+.number-pad-confirm-hover {
+  transform: scale(0.95);
+}
+
+.number-pad-confirm-disabled {
+  background-color: var(--color-text-hint);
+}
+
+.number-pad-confirm-text {
+  color: #ffffff;
+  font-size: var(--font-base);
+  font-weight: 600;
+  text-align: center;
+  line-height: 1.6;
+}

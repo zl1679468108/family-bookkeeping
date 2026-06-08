@@ -1,0 +1,26 @@
+/* ============================================
+   Register V3.0 — 安静注册页
+   ============================================ */
+
+.register-page {
+  .register-card {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .input-label {
+    font-size: var(--font-sm);
+    font-weight: 500;
+    color: var(--color-text-secondary);
+    margin-bottom: 10rpx;
+    display: block;
+  }
+
+  .form-error {
+    padding-left: 4rpx;
+  }
+
+  .form-footer-text {
+    padding-bottom: var(--spacing-lg);
+  }
+}

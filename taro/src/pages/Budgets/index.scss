@@ -1,0 +1,36 @@
+/* Budgets v3.0 */
+
+.budgets-content {
+  padding: var(--spacing-sm) var(--spacing-md);
+  padding-bottom: 200rpx;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+/* Budget Row */
+.budgets-row {
+  padding: var(--spacing-sm) var(--spacing-md);
+}
+
+/* Budget Amount Input */
+.budgets-amount-input {
+  width: 160rpx;
+  text-align: right;
+  font-size: var(--font-sm);
+  font-weight: 600;
+  color: var(--color-text);
+  background: transparent;
+  border: none;
+  outline: none;
+}
+
+/* Income Chip */
+.budgets-income-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4rpx;
+  padding: 4rpx 14rpx;
+  border-radius: var(--radius-full);
+  background-color: var(--color-bg);
+}

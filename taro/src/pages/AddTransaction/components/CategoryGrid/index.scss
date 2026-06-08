@@ -1,0 +1,13 @@
+.category-grid-item {
+  min-height: 140rpx;
+}
+
+.category-grid-item-selected {
+  box-shadow: 0 0 0 2px var(--color-primary);
+}
+
+.category-grid-icon {
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: var(--radius-md);
+}

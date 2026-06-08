@@ -1,0 +1,104 @@
+.home-content {
+  padding: var(--spacing-md);
+  padding-bottom: 200rpx;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+/* Balance Card */
+.home-balance-card {
+  background-color: var(--color-card);
+  border-radius: var(--radius-xl);
+  border: 0.5px solid var(--color-border);
+  padding: 32rpx var(--spacing-md);
+}
+
+.home-balance-label {
+  font-size: var(--font-sm);
+  color: var(--color-text-hint);
+  display: block;
+}
+
+.home-balance-value {
+  font-size: 56rpx;
+  font-weight: 600;
+  color: var(--color-text);
+  line-height: 1.1;
+  margin-top: 4rpx;
+}
+
+.home-balance-row {
+  display: flex;
+  gap: 32rpx;
+  margin-top: 24rpx;
+  padding-top: 24rpx;
+  border-top: 0.5px solid var(--color-divider);
+}
+
+.home-balance-item-label {
+  font-size: var(--font-xs);
+  color: var(--color-text-hint);
+  display: flex;
+  align-items: center;
+  gap: 6rpx;
+}
+
+.home-balance-item-value {
+  font-size: var(--font-xl);
+  font-weight: 600;
+  margin-top: 4rpx;
+}
+
+.home-dot {
+  width: 10rpx;
+  height: 10rpx;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.home-dot--expense {
+  background-color: var(--color-expense);
+}
+
+.home-dot--income {
+  background-color: var(--color-income);
+}
+
+/* Budget Card */
+.home-budget-card {
+  background-color: var(--color-card);
+  border-radius: var(--radius-lg);
+  border: 0.5px solid var(--color-border);
+  padding: var(--spacing-md);
+}
+
+/* Alerts Card */
+.home-alerts-card {
+  background-color: var(--color-card);
+  border-radius: var(--radius-lg);
+  border: 0.5px solid var(--color-border);
+  padding: var(--spacing-md);
+}
+
+.home-alert-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: 6rpx 0;
+}
+
+.home-alert-dot {
+  width: 6rpx;
+  height: 32rpx;
+  border-radius: 3rpx;
+  flex-shrink: 0;
+}
+
+.home-alert-dot--danger {
+  background-color: var(--color-danger);
+}
+
+.home-alert-dot--warn {
+  background-color: var(--color-warning);
+}

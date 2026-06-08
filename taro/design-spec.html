@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>家庭记账 · Taro 小程序设计规范 v2.0</title>
+<style>
+  :root {
+    --sage-50: #E8F2EC; --sage-200: #B8D8C5; --sage-400: #5B9A7A; --sage-600: #3D7056; --sage-800: #264834;
+    --slate-50: #EDF0F5; --slate-400: #5B7FA5; --slate-600: #3E5F80;
+    --rust-50: #FBE8E2; --rust-400: #C0503A;
+    --stone-50: #EDE8DF; --stone-200: #D5CFC4; --stone-400: #7A7265;
+    --bg-page: #F5F2ED; --bg-card: #FFFFFF; --bg-subtle: #F9F7F3;
+    --text-primary: #1A1A1A; --text-secondary: #666666; --text-hint: #B0ADA6; --text-disabled: #CCCCCC;
+    --border-light: #EBE7E0; --border-card: #EDE8DF; --divider: #F0EDE6;
+    --radius-sm: 8px; --radius-md: 12px; --radius-lg: 14px; --radius-xl: 16px; --radius-2xl: 20px;
+    --font-xs: 11px; --font-sm: 12px; --font-base: 13px; --font-md: 14px; --font-lg: 15px; --font-xl: 16px; --font-2xl: 18px; --font-3xl: 22px; --font-4xl: 28px; --font-5xl: 36px; --font-6xl: 48px;
+    --spacing-xs: 4px; --spacing-sm: 8px; --spacing-md: 12px; --spacing-lg: 16px; --spacing-xl: 20px; --spacing-2xl: 24px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB', sans-serif; background: #EDEAE5; color: var(--text-primary); -webkit-font-smoothing: antialiased; line-height: 1.6; }
+  .container { max-width: 900px; margin: 0 auto; padding: 40px 20px 120px; }
+
+  /* Navigation */
+  .spec-nav { position: fixed; top: 0; left: 0; right: 0; background: rgba(255,255,255,0.92); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border-light); z-index: 100; padding: 0 20px; height: 52px; display: flex; align-items: center; gap: 20px; overflow-x: auto; }
+  .spec-nav a { font-size: var(--font-sm); color: var(--text-secondary); text-decoration: none; white-space: nowrap; font-weight: 500; transition: color 0.15s; }
+  .spec-nav a:hover, .spec-nav a.active { color: var(--sage-400); }
+
+  /* Section titles */
+  .section { margin-top: 60px; }
+  .section-title { font-size: var(--font-2xl); font-weight: 600; color: var(--text-primary); margin-bottom: 4px; }
+  .section-subtitle { font-size: var(--font-sm); color: var(--text-hint); margin-bottom: 24px; }
+  .subsection-title { font-size: var(--font-lg); font-weight: 600; color: var(--text-primary); margin: 32px 0 12px; padding-bottom: 6px; border-bottom: 1px solid var(--border-card); }
+
+  /* Color swatches */
+  .color-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
+  .color-swatch { background: var(--bg-card); border: 1px solid var(--border-light); border-radius: var(--radius-lg); overflow: hidden; }
+  .color-swatch-preview { height: 56px; }
+  .color-swatch-info { padding: 10px 12px; }
+  .color-swatch-name { font-size: var(--font-sm); font-weight: 600; }
+  .color-swatch-hex { font-size: var(--font-xs); color: var(--text-hint); font-family: 'SF Mono', 'Menlo', monospace; margin-top: 2px; }
+
+  /* Typography table */
+  .type-table { width: 100%; border-collapse: collapse; background: var(--bg-card); border: 1px solid var(--border-light); border-radius: var(--radius-lg); overflow: hidden; }
+  .type-table th { background: var(--bg-subtle); font-size: var(--font-xs); font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--border-card); }
+  .type-table td { padding: 12px 14px; border-bottom: 1px solid var(--divider); font-size: var(--font-base); }
+  .type-table tr:last-child td { border-bottom: none; }
+  .type-sample { font-weight: 500; }
+
+  /* Phone mockups */
+  .phone-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+  .phone { width: 280px; height: 540px; background: var(--bg-page); border-radius: 28px; border: 3px solid #2C2C2A; overflow: hidden; box-shadow: 0 12px 40px rgba(0,0,0,0.1); position: relative; }
+  .phone-label { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); background: var(--sage-400); color: #fff; font-size: 10px; padding: 2px 8px; border-radius: 8px; z-index: 10; font-weight: 600; white-space: nowrap; }
+  .phone-status { height: 30px; background: var(--bg-card); display: flex; align-items: center; justify-content: space-between; padding: 0 20px; font-size: 10px; font-weight: 600; color: var(--text-primary); }
+  .phone-nav { height: 38px; background: var(--bg-card); display: flex; align-items: center; padding: 0 14px; border-bottom: 0.5px solid var(--border-card); }
+  .phone-nav-title { font-size: var(--font-lg); font-weight: 600; color: var(--text-primary); }
+  .phone-body { padding: 10px; overflow-y: auto; height: calc(540px - 68px); }
+
+  /* Component previews */
+  .comp-preview { background: var(--bg-card); border: 1px solid var(--border-light); border-radius: var(--radius-xl); padding: 20px; margin-bottom: 12px; }
+  .comp-name { font-size: var(--font-sm); font-weight: 600; margin-bottom: 12px; color: var(--sage-600); }
+
+  /* Cards & elements */
+  .sim-card { background: var(--bg-card); border: 1px solid var(--border-light); border-radius: var(--radius-lg); padding: 16px; margin-bottom: 8px; }
+  .sim-section-title { font-size: var(--font-md); font-weight: 600; color: var(--text-primary); margin-bottom: 10px; }
+  .sim-txn { display: flex; align-items: center; padding: 10px 0; border-bottom: 0.5px solid var(--divider); }
+  .sim-txn:last-child { border-bottom: none; }
+  .sim-icon { width: 34px; height: 34px; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+  .sim-icon-sage { background: var(--sage-50); }
+  .sim-icon-slate { background: var(--slate-50); }
+  .sim-icon-stone { background: var(--stone-50); }
+  .sim-txn-info { flex: 1; margin-left: 10px; }
+  .sim-txn-name { font-size: var(--font-base); font-weight: 600; color: var(--text-primary); }
+  .sim-txn-meta { font-size: var(--font-xs); color: var(--text-hint); }
+  .sim-txn-amount { font-size: var(--font-md); font-weight: 600; }
+  .sim-amount-expense { color: var(--slate-400); }
+  .sim-amount-income { color: var(--sage-400); }
+
+  .sim-btn { display: inline-flex; align-items: center; justify-content: center; padding: 10px 20px; border-radius: var(--radius-md); font-size: var(--font-base); font-weight: 600; cursor: pointer; transition: opacity 0.15s; }
+  .sim-btn-primary { background: var(--sage-400); color: #fff; }
+  .sim-btn-secondary { background: var(--bg-subtle); color: var(--text-secondary); }
+  .sim-btn-danger { background: var(--bg-card); color: var(--rust-400); border: 1px solid var(--border-light); }
+
+  .sim-segment { display: flex; background: var(--divider); border-radius: var(--radius-md); padding: 3px; }
+  .sim-segment-item { flex: 1; padding: 8px; text-align: center; border-radius: var(--radius-sm); font-size: var(--font-base); font-weight: 600; color: var(--text-hint); }
+  .sim-segment-item.active { background: var(--bg-card); color: var(--text-primary); box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+
+  .sim-progress { height: 6px; background: var(--divider); border-radius: 3px; overflow: hidden; }
+  .sim-progress-fill { height: 100%; border-radius: 3px; background: var(--sage-400); }
+
+  .sim-tag { display: inline-flex; padding: 4px 10px; border-radius: var(--radius-sm); font-size: var(--font-xs); font-weight: 600; }
+  .sim-tag-active { background: var(--sage-400); color: #fff; }
+  .sim-tag-inactive { background: var(--bg-subtle); color: var(--text-hint); }
+
+  /* State cards */
+  .state-demo { background: var(--bg-page); border-radius: var(--radius-lg); padding: 28px 20px; text-align: center; }
+  .state-icon { font-size: 36px; margin-bottom: 10px; }
+  .state-title { font-size: var(--font-lg); font-weight: 600; color: var(--text-primary); margin-bottom: 4px; }
+  .state-desc { font-size: var(--font-sm); color: var(--text-hint); }
+
+  /* Optimization cards */
+  .opt-card { background: var(--bg-card); border: 1px solid var(--sage-200); border-left: 4px solid var(--sage-400); border-radius: var(--radius-lg); padding: 16px 20px; margin-bottom: 12px; }
+  .opt-card-title { font-size: var(--font-base); font-weight: 600; color: var(--sage-600); margin-bottom: 4px; }
+  .opt-card-desc { font-size: var(--font-sm); color: var(--text-secondary); }
+
+  hr { border: none; border-top: 1px solid var(--border-card); margin: 32px 0; }
+</style>
+</head>
+<body>
+
+<nav class="spec-nav">
+  <a href="#overview">总览</a>
+  <a href="#colors">色彩</a>
+  <a href="#typography">字体</a>
+  <a href="#layout">布局</a>
+  <a href="#components">组件</a>
+  <a href="#pages">页面</a>
+  <a href="#states">状态</a>
+  <a href="#optimizations">优化</a>
+</nav>
+
+<div class="container">
+
+<!-- ============ OVERVIEW ============ -->
+<div class="section" id="overview">
+  <h1 class="section-title">家庭记账 · Taro 小程序</h1>
+  <p class="section-subtitle">设计规范 v2.0 · 安静记账 · 2026 年 6 月</p>
+
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 24px;">
+    <div class="sim-card">
+      <div style="font-size: var(--font-lg); font-weight: 600; margin-bottom: 8px;">设计理念</div>
+      <p style="font-size: var(--font-sm); color: var(--text-secondary); line-height: 1.7;">
+        记账工具不该喧哗。<br>
+        安静、可信赖、融入日常 —<br>
+        像一个随身携带的笔记本。
+      </p>
+    </div>
+    <div class="sim-card">
+      <div style="font-size: var(--font-lg); font-weight: 600; margin-bottom: 8px;">三原则</div>
+      <p style="font-size: var(--font-sm); color: var(--text-secondary); line-height: 1.7;">
+        <strong>减法优先</strong> — 去掉光球、text-shadow、多层阴影<br>
+        <strong>卡片即内容</strong> — 白色卡片 + 细边框，不抢注意力<br>
+        <strong>色彩克制</strong> — 主色仅用于交互元素
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- ============ COLORS ============ -->
+<div class="section" id="colors">
+  <h2 class="section-title">色彩系统</h2>
+  <p class="section-subtitle">鼠尾草绿主色调 + 石板蓝辅助 + 暖灰中性</p>
+
+  <div class="subsection-title">主色 — Sage 鼠尾草绿</div>
+  <div class="color-grid">
+    <div class="color-swatch"><div class="color-swatch-preview" style="background:#E8F2EC"></div><div class="color-swatch-info"><div class="color-swatch-name">50 · bg-primary</div><div class="color-swatch-hex">#E8F2EC</div></div></div>
+    <div class="color-swatch"><div class="color-swatch-preview" style="background:#B8D8C5"></div><div class="color-swatch-info"><div class="color-swatch-name">200 · hover</div><div class="color-swatch-hex">#B8D8C5</div></div></div>
+    <div class="color-swatch"><div class="color-swatch-preview" style="background:#5B9A7A"></div><div class="color-swatch-info"><div class="color-swatch-name">400 · primary</div><div class="color-swatch-hex">#5B9A7A</div></div></div>
+    <div class="color-swatch"><div class="color-swatch-preview" style="background:#3D7056"></div><div class="color-swatch-info"><div class="color-swatch-name">600 · text / active</div><div class="color-swatch-hex">#3D7056</div></div></div>
+    <div class="color-swatch"><div class="color-swatch-preview" style="background:#264834"></div><div class="color-swatch-info"><div class="color-swatch-name">800 · dark</div><div class="color-swatch-hex">#264834</div></div></div>
+  </div>
+
+  <div class="subsection-title">辅助色</div>
+  <div class="color-grid">
+    <div class="color-swatch"><div class="color-swatch-preview" style="background:#EDF0F5"></div><div class="color-swatch-info"><div class="color-swatch-name">Slate · 支出/选中</div><div class="color-swatch-hex">#5B7FA5 / #EDF0F5</div></div></div>
+    <div class="color-swatch"><div class="color-swatch-preview" style="background:#FBE8E2"></div><div class="color-swatch-info"><div class="color-swatch-name">Rust · 警告/删除</div><div class="color-swatch-hex">#C0503A / #FBE8E2</div></div></div>
+    <div class="color-swatch"><div class="color-swatch-preview" style="background:#EDE8DF"></div><div class="color-swatch-info"><div class="color-swatch-name">Stone · 中性灰色</div><div class="color-swatch-hex">#7A7265 / #EDE8DF</div></div></div>
+  </div>
+
+  <div class="subsection-title">背景 & 文字层级</div>
+  <div style="display: flex; gap: 16px; flex-wrap: wrap;">
+    <div style="flex:1; min-width:200px;">
+      <div style="display:flex;gap:8px;">
+        <div style="width:60px;height:40px;background:#F5F2ED;border:1px solid #EBE7E0;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:10px;color:#7A7265;">page</div>
+        <div style="width:60px;height:40px;background:#FFF;border:1px solid #EBE7E0;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:10px;color:#333;">card</div>
+        <div style="width:60px;height:40px;background:#F9F7F3;border:1px solid #EDE8DF;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:10px;color:#666;">subtle</div>
+      </div>
+    </div>
+    <div style="flex:1; min-width:200px;">
+      <div style="font-size:var(--font-5xl);font-weight:600;color:#1A1A1A;">¥12,580</div>
+      <div style="font-size:var(--font-lg);font-weight:600;color:#666;margin-top:2px;">primary · secondary · hint</div>
+      <div style="font-size:var(--font-sm);color:#B0ADA6;margin-top:2px;">disabled · placeholder · #CCC</div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ TYPOGRAPHY ============ -->
+<div class="section" id="typography">
+  <h2 class="section-title">字体 & 排版</h2>
+  <p class="section-subtitle">SF Pro / PingFang SC，两档字重：400 Regular + 500 Medium（小程序内用 600 代替 Medium）</p>
+
+  <table class="type-table">
+    <tr><th>用途</th><th>字号</th><th>字重</th><th>行高</th><th>示例</th></tr>
+    <tr><td>大金额</td><td>48rpx</td><td>600</td><td>1.1</td><td class="type-sample" style="font-size:48rpx;font-weight:600">¥12,580</td></tr>
+    <tr><td>中等金额</td><td>36rpx</td><td>600</td><td>1.1</td><td class="type-sample" style="font-size:36rpx;font-weight:600">¥8,420</td></tr>
+    <tr><td>页面标题</td><td>30rpx</td><td>600</td><td>1.3</td><td class="type-sample" style="font-size:30rpx;font-weight:600">我的账本</td></tr>
+    <tr><td>区块标题</td><td>28rpx</td><td>600</td><td>1.4</td><td class="type-sample" style="font-size:28rpx;font-weight:600">近期流水</td></tr>
+    <tr><td>正文</td><td>26rpx</td><td>400</td><td>1.6</td><td class="type-sample" style="font-size:26rpx">午餐 · 和府捞面</td></tr>
+    <tr><td>辅助信息</td><td>22rpx</td><td>400</td><td>1.5</td><td class="type-sample" style="font-size:22rpx;color:#B0ADA6">今天 12:30</td></tr>
+    <tr><td>标签 / 提示</td><td>20rpx</td><td>400 / 600</td><td>1.4</td><td class="type-sample" style="font-size:20rpx;color:#999">支出 · 收入</td></tr>
+  </table>
+
+  <div style="margin-top: 16px; font-size: var(--font-sm); color: var(--text-hint);">
+    字体栈：-apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB', sans-serif
+  </div>
+</div>
+
+<!-- ============ LAYOUT ============ -->
+<div class="section" id="layout">
+  <h2 class="section-title">间距 & 布局</h2>
+  <p class="section-subtitle">基于 8rpx 网格，统一页面边距 24rpx</p>
+
+  <table class="type-table">
+    <tr><th>Token</th><th>值</th><th>用途</th></tr>
+    <tr><td>spacing-xs</td><td>8rpx</td><td>图标与文字间距、标签间距</td></tr>
+    <tr><td>spacing-sm</td><td>16rpx</td><td>卡片内元素间距</td></tr>
+    <tr><td>spacing-md</td><td>24rpx</td><td>页面水平边距、卡片间距</td></tr>
+    <tr><td>spacing-lg</td><td>32rpx</td><td>区块间距</td></tr>
+    <tr><td>spacing-xl</td><td>48rpx</td><td>大区块间距</td></tr>
+  </table>
+
+  <div class="subsection-title">圆角</div>
+  <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+    <div style="width:48px;height:48px;border-radius:8px;background:var(--sage-400);display:flex;align-items:center;justify-content:center;font-size:10px;color:#fff;">sm<br>8</div>
+    <div style="width:48px;height:48px;border-radius:12px;background:var(--sage-400);display:flex;align-items:center;justify-content:center;font-size:10px;color:#fff;">md<br>12</div>
+    <div style="width:48px;height:48px;border-radius:14px;background:var(--sage-400);display:flex;align-items:center;justify-content:center;font-size:10px;color:#fff;">lg<br>14</div>
+    <div style="width:48px;height:48px;border-radius:16px;background:var(--sage-400);display:flex;align-items:center;justify-content:center;font-size:10px;color:#fff;">xl<br>16</div>
+    <div style="width:48px;height:48px;border-radius:20px;background:var(--sage-400);display:flex;align-items:center;justify-content:center;font-size:10px;color:#fff;">2xl<br>20</div>
+    <div style="width:48px;height:48px;border-radius:28px;background:var(--sage-400);display:flex;align-items:center;justify-content:center;font-size:10px;color:#fff;">phone<br>28</div>
+    <div style="width:48px;height:48px;border-radius:50%;background:var(--sage-400);display:flex;align-items:center;justify-content:center;font-size:10px;color:#fff;">full<br>50%</div>
+  </div>
+
+  <div class="subsection-title">阴影 — 极度克制</div>
+  <p style="font-size:var(--font-sm);color:var(--text-hint);margin-bottom:12px;">仅用于浮层（弹窗、下拉菜单），卡片不使用阴影</p>
+  <div style="background:var(--bg-card);border-radius:var(--radius-xl);border:1px solid var(--border-light);padding:16px;margin-bottom:8px;">
+    <span style="font-size:var(--font-sm);font-weight:600;">card</span>
+    <span style="font-size:var(--font-xs);color:var(--text-hint);margin-left:8px;">无阴影，仅 border</span>
+  </div>
+  <div style="background:var(--bg-card);border-radius:var(--radius-xl);border:1px solid var(--border-light);padding:16px;box-shadow:0 8px 32px rgba(0,0,0,0.12);">
+    <span style="font-size:var(--font-sm);font-weight:600;">modal / popup</span>
+    <span style="font-size:var(--font-xs);color:var(--text-hint);margin-left:8px;">0 8px 32px rgba(0,0,0,0.12)</span>
+  </div>
+</div>
+
+<!-- ============ COMPONENTS ============ -->
+<div class="section" id="components">
+  <h2 class="section-title">组件库</h2>
+  <p class="section-subtitle">所有共享组件，统一新设计语言</p>
+
+  <!-- TabBar -->
+  <div class="subsection-title">TabBar · 底部导航栏</div>
+  <div class="comp-preview">
+    <div style="background:rgba(255,255,255,0.92);backdrop-filter:blur(20px);border-radius:28px;border:1px solid var(--border-light);padding:2px;display:flex;align-items:center;max-width:500px;margin:0 auto;">
+      <div style="flex:1;text-align:center;padding:8px 0;">
+        <div style="font-size:22px;">🏠</div>
+        <div style="font-size:18rpx;font-weight:600;color:var(--sage-400);margin-top:2px;">首页</div>
+      </div>
+      <div style="flex:1;text-align:center;padding:8px 0;">
+        <div style="font-size:22px;">📋</div>
+        <div style="font-size:18rpx;color:var(--text-hint);margin-top:2px;">流水</div>
+      </div>
+      <div style="width:52px;height:52px;background:var(--sage-400);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:26px;color:#fff;margin:-10px 0;">＋</div>
+      <div style="flex:1;text-align:center;padding:8px 0;">
+        <div style="font-size:22px;">📊</div>
+        <div style="font-size:18rpx;color:var(--text-hint);margin-top:2px;">统计</div>
+      </div>
+      <div style="flex:1;text-align:center;padding:8px 0;">
+        <div style="font-size:22px;">👤</div>
+        <div style="font-size:18rpx;color:var(--text-hint);margin-top:2px;">我的</div>
+      </div>
+    </div>
+    <p style="font-size:var(--font-xs);color:var(--text-hint);margin-top:10px;text-align:center;">毛玻璃底 + 中央 FAB（主色填充）+ 选中态主色文字，非选中灰色</p>
+  </div>
+
+  <!-- TransactionItem -->
+  <div class="subsection-title">TransactionItem · 交易条目</div>
+  <div class="comp-preview">
+    <div style="background:var(--bg-card);border:1px solid var(--border-light);border-radius:var(--radius-lg);overflow:hidden;">
+      <div class="sim-txn">
+        <div class="sim-icon sim-icon-sage">🍜</div>
+        <div class="sim-txn-info">
+          <div class="sim-txn-name">午餐 · 和府捞面</div>
+          <div class="sim-txn-meta">今天 12:30 · 餐饮</div>
+        </div>
+        <div class="sim-txn-amount sim-amount-expense">-¥58.00</div>
+      </div>
+      <div class="sim-txn">
+        <div class="sim-icon sim-icon-slate">🚇</div>
+        <div class="sim-txn-info">
+          <div class="sim-txn-name">地铁通勤</div>
+          <div class="sim-txn-meta">今天 08:15 · 交通</div>
+        </div>
+        <div class="sim-txn-amount sim-amount-expense">-¥6.00</div>
+      </div>
+      <div class="sim-txn">
+        <div class="sim-icon sim-icon-sage">💼</div>
+        <div class="sim-txn-info">
+          <div class="sim-txn-name">工资</div>
+          <div class="sim-txn-meta">昨天 15:00 · 薪资</div>
+        </div>
+        <div class="sim-txn-amount sim-amount-income">+¥21,000</div>
+      </div>
+    </div>
+    <p style="font-size:var(--font-xs);color:var(--text-hint);margin-top:10px;">
+      高度 56rpx，左侧图标 34rpx 圆角 8rpx，支持左滑删除（红色背景 + 垃圾桶图标）
+    </p>
+  </div>
+
+  <!-- Buttons & Controls -->
+  <div class="subsection-title">按钮 & 控件</div>
+  <div class="comp-preview">
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:16px;">
+      <div class="sim-btn sim-btn-primary">保存</div>
+      <div class="sim-btn sim-btn-secondary">取消</div>
+      <div class="sim-btn sim-btn-danger">删除</div>
+    </div>
+    <div style="margin-bottom:16px;">
+      <div class="sim-segment" style="max-width:200px;">
+        <div class="sim-segment-item active">支出</div>
+        <div class="sim-segment-item">收入</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <div class="sim-tag sim-tag-active">全部</div>
+      <div class="sim-tag sim-tag-inactive">支出</div>
+      <div class="sim-tag sim-tag-inactive">收入</div>
+    </div>
+  </div>
+
+  <!-- Progress Bar -->
+  <div class="subsection-title">ProgressBar · 预算进度条</div>
+  <div class="comp-preview">
+    <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+      <span style="font-size:var(--font-base);font-weight:600;">月度预算</span>
+      <span style="font-size:var(--font-sm);color:var(--text-hint);">¥12,580 / ¥18,000</span>
+    </div>
+    <div class="sim-progress">
+      <div class="sim-progress-fill" style="width:70%"></div>
+    </div>
+    <p style="font-size:var(--font-xs);color:var(--text-hint);margin-top:10px;">
+      高度 6rpx，圆角 3rpx。正常：主色；超预算（>90%）：rust 色。带数字标签在上方。
+    </p>
+  </div>
+
+  <!-- ConfirmDialog -->
+  <div class="subsection-title">ConfirmDialog · 确认弹窗</div>
+  <div class="comp-preview">
+    <div style="background:var(--bg-card);border-radius:var(--radius-xl);padding:24px 20px;max-width:300px;margin:0 auto;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,0.12);border:1px solid var(--border-light);">
+      <div style="font-size:var(--font-lg);font-weight:600;margin-bottom:8px;">确认删除</div>
+      <div style="font-size:var(--font-sm);color:var(--text-hint);margin-bottom:20px;">删除后无法恢复，确定要删除这条交易记录吗？</div>
+      <div style="display:flex;gap:10px;">
+        <div class="sim-btn sim-btn-secondary" style="flex:1;">取消</div>
+        <div style="flex:1;padding:10px;border-radius:var(--radius-md);background:var(--rust-50);color:var(--rust-400);font-weight:600;font-size:var(--font-base);">确认删除</div>
+      </div>
+    </div>
+    <p style="font-size:var(--font-xs);color:var(--text-hint);margin-top:10px;text-align:center;">
+      取消按钮：次级灰底。确认（危险操作）：rust 浅底 + rust 文字，不直接用红色实心按钮避免视觉过重。
+    </p>
+  </div>
+
+  <!-- EmptyState -->
+  <div class="subsection-title">EmptyState · 空状态</div>
+  <div class="comp-preview">
+    <div class="state-demo" style="background:var(--bg-page);">
+      <div class="state-icon">📝</div>
+      <div class="state-title">还没有交易记录</div>
+      <div class="state-desc">点击下方 + 按钮开始记账吧</div>
+    </div>
+    <p style="font-size:var(--font-xs);color:var(--text-hint);margin-top:10px;text-align:center;">
+      图标 + 标题 + 描述文字，垂直居中，不做复杂插画。
+    </p>
+  </div>
+
+  <!-- Category Grid -->
+  <div class="subsection-title">CategoryGrid · 分类网格</div>
+  <div class="comp-preview">
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;max-width:320px;margin:0 auto;">
+      <div style="text-align:center;padding:10px 4px;background:var(--sage-50);border-radius:var(--radius-md);border:1.5px solid var(--sage-400);">
+        <div style="font-size:24px;">🍜</div><div style="font-size:20rpx;color:var(--sage-600);margin-top:4px;font-weight:600;">餐饮</div>
+      </div>
+      <div style="text-align:center;padding:10px 4px;background:var(--bg-subtle);border-radius:var(--radius-md);border:1.5px solid transparent;">
+        <div style="font-size:24px;">🚇</div><div style="font-size:20rpx;color:var(--text-hint);margin-top:4px;">交通</div>
+      </div>
+      <div style="text-align:center;padding:10px 4px;background:var(--bg-subtle);border-radius:var(--radius-md);border:1.5px solid transparent;">
+        <div style="font-size:24px;">🛒</div><div style="font-size:20rpx;color:var(--text-hint);margin-top:4px;">购物</div>
+      </div>
+      <div style="text-align:center;padding:10px 4px;background:var(--bg-subtle);border-radius:var(--radius-md);border:1.5px solid transparent;">
+        <div style="font-size:24px;">🎬</div><div style="font-size:20rpx;color:var(--text-hint);margin-top:4px;">娱乐</div>
+      </div>
+      <div style="text-align:center;padding:10px 4px;background:var(--bg-subtle);border-radius:var(--radius-md);border:1.5px solid transparent;">
+        <div style="font-size:24px;">🏠</div><div style="font-size:20rpx;color:var(--text-hint);margin-top:4px;">居家</div>
+      </div>
+    </div>
+    <p style="font-size:var(--font-xs);color:var(--text-hint);margin-top:10px;text-align:center;">
+      选中：sage-50 底色 + 1.5px sage-400 边框 + sage-600 文字。未选中：subtle 底色 + 透明边框 + hint 文字。
+    </p>
+  </div>
+
+  <!-- NumberPad -->
+  <div class="subsection-title">NumberPad · 数字键盘</div>
+  <div class="comp-preview">
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px;max-width:260px;margin:0 auto;">
+      <div style="padding:16px;text-align:center;font-size:var(--font-3xl);font-weight:400;color:var(--text-primary);background:var(--bg-card);border-radius:var(--radius-md);border:0.5px solid var(--divider);">1</div>
+      <div style="padding:16px;text-align:center;font-size:var(--font-3xl);font-weight:400;color:var(--text-primary);background:var(--bg-card);border-radius:var(--radius-md);border:0.5px solid var(--divider);">2</div>
+      <div style="padding:16px;text-align:center;font-size:var(--font-3xl);font-weight:400;color:var(--text-primary);background:var(--bg-card);border-radius:var(--radius-md);border:0.5px solid var(--divider);">3</div>
+      <div style="padding:16px;text-align:center;font-size:var(--font-3xl);font-weight:400;color:var(--text-primary);background:var(--bg-card);border-radius:var(--radius-md);border:0.5px solid var(--divider);">4</div>
+      <div style="padding:16px;text-align:center;font-size:var(--font-3xl);font-weight:400;color:var(--text-primary);background:var(--bg-card);border-radius:var(--radius-md);border:0.5px solid var(--divider);">5</div>
+      <div style="padding:16px;text-align:center;font-size:var(--font-3xl);font-weight:400;color:var(--text-primary);background:var(--bg-card);border-radius:var(--radius-md);border:0.5px solid var(--divider);">6</div>
+      <div style="padding:16px;text-align:center;font-size:var(--font-3xl);font-weight:400;color:var(--text-primary);background:var(--bg-card);border-radius:var(--radius-md);border:0.5px solid var(--divider);">7</div>
+      <div style="padding:16px;text-align:center;font-size:var(--font-3xl);font-weight:400;color:var(--text-primary);background:var(--bg-card);border-radius:var(--radius-md);border:0.5px solid var(--divider);">8</div>
+      <div style="padding:16px;text-align:center;font-size:var(--font-3xl);font-weight:400;color:var(--text-primary);background:var(--bg-card);border-radius:var(--radius-md);border:0.5px solid var(--divider);">9</div>
+      <div style="padding:16px;text-align:center;font-size:var(--font-base);color:var(--text-hint);background:var(--bg-subtle);border-radius:var(--radius-md);">.</div>
+      <div style="padding:16px;text-align:center;font-size:var(--font-3xl);font-weight:400;color:var(--text-primary);background:var(--bg-card);border-radius:var(--radius-md);border:0.5px solid var(--divider);">0</div>
+      <div style="padding:16px;text-align:center;font-size:var(--font-base);color:var(--text-hint);background:var(--bg-subtle);border-radius:var(--radius-md);">⌫</div>
+    </div>
+    <p style="font-size:var(--font-xs);color:var(--text-hint);margin-top:10px;text-align:center;">
+      功能键（. / ⌫）：subtle 底色 + hint 文字。数字键：白色卡片 + 细边框。点击有 scale(0.95) 反馈。
+    </p>
+  </div>
+</div>
+
+<!-- ============ PAGES ============ -->
+<div class="section" id="pages">
+  <h2 class="section-title">页面设计</h2>
+  <p class="section-subtitle">11 个页面完整设计稿</p>
+
+  <div class="subsection-title">Tab 页面（4 个 + 1 个 FAB 入口）</div>
+  <div class="phone-grid">
+    <!-- Home -->
+    <div class="phone"><div class="phone-label">首页 Home</div>
+      <div class="phone-status"><span>9:41</span><span>📶 🔋</span></div>
+      <div class="phone-nav"><span class="phone-nav-title">我的账本</span><span style="margin-left:4px;font-size:var(--font-sm);color:var(--text-hint);">▾</span></div>
+      <div class="phone-body">
+        <div class="sim-card" style="margin-bottom:10px;">
+          <div style="font-size:var(--font-sm);color:var(--text-hint);margin-bottom:4px;">本月结余</div>
+          <div style="font-size:var(--font-5xl);font-weight:600;color:var(--text-primary);">¥8,420</div>
+          <div style="display:flex;gap:24px;margin-top:14px;padding-top:14px;border-top:0.5px solid var(--divider);">
+            <div><div style="font-size:var(--font-xs);color:var(--text-hint);display:flex;align-items:center;gap:4px;"><span style="width:6px;height:6px;border-radius:50%;background:var(--slate-400);display:inline-block;"></span>支出</div><div style="font-size:var(--font-2xl);font-weight:600;">¥12,580</div></div>
+            <div><div style="font-size:var(--font-xs);color:var(--text-hint);display:flex;align-items:center;gap:4px;"><span style="width:6px;height:6px;border-radius:50%;background:var(--sage-400);display:inline-block;"></span>收入</div><div style="font-size:var(--font-2xl);font-weight:600;">¥21,000</div></div>
+          </div>
+        </div>
+        <div class="sim-card" style="margin-bottom:10px;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:6px;"><span style="font-size:var(--font-base);font-weight:600;">月度预算</span><span style="font-size:var(--font-sm);color:var(--text-hint);">¥12,580 / ¥18,000</span></div>
+          <div class="sim-progress"><div class="sim-progress-fill" style="width:70%"></div></div>
+        </div>
+        <div class="sim-section-title" style="display:flex;justify-content:space-between;">近期流水<span style="font-size:var(--font-sm);color:var(--sage-400);font-weight:600;">查看全部 →</span></div>
+        <div style="background:var(--bg-card);border:1px solid var(--border-light);border-radius:var(--radius-lg);overflow:hidden;">
+          <div class="sim-txn"><div class="sim-icon sim-icon-sage">🍜</div><div class="sim-txn-info"><div class="sim-txn-name">午餐 · 和府捞面</div><div class="sim-txn-meta">今天 12:30</div></div><div class="sim-txn-amount sim-amount-expense">-¥58</div></div>
+          <div class="sim-txn"><div class="sim-icon sim-icon-slate">🚇</div><div class="sim-txn-info"><div class="sim-txn-name">地铁通勤</div><div class="sim-txn-meta">今天 8:15</div></div><div class="sim-txn-amount sim-amount-expense">-¥6</div></div>
+          <div class="sim-txn"><div class="sim-icon sim-icon-sage">💼</div><div class="sim-txn-info"><div class="sim-txn-name">工资</div><div class="sim-txn-meta">昨天 15:00</div></div><div class="sim-txn-amount sim-amount-income">+¥21,000</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Transactions -->
+    <div class="phone"><div class="phone-label">流水 Transactions</div>
+      <div class="phone-status"><span>9:41</span><span>📶 🔋</span></div>
+      <div class="phone-nav"><span class="phone-nav-title">流水</span><span style="margin-left:auto;font-size:22px;">🔍</span></div>
+      <div class="phone-body">
+        <div style="display:flex;gap:6px;margin-bottom:10px;">
+          <div style="flex:1;background:var(--bg-card);border-radius:var(--radius-md);border:0.5px solid var(--border-light);padding:7px 12px;display:flex;align-items:center;justify-content:space-between;"><span style="font-size:var(--font-base);">2026年6月</span><span style="font-size:var(--font-xs);color:var(--text-hint);">📅</span></div>
+          <div class="sim-tag sim-tag-active">全部</div>
+          <div class="sim-tag sim-tag-inactive">支出</div>
+          <div class="sim-tag sim-tag-inactive">收入</div>
+        </div>
+        <div style="margin-bottom:10px;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;"><span style="font-size:var(--font-md);font-weight:600;">6月7日 今天</span><span style="font-size:var(--font-xs);color:var(--text-hint);">支出 ¥64.00</span></div>
+          <div style="background:var(--bg-card);border:1px solid var(--border-light);border-radius:var(--radius-lg);overflow:hidden;">
+            <div class="sim-txn"><div class="sim-icon sim-icon-sage">🍜</div><div class="sim-txn-info"><div class="sim-txn-name">午餐 · 和府捞面</div><div class="sim-txn-meta">12:30 · 餐饮</div></div><div class="sim-txn-amount sim-amount-expense">-¥58.00</div></div>
+            <div class="sim-txn"><div class="sim-icon sim-icon-slate">🚇</div><div class="sim-txn-info"><div class="sim-txn-name">地铁通勤</div><div class="sim-txn-meta">08:15 · 交通</div></div><div class="sim-txn-amount sim-amount-expense">-¥6.00</div></div>
+          </div>
+        </div>
+        <div style="margin-bottom:10px;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;"><span style="font-size:var(--font-md);font-weight:600;">6月6日 昨天</span><span style="font-size:var(--font-xs);color:var(--text-hint);">收入 ¥21,000 · 支出 ¥320</span></div>
+          <div style="background:var(--bg-card);border:1px solid var(--border-light);border-radius:var(--radius-lg);overflow:hidden;">
+            <div class="sim-txn"><div class="sim-icon sim-icon-sage">💼</div><div class="sim-txn-info"><div class="sim-txn-name">工资</div><div class="sim-txn-meta">15:00 · 薪资</div></div><div class="sim-txn-amount sim-amount-income">+¥21,000</div></div>
+            <div class="sim-txn"><div class="sim-icon sim-icon-stone">🛒</div><div class="sim-txn-info"><div class="sim-txn-name">超市购物</div><div class="sim-txn-meta">19:30 · 购物</div></div><div class="sim-txn-amount sim-amount-expense">-¥320</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Statistics -->
+    <div class="phone"><div class="phone-label">统计 Statistics</div>
+      <div class="phone-status"><span>9:41</span><span>📶 🔋</span></div>
+      <div class="phone-nav"><span class="phone-nav-title">统计</span><span style="margin-left:auto;font-size:var(--font-base);color:var(--sage-400);font-weight:600;">2026年6月 ▾</span></div>
+      <div class="phone-body">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
+          <div class="sim-card"><div style="font-size:var(--font-xs);color:var(--text-hint);">总支出</div><div style="font-size:var(--font-3xl);font-weight:600;margin-top:4px;">¥12,580</div></div>
+          <div class="sim-card"><div style="font-size:var(--font-xs);color:var(--text-hint);">总收入</div><div style="font-size:var(--font-3xl);font-weight:600;margin-top:4px;">¥21,000</div></div>
+        </div>
+        <div class="sim-section-title">支出分类排行</div>
+        <div style="background:var(--bg-card);border:1px solid var(--border-light);border-radius:var(--radius-lg);overflow:hidden;margin-bottom:10px;">
+          <div style="display:flex;align-items:center;padding:10px 14px;border-bottom:0.5px solid var(--divider);"><div class="sim-icon sim-icon-sage" style="width:26px;height:26px;">🍜</div><span style="flex:1;margin-left:10px;font-size:var(--font-base);font-weight:600;">餐饮</span><span style="font-size:var(--font-base);font-weight:600;margin-right:10px;">¥4,280</span><span style="font-size:var(--font-xs);color:var(--text-hint);">34%</span></div>
+          <div style="display:flex;align-items:center;padding:10px 14px;border-bottom:0.5px solid var(--divider);"><div class="sim-icon sim-icon-slate" style="width:26px;height:26px;">🚇</div><span style="flex:1;margin-left:10px;font-size:var(--font-base);font-weight:600;">交通</span><span style="font-size:var(--font-base);font-weight:600;margin-right:10px;">¥2,100</span><span style="font-size:var(--font-xs);color:var(--text-hint);">17%</span></div>
+          <div style="display:flex;align-items:center;padding:10px 14px;border-bottom:0.5px solid var(--divider);"><div class="sim-icon sim-icon-stone" style="width:26px;height:26px;">🛒</div><span style="flex:1;margin-left:10px;font-size:var(--font-base);font-weight:600;">购物</span><span style="font-size:var(--font-base);font-weight:600;margin-right:10px;">¥1,890</span><span style="font-size:var(--font-xs);color:var(--text-hint);">15%</span></div>
+          <div style="display:flex;align-items:center;padding:10px 14px;"><div class="sim-icon" style="width:26px;height:26px;background:var(--rust-50);">🎬</div><span style="flex:1;margin-left:10px;font-size:var(--font-base);font-weight:600;">娱乐</span><span style="font-size:var(--font-base);font-weight:600;margin-right:10px;">¥980</span><span style="font-size:var(--font-xs);color:var(--text-hint);">8%</span></div>
+        </div>
+        <div class="sim-section-title">月度趋势</div>
+        <div class="sim-card" style="display:flex;align-items:flex-end;gap:10px;height:90px;justify-content:space-around;">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:4px;"><div style="height:50px;width:18px;background:var(--sage-400);border-radius:4px 4px 0 0;"></div><span style="font-size:18rpx;color:var(--text-hint);">1月</span></div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:4px;"><div style="height:38px;width:18px;background:var(--sage-400);border-radius:4px 4px 0 0;"></div><span style="font-size:18rpx;color:var(--text-hint);">2月</span></div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:4px;"><div style="height:60px;width:18px;background:var(--sage-400);border-radius:4px 4px 0 0;"></div><span style="font-size:18rpx;color:var(--text-hint);">3月</span></div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:4px;"><div style="height:48px;width:18px;background:var(--sage-400);border-radius:4px 4px 0 0;"></div><span style="font-size:18rpx;color:var(--text-hint);">4月</span></div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:4px;"><div style="height:68px;width:18px;background:var(--sage-400);border-radius:4px 4px 0 0;"></div><span style="font-size:18rpx;color:var(--text-hint);">5月</span></div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:4px;"><div style="height:55px;width:18px;background:var(--slate-400);border-radius:4px 4px 0 0;"></div><span style="font-size:18rpx;color:var(--text-hint);font-weight:600;">6月</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Profile -->
+    <div class="phone"><div class="phone-label">我的 Profile</div>
+      <div class="phone-status"><span>9:41</span><span>📶 🔋</span></div>
+      <div class="phone-nav"><span class="phone-nav-title">我的</span><span style="margin-left:auto;font-size:20px;">⚙</span></div>
+      <div class="phone-body">
+        <div class="sim-card" style="display:flex;align-items:center;gap:14px;margin-bottom:10px;">
+          <div style="width:50px;height:50px;border-radius:50%;background:var(--sage-50);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:600;color:var(--sage-600);">许</div>
+          <div><div style="font-size:var(--font-xl);font-weight:600;">许清楚</div><div style="font-size:var(--font-sm);color:var(--text-hint);">xqc@example.com</div></div>
+          <span style="margin-left:auto;font-size:var(--font-sm);color:var(--text-disabled);">▸</span>
+        </div>
+        <div style="background:var(--bg-card);border:1px solid var(--border-light);border-radius:var(--radius-xl);overflow:hidden;">
+          <div style="display:flex;align-items:center;padding:14px;border-bottom:0.5px solid var(--divider);"><span style="font-size:18px;margin-right:12px;">📖</span><span style="flex:1;font-size:var(--font-md);font-weight:600;">账本管理</span><span style="font-size:var(--font-sm);color:var(--text-hint);">家庭账本</span><span style="font-size:var(--font-sm);color:var(--text-disabled);margin-left:4px;">▸</span></div>
+          <div style="display:flex;align-items:center;padding:14px;border-bottom:0.5px solid var(--divider);"><span style="font-size:18px;margin-right:12px;">📊</span><span style="flex:1;font-size:var(--font-md);font-weight:600;">预算管理</span><span style="font-size:var(--font-sm);color:var(--text-disabled);">▸</span></div>
+          <div style="display:flex;align-items:center;padding:14px;border-bottom:0.5px solid var(--divider);"><span style="font-size:18px;margin-right:12px;">📋</span><span style="flex:1;font-size:var(--font-md);font-weight:600;">分类管理</span><span style="font-size:var(--font-sm);color:var(--text-disabled);">▸</span></div>
+          <div style="display:flex;align-items:center;padding:14px;"><span style="font-size:18px;margin-right:12px;">📝</span><span style="flex:1;font-size:var(--font-md);font-weight:600;">模板管理</span><span style="font-size:var(--font-sm);color:var(--text-disabled);">▸</span></div>
+        </div>
+        <div style="margin-top:20px;" class="sim-btn sim-btn-danger" onclick="return false;">退出登录</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="subsection-title">记一笔 AddTransaction（FAB 弹出）</div>
+  <div class="phone-grid">
+    <div class="phone"><div class="phone-label">记一笔 · 支出</div>
+      <div class="phone-status"><span>9:41</span><span>📶 🔋</span></div>
+      <div class="phone-nav"><span style="font-size:22px;color:var(--text-primary);margin-right:8px;">✕</span><span class="phone-nav-title">记一笔</span><span style="margin-left:auto;font-size:var(--font-sm);color:var(--sage-400);font-weight:600;">模板</span></div>
+      <div class="phone-body">
+        <div class="sim-segment" style="margin-bottom:14px;">
+          <div class="sim-segment-item active">支出</div>
+          <div class="sim-segment-item">收入</div>
+        </div>
+        <div style="text-align:center;padding:16px 0 12px;"><div style="font-size:var(--font-sm);color:var(--text-hint);margin-bottom:2px;">金额</div><div style="font-size:var(--font-6xl);font-weight:600;">¥58.00</div></div>
+        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:14px;">
+          <div style="text-align:center;padding:8px 4px;background:var(--sage-50);border-radius:var(--radius-md);border:1.5px solid var(--sage-400);"><div style="font-size:22px;">🍜</div><div style="font-size:20rpx;color:var(--sage-600);margin-top:2px;font-weight:600;">餐饮</div></div>
+          <div style="text-align:center;padding:8px 4px;background:var(--bg-subtle);border-radius:var(--radius-md);border:1.5px solid transparent;"><div style="font-size:22px;">🚇</div><div style="font-size:20rpx;color:var(--text-hint);margin-top:2px;">交通</div></div>
+          <div style="text-align:center;padding:8px 4px;background:var(--bg-subtle);border-radius:var(--radius-md);border:1.5px solid transparent;"><div style="font-size:22px;">🛒</div><div style="font-size:20rpx;color:var(--text-hint);margin-top:2px;">购物</div></div>
+          <div style="text-align:center;padding:8px 4px;background:var(--bg-subtle);border-radius:var(--radius-md);border:1.5px solid transparent;"><div style="font-size:22px;">🎬</div><div style="font-size:20rpx;color:var(--text-hint);margin-top:2px;">娱乐</div></div>
+          <div style="text-align:center;padding:8px 4px;background:var(--bg-subtle);border-radius:var(--radius-md);border:1.5px solid transparent;"><div style="font-size:22px;">🏠</div><div style="font-size:20rpx;color:var(--text-hint);margin-top:2px;">居家</div></div>
+        </div>
+        <div style="margin-bottom:14px;">
+          <div style="display:flex;align-items:center;padding:10px 0;border-bottom:0.5px solid var(--border-card);"><span style="font-size:var(--font-base);color:var(--text-hint);width:56px;">日期</span><span style="font-size:var(--font-base);">今天 12:30</span></div>
+          <div style="display:flex;align-items:center;padding:10px 0;border-bottom:0.5px solid var(--border-card);"><span style="font-size:var(--font-base);color:var(--text-hint);width:56px;">备注</span><span style="font-size:var(--font-base);color:var(--text-disabled);">添加备注…</span></div>
+          <div style="display:flex;align-items:center;padding:10px 0;"><span style="font-size:var(--font-base);color:var(--text-hint);width:56px;">位置</span><span style="font-size:var(--font-base);color:var(--text-disabled);">选择位置</span></div>
+        </div>
+        <div class="sim-btn sim-btn-primary">保存</div>
+      </div>
+    </div>
+
+    <div class="phone"><div class="phone-label">记一笔 · 键盘</div>
+      <div class="phone-status"><span>9:41</span><span>📶 🔋</span></div>
+      <div class="phone-nav"><span style="font-size:22px;color:var(--text-primary);margin-right:8px;">✕</span><span class="phone-nav-title">记一笔</span><span style="margin-left:auto;font-size:var(--font-sm);color:var(--sage-400);font-weight:600;">模板</span></div>
+      <div class="phone-body">
+        <div class="sim-segment" style="margin-bottom:10px;"><div class="sim-segment-item active">支出</div><div class="sim-segment-item">收入</div></div>
+        <div style="text-align:center;padding:8px 0;"><div style="font-size:var(--font-6xl);font-weight:600;">¥58.00</div></div>
+        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:10px;">
+          <div style="text-align:center;padding:6px 2px;background:var(--sage-50);border-radius:var(--radius-sm);border:1.5px solid var(--sage-400);"><div style="font-size:20px;">🍜</div><div style="font-size:18rpx;color:var(--sage-600);font-weight:600;">餐饮</div></div>
+          <div style="text-align:center;padding:6px 2px;background:var(--bg-subtle);border-radius:var(--radius-sm);"><div style="font-size:20px;">🚇</div><div style="font-size:18rpx;color:var(--text-hint);">交通</div></div>
+          <div style="text-align:center;padding:6px 2px;background:var(--bg-subtle);border-radius:var(--radius-sm);"><div style="font-size:20px;">🛒</div><div style="font-size:18rpx;color:var(--text-hint);">购物</div></div>
+          <div style="text-align:center;padding:6px 2px;background:var(--bg-subtle);border-radius:var(--radius-sm);"><div style="font-size:20px;">🎬</div><div style="font-size:18rpx;color:var(--text-hint);">娱乐</div></div>
+          <div style="text-align:center;padding:6px 2px;background:var(--bg-subtle);border-radius:var(--radius-sm);"><div style="font-size:20px;">🏠</div><div style="font-size:18rpx;color:var(--text-hint);">居家</div></div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px;">
+          <div style="padding:14px;text-align:center;font-size:var(--font-3xl);background:var(--bg-card);border-radius:var(--radius-sm);border:0.5px solid var(--divider);">1</div>
+          <div style="padding:14px;text-align:center;font-size:var(--font-3xl);background:var(--bg-card);border-radius:var(--radius-sm);border:0.5px solid var(--divider);">2</div>
+          <div style="padding:14px;text-align:center;font-size:var(--font-3xl);background:var(--bg-card);border-radius:var(--radius-sm);border:0.5px solid var(--divider);">3</div>
+          <div style="padding:14px;text-align:center;font-size:var(--font-3xl);background:var(--bg-card);border-radius:var(--radius-sm);border:0.5px solid var(--divider);">4</div>
+          <div style="padding:14px;text-align:center;font-size:var(--font-3xl);background:var(--bg-card);border-radius:var(--radius-sm);border:0.5px solid var(--divider);">5</div>
+          <div style="padding:14px;text-align:center;font-size:var(--font-3xl);background:var(--bg-card);border-radius:var(--radius-sm);border:0.5px solid var(--divider);">6</div>
+          <div style="padding:14px;text-align:center;font-size:var(--font-3xl);background:var(--bg-card);border-radius:var(--radius-sm);border:0.5px solid var(--divider);">7</div>
+          <div style="padding:14px;text-align:center;font-size:var(--font-3xl);background:var(--bg-card);border-radius:var(--radius-sm);border:0.5px solid var(--divider);">8</div>
+          <div style="padding:14px;text-align:center;font-size:var(--font-3xl);background:var(--bg-card);border-radius:var(--radius-sm);border:0.5px solid var(--divider);">9</div>
+          <div style="padding:14px;text-align:center;font-size:var(--font-base);color:var(--text-hint);background:var(--bg-subtle);border-radius:var(--radius-sm);">.</div>
+          <div style="padding:14px;text-align:center;font-size:var(--font-3xl);background:var(--bg-card);border-radius:var(--radius-sm);border:0.5px solid var(--divider);">0</div>
+          <div style="padding:14px;text-align:center;font-size:var(--font-base);color:var(--text-hint);background:var(--bg-subtle);border-radius:var(--radius-sm);">⌫</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="subsection-title">二级页面（4 个）</div>
+  <div class="phone-grid">
+    <!-- Budgets -->
+    <div class="phone"><div class="phone-label">预算 Budgets</div>
+      <div class="phone-status"><span>9:41</span><span>📶 🔋</span></div>
+      <div class="phone-nav"><span style="font-size:20px;margin-right:6px;">←</span><span class="phone-nav-title">预算管理</span></div>
+      <div class="phone-body">
+        <div class="sim-card" style="margin-bottom:10px;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="font-size:var(--font-base);font-weight:600;">月度总预算</span><span style="font-size:var(--font-sm);color:var(--sage-400);font-weight:600;">编辑</span></div>
+          <div style="font-size:var(--font-2xl);font-weight:600;margin-bottom:10px;">¥18,000</div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="font-size:var(--font-sm);color:var(--text-hint);">已用 ¥12,580</span><span style="font-size:var(--font-sm);color:var(--text-hint);">剩余 ¥5,420</span></div>
+          <div class="sim-progress"><div class="sim-progress-fill" style="width:70%"></div></div>
+        </div>
+        <div class="sim-section-title">分类预算</div>
+        <div style="background:var(--bg-card);border:1px solid var(--border-light);border-radius:var(--radius-lg);overflow:hidden;">
+          <div style="display:flex;align-items:center;padding:12px 14px;border-bottom:0.5px solid var(--divider);"><div class="sim-icon sim-icon-sage" style="width:28px;height:28px;font-size:14px;">🍜</div><span style="flex:1;margin-left:10px;font-size:var(--font-base);font-weight:600;">餐饮</span><span style="font-size:var(--font-sm);color:var(--text-hint);">¥5,000</span></div>
+          <div style="display:flex;align-items:center;padding:12px 14px;border-bottom:0.5px solid var(--divider);"><div class="sim-icon sim-icon-slate" style="width:28px;height:28px;font-size:14px;">🚇</div><span style="flex:1;margin-left:10px;font-size:var(--font-base);font-weight:600;">交通</span><span style="font-size:var(--font-sm);color:var(--text-hint);">¥3,000</span></div>
+          <div style="display:flex;align-items:center;padding:12px 14px;"><div class="sim-icon sim-icon-stone" style="width:28px;height:28px;font-size:14px;">🛒</div><span style="flex:1;margin-left:10px;font-size:var(--font-base);font-weight:600;">购物</span><span style="font-size:var(--font-sm);color:var(--text-hint);">¥4,000</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Categories -->
+    <div class="phone"><div class="phone-label">分类 Categories</div>
+      <div class="phone-status"><span>9:41</span><span>📶 🔋</span></div>
+      <div class="phone-nav"><span style="font-size:20px;margin-right:6px;">←</span><span class="phone-nav-title">分类管理</span></div>
+      <div class="phone-body">
+        <div class="sim-segment" style="margin-bottom:10px;"><div class="sim-segment-item active">支出</div><div class="sim-segment-item">收入</div></div>
+        <div style="background:var(--bg-card);border:1px solid var(--border-light);border-radius:var(--radius-lg);overflow:hidden;">
+          <div style="display:flex;align-items:center;padding:12px 14px;border-bottom:0.5px solid var(--divider);"><div class="sim-icon sim-icon-sage" style="width:32px;height:32px;">🍜</div><span style="flex:1;margin-left:12px;font-size:var(--font-base);font-weight:600;">餐饮</span><span style="font-size:var(--font-sm);color:var(--text-hint);">支出</span></div>
+          <div style="display:flex;align-items:center;padding:12px 14px;border-bottom:0.5px solid var(--divider);"><div class="sim-icon sim-icon-slate" style="width:32px;height:32px;">🚇</div><span style="flex:1;margin-left:12px;font-size:var(--font-base);font-weight:600;">交通</span><span style="font-size:var(--font-sm);color:var(--text-hint);">支出</span></div>
+          <div style="display:flex;align-items:center;padding:12px 14px;border-bottom:0.5px solid var(--divider);"><div class="sim-icon sim-icon-stone" style="width:32px;height:32px;">🛒</div><span style="flex:1;margin-left:12px;font-size:var(--font-base);font-weight:600;">购物</span><span style="font-size:var(--font-sm);color:var(--text-hint);">支出</span></div>
+          <div style="display:flex;align-items:center;padding:12px 14px;"><div class="sim-icon" style="width:32px;height:32px;background:var(--rust-50);">🎬</div><span style="flex:1;margin-left:12px;font-size:var(--font-base);font-weight:600;">娱乐</span><span style="font-size:var(--font-sm);color:var(--text-hint);">支出</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Books -->
+    <div class="phone"><div class="phone-label">账本 Books</div>
+      <div class="phone-status"><span>9:41</span><span>📶 🔋</span></div>
+      <div class="phone-nav"><span style="font-size:20px;margin-right:6px;">←</span><span class="phone-nav-title">账本管理</span></div>
+      <div class="phone-body">
+        <div style="background:var(--bg-card);border:1px solid var(--border-light);border-radius:var(--radius-lg);overflow:hidden;">
+          <div style="display:flex;align-items:center;padding:14px;border-bottom:0.5px solid var(--divider);border-left:3px solid var(--sage-400);"><div style="width:40px;height:40px;border-radius:var(--radius-md);background:var(--sage-50);display:flex;align-items:center;justify-content:center;font-size:18px;">🏠</div><div style="flex:1;margin-left:12px;"><div style="font-size:var(--font-base);font-weight:600;">家庭账本</div><div style="font-size:var(--font-xs);color:var(--text-hint);">3 位成员</div></div><span style="font-size:var(--font-xs);color:var(--sage-400);font-weight:600;">当前</span></div>
+          <div style="display:flex;align-items:center;padding:14px;border-bottom:0.5px solid var(--divider);"><div style="width:40px;height:40px;border-radius:var(--radius-md);background:var(--slate-50);display:flex;align-items:center;justify-content:center;font-size:18px;">✈️</div><div style="flex:1;margin-left:12px;"><div style="font-size:var(--font-base);font-weight:600;">旅行账本</div><div style="font-size:var(--font-xs);color:var(--text-hint);">2 位成员</div></div></div>
+          <div style="display:flex;align-items:center;padding:14px;"><div style="width:40px;height:40px;border-radius:var(--radius-md);background:var(--stone-50);display:flex;align-items:center;justify-content:center;font-size:18px;">💼</div><div style="flex:1;margin-left:12px;"><div style="font-size:var(--font-base);font-weight:600;">个人账本</div><div style="font-size:var(--font-xs);color:var(--text-hint);">1 位成员</div></div></div>
+        </div>
+        <div class="sim-btn sim-btn-primary" style="margin-top:14px;">＋ 新建账本</div>
+      </div>
+    </div>
+
+    <!-- Login -->
+    <div class="phone"><div class="phone-label">认证页 Login/Register</div>
+      <div class="phone-status"><span>9:41</span><span>📶 🔋</span></div>
+      <div class="phone-nav"><span style="font-size:20px;margin-right:6px;">←</span><span class="phone-nav-title">登录</span></div>
+      <div class="phone-body">
+        <div style="text-align:center;padding:30px 0 20px;">
+          <div style="width:60px;height:60px;border-radius:var(--radius-xl);background:var(--sage-50);display:flex;align-items:center;justify-content:center;font-size:30px;margin:0 auto 12px;">📒</div>
+          <div style="font-size:var(--font-3xl);font-weight:600;">家庭记账</div>
+          <div style="font-size:var(--font-sm);color:var(--text-hint);margin-top:4px;">安静记录每一笔</div>
+        </div>
+        <div class="sim-card" style="margin-bottom:8px;">
+          <div style="font-size:var(--font-xs);color:var(--text-hint);margin-bottom:4px;">邮箱</div>
+          <input type="text" placeholder="请输入邮箱" style="width:100%;padding:10px 0;border:none;outline:none;font-size:var(--font-base);background:transparent;border-bottom:0.5px solid var(--border-card);" value="xqc@example.com">
+        </div>
+        <div class="sim-card" style="margin-bottom:14px;">
+          <div style="font-size:var(--font-xs);color:var(--text-hint);margin-bottom:4px;">密码</div>
+          <input type="password" placeholder="请输入密码" style="width:100%;padding:10px 0;border:none;outline:none;font-size:var(--font-base);background:transparent;border-bottom:0.5px solid var(--border-card);" value="••••••••">
+        </div>
+        <div class="sim-btn sim-btn-primary" style="margin-bottom:14px;">登录</div>
+        <div style="display:flex;justify-content:space-between;font-size:var(--font-sm);">
+          <span style="color:var(--sage-400);font-weight:600;">注册账号</span>
+          <span style="color:var(--text-hint);">忘记密码？</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ STATES ============ -->
+<div class="section" id="states">
+  <h2 class="section-title">状态设计</h2>
+  <p class="section-subtitle">加载、空状态、错误状态的统一处理</p>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fill, minmax(200px, 1fr)); gap:12px;">
+    <div class="comp-preview">
+      <div class="state-demo">
+        <div style="margin-bottom:10px;">
+          <div style="width:100%;height:14px;background:var(--divider);border-radius:7px;margin-bottom:8px;animation:pulse 1.5s infinite;"></div>
+          <div style="width:70%;height:14px;background:var(--divider);border-radius:7px;margin-bottom:8px;animation:pulse 1.5s infinite;"></div>
+          <div style="width:85%;height:14px;background:var(--divider);border-radius:7px;animation:pulse 1.5s infinite;"></div>
+        </div>
+        <span style="font-size:var(--font-sm);color:var(--text-hint);">加载中…</span>
+      </div>
+      <p style="font-size:var(--font-xs);color:var(--text-hint);margin-top:8px;text-align:center;">Skeleton 骨架屏：灰色脉冲动画条，不做闪烁</p>
+    </div>
+    <div class="comp-preview">
+      <div class="state-demo">
+        <div class="state-icon">📝</div>
+        <div class="state-title">暂无数据</div>
+        <div class="state-desc">点击 ＋ 开始记账</div>
+      </div>
+      <p style="font-size:var(--font-xs);color:var(--text-hint);margin-top:8px;text-align:center;">空状态：简洁图标 + 标题 + 引导文案</p>
+    </div>
+    <div class="comp-preview">
+      <div class="state-demo">
+        <div class="state-icon" style="color:var(--rust-400);">⚠️</div>
+        <div class="state-title" style="color:var(--rust-400);">加载失败</div>
+        <div class="state-desc">网络异常，请检查网络后重试</div>
+        <div class="sim-btn sim-btn-secondary" style="margin-top:12px;padding:8px 16px;font-size:var(--font-sm);">重试</div>
+      </div>
+      <p style="font-size:var(--font-xs);color:var(--text-hint);margin-top:8px;text-align:center;">错误状态：警告图标 + 说明 + 重试按钮</p>
+    </div>
+    <div class="comp-preview">
+      <div class="state-demo">
+        <div class="state-icon">🎉</div>
+        <div class="state-title">保存成功</div>
+        <div class="state-desc">交易记录已添加</div>
+      </div>
+      <p style="font-size:var(--font-xs);color:var(--text-hint);margin-top:8px;text-align:center;">成功反馈：Toast 形式，2s 自动消失</p>
+    </div>
+  </div>
+</div>
+
+<!-- ============ OPTIMIZATIONS ============ -->
+<div class="section" id="optimizations">
+  <h2 class="section-title">额外优化建议</h2>
+  <p class="section-subtitle">除了视觉重设计，以下优化可以使小程序体验更好</p>
+
+  <div class="opt-card">
+    <div class="opt-card-title">1. 夜间模式支持</div>
+    <div class="opt-card-desc">基于 CSS 变量切换，新增 dark 主题配色：深色背景 #1A1A1A、卡片 #252525、文字反转。通过系统设置或应用内开关切换。</div>
+  </div>
+
+  <div class="opt-card">
+    <div class="opt-card-title">2. 触觉反馈</div>
+    <div class="opt-card-desc">关键操作（记一笔保存成功、删除确认、预算超限提醒）调用微信 wx.vibrateShort() 提供轻微震动反馈。</div>
+  </div>
+
+  <div class="opt-card">
+    <div class="opt-card-title">3. 下拉刷新 & 上拉加载</div>
+    <div class="opt-card-desc">首页和流水页启用下拉刷新（enablePullDownRefresh），刷新动画用主色。流水列表超过 20 条启用上拉分页加载。</div>
+  </div>
+
+  <div class="opt-card">
+    <div class="opt-card-title">4. 金额输入优化</div>
+    <div class="opt-card-desc">记账页金额自动格式化（输入 5800 → 显示 ¥58.00），避免用户手动输入小数点。右侧固定显示 .00。</div>
+  </div>
+
+  <div class="opt-card">
+    <div class="opt-card-title">5. 搜索功能增强</div>
+    <div class="opt-card-desc">流水页搜索支持按备注模糊搜索、按金额范围筛选，搜索结果高亮匹配文字。</div>
+  </div>
+
+  <div class="opt-card">
+    <div class="opt-card-title">6. 页面过渡动画</div>
+    <div class="opt-card-desc">Tab 切换使用淡入淡出（opacity 0→1, 200ms），避免生硬跳变。二级页面使用右滑推入/左滑返回动画。</div>
+  </div>
+
+  <div class="opt-card">
+    <div class="opt-card-title">7. 样式抽离为 CSS 类</div>
+    <div class="opt-card-desc">当前大量样式写在 TSX 的 style={{}} 中，改为 SCSS class 引用。好处：减少运行时开销、统一修改、压缩体积。</div>
+  </div>
+
+  <div class="opt-card">
+    <div class="opt-card-title">8. 分类图标统一管理</div>
+    <div class="opt-card-desc">建立 emoji 映射表（category → emoji），不用每个地方硬编码。支持用户自定义分类时选择 emoji。</div>
+  </div>
+
+  <div class="opt-card">
+    <div class="opt-card-title">9. 首页快捷操作</div>
+    <div class="opt-card-desc">余额卡片下方添加常用快捷操作横向滚动条：本周报表、月度预算、最近常用分类快捷记账。</div>
+  </div>
+
+  <div class="opt-card">
+    <div class="opt-card-title">10. 性能优化</div>
+    <div class="opt-card-desc">长列表使用虚拟列表（VirtualList）；图片使用 lazy-load；首页数据预加载（在 app.onLaunch 中提前请求）。</div>
+  </div>
+</div>
+
+<!-- ============ CSS VARIABLES ============ -->
+<div class="section">
+  <h2 class="section-title">CSS 变量速查表</h2>
+  <p class="section-subtitle">实现时写入 app.scss，全局引用</p>
+
+  <table class="type-table">
+    <tr><th>变量名</th><th>值</th><th>用途</th></tr>
+    <tr><td>--color-primary</td><td style="font-family:monospace;font-size:12px;">#5B9A7A</td><td>主色 · 按钮/链接/选中</td></tr>
+    <tr><td>--color-primary-bg</td><td style="font-family:monospace;font-size:12px;">#E8F2EC</td><td>主色浅底 · 选中背景</td></tr>
+    <tr><td>--color-primary-dark</td><td style="font-family:monospace;font-size:12px;">#3D7056</td><td>主色深 · 选中文字</td></tr>
+    <tr><td>--color-expense</td><td style="font-family:monospace;font-size:12px;">#5B7FA5</td><td>支出色 · 石板蓝</td></tr>
+    <tr><td>--color-income</td><td style="font-family:monospace;font-size:12px;">#5B9A7A</td><td>收入色 · 鼠尾草绿</td></tr>
+    <tr><td>--color-danger</td><td style="font-family:monospace;font-size:12px;">#C0503A</td><td>危险/删除</td></tr>
+    <tr><td>--color-danger-bg</td><td style="font-family:monospace;font-size:12px;">#FBE8E2</td><td>危险浅底</td></tr>
+    <tr><td>--color-bg</td><td style="font-family:monospace;font-size:12px;">#F5F2ED</td><td>页面背景</td></tr>
+    <tr><td>--color-card</td><td style="font-family:monospace;font-size:12px;">#FFFFFF</td><td>卡片背景</td></tr>
+    <tr><td>--color-subtle</td><td style="font-family:monospace;font-size:12px;">#F9F7F3</td><td>次级背景</td></tr>
+    <tr><td>--color-text</td><td style="font-family:monospace;font-size:12px;">#1A1A1A</td><td>主文字</td></tr>
+    <tr><td>--color-text-secondary</td><td style="font-family:monospace;font-size:12px;">#666666</td><td>辅助文字</td></tr>
+    <tr><td>--color-text-hint</td><td style="font-family:monospace;font-size:12px;">#B0ADA6</td><td>提示/时间</td></tr>
+    <tr><td>--color-text-disabled</td><td style="font-family:monospace;font-size:12px;">#CCCCCC</td><td>禁用/占位</td></tr>
+    <tr><td>--color-border</td><td style="font-family:monospace;font-size:12px;">#EBE7E0</td><td>卡片边框</td></tr>
+    <tr><td>--color-divider</td><td style="font-family:monospace;font-size:12px;">#F0EDE6</td><td>分割线</td></tr>
+    <tr><td>--font-xl</td><td style="font-family:monospace;font-size:12px;">48rpx</td><td>大金额</td></tr>
+    <tr><td>--font-lg</td><td style="font-family:monospace;font-size:12px;">36rpx</td><td>中等金额</td></tr>
+    <tr><td>--font-md</td><td style="font-family:monospace;font-size:12px;">30rpx</td><td>页面标题</td></tr>
+    <tr><td>--font-base</td><td style="font-family:monospace;font-size:12px;">26rpx</td><td>正文</td></tr>
+    <tr><td>--font-sm</td><td style="font-family:monospace;font-size:12px;">22rpx</td><td>辅助信息</td></tr>
+    <tr><td>--font-xs</td><td style="font-family:monospace;font-size:12px;">20rpx</td><td>标签</td></tr>
+    <tr><td>--radius-card</td><td style="font-family:monospace;font-size:12px;">14rpx</td><td>卡片圆角</td></tr>
+    <tr><td>--radius-btn</td><td style="font-family:monospace;font-size:12px;">12rpx</td><td>按钮圆角</td></tr>
+    <tr><td>--radius-tag</td><td style="font-family:monospace;font-size:12px;">8rpx</td><td>标签圆角</td></tr>
+  </table>
+</div>
+
+<style>
+@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+</style>
+
+</div>
+</body>
+</html>

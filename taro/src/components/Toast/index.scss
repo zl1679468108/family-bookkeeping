@@ -1,0 +1,28 @@
+.toast-overlay {
+  pointer-events: none;
+}
+
+.toast-content {
+  max-width: 540rpx;
+  padding: 20rpx 36rpx;
+  background-color: rgba(0, 0, 0, 0.75);
+  border-radius: var(--radius-md);
+  opacity: 0;
+  transform: translateY(-12rpx);
+  transition:
+    opacity 0.25s ease,
+    transform 0.25s ease;
+}
+
+.toast-show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.toast-message {
+  color: #ffffff;
+  font-size: var(--font-base);
+  line-height: 1.5;
+  text-align: center;
+  word-break: break-all;
+}

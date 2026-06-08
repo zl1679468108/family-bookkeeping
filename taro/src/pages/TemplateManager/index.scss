@@ -1,0 +1,63 @@
+.tpl-form-row {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-xs) 0;
+  border-bottom: 0.5px solid var(--color-divider);
+}
+
+.tpl-form-label {
+  font-size: var(--font-sm);
+  color: var(--color-text-hint);
+  width: 72rpx;
+  flex-shrink: 0;
+}
+
+.tpl-form-input {
+  flex: 1;
+  font-size: var(--font-sm);
+  color: var(--color-text);
+  padding: 8rpx 0;
+  border: none;
+  background: transparent;
+}
+
+.tpl-select {
+  padding: 12rpx var(--spacing-sm);
+  background-color: var(--color-bg);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-sm);
+  color: var(--color-text);
+}
+
+.tpl-item {
+  background-color: var(--color-card);
+  border-radius: var(--radius-lg);
+  border: 0.5px solid var(--color-border);
+  padding: var(--spacing-sm) var(--spacing-md);
+  margin-bottom: var(--spacing-sm);
+}
+
+.tpl-item-body {
+  display: flex;
+  align-items: center;
+}
+
+.tpl-item-icon {
+  font-size: var(--font-xl);
+  flex-shrink: 0;
+}
+
+.tpl-item-name {
+  font-size: var(--font-base);
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.tpl-item-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: var(--spacing-xs);
+  padding-top: var(--spacing-xs);
+  border-top: 0.5px solid var(--color-divider);
+}
