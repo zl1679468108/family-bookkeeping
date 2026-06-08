@@ -1,69 +1,275 @@
-/* Statistics v3.0 */
+/**
+ * Statistics v4 — 严格按设计稿 v4
+ * 时间范围分段 + 概览卡片 + 趋势图 + 分类排行
+ */
 
-.stats-tabs-wrap {
-  padding: var(--spacing-sm) var(--spacing-md);
+/* 时间范围 + 支出/收入切换 — 同一父容器 严格按设计稿 */
+.stats-header-wrap {
   background-color: var(--color-card);
   border-bottom: 0.5px solid var(--color-border);
+  padding: var(--spacing-sm) var(--spacing-md);
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
 }
 
-.stats-content {
+.stats-range-wrap {
+  display: flex;
+  justify-content: center;
+}
+
+.stats-type-wrap {
+  display: flex;
+  justify-content: center;
+}
+
+.stats-body {
   padding: var(--spacing-sm) var(--spacing-md);
   padding-bottom: 200rpx;
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-sm);
+  gap: 20rpx;
 }
 
-/* Category item */
-.stats-cat-item {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
-  padding: 4rpx 0;
+/* ---- 统计概览 3列 ---- */
+.stats-overview {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16rpx;
 }
 
-/* Bar chart */
-.stats-bar-chart {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-around;
-  height: 320rpx;
-  border-bottom: 2rpx solid var(--color-divider);
-  padding-bottom: 4rpx;
-}
-
-.stats-bar-col {
-  flex: 1;
+.stat-box {
+  background-color: var(--color-card);
+  border: 0.5px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 20rpx 16rpx;
+  text-align: center;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: center;
+  gap: 8rpx;
+}
+
+.stat-label {
+  font-size: var(--font-xs);
+  color: var(--color-text-hint);
+}
+
+.stat-value {
+  font-size: var(--font-lg);
+  font-weight: 700;
+}
+
+.stat-value.income {
+  color: var(--color-income);
+}
+
+.stat-value.expense {
+  color: var(--color-expense);
+}
+
+.stat-change {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4rpx;
+  font-size: var(--font-xs);
+}
+
+.stat-change.up {
+  color: var(--color-income);
+}
+
+.stat-change.down {
+  color: var(--color-expense);
+}
+
+.stat-change.neutral {
+  color: var(--color-text-hint);
+}
+
+.stat-arrow {
+  font-size: var(--font-xs);
+}
+
+.stat-pct {
+  font-size: var(--font-xs);
+}
+
+/* ---- 趋势图 ---- */
+.chart-placeholder {
+  background-color: var(--color-card);
+  border: 0.5px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 24rpx 20rpx;
+}
+
+.chart-legend {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24rpx;
+}
+
+.chart-title {
+  font-size: var(--font-sm);
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.legend-items {
+  display: flex;
+  gap: 20rpx;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.legend-dot {
+  width: 16rpx;
+  height: 16rpx;
+  border-radius: 4rpx;
+}
+
+.legend-dot.expense-dot {
+  background-color: var(--color-expense);
+  opacity: 0.8;
+}
+
+.legend-dot.income-dot {
+  background-color: var(--color-income);
+  opacity: 0.6;
+}
+
+.legend-text {
+  font-size: var(--font-xs);
+  color: var(--color-text-hint);
+}
+
+.chart-area {
+  height: 240rpx;
+  display: flex;
+  align-items: flex-end;
+  gap: 10rpx;
+  padding: 0 8rpx;
+}
+
+.chart-bar-group {
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 6rpx;
   height: 100%;
 }
 
-.stats-bar-amount {
-  font-size: var(--font-xs);
-  color: var(--color-text-secondary);
-  margin-bottom: 6rpx;
-  font-weight: 500;
+.chart-bar {
+  width: 20rpx;
+  border-radius: 6rpx 6rpx 0 0;
+  transition: height 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+  min-height: 4rpx;
 }
 
-.stats-bar-track {
-  width: 100%;
-  max-width: 56rpx;
+.chart-bar.expense-bar {
+  background-color: var(--color-expense);
+  opacity: 0.8;
+}
+
+.chart-bar.income-bar {
+  background-color: var(--color-income);
+  opacity: 0.6;
+}
+
+.chart-labels {
   display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-}
-
-.stats-bar-fill {
-  width: 100%;
-  border-radius: 8rpx 8rpx 0 0;
-  transition: height 0.4s ease;
-}
-
-.stats-bar-label {
+  justify-content: space-around;
+  margin-top: 16rpx;
   font-size: var(--font-xs);
   color: var(--color-text-secondary);
+  padding: 0 8rpx;
+}
+
+.chart-label {
+  font-size: var(--font-xs);
+  color: var(--color-text-secondary);
+}
+
+/* ---- 分类排行 ---- */
+.rank-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: 16rpx 0;
+  border-bottom: 0.5px solid var(--color-divider);
+}
+
+.rank-item:last-child {
+  border-bottom: none;
+}
+
+.rank-icon {
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: var(--radius-sm);
+  background-color: var(--color-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: 0.5px solid var(--color-border);
+}
+
+.rank-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.rank-name {
+  font-size: var(--font-sm);
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+.rank-mini-bar {
+  height: 6rpx;
+  background-color: var(--color-divider);
+  border-radius: 3rpx;
   margin-top: 8rpx;
+  overflow: hidden;
+}
+
+.rank-fill {
+  height: 100%;
+  border-radius: 3rpx;
+  background-color: var(--color-primary);
+  transition: width 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.rank-amount {
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.rank-value {
+  font-size: var(--font-base);
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.rank-value.expense-value {
+  color: var(--color-expense);
+}
+
+.rank-value.income-value {
+  color: var(--color-income);
+}
+
+.rank-pct {
+  font-size: var(--font-xs);
+  color: var(--color-text-hint);
 }

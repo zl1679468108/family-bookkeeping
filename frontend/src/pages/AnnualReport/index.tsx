@@ -53,7 +53,7 @@ const AnnualReport: React.FC = () => {
   const reportData = data as any;
 
   return (
-    <div>
+    <div className="page-container">
       <Header title="年度报告" />
 
       {/* 控件区 */}

@@ -75,7 +75,7 @@ const Dashboard: React.FC = () => {
   }
 
   return (
-    <div>
+    <div className="page-container">
       <Header title="概览" />
 
       {/* 1. 月度概览卡片——3列 */}
@@ -132,9 +132,34 @@ const Dashboard: React.FC = () => {
       {/* 2. 预算概览 */}
       {budgetLoading ? (
         <div style={{ padding: '24px', background: 'var(--surface)', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border)', marginBottom: '24px' }}>
+          {/* 标题 */}
           <Skeleton width="30%" height="16px" marginBottom="16px" />
-          <Skeleton width="100%" height="8px" borderRadius="4px" marginBottom="12px" />
-          <Skeleton width="50%" height="12px" />
+          {/* 总进度条行 */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px' }}>
+            <Skeleton width="80px" height="13px" />
+            <Skeleton width="100%" height="8px" borderRadius="4px" />
+            <Skeleton width="36px" height="13px" />
+          </div>
+          {/* 已花费/剩余 */}
+          <Skeleton width="40%" height="12px" marginBottom="16px" />
+          {/* 预警区域 */}
+          <div style={{ padding: '16px', borderRadius: 'var(--radius-md)', background: 'var(--bg)', marginBottom: '16px' }}>
+            <Skeleton width="25%" height="14px" marginBottom="10px" />
+            <Skeleton width="70%" height="12px" marginBottom="6px" />
+            <Skeleton width="60%" height="12px" marginBottom="6px" />
+            <Skeleton width="65%" height="12px" />
+          </div>
+          {/* 各分类进度条 */}
+          <div style={{ borderTop: '1px solid var(--border)', paddingTop: '12px' }}>
+            {[1, 2, 3, 4, 5].map((i) => (
+              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
+                <Skeleton width="20px" height="20px" borderRadius="4px" />
+                <Skeleton width="60px" height="13px" />
+                <Skeleton width="100%" height="6px" borderRadius="3px" />
+                <Skeleton width="32px" height="13px" />
+              </div>
+            ))}
+          </div>
         </div>
       ) : hasBudget ? (
         <div style={{

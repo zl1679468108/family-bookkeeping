@@ -5,7 +5,7 @@
 import Taro from "@tarojs/taro";
 import type { ApiEnvelope, ApiErrorPayload } from "../types";
 
-const API_BASE_URL: string =
+export const API_BASE_URL: string =
   (typeof process !== "undefined" && process.env?.TARO_APP_API_BASE_URL) ||
   "http://localhost:3000/api";
 
@@ -97,9 +97,9 @@ async function request<T>(
         pages.length > 0 ? pages[pages.length - 1].route || "" : "";
       if (
         ![
-          "pages/Login/index",
-          "pages/Register/index",
-          "pages/ForgotPassword/index",
+          "pages/User/Login/index",
+          "pages/User/Register/index",
+          "pages/User/ForgotPassword/index",
         ].includes(currentPath)
       ) {
         setTimeout(() => {

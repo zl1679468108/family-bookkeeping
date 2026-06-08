@@ -1,79 +1,81 @@
-/* NumberPad — virtual numeric keypad */
-
-.number-pad {
-  padding: var(--spacing-md);
-  background-color: var(--color-bg);
+/**
+ * NumberPad v4 — 安静记账数字键盘
+ * 设计稿对齐：扁平网格，绿色确认键
+ */
+.numpad {
+  padding-bottom: var(--safe-bottom);
+  border-top: 0.5px solid var(--color-border);
+  background-color: var(--color-card);
 }
 
-.number-pad-grid {
+.numpad-row {
   display: flex;
-  flex-direction: column;
-  gap: var(--spacing-sm);
 }
 
-.number-pad-row {
-  gap: var(--spacing-sm);
-}
-
-.number-pad-key {
+.numpad-key {
+  flex: 1;
+  height: 100rpx;
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 108rpx;
-  border-radius: var(--radius-lg);
-  transition: transform 0.12s ease;
-}
-
-.number-pad-key-hover {
-  transform: scale(0.95);
-}
-
-.number-pad-key-num {
-  background-color: var(--color-card);
-  border: 1px solid var(--color-border);
-  box-shadow: 0 1rpx 3rpx rgba(44, 36, 22, 0.03);
-}
-
-.number-pad-key-func {
-  background-color: #e5e5ea;
-}
-
-.number-pad-key-text {
-  font-size: var(--font-2xl);
-  font-weight: 500;
-  color: var(--color-text);
-}
-
-.number-pad-key-backspace {
   font-size: 40rpx;
+  color: var(--color-text);
+  font-weight: 400;
+  border-right: 0.5px solid var(--color-divider);
+  border-bottom: 0.5px solid var(--color-divider);
+  transition: background-color 0.1s ease;
+}
+
+.numpad-key:last-child {
+  border-right: none;
+}
+
+.numpad-key--hover {
+  background-color: var(--color-subtle);
+}
+
+.numpad-key--back {
+  font-size: 28rpx;
   color: var(--color-text-secondary);
 }
 
-/* Confirm button */
-.number-pad-confirm {
-  width: 128rpx;
-  border-radius: var(--radius-lg);
+.numpad-key--empty {
+  background-color: transparent;
+}
+
+.numpad-key--empty.numpad-key--hover {
+  background-color: transparent;
+}
+
+.numpad-key--done {
   background-color: var(--color-primary);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: transform 0.12s ease;
-  /* height = 4 rows * 108rpx + 3 gaps * 12rpx = 468rpx */
-  height: 468rpx;
-}
-
-.number-pad-confirm-hover {
-  transform: scale(0.95);
-}
-
-.number-pad-confirm-disabled {
-  background-color: var(--color-text-hint);
-}
-
-.number-pad-confirm-text {
   color: #ffffff;
-  font-size: var(--font-base);
+  font-size: 30rpx;
   font-weight: 600;
-  text-align: center;
-  line-height: 1.6;
+  border-right: none;
+}
+
+.numpad-key--done.numpad-key--hover {
+  opacity: 0.85;
+}
+
+.numpad-key--done-disabled {
+  opacity: 0.5;
+}
+
+.numpad-key-text {
+  font-size: 40rpx;
+  font-weight: 400;
+  color: var(--color-text);
+}
+
+.numpad-key-text--back {
+  font-size: 28rpx;
+  color: var(--color-text-secondary);
+}
+
+.numpad-done-text {
+  color: #ffffff;
+  font-size: 30rpx;
+  font-weight: 600;
 }

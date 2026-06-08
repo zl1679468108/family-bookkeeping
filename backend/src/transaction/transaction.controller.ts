@@ -47,6 +47,7 @@ export class TransactionController {
     @Query('max_amount') max_amount?: string,
     @Query('date_from') date_from?: string,
     @Query('date_to') date_to?: string,
+    @Query('view') view?: 'own' | 'all',
   ) {
     const filters: TransactionFilters = {
       type,
@@ -65,6 +66,7 @@ export class TransactionController {
       max_amount,
       date_from,
       date_to,
+      view,
     };
 
     const data = await this.transactionService.findAll(filters);

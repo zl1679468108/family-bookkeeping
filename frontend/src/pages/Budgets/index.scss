@@ -1,8 +1,5 @@
 /* Budgets 页面样式 */
 
-.budgets-page {
-  max-width: 900px;
-}
 
 /* 工具栏：月份选择器 + 复制按钮 */
 .budgets-toolbar {
@@ -175,6 +172,26 @@
   color: var(--fg);
 }
 
+/* 区域标题旁的禁用标签 */
+.budgets-section-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 11px;
+  font-weight: 500;
+  padding: 2px 8px;
+  border-radius: 10px;
+  vertical-align: middle;
+  margin-left: 8px;
+
+  &--disabled {
+    background: rgba(0, 0, 0, 0.06);
+    color: var(--muted);
+    border: 1px solid var(--border);
+    cursor: not-allowed;
+  }
+}
+
 /* 进度条 */
 .budgets-progress-wrapper {
   display: flex;
@@ -228,19 +245,45 @@
   color: var(--danger);
 }
 
-/* 收入分类提示 */
+/* 收入分类提示 — 强禁用效果 */
 .budgets-income-hint {
-  background: var(--surface);
-  border: 1px solid var(--border);
+  position: relative;
+  background: var(--bg);
+  border: 1px dashed var(--border);
   border-radius: var(--radius-lg);
-  padding: 24px;
+  padding: 32px 24px;
   text-align: center;
-}
+  filter: grayscale(1);
+  opacity: 0.5;
+  cursor: not-allowed;
+  overflow: hidden;
 
-.budgets-income-hint p {
-  font-size: 14px;
-  color: var(--muted);
-  margin-bottom: 12px;
+  /* 斜纹背景，强化禁用感 */
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      -45deg,
+      transparent,
+      transparent 8px,
+      rgba(0, 0, 0, 0.03) 8px,
+      rgba(0, 0, 0, 0.03) 16px
+    );
+    pointer-events: none;
+  }
+
+  /* 子元素保持正常排列 */
+  > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  p {
+    font-size: 14px;
+    color: var(--muted);
+    margin-bottom: 16px;
+  }
 }
 
 .budgets-income-categories {
@@ -257,9 +300,11 @@
   padding: 6px 14px;
   border-radius: 20px;
   font-size: 13px;
-  background: var(--bg);
+  background: var(--surface);
   color: var(--muted);
   border: 1px solid var(--border);
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 /* 保存区域 */

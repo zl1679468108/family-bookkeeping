@@ -11,6 +11,8 @@ export default defineAppConfig({
     "pages/Budgets/index",
     "pages/Categories/index",
     "pages/Books/index",
+    "pages/BookMembers/index",
+    "pages/BookSettings/index",
     "pages/TemplateManager/index",
     "pages/Calendar/index",
   ],
@@ -35,4 +37,10 @@ export default defineAppConfig({
       { pagePath: "pages/Profile/index", text: "我的" },
     ],
   },
+  permission: {
+    "scope.userLocation": {
+      desc: "你的位置信息将用于记录账单发生地点",
+    },
+  },
+  requiredPrivateInfos: ["getLocation", "chooseLocation"],
 });

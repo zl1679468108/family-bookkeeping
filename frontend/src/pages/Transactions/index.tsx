@@ -13,6 +13,8 @@ import { ConfirmDialog } from '../../components/ConfirmDialog'
 import { getTransactions, deleteTransaction, batchTransactions } from '../../services/api'
 import type { BatchRequest } from '../../types/batch'
 import { useCategories } from '../../hooks/useCategories'
+import { useBook } from '../../hooks/useBook'
+import { useIsOwner } from '../../hooks/useIsOwner'
 import { formatAmount } from '../../utils/common'
 import { notify } from '../../utils/notifications'
 
@@ -38,6 +40,9 @@ const Transactions: React.FC = () => {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const [searchParams] = useSearchParams()
+  const { currentBook } = useBook()
+  const { isOwner } = useIsOwner(currentBook?.id || null)
+  const [viewMode, setViewMode] = useState<'own' | 'all'>('own')
 
   // 从 URL searchParams 初始化筛选条件（支持饼图下钻跳转）
   // 没有指定日期时默认显示本月
@@ -136,22 +141,26 @@ const Transactions: React.FC = () => {
     setPage(1)
   }, [filter, search, minAmount, maxAmount, dateFrom, dateTo])
 
+  // 高级筛选的日期范围优先于默认日期范围
+  const effectiveStartDate = dateFrom || filter.startDate
+  const effectiveEndDate = dateTo || filter.endDate
+
   const { data: paginated, isLoading } = useQuery({
-    queryKey: ['transactions', filter.type, filter.category, filter.startDate, filter.endDate, search, page, sortOrder, minAmount, maxAmount, dateFrom, dateTo],
+    queryKey: ['transactions', filter.type, filter.category, effectiveStartDate, effectiveEndDate, search, page, sortOrder, minAmount, maxAmount, dateFrom, dateTo, viewMode],
     queryFn: () => getTransactions({
       type: filter.type !== 'all' ? filter.type : undefined,
       category: filter.category || undefined,
-      startDate: filter.startDate || undefined,
-      endDate: filter.endDate || undefined,
+      startDate: effectiveStartDate || undefined,
+      endDate: effectiveEndDate || undefined,
       search: search || undefined,
       keyword: search || undefined,
       min_amount: minAmount ? Number(minAmount) : undefined,
       max_amount: maxAmount ? Number(maxAmount) : undefined,
-      date_from: dateFrom || undefined,
-      date_to: dateTo || undefined,
       page,
       pageSize: PAGE_SIZE,
       ...(sortOrder ? { sortBy: 'amount' as const, sortOrder } : {}),
+      // Owner 视角：如果 viewMode=all 且是 Owner，则查看所有成员的交易
+      ...(viewMode === 'all' && isOwner && currentBook ? { view: 'all' as const, bookId: currentBook.id } : {}),
     }),
   })
 
@@ -249,7 +258,7 @@ const Transactions: React.FC = () => {
   }, [])
 
   return (
-    <div>
+    <div className="page-container">
       <Header title="交易记录">
         <Button onClick={() => navigate(buildAddUrl(filter.type, filter.category))}>
           <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
@@ -258,6 +267,41 @@ const Transactions: React.FC = () => {
           记一笔
         </Button>
       </Header>
+
+      {/* Owner 视图切换 */}
+      {isOwner && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+          <span style={{ fontSize: '13px', color: 'var(--muted)' }}>查看范围：</span>
+          <button
+            onClick={() => setViewMode('own')}
+            style={{
+              padding: '4px 12px',
+              fontSize: '13px',
+              border: `1px solid ${viewMode === 'own' ? 'var(--accent)' : 'var(--border)'}`,
+              borderRadius: 'var(--radius-md)',
+              background: viewMode === 'own' ? 'var(--accent)' : 'var(--surface)',
+              color: viewMode === 'own' ? '#fff' : 'var(--fg)',
+              cursor: 'pointer',
+            }}
+          >
+            仅我看
+          </button>
+          <button
+            onClick={() => setViewMode('all')}
+            style={{
+              padding: '4px 12px',
+              fontSize: '13px',
+              border: `1px solid ${viewMode === 'all' ? 'var(--accent)' : 'var(--border)'}`,
+              borderRadius: 'var(--radius-md)',
+              background: viewMode === 'all' ? 'var(--accent)' : 'var(--surface)',
+              color: viewMode === 'all' ? '#fff' : 'var(--fg)',
+              cursor: 'pointer',
+            }}
+          >
+            全部成员
+          </button>
+        </div>
+      )}
 
       <FilterBar
         selectedType={filter.type}

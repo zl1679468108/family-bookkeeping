@@ -3,8 +3,9 @@
  * 白色导航 · 分段控件 · 分类网格 · 拖拽排序 · 底部弹出编辑
  */
 import { useState, useCallback, useMemo } from "react";
+import Taro from "@tarojs/taro";
 import { View, Text, Input } from "@tarojs/components";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import SegmentedControl from "../../components/SegmentedControl";
 import EmptyState from "../../components/EmptyState";
 import ConfirmDialog from "../../components/ConfirmDialog";
@@ -14,6 +15,7 @@ import {
   updateCategory,
   deleteCategory,
 } from "../../services/categoriesApi";
+import { useManualQuery } from "../../hooks/useManualQuery";
 import type { Category } from "../../types";
 import "./index.scss";
 
@@ -58,10 +60,9 @@ export default function CategoriesPage() {
   const [name, setName] = useState("");
   const [icon, setIcon] = useState("📌");
 
-  const { data: allCats = [], isLoading } = useQuery<Category[]>({
-    queryKey: ["categories"],
+  const { data: allCats = [], isLoading } = useManualQuery<Category[]>({
+    key: "categories",
     queryFn: () => fetchCategories(),
-    staleTime: 60_000,
   });
 
   const filtered = useMemo(
@@ -77,6 +78,7 @@ export default function CategoriesPage() {
     }) => createCategory(dto),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["categories"] });
+      Taro.showToast({ title: "添加成功", icon: "success" });
       closeModal();
     },
   });
@@ -92,6 +94,7 @@ export default function CategoriesPage() {
     }) => updateCategory(id, { name: nm, icon: ic }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["categories"] });
+      Taro.showToast({ title: "修改成功", icon: "success" });
       closeModal();
     },
   });
@@ -99,6 +102,7 @@ export default function CategoriesPage() {
     mutationFn: (id: string) => deleteCategory(id),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["categories"] });
+      Taro.showToast({ title: "已删除", icon: "success" });
       setDeleteTarget(null);
     },
   });

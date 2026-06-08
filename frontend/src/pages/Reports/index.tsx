@@ -115,7 +115,7 @@ const Reports: React.FC = () => {
   const isExpense = analysisTab === 'expense'
 
   return (
-    <div>
+    <div className="page-container">
       <Header title="统计报表" />
 
       {/* 时间筛选器 + 导出按钮 */}

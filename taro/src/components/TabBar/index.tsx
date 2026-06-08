@@ -1,36 +1,7 @@
 import { View, Text } from "@tarojs/components";
 import Taro from "@tarojs/taro";
-import Icon, { IconName } from "../Icon";
+import Icon from "../Icon";
 import "./index.scss";
-
-interface TabItem {
-  key: string;
-  label: string;
-  path: string;
-  icon: IconName;
-}
-
-const tabs: TabItem[] = [
-  { key: "home", label: "首页", path: "/pages/Home/index", icon: "home" },
-  {
-    key: "transactions",
-    label: "流水",
-    path: "/pages/Transactions/index",
-    icon: "transactions",
-  },
-  {
-    key: "statistics",
-    label: "统计",
-    path: "/pages/Statistics/index",
-    icon: "statistics",
-  },
-  {
-    key: "profile",
-    label: "我的",
-    path: "/pages/Profile/index",
-    icon: "profile",
-  },
-];
 
 export default function TabBar() {
   const router = Taro.useRouter();
@@ -48,68 +19,63 @@ export default function TabBar() {
     Taro.switchTab({ url: "/pages/AddTransaction/index" });
   };
 
-  // Split tabs into left group (before FAB) and right group (after FAB)
-  const leftTabs = tabs.slice(0, 2); // Home, Transactions
-  const rightTabs = tabs.slice(2); // Statistics, Profile
+  const homeActive = isActive("/pages/Home/index");
+  const txActive = isActive("/pages/Transactions/index");
+  const statsActive = isActive("/pages/Statistics/index");
+  const profileActive = isActive("/pages/Profile/index");
 
   return (
-    <View
-      className="tab-bar-container"
-      style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
-    >
-      <View className="tab-bar-capsule">
-        {/* Left tabs */}
-        {leftTabs.map((tab) => {
-          const active = isActive(tab.path);
-          return (
-            <View
-              key={tab.key}
-              className={`tab-bar-item ${active ? "tab-bar-item--active" : ""}`}
-              onClick={() => handleClick(tab.path)}
-            >
-              <Icon
-                name={tab.icon}
-                size={44}
-                color={active ? "#5B9A7A" : "#B0ADA6"}
-              />
-              <Text
-                className={`tab-bar-label ${active ? "tab-bar-label--active" : ""}`}
-              >
-                {tab.label}
-              </Text>
-            </View>
-          );
-        })}
+    <View className="tab-bar-container">
+      <View
+        className="tab-bar-item"
+        onClick={() => handleClick("/pages/Home/index")}
+      >
+        <Icon name={homeActive ? "home" : "home-gray"} size={44} />
+        <Text
+          className={`tab-bar-label ${homeActive ? "tab-bar-label--active" : ""}`}
+        >
+          首页
+        </Text>
+      </View>
 
-        {/* Center FAB */}
-        <View className="tab-bar-fab-area">
-          <View className="tab-bar-fab" onClick={handleFabClick}>
-            <Text className="tab-bar-fab-icon">＋</Text>
-          </View>
-        </View>
+      <View
+        className="tab-bar-item"
+        onClick={() => handleClick("/pages/Transactions/index")}
+      >
+        <Icon name={txActive ? "transactions" : "transactions-gray"} size={44} />
+        <Text
+          className={`tab-bar-label ${txActive ? "tab-bar-label--active" : ""}`}
+        >
+          流水
+        </Text>
+      </View>
 
-        {/* Right tabs */}
-        {rightTabs.map((tab) => {
-          const active = isActive(tab.path);
-          return (
-            <View
-              key={tab.key}
-              className={`tab-bar-item ${active ? "tab-bar-item--active" : ""}`}
-              onClick={() => handleClick(tab.path)}
-            >
-              <Icon
-                name={tab.icon}
-                size={44}
-                color={active ? "#5B9A7A" : "#B0ADA6"}
-              />
-              <Text
-                className={`tab-bar-label ${active ? "tab-bar-label--active" : ""}`}
-              >
-                {tab.label}
-              </Text>
-            </View>
-          );
-        })}
+      <View className="tab-bar-fab" onClick={handleFabClick}>
+        <Text className="tab-bar-fab-icon">+</Text>
+      </View>
+
+      <View
+        className="tab-bar-item"
+        onClick={() => handleClick("/pages/Statistics/index")}
+      >
+        <Icon name={statsActive ? "statistics" : "statistics-gray"} size={44} />
+        <Text
+          className={`tab-bar-label ${statsActive ? "tab-bar-label--active" : ""}`}
+        >
+          统计
+        </Text>
+      </View>
+
+      <View
+        className="tab-bar-item"
+        onClick={() => handleClick("/pages/Profile/index")}
+      >
+        <Icon name={profileActive ? "profile" : "profile-gray"} size={44} />
+        <Text
+          className={`tab-bar-label ${profileActive ? "tab-bar-label--active" : ""}`}
+        >
+          我的
+        </Text>
       </View>
     </View>
   );

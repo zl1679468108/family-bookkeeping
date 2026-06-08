@@ -39,3 +39,21 @@ export const inviteMember = async (bookId: string, email: string): Promise<void>
 export const leaveBook = async (bookId: string): Promise<void> => {
   await request(`/books/${bookId}/members/me`, { method: 'DELETE', requiresAuth: true });
 };
+
+/** 移除成员 */
+export const removeMember = async (bookId: string, userId: string): Promise<void> => {
+  await request(`/books/${bookId}/members/${userId}`, { method: 'DELETE', requiresAuth: true });
+};
+
+/** 转让账本所有权 */
+export const transferOwner = async (
+  bookId: string,
+  newOwnerEmail: string,
+  password: string,
+): Promise<void> => {
+  await request(`/books/${bookId}/transfer-owner`, {
+    method: 'PUT',
+    requiresAuth: true,
+    body: { newOwnerEmail, password },
+  });
+};

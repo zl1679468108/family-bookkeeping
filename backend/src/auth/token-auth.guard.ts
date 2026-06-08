@@ -44,7 +44,7 @@ export class TokenAuthGuard implements CanActivate {
 
     const { data: user, error: userError } = await supabase
       .from('users')
-      .select('id, email, username, created_at')
+      .select('id, email, username, role, status, created_at')
       .eq('id', session.user_id)
       .single();
 

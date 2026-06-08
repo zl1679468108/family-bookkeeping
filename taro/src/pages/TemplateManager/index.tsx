@@ -5,11 +5,12 @@
 import { useState } from "react";
 import { View, Text, Input, Picker, ScrollView } from "@tarojs/components";
 import Taro from "@tarojs/taro";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import EmptyState from "../../components/EmptyState";
 import ConfirmDialog from "../../components/ConfirmDialog";
 import { apiGet, apiPost, apiPut, apiDelete } from "../../services/api";
 import { useCategories } from "../../hooks/useCategories";
+import { useManualQuery } from "../../hooks/useManualQuery";
 import "./index.scss";
 
 interface Template {
@@ -39,16 +40,16 @@ export default function TemplateManager() {
     location_name: "",
   });
 
-  const { data: templates, isLoading } = useQuery({
-    queryKey: ["templates"],
+  const { data: templates, isLoading } = useManualQuery<Template[]>({
+    key: "templates",
     queryFn: () => apiGet<Template[]>("/templates"),
-    staleTime: 60_000,
   });
 
   const createMut = useMutation({
     mutationFn: (data: any) => apiPost("/templates", data),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["templates"] });
+      Taro.showToast({ title: "模板创建成功", icon: "success" });
       resetForm();
     },
   });
@@ -57,6 +58,7 @@ export default function TemplateManager() {
     mutationFn: ({ id, data }: any) => apiPut(`/templates/${id}`, data),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["templates"] });
+      Taro.showToast({ title: "模板更新成功", icon: "success" });
       resetForm();
     },
   });
@@ -65,6 +67,7 @@ export default function TemplateManager() {
     mutationFn: (id: string) => apiDelete(`/templates/${id}`),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["templates"] });
+      Taro.showToast({ title: "模板已删除", icon: "success" });
       setDeleteId(null);
     },
   });

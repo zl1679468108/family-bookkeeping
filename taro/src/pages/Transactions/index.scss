@@ -1,96 +1,131 @@
+/**
+ * Transactions v4 — 流水页（设计稿严格对齐）
+ */
+
+/* Search toggle text — placed capsule-safe by NavHeader */
 .txns-search-toggle {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 56rpx;
   height: 56rpx;
-  border-radius: var(--radius-full);
+  padding: 0 12rpx;
+  border-radius: var(--radius-md);
 }
-
 .txns-search-toggle:active {
   background-color: var(--color-subtle);
 }
-
-.txns-search-bar {
-  padding: 0 var(--spacing-md) var(--spacing-sm);
-  background-color: var(--color-card);
+.txns-search-toggle-text {
+  font-size: var(--font-base);
+  color: var(--color-text-secondary);
+  font-weight: 500;
 }
 
-.txns-nav-search {
+/* Search bar below nav */
+.txns-search-bar {
+  padding: 0 var(--spacing-md) var(--spacing-sm);
+  background-color: var(--color-bg);
+}
+.txns-search-input-wrap {
   display: flex;
   align-items: center;
-  background-color: var(--color-bg);
+  background-color: var(--color-card);
+  border: 0.5px solid var(--color-border);
   border-radius: var(--radius-md);
   padding: 0 var(--spacing-sm);
   height: 64rpx;
 }
-
+.txns-search-icon {
+  font-size: var(--font-sm);
+  margin-right: 8rpx;
+  flex-shrink: 0;
+}
 .txns-search-input {
   flex: 1;
-  font-size: var(--font-sm);
+  font-size: var(--font-base);
   color: var(--color-text);
   border: none;
   background: transparent;
+  height: 100%;
 }
-
-.txns-search-icon {
-  font-size: var(--font-md);
-  color: var(--color-text-hint);
-}
-
 .txns-search-clear {
   font-size: var(--font-md);
   color: var(--color-text-hint);
+  padding: 8rpx;
+  flex-shrink: 0;
 }
 
-/* Filters */
-.txns-filters {
-  padding: var(--spacing-sm) var(--spacing-md);
-  background-color: var(--color-card);
-  border-bottom: 0.5px solid var(--color-border);
+/* Month picker row — 使用 MonthPicker 组件默认样式 */
+.txns-month-row {
+  display: flex;
+  padding: 0 var(--spacing-md);
 }
 
-.txns-date-btn {
+/* Segmented wrap */
+.txns-seg-wrap {
+  display: flex;
+  padding: 0 var(--spacing-md) var(--spacing-sm);
+}
+
+/* Category chips — horizontal scroll */
+.txns-cat-scroll {
+  white-space: nowrap;
+  padding: 0 var(--spacing-md) 12rpx;
+}
+.txns-cat-scroll-inner {
+  display: inline-flex;
+  gap: 12rpx;
+}
+.txns-cat-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6rpx;
+  padding: 8rpx 20rpx;
+  border-radius: var(--radius-full);
   background-color: var(--color-subtle);
-  border-radius: var(--radius-sm);
-  padding: 8rpx 16rpx;
   font-size: var(--font-sm);
-  font-weight: 600;
-  color: var(--color-text);
+  color: var(--color-text-hint);
+  white-space: nowrap;
 }
-
-.txns-sort-btn {
-  background-color: var(--color-subtle);
-  border-radius: var(--radius-sm);
-  padding: 8rpx 16rpx;
-  font-size: var(--font-sm);
-  font-weight: 600;
-  color: var(--color-text-secondary);
+.txns-cat-chip--active {
+  background-color: var(--color-primary);
+  color: #fff;
 }
 
 /* List */
 .txns-loading {
   padding: var(--spacing-md);
 }
-
 .txns-list {
   padding: var(--spacing-sm) var(--spacing-md);
   padding-bottom: 200rpx;
 }
-
 .txns-group {
   margin-bottom: var(--spacing-sm);
 }
-
 .txns-group-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12rpx 4rpx;
+  padding: 24rpx 4rpx 12rpx;
 }
-
 .txns-group-date {
-  font-size: var(--font-md);
+  font-size: var(--font-base);
   font-weight: 600;
   color: var(--color-text);
+}
+.txns-group-total-expense {
+  font-size: var(--font-sm);
+  font-weight: 500;
+  color: var(--color-expense);
+}
+.txns-group-total-income {
+  font-size: var(--font-sm);
+  font-weight: 500;
+  color: var(--color-income);
+}
+.txns-load-more {
+  text-align: center;
+  padding: 24rpx;
+  color: var(--color-text-hint);
+  font-size: var(--font-sm);
 }

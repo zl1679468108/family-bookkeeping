@@ -8,6 +8,7 @@ export interface MonthPickerProps {
   month: number;
   onChange: (year: number, month: number) => void;
   light?: boolean;
+  className?: string;
 }
 
 export default function MonthPicker({
@@ -15,6 +16,7 @@ export default function MonthPicker({
   month,
   onChange,
   light = false,
+  className = "",
 }: MonthPickerProps) {
   const now = new Date();
   const currentYear = now.getFullYear();
@@ -29,17 +31,9 @@ export default function MonthPicker({
     onChange(parseInt(sy, 10), parseInt(sm, 10));
   };
 
-  const textColor = light ? "rgba(255,255,255,0.9)" : "var(--color-text)";
-  const arrowColor = light ? "rgba(255,255,255,0.5)" : "var(--color-text-hint)";
 
   return (
-    <View
-      style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-      }}
-    >
+    <View className={`month-picker ${className}`.trim()}>
       <Picker
         mode="date"
         fields="month"
@@ -48,26 +42,15 @@ export default function MonthPicker({
         end={maxDate}
         onChange={handlePickerChange}
       >
-        <View
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "8rpx",
-            padding: "12rpx 28rpx",
-          }}
-        >
-          <Text
-            style={{ fontSize: "30rpx", fontWeight: 600, color: textColor }}
-          >
-            {year}年{month}月
-          </Text>
-          <Text
-            style={{ fontSize: "22rpx", color: arrowColor, marginTop: "2rpx" }}
-          >
-            ▼
-          </Text>
-        </View>
-      </Picker>
+          <View className="month-picker-inner">
+            <Text className="month-picker-text">
+              {year}年{month}月
+            </Text>
+            <Text className={`month-picker-chevron ${light ? "light" : ""}`}>
+              ▼
+            </Text>
+          </View>
+        </Picker>
     </View>
   );
 }

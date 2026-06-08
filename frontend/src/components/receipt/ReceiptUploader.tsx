@@ -51,12 +51,12 @@ export const ReceiptUploader: React.FC<ReceiptUploaderProps> = ({
             // 清理本地预览
             URL.revokeObjectURL(localUrl);
             setPreviewUrl(null);
-            notify({ type: 'success', message: '收据上传成功' });
+            notify({ type: 'success', message: '相册上传成功' });
           },
           onError: () => {
             URL.revokeObjectURL(localUrl);
             setPreviewUrl(null);
-            notify({ type: 'error', message: '收据上传失败，请重试' });
+            notify({ type: 'error', message: '相册上传失败，请重试' });
           },
         });
       } else {
@@ -77,7 +77,7 @@ export const ReceiptUploader: React.FC<ReceiptUploaderProps> = ({
         onSuccess: () => {
           onChange?.(null);
           setPreviewUrl(null);
-          notify({ type: 'success', message: '收据已删除' });
+          notify({ type: 'success', message: '相册已删除' });
         },
       });
     } else {
@@ -103,12 +103,12 @@ export const ReceiptUploader: React.FC<ReceiptUploaderProps> = ({
             marginBottom: '8px',
           }}
         >
-          📎 收据
+          📎 相册
         </label>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <img
             src={currentImageUrl}
-            alt="收据"
+            alt="相册"
             style={{
               width: '80px',
               height: '80px',
@@ -165,7 +165,7 @@ export const ReceiptUploader: React.FC<ReceiptUploaderProps> = ({
         <ConfirmDialog
           open={showDeleteConfirm}
           title="确认删除"
-          message="确定要删除这张收据吗？删除后不可恢复。"
+          message="确定要删除这张相册图片吗？删除后不可恢复。"
           confirmText="确认删除"
           confirmDanger={true}
           loading={isDeleting}
@@ -188,7 +188,7 @@ export const ReceiptUploader: React.FC<ReceiptUploaderProps> = ({
           marginBottom: '8px',
         }}
       >
-        📎 收据（可选）
+        📎 相册（可选）
       </label>
       <button
         type="button"
@@ -208,7 +208,7 @@ export const ReceiptUploader: React.FC<ReceiptUploaderProps> = ({
           cursor: 'pointer',
         }}
       >
-        📷 拍照 / 相册
+        📷 相册
       </button>
 
       {/* File input */}
@@ -231,7 +231,7 @@ export const ReceiptUploader: React.FC<ReceiptUploaderProps> = ({
             textAlign: 'center',
           }}
         >
-          收据上传中...
+          相册上传中...
         </div>
       )}
     </div>

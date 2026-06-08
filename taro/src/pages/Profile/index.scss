@@ -1,98 +1,169 @@
-/* ============================================
-   Profile V3.0 — 安静我的页面
-   ============================================ */
-
+/**
+ * Profile v4 — 严格对齐设计稿
+ * 设计稿 CSS: .profile-header / .profile-avatar / .profile-nickname
+ *            .menu-item / .menu-icon / .menu-info / .menu-name / .menu-arrow
+ */
 .profile-page {
-  /* User info card */
-  .user-card {
-    background-color: var(--color-card);
-    border-radius: var(--radius-lg);
-    border: 0.5px solid var(--color-border);
-    overflow: hidden;
+  /* ===== 内容区滚动容器 ===== */
+  .profile-content {
+    padding: var(--spacing-md);
+    padding-bottom: 200rpx;
+    height: 100%;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
-  .user-card-inner {
-    display: flex;
-    align-items: center;
-    padding: var(--spacing-lg);
-    gap: var(--spacing-md);
+  /* ===== 头像区 — 设计稿 .profile-header ===== */
+  .profile-header {
+    text-align: center;
+    padding: 40rpx 0;
   }
 
-  .user-avatar {
+  .profile-avatar {
     width: 112rpx;
     height: 112rpx;
     border-radius: 50%;
     background-color: var(--color-primary-bg);
-    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20rpx;
+    border: 0.5px solid var(--color-border);
   }
 
-  .user-avatar-text {
+  .profile-avatar-text {
     font-size: 44rpx;
     font-weight: 700;
     color: var(--color-primary);
   }
 
-  .user-info {
-    flex: 1;
-    min-width: 0;
-  }
-
-  .user-name {
-    font-size: var(--font-xl);
-    font-weight: 700;
+  .profile-nickname {
+    font-size: 30rpx;
+    font-weight: 600;
     color: var(--color-text);
     display: block;
-    line-height: 1.3;
   }
 
-  .user-email {
-    font-size: var(--font-sm);
-    color: var(--color-text-secondary);
+  .profile-subtitle {
+    font-size: 22rpx;
+    color: var(--color-text-hint);
+    margin-top: 4rpx;
     display: block;
-    margin-top: 6rpx;
-    line-height: 1.4;
   }
 
-  /* Menu card */
+  /* ===== 统计卡片 — 设计稿 .card ===== */
+  .profile-stats-card {
+    background-color: var(--color-card);
+    border: 0.5px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    margin: 20rpx 0;
+    padding: 24rpx;
+    display: flex;
+    justify-content: space-around;
+  }
+
+  .profile-stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8rpx;
+    flex: 1;
+  }
+
+  .profile-stat-num {
+    font-size: 36rpx;
+    font-weight: 700;
+    color: var(--color-text);
+  }
+
+  .profile-stat-label {
+    font-size: 22rpx;
+    color: var(--color-text-hint);
+  }
+
+  /* ===== 菜单分组 ===== */
+  .menu-section {
+    margin-bottom: var(--spacing-md);
+  }
+
+  .menu-section-title {
+    font-size: 22rpx;
+    font-weight: 600;
+    color: var(--color-text-hint);
+    padding: 16rpx 4rpx 8rpx;
+  }
+
+  /* ===== 菜单卡片 — 设计稿 .card (padding:12px=24rpx) ===== */
   .menu-card {
     background-color: var(--color-card);
     border-radius: var(--radius-lg);
     border: 0.5px solid var(--color-border);
+    padding: 24rpx;
     overflow: hidden;
   }
 
+  /* ===== 菜单项 — 严格对齐设计稿 .menu-item ===== */
   .menu-item {
-    cursor: pointer;
-  }
-
-  .menu-icon {
-    font-size: 40rpx;
-    margin-right: var(--spacing-sm);
-  }
-
-  .menu-label {
-    color: var(--color-text);
-    font-weight: 500;
-  }
-
-  .menu-arrow {
-    font-size: var(--font-md);
-  }
-
-  /* Version */
-  .version-wrap {
     display: flex;
-    justify-content: center;
-    margin-top: var(--spacing-lg);
-    padding-bottom: var(--spacing-lg);
+    align-items: center;
+    gap: 20rpx;
+    padding: 28rpx 0;
+    border-bottom: 0.5px solid var(--color-divider);
+    transition: background-color 0.15s ease;
+    /* 抵消父卡片 padding，让菜单项贴边 */
+    margin: 0 -24rpx;
+    padding-left: 24rpx;
+    padding-right: 24rpx;
   }
 
-  .version-text {
-    font-size: var(--font-xs);
-    color: var(--color-text-disabled);
-    padding: 6rpx 24rpx;
-    border-radius: var(--radius-full);
+  .menu-item:active {
     background-color: var(--color-subtle);
-    letter-spacing: 2rpx;
   }
+
+  .menu-item--last {
+    border-bottom: none;
+  }
+
+  /* 设计稿 .menu-icon */
+  .menu-icon {
+    width: 64rpx;
+    height: 64rpx;
+    border-radius: var(--radius-sm);
+    background-color: var(--color-subtle);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border: 0.5px solid var(--color-border);
+  }
+
+  /* Icon 组件通过 className="icon" 接收尺寸控制 */
+  .menu-icon .icon {
+    width: 36rpx;
+    height: 36rpx;
+  }
+
+  /* 设计稿 .menu-info */
+  .menu-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  /* 设计稿 .menu-name */
+  .menu-name {
+    font-size: 26rpx;
+    color: var(--color-text);
+  }
+
+  /* 设计稿 .menu-arrow */
+  .menu-arrow {
+    color: var(--color-text-hint);
+    font-size: 32rpx;
+  }
+
+  /* ===== 退出登录（已移到设置页）===== */
 }

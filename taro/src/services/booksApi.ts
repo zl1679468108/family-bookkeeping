@@ -44,3 +44,30 @@ export const inviteMember = async (
 export const leaveBook = async (bookId: string): Promise<void> => {
   return apiDelete<void>(`${BOOKS_PATH}/${bookId}/members/me`);
 };
+
+/** Remove a member (owner only) */
+export const removeMember = async (
+  bookId: string,
+  userId: string,
+): Promise<void> => {
+  return apiDelete<void>(`${BOOKS_PATH}/${bookId}/members/${userId}`);
+};
+
+/** Transfer book ownership */
+export const transferOwner = async (
+  bookId: string,
+  newOwnerEmail: string,
+  password: string,
+): Promise<void> => {
+  return apiPut<void>(`${BOOKS_PATH}/${bookId}/transfer-owner`, {
+    newOwnerEmail,
+    password,
+  });
+};
+
+/** Check if current user is owner */
+export const checkOwner = async (
+  bookId: string,
+): Promise<{ isOwner: boolean }> => {
+  return apiGet<{ isOwner: boolean }>(`${BOOKS_PATH}/${bookId}/check-owner`);
+};

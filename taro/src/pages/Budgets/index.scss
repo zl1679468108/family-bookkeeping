@@ -1,16 +1,18 @@
-/* Budgets v3.0 */
-
+/**
+ * Budgets v4 — 预算管理
+ * 设计稿对齐：月度总预算、分类预算列表、进度条
+ */
 .budgets-content {
   padding: var(--spacing-sm) var(--spacing-md);
   padding-bottom: 200rpx;
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-sm);
+  gap: 20rpx;
 }
 
 /* Budget Row */
 .budgets-row {
-  padding: var(--spacing-sm) var(--spacing-md);
+  padding: 24rpx var(--spacing-md);
 }
 
 /* Budget Amount Input */
@@ -25,12 +27,46 @@
   outline: none;
 }
 
+/* Budget List Item */
+.budget-list-item {
+  padding: 24rpx var(--spacing-md);
+  border-bottom: 0.5px solid var(--color-divider);
+}
+
+.budget-list-item:last-child {
+  border-bottom: none;
+}
+
+.budget-list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12rpx;
+}
+
+.budget-list-name {
+  font-size: var(--font-base);
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+.budget-list-amount {
+  font-size: var(--font-sm);
+  color: var(--color-text-secondary);
+}
+
+.budget-list-detail {
+  font-size: var(--font-xs);
+  color: var(--color-text-hint);
+  margin-top: 8rpx;
+}
+
 /* Income Chip */
 .budgets-income-chip {
   display: inline-flex;
   align-items: center;
   gap: 4rpx;
-  padding: 4rpx 14rpx;
+  padding: 6rpx 16rpx;
   border-radius: var(--radius-full);
   background-color: var(--color-bg);
 }

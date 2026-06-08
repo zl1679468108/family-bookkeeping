@@ -1,32 +1,44 @@
-/* Categories v3.0 */
-
+/**
+ * Categories v4 — 严格对齐设计稿
+ * 设计稿：.cat-mgr-grid / .cat-mgr-item
+ */
 .cats-tabs-wrap {
   padding: var(--spacing-sm) var(--spacing-md);
   background-color: var(--color-card);
   border-bottom: 0.5px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .cats-content {
-  padding: var(--spacing-sm) var(--spacing-md);
+  padding: var(--spacing-md);
   padding-bottom: 200rpx;
 }
 
-/* Category Grid */
+/* Category Grid — 设计稿 .cat-mgr-grid */
 .cats-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: var(--spacing-sm);
+  gap: 16rpx;
 }
 
+/* Category Card — 设计稿 .cat-mgr-item */
 .cats-card {
   background-color: var(--color-card);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-md);
   border: 0.5px solid var(--color-border);
-  padding: var(--spacing-sm);
+  padding: 20rpx 8rpx;
   display: flex;
   flex-direction: column;
   align-items: center;
+  gap: 8rpx;
   position: relative;
+  transition: all 0.2s ease;
+}
+
+.cats-card:active {
+  transform: scale(0.95);
 }
 
 .cats-default-badge {
@@ -34,14 +46,16 @@
   top: 4rpx;
   right: 8rpx;
   background-color: var(--color-bg);
-  border-radius: 4rpx;
-  padding: 0 6rpx;
+  border-radius: var(--radius-sm);
+  padding: 0 8rpx;
 }
 
 .cats-action {
-  padding: 4rpx 12rpx;
+  padding: 6rpx 16rpx;
   border-radius: var(--radius-sm);
   border: 0.5px solid var(--color-border);
+  font-size: var(--font-xs);
+  color: var(--color-text-secondary);
 }
 
 .cats-action:active {
@@ -51,12 +65,15 @@
 /* Add Button */
 .cats-add-btn {
   margin-top: var(--spacing-md);
-  padding: var(--spacing-sm);
+  padding: 20rpx;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: var(--radius-lg);
-  border: 1px dashed var(--color-text-hint);
+  border-radius: var(--radius-md);
+  border: 1px dashed var(--color-border);
+  background-color: transparent;
+  color: var(--color-text-hint);
+  font-size: var(--font-sm);
 }
 
 /* Bottom Sheet Modal */
@@ -77,6 +94,7 @@
   height: 64rpx;
   border-radius: var(--radius-sm);
   background-color: var(--color-bg);
+  transition: all 0.15s ease;
 }
 
 .cats-emoji:active {

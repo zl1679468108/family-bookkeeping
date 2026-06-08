@@ -7,16 +7,21 @@ import {
   Body,
   Param,
   UseGuards,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { TokenAuthGuard } from '../auth/token-auth.guard';
 import { CurrentUser } from '../auth/current-user.decorator';
 import { BooksService } from './books.service';
+import { AuthService } from '../auth/auth.service';
 import { CreateBookDto, InviteMemberDto, RenameBookDto } from './dto/book.dto';
 
 @Controller('books')
 @UseGuards(TokenAuthGuard)
 export class BooksController {
-  constructor(private readonly booksService: BooksService) {}
+  constructor(
+    private readonly booksService: BooksService,
+    private readonly authService: AuthService,
+  ) {}
 
   /** GET /api/books — 列出当前用户的账本 */
   @Get()
@@ -30,6 +35,16 @@ export class BooksController {
   async getById(@Param('id') bookId: string) {
     const data = await this.booksService.getById(bookId);
     return { message: '获取账本详情成功', data };
+  }
+
+  /** GET /api/books/:id/check-owner — 检查当前用户是否是 Owner */
+  @Get(':id/check-owner')
+  async checkOwner(
+    @CurrentUser('id') userId: string,
+    @Param('id') bookId: string,
+  ) {
+    const data = await this.booksService.checkOwner(bookId, userId);
+    return { message: '检查成功', ...data };
   }
 
   /** POST /api/books — 创建账本 */
@@ -89,5 +104,63 @@ export class BooksController {
   ) {
     const data = await this.booksService.leave(bookId, userId);
     return data;
+  }
+
+  /** DELETE /api/books/:id/members/:userId — 移除成员（Owner） */
+  @Delete(':id/members/:userId')
+  async removeMember(
+    @CurrentUser('id') ownerId: string,
+    @Param('id') bookId: string,
+    @Param('userId') targetUserId: string,
+  ) {
+    await this.booksService.removeMember(bookId, ownerId, targetUserId);
+    return { message: '成员已移除' };
+  }
+
+  /** PUT /api/books/:id/transfer-owner — 转让 Owner */
+  @Put(':id/transfer-owner')
+  async transferOwner(
+    @CurrentUser('id') currentOwnerId: string,
+    @Param('id') bookId: string,
+    @Body() body: { newOwnerEmail: string; password: string },
+  ) {
+    // 先验证当前用户密码
+    const isPasswordValid = await this.authService.validatePassword(currentOwnerId, body.password);
+    if (!isPasswordValid) {
+      throw new UnauthorizedException('密码错误，无法转让所有权');
+    }
+    await this.booksService.transferOwner(bookId, currentOwnerId, body.newOwnerEmail);
+    return { message: '所有权转让成功' };
+  }
+
+  /** PUT /api/books/:id/archive — 归档账本 */
+  @Put(':id/archive')
+  async archiveBook(
+    @CurrentUser('id') userId: string,
+    @Param('id') bookId: string,
+  ) {
+    await this.booksService.archiveBook(bookId, userId);
+    return { message: '账本已归档' };
+  }
+
+  /** PUT /api/books/:id/unarchive — 取消归档 */
+  @Put(':id/unarchive')
+  async unarchiveBook(
+    @CurrentUser('id') userId: string,
+    @Param('id') bookId: string,
+  ) {
+    await this.booksService.unarchiveBook(bookId, userId);
+    return { message: '账本已取消归档' };
+  }
+
+  /** PUT /api/books/:id/description — 更新账本描述 */
+  @Put(':id/description')
+  async updateDescription(
+    @CurrentUser('id') userId: string,
+    @Param('id') bookId: string,
+    @Body() body: { description: string },
+  ) {
+    const data = await this.booksService.updateDescription(bookId, userId, body.description);
+    return { message: '描述已更新', data };
   }
 }

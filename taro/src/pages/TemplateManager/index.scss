@@ -1,3 +1,7 @@
+/**
+ * TemplateManager v4 — 模板管理
+ * 设计稿对齐：模板卡片、滑动删除
+ */
 .tpl-form-row {
   display: flex;
   align-items: center;
@@ -34,24 +38,76 @@
   background-color: var(--color-card);
   border-radius: var(--radius-lg);
   border: 0.5px solid var(--color-border);
-  padding: var(--spacing-sm) var(--spacing-md);
-  margin-bottom: var(--spacing-sm);
+  padding: 20rpx var(--spacing-md);
+  margin-bottom: 16rpx;
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+  transition: background-color 0.15s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.tpl-item:active {
+  background-color: var(--color-subtle);
 }
 
 .tpl-item-body {
   display: flex;
   align-items: center;
+  flex: 1;
+  min-width: 0;
+  gap: 16rpx;
 }
 
 .tpl-item-icon {
-  font-size: var(--font-xl);
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: var(--radius-sm);
+  background-color: var(--color-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   flex-shrink: 0;
+  border: 0.5px solid var(--color-border);
+}
+
+.tpl-item-icon-text {
+  font-size: var(--font-xl);
+}
+
+.tpl-item-info {
+  flex: 1;
+  min-width: 0;
 }
 
 .tpl-item-name {
-  font-size: var(--font-base);
-  font-weight: 600;
+  font-size: var(--font-sm);
+  font-weight: 500;
   color: var(--color-text);
+}
+
+.tpl-item-meta {
+  font-size: var(--font-xs);
+  color: var(--color-text-hint);
+  margin-top: 4rpx;
+}
+
+.tpl-type-tag {
+  font-size: var(--font-xs);
+  padding: 4rpx 16rpx;
+  border-radius: var(--radius-full);
+  font-weight: 500;
+}
+
+.tpl-type-tag--expense {
+  color: var(--color-expense);
+  background-color: var(--color-expense-bg);
+}
+
+.tpl-type-tag--income {
+  color: var(--color-income);
+  background-color: var(--color-income-bg);
 }
 
 .tpl-item-actions {

@@ -9,6 +9,9 @@ CREATE TABLE IF NOT EXISTS users (
   email VARCHAR(255) UNIQUE NOT NULL,
   username VARCHAR(100) NOT NULL,
   password_hash VARCHAR(255) NOT NULL,
+  avatar_url TEXT,
+  role VARCHAR(20) NOT NULL DEFAULT 'user' CHECK (role IN ('user', 'admin')),
+  status VARCHAR(20) NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'suspended', 'deleted')),
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -211,6 +214,8 @@ CREATE TABLE IF NOT EXISTS books (
   id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name        VARCHAR(100) NOT NULL,
   owner_id    UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  is_archived BOOLEAN NOT NULL DEFAULT FALSE,
+  description TEXT,
   created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
@@ -218,6 +223,28 @@ CREATE TABLE IF NOT EXISTS books (
 CREATE INDEX IF NOT EXISTS idx_books_owner_id ON books(owner_id);
 
 COMMENT ON TABLE books IS '账本表';
+
+-- ==============================================
+-- 迁移：为已有 books 表添加 is_archived 和 description 字段（2026-06-09）
+-- ==============================================
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_name = 'books' AND column_name = 'is_archived'
+  ) THEN
+    ALTER TABLE books ADD COLUMN is_archived BOOLEAN NOT NULL DEFAULT FALSE;
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_name = 'books' AND column_name = 'description'
+  ) THEN
+    ALTER TABLE books ADD COLUMN description TEXT;
+  END IF;
+END $$;
+
+CREATE INDEX IF NOT EXISTS idx_books_is_archived ON books(is_archived);
 
 DROP TRIGGER IF EXISTS update_books_updated_at ON books;
 CREATE TRIGGER update_books_updated_at BEFORE UPDATE ON books
@@ -409,3 +436,44 @@ CREATE TABLE IF NOT EXISTS transaction_templates (
 CREATE INDEX IF NOT EXISTS idx_transaction_templates_user_id ON transaction_templates(user_id);
 
 COMMENT ON TABLE transaction_templates IS '交易模板表（P1-5 快捷记账）';
+
+-- ==============================================
+-- 迁移脚本：为已部署环境添加 avatar_url 字段（2026-06-09）
+-- ==============================================
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_name = 'users' AND column_name = 'avatar_url'
+  ) THEN
+    ALTER TABLE users ADD COLUMN avatar_url TEXT;
+  ELSE
+    ALTER TABLE users ALTER COLUMN avatar_url TYPE TEXT;
+  END IF;
+END $$;
+
+-- ==============================================
+-- 迁移脚本：为 users 表添加 role 和 status 字段（2026-06-09）
+-- ==============================================
+DO $$
+BEGIN
+  -- 添加 role 字段
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_name = 'users' AND column_name = 'role'
+  ) THEN
+    ALTER TABLE users ADD COLUMN role VARCHAR(20) NOT NULL DEFAULT 'user' CHECK (role IN ('user', 'admin'));
+  END IF;
+
+  -- 添加 status 字段
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_name = 'users' AND column_name = 'status'
+  ) THEN
+    ALTER TABLE users ADD COLUMN status VARCHAR(20) NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'suspended', 'deleted'));
+  END IF;
+END $$;
+
+-- 为 role 和 status 字段添加注释
+COMMENT ON COLUMN users.role IS '用户角色：user(普通用户) / admin(管理员)';
+COMMENT ON COLUMN users.status IS '用户状态：active(正常) / suspended(停用) / deleted(已注销)';

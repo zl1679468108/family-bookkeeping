@@ -334,7 +334,7 @@ const Categories: React.FC = () => {
   // ── 渲染 ───────────────────────────────────────────────────────────────────
 
   return (
-    <div>
+    <div className="page-container">
       <Header title="分类管理">
         {sortingMode ? (
           <div className="flex gap-2">

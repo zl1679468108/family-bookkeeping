@@ -13,11 +13,9 @@ export interface TransactionItemProps {
   amount: number;
   type: "income" | "expense";
   date?: string;
-  categoryType?: string;
   onClick?: () => void;
   onDelete?: () => void;
   onLongPress?: () => void;
-  showCategory?: boolean;
 }
 
 const SWIPE_THRESHOLD = 60;
@@ -25,15 +23,13 @@ const SWIPE_THRESHOLD = 60;
 export default function TransactionItem({
   icon,
   categoryName,
-  description: _description,
+  description,
   amount,
   type,
   date,
-  categoryType,
   onClick,
   onDelete,
   onLongPress,
-  showCategory = true,
 }: TransactionItemProps) {
   const [swiped, setSwiped] = useState(false);
   const touchStartX = useRef(0);
@@ -111,8 +107,9 @@ export default function TransactionItem({
         <View className="txi-body">
           <Text className="txi-name">{categoryName}</Text>
           <Text className="txi-meta">
+            {description || ""}
+            {(description && date) ? " · " : ""}
             {date || ""}
-            {showCategory && categoryType ? ` · ${categoryType}` : ""}
           </Text>
         </View>
 

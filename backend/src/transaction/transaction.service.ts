@@ -31,6 +31,8 @@ export interface TransactionFilters {
   endDate?: string;
   userId?: string;
   bookId?: string;
+  /** 查看范围：'own' 只看自己，'all' 查看账本内所有（需是 Owner） */
+  view?: 'own' | 'all';
   page?: number;
   pageSize?: number;
   sortBy?: 'amount' | 'date';
@@ -54,6 +56,28 @@ export interface PaginatedResponse<T> {
 export class TransactionService {
   constructor(private supabaseService: SupabaseService) {}
 
+  /**
+   * 检查指定用户是否是指定账本的 Owner
+   * @param userId 用户 ID
+   * @param bookId 账本 ID
+   * @returns 是否是 Owner
+   */
+  private async isBookOwner(userId: string, bookId: string): Promise<boolean> {
+    const supabase = this.supabaseService.getClient();
+    const { data, error } = await supabase
+      .from('book_members')
+      .select('role')
+      .eq('book_id', bookId)
+      .eq('user_id', userId)
+      .single();
+
+    if (error || !data) {
+      return false;
+    }
+
+    return data.role === 'owner';
+  }
+
   async findAll(filters?: TransactionFilters): Promise<PaginatedResponse<Transaction>> {
     const supabase = this.supabaseService.getClient();
 
@@ -67,14 +91,29 @@ export class TransactionService {
     const sortOrder = filters?.sortOrder || 'desc';
     const offset = (page - 1) * pageSize;
 
+    // 检查当前用户是否是账本 Owner（如果指定了 bookId）
+    let isOwner = false;
+    if (filters?.bookId) {
+      isOwner = await this.isBookOwner(filters.userId, filters.bookId);
+    }
+
     // 构建查询条件
+    // 如果是 Owner 且 view=all，则查询账本内所有交易；否则只查询自己的交易
+    const shouldViewAll = isOwner && filters?.view === 'all';
+    
     let baseQuery = supabase
       .from('transactions')
-      .select('*')
-      .eq('user_id', filters.userId);
+      .select('*');
 
-    if (filters?.bookId) {
+    if (shouldViewAll) {
+      // Owner 查看所有成员的交易
       baseQuery = baseQuery.eq('book_id', filters.bookId);
+    } else {
+      // 普通视图：只查看自己的交易
+      baseQuery = baseQuery.eq('user_id', filters.userId);
+      if (filters?.bookId) {
+        baseQuery = baseQuery.eq('book_id', filters.bookId);
+      }
     }
 
     if (filters?.type) {
@@ -120,10 +159,15 @@ export class TransactionService {
     // 先用独立的 head 查询获取精确 count（不受 range 影响）
     let countQuery = supabase
       .from('transactions')
-      .select('*', { count: 'exact', head: true })
-      .eq('user_id', filters.userId);
+      .select('*', { count: 'exact', head: true });
 
-    if (filters?.bookId) countQuery = countQuery.eq('book_id', filters.bookId);
+    if (shouldViewAll) {
+      countQuery = countQuery.eq('book_id', filters.bookId);
+    } else {
+      countQuery = countQuery.eq('user_id', filters.userId);
+      if (filters?.bookId) countQuery = countQuery.eq('book_id', filters.bookId);
+    }
+
     if (filters?.type) countQuery = countQuery.eq('type', filters.type);
     if (filters?.category) countQuery = countQuery.eq('category', filters.category);
     if (filters?.startDate) countQuery = countQuery.gte('date', filters.startDate);
@@ -174,28 +218,35 @@ export class TransactionService {
     if (!userId) {
       throw new ForbiddenException('需要登录才能访问交易记录');
     }
-
+    
+    // 首先查找交易记录（不限制 user_id）
     let query = supabase
       .from('transactions')
       .select('*')
-      .eq('id', id)
-      .eq('user_id', userId);
-
-    if (bookId) {
-      query = query.eq('book_id', bookId);
-    }
+      .eq('id', id);
 
     const { data, error } = await query.single();
 
-    if (error) {
-      throw new InternalServerErrorException(`获取交易记录失败: ${error.message}`);
+    if (error || !data) {
+      throw new InternalServerErrorException(`获取交易记录失败: ${error?.message || '交易不存在'}`);
     }
 
-    if (!data) {
-      throw new ForbiddenException('无权访问此交易记录');
+    // 权限检查：
+    // 1. 如果 user_id === userId，则有权限
+    // 2. 如果当前用户是账本 Owner，则有权限
+    if (data.user_id === userId) {
+      return this.resolveImageUrl(data);
     }
 
-    return this.resolveImageUrl(data);
+    // 检查是否是账本 Owner
+    if (data.book_id) {
+      const isOwner = await this.isBookOwner(userId, data.book_id);
+      if (isOwner) {
+        return this.resolveImageUrl(data);
+      }
+    }
+
+    throw new ForbiddenException('无权访问此交易记录');
   }
 
   async create(transaction: Partial<Transaction>, userId?: string, bookId?: string): Promise<Transaction> {
@@ -266,14 +317,22 @@ export class TransactionService {
       delete updateData.poiId;
     }
 
+    // 检查是否是 Owner
+    const isOwner = bookId ? await this.isBookOwner(userId, bookId) : false;
+
     let updateQuery = supabase
       .from('transactions')
       .update(updateData)
-      .eq('id', id)
-      .eq('user_id', userId);
+      .eq('id', id);
 
-    if (bookId) {
+    // 如果是 Owner，则限制 book_id；否则限制 user_id
+    if (isOwner && bookId) {
       updateQuery = updateQuery.eq('book_id', bookId);
+    } else {
+      updateQuery = updateQuery.eq('user_id', userId);
+      if (bookId) {
+        updateQuery = updateQuery.eq('book_id', bookId);
+      }
     }
 
     const { data, error } = await updateQuery.select().single();
@@ -297,14 +356,22 @@ export class TransactionService {
       throw new ForbiddenException('无权删除此交易记录');
     }
 
+    // 检查是否是 Owner
+    const isOwner = bookId ? await this.isBookOwner(userId, bookId) : false;
+
     let query = supabase
       .from('transactions')
       .delete()
-      .eq('id', id)
-      .eq('user_id', userId);
+      .eq('id', id);
 
-    if (bookId) {
+    // 如果是 Owner，则限制 book_id；否则限制 user_id
+    if (isOwner && bookId) {
       query = query.eq('book_id', bookId);
+    } else {
+      query = query.eq('user_id', userId);
+      if (bookId) {
+        query = query.eq('book_id', bookId);
+      }
     }
 
     const { error } = await query;
@@ -325,16 +392,27 @@ export class TransactionService {
   ): Promise<{ affected: number }> {
     const supabase = this.supabaseService.getClient();
 
+    // 检查是否是 Owner
+    const isOwner = bookId ? await this.isBookOwner(userId, bookId) : false;
+
     // 1. 归属校验：确认所有 ids 属于当前用户（和指定账本）
+    // 如果是 Owner，则只检查 book_id；否则检查 user_id
     let countQuery = supabase
       .from('transactions')
-      .select('*', { count: 'exact', head: true })
-      .eq('user_id', userId)
-      .in('id', dto.ids);
+      .select('*', { count: 'exact', head: true });
 
-    if (bookId) {
+    if (isOwner && bookId) {
+      // Owner：检查 book_id
       countQuery = countQuery.eq('book_id', bookId);
+    } else {
+      // 普通用户：检查 user_id
+      countQuery = countQuery.eq('user_id', userId);
+      if (bookId) {
+        countQuery = countQuery.eq('book_id', bookId);
+      }
     }
+
+    countQuery = countQuery.in('id', dto.ids);
 
     const { count, error: countError } = await countQuery;
 
@@ -385,10 +463,16 @@ export class TransactionService {
       execQuery = supabase.from('transactions').update(updateData);
     }
 
-    // 链式过滤：user_id + ids + (可选) book_id
-    execQuery = execQuery.eq('user_id', userId).in('id', dto.ids);
-    if (bookId) {
-      execQuery = execQuery.eq('book_id', bookId);
+    // 链式过滤
+    if (isOwner && bookId) {
+      // Owner：只限制 book_id
+      execQuery = execQuery.eq('book_id', bookId).in('id', dto.ids);
+    } else {
+      // 普通用户：限制 user_id + (可选) book_id
+      execQuery = execQuery.eq('user_id', userId).in('id', dto.ids);
+      if (bookId) {
+        execQuery = execQuery.eq('book_id', bookId);
+      }
     }
 
     const { error } = await execQuery;

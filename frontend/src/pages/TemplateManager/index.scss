@@ -1,0 +1,96 @@
+/* 交易模板列表 */
+.template-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.template-item {
+  display: flex;
+  align-items: center;
+  padding: 14px 18px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  transition: box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.template-item:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  border-color: var(--accent);
+}
+
+.template-item__info {
+  flex: 1;
+  min-width: 0;
+}
+
+.template-item__name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--fg);
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.template-item__meta {
+  font-size: 12px;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.template-item__meta-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.template-item__meta-tag.income {
+  color: var(--success);
+}
+
+.template-item__meta-tag.expense {
+  color: var(--danger);
+}
+
+.template-item__actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.template-item__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--muted);
+  transition: all 0.15s ease;
+}
+
+.template-item__btn:hover {
+  background: var(--bg);
+  color: var(--fg);
+}
+
+.template-item__btn--copy:hover {
+  background: rgba(99, 102, 241, 0.08);
+  color: var(--accent);
+}
+
+.template-item__btn--delete:hover {
+  background: rgba(239, 68, 68, 0.08);
+  color: var(--danger);
+}

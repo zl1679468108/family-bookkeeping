@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { ConfirmDialog } from '../../components/ConfirmDialog';
 import { LocationPicker } from '../AddTransaction/components/LocationPicker';
 import { FormGroup, FormRow } from '../../components/Form';
+import { Header } from '../../components/Header';
 import { notify } from '../../utils/notifications';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { useTemplates, useCreateTemplate, useUpdateTemplate, useDeleteTemplate } from '../../hooks/useTemplates';
@@ -9,6 +10,7 @@ import { useCategories } from '../../hooks/useCategories';
 import { typeOptions } from '../../utils/commonDic';
 import type { CreateTemplateInput } from '../../types/template';
 import type { LocationResult } from '../../types/map';
+import './index.scss';
 
 const TemplateManager: React.FC = () => {
   const { data: templates = [], isLoading } = useTemplates();
@@ -92,6 +94,18 @@ const TemplateManager: React.FC = () => {
     setShowForm(true);
   };
 
+  const handleCopy = (t: any) => {
+    setForm({
+      name: `${t.name}（复制）`, type: t.type, category_id: t.category_id || '',
+      note: t.note || '',
+      latitude: t.latitude, longitude: t.longitude,
+      location_name: t.location_name || '',
+      poi_id: t.poi_id || '',
+    });
+    setEditingId(null); // 不设置editingId，作为新模板创建
+    setShowForm(true);
+  };
+
   const handleDelete = () => {
     if (deleteId) {
       deleteMutation.mutate(deleteId, {
@@ -105,14 +119,13 @@ const TemplateManager: React.FC = () => {
     .map(c => ({ value: c.id, label: `${c.icon} ${c.name}` }));
 
   return (
-    <div style={{ padding: 24 }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
-        <h2 style={{ fontSize: 18, fontWeight: 600 }}>📋 交易模板</h2>
+    <div className="page-container">
+      <Header title="交易模板">
         <button onClick={() => { resetForm(); setShowForm(true); }} style={{
           padding: '8px 16px', borderRadius: 6, border: 'none',
           background: 'var(--accent)', color: '#fff', cursor: 'pointer', fontSize: 13,
         }}>+ 新建模板</button>
-      </div>
+      </Header>
 
       {showForm && (
         <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 12, padding: 20, marginBottom: 20 }}>
@@ -203,30 +216,55 @@ const TemplateManager: React.FC = () => {
       ) : templates.length === 0 ? (
         <div style={{ textAlign: 'center', color: 'var(--muted)', padding: 40 }}>暂无模板，点击上方按钮创建</div>
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-          {templates.map(t => (
-            <div key={t.id} style={{
-              display: 'flex', alignItems: 'center', padding: '12px 16px',
-              background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 8,
-            }}>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontSize: 14, fontWeight: 500 }}>📋 {t.name}</div>
-                <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 2, display: 'flex', gap: 12 }}>
-                  <span style={{ color: t.type === 'income' ? 'var(--success)' : 'var(--danger)' }}>
-                    {t.type === 'income' ? '💰 收入' : '💸 支出'}
-                  </span>
-                  {t.category_id && categories.find(c => c.id === t.category_id) && (
-                    <span>{categories.find(c => c.id === t.category_id)?.icon} {categories.find(c => c.id === t.category_id)?.name}</span>
-                  )}
-                  {t.location_name && <span>📍 {t.location_name}</span>}
+        <div className="template-list">
+          {templates.map(t => {
+            const cat = t.category_id ? categories.find(c => c.id === t.category_id) : null;
+            return (
+              <div key={t.id} className="template-item">
+                <div className="template-item__info">
+                  <div className="template-item__name">
+                    📋 {t.name}
+                  </div>
+                  <div className="template-item__meta">
+                    <span className={`template-item__meta-tag ${t.type}`}>
+                      {t.type === 'income' ? '💰 收入' : '💸 支出'}
+                    </span>
+                    {cat && (
+                      <span className="template-item__meta-tag">
+                        {cat.icon} {cat.name}
+                      </span>
+                    )}
+                    {t.location_name && (
+                      <span className="template-item__meta-tag">
+                        📍 {t.location_name}
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <div className="template-item__actions">
+                  <button onClick={() => handleCopy(t)} className="template-item__btn template-item__btn--copy" title="复制">
+                    <svg width="13" height="13" viewBox="0 0 20 20" fill="currentColor">
+                      <path d="M7 9a2 2 0 012-2h6a2 2 0 012 2v6a2 2 0 01-2 2H9a2 2 0 01-2-2V9z" />
+                      <path d="M5 3a2 2 0 00-2 2v6a2 2 0 002 2V5h8a2 2 0 00-2-2H5z" />
+                    </svg>
+                    复制
+                  </button>
+                  <button onClick={() => handleEdit(t)} className="template-item__btn" title="编辑">
+                    <svg width="13" height="13" viewBox="0 0 20 20" fill="currentColor">
+                      <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                    </svg>
+                    编辑
+                  </button>
+                  <button onClick={() => setDeleteId(t.id)} className="template-item__btn template-item__btn--delete" title="删除">
+                    <svg width="13" height="13" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+                    </svg>
+                    删除
+                  </button>
                 </div>
               </div>
-              <div style={{ display: 'flex', gap: 6 }}>
-                <button onClick={() => handleEdit(t)} className="btn btn-sm">编辑</button>
-                <button onClick={() => setDeleteId(t.id)} className="btn btn-sm btn-danger">删除</button>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
 

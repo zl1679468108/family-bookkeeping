@@ -191,21 +191,31 @@ src/
 
 ### 6. 导航栏：统一使用 NavHeader 公共组件
 
-> 2026-06-07 设计 v3.0，2026-06-08 封装为公共组件。
+> 2026-06-07 设计 v3.0，2026-06-08 封装为公共组件，2026-06-09 增加胶囊避让。
 
 **NavHeader Props**：`title`, `leftContent?`, `rightContent?`
-- 三栏布局：左(80rpx) | 中(标题居中) | 右(80rpx)
+- 三栏布局：左(80rpx) | 中(标题居中) | 右（动态胶囊避让）
 - 固定高度 88rpx，自动处理 safe area
+- 右侧 slot 通过 `Taro.getMenuButtonBoundingClientRect()` 计算偏移，自动避开胶囊按钮
 - 所有 `custom` 导航栏页面统一使用
 
 | 页面类型 | navigationStyle | 导航组件 | 示例 |
 |---------|:---:|------|------|
 | 一级有 TabBar | `custom` | `<PageLayout title="首页" tabBar>` | Home, Transactions, Statistics, Profile |
 | 一级无 TabBar | `custom` | `<NavHeader title="记一笔" leftContent={✕} rightContent={模板} />` | AddTransaction |
-| 二三级无 TabBar | `default` | 系统默认导航栏 | Budgets, Categories, Books, TemplateManager, Calendar |
+| 二三级无 TabBar | `default` | 系统默认导航栏（per-page index.config.ts 设标题） | Budgets, Categories, Books, TemplateManager, Calendar |
 
 - **禁止**页面内手写导航栏 HTML/CSS
 - **禁止**使用默认系统导航栏的页面上叠加自定义导航栏
+
+### 6.1 颜色规则（2026-06-09 明确）
+
+> 严格对齐设计稿 quiet-bookkeeping-design-v4.html
+
+- **收入/支出颜色（红/绿）仅用于金额展示**，如交易金额、统计数值等
+- **分类选中、按钮、标签等交互元素的激活色统一使用绿色系**（`--color-primary` / `--color-primary-bg`）
+- **交易图标背景统一为 `--color-subtle`**，不按收入/支出区分
+- 记一笔页使用系统原生键盘，无自定义数字键盘
 
 ### 7. Taro 端功能对齐 PC 端原则
 

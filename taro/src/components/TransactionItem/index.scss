@@ -1,3 +1,7 @@
+/**
+ * TransactionItem v4 — 交易条目
+ * 设计稿对齐：圆角图标、左滑删除、字体大小
+ */
 .txi-wrapper {
   position: relative;
   overflow: hidden;
@@ -6,16 +10,20 @@
 .txi-main {
   display: flex;
   align-items: center;
-  padding: 20rpx 24rpx;
+  padding: 16rpx 24rpx;
   background-color: var(--color-card);
   border-bottom: 0.5px solid var(--color-divider);
   position: relative;
   z-index: 2;
-  transition: transform 0.2s ease;
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.txi-main:active {
+  background-color: var(--color-subtle);
 }
 
 .txi-main--swiped {
-  transform: translateX(-120rpx);
+  transform: translateX(-140rpx);
 }
 
 .txi-delete {
@@ -23,37 +31,37 @@
   right: 0;
   top: 0;
   bottom: 0;
-  width: 120rpx;
+  width: 140rpx;
   background-color: var(--color-danger);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1;
+  border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
 }
 
 .txi-delete-text {
   color: #fff;
-  font-size: var(--font-sm);
-  font-weight: 600;
+  font-size: var(--font-base);
+  font-weight: 500;
 }
 
 .txi-icon {
-  width: 64rpx;
-  height: 64rpx;
+  width: 68rpx;
+  height: 68rpx;
   border-radius: var(--radius-sm);
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  margin-right: var(--spacing-sm);
+  margin-right: 20rpx;
+  border: 0.5px solid var(--color-border);
 }
 
-.txi-icon--expense {
-  background-color: var(--color-expense-bg);
-}
-
+/* Icon background — universal subtle, per v4 design */
+.txi-icon--expense,
 .txi-icon--income {
-  background-color: var(--color-primary-bg);
+  background-color: var(--color-subtle);
 }
 
 .txi-icon-text {
@@ -67,8 +75,8 @@
 }
 
 .txi-name {
-  font-size: var(--font-base);
-  font-weight: 600;
+  font-size: var(--font-sm);
+  font-weight: 500;
   color: var(--color-text);
   display: block;
   overflow: hidden;
@@ -79,14 +87,18 @@
 .txi-meta {
   font-size: var(--font-xs);
   color: var(--color-text-hint);
-  margin-top: 2rpx;
+  margin-top: 4rpx;
   display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .txi-amount {
   font-size: var(--font-md);
   font-weight: 600;
   flex-shrink: 0;
+  text-align: right;
 }
 
 .txi-amount--expense {

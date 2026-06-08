@@ -5,13 +5,13 @@
 import { useState, useMemo } from "react";
 import { View, Text, ScrollView, Picker } from "@tarojs/components";
 import Taro from "@tarojs/taro";
-import { useQuery } from "@tanstack/react-query";
 import TransactionItem from "../../components/TransactionItem";
 import EmptyState from "../../components/EmptyState";
 import { getTransactions } from "../../services/transactionsApi";
 import { fetchDailySummary } from "../../services/statisticsApi";
 import { useCategories } from "../../hooks/useCategories";
 import { useMonthSelector } from "../../hooks/useMonthSelector";
+import { useManualQuery } from "../../hooks/useManualQuery";
 import type { Category, Transaction } from "../../types";
 import "./index.scss";
 
@@ -22,14 +22,13 @@ export default function Calendar() {
 
   const pickerMonth = `${year}-${String(month).padStart(2, "0")}`;
 
-  const { data: dailyData } = useQuery({
-    queryKey: ["statistics", "daily-summary", pickerMonth],
+  const { data: dailyData } = useManualQuery({
+    key: `cal-daily-${pickerMonth}`,
     queryFn: () => fetchDailySummary(pickerMonth),
-    staleTime: 60_000,
   });
 
-  const { data: dayTx, isLoading: detailLoading } = useQuery({
-    queryKey: ["transactions", "by-date", selectedDate],
+  const { data: dayTx, isLoading: detailLoading } = useManualQuery({
+    key: `cal-day-${selectedDate || "none"}`,
     queryFn: () =>
       getTransactions({
         startDate: selectedDate!,
@@ -37,7 +36,6 @@ export default function Calendar() {
         pageSize: 200,
       }),
     enabled: !!selectedDate,
-    staleTime: 30_000,
   });
 
   const { data: cats } = useCategories();
@@ -264,11 +262,10 @@ export default function Calendar() {
                         amount={t.amount}
                         type={t.type}
                         date={t.date?.split("T")[1]?.slice(0, 5)}
-                        onClick={() =>
-                          Taro.navigateTo({
-                            url: `/pages/AddTransaction/index?edit=${t.id}`,
-                          })
-                        }
+                        onClick={() => {
+                          Taro.setStorageSync("edit_tx_id", t.id);
+                          Taro.switchTab({ url: "/pages/AddTransaction/index" });
+                        }}
                       />
                     );
                   })}

@@ -19,7 +19,9 @@ export default defineConfig({
     ),
   },
   copy: {
-    patterns: [],
+    patterns: [
+      { from: "src/assets/icons/", to: "dist/assets/icons/" },
+    ],
     options: {},
   },
   framework: "react",

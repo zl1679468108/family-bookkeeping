@@ -11,6 +11,7 @@ import { BooksModule } from './books/books.module';
 import { MapModule } from './map/map.module';
 import { TemplatesModule } from './templates/templates.module';
 import { ReportsModule } from './reports/reports.module';
+import { AdminModule } from './admin/admin.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { ReportsModule } from './reports/reports.module';
     MapModule,
     TemplatesModule,
     ReportsModule,
+    AdminModule,
   ],
 })
 export class AppModule {}

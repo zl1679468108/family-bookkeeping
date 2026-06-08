@@ -3,11 +3,13 @@
  * 白色导航 · 月份选择 · 支出预算设置 · 保存 · 复制上月 · 收入只读
  */
 import { useState, useEffect, useRef } from "react";
+import Taro from "@tarojs/taro";
 import { View, Text, Input } from "@tarojs/components";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import MonthPicker from "../../components/MonthPicker";
 import EmptyState from "../../components/EmptyState";
 import { useMonthSelector } from "../../hooks/useMonthSelector";
+import { useManualQuery } from "../../hooks/useManualQuery";
 import {
   fetchBudgets,
   fetchBudgetStatus,
@@ -22,23 +24,20 @@ export default function BudgetsPage() {
   const qc = useQueryClient();
   const { year, month, setYear, setMonth, monthKey } = useMonthSelector();
 
-  const { data: categories = [] } = useQuery<Category[]>({
-    queryKey: ["categories"],
+  const { data: categories = [] } = useManualQuery<Category[]>({
+    key: "categories",
     queryFn: () => fetchCategories(),
-    staleTime: 60_000,
   });
   const expenseCats = categories.filter((c) => c.type === "expense");
   const incomeCats = categories.filter((c) => c.type === "income");
 
-  const { data: budgets = [], isLoading } = useQuery<BudgetRecord[]>({
-    queryKey: ["budgets", monthKey],
+  const { data: budgets = [], isLoading } = useManualQuery<BudgetRecord[]>({
+    key: `budgets-${monthKey}`,
     queryFn: () => fetchBudgets(monthKey),
-    staleTime: 60_000,
   });
-  const { data: bs } = useQuery({
-    queryKey: ["budgets", "status", monthKey],
+  const { data: bs } = useManualQuery({
+    key: `budgets-status-${monthKey}`,
     queryFn: () => fetchBudgetStatus(monthKey),
-    staleTime: 60_000,
   });
 
   /* Build lookup maps */
@@ -81,11 +80,17 @@ export default function BudgetsPage() {
   const saveMut = useMutation({
     mutationFn: (items: Array<{ category: string; amount: number }>) =>
       upsertBudgets({ month: monthKey, budgets: items }),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["budgets"] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["budgets"] });
+      Taro.showToast({ title: "预算保存成功", icon: "success" });
+    },
   });
   const copyMut = useMutation({
     mutationFn: () => copyBudgets({ targetMonth: monthKey }),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["budgets"] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["budgets"] });
+      Taro.showToast({ title: "复制成功", icon: "success" });
+    },
   });
 
   const handleSave = () => {

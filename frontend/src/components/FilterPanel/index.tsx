@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import './index.scss';
 
 interface FilterPanelProps {
   expanded: boolean;
@@ -14,11 +15,6 @@ interface FilterPanelProps {
 }
 
 const DEBOUNCE_MS = 300;
-
-const inputStyle: React.CSSProperties = {
-  padding: '6px 8px', borderRadius: 6, border: '1px solid var(--border)',
-  fontSize: 13, width: 120, background: 'var(--surface)', color: 'var(--fg)',
-};
 
 /** 防抖 Hook：value 变化后 delay ms 再调用 callback */
 const useDebounce = (value: string, callback: (v: string) => void, delay: number) => {
@@ -59,26 +55,52 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
 
   return (
     <div style={{ marginBottom: 12 }}>
-      <button onClick={onToggle} style={{
-        padding: '4px 12px', fontSize: 13, border: '1px solid var(--border)',
-        borderRadius: 6, background: 'var(--surface)', color: 'var(--fg)', cursor: 'pointer',
-      }}>
-        高级筛选 {expanded ? '▾' : '▸'}
+      <button
+        onClick={onToggle}
+        className={`filter-panel-toggle ${expanded ? 'active' : ''}`}
+      >
+        <svg className="filter-panel-toggle__icon" viewBox="0 0 20 20" fill="currentColor">
+          <path fillRule="evenodd" d="M3 3a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V3z" clipRule="evenodd" />
+        </svg>
+        高级筛选
+        <span>{expanded ? '▾' : '▸'}</span>
       </button>
       {expanded && (
-        <div style={{ marginTop: 8, display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
-          <span style={{ fontSize: 13, color: 'var(--muted)' }}>金额</span>
-          <input type="number" placeholder="最小" value={localMinAmount}
-            onChange={e => setLocalMinAmount(e.target.value)} style={inputStyle} />
-          <span style={{ color: 'var(--muted)' }}>~</span>
-          <input type="number" placeholder="最大" value={localMaxAmount}
-            onChange={e => setLocalMaxAmount(e.target.value)} style={inputStyle} />
-          <span style={{ fontSize: 13, color: 'var(--muted)', marginLeft: 8 }}>日期</span>
-          <input type="date" value={localDateFrom}
-            onChange={e => setLocalDateFrom(e.target.value)} style={inputStyle} />
-          <span style={{ color: 'var(--muted)' }}>~</span>
-          <input type="date" value={localDateTo}
-            onChange={e => setLocalDateTo(e.target.value)} style={inputStyle} />
+        <div className="filter-panel-content">
+          <div className="filter-panel-group">
+            <span className="filter-panel-label">金额</span>
+            <input
+              type="number"
+              placeholder="最小"
+              value={localMinAmount}
+              onChange={e => setLocalMinAmount(e.target.value)}
+              className="filter-panel-input"
+            />
+            <span className="filter-panel-sep">~</span>
+            <input
+              type="number"
+              placeholder="最大"
+              value={localMaxAmount}
+              onChange={e => setLocalMaxAmount(e.target.value)}
+              className="filter-panel-input"
+            />
+          </div>
+          <div className="filter-panel-group">
+            <span className="filter-panel-label">日期</span>
+            <input
+              type="date"
+              value={localDateFrom}
+              onChange={e => setLocalDateFrom(e.target.value)}
+              className="filter-panel-input"
+            />
+            <span className="filter-panel-sep">~</span>
+            <input
+              type="date"
+              value={localDateTo}
+              onChange={e => setLocalDateTo(e.target.value)}
+              className="filter-panel-input"
+            />
+          </div>
         </div>
       )}
     </div>

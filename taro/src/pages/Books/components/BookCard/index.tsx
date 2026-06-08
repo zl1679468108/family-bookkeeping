@@ -4,8 +4,10 @@
  */
 import { useState } from "react";
 import { View, Text, Input } from "@tarojs/components";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import Taro from "@tarojs/taro";
+import { useMutation } from "@tanstack/react-query";
 import { fetchBookMembers, inviteMember } from "../../../../services/booksApi";
+import { useManualQuery } from "../../../../hooks/useManualQuery";
 import type { Book } from "../../../../types";
 import "./index.scss";
 
@@ -34,8 +36,8 @@ export default function BookCard({
   const [showInvite, setShowInvite] = useState(false);
   const [inviteEmail, setInviteEmail] = useState("");
 
-  const { data: members = [] } = useQuery({
-    queryKey: ["books", "members", book.id],
+  const { data: members = [] } = useManualQuery({
+    key: `book-members-${book.id}`,
     queryFn: () => fetchBookMembers(book.id),
     enabled: showMembers,
   });
@@ -129,6 +131,16 @@ export default function BookCard({
               onClick={() => setShowMembers((v) => !v)}
             >
               <Text className="text-xs">成员</Text>
+            </View>
+            <View
+              className="book-card-action"
+              onClick={() =>
+                Taro.navigateTo({
+                  url: `/pages/BookSettings/index?id=${book.id}`,
+                })
+              }
+            >
+              <Text className="text-xs">设置</Text>
             </View>
             {!isDefault && (
               <View className="book-card-action" onClick={() => onDelete(book)}>

@@ -1,58 +1,78 @@
+/**
+ * Home v4 — 安静记账首页
+ * 设计稿对齐：结余卡片、预算进度、预警、近期流水
+ */
 .home-content {
   padding: var(--spacing-md);
   padding-bottom: 200rpx;
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-sm);
+  gap: 20rpx;
+}
+
+/* Month Picker — 使用组件默认样式 */
+.home-month-picker {
+  padding: 8rpx 0;
 }
 
 /* Balance Card */
 .home-balance-card {
   background-color: var(--color-card);
-  border-radius: var(--radius-xl);
+  border-radius: var(--radius-lg);
   border: 0.5px solid var(--color-border);
-  padding: 32rpx var(--spacing-md);
+  padding: 24rpx var(--spacing-md);
 }
 
 .home-balance-label {
   font-size: var(--font-sm);
-  color: var(--color-text-hint);
+  color: var(--color-text-secondary);
   display: block;
 }
 
 .home-balance-value {
   font-size: 56rpx;
-  font-weight: 600;
-  color: var(--color-text);
-  line-height: 1.1;
+  font-weight: 700;
+  color: var(--color-primary);
+  line-height: 1.15;
   margin-top: 4rpx;
+  letter-spacing: -1rpx;
+  transition: color 0.3s ease;
+}
+
+.home-balance-value.negative {
+  color: var(--color-expense);
 }
 
 .home-balance-row {
   display: flex;
-  gap: 32rpx;
+  gap: 48rpx;
   margin-top: 24rpx;
   padding-top: 24rpx;
   border-top: 0.5px solid var(--color-divider);
 }
 
+.home-balance-item {
+  display: flex;
+  flex-direction: column;
+}
+
 .home-balance-item-label {
   font-size: var(--font-xs);
-  color: var(--color-text-hint);
+  color: var(--color-text-secondary);
   display: flex;
   align-items: center;
-  gap: 6rpx;
+  gap: 8rpx;
 }
 
 .home-balance-item-value {
-  font-size: var(--font-xl);
+  font-size: var(--font-lg);
   font-weight: 600;
   margin-top: 4rpx;
 }
 
 .home-dot {
-  width: 10rpx;
-  height: 10rpx;
+  width: 12rpx;
+  height: 12rpx;
   border-radius: 50%;
   display: inline-block;
 }
@@ -73,32 +93,105 @@
   padding: var(--spacing-md);
 }
 
-/* Alerts Card */
+.home-budget-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12rpx;
+}
+
+.home-budget-title {
+  font-size: var(--font-sm);
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.home-budget-pct {
+  font-size: var(--font-sm);
+  color: var(--color-text-secondary);
+}
+
+.home-budget-numbers {
+  font-size: var(--font-xs);
+  color: var(--color-text-hint);
+  margin-top: 8rpx;
+}
+
+/* Alerts Card — 严格按设计稿 .alert-row */
 .home-alerts-card {
   background-color: var(--color-card);
   border-radius: var(--radius-lg);
   border: 0.5px solid var(--color-border);
   padding: var(--spacing-md);
+  margin-bottom: 10rpx;
 }
 
-.home-alert-item {
+.home-alerts-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12rpx;
+}
+
+.home-alerts-title {
+  font-size: var(--font-sm);
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.home-alerts-link {
+  font-size: var(--font-xs);
+  color: var(--text-hint);
+  cursor: pointer;
+}
+
+.home-alerts-link:active {
+  color: var(--color-primary);
+}
+
+/* 预警行 — 严格按设计稿 .alert-row */
+.home-alert-row {
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
   padding: 6rpx 0;
+  gap: 8rpx;
 }
 
-.home-alert-dot {
-  width: 6rpx;
-  height: 32rpx;
-  border-radius: 3rpx;
+.home-alert-row .home-alert-icon {
+  width: 24rpx;
+  height: 24rpx;
+  border-radius: var(--radius-sm);
+  background-color: var(--color-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   flex-shrink: 0;
+  border: 0.5px solid var(--color-border);
 }
 
-.home-alert-dot--danger {
-  background-color: var(--color-danger);
+.home-alert-row .home-alert-name {
+  font-size: var(--font-sm);
+  color: var(--color-text);
+  flex: 1;
 }
 
-.home-alert-dot--warn {
-  background-color: var(--color-warning);
+.home-alert-row .home-alert-mini-bar {
+  width: 60rpx;
+  height: 3rpx;
+  background: var(--color-divider);
+  border-radius: 2rpx;
+  overflow: hidden;
+}
+
+.home-alert-row .home-alert-mini-bar .home-alert-fill {
+  height: 100%;
+  border-radius: 2rpx;
+  transition: width 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.home-alert-row .home-alert-pct {
+  font-size: var(--font-sm);
+  font-weight: 600;
+  width: 30rpx;
+  text-align: right;
 }

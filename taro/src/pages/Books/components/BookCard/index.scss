@@ -1,17 +1,31 @@
+/**
+ * BookCard v4 — 严格对齐设计稿
+ * 设计稿：.book-card / .book-cover / .book-check
+ */
 .book-card {
   background-color: var(--color-card);
   border-radius: var(--radius-lg);
   border: 0.5px solid var(--color-border);
-  overflow: hidden;
+  padding: 28rpx var(--spacing-md);
+  display: flex;
+  align-items: center;
+  gap: 24rpx;
+  transition: background-color 0.15s ease;
+  margin-bottom: 16rpx;
+
+  &:active {
+    background-color: var(--color-subtle);
+  }
 
   &--active {
-    border-left: 6rpx solid var(--color-primary);
+    border-color: var(--color-primary);
+    background-color: var(--color-primary-bg);
   }
 }
 
 .book-card-badge {
-  padding: 2rpx 10rpx;
-  border-radius: var(--radius-sm);
+  padding: 4rpx 16rpx;
+  border-radius: var(--radius-full);
   background-color: var(--color-bg);
   &--current {
     background-color: var(--color-primary-bg);

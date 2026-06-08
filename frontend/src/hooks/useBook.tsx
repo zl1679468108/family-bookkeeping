@@ -8,6 +8,8 @@ export interface Book {
   owner_id: string;
   created_at: string;
   updated_at: string;
+  /** 当前用户在账本中的角色 */
+  role?: string;
 }
 
 const BOOK_KEY = 'current_book_id';
@@ -22,6 +24,8 @@ interface BookContextType {
   switchBook: (book: Book | null) => void;
   /** 加载中 */
   loading: boolean;
+  /** 当前用户是否是当前账本的 Owner */
+  isOwner: boolean;
 }
 
 const BookContext = createContext<BookContextType>({
@@ -29,6 +33,7 @@ const BookContext = createContext<BookContextType>({
   books: [],
   switchBook: () => {},
   loading: false,
+  isOwner: false,
 });
 
 export const useBook = () => useContext(BookContext);
@@ -88,6 +93,9 @@ export const BookProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, [books, currentBook]);
 
+  // 计算当前用户是否是当前账本的 Owner
+  const isOwner = currentBook?.role === 'owner';
+
   const switchBook = useCallback((book: Book | null) => {
     setCurrentBook(book);
     setStoredBookId(book?.id ?? null);
@@ -102,7 +110,7 @@ export const BookProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [queryClient]);
 
   return (
-    <BookContext.Provider value={{ currentBook, books, switchBook, loading }}>
+    <BookContext.Provider value={{ currentBook, books, switchBook, loading, isOwner }}>
       {children}
     </BookContext.Provider>
   );

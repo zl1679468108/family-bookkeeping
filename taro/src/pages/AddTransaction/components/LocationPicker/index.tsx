@@ -5,8 +5,8 @@
 import { useState, useCallback, useEffect } from "react";
 import { View, Text, Map, Input } from "@tarojs/components";
 import Taro from "@tarojs/taro";
-import { useQuery } from "@tanstack/react-query";
 import { apiGet } from "../../../../services/api";
+import { useManualQuery } from "../../../../hooks/useManualQuery";
 import "./index.scss";
 
 export interface LocationResult {
@@ -90,8 +90,16 @@ export default function LocationPicker({
   };
 
   // POI搜索
-  const { data: searchResults } = useQuery({
-    queryKey: ["map", "search", searchText],
+  const { data: searchResults } = useManualQuery<
+    Array<{
+      name: string;
+      address: string;
+      latitude: number;
+      longitude: number;
+      poiId: string;
+    }>
+  >({
+    key: `map-search-${searchText}`,
     queryFn: () =>
       apiGet<
         Array<{

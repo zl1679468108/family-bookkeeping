@@ -27,6 +27,20 @@
   --shadow-lg: 0 8px 24px oklch(0% 0 0 / 0.08);
 }
 
+/* ==============================
+   统一页面容器 padding
+   桌面端：24px 32px；移动端：16px
+   ============================== */
+.page-container {
+  padding: 24px 32px;
+}
+
+@media (max-width: 768px) {
+  .page-container {
+    padding: 16px;
+  }
+}
+
 * {
   margin: 0;
   padding: 0;

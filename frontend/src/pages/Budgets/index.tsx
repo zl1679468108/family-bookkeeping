@@ -87,7 +87,7 @@ const Budgets: React.FC = () => {
       lastSynced.current = hash
       setEditValues(synced)
     }
-  }, [month, budgets, expenseCategories.length])
+  }, [month, budgets, expenseCategories])
 
   // 编辑处理
   const handleAmountChange = (category: string, value: string) => {
@@ -151,7 +151,7 @@ const Budgets: React.FC = () => {
   }
 
   return (
-    <div className="budgets-page">
+    <div className="page-container budgets-page">
       <Header title="预算管理" />
 
       {/* 月份选择器 + 复制上月 */}
@@ -238,7 +238,7 @@ const Budgets: React.FC = () => {
                     <input
                       type="number"
                       className="budgets-amount-input"
-                      value={editValues[cat.name] || ''}
+                      value={editValues[cat.name] ?? ''}
                       onChange={(e) => handleAmountChange(cat.name, e.target.value)}
                       min="0"
                       step="100"
@@ -275,9 +275,12 @@ const Budgets: React.FC = () => {
       <div className="budgets-table-section">
         <h3 className="budgets-section-title">
           📈 收入分类
+          <span className="budgets-section-badge budgets-section-badge--disabled">
+            🔒 不可设置
+          </span>
         </h3>
         <div className="budgets-income-hint">
-          <p>收入分类不设预算</p>
+          <p>🔒 收入分类不设预算</p>
           <div className="budgets-income-categories">
             {incomeCategories.map((cat) => (
               <span key={cat.name} className="budgets-income-tag">

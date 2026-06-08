@@ -11,10 +11,16 @@ const ForgotPassword = lazy(() => import('../pages/User/ForgotPassword'))
 const Categories = lazy(() => import('../pages/Categories'))
 const Budgets = lazy(() => import('../pages/Budgets'))
 const Books = lazy(() => import('../pages/Books'))
+const BookMembers = lazy(() => import('../pages/BookMembers'))
+const BookSettings = lazy(() => import('../pages/BookSettings'))
 const MapPage = lazy(() => import('../pages/Map'))
 const Calendar = lazy(() => import('../pages/Calendar'))
 const TemplateManager = lazy(() => import('../pages/TemplateManager'))
 const AnnualReport = lazy(() => import('../pages/AnnualReport'))
+const Profile = lazy(() => import('../pages/User/Profile'))
+const AdminDashboard = lazy(() => import('../pages/Admin/AdminDashboard'))
+const AdminUsers = lazy(() => import('../pages/Admin/AdminUsers'))
+const AdminTransactions = lazy(() => import('../pages/Admin/AdminTransactions'))
 
 export const routes: RouteConfig[] = [
   {
@@ -68,6 +74,16 @@ export const routes: RouteConfig[] = [
     isPrivate: true,
   },
   {
+    path: '/books/:id/members',
+    element: <BookMembers />,
+    isPrivate: true,
+  },
+  {
+    path: '/books/:id/settings',
+    element: <BookSettings />,
+    isPrivate: true,
+  },
+  {
     path: '/map',
     element: <MapPage />,
     isPrivate: true,
@@ -85,6 +101,26 @@ export const routes: RouteConfig[] = [
   {
     path: '/annual-report',
     element: <AnnualReport />,
+    isPrivate: true,
+  },
+  {
+    path: '/profile',
+    element: <Profile />,
+    isPrivate: true,
+  },
+  {
+    path: '/admin',
+    element: <AdminDashboard />,
+    isPrivate: true,
+  },
+  {
+    path: '/admin/users',
+    element: <AdminUsers />,
+    isPrivate: true,
+  },
+  {
+    path: '/admin/transactions',
+    element: <AdminTransactions />,
     isPrivate: true,
   },
 ]

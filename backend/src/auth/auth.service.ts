@@ -11,18 +11,21 @@ import { MailService } from '../mail/mail.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import { TokenService } from './token.service';
+import { ChangePasswordDto } from './dto/change-password.dto';
 
 export interface User {
   id: string;
   email: string;
   username: string;
   password_hash: string;
+  avatar_url?: string;
   created_at: string;
 }
 
 export interface UpdateProfileDto {
   username?: string;
   email?: string;
+  avatar_url?: string;
 }
 
 type SafeUser = Omit<User, 'password_hash'>;
@@ -106,7 +109,7 @@ export class AuthService {
 
     const { data: user, error } = await supabase
       .from('users')
-      .select('id, email, username, created_at')
+      .select('id, email, username, avatar_url, role, status, created_at')
       .eq('id', id)
       .single();
 
@@ -203,15 +206,23 @@ export class AuthService {
       }
     }
 
+    // 清理 payload：如果 avatar_url 太长（base64），截断日志输出
+    const logDto = { ...dto };
+    if (logDto.avatar_url && logDto.avatar_url.length > 100) {
+      logDto.avatar_url = logDto.avatar_url.substring(0, 100) + '... (base64, length: ' + dto.avatar_url!.length + ')';
+    }
+    console.log('updateProfile payload:', logDto);
+
     const { data: updatedUser, error } = await supabase
       .from('users')
       .update(dto)
       .eq('id', userId)
-      .select('id, email, username, created_at')
+      .select('id, email, username, avatar_url, created_at, updated_at')
       .single();
 
     if (error || !updatedUser) {
-      throw new InternalServerErrorException('更新用户信息失败');
+      console.error('Supabase update error:', error);
+      throw new InternalServerErrorException(error?.message || '更新用户信息失败');
     }
 
     return updatedUser;
@@ -399,5 +410,58 @@ export class AuthService {
     if (error) {
       console.error(`创建默认分类失败 (user ${userId}):`, error.message);
     }
+  }
+
+  async changePassword(userId: string, dto: ChangePasswordDto): Promise<void> {
+    if (dto.newPassword !== dto.confirmPassword) {
+      throw new BadRequestException('两次输入的新密码不一致');
+    }
+
+    const supabase = this.supabaseService.getClient();
+
+    const { data: user, error } = await supabase
+      .from('users')
+      .select('password_hash')
+      .eq('id', userId)
+      .single();
+
+    if (error || !user) {
+      throw new UnauthorizedException('用户不存在');
+    }
+
+    const isOldPasswordValid = await bcrypt.compare(dto.oldPassword, user.password_hash);
+    if (!isOldPasswordValid) {
+      throw new BadRequestException('当前密码错误');
+    }
+
+    const newHash = await bcrypt.hash(dto.newPassword, 10);
+    const { error: updateError } = await supabase
+      .from('users')
+      .update({ password_hash: newHash })
+      .eq('id', userId);
+
+    if (updateError) {
+      throw new InternalServerErrorException(`修改密码失败: ${updateError.message}`);
+    }
+  }
+
+  /**
+   * 验证用户密码 - 供其他模块调用
+   * @returns true 密码正确，false 密码错误或用户不存在
+   */
+  async validatePassword(userId: string, password: string): Promise<boolean> {
+    const supabase = this.supabaseService.getClient();
+
+    const { data: user, error } = await supabase
+      .from('users')
+      .select('password_hash')
+      .eq('id', userId)
+      .single();
+
+    if (error || !user) {
+      return false;
+    }
+
+    return bcrypt.compare(password, user.password_hash);
   }
 }

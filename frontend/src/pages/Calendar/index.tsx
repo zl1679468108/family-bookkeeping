@@ -6,6 +6,7 @@ import { useCategoryLookup } from '../../hooks/useCategories';
 import { formatAmountWithType, formatDate } from '../../utils/common';
 import type { DailySummaryItem } from '../../types/statistics';
 import { Skeleton } from '../../components/ui/Skeleton';
+import { Header } from '../../components/Header';
 import './index.scss';
 
 /** 获取某年某月的天数 */
@@ -173,10 +174,9 @@ const Calendar: React.FC = () => {
 
   // ---- 渲染 ----
   return (
-    <div className="calendar-page">
+    <div className="page-container calendar-page">
       {/* 顶部标题与月份切换 */}
-      <div className="calendar-header">
-        <h2 className="calendar-title">现金流日历</h2>
+      <Header title="现金流日历">
         <div className="calendar-nav">
           <button className="btn btn-secondary" onClick={goPrevMonth}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -195,7 +195,7 @@ const Calendar: React.FC = () => {
             今天
           </button>
         </div>
-      </div>
+      </Header>
 
       {/* 日历网格 */}
       <div className="calendar-grid-wrapper">

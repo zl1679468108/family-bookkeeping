@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Header } from '../../components/Header';
 import { Button } from '../../components/ui/button';
@@ -13,6 +14,7 @@ const DEFAULT_BOOK_NAME = '默认账本';
 
 const BooksPage: React.FC = () => {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const { currentBook, switchBook } = useBook();
   const [newName, setNewName] = useState('');
   const [renameTarget, setRenameTarget] = useState<string | null>(null);
@@ -163,6 +165,19 @@ const BooksPage: React.FC = () => {
               }} style={{ fontSize: '12px', padding: '4px 12px' }}>
                 邀请
               </Button>
+              {/* 管理按钮（仅 Owner 可见） */}
+              {book.role === 'owner' && (
+                <>
+                  <Button variant="secondary" onClick={() => navigate(`/books/${book.id}/members`)}
+                    style={{ fontSize: '12px', padding: '4px 12px' }}>
+                    管理
+                  </Button>
+                  <Button variant="secondary" onClick={() => navigate(`/books/${book.id}/settings`)}
+                    style={{ fontSize: '12px', padding: '4px 12px' }}>
+                    设置
+                  </Button>
+                </>
+              )}
               {!isDefault && (
                 <Button variant="danger" onClick={() => setDeleteTarget(book.id)}
                   style={{ fontSize: '12px', padding: '4px 12px' }}>
@@ -221,7 +236,7 @@ const BooksPage: React.FC = () => {
   };
 
   return (
-    <div>
+    <div className="page-container">
       <Header title="账本管理" />
 
       <div style={{

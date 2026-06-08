@@ -1,9 +1,40 @@
-.month-picker-arrow {
-  width: 64rpx;
-  height: 64rpx;
-  border-radius: var(--radius-full);
+/**
+ * MonthPicker v4 — 严格按设计稿
+ * 设计稿 CSS: .month-picker / .chevron
+ */
+.month-picker {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  padding: 16rpx 0;
+  cursor: pointer;
+  transition: color 0.15s ease;
 }
 
-.month-picker-arrow:active {
-  background-color: var(--color-bg);
+.month-picker:active {
+  color: var(--color-primary);
+}
+
+.month-picker-inner {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.month-picker-text {
+  font-size: var(--font-md);
+  font-weight: 600;
+  color: var(--color-text);
+  transition: color 0.15s ease;
+}
+
+.month-picker-chevron {
+  font-size: var(--font-sm);
+  color: var(--color-text-hint);
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  margin-top: 2rpx;
+}
+
+.month-picker-chevron.light {
+  color: rgba(255, 255, 255, 0.5);
 }

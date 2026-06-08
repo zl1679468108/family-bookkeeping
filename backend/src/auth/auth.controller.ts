@@ -18,6 +18,7 @@ import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { CurrentUser } from './current-user.decorator';
 import { UpdateProfileDto } from './auth.service';
+import { ChangePasswordDto } from './dto/change-password.dto';
 import { TokenAuthGuard } from './token-auth.guard';
 
 class SendResetCodeDto {
@@ -105,5 +106,16 @@ export class AuthController {
   ) {
     await this.authService.logout(userId, request.authTokenHash || '');
     return { message: '退出登录成功', data: null };
+  }
+
+  @UseGuards(TokenAuthGuard)
+  @Post('change-password')
+  @HttpCode(HttpStatus.OK)
+  async changePassword(
+    @CurrentUser() user: { id: string },
+    @Body() dto: ChangePasswordDto,
+  ) {
+    await this.authService.changePassword(user.id, dto);
+    return { message: '密码修改成功', data: null };
   }
 }

@@ -123,7 +123,7 @@ const MapPage: React.FC = () => {
     : transactions.reduce((sum, t) => sum + Number(t.amount), 0);
 
   return (
-    <div className="map-page">
+    <div className="page-container map-page">
       <Header title="消费地图" />
 
       {/* 筛选栏 */}

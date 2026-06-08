@@ -5,7 +5,7 @@
 import { useState } from "react";
 import { View, Text, Input } from "@tarojs/components";
 import Taro from "@tarojs/taro";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   fetchBooks,
   createBook,
@@ -14,6 +14,7 @@ import {
   leaveBook,
 } from "../../services/booksApi";
 import { setStoredBookId, getStoredBookId } from "../../services/api";
+import { useManualQuery } from "../../hooks/useManualQuery";
 import BookCard from "./components/BookCard";
 import EmptyState from "../../components/EmptyState";
 import ConfirmDialog from "../../components/ConfirmDialog";
@@ -29,28 +30,32 @@ export default function BooksPage() {
   const [deleteTarget, setDeleteTarget] = useState<Book | null>(null);
   const [leaveTarget, setLeaveTarget] = useState<Book | null>(null);
 
-  const { data: books = [], isLoading } = useQuery<Book[]>({
-    queryKey: ["books"],
+  const { data: books = [], isLoading } = useManualQuery<Book[]>({
+    key: "books",
     queryFn: fetchBooks,
-    staleTime: 60_000,
   });
 
   const createMut = useMutation({
     mutationFn: (name: string) => createBook(name),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["books"] });
+      Taro.showToast({ title: "创建成功", icon: "success" });
       setNewName("");
     },
   });
   const renameMut = useMutation({
     mutationFn: ({ id, name }: { id: string; name: string }) =>
       renameBook(id, name),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["books"] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["books"] });
+      Taro.showToast({ title: "重命名成功", icon: "success" });
+    },
   });
   const deleteMut = useMutation({
     mutationFn: (id: string) => deleteBook(id),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["books"] });
+      Taro.showToast({ title: "已删除", icon: "success" });
       setDeleteTarget(null);
     },
   });
@@ -58,6 +63,7 @@ export default function BooksPage() {
     mutationFn: (id: string) => leaveBook(id),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["books"] });
+      Taro.showToast({ title: "已退出", icon: "success" });
       setLeaveTarget(null);
     },
   });

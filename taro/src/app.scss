@@ -1,9 +1,10 @@
 /* ============================================
-   家庭记账 · 安静记账 Design System v3.0
+   家庭记账 · 安静记账 Design System v4.0
    Primary: Sage Green (#5B9A7A)
    Expense: Terracotta (#D4785C)
    Background: Warm Gray (#F5F2ED)
    Style: Clean, flat, calm — card+border, no shadows
+   Ref: quiet-bookkeeping-design-v4.html
    ============================================ */
 
 /* === Design Tokens === */
@@ -47,15 +48,15 @@ page {
   /* Modal shadow (only for overlays) */
   --shadow-modal: 0 8px 32px rgba(0, 0, 0, 0.12);
 
-  /* Border Radius */
+  /* Border Radius — tightened per v4 design */
   --radius-sm: 8rpx;
   --radius-md: 12rpx;
   --radius-lg: 14rpx;
   --radius-xl: 16rpx;
-  --radius-2xl: 20rpx;
+  --radius-2xl: 24rpx;
   --radius-full: 9999px;
 
-  /* Typography */
+  /* Typography — refined per v4 */
   --font-xs: 20rpx;
   --font-sm: 22rpx;
   --font-base: 26rpx;
@@ -63,7 +64,8 @@ page {
   --font-lg: 30rpx;
   --font-xl: 36rpx;
   --font-2xl: 44rpx;
-  --font-3xl: 48rpx;
+  --font-3xl: 56rpx;
+  --font-display: 80rpx;
 
   /* Spacing (8rpx grid) */
   --spacing-xs: 8rpx;
@@ -71,6 +73,11 @@ page {
   --spacing-md: 24rpx;
   --spacing-lg: 32rpx;
   --spacing-xl: 48rpx;
+
+  /* Nav & Tab dimensions */
+  --nav-h: 88rpx;
+  --tab-h: 104rpx;
+  --safe-bottom: 40rpx;
 
   font-family:
     -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB",
@@ -523,7 +530,7 @@ scroll-view {
 }
 
 /* ==============================================
-   TRANSITIONS & ACTIVE
+   TRANSITIONS & ACTIVE — v4
    ============================================== */
 .transition {
   transition: all 0.2s ease;
@@ -537,13 +544,146 @@ scroll-view {
 }
 
 /* ==============================================
+   MENU ITEM — v4 profile menu style
+   ============================================== */
+.menu-item-wrap {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+  padding: 28rpx 24rpx;
+  border-bottom: 0.5px solid var(--color-divider);
+}
+
+.menu-item-wrap:active {
+  background-color: var(--color-subtle);
+}
+
+.menu-item-icon {
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: var(--radius-sm);
+  background-color: var(--color-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: 0.5px solid var(--color-border);
+}
+
+.menu-item-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.menu-item-name {
+  font-size: var(--font-base);
+  color: var(--color-text);
+}
+
+.menu-item-arrow {
+  color: var(--color-text-hint);
+  font-size: var(--font-lg);
+}
+
+/* ==============================================
+   SECTION HEADER — v4
+   ============================================== */
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20rpx 0 16rpx;
+}
+
+.section-title {
+  font-size: var(--font-base);
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.section-link {
+  font-size: var(--font-sm);
+  color: var(--color-text-hint);
+}
+
+.section-link:active {
+  color: var(--color-primary);
+}
+
+/* ==============================================
+   FORM ROW — v4 detail rows
+   ============================================== */
+.form-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24rpx 0;
+  border-bottom: 0.5px solid var(--color-divider);
+}
+
+.form-row:active {
+  background-color: var(--color-subtle);
+}
+
+.form-row .form-label {
+  font-size: var(--font-base);
+  color: var(--color-text);
+}
+
+.form-row .form-value {
+  font-size: var(--font-base);
+  color: var(--color-text-hint);
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.form-row .form-input {
+  border: none;
+  background: transparent;
+  font-size: var(--font-base);
+  text-align: right;
+  color: var(--color-text);
+  outline: none;
+  font-family: inherit;
+  width: 280rpx;
+}
+
+/* ==============================================
+   NUMBER POP ANIMATION — v4
+   ============================================== */
+@keyframes numberPop {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.08);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.number-pop {
+  animation: numberPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* ==============================================
    CARD — Flat border style (no shadow)
+   v4: tighter radius, consistent 0.5px border
    ============================================== */
 .card {
   background-color: var(--color-card);
   border-radius: var(--radius-lg);
   border: 0.5px solid var(--color-border);
   overflow: hidden;
+}
+
+.card:active {
+  background-color: var(--color-subtle);
 }
 
 .card-padded {
@@ -553,8 +693,12 @@ scroll-view {
   padding: var(--spacing-md);
 }
 
+.card-padded:active {
+  background-color: var(--color-subtle);
+}
+
 /* ==============================================
-   BUTTONS
+   BUTTONS — v4 refined
    ============================================== */
 
 /* Block primary button */
@@ -563,17 +707,20 @@ scroll-view {
   align-items: center;
   justify-content: center;
   width: 100%;
-  padding: 24rpx 0;
+  height: 88rpx;
+  padding: 0;
   background-color: var(--color-primary);
   color: #ffffff;
   border-radius: var(--radius-md);
-  font-size: var(--font-lg);
+  font-size: var(--font-md);
   font-weight: 600;
   border: none;
+  letter-spacing: 0.6rpx;
 }
 
 .btn-primary:active {
-  opacity: 0.8;
+  opacity: 0.85;
+  transform: scale(0.98);
 }
 
 /* Block secondary button */
@@ -582,13 +729,35 @@ scroll-view {
   align-items: center;
   justify-content: center;
   width: 100%;
-  padding: 24rpx 0;
+  height: 88rpx;
+  padding: 0;
   background-color: var(--color-subtle);
   color: var(--color-text-secondary);
   border-radius: var(--radius-md);
-  font-size: var(--font-lg);
+  font-size: var(--font-md);
   font-weight: 600;
   border: none;
+}
+
+/* Outline button */
+.btn-outline {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 88rpx;
+  padding: 0;
+  background-color: transparent;
+  color: var(--color-primary);
+  border: 1px solid var(--color-primary);
+  border-radius: var(--radius-md);
+  font-size: var(--font-md);
+  font-weight: 500;
+}
+
+.btn-outline:active {
+  background-color: var(--color-primary-bg);
+  transform: scale(0.98);
 }
 
 /* Danger text button (for logout etc) */
@@ -597,7 +766,8 @@ scroll-view {
   align-items: center;
   justify-content: center;
   width: 100%;
-  padding: 24rpx 0;
+  height: 88rpx;
+  padding: 0;
   background-color: var(--color-card);
   color: var(--color-danger);
   border-radius: var(--radius-md);
@@ -607,51 +777,55 @@ scroll-view {
 }
 
 /* ==============================================
-   SEGMENTED CONTROL
+   SEGMENTED CONTROL — v4 design
    ============================================== */
 .segmented-control {
-  display: flex;
+  display: inline-flex;
   background-color: var(--color-divider);
   border-radius: var(--radius-md);
   padding: 3px;
 }
 
 .segmented-item {
-  flex: 1;
-  padding: 14rpx 0;
+  padding: 8rpx 28rpx;
   text-align: center;
-  border-radius: var(--radius-sm);
-  font-size: var(--font-md);
-  font-weight: 600;
+  border-radius: 10rpx;
+  font-size: var(--font-sm);
+  font-weight: 400;
   color: var(--color-text-hint);
-  transition: all 0.15s ease;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .segmented-item-active {
   background-color: var(--color-card);
   color: var(--color-text);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  font-weight: 600;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
 }
 
 /* ==============================================
-   PROGRESS BAR
+   PROGRESS BAR — v4 design
    ============================================== */
 .progress-bar {
   height: 10rpx;
   background-color: var(--color-divider);
-  border-radius: 5rpx;
+  border-radius: var(--radius-full);
   overflow: hidden;
 }
 
 .progress-bar-fill {
   height: 100%;
-  border-radius: 5rpx;
+  border-radius: var(--radius-full);
   background-color: var(--color-primary);
-  transition: width 0.3s ease;
+  transition: width 0.8s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .progress-bar-fill--danger {
   background-color: var(--color-expense);
+}
+
+.progress-bar-fill--warning {
+  background-color: var(--color-warning);
 }
 
 /* ==============================================
@@ -719,7 +893,7 @@ scroll-view {
 }
 
 /* ==============================================
-   ANIMATIONS (minimal)
+   ANIMATIONS — v4 refined
    ============================================== */
 @keyframes spin {
   to {
@@ -739,7 +913,7 @@ scroll-view {
   }
 }
 .animate-slide-up {
-  animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: slideUp 0.35s cubic-bezier(0.32, 0.72, 0, 1);
 }
 
 @keyframes fadeIn {
@@ -752,6 +926,18 @@ scroll-view {
 }
 .animate-fade-in {
   animation: fadeIn 0.25s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  view,
+  text,
+  image,
+  input,
+  button,
+  scroll-view {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
 /* ==============================================

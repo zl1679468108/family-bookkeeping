@@ -27,6 +27,9 @@ export interface TransactionFilters {
   category?: string
   startDate?: string
   endDate?: string
+  /** 查看范围：'own' 只看自己，'all' 查看账本内所有（需是 Owner） */
+  view?: 'own' | 'all'
+  bookId?: string
   page?: number
   pageSize?: number
   sortBy?: 'amount' | 'date'
@@ -50,6 +53,9 @@ export interface UserProfile {
   id: string
   email: string
   username: string
+  avatar_url?: string
+  role?: 'user' | 'admin'
+  status?: 'active' | 'suspended' | 'deleted'
   created_at: string
 }
 
@@ -206,6 +212,8 @@ export const getTransactions = async (filters?: TransactionFilters): Promise<Pag
   if (filters?.category) params.append('category', filters.category)
   if (filters?.startDate) params.append('startDate', filters.startDate)
   if (filters?.endDate) params.append('endDate', filters.endDate)
+  if (filters?.view) params.append('view', filters.view)
+  if (filters?.bookId) params.append('bookId', filters.bookId)
   if (filters?.page) params.append('page', String(filters.page))
   if (filters?.pageSize) params.append('pageSize', String(filters.pageSize))
   if (filters?.sortBy) params.append('sortBy', filters.sortBy)
@@ -370,12 +378,30 @@ export const getProfile = async (): Promise<UserProfile> => {
   return request<UserProfile>('/auth/profile', { requiresAuth: true })
 }
 
+export const updateProfile = async (data: Partial<UserProfile>): Promise<UserProfile> => {
+  return request<UserProfile>('/auth/profile', {
+    method: 'PUT',
+    body: data,
+    requiresAuth: true,
+  })
+}
+
 export const logout = async (): Promise<void> => {
   await request<null>('/auth/logout', {
     method: 'POST',
     requiresAuth: true,
     notifyOnError: false,
   })
+}
+
+export const changePassword = async (
+  data: { oldPassword: string; newPassword: string; confirmPassword: string }
+): Promise<void> => {
+  return request<void>('/auth/change-password', {
+    method: 'POST',
+    body: data,
+    requiresAuth: true,
+  });
 }
 
 export const apiClient = {

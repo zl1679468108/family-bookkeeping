@@ -1,80 +1,105 @@
+/**
+ * TabBar v4 — 严格贴边式（与设计稿 v4 完全对齐）
+ * 设计稿: position absolute + border-top + 贴底
+ * 布局：首页 | 流水 | [+] FAB | 统计 | 我的
+ * 图标: 使用 Icon 组件（SVG），此处仅保留布局样式
+ */
 .tab-bar-container {
   position: fixed;
   left: 0;
   right: 0;
-  bottom: 24rpx;
+  bottom: 0;
   z-index: 50;
-  display: flex;
-  justify-content: center;
-}
-
-.tab-bar-capsule {
-  width: 670rpx;
-  height: 100rpx;
-  border-radius: 28rpx;
-  background-color: rgba(255, 255, 255, 0.92);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 0.5px solid #ebe7e0;
+  background-color: var(--color-card);
+  /* 设计稿: border-top: 0.5px solid var(--border) */
+  border-top: 0.5px solid var(--color-border);
   display: flex;
   align-items: center;
+  justify-content: space-around;
+  /* 设计稿: height 56px = 112rpx 内容区，padding-bottom 4px = 8rpx 留白 + safe-area */
+  height: 104rpx;
+  padding-bottom: calc(8rpx + env(safe-area-inset-bottom));
 }
 
+/* ===== Tab Item ===== */
 .tab-bar-item {
-  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 100%;
-}
-
-.tab-bar-icon {
-  font-size: 36rpx;
-  line-height: 1;
-  color: #b0ada6;
-
-  &--active {
-    font-size: 40rpx;
-    color: #5b9a7a;
-  }
-}
-
-.tab-bar-label {
-  font-size: 18rpx;
-  line-height: 1;
-  color: #b0ada6;
-  margin-top: 4rpx;
-
-  &--active {
-    color: #5b9a7a;
-    font-weight: 600;
-  }
-}
-
-.tab-bar-fab-area {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  /* 设计稿: gap: 2px = 4rpx */
+  gap: 4rpx;
+  /* 设计稿: padding: 4px 12px = 8rpx 24rpx */
+  padding: 8rpx 24rpx;
   position: relative;
-  height: 100%;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+/* ===== Label ===== */
+/* 设计稿: font-size: 10px = 20rpx */
+.tab-bar-label {
+  font-size: 20rpx;
+  color: var(--color-text-hint);
+  font-weight: 400;
+  transition: color 0.2s ease;
+  line-height: 1;
+}
+
+/* 设计稿: .active label → color: primary, weight: 600 */
+.tab-bar-label--active {
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+/* ==========================================
+   FAB (Floating Action Button) 中间记账按钮
+   设计稿: 圆形白底 + 绿色描边 + 居中上凸
+   尺寸: 44px(88rpx), border: 1.5px(3rpx)
+   margin-top: -18px(-36rpx)
+   ========================================== */
 .tab-bar-fab {
   width: 88rpx;
   height: 88rpx;
   border-radius: 50%;
-  background-color: #5b9a7a;
+  background-color: var(--color-card);
+  /* 设计稿: border: 1.5px solid primary = 3rpx */
+  border: 3rpx solid var(--color-primary);
   display: flex;
   align-items: center;
   justify-content: center;
-  position: absolute;
-  top: -16rpx;
+  /* 设计稿: margin-top: -18px = -36rpx */
+  margin-top: -36rpx;
+  /* 设计稿: cubic-bezier 弹性过渡 */
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: relative;
+  flex-shrink: 0;
 }
 
+/* 设计稿: :active scale(0.88) */
+.tab-bar-fab:active {
+  transform: scale(0.88);
+}
+
+/* 设计稿: ::after 点击背景光晕 */
+.tab-bar-fab::after {
+  content: "";
+  position: absolute;
+  inset: -8rpx;
+  border-radius: 50%;
+  background-color: var(--color-primary-bg);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  z-index: -1;
+}
+
+.tab-bar-fab:active::after {
+  opacity: 1;
+}
+
+/* 设计稿: + 号样式 — font-size: 22px(44rpx), font-weight: 300, color: primary */
 .tab-bar-fab-icon {
-  color: #ffffff;
-  font-size: 40rpx;
+  color: var(--color-primary);
+  font-size: 44rpx;
+  font-weight: 300;
   line-height: 1;
 }

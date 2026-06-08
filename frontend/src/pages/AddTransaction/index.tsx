@@ -47,7 +47,7 @@ const AddTransaction: React.FC = () => {
   const { data: categories = [] } = useCategories()
   const { data: templates = [] } = useTemplates()
   const { getCategoryId } = useCategoryLookup()
-  const showTemplateSelector = !isEditMode && templates.length > 0
+  const showTemplateSelector = templates.length > 0
 
   // Pre-fill form when edit data is loaded
   useEffect(() => {
@@ -215,15 +215,8 @@ const AddTransaction: React.FC = () => {
   }
 
   return (
-    <div>
-      <Header title={isEditMode ? '编辑交易' : '记一笔'}>
-        <Button variant="secondary" onClick={() => navigate(isEditMode ? '/transactions' : '/')}>
-          <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
-            <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd"/>
-          </svg>
-          取消
-        </Button>
-      </Header>
+    <div className="page-container">
+      <Header title={isEditMode ? '编辑交易' : '记一笔'} />
 
       <div className="form-section">
         <ImageUploader onOcrComplete={handleOcrComplete} />

@@ -1,18 +1,28 @@
 /**
  * Hook: fetch and lookup categories.
+ * 使用手动 fetch 避免 React Query 在 Taro 中的兼容性问题。
  */
-
-import { useQuery } from "@tanstack/react-query";
+import { useState, useEffect } from "react";
 import { fetchCategories } from "../services/categoriesApi";
+import { useAuth } from "../context/AuthContext";
 import type { Category } from "../types";
 
-/** Fetch categories, optionally filtered by type */
+/** Fetch categories, optionally filtered by type. Only fires when authenticated. */
 export function useCategories(type?: "expense" | "income") {
-  return useQuery({
-    queryKey: ["categories", type],
-    queryFn: () => fetchCategories(type),
-    staleTime: 5 * 60 * 1000,
-  });
+  const { user } = useAuth();
+  const [data, setData] = useState<Category[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    if (!user) return;
+    setIsLoading(true);
+    fetchCategories(type)
+      .then(setData)
+      .catch(() => setData([]))
+      .finally(() => setIsLoading(false));
+  }, [user, type]);
+
+  return { data, isLoading };
 }
 
 /** Category lookup helpers */

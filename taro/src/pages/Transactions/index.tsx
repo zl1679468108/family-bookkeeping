@@ -1,17 +1,17 @@
 /**
- * Transactions — v3.0 流水页
- * 白底导航 · 搜索 · 月份/类型/分类筛选 · 日期分组 · 左滑删除 · 分页
+ * Transactions v4 — 流水页（设计稿对齐）
+ * 搜索按钮置于胶囊左侧 · 月份Picker · 全部/支出/收入分段 · 日期分组
  */
 import { useState, useMemo, useEffect, useRef } from "react";
-import { View, Text, Input, Picker } from "@tarojs/components";
+import { View, Text, Input, ScrollView } from "@tarojs/components";
 import Taro from "@tarojs/taro";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import TransactionItem from "../../components/TransactionItem";
 import EmptyState from "../../components/EmptyState";
 import PageLayout from "../../components/PageLayout";
 import PullRefresh from "../../components/PullRefresh";
-import Icon from "../../components/Icon";
 import ConfirmDialog from "../../components/ConfirmDialog";
+import MonthPicker from "../../components/MonthPicker";
 import {
   getTransactions,
   deleteTransaction,
@@ -19,7 +19,8 @@ import {
 import { useMonthSelector } from "../../hooks/useMonthSelector";
 import { useCategoryLookup } from "../../hooks/useCategories";
 import { fmtFriendlyDate } from "../../utils/format";
-import type { Transaction } from "../../types";
+import { useManualQuery } from "../../hooks/useManualQuery";
+import type { Transaction, Category } from "../../types";
 import "./index.scss";
 
 export default function Transactions() {
@@ -36,15 +37,10 @@ export default function Transactions() {
   const [typeFilter, setTypeFilter] = useState<"all" | "income" | "expense">(
     urlType,
   );
-  const [categoryFilter, setCategoryFilter] = useState<string | null>(
-    urlCategory || null,
-  );
+  const [categoryFilter] = useState<string | null>(urlCategory || null);
   const [search, setSearch] = useState("");
   const [searchText, setSearchText] = useState("");
   const [showSearch, setShowSearch] = useState(false);
-  const [sortOrder, setSortOrder] = useState<"desc" | "asc" | undefined>(
-    undefined,
-  );
   const [page, setPage] = useState(1);
   const [deleteTarget, setDeleteTarget] = useState<Transaction | null>(null);
 
@@ -60,17 +56,9 @@ export default function Transactions() {
 
   const { categories, getCategoryName, getCategoryIcon } = useCategoryLookup();
 
-  const { data, isLoading, isFetching } = useQuery({
-    queryKey: [
-      "transactions",
-      "list",
-      effectiveDateRange,
-      typeFilter,
-      categoryFilter,
-      search,
-      page,
-      sortOrder,
-    ],
+  const txKey = `tx-${effectiveDateRange.start}-${typeFilter}-${categoryFilter || ""}-${search}-${page}`;
+  const { data, isLoading, isFetching } = useManualQuery({
+    key: txKey,
     queryFn: () =>
       getTransactions({
         startDate: effectiveDateRange.start,
@@ -81,14 +69,13 @@ export default function Transactions() {
         page,
         pageSize: 20,
         sortBy: "date",
-        sortOrder: sortOrder || "desc",
+        sortOrder: "desc",
       }),
-    staleTime: 30_000,
   });
 
   const pagesRef = useRef<Map<number, Transaction[]>>(new Map());
   const lastKeyRef = useRef("");
-  const filterKey = `${effectiveDateRange.start}-${typeFilter}-${categoryFilter || ""}-${search}-${sortOrder}`;
+  const filterKey = `${effectiveDateRange.start}-${typeFilter}-${categoryFilter || ""}-${search}`;
   if (lastKeyRef.current !== filterKey) {
     lastKeyRef.current = filterKey;
     pagesRef.current = new Map();
@@ -113,6 +100,7 @@ export default function Transactions() {
     mutationFn: (id: number) => deleteTransaction(id),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["transactions"] });
+      Taro.showToast({ title: "删除成功", icon: "success" });
       setDeleteTarget(null);
     },
   });
@@ -154,28 +142,18 @@ export default function Transactions() {
     }
   };
 
-  const pickerValue = `${year}-${String(month).padStart(2, "0")}`;
-  const handleMonthChange = (e: any) => {
-    const [y, m] = e.detail.value.split("-").map(Number);
-    setYear(y);
-    setMonth(m);
-  };
-
-  const expenseCats = useMemo(
-    () => categories.filter((c) => c.type === "expense").slice(0, 6),
-    [categories],
-  );
-  const incomeCats = useMemo(
-    () => categories.filter((c) => c.type === "income").slice(0, 6),
-    [categories],
-  );
+  const displayCats = useMemo(() => {
+    if (typeFilter === "income") return categories.filter((c: Category) => c.type === "income");
+    return categories.filter((c: Category) => c.type === "expense");
+  }, [categories, typeFilter]);
 
   const handleLongPress = (tx: Transaction) => {
     Taro.showActionSheet({
       itemList: ["编辑", "删除"],
       success: (res) => {
         if (res.tapIndex === 0) {
-          Taro.navigateTo({ url: `/pages/AddTransaction/index?edit=${tx.id}` });
+          Taro.setStorageSync("edit_tx_id", tx.id);
+          Taro.switchTab({ url: "/pages/AddTransaction/index" });
         } else if (res.tapIndex === 1) {
           setDeleteTarget(tx);
         }
@@ -189,21 +167,20 @@ export default function Transactions() {
       tabBar
       rightContent={
         <View className="txns-search-toggle" onClick={handleToggleSearch}>
-          <Icon
-            name={showSearch ? "close" : "search"}
-            size={40}
-            color="var(--color-text-secondary)"
-          />
+          <Text className="txns-search-toggle-text">
+            {showSearch ? "取消" : "搜索"}
+          </Text>
         </View>
       }
       onScrollToLower={() => {
         if (hasMore && !isFetching) setPage((p) => p + 1);
       }}
     >
-      {/* Search Bar — collapsible */}
+      {/* Search Bar — collapsible, placed below nav */}
       {showSearch && (
         <View className="txns-search-bar animate-fade-in">
-          <View className="txns-nav-search">
+          <View className="txns-search-input-wrap">
+            <Text className="txns-search-icon">🔍</Text>
             <Input
               className="txns-search-input"
               placeholder="搜索交易描述…"
@@ -221,95 +198,78 @@ export default function Transactions() {
         </View>
       )}
 
-      {/* Filters */}
-      <View className="txns-filters">
-        {/* Date + type chips */}
-        <View className="flex gap-1 mb-1">
-          <View className="txns-date-btn">
-            <Picker
-              mode="date"
-              fields="month"
-              value={pickerValue}
-              onChange={handleMonthChange}
-            >
-              <Text>
-                {year}年{month}月 ▾
-              </Text>
-            </Picker>
-          </View>
+      {/* Month Picker — 使用组件 */}
+      <View className="txns-month-row">
+        <MonthPicker
+          year={year}
+          month={month}
+          onChange={(y, m) => { setYear(y); setMonth(m); }}
+        />
+      </View>
+
+      {/* Type Segmented */}
+      <View className="txns-seg-wrap">
+        <View className="segmented-control">
           <Text
-            className={`tag ${typeFilter === "all" ? "tag-active" : "tag-inactive"}`}
+            className={`segmented-item ${typeFilter === "all" ? "segmented-item-active" : ""}`}
             onClick={() => setTypeFilter("all")}
           >
             全部
           </Text>
           <Text
-            className={`tag ${typeFilter === "expense" ? "tag-active" : "tag-inactive"}`}
+            className={`segmented-item ${typeFilter === "expense" ? "segmented-item-active" : ""}`}
             onClick={() => setTypeFilter("expense")}
           >
             支出
           </Text>
           <Text
-            className={`tag ${typeFilter === "income" ? "tag-active" : "tag-inactive"}`}
+            className={`segmented-item ${typeFilter === "income" ? "segmented-item-active" : ""}`}
             onClick={() => setTypeFilter("income")}
           >
             收入
           </Text>
-          <Text
-            className="txns-sort-btn"
-            onClick={() =>
-              setSortOrder((o) =>
-                o === "desc" ? "asc" : o === "asc" ? undefined : "desc",
-              )
-            }
-          >
-            金额{sortOrder === "desc" ? "↓" : sortOrder === "asc" ? "↑" : "▾"}
-          </Text>
-        </View>
-        {/* Category chips */}
-        <View className="flex gap-1">
-          {(typeFilter === "income" ? incomeCats : expenseCats).map((c) => (
-            <Text
-              key={c.id}
-              className={`tag ${categoryFilter === c.id ? "tag-active" : "tag-inactive"}`}
-              onClick={() =>
-                setCategoryFilter(categoryFilter === c.id ? null : c.id)
-              }
-            >
-              {c.icon} {c.name}
-            </Text>
-          ))}
         </View>
       </View>
 
-      {/* List */}
+      {/* Category slider chips (horizontal scroll) */}
+      <ScrollView className="txns-cat-scroll" scrollX enableFlex>
+        <View className="txns-cat-scroll-inner">
+          <View
+            className={`txns-cat-chip ${!categoryFilter ? "txns-cat-chip--active" : ""}`}
+            onClick={() => {
+              const rp = { ...router.params, category: undefined } as any;
+              delete rp.category;
+              Taro.navigateTo({
+                url: `/pages/Transactions/index?type=${typeFilter}&startDate=${effectiveDateRange.start}&endDate=${effectiveDateRange.end}`,
+              });
+            }}
+          >
+            <Text>全部</Text>
+          </View>
+          {displayCats.map((c: Category) => (
+            <View
+              key={c.id}
+              className={`txns-cat-chip ${categoryFilter === c.id ? "txns-cat-chip--active" : ""}`}
+              onClick={() =>
+                Taro.navigateTo({
+                  url: `/pages/Transactions/index?category=${c.id}&type=${typeFilter}&startDate=${effectiveDateRange.start}&endDate=${effectiveDateRange.end}`,
+                })
+              }
+            >
+              <Text>{c.icon}</Text>
+              <Text>{c.name}</Text>
+            </View>
+          ))}
+        </View>
+      </ScrollView>
+
+      {/* Transaction List */}
       {isLoading ? (
         <View className="txns-loading">
-          <PullRefresh loading={true} text="拉取流水数据…" />
-          <View
-            className="skeleton"
-            style={{
-              height: "90rpx",
-              marginBottom: "12rpx",
-              borderRadius: "var(--radius-lg)",
-            }}
-          />
-          <View
-            className="skeleton"
-            style={{
-              height: "90rpx",
-              marginBottom: "12rpx",
-              borderRadius: "var(--radius-lg)",
-            }}
-          />
-          <View
-            className="skeleton"
-            style={{
-              height: "90rpx",
-              marginBottom: "12rpx",
-              borderRadius: "var(--radius-lg)",
-            }}
-          />
+          <PullRefresh loading text="拉取流水数据…" />
+          <View className="skeleton" style={{ height: "90rpx", marginBottom: "12rpx", borderRadius: "var(--radius-lg)" }} />
+          <View className="skeleton" style={{ height: "90rpx", marginBottom: "12rpx", borderRadius: "var(--radius-lg)" }} />
+          <View className="skeleton" style={{ height: "90rpx", marginBottom: "12rpx", borderRadius: "var(--radius-lg)" }} />
         </View>
       ) : sd.length === 0 ? (
         <EmptyState
@@ -327,12 +287,12 @@ export default function Transactions() {
                   <Text className="txns-group-date">{fmtFriendlyDate(dk)}</Text>
                   <View className="flex gap-2">
                     {sum.expense > 0 && (
-                      <Text className="text-sm text-expense font-semibold">
+                      <Text className="txns-group-total-expense">
                         支出 ¥{sum.expense.toFixed(2)}
                       </Text>
                     )}
                     {sum.income > 0 && (
-                      <Text className="text-sm text-income font-semibold">
+                      <Text className="txns-group-total-income">
                         收入 ¥{sum.income.toFixed(2)}
                       </Text>
                     )}
@@ -349,12 +309,10 @@ export default function Transactions() {
                         amount={tx.amount}
                         type={tx.type}
                         date={tx.date?.split("T")[1]?.slice(0, 5) || ""}
-                        categoryType={getCategoryName(tx.category)}
-                        onClick={() =>
-                          Taro.navigateTo({
-                            url: `/pages/AddTransaction/index?edit=${tx.id}`,
-                          })
-                        }
+                        onClick={() => {
+                          Taro.setStorageSync("edit_tx_id", tx.id);
+                          Taro.switchTab({ url: "/pages/AddTransaction/index" });
+                        }}
                         onLongPress={() => handleLongPress(tx)}
                         onDelete={() => setDeleteTarget(tx)}
                       />
@@ -365,16 +323,7 @@ export default function Transactions() {
             );
           })}
           {isFetching && (
-            <View
-              style={{
-                textAlign: "center",
-                padding: "24rpx",
-                color: "var(--color-text-hint)",
-                fontSize: "var(--font-sm)",
-              }}
-            >
-              加载中…
-            </View>
+            <View className="txns-load-more">加载中…</View>
           )}
         </View>
       )}
