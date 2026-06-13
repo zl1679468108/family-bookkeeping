@@ -2,10 +2,8 @@ import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../../utils/auth'
 import { getProfile, updateProfile, changePassword } from '../../../services/api'
-import { Button } from '../../../components/ui/button'
-import { Input } from '../../../components/ui/input'
+import { useDebouncedAction } from '../../../hooks/useDebouncedAction'
 import { notify } from '../../../utils/notifications'
-import { Header } from '../../../components/Header'
 import './index.scss'
 
 const compressImage = (file: File, maxSize = 128): Promise<string> =>
@@ -51,11 +49,9 @@ const PasswordModal: React.FC<PasswordModalProps> = ({ visible, onClose }) => {
   const [showOld, setShowOld] = useState(false)
   const [showNew, setShowNew] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
-  const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const { run: handleSubmit, isRunning: loading } = useDebouncedAction(async () => {
     setError('')
 
     if (newPassword.length < 6) {
@@ -71,7 +67,6 @@ const PasswordModal: React.FC<PasswordModalProps> = ({ visible, onClose }) => {
       return
     }
 
-    setLoading(true)
     try {
       await changePassword({ oldPassword, newPassword, confirmPassword })
       notify({ type: 'success', message: '密码修改成功' })
@@ -82,10 +77,8 @@ const PasswordModal: React.FC<PasswordModalProps> = ({ visible, onClose }) => {
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : '修改密码失败'
       setError(message)
-    } finally {
-      setLoading(false)
     }
-  }
+  })
 
   if (!visible) return null
 
@@ -93,7 +86,7 @@ const PasswordModal: React.FC<PasswordModalProps> = ({ visible, onClose }) => {
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={e => e.stopPropagation()}>
         <h3 className="modal-title">修改密码</h3>
-        <form onSubmit={handleSubmit} className="modal-form">
+        <form onSubmit={(e) => { e.preventDefault(); handleSubmit() }} className="modal-form">
           <div className="form-group">
             <label className="form-label">当前密码</label>
             <div className="password-wrapper">
@@ -196,7 +189,6 @@ const ProfilePage: React.FC = () => {
   const [email, setEmail] = useState(user?.email || '')
   const [avatarUrl, setAvatarUrl] = useState(user?.avatar_url || '')
   const [avatarPreview, setAvatarPreview] = useState(user?.avatar_url || '')
-  const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [showPasswordModal, setShowPasswordModal] = useState(false)
 
@@ -240,8 +232,7 @@ const ProfilePage: React.FC = () => {
     }
   }, [])
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const { run: handleSubmit, isRunning: loading } = useDebouncedAction(async () => {
     setError('')
 
     if (!username.trim()) {
@@ -257,19 +248,15 @@ const ProfilePage: React.FC = () => {
       return
     }
 
-    setLoading(true)
     try {
       const payload: { username: string; email: string; avatar_url?: string } = {
         username: username.trim(),
         email: email.trim(),
       }
-      // 只有选择了新头像才上传 avatar_url（避免重复提交大字符串）
       if (avatarUrl && avatarUrl.startsWith('data:')) {
         payload.avatar_url = avatarUrl
-      } else if (avatarUrl && !avatarUrl.startsWith('data:')) {
-        // 已有网络地址，不需要再次提交
       }
-      const data = await updateProfile(payload)
+      await updateProfile(payload)
       await refreshUser()
       notify({ type: 'success', message: '保存成功' })
       navigate(-1)
@@ -277,128 +264,93 @@ const ProfilePage: React.FC = () => {
       console.error('更新个人信息失败:', err)
       const message = err instanceof Error ? err.message : '保存失败，请检查网络或稍后重试'
       setError(message)
-    } finally {
-      setLoading(false)
     }
-  }
-
-  const handleCancel = () => {
-    navigate(-1)
-  }
+  })
 
   return (
     <div className="page-container profile-page">
-      <Header title="个人信息" />
-
       <div className="profile-card">
-        {/* 头像 */}
-        <div className="avatar-section">
-          <div
-            className="avatar-uploader"
-            onClick={() => fileInputRef.current?.click()}
-          >
-            {avatarPreview ? (
-              <img src={avatarPreview} alt="头像" className="avatar-image" />
-            ) : (
-              <div className="avatar-placeholder">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                  <path d="M12 2a5 5 0 00-5 5 5 5 0 005 5c2.76 0 5-2.24 5-5s-2.24-5-5-5z" />
-                  <path d="M20 21a8 8 0 00-16 0" />
-                </svg>
-                <span>上传头像</span>
-              </div>
-            )}
-            <div className="avatar-overlay">
-              <span>更换</span>
-            </div>
-          </div>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            onChange={handleAvatarChange}
-            style={{ display: 'none' }}
-          />
-          <p className="avatar-hint">点击上传头像，建议使用正方形图片</p>
-        </div>
-
-        {/* 表单 */}
-        <form className="profile-form" onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label className="form-label">用户名</label>
-            <input
-              type="text"
-              className="form-input"
-              value={username}
-              onChange={e => setUsername(e.target.value)}
-              placeholder="请输入用户名"
-              maxLength={100}
-            />
-          </div>
-
-          <div className="form-group">
-            <label className="form-label">邮箱</label>
-            <input
-              type="email"
-              className="form-input"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              placeholder="请输入邮箱"
-            />
-          </div>
-
-          {error && <div className="form-error">{error}</div>}
-
-          <div className="profile-actions">
-            <button
-              type="button"
-              className="btn btn-secondary"
-              onClick={handleCancel}
-              disabled={loading}
-            >
-              取消
-            </button>
-            <button
-              type="submit"
-              className="btn btn-primary"
-              disabled={loading}
-            >
-              {loading ? '保存中...' : '保存'}
-            </button>
-          </div>
-        </form>
-
-        {/* 安全设置 */}
-        <div className="security-section">
-          <h4 className="security-title">安全设置</h4>
-          <div
-            className="security-item"
-            onClick={() => setShowPasswordModal(true)}
-          >
-            <div className="security-item-left">
-              <div className="security-item-title">修改密码</div>
-              <div className="security-item-desc">定期更换密码以保护账户安全</div>
-            </div>
-            <span className="security-item-arrow">›</span>
-          </div>
-        </div>
-
-        {/* 管理员入口 */}
-        {user?.role === 'admin' && (
-          <div className="security-section">
-            <h4 className="security-title">管理员</h4>
+        {/* 头部区域：左边头像，右边信息 */}
+        <div className="profile-header">
+          {/* 头像 */}
+          <div className="profile-avatar-wrapper">
             <div
-              className="security-item"
-              onClick={() => navigate('/admin')}
+              className="avatar-uploader"
+              onClick={() => fileInputRef.current?.click()}
             >
-              <div className="security-item-left">
-                <div className="security-item-title">管理后台</div>
-                <div className="security-item-desc">查看平台数据、管理用户</div>
+              {avatarPreview ? (
+                <img src={avatarPreview} alt="头像" className="avatar-image" />
+              ) : (
+                <div className="avatar-placeholder">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                    <path d="M12 2a5 5 0 00-5 5 5 5 0 005 5c2.76 0 5-2.24 5-5s-2.24-5-5-5z" />
+                    <path d="M20 21a8 8 0 00-16 0" />
+                  </svg>
+                  <span>上传头像</span>
+                </div>
+              )}
+              <div className="avatar-overlay">
+                <span>更换</span>
               </div>
-              <span className="security-item-arrow">›</span>
             </div>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleAvatarChange}
+              style={{ display: 'none' }}
+            />
+            <p className="avatar-hint">点击上传头像，建议使用正方形图片</p>
           </div>
-        )}
+
+          {/* 右侧信息 */}
+          <div className="profile-info">
+            <form className="profile-form" onSubmit={(e) => { e.preventDefault(); handleSubmit() }}>
+              <div className="form-group">
+                <label className="form-label">用户名</label>
+                <input
+                  type="text"
+                  className="form-input"
+                  value={username}
+                  onChange={e => setUsername(e.target.value)}
+                  placeholder="请输入用户名"
+                  maxLength={100}
+                />
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">邮箱</label>
+                <input
+                  type="email"
+                  className="form-input"
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                  placeholder="请输入邮箱"
+                />
+              </div>
+
+              {error && <div className="form-error">{error}</div>}
+
+              <div className="profile-actions">
+                {/* 修改密码按钮 */}
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={() => setShowPasswordModal(true)}
+                >
+                  修改密码
+                </button>
+                <button
+                  type="submit"
+                  className="btn btn-primary"
+                  disabled={loading}
+                >
+                  {loading ? '更新中...' : '更新信息'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
       </div>
 
       {/* 修改密码弹窗 */}

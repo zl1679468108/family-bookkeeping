@@ -4,16 +4,25 @@
   border: 1px solid var(--color-border, #e2e8f0);
   border-radius: 16px;
   padding: 32px;
+  width: 60%;
 }
 
-/* 头像区域 */
-.avatar-section {
+/* 头部区域：左边头像右边信息 */
+.profile-header {
+  display: flex;
+  gap: 32px;
+  align-items: flex-start;
+}
+
+/* 头像包装器 */
+.profile-avatar-wrapper {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-bottom: 32px;
+  flex-shrink: 0;
 }
 
+/* 头像上传器 */
 .avatar-uploader {
   position: relative;
   width: 120px;
@@ -30,7 +39,7 @@
 
   &:hover {
     border-color: var(--accent);
-    background: oklch(from var(--accent) l c / 0.08);
+    background: var(--prBg);
   }
 }
 
@@ -79,12 +88,17 @@
   margin-top: 12px;
 }
 
+/* 右侧信息区域 */
+.profile-info {
+  flex: 1;
+  min-width: 0;
+}
+
 /* 表单 */
 .profile-form {
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  margin-bottom: 32px;
+  gap: 16px;
 }
 
 .form-group {
@@ -101,23 +115,22 @@
 
 .form-input {
   width: 100%;
-  padding: 10px 14px;
-  border: 1px solid var(--color-border, #e2e8f0);
-  border-radius: 10px;
-  font-size: 15px;
-  color: var(--color-fg, #1a1a2e);
-  background: var(--color-bg, #f5f6fa);
-  transition: border-color 0.2s, box-shadow 0.2s;
+  padding: 9px 12px;
+  border: 1px solid var(--bd);
+  border-radius: var(--rs);
+  font-size: 13px;
+  color: var(--fg);
+  background: var(--srf);
+  transition: border-color var(--df), box-shadow var(--df);
 
   &:focus {
     outline: none;
-    border-color: var(--accent);
-    box-shadow: 0 0 0 3px oklch(from var(--accent) l c / 0.15);
-    background: #fff;
+    border-color: var(--pr);
+    box-shadow: 0 0 0 3px var(--prBg);
   }
 
   &::placeholder {
-    color: var(--color-muted, #aaa);
+    color: var(--fg3);
   }
 }
 
@@ -130,7 +143,7 @@
 
 .form-error {
   font-size: 13px;
-  color: #e53e3e;
+  color: var(--exp);
   margin-top: 2px;
 }
 
@@ -138,99 +151,8 @@
 .profile-actions {
   display: flex;
   gap: 12px;
-  justify-content: flex-end;
-  margin-bottom: 32px;
-}
-
-/* 安全设置 */
-.security-section {
-  border-top: 1px solid var(--color-border, #e2e8f0);
-  padding-top: 24px;
-}
-
-.security-title {
-  font-size: 16px;
-  font-weight: 700;
-  color: var(--color-fg, #1a1a2e);
-  margin-bottom: 16px;
-}
-
-.security-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 14px 16px;
-  background: var(--color-bg, #f5f6fa);
-  border-radius: 12px;
-  cursor: pointer;
-  transition: background 0.15s;
-
-  &:hover {
-    background: oklch(from var(--accent) l c / 0.06);
-  }
-}
-
-.security-item-left {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.security-item-title {
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--color-fg, #1a1a2e);
-}
-
-.security-item-desc {
-  font-size: 13px;
-  color: var(--color-muted, #888);
-}
-
-.security-item-arrow {
-  color: var(--color-muted, #aaa);
-}
-
-/* 密码弹窗 */
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.4);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  animation: fadeIn 0.2s ease;
-}
-
-.modal-content {
-  background: var(--color-surface, #fff);
-  border-radius: 16px;
-  padding: 32px;
-  width: 100%;
-  max-width: 420px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
-  animation: slideUp 0.25s ease;
-}
-
-.modal-title {
-  font-size: 20px;
-  font-weight: 700;
-  color: var(--color-fg, #1a1a2e);
-  margin-bottom: 24px;
-}
-
-.modal-form {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  margin-bottom: 24px;
-}
-
-.modal-actions {
-  display: flex;
-  gap: 12px;
-  justify-content: flex-end;
+  justify-content: flex-start;
+  margin-top: 8px;
 }
 
 /* 按钮样式复用全局 */
@@ -270,6 +192,62 @@
   &:hover:not(:disabled) {
     background: var(--color-bg, #f5f6fa);
   }
+}
+
+.btn-link {
+  background: none;
+  color: var(--accent);
+  padding: 6px 0;
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: underline;
+
+  &:hover:not(:disabled) {
+    color: var(--accent);
+    text-decoration: none;
+  }
+}
+
+/* 密码弹窗 */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--ov);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: var(--z-modal);
+  animation: fadeIn 0.2s ease;
+}
+
+.modal-content {
+  background: var(--color-surface, #fff);
+  border-radius: 16px;
+  padding: 32px;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+  animation: slideUp 0.25s ease;
+}
+
+.modal-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--color-fg, #1a1a2e);
+  margin-bottom: 24px;
+}
+
+.modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
 }
 
 @keyframes fadeIn {

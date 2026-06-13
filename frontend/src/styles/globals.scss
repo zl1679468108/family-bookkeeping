@@ -1,0 +1,100 @@
+// Tailwind CSS
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+// 设计令牌
+@import './design-tokens.css';
+
+// 导入组件样式
+@import './components/_buttons.scss';
+@import './components/_forms.scss';
+@import './components/_modals.scss';
+@import './components/_animations.scss';
+@import './components/_tooltip.scss';
+@import './components/_common.scss';
+
+// 导入 Sidebar 样式
+@import './sidebar/index.scss';
+
+// 导入页面模块样式
+@import '../pages/Dashboard/index.scss';
+@import '../pages/Transactions/index.scss';
+@import '../pages/Calendar/index.scss';
+@import '../pages/Budgets/index.scss';
+@import '../pages/Books/index.scss';
+@import '../pages/Categories/index.scss';
+@import '../pages/Templates/index.scss';
+@import '../pages/Reports/index.scss';
+@import '../pages/AddTransaction/index.scss';
+@import '../pages/Map/index.scss';
+
+/* ==============================
+   统一页面容器 padding
+   桌面端：24px 32px；移动端：16px
+   ============================== */
+
+@media (max-width: 768px) {
+  .page-container {
+    padding: 16px;
+  }
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--fn);
+  background: var(--bg);
+  color: var(--fg);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.app {
+  display: flex;
+  min-height: 100vh;
+}
+
+.main {
+  flex: 1;
+  margin-left: var(--sidebar-width, 240px);
+  padding: 20px 28px;
+  max-width: 1480px;
+  transition: margin-left 0.2s ease;
+}
+
+@media (max-width: 768px) {
+  .main {
+    margin-left: 0;
+    padding: 24px 16px;
+  }
+}
+
+/* 视图面板 */
+.view-panel {
+  display: none;
+}
+
+.view-panel.active {
+  display: block;
+  animation: fadeInUp var(--ds) var(--ease);
+}
+
+/* 主内容区域滚动条 */
+.main::-webkit-scrollbar {
+  width: 5px;
+}
+
+.main::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.main::-webkit-scrollbar-thumb {
+  background: var(--bd);
+  border-radius: 3px;
+}

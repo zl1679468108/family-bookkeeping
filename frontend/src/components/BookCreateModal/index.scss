@@ -1,0 +1,215 @@
+/* ═══ BookCreateModal 独立样式（带前缀，避免与全局样式冲突） ═══ */
+
+.book-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--ov, rgba(0, 0, 0, 0.45));
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: var(--z-modal);
+  padding: 16px;
+  animation: fadeIn 0.2s var(--ease);
+}
+
+.book-modal-dialog {
+  background: var(--srf, #fff);
+  border-radius: var(--rl);
+  width: 100%;
+  max-width: 520px;
+  max-height: calc(100vh - 48px);
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--sh4);
+  animation: scaleIn 0.25s var(--sp);
+  overflow: hidden;
+}
+
+.book-modal-dialog__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 24px;
+  border-bottom: 1px solid var(--bd);
+  flex-shrink: 0;
+}
+
+.book-modal-dialog__title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--fg);
+  margin: 0;
+}
+
+.book-modal-dialog__close {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  border-radius: var(--rs);
+  cursor: pointer;
+  color: var(--fg3);
+  font-size: 16px;
+  font-family: inherit;
+  transition: all var(--df);
+}
+
+.book-modal-dialog__close:hover {
+  background: var(--bg);
+  color: var(--fg);
+}
+
+.book-modal-dialog__body {
+  padding: 20px 24px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.book-modal-dialog__footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 16px 24px;
+  border-top: 1px solid var(--bd);
+  background: var(--bg);
+  flex-shrink: 0;
+}
+
+/* —— 表单 —— */
+
+.book-modal-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.book-modal-field + .book-modal-field {
+  margin-top: 16px;
+}
+
+.book-modal-field__label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--fg2);
+}
+
+.book-modal-field__input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 14px;
+  font-size: 14px;
+  font-family: inherit;
+  color: var(--fg);
+  background: var(--srf);
+  border: 1px solid var(--bd);
+  border-radius: var(--rs);
+  outline: none;
+  transition: all var(--df);
+}
+
+.book-modal-field__input::placeholder {
+  color: var(--fg3);
+}
+
+.book-modal-field__input:focus {
+  border-color: var(--pr);
+  box-shadow: 0 0 0 3px var(--prBg);
+}
+
+.book-modal-field__input:hover:not(:focus) {
+  border-color: var(--fg3);
+}
+
+/* —— 图标网格 —— */
+
+.book-modal-icon-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.book-modal-icon-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 14px 8px;
+  background: var(--bg);
+  border: 2px solid var(--bd);
+  border-radius: var(--rm);
+  cursor: pointer;
+  transition: all var(--df);
+  color: var(--fg2);
+  font-family: inherit;
+}
+
+.book-modal-icon-btn:hover {
+  border-color: var(--fg3);
+  color: var(--fg);
+  background: color-mix(in srgb, var(--pr) 6%, var(--bg));
+}
+
+.book-modal-icon-btn.is-active {
+  border-color: var(--pr);
+  background: color-mix(in srgb, var(--pr) 10%, var(--srf));
+  color: var(--pr);
+}
+
+.book-modal-icon-btn__icon {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.book-modal-icon-btn__label {
+  font-size: 11px;
+  font-weight: 500;
+  text-align: center;
+}
+
+/* —— 按钮 —— */
+
+.book-modal-btn {
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: var(--rs);
+  border: none;
+  cursor: pointer;
+  transition: all var(--df);
+  font-family: inherit;
+}
+
+.book-modal-btn--secondary {
+  background: var(--srf);
+  color: var(--fg2);
+  border: 1px solid var(--bd);
+}
+
+.book-modal-btn--secondary:hover {
+  background: color-mix(in srgb, var(--fg) 6%, var(--bg));
+  color: var(--fg);
+}
+
+.book-modal-btn--primary {
+  background: var(--pr);
+  color: #fff;
+}
+
+.book-modal-btn--primary:hover:not(:disabled) {
+  background: var(--prH);
+}
+
+.book-modal-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

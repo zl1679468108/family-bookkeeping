@@ -6,19 +6,47 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        primary: 'oklch(58% 0.18 255)',
-        secondary: 'oklch(54% 0.012 250)',
-        accent: 'oklch(58% 0.18 255)',
-        bg: 'oklch(99% 0.002 240)',
-        surface: 'oklch(100% 0 0)',
-        fg: 'oklch(18% 0.012 250)',
-        muted: 'oklch(54% 0.012 250)',
-        border: 'oklch(92% 0.005 250)'
+        // 主色 — 绿色系
+        primary:    '#2D9D8A',
+        'primary-hover': '#248B78',
+        'primary-bg':    '#E7F5F2',
+        'primary-border':'#C4E5DE',
+        // 中性色 — 暖灰绿调
+        bg:         '#F6F7F4',
+        surface:    '#FFFFFF',
+        'surface-hover': '#F9FAF8',
+        fg:         '#1A1C19',
+        muted:      '#5A5D58',
+        'fg-tertiary': '#8B8E89',
+        border:     '#E0E2DD',
+        'border-light': '#EDEEE9',
+        // 语义色
+        income:     '#3BA272',
+        'income-bg':'#EAF7F0',
+        expense:    '#E06055',
+        'expense-bg':'#FCEEED',
+        warning:    '#E8A838',
+        'warning-bg':'#FDF6E8',
+        info:       '#4A90D9',
+        'info-bg':  '#ECF3FB',
       },
       fontFamily: {
-        display: ['"SF Pro Display"', '"Inter"', 'system-ui', 'sans-serif'],
-        body: ['"SF Pro Text"', '"Inter"', 'system-ui', 'sans-serif']
-      }
+        display: ['"DM Sans"', '-apple-system', 'BlinkMacSystemFont', '"SF Pro Display"', 'system-ui', 'sans-serif'],
+        body:    ['"DM Sans"', '-apple-system', 'BlinkMacSystemFont', '"SF Pro Text"', 'system-ui', 'sans-serif'],
+        mono:    ['"DM Mono"', 'ui-monospace', '"SF Mono"', 'Menlo', 'monospace'],
+      },
+      borderRadius: {
+        'sm': '8px',
+        'md': '12px',
+        'lg': '18px',
+        'xl': '24px',
+      },
+      boxShadow: {
+        'sm': '0 1px 2px rgba(0,0,0,0.04)',
+        'md': '0 2px 8px rgba(0,0,0,0.06)',
+        'lg': '0 8px 24px rgba(0,0,0,0.08)',
+        'xl': '0 16px 48px rgba(0,0,0,0.12)',
+      },
     },
     screens: {
       'sm': '360px',

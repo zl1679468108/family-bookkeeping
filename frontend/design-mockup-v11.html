@@ -1,0 +1,2620 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>静记 · Design Mockup v11 — Sidebar优化</title>
+  <style>
+    /* ══════════════════════════════════════════
+   静记 Design System v11 — 侧边栏折叠优化
+   对齐 React Sidebar 组件实际实现
+   Expanded: 240px / Collapsed: 64px
+   ══════════════════════════════════════════ */
+    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&display=swap');
+
+    :root {
+      --bg: #F6F7F4;
+      --srf: #FFF;
+      --srfH: #F9FAF8;
+      --fg: #1A1C19;
+      --fg2: #5A5D58;
+      --fg3: #8B8E89;
+      --bd: #E0E2DD;
+      --bdL: #EDEEE9;
+      --pr: #2D9D8A;
+      --prH: #248B78;
+      --prBg: #E7F5F2;
+      --prBd: #C4E5DE;
+      --prGr: linear-gradient(135deg, #2D9D8A 0%, #45B7A7 100%);
+      --inc: #3BA272;
+      --incBg: #EAF7F0;
+      --exp: #E06055;
+      --expBg: #FCEEED;
+      --warn: #E8A838;
+      --warnBg: #FDF6E8;
+      --info: #4A90D9;
+      --infoBg: #ECF3FB;
+      --ov: rgba(0, 0, 0, 0.35);
+      --rs: 8px;
+      --rm: 12px;
+      --rl: 18px;
+      --rx: 24px;
+      --sh1: 0 1px 2px rgba(0, 0, 0, 0.04);
+      --sh2: 0 2px 8px rgba(0, 0, 0, 0.06);
+      --sh3: 0 8px 24px rgba(0, 0, 0, 0.08);
+      --sh4: 0 16px 48px rgba(0, 0, 0, 0.12);
+      --fn: 'DM Sans', -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif;
+      --fm: 'DM Mono', ui-monospace, monospace;
+      --sw: 240px;
+      --swc: 64px;
+      --ease: cubic-bezier(0.25, 0, 0, 1);
+      --sp: cubic-bezier(0.34, 1.56, 0.64, 1);
+      --df: 0.15s;
+      --dn: 0.25s;
+      --ds: 0.35s
+    }
+
+    *,
+    *::before,
+    *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box
+    }
+
+    html {
+      font-size: 16px;
+      -webkit-font-smoothing: antialiased
+    }
+
+    body {
+      font-family: var(--fn);
+      background: var(--bg);
+      color: var(--fg);
+      line-height: 1.5;
+      overflow: hidden;
+      height: 100vh
+    }
+
+    .app {
+      display: flex;
+      height: 100vh
+    }
+
+    /* ══════════════════════════════════════════
+   SIDEBAR v11 — 折叠状态视觉优化
+   对应: components/Sidebar/index.tsx + index.scss
+   折叠宽度 64px，展开宽度 240px
+   ══════════════════════════════════════════ */
+    .sidebar {
+      width: var(--sw);
+      min-width: var(--sw);
+      height: 100vh;
+      background: var(--srf);
+      border-right: 1px solid var(--bd);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      z-index: 100;
+      transition: width var(--dn) var(--ease)
+    }
+
+    .sidebar.collapsed {
+      width: var(--swc);
+      min-width: var(--swc)
+    }
+
+    /* Logo 区域 — collapsed 时居中 */
+    .sidebar-brand {
+      padding: 18px 18px 8px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: all var(--dn) var(--ease)
+    }
+
+    .sidebar.collapsed .sidebar-brand {
+      padding: 16px 0 8px;
+      justify-content: center
+    }
+
+    .brand-icon {
+      width: 30px;
+      height: 30px;
+      background: var(--prGr);
+      border-radius: var(--rm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 14px;
+      font-weight: 700;
+      flex-shrink: 0;
+      transition: all var(--dn) var(--ease)
+    }
+
+    .brand-text {
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      white-space: nowrap;
+      overflow: hidden;
+      transition: opacity var(--df), width var(--dn)
+    }
+
+    .sidebar.collapsed .brand-text {
+      opacity: 0;
+      width: 0;
+      display: none
+    }
+
+    /* 折叠按钮 — 右侧边缘圆形按钮 */
+    .sidebar-toggle {
+      position: absolute;
+      top: 66px;
+      right: -12px;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      border: 1px solid var(--bd);
+      background: var(--srf);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+      color: var(--fg3);
+      box-shadow: var(--sh1);
+      transition: all var(--df)
+    }
+
+    .sidebar-toggle:hover {
+      color: var(--pr);
+      border-color: var(--pr)
+    }
+
+    .sidebar.collapsed .sidebar-toggle {
+      top: 52px
+    }
+
+    /* Book Switcher — collapsed 时仅显示图标 */
+    .book-area {
+      padding: 0 12px 6px;
+      position: relative;
+      transition: all var(--dn)
+    }
+
+    .sidebar.collapsed .book-area {
+      padding: 4px 0 8px;
+      display: flex;
+      justify-content: center
+    }
+
+    .book-trigger {
+      padding: 7px 10px;
+      background: var(--bg);
+      border-radius: var(--rs);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: all var(--df);
+      white-space: nowrap
+    }
+
+    .book-trigger:hover {
+      background: var(--srfA)
+    }
+
+    .sidebar.collapsed .book-trigger {
+      justify-content: center;
+      padding: 6px;
+      width: 40px;
+      height: 40px;
+      border-radius: var(--rm);
+      gap: 0
+    }
+
+    .book-avatar {
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      background: var(--prGr);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 10px;
+      font-weight: 700;
+      flex-shrink: 0;
+      transition: all var(--dn)
+    }
+
+    .sidebar.collapsed .book-avatar {
+      width: 24px;
+      height: 24px;
+      font-size: 12px
+    }
+
+    .book-name {
+      font-size: 12px;
+      font-weight: 600;
+      max-width: 120px;
+      overflow: hidden;
+      text-overflow: ellipsis
+    }
+
+    .sidebar.collapsed .book-name {
+      display: none
+    }
+
+    .book-chevron {
+      margin-left: auto;
+      color: var(--fg3);
+      font-size: 9px;
+      transition: transform var(--df)
+    }
+
+    .sidebar.collapsed .book-chevron {
+      display: none
+    }
+
+    .book-dropdown {
+      position: absolute;
+      left: 8px;
+      top: 100%;
+      width: 200px;
+      background: var(--srf);
+      border: 1px solid var(--bd);
+      border-radius: var(--rm);
+      box-shadow: var(--sh3);
+      z-index: 200;
+      display: none;
+      overflow: hidden
+    }
+
+    .book-dropdown.active {
+      display: block;
+      animation: scaleIn 0.2s var(--sp)
+    }
+
+    .book-opt {
+      padding: 9px 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      font-weight: 500;
+      transition: background var(--df)
+    }
+
+    .book-opt:hover {
+      background: var(--bg)
+    }
+
+    .book-opt .bdot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      flex-shrink: 0
+    }
+
+    /* Nav — collapsed 时图标居中 */
+    .nav-scroll {
+      flex: 1;
+      padding: 2px 6px;
+      overflow-y: auto;
+      overflow-x: hidden
+    }
+
+    .sidebar.collapsed .nav-scroll {
+      padding: 2px 0
+    }
+
+    .nav-section {
+      margin-bottom: 4px
+    }
+
+    .nav-sep {
+      padding: 0 10px;
+      margin: 10px 0 2px;
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--fg3);
+      transition: all var(--df)
+    }
+
+    .sidebar.collapsed .nav-sep {
+      opacity: 0;
+      height: 0;
+      margin: 0;
+      overflow: hidden
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 10px;
+      margin: 1px 0;
+      border-radius: var(--rs);
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--fg2);
+      cursor: pointer;
+      transition: all var(--df);
+      white-space: nowrap;
+      position: relative
+    }
+
+    .nav-item:hover {
+      background: var(--bg);
+      color: var(--fg)
+    }
+
+    .nav-item.active {
+      background: var(--prBg);
+      color: var(--pr);
+      font-weight: 600
+    }
+
+    .sidebar.collapsed .nav-item {
+      justify-content: center;
+      padding: 9px;
+      gap: 0
+    }
+
+    .nav-icon {
+      width: 18px;
+      height: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: all var(--dn)
+    }
+
+    .sidebar.collapsed .nav-icon {
+      width: 20px;
+      height: 20px
+    }
+
+    .nav-label {
+      font-size: 13px;
+      transition: opacity var(--df)
+    }
+
+    .sidebar.collapsed .nav-label {
+      display: none
+    }
+
+    .nav-badge {
+      margin-left: auto;
+      font-size: 10px;
+      font-weight: 700;
+      background: var(--exp);
+      color: #fff;
+      padding: 1px 5px;
+      border-radius: 10px
+    }
+
+    .sidebar.collapsed .nav-badge {
+      position: absolute;
+      top: 3px;
+      right: 3px;
+      font-size: 8px;
+      padding: 1px 4px;
+      margin-left: 0
+    }
+
+    /* Tooltip — collapsed 时显示 */
+    .nav-tip {
+      position: fixed;
+      left: 72px;
+      padding: 6px 10px;
+      background: var(--fg);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 500;
+      border-radius: var(--rs);
+      white-space: nowrap;
+      pointer-events: none;
+      opacity: 0;
+      transform: translateX(-4px);
+      transition: all var(--df);
+      z-index: 400
+    }
+
+    .nav-item:hover+.nav-tip,
+    .nav-item:hover .nav-tip {
+      opacity: 1;
+      transform: translateX(0)
+    }
+
+    /* Footer / User Area */
+    .sidebar-footer {
+      border-top: 1px solid var(--bdL);
+      padding: 8px 12px;
+      position: relative;
+      transition: all var(--dn)
+    }
+
+    .sidebar.collapsed .sidebar-footer {
+      padding: 8px 4px
+    }
+
+    .user-trigger {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      padding: 4px 0;
+      border: none;
+      background: none;
+      width: 100%;
+      font-family: var(--fn);
+      transition: all var(--df)
+    }
+
+    .user-trigger:hover {
+      opacity: 0.8
+    }
+
+    .sidebar.collapsed .user-trigger {
+      justify-content: center;
+      gap: 0
+    }
+
+    .user-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--prGr);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 700;
+      color: #fff;
+      flex-shrink: 0
+    }
+
+    .user-avatar img {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      object-fit: cover
+    }
+
+    .user-info {
+      flex: 1;
+      min-width: 0;
+      text-align: left
+    }
+
+    .sidebar.collapsed .user-info {
+      display: none
+    }
+
+    .user-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--fg);
+      line-height: 1.2
+    }
+
+    .user-arrow {
+      color: var(--fg3);
+      font-size: 10px;
+      transition: transform var(--df)
+    }
+
+    .user-arrow.open {
+      transform: rotate(180deg)
+    }
+
+    .sidebar.collapsed .user-arrow {
+      display: none
+    }
+
+    /* User Menu Popover — 向上弹出 */
+    .user-menu {
+      position: absolute;
+      left: 8px;
+      bottom: 100%;
+      margin-bottom: 8px;
+      width: 220px;
+      background: var(--srf);
+      border: 1px solid var(--bd);
+      border-radius: var(--rm);
+      box-shadow: var(--sh4);
+      z-index: 200;
+      overflow: hidden;
+      display: none
+    }
+
+    .user-menu.active {
+      display: block;
+      animation: scaleIn 0.2s var(--sp)
+    }
+
+    .sidebar.collapsed .user-menu {
+      left: 0;
+      margin-left: 4px
+    }
+
+    .um-header {
+      padding: 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--bg)
+    }
+
+    .um-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--prGr);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 16px;
+      font-weight: 700;
+      flex-shrink: 0
+    }
+
+    .um-name {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--fg)
+    }
+
+    .um-email {
+      font-size: 11px;
+      color: var(--fg3);
+      margin-top: 1px
+    }
+
+    .um-divider {
+      height: 1px;
+      background: var(--bdL)
+    }
+
+    .um-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      font-size: 13px;
+      color: var(--fg2);
+      cursor: pointer;
+      transition: background var(--df)
+    }
+
+    .um-item:hover {
+      background: var(--bg)
+    }
+
+    .um-item.danger {
+      color: var(--exp)
+    }
+
+    .um-item.danger:hover {
+      background: var(--expBg)
+    }
+
+    /* ── MAIN ── */
+    .main {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: 20px 28px;
+      max-width: 1480px
+    }
+
+    .main::-webkit-scrollbar {
+      width: 5px
+    }
+
+    .main::-webkit-scrollbar-track {
+      background: transparent
+    }
+
+    .main::-webkit-scrollbar-thumb {
+      background: var(--bd);
+      border-radius: 3px
+    }
+
+    .view-panel {
+      display: none
+    }
+
+    .view-panel.active {
+      display: block;
+      animation: fadeInUp var(--ds) var(--ease)
+    }
+
+    /* ── STATS ── */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      margin-bottom: 16px
+    }
+
+    .stat-card {
+      background: var(--srf);
+      border-radius: var(--rl);
+      border: 1px solid var(--bd);
+      padding: 20px 22px;
+      transition: all var(--dn) var(--ease);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      min-height: 100px
+    }
+
+    .stat-card:hover {
+      transform: translateY(-1px);
+      box-shadow: var(--sh2)
+    }
+
+    .stat-card.hero {
+      background: var(--prGr);
+      border: none;
+      color: #fff
+    }
+
+    .stat-card.hero .stat-label {
+      color: rgba(255, 255, 255, 0.75)
+    }
+
+    .stat-card.hero .stat-sub {
+      color: rgba(255, 255, 255, 0.6)
+    }
+
+    .stat-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 4px
+    }
+
+    .stat-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: var(--rs);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px
+    }
+
+    .stat-icon.inc {
+      background: var(--incBg);
+      color: var(--inc)
+    }
+
+    .stat-icon.exp {
+      background: var(--expBg);
+      color: var(--exp)
+    }
+
+    .stat-label {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--fg3)
+    }
+
+    .stat-value {
+      font-size: 26px;
+      font-weight: 700;
+      letter-spacing: -0.02em
+    }
+
+    .stat-card:not(.hero) .stat-value {
+      color: var(--fg)
+    }
+
+    .stat-card.hero .stat-value {
+      color: #fff
+    }
+
+    .stat-sub {
+      font-size: 11px;
+      color: var(--fg3);
+      margin-top: 2px
+    }
+
+    /* ── CARDS ── */
+    .dash-grid {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr;
+      gap: 14px;
+      margin-bottom: 14px
+    }
+
+    .dash-card {
+      background: var(--srf);
+      border-radius: var(--rl);
+      border: 1px solid var(--bd);
+      padding: 18px 22px;
+      transition: all var(--dn) var(--ease)
+    }
+
+    .dash-card:hover {
+      box-shadow: var(--sh1)
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px
+    }
+
+    .card-header h3 {
+      font-size: 14px;
+      font-weight: 600
+    }
+
+    .card-action {
+      font-size: 12px;
+      color: var(--pr);
+      font-weight: 500;
+      cursor: pointer
+    }
+
+    .card-action:hover {
+      opacity: 0.8
+    }
+
+    .quick-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 14px
+    }
+
+    .quick-action {
+      background: var(--srf);
+      border: 1px solid var(--bd);
+      border-radius: var(--rl);
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      transition: all var(--dn) var(--ease)
+    }
+
+    .quick-action:hover {
+      border-color: var(--prBd);
+      box-shadow: var(--sh2)
+    }
+
+    .qa-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: var(--rm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+      flex-shrink: 0
+    }
+
+    .qa-icon.add {
+      background: var(--prBg);
+      color: var(--pr)
+    }
+
+    .qa-icon.report {
+      background: var(--infoBg);
+      color: var(--info)
+    }
+
+    .qa-info h4 {
+      font-size: 13px;
+      font-weight: 600
+    }
+
+    .qa-info p {
+      font-size: 11px;
+      color: var(--fg3)
+    }
+
+    /* ── TXN LIST ── */
+    .txn-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      background: var(--bdL);
+      border-radius: var(--rs);
+      overflow: hidden
+    }
+
+    .txn-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      background: var(--srf);
+      transition: background var(--df);
+      cursor: pointer
+    }
+
+    .txn-row:hover {
+      background: var(--srfH)
+    }
+
+    .txn-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: var(--rs);
+      background: var(--bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+      flex-shrink: 0
+    }
+
+    .txn-info {
+      flex: 1;
+      min-width: 0
+    }
+
+    .txn-title {
+      font-size: 13px;
+      font-weight: 600
+    }
+
+    .txn-meta {
+      font-size: 11px;
+      color: var(--fg3);
+      margin-top: 1px;
+      display: flex;
+      gap: 6px
+    }
+
+    .txn-amount {
+      font-size: 14px;
+      font-weight: 700;
+      text-align: right;
+      white-space: nowrap
+    }
+
+    .txn-amount.debit {
+      color: var(--exp)
+    }
+
+    .txn-amount.credit {
+      color: var(--inc)
+    }
+
+    .txn-sign {
+      font-size: 11px;
+      font-weight: 600
+    }
+
+    /* ── FILTER / TABLE ── */
+    .filter-sticky {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: var(--bg);
+      padding: 10px 0 8px;
+      margin-bottom: 10px
+    }
+
+    .filter-bar {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+      padding: 7px;
+      background: var(--srf);
+      border-radius: var(--rm);
+      border: 1px solid var(--bd)
+    }
+
+    .filter-chip {
+      padding: 5px 12px;
+      border: 1px solid var(--bd);
+      border-radius: 16px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--fg2);
+      cursor: pointer;
+      background: var(--srf);
+      transition: all var(--df);
+      white-space: nowrap
+    }
+
+    .filter-chip:hover {
+      border-color: var(--prBd)
+    }
+
+    .filter-chip.active {
+      background: var(--fg);
+      color: #fff;
+      border-color: var(--fg)
+    }
+
+    .filter-summary {
+      font-size: 11px;
+      color: var(--fg3);
+      margin-left: auto;
+      white-space: nowrap
+    }
+
+    .load-more {
+      text-align: center;
+      padding: 14px;
+      color: var(--fg3);
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 500
+    }
+
+    .load-more:hover {
+      color: var(--pr)
+    }
+
+    .srch-wrap {
+      position: relative;
+      flex: 1;
+      min-width: 140px;
+      max-width: 240px
+    }
+
+    .srch-wrap input {
+      width: 100%;
+      padding: 7px 12px 7px 30px;
+      border: 1px solid var(--bd);
+      border-radius: 20px;
+      font-size: 12px;
+      font-family: var(--fn);
+      background: var(--bg)
+    }
+
+    .srch-wrap input:focus {
+      outline: none;
+      border-color: var(--pr);
+      box-shadow: 0 0 0 2px var(--prBg)
+    }
+
+    .srch-wrap .si {
+      position: absolute;
+      left: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--fg3)
+    }
+
+    .data-table {
+      width: 100%;
+      border-collapse: collapse
+    }
+
+    .data-table th {
+      text-align: left;
+      padding: 8px 12px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--fg3);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      border-bottom: 1px solid var(--bd)
+    }
+
+    .data-table td {
+      padding: 10px 12px;
+      font-size: 13px;
+      font-weight: 500;
+      border-bottom: 1px solid var(--bdL);
+      color: var(--fg)
+    }
+
+    .data-table tbody tr {
+      transition: background var(--df);
+      cursor: pointer
+    }
+
+    .data-table tbody tr:hover {
+      background: var(--srfH)
+    }
+
+    .cell-amount {
+      font-weight: 700;
+      text-align: right
+    }
+
+    .cell-amount.debit {
+      color: var(--exp)
+    }
+
+    .cell-amount.credit {
+      color: var(--inc)
+    }
+
+    .cell-cat {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 2px 8px;
+      background: var(--bg);
+      border-radius: 14px;
+      font-size: 11px;
+      font-weight: 500
+    }
+
+    /* ── ADD (et-width layout) ── */
+    .add-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      align-items: start
+    }
+
+    .add-left,
+    .add-right {
+      background: var(--srf);
+      border: 1px solid var(--bd);
+      border-radius: var(--rl);
+      padding: 22px 24px;
+      transition: all var(--dn) var(--ease)
+    }
+
+    .add-left:hover,
+    .add-right:hover {
+      box-shadow: var(--sh2)
+    }
+
+    .add-right h4 {
+      margin-bottom: 14px;
+      font-size: 14px;
+      font-weight: 600
+    }
+
+    .sc-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px
+    }
+
+    .sc-item {
+      padding: 16px 12px;
+      background: var(--bg);
+      border-radius: var(--rm);
+      cursor: pointer;
+      transition: all var(--df);
+      text-align: center;
+      border: 1px solid transparent
+    }
+
+    .sc-item:hover {
+      background: var(--prBg);
+      border-color: var(--prBd)
+    }
+
+    .sc-icon {
+      font-size: 26px;
+      margin-bottom: 6px
+    }
+
+    .sc-name {
+      font-size: 13px;
+      font-weight: 600
+    }
+
+    .sc-desc {
+      font-size: 10px;
+      color: var(--fg3);
+      margin-top: 2px
+    }
+
+    /* ── FORM ── */
+    .form-group {
+      margin-bottom: 12px
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--fg2);
+      margin-bottom: 4px
+    }
+
+    .form-input,
+    .form-select {
+      width: 100%;
+      padding: 9px 12px;
+      border: 1px solid var(--bd);
+      border-radius: var(--rs);
+      background: var(--srf);
+      font-size: 13px;
+      font-family: var(--fn);
+      color: var(--fg);
+      transition: border-color var(--df)
+    }
+
+    .form-input:focus,
+    .form-select:focus {
+      outline: none;
+      border-color: var(--pr);
+      box-shadow: 0 0 0 3px var(--prBg)
+    }
+
+    .form-input.amt {
+      font-size: 24px;
+      font-weight: 700;
+      text-align: center;
+      padding: 14px
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px
+    }
+
+    .form-error {
+      font-size: 11px;
+      color: var(--exp);
+      margin-top: 3px;
+      display: none
+    }
+
+    .form-error.visible {
+      display: block
+    }
+
+    .form-tabs {
+      display: flex;
+      border: 1px solid var(--bd);
+      border-radius: var(--rs);
+      overflow: hidden;
+      margin-bottom: 14px
+    }
+
+    .form-tabs button {
+      flex: 1;
+      padding: 9px;
+      border: none;
+      background: transparent;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: var(--fn);
+      transition: all var(--df)
+    }
+
+    .form-tabs button:first-child {
+      border-right: 1px solid var(--bd)
+    }
+
+    .form-tabs button.active {
+      background: var(--fg);
+      color: #fff
+    }
+
+    .loc-btn {
+      width: 100%;
+      padding: 9px 12px;
+      border: 1px dashed var(--info);
+      border-radius: var(--rm);
+      background: var(--infoBg);
+      color: var(--info);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all var(--df);
+      font-family: var(--fn)
+    }
+
+    .loc-btn:hover {
+      background: #D8E8F7
+    }
+
+    .loc-btn.sel {
+      border-style: solid;
+      background: var(--incBg);
+      color: var(--inc);
+      border-color: var(--inc)
+    }
+
+    .upz {
+      border: 1px dashed var(--bd);
+      border-radius: var(--rm);
+      padding: 14px;
+      text-align: center;
+      cursor: pointer;
+      transition: all var(--df);
+      background: var(--bg)
+    }
+
+    .upz:hover {
+      border-color: var(--prBd);
+      background: var(--prBg)
+    }
+
+    .upz .uzi {
+      font-size: 22px;
+      margin-bottom: 4px;
+      opacity: 0.5
+    }
+
+    .upz .uzt {
+      font-size: 11px;
+      color: var(--fg3)
+    }
+
+    .upz.on {
+      border-style: solid;
+      background: var(--incBg);
+      border-color: var(--inc)
+    }
+
+    .upz.on .uzt {
+      color: var(--inc);
+      font-weight: 600
+    }
+
+    /* ── BUDGET ── */
+    .budget-item {
+      margin-bottom: 12px
+    }
+
+    .budget-info {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 5px;
+      align-items: center
+    }
+
+    .budget-name {
+      font-size: 13px;
+      font-weight: 600
+    }
+
+    .budget-amount {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--fg2);
+      display: flex;
+      align-items: center;
+      gap: 6px
+    }
+
+    .budget-actions {
+      display: flex;
+      gap: 3px;
+      opacity: 0;
+      transition: opacity var(--df)
+    }
+
+    .budget-item:hover .budget-actions {
+      opacity: 1
+    }
+
+    .budget-actions button {
+      background: var(--bg);
+      border: 1px solid var(--bd);
+      border-radius: 5px;
+      font-size: 10px;
+      cursor: pointer;
+      color: var(--fg3);
+      padding: 2px 6px
+    }
+
+    .budget-actions button:hover {
+      background: var(--srf);
+      color: var(--fg);
+      border-color: var(--prBd)
+    }
+
+    .budget-actions button.del:hover {
+      color: var(--exp);
+      border-color: var(--exp)
+    }
+
+    .budget-bar {
+      height: 5px;
+      background: var(--bg);
+      border-radius: 3px;
+      overflow: hidden
+    }
+
+    .fill {
+      height: 100%;
+      border-radius: 3px;
+      transition: width var(--ds) var(--sp)
+    }
+
+    .fill.safe {
+      background: var(--prGr)
+    }
+
+    .fill.warn {
+      background: linear-gradient(90deg, #E8A838, #F0C040)
+    }
+
+    .fill.danger {
+      background: linear-gradient(90deg, #E06055, #F08075)
+    }
+
+    .budget-percent {
+      font-size: 11px;
+      color: var(--fg3);
+      margin-top: 2px
+    }
+
+    /* ── REPORT ── */
+    .rprs-row {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 14px;
+      padding: 3px;
+      background: var(--srf);
+      border-radius: var(--rm);
+      border: 1px solid var(--bd);
+      width: fit-content
+    }
+
+    .rprs {
+      padding: 6px 14px;
+      border: none;
+      background: transparent;
+      border-radius: var(--rs);
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--fg2);
+      cursor: pointer;
+      font-family: var(--fn);
+      transition: all var(--df)
+    }
+
+    .rprs:hover {
+      color: var(--fg)
+    }
+
+    .rprs.active {
+      background: var(--fg);
+      color: #fff
+    }
+
+    .cc {
+      display: flex;
+      align-items: flex-end;
+      gap: 16px;
+      padding: 16px 0
+    }
+
+    .cg {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px
+    }
+
+    .cg-bars {
+      display: flex;
+      gap: 6px;
+      align-items: flex-end;
+      height: 150px
+    }
+
+    .cb {
+      width: 32px;
+      border-radius: 4px 4px 0 0;
+      transition: height var(--ds) var(--sp);
+      position: relative
+    }
+
+    .cb.debit {
+      background: var(--exp)
+    }
+
+    .cb.credit {
+      background: var(--inc)
+    }
+
+    .cb .ct {
+      position: absolute;
+      top: -16px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 9px;
+      font-weight: 600;
+      white-space: nowrap;
+      color: var(--fg2)
+    }
+
+    .cg-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--fg3)
+    }
+
+    /* ── CALENDAR ── */
+    .cal-header-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 16px;
+      position: relative;
+      cursor: pointer
+    }
+
+    .cal-header-row h3 {
+      font-size: 14px;
+      font-weight: 600
+    }
+
+    .cal-picker-drop {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      background: var(--srf);
+      border: 1px solid var(--bd);
+      border-radius: var(--rm);
+      box-shadow: var(--sh3);
+      z-index: 100;
+      display: none;
+      padding: 8px;
+      min-width: 200px
+    }
+
+    .cal-picker-drop.active {
+      display: block;
+      animation: scaleIn 0.2s var(--sp)
+    }
+
+    .cal-ym-row {
+      display: flex;
+      gap: 8px
+    }
+
+    .cal-ym-row select {
+      padding: 6px 10px;
+      border: 1px solid var(--bd);
+      border-radius: var(--rs);
+      font-size: 12px;
+      font-family: var(--fn)
+    }
+
+    .cal-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 2px;
+      background: var(--bdL);
+      border-radius: var(--rs);
+      overflow: hidden
+    }
+
+    .cal-hd {
+      text-align: center;
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--fg3);
+      padding: 8px 0;
+      background: var(--srf)
+    }
+
+    .cal-cell {
+      background: var(--srf);
+      padding: 6px;
+      min-height: 68px;
+      cursor: pointer;
+      transition: background var(--df);
+      display: flex;
+      flex-direction: column
+    }
+
+    .cal-cell:hover {
+      background: var(--srfH)
+    }
+
+    .cal-cell.other {
+      opacity: 0.3;
+      pointer-events: none
+    }
+
+    .cal-cell.today {
+      background: var(--prBg)
+    }
+
+    .cal-cell .cd-date {
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 2px
+    }
+
+    .cal-cell.today .cd-date {
+      color: var(--pr)
+    }
+
+    .cal-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--pr);
+      margin-bottom: 3px
+    }
+
+    .cd-stats {
+      font-size: 9px;
+      line-height: 1.4;
+      color: var(--fg3);
+      margin-top: auto
+    }
+
+    .cal-summary-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-top: 16px
+    }
+
+    .cal-stat {
+      padding: 14px;
+      background: var(--srf);
+      border: 1px solid var(--bd);
+      border-radius: var(--rm);
+      text-align: center
+    }
+
+    .cal-stat .cs-lbl {
+      font-size: 10px;
+      color: var(--fg3);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 4px
+    }
+
+    .cal-stat .cs-val {
+      font-size: 18px;
+      font-weight: 700
+    }
+
+    .cs-val.exp {
+      color: var(--exp)
+    }
+
+    .cs-val.inc {
+      color: var(--inc)
+    }
+
+    .cs-val.neutral {
+      color: var(--fg)
+    }
+
+    /* ── SEGMENT ── */
+    .seg-control {
+      display: flex;
+      border: 1px solid var(--bd);
+      border-radius: var(--rm);
+      overflow: hidden;
+      width: fit-content;
+      margin-bottom: 14px;
+      background: var(--srf)
+    }
+
+    .seg-opt {
+      padding: 8px 20px;
+      border: none;
+      background: transparent;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--fg2);
+      cursor: pointer;
+      font-family: var(--fn);
+      transition: all var(--df)
+    }
+
+    .seg-opt:first-child {
+      border-right: 1px solid var(--bd)
+    }
+
+    .seg-opt.active {
+      background: var(--fg);
+      color: #fff
+    }
+
+    /* ── CATS / BOOKS / TPLS ── */
+    .cat-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px
+    }
+
+    .cat-card {
+      width: 150px;
+      padding: 14px;
+      background: var(--srf);
+      border: 1px solid var(--bd);
+      border-radius: var(--rm);
+      text-align: center;
+      cursor: grab;
+      transition: all var(--df);
+      user-select: none;
+      position: relative
+    }
+
+    .cat-card:hover {
+      box-shadow: var(--sh2)
+    }
+
+    .cat-card.dragging {
+      opacity: 0.5;
+      border-style: dashed
+    }
+
+    .cat-card.drag-over {
+      border-color: var(--pr);
+      box-shadow: 0 0 0 2px var(--prBg)
+    }
+
+    .cat-e {
+      font-size: 28px;
+      margin-bottom: 6px
+    }
+
+    .cat-n {
+      font-size: 12px;
+      font-weight: 600
+    }
+
+    .cat-handle {
+      position: absolute;
+      top: 6px;
+      left: 6px;
+      font-size: 10px;
+      color: var(--fg3);
+      display: none
+    }
+
+    .sort-mode .cat-handle {
+      display: block
+    }
+
+    .bk-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      margin-top: 6px
+    }
+
+    .bk-card {
+      padding: 20px;
+      background: var(--srf);
+      border: 1px solid var(--bd);
+      border-radius: var(--rl);
+      cursor: pointer;
+      transition: all var(--dn) var(--ease);
+      position: relative
+    }
+
+    .bk-card:hover {
+      border-color: var(--prBd);
+      box-shadow: var(--sh2)
+    }
+
+    .bk-card.active {
+      border-color: var(--pr);
+      box-shadow: 0 0 0 3px var(--prBg)
+    }
+
+    .bk-acts {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      display: flex;
+      gap: 4px;
+      opacity: 0;
+      transition: opacity var(--df)
+    }
+
+    .bk-card:hover .bk-acts {
+      opacity: 1
+    }
+
+    .bk-acts button {
+      padding: 3px 8px;
+      font-size: 10px;
+      border-radius: 5px;
+      border: 1px solid var(--bd);
+      background: var(--srf);
+      cursor: pointer;
+      color: var(--fg3)
+    }
+
+    .bk-card h4 {
+      font-size: 14px;
+      margin-bottom: 4px
+    }
+
+    .bk-meta {
+      font-size: 12px;
+      color: var(--fg3)
+    }
+
+    .bk-card.add-new {
+      border-style: dashed;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 90px;
+      color: var(--fg3);
+      font-size: 13px
+    }
+
+    .tpl-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-top: 6px
+    }
+
+    .tpl-card {
+      padding: 14px;
+      background: var(--srf);
+      border: 1px solid var(--bd);
+      border-radius: var(--rm);
+      cursor: pointer;
+      transition: all var(--df);
+      position: relative
+    }
+
+    .tpl-card:hover {
+      border-color: var(--prBd);
+      box-shadow: var(--sh2)
+    }
+
+    .tpl-e {
+      font-size: 22px;
+      margin-bottom: 6px
+    }
+
+    .tpl-n {
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 2px
+    }
+
+    .tpl-m {
+      font-size: 11px;
+      color: var(--fg3)
+    }
+
+    .tpl-acts {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      display: flex;
+      gap: 2px;
+      opacity: 0;
+      transition: opacity var(--df)
+    }
+
+    .tpl-card:hover .tpl-acts {
+      opacity: 1
+    }
+
+    .tpl-acts button {
+      background: var(--srf);
+      border: 1px solid var(--bd);
+      border-radius: 5px;
+      padding: 2px 6px;
+      font-size: 10px;
+      cursor: pointer;
+      color: var(--fg3)
+    }
+
+    .tpl-acts button:hover {
+      color: var(--fg)
+    }
+
+    .tpl-card.add-new {
+      border-style: dashed;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 90px;
+      color: var(--fg3);
+      font-size: 13px
+    }
+
+    /* ── ANNUAL ── */
+    .annual-cover {
+      text-align: center;
+      padding: 60px 24px;
+      background: var(--prGr);
+      border-radius: var(--rl);
+      color: #fff;
+      margin-bottom: 20px
+    }
+
+    .ac-year {
+      font-size: 56px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      margin-bottom: 8px
+    }
+
+    .ac-sub {
+      font-size: 16px;
+      opacity: 0.8
+    }
+
+    .ann-sec {
+      margin-bottom: 20px
+    }
+
+    .ann-sec h3 {
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 14px
+    }
+
+    .ann-overview {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px
+    }
+
+    .ann-ov-card {
+      background: var(--srf);
+      border: 1px solid var(--bd);
+      border-radius: var(--rm);
+      padding: 18px;
+      text-align: center
+    }
+
+    .aov-lbl {
+      font-size: 11px;
+      color: var(--fg3);
+      margin-bottom: 4px
+    }
+
+    .aov-val {
+      font-size: 22px;
+      font-weight: 700
+    }
+
+    .aov-val.inc {
+      color: var(--inc)
+    }
+
+    .aov-val.exp {
+      color: var(--exp)
+    }
+
+    .ann-records {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px
+    }
+
+    .ann-rec-card {
+      background: var(--srf);
+      border: 1px solid var(--bd);
+      border-radius: var(--rm);
+      padding: 16px;
+      text-align: center
+    }
+
+    .arc-icon {
+      font-size: 24px;
+      margin-bottom: 6px
+    }
+
+    .arc-title {
+      font-size: 11px;
+      color: var(--fg3);
+      margin-bottom: 4px
+    }
+
+    .arc-val {
+      font-size: 16px;
+      font-weight: 700
+    }
+
+    .ann-fun {
+      background: var(--prBg);
+      border-radius: var(--rm);
+      padding: 16px 20px;
+      font-size: 13px;
+      color: var(--pr);
+      font-weight: 500
+    }
+
+    /* ── BTN ── */
+    .btn {
+      padding: 8px 16px;
+      border: none;
+      border-radius: var(--rs);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: var(--fn);
+      transition: all var(--df);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px
+    }
+
+    .btn-primary {
+      background: var(--fg);
+      color: #fff
+    }
+
+    .btn-primary:hover {
+      background: #000
+    }
+
+    .btn-secondary {
+      background: var(--srf);
+      color: var(--fg);
+      border: 1px solid var(--bd)
+    }
+
+    .btn-secondary:hover {
+      background: var(--bg)
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--pr);
+      border: 1px solid var(--prBd)
+    }
+
+    .btn-outline:hover {
+      background: var(--prBg)
+    }
+
+    .btn-sm {
+      padding: 5px 12px;
+      font-size: 11px
+    }
+
+    .btn-xs {
+      padding: 3px 8px;
+      font-size: 10px
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--fg2)
+    }
+
+    .btn-ghost:hover {
+      background: var(--bg)
+    }
+
+    .btn-danger {
+      background: var(--exp);
+      color: #fff
+    }
+
+    .btn-danger:hover {
+      background: #c05045
+    }
+
+    .btn-saving {
+      pointer-events: none;
+      opacity: 0.8
+    }
+
+    .btn-saving::after {
+      content: '';
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      border: 2px solid transparent;
+      border-top-color: currentColor;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+      margin-left: 6px
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg)
+      }
+    }
+
+    /* ── MODAL / TOAST ── */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: var(--ov);
+      z-index: 300;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      animation: fadeIn 0.2s ease
+    }
+
+    .modal-overlay.active {
+      display: flex
+    }
+
+    .modal {
+      background: var(--srf);
+      border-radius: var(--rx);
+      box-shadow: var(--sh3);
+      max-width: 460px;
+      width: 92%;
+      max-height: 85vh;
+      overflow-y: auto;
+      animation: scaleIn 0.25s var(--sp)
+    }
+
+    .modal.wide {
+      max-width: 600px
+    }
+
+    .modal-header {
+      padding: 20px 20px 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between
+    }
+
+    .modal-header h2 {
+      font-size: 16px;
+      font-weight: 700
+    }
+
+    .modal-close {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: var(--bg);
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      color: var(--fg3)
+    }
+
+    .modal-close:hover {
+      background: var(--srfA);
+      color: var(--fg)
+    }
+
+    .modal-body {
+      padding: 20px
+    }
+
+    .modal-footer {
+      padding: 0 20px 20px;
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end
+    }
+
+    .modal-footer.start {
+      justify-content: flex-start
+    }
+
+    .toast-container {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 400;
+      display: flex;
+      flex-direction: column;
+      gap: 6px
+    }
+
+    .toast {
+      padding: 10px 18px;
+      border-radius: var(--rm);
+      font-size: 12px;
+      font-weight: 600;
+      box-shadow: var(--sh3);
+      animation: tin 0.3s var(--sp);
+      display: flex;
+      align-items: center;
+      gap: 8px
+    }
+
+    .toast.success {
+      background: #E7F5F2;
+      color: var(--pr);
+      border: 1px solid var(--prBd)
+    }
+
+    .toast.error {
+      background: var(--expBg);
+      color: var(--exp)
+    }
+
+    .toast.info {
+      background: var(--infoBg);
+      color: var(--info)
+    }
+
+    .toast.removing {
+      animation: tout 0.25s ease forwards
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(10px)
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0)
+      }
+    }
+
+    @keyframes scaleIn {
+      from {
+        opacity: 0;
+        transform: scale(0.95)
+      }
+
+      to {
+        opacity: 1;
+        transform: scale(1)
+      }
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0
+      }
+
+      to {
+        opacity: 1
+      }
+    }
+
+    @keyframes tin {
+      from {
+        opacity: 0;
+        transform: translateX(40px)
+      }
+
+      to {
+        opacity: 1;
+        transform: translateX(0)
+      }
+    }
+
+    @keyframes tout {
+      from {
+        opacity: 1;
+        transform: translateX(0)
+      }
+
+      to {
+        opacity: 0;
+        transform: translateX(40px)
+      }
+    }
+
+    @media(max-width:1024px) {
+      .stats-row {
+        grid-template-columns: 1fr 1fr
+      }
+
+      .dash-grid {
+        grid-template-columns: 1fr
+      }
+
+      .add-grid {
+        grid-template-columns: 1fr
+      }
+
+      .bk-grid {
+        grid-template-columns: 1fr 1fr
+      }
+
+      .tpl-grid {
+        grid-template-columns: 1fr 1fr
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app">
+    <!-- ═══════════════════════════════════════════════════════════
+     SIDEBAR v11 — 优化折叠状态视觉
+     对应 React: components/Sidebar/index.tsx
+     展开 240px / 折叠 64px
+     ═══════════════════════════════════════════════════════════ -->
+    <aside class="sidebar" id="sidebar">
+      <!-- 折叠按钮 → sidebar-toggle (right:-12px) -->
+      <button class="sidebar-toggle" onclick="toggleSidebar()" title="折叠侧边栏">
+        <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor" id="toggleIcon">
+          <path d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" />
+        </svg>
+      </button>
+
+      <!-- Brand → 展开: 图标+文字 / 折叠: 仅图标居中 -->
+      <div class="sidebar-brand">
+        <div class="brand-icon">静</div><span class="brand-text">静记</span>
+      </div>
+
+      <!-- Book Switcher → collapsed: 40x40 方形按钮含图标 -->
+      <div class="book-area" style="position:relative">
+        <div class="book-trigger" onclick="toggleBookDropdown()" id="bookSwitcher">
+          <div class="book-avatar" id="bsA">家</div>
+          <span class="book-name" id="bsN">家庭账本</span>
+          <svg class="book-chevron" width="10" height="10" viewBox="0 0 12 12">
+            <path d="M3 5l3 3 3-3" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" />
+          </svg>
+        </div>
+        <div class="book-dropdown" id="bookDropdown"></div>
+      </div>
+
+      <!-- Nav → collapsed: 仅图标居中 + tooltip (title属性) -->
+      <nav class="nav-scroll">
+        <div class="nav-section">
+          <div class="nav-sep">主菜单</div>
+          <div class="nav-item active" data-view="dashboard" onclick="switchView('dashboard',this)" title="首页">
+            <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="7" height="7" rx="1" />
+                <rect x="14" y="3" width="7" height="7" rx="1" />
+                <rect x="3" y="14" width="7" height="7" rx="1" />
+                <rect x="14" y="14" width="7" height="7" rx="1" />
+              </svg></span>
+            <span class="nav-label">首页</span>
+          </div>
+          <div class="nav-item" data-view="transactions" onclick="switchView('transactions',this)" title="流水">
+            <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="8" y1="6" x2="21" y2="6" />
+                <line x1="8" y1="12" x2="21" y2="12" />
+                <line x1="8" y1="18" x2="21" y2="18" />
+                <line x1="3" y1="6" x2="3.01" y2="6" />
+              </svg></span>
+            <span class="nav-label">流水</span>
+          </div>
+          <div class="nav-item" data-view="add" onclick="switchView('add',this)" title="记一笔">
+            <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="12" y1="5" x2="12" y2="19" />
+                <line x1="5" y1="12" x2="19" y2="12" />
+              </svg></span>
+            <span class="nav-label">记一笔</span>
+          </div>
+          <div class="nav-item" data-view="budgets" onclick="switchView('budgets',this)" title="预算">
+            <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10" />
+                <polyline points="12 6 12 12 16 14" />
+              </svg></span>
+            <span class="nav-label">预算</span><span class="nav-badge" id="budgetBadge">0</span>
+          </div>
+          <div class="nav-item" data-view="reports" onclick="switchView('reports',this)" title="报表">
+            <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21.21 15.89A10 10 0 1 1 8 2.83" />
+                <path d="M22 12A10 10 0 0 0 12 2v10z" />
+              </svg></span>
+            <span class="nav-label">报表</span>
+          </div>
+          <div class="nav-item" data-view="annual" onclick="switchView('annual',this)" title="年报">
+            <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                <polyline points="14 2 14 8 20 8" />
+                <line x1="16" y1="13" x2="8" y2="13" />
+                <line x1="16" y1="17" x2="8" y2="17" />
+              </svg></span>
+            <span class="nav-label">年报</span>
+          </div>
+        </div>
+        <div class="nav-section">
+          <div class="nav-sep">更多</div>
+          <div class="nav-item" data-view="books" onclick="switchView('books',this)" title="账本">
+            <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+              </svg></span>
+            <span class="nav-label">账本</span>
+          </div>
+          <div class="nav-item" data-view="calendar" onclick="switchView('calendar',this)" title="日历">
+            <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="4" width="18" height="18" rx="2" />
+                <line x1="16" y1="2" x2="16" y2="6" />
+                <line x1="8" y1="2" x2="8" y2="6" />
+                <line x1="3" y1="10" x2="21" y2="10" />
+              </svg></span>
+            <span class="nav-label">日历</span>
+          </div>
+          <div class="nav-item" data-view="templates" onclick="switchView('templates',this)" title="模板">
+            <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="18" height="18" rx="2" />
+                <line x1="3" y1="9" x2="21" y2="9" />
+                <line x1="9" y1="21" x2="9" y2="9" />
+              </svg></span>
+            <span class="nav-label">模板</span>
+          </div>
+          <div class="nav-item" data-view="categories" onclick="switchView('categories',this)" title="分类">
+            <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="2" y="7" width="20" height="14" rx="2" />
+                <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
+              </svg></span>
+            <span class="nav-label">分类</span>
+          </div>
+        </div>
+      </nav>
+
+      <!-- Footer → User area + Popover Menu -->
+      <div class="sidebar-footer" id="userArea">
+        <button class="user-trigger" onclick="toggleUserMenu()">
+          <div class="user-avatar" id="userAvatar">龙</div>
+          <div class="user-info">
+            <div class="user-name">Zhao Long</div>
+          </div>
+          <svg class="user-arrow" id="userArrow" width="10" height="10" viewBox="0 0 12 12">
+            <path d="M3 5l3 3 3-3" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" />
+          </svg>
+        </button>
+        <!-- 用户菜单 Popover — 向上弹出 -->
+        <div class="user-menu" id="userMenu">
+          <div class="um-header">
+            <div class="um-avatar">龙</div>
+            <div>
+              <div class="um-name">Zhao Long ✓</div>
+              <div class="um-email">1679468108@qq.com</div>
+            </div>
+          </div>
+          <div class="um-divider"></div>
+          <!-- um-item 图标统一为 SVG 线条风格，与主菜单 nav-icon 一致 -->
+          <div class="um-item" onclick="tst('跟随系统主题已自动适配','info')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <circle cx="12" cy="12" r="5" />
+              <line x1="12" y1="1" x2="12" y2="3" />
+              <line x1="12" y1="21" x2="12" y2="23" />
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+              <line x1="1" y1="12" x2="3" y2="12" />
+              <line x1="21" y1="12" x2="23" y2="12" />
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+            </svg>跟随系统</div>
+          <div class="um-divider"></div>
+          <div class="um-item" onclick="tst('个人信息页面','info')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+              <circle cx="12" cy="7" r="4" />
+            </svg>个人信息</div>
+          <div class="um-divider"></div>
+          <div class="um-item danger" onclick="tst('已退出登录','info')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+              <polyline points="16 17 21 12 16 7" />
+              <line x1="21" y1="12" x2="9" y2="12" />
+            </svg>退出登录</div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main" id="mainContent">
+      <section class="view-panel active" id="view-dashboard">
+        <div class="stats-row" id="statsRow"></div>
+        <div class="dash-grid" id="dashGrid"></div>
+        <div class="quick-actions" id="quickActions"></div>
+      </section>
+      <section class="view-panel" id="view-transactions">
+        <div class="filter-sticky" id="txnFilterBar"></div>
+        <div class="dash-card">
+          <div id="txnTableContainer"></div>
+          <div id="txnLoadMore"></div>
+        </div>
+      </section>
+      <section class="view-panel" id="view-add">
+        <div class="add-grid" id="addLayout"></div>
+      </section>
+      <section class="view-panel" id="view-budgets">
+        <div class="dash-card" style="max-width:640px">
+          <div class="card-header">
+            <h3>本月预算</h3><button class="btn btn-sm btn-outline" onclick="openAddBudget()">+ 新增</button>
+          </div>
+          <div id="budgetList"></div>
+        </div>
+      </section>
+      <section class="view-panel" id="view-reports">
+        <div id="reportContent"></div>
+      </section>
+      <section class="view-panel" id="view-books">
+        <div class="dash-card">
+          <div class="card-header">
+            <h3>我的账本</h3>
+          </div>
+          <div class="bk-grid" id="bkGrid"></div>
+        </div>
+      </section>
+      <section class="view-panel" id="view-calendar">
+        <div id="calContent"></div>
+      </section>
+      <section class="view-panel" id="view-templates">
+        <div class="dash-card">
+          <div class="card-header">
+            <h3>交易模板</h3>
+          </div>
+          <div class="tpl-grid" id="tplGrid"></div>
+        </div>
+      </section>
+      <section class="view-panel" id="view-categories">
+        <div id="catContent"></div>
+      </section>
+      <section class="view-panel" id="view-annual">
+        <div id="annualContent"></div>
+      </section>
+    </main>
+  </div>
+
+  <!-- ══ MODALS ══ -->
+  <div class="modal-overlay" id="modalTxn">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>交易详情</h2><button class="modal-close" onclick="closeM('modalTxn')">✕</button>
+      </div>
+      <div class="modal-body" id="mdlTxnBody"></div>
+      <div class="modal-footer"><button class="btn btn-secondary" onclick="openEditTxn()">✎ 编辑</button><button class="btn btn-danger" onclick="confirmDelTxn()">✕ 删除</button></div>
+    </div>
+  </div>
+  <div class="modal-overlay" id="modalAddBook">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 id="mdlBookTitle">新建账本</h2><button class="modal-close" onclick="closeM('modalAddBook')">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group"><label>名称</label><input class="form-input" id="inpBookName" placeholder="旅行账本"></div>
+        <div class="form-group"><label>描述</label><input class="form-input" id="inpBookDesc" placeholder="可选"></div>
+        <div class="form-group"><label>Emoji</label><input class="form-input" id="inpBookEmoji" placeholder="🏠"></div>
+      </div>
+      <div class="modal-footer"><button class="btn btn-secondary" onclick="closeM('modalAddBook')">取消</button><button class="btn btn-primary" onclick="submitBook()">保存</button></div>
+    </div>
+  </div>
+  <div class="modal-overlay" id="modalAddBudget">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 id="mdlBudgetTitle">新增预算</h2><button class="modal-close" onclick="closeM('modalAddBudget')">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group"><label>分类</label><select class="form-select" id="inpBudgetCat"></select></div>
+        <div class="form-group"><label>金额</label><input class="form-input" id="inpBudgetAmt" type="number" placeholder="0.00"></div>
+      </div>
+      <div class="modal-footer"><button class="btn btn-secondary" onclick="closeM('modalAddBudget')">取消</button><button class="btn btn-primary" onclick="submitBudget()">保存</button></div>
+    </div>
+  </div>
+  <div class="modal-overlay" id="modalTplSelect">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>选择模板</h2><button class="modal-close" onclick="closeM('modalTplSelect')">✕</button>
+      </div>
+      <div class="modal-body" id="mdlTplSelectBody"></div>
+    </div>
+  </div>
+  <div class="modal-overlay" id="modalMap">
+    <div class="modal wide" style="max-width:600px">
+      <div class="modal-header">
+        <h2>地图选点</h2><button class="modal-close" onclick="closeM('modalMap')">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="map-srch"><input placeholder="搜索地点..." id="mapSearchInput"><button class="btn btn-primary btn-sm" onclick="mapSearch()">搜索</button></div>
+        <div class="map-results" id="mapResults"></div>
+        <div style="margin-top:12px;padding:12px;background:var(--bg);border-radius:var(--rs);display:none" id="mapSelected"><strong>已选：</strong><span id="mapSelectedName"></span>
+          <div style="font-size:11px;color:var(--fg3);margin-top:4px" id="mapSelectedAddr"></div>
+        </div>
+      </div>
+      <div class="modal-footer start"><button class="btn btn-secondary" onclick="closeM('modalMap')">取消</button><button class="btn btn-primary" onclick="confirmMapPick()">确认</button></div>
+    </div>
+  </div>
+  <div class="modal-overlay" id="modalConfirm">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>确认操作</h2>
+      </div>
+      <div class="modal-body" id="mdlConfirmBody"></div>
+      <div class="modal-footer"><button class="btn btn-secondary" onclick="closeM('modalConfirm')">取消</button><button class="btn btn-danger" onclick="execConfirm()">确认</button></div>
+    </div>
+  </div>
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script>
+    /* ══ DATA ══ */
+    const CATS = [{ id: 'cf', e: '🍜', n: '餐饮', t: 'expense' }, { id: 'cs', e: '🛒', n: '购物', t: 'expense' }, { id: 'ct', e: '🚗', n: '交通', t: 'expense' }, { id: 'ch', e: '🏠', n: '居住', t: 'expense' }, { id: 'ce', e: '🎬', n: '娱乐', t: 'expense' }, { id: 'cc', e: '📱', n: '通讯', t: 'expense' }, { id: 'cm', e: '🏥', n: '医疗', t: 'expense' }, { id: 'ced', e: '📚', n: '教育', t: 'expense' }, { id: 'csn', e: '🧋', n: '零食', t: 'expense' }, { id: 'ccl', e: '👔', n: '服饰', t: 'expense' }, { id: 'cul', e: '💡', n: '水电', t: 'expense' }, { id: 'cpt', e: '🐱', n: '宠物', t: 'expense' }, { id: 'is', e: '💰', n: '工资', t: 'income' }, { id: 'ib', e: '🎁', n: '奖金', t: 'income' }, { id: 'if', e: '💻', n: '兼职', t: 'income' }, { id: 'ii', e: '📈', n: '投资', t: 'income' }, { id: 'ir', e: '🧧', n: '红包', t: 'income' }, { id: 'io', e: '💵', n: '其他', t: 'income' }];
+    const BOOKS = [{ id: 'bh', n: '家庭账本', e: '🏠', c: '#2D9D8A', m: 3, d: '日常家庭开支管理' }, { id: 'bt', n: '旅行账本', e: '✈️', c: '#4A90D9', m: 2, d: '旅行花费记录' }, { id: 'bs', n: '副业收支', e: '💼', c: '#E8A838', m: 1, d: '兼职副业收支' }];
+    const TXNS = [{ id: 't01', ci: 'cf', a: 38, t: 'expense', d: '2026-06-10', ti: '12:30', n: '午餐·川味小馆', bk: 'bh', me: '川味小馆' }, { id: 't02', ci: 'cs', a: 156.4, t: 'expense', d: '2026-06-09', ti: '18:15', n: '永辉超市·日用品', bk: 'bh', me: '永辉超市' }, { id: 't03', ci: 'ct', a: 320, t: 'expense', d: '2026-06-08', ti: '09:00', n: '加油·中石化', bk: 'bh', me: '中石化' }, { id: 't04', ci: 'ch', a: 286, t: 'expense', d: '2026-06-07', ti: '10:00', n: '物业费·6月', bk: 'bh', me: '万科物业' }, { id: 't05', ci: 'is', a: 15000, t: 'income', d: '2026-06-05', ti: '09:00', n: '月薪', bk: 'bh' }, { id: 't06', ci: 'ce', a: 79, t: 'expense', d: '2026-06-03', ti: '19:30', n: '电影·万达影城', bk: 'bh', me: '万达影城' }, { id: 't07', ci: 'cc', a: 59, t: 'expense', d: '2026-06-02', ti: '08:00', n: '手机话费', bk: 'bh' }, { id: 't08', ci: 'ccl', a: 199, t: 'expense', d: '2026-06-01', ti: '21:00', n: '淘宝·夏季T恤', bk: 'bh' }, { id: 't09', ci: 'cf', a: 26.5, t: 'expense', d: '2026-06-10', ti: '08:00', n: '早餐·巴比馒头', bk: 'bh' }, { id: 't10', ci: 'cf', a: 42, t: 'expense', d: '2026-06-09', ti: '19:00', n: '晚餐·沙县小吃', bk: 'bh' }, { id: 't11', ci: 'cs', a: 328, t: 'expense', d: '2026-06-08', ti: '15:00', n: '京东·厨房用品', bk: 'bh' }, { id: 't12', ci: 'cul', a: 185.6, t: 'expense', d: '2026-06-06', ti: '16:00', n: '电费·5月', bk: 'bh' }, { id: 't13', ci: 'csn', a: 18, t: 'expense', d: '2026-06-06', ti: '15:00', n: '星巴克·拿铁', bk: 'bh' }, { id: 't14', ci: 'cm', a: 86.5, t: 'expense', d: '2026-06-04', ti: '11:00', n: '感冒药', bk: 'bh' }, { id: 't15', ci: 'ir', a: 200, t: 'income', d: '2026-06-08', ti: '20:00', n: '生日红包', bk: 'bh' }, { id: 't16', ci: 'cf', a: 65, t: 'expense', d: '2026-06-05', ti: '12:00', n: '午饭·麦当劳', bk: 'bh' }, { id: 't17', ci: 'ccl', a: 459, t: 'expense', d: '2026-06-03', ti: '13:00', n: '优衣库', bk: 'bh' }, { id: 't18', ci: 'cpt', a: 220, t: 'expense', d: '2026-06-02', ti: '17:00', n: '猫粮', bk: 'bh' }, { id: 't19', ci: 'ct', a: 45, t: 'expense', d: '2026-06-10', ti: '08:30', n: '打车上班', bk: 'bh' }, { id: 't20', ci: 'cs', a: 88, t: 'expense', d: '2026-06-07', ti: '20:00', n: '拼多多·水果', bk: 'bh' }];
+    const BUDGETS = [{ id: 'bf', ci: 'cf', l: 2000, bk: 'bh' }, { id: 'bsh', ci: 'cs', l: 3000, bk: 'bh' }, { id: 'btt', ci: 'ct', l: 1000, bk: 'bh' }, { id: 'be', ci: 'ce', l: 800, bk: 'bh' }, { id: 'bhc', ci: 'ch', l: 1500, bk: 'bh' }, { id: 'bul', ci: 'cul', l: 500, bk: 'bh' }];
+    let TEMPLATES = [{ id: 'tp1', n: '每日午餐', ci: 'cf', a: 35, t: 'expense' }, { id: 'tp2', n: '超市购物', ci: 'cs', a: 150, t: 'expense' }, { id: 'tp3', n: '加油', ci: 'ct', a: 300, t: 'expense' }, { id: 'tp4', n: '手机充值', ci: 'cc', a: 59, t: 'expense' }, { id: 'tp5', n: '星巴克', ci: 'csn', a: 36, t: 'expense' }, { id: 'tp6', n: '打车通勤', ci: 'ct', a: 45, t: 'expense' }, { id: 'tp7', n: '电影票', ci: 'ce', a: 79, t: 'expense' }, { id: 'tp8', n: '兼职收入', ci: 'if', a: 500, t: 'income' }];
+    const MAPS = [{ n: '川味小馆', ad: '成都·锦江区东大街188号', la: 30.5728, lo: 104.0668 }, { n: '永辉超市', ad: '成都·高新区天府大道中段688号', la: 30.5801, lo: 104.0630 }, { n: '万达影城', ad: '成都·锦江区锦华路一段68号', la: 30.5850, lo: 104.0600 }, { n: '星巴克太古里', ad: '成都·锦江区中纱帽街8号', la: 30.5760, lo: 104.0620 }, { n: '海底捞万象城', ad: '成都·成华区双庆路8号', la: 30.5780, lo: 104.0580 }];
+    let CAT_ORDER = cbt('expense').map(c => c.id); let userMenuOpen = false;
+
+    const S = { cb: 'bh', cv: 'dashboard', tf: 'all', df: 'all', ts: '', pg: 1, PS: 20, at: null, ebi: null, ebk: null, ccb: null, cy: 2026, cm: 6, rp: 'month', rc: 'month', txnType: 'expense', addLoc: null, sortMode: false, catSeg: 'expense', showCalPicker: false, collapsed: false };
+    function cb() { return BOOKS.find(b => b.id === S.cb) } function gcat(id) { return CATS.find(c => c.id === id) } function cbt(t) { return CATS.filter(c => c.t === t) }
+    function ftxns() { let t = TXNS.filter(x => x.bk === S.cb); if (S.tf === 'expense') t = t.filter(x => x.t === 'expense'); if (S.tf === 'income') t = t.filter(x => x.t === 'income'); const n = moment(); if (S.df === 'week') t = t.filter(x => moment(x.d)._d > n.clone().subtract(7, 'days')._d); if (S.df === 'month') t = t.filter(x => x.d >= n.fmt('YYYY-MM-01')); if (S.ts) { const q = S.ts.toLowerCase(); t = t.filter(x => (x.n || '').toLowerCase().includes(q) || (x.me || '').toLowerCase().includes(q) || gcat(x.ci).n.toLowerCase().includes(q)) } t.sort((a, b) => b.d.localeCompare(a.d) || (b.ti || '').localeCompare(a.ti || '')); return t }
+    function ftxp() { const a = ftxns(); const e = S.pg * S.PS; return { it: a.slice(0, e), hm: e < a.length, tot: a.length } }
+    function bsp(b) { return ftxns().filter(x => x.t === 'expense' && x.ci === b.ci).reduce((s, x) => s + x.a, 0) }
+    function st() { const t = ftxns(); const i = t.filter(x => x.t === 'income').reduce((s, x) => s + x.a, 0); const e = t.filter(x => x.t === 'expense').reduce((s, x) => s + x.a, 0); return { inc: i, exp: e, bal: i - e, ic: t.filter(x => x.t === 'income').length, ec: t.filter(x => x.t === 'expense').length } }
+    function fmt(n) { return '¥' + n.toFixed(2) } function d2s(d) { return d.slice(5) } function ab() { return BUDGETS.filter(b => b.bk === S.cb) }
+    function barC(s, l) { const r = s / l; if (r >= 1) return 'fill danger'; if (r >= 0.7) return 'fill warn'; return 'fill safe' } function bgC(b) { const s = bsp(b); if (s >= b.l) return 'budget-item danger'; if (s >= b.l * 0.7) return 'budget-item warning'; return 'budget-item' }
+    function moment(d) { if (!d) return { _d: new Date(), clone() { return moment(new Date()) }, fmt() { return '' }, subtract() { return moment(new Date()) } }; const dt = typeof d === 'string' ? new Date(d + 'T12:00:00') : (d && d._d ? d._d : d); return { _d: dt, clone() { return moment(new Date(dt)) }, fmt(f) { const y = dt.getFullYear(), m = String(dt.getMonth() + 1).padStart(2, '0'), day = String(dt.getDate()).padStart(2, '0'); if (f === 'YYYY-MM-01') return y + '-' + m + '-01'; return y + '-' + m + '-' + day }, subtract(n, u) { const r = new Date(dt); if (u === 'days') r.setDate(r.getDate() - n); return moment(r) } } }
+
+    /* ══ RENDER ══ */
+    function render() { document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active')); const nav = document.querySelector('.nav-item[data-view="' + S.cv + '"]'); if (nav) nav.classList.add('active'); document.querySelectorAll('.view-panel').forEach(p => p.classList.remove('active')); document.getElementById('view-' + S.cv).classList.add('active'); document.getElementById('mainContent').scrollTop = 0; switch (S.cv) { case 'dashboard': rD(); break; case 'transactions': rT(); break; case 'add': rA(); break; case 'budgets': rB(); break; case 'reports': rR(); break; case 'books': rBk(); break; case 'calendar': rC(); break; case 'templates': rTp(); break; case 'categories': rCt(); break; case 'annual': rAn(); break }updB() }
+    function updB() { const b = document.getElementById('budgetBadge'); const c = ab().filter(x => bsp(x) >= x.l).length; b.textContent = c || '0'; b.style.display = c ? 'inline' : 'none' }
+
+    function rD() { const s = st(); document.getElementById('statsRow').innerHTML = '<div class="stat-card hero"><div class="stat-label">本月结余</div><div class="stat-value">' + fmt(s.bal) + '</div><div class="stat-sub">共 ' + (s.ic + s.ec) + ' 笔</div></div><div class="stat-card"><div class="stat-header"><div class="stat-icon inc"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/></svg></div></div><div class="stat-label">本月收入</div><div class="stat-value">' + fmt(s.inc) + '</div><div class="stat-sub">' + s.ic + ' 笔</div></div><div class="stat-card"><div class="stat-header"><div class="stat-icon exp"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/></svg></div></div><div class="stat-label">本月支出</div><div class="stat-value">' + fmt(s.exp) + '</div><div class="stat-sub">' + s.ec + ' 笔</div></div>'; const txns = ftxns().slice(0, 6); document.getElementById('dashGrid').innerHTML = '<div class="dash-card"><div class="card-header"><h3>最近交易</h3><span class="card-action" onclick="switchView(\'transactions\')">查看全部→</span></div><div class="txn-list">' + txns.map(t => { const c = gcat(t.ci); const d = new Date(t.d), n = new Date(); const df = Math.floor((n - d) / 86400000); return '<div class="txn-row" onclick="openTxn(\'' + t.id + '\')"><div class="txn-icon">' + c.e + '</div><div class="txn-info"><div class="txn-title">' + (t.n || c.n) + '</div><div class="txn-meta"><span>' + c.n + '</span><span>' + (df === 0 ? '今天' : df === 1 ? '昨天' : d2s(t.d)) + ' ' + (t.ti || '') + '</span></div></div><div class="txn-amount ' + (t.t === 'expense' ? 'debit' : 'credit') + '"><span class="txn-sign">' + (t.t === 'expense' ? '−' : '+') + '</span>' + fmt(t.a) + '</div></div>' }).join('') + '</div></div><div class="dash-card"><div class="card-header"><h3>预算进度</h3><span class="card-action" onclick="switchView(\'budgets\')">管理→</span></div>' + ab().slice(0, 4).map(b => { const sp = bsp(b); const p = Math.round(sp / b.l * 100); const c = gcat(b.ci); return '<div class="' + bgC(b) + '"><div class="budget-info"><span class="budget-name">' + c.e + ' ' + c.n + '</span><span class="budget-amount">' + fmt(sp) + ' / ' + fmt(b.l) + '</span></div><div class="budget-bar"><div class="' + barC(sp, b.l) + '" style="width:' + Math.min(p, 105) + '%"></div></div><div class="budget-percent">' + p + '% ' + (p >= 100 ? '超支!' : '') + '</div></div>' }).join('') + '</div>'; document.getElementById('quickActions').innerHTML = '<div class="quick-action" onclick="switchView(\'add\')"><div class="qa-icon add"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div><div class="qa-info"><h4>记一笔</h4><p>快速记录一笔新交易</p></div></div><div class="quick-action" onclick="switchView(\'reports\')"><div class="qa-icon report"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg></div><div class="qa-info"><h4>查看报表</h4><p>分析消费趋势与分类</p></div></div>' }
+    function rT() { const pg = ftxp(); const et = pg.it.filter(x => x.t === 'expense').reduce((s, x) => s + x.a, 0); const it = pg.it.filter(x => x.t === 'income').reduce((s, x) => s + x.a, 0); document.getElementById('txnFilterBar').innerHTML = '<div class="filter-bar"><div class="srch-wrap"><span class="si">🔍</span><input type="text" placeholder="搜索..." value="' + S.ts + '" oninput="S.ts=this.value;S.pg=1;rT()"></div><div class="filter-chip ' + (S.tf === 'all' ? 'active' : '') + '" onclick="S.tf=\'all\';S.pg=1;rT()">全部</div><div class="filter-chip ' + (S.tf === 'expense' ? 'active' : '') + '" onclick="S.tf=\'expense\';S.pg=1;rT()">支出</div><div class="filter-chip ' + (S.tf === 'income' ? 'active' : '') + '" onclick="S.tf=\'income\';S.pg=1;rT()">收入</div><div class="filter-chip ' + (S.df === 'all' ? 'active' : '') + '" onclick="S.df=\'all\';S.pg=1;rT()">全部</div><div class="filter-chip ' + (S.df === 'week' ? 'active' : '') + '" onclick="S.df=\'week\';S.pg=1;rT()">近7天</div><div class="filter-chip ' + (S.df === 'month' ? 'active' : '') + '" onclick="S.df=\'month\';S.pg=1;rT()">本月</div><span class="filter-summary">' + pg.it.length + '笔 · 支出' + fmt(et) + ' · 收入' + fmt(it) + '</span></div>'; document.getElementById('txnTableContainer').innerHTML = '<table class="data-table"><thead><tr><th>日期</th><th>分类</th><th>描述</th><th>金额</th></tr></thead><tbody>' + pg.it.map(t => { const c = gcat(t.ci); return '<tr onclick="openTxn(\'' + t.id + '\')"><td>' + d2s(t.d) + '</td><td><span class="cell-cat">' + c.e + ' ' + c.n + '</span></td><td>' + t.n + '</td><td class="cell-amount ' + (t.t === 'expense' ? 'debit' : 'credit') + '">' + (t.t === 'expense' ? '−' : '+') + fmt(t.a) + '</td></tr>' }).join('') + '</tbody></table>'; document.getElementById('txnLoadMore').innerHTML = pg.hm ? '<div class="load-more" onclick="S.pg++;rT()">加载更多（共' + pg.tot + '笔）</div>' : (pg.tot > S.PS ? '<div class="load-more" style="color:var(--fg3);cursor:default">已全部显示</div>' : '') }
+
+    /* ── ADD (et-width) ── */
+    function rA() { const ec = cbt('expense'), ic = cbt('income'), cur = S.txnType === 'income' ? ic : ec; document.getElementById('addLayout').innerHTML = '<div class="add-left"><div class="form-tabs"><button class="' + (S.txnType !== 'income' ? 'active' : '') + '" onclick="setAddType(\'expense\')">支出</button><button class="' + (S.txnType === 'income' ? 'active' : '') + '" onclick="setAddType(\'income\')">收入</button></div><div class="form-group"><label>金额</label><input class="form-input amt" id="inpAmt" type="text" placeholder="0.00" oninput="vldAmt()"><div class="form-error" id="errAmt">请输入有效金额</div></div><div class="form-row"><div class="form-group"><label>分类</label><select class="form-select" id="inpCat">' + cur.map(c => '<option value="' + c.id + '">' + c.e + ' ' + c.n + '</option>').join('') + '</select></div><div class="form-group"><label>日期</label><input class="form-input" id="inpDate" type="date" value="2026-06-10"></div></div><div class="form-group"><label>备注</label><input class="form-input" id="inpNote" placeholder="例如：午餐·川味小馆"></div><div class="upz" onclick="toggleUpload()" id="uploadZone"><div class="uzi">📎</div><div class="uzt" id="uploadText">点击上传附件/收据</div></div><div style="margin-top:14px"><button id="locBtn" class="loc-btn ' + (S.addLoc ? 'sel' : '') + '" onclick="openMapForAdd()">' + (S.addLoc ? '📍 ' + S.addLoc.n + ' · 点击修改' : '📍 选择地点（高德地图选点）') + '</button></div><div style="display:flex;gap:10px;padding-top:14px"><button class="btn btn-primary" style="flex:1" id="btnSub" onclick="subTxn()">确认添加</button><button class="btn btn-secondary" onclick="resetAdd()">重置</button></div></div><div class="add-right"><h4>快捷方式</h4><div class="sc-grid"><div class="sc-item" onclick="openTemplateSelectModal()"><div class="sc-icon">📋</div><div class="sc-name">选择模板</div><div class="sc-desc">一键填充表单</div></div><div class="sc-item" onclick="tst(\'OCR识别正在使用tesseract.js提取信息\',\'info\')"><div class="sc-icon">📷</div><div class="sc-name">OCR识别</div><div class="sc-desc">拍照识别票据</div></div></div></div>' }
+
+    /* ── BUDGETS ── */
+    function rB() { document.getElementById('budgetList').innerHTML = ab().length ? ab().map(b => { const sp = bsp(b); const p = Math.round(sp / b.l * 100); const c = gcat(b.ci); return '<div class="' + bgC(b) + '"><div class="budget-info"><span class="budget-name">' + c.e + ' ' + c.n + '</span><span class="budget-amount">' + fmt(sp) + ' / ' + fmt(b.l) + ' <span class="budget-actions"><button onclick="openEditBudget(\'' + b.id + '\')">✎</button><button class="del" onclick="confirmDelBgt(\'' + b.id + '\')">✕</button></span></span></div><div class="budget-bar"><div class="' + barC(sp, b.l) + '" style="width:' + Math.min(p, 105) + '%"></div></div><div class="budget-percent">' + p + '% · ' + (sp >= b.l ? '超支 ' + fmt(sp - b.l) : '剩余 ' + fmt(b.l - sp)) + '</div></div>' }).join('') : '<div style="text-align:center;padding:40px;color:var(--fg3)">暂无预算</div>' }
+
+    /* ── REPORTS ── */
+    function rR() { document.getElementById('reportContent').innerHTML = '<div style="display:flex;gap:12px;margin-bottom:14px;align-items:center"><div class="rprs-row">' + ['month', '3m', '6m', 'year'].map(v => '<div class="rprs ' + (S.rp === v ? 'active' : '') + '" onclick="S.rp=\'' + v + '\';rR()">' + { month: '本月', "3m": '近3月', "6m": '近6月', year: '近1年' }[v] + '</div>').join('') + '</div><div class="rprs-row"><div class="rprs ' + (S.rc === 'month' ? 'active' : '') + '" onclick="S.rc=\'month\';rR()">月对比</div><div class="rprs ' + (S.rc === 'year' ? 'active' : '') + '" onclick="S.rc=\'year\';rR()">年对比</div></div></div>' + rRChart() }
+    function rRChart() { if (S.rc === 'month') { const mons = ['2026-01', '2026-02', '2026-03', '2026-04', '2026-05', '2026-06']; const data = mons.map(m => { const t = TXNS.filter(x => x.bk === S.cb && x.d.startsWith(m)); return { label: m.slice(5) + '月', exp: t.filter(x => x.t === 'expense').reduce((s, x) => s + x.a, 0), inc: t.filter(x => x.t === 'income').reduce((s, x) => s + x.a, 0) } }); const mx = Math.max(...data.map(d => Math.max(d.exp, d.inc)), 1); return '<div class="dash-card"><div class="card-header"><h3>月度支出/收入对比</h3></div><div class="cc">' + data.map(d => '<div class="cg"><div class="cg-bars"><div class="cb debit" style="height:' + (d.exp / mx) * 130 + 'px"><span class="ct">' + fmt(d.exp) + '</span></div><div class="cb credit" style="height:' + (d.inc / mx) * 130 + 'px"><span class="ct">' + fmt(d.inc) + '</span></div></div><div class="cg-label">' + d.label + '</div></div>').join('') + '</div><div style="display:flex;gap:12px;justify-content:center;font-size:11px;color:var(--fg3);padding-top:8px"><span>🟥 支出</span><span>🟩 收入</span></div></div>' + rRRank() } const yrs = [2022, 2023, 2024, 2025, 2026]; const data = yrs.map(y => { const t = TXNS.filter(x => x.bk === S.cb && x.d.startsWith(String(y))); return { label: String(y), exp: t.filter(x => x.t === 'expense').reduce((s, x) => s + x.a, 0), inc: t.filter(x => x.t === 'income').reduce((s, x) => s + x.a, 0) } }); const mx = Math.max(...data.map(d => Math.max(d.exp, d.inc)), 1); return '<div class="dash-card"><div class="card-header"><h3>年度支出/收入对比</h3></div><div class="cc">' + data.map(d => '<div class="cg"><div class="cg-bars"><div class="cb debit" style="height:' + (d.exp / mx) * 130 + 'px"><span class="ct">' + fmt(d.exp) + '</span></div><div class="cb credit" style="height:' + (d.inc / mx) * 130 + 'px"><span class="ct">' + fmt(d.inc) + '</span></div></div><div class="cg-label">' + d.label + '</div></div>').join('') + '</div><div style="display:flex;gap:12px;justify-content:center;font-size:11px;color:var(--fg3);padding-top:8px"><span>🟥 支出</span><span>🟩 收入</span></div></div>' + rRRank() }
+    function rRRank() { const m = {}; ftxns().forEach(x => { if (!m[x.ci]) m[x.ci] = { exp: 0, inc: 0 }; if (x.t === 'expense') m[x.ci].exp += x.a; else m[x.ci].inc += x.a }); const ar = Object.entries(m).sort((a, b) => b[1].exp - a[1].exp); const rm = Math.max(...ar.map(a => Math.max(a[1].exp, a[1].inc)), 1); return '<div class="dash-card"><div class="card-header"><h3>分类排行</h3></div>' + ar.slice(0, 8).map(([ci, v]) => { const c = gcat(ci); return '<div class="budget-item"><div class="budget-info"><span class="budget-name">' + c.e + ' ' + c.n + '</span><span class="budget-amount">' + fmt(v.exp) + (v.inc > 0 ? ' / 收' + fmt(v.inc) : '') + '</span></div><div class="budget-bar" style="display:flex;gap:1px"><div class="fill" style="width:' + (v.exp / (rm || 1)) * 100 + '%;background:var(--exp);border-radius:3px 0 0 3px"></div>' + (v.inc > 0 ? '<div class="fill" style="width:' + (v.inc / (rm || 1)) * 100 + '%;background:var(--inc);border-radius:0 3px 3px 0"></div>' : '') + '</div></div>' }).join('') + '</div>' }
+
+    /* ── CALENDAR ── */
+    function rC() { const y = S.cy, m = S.cm; const mStr = y + '-' + String(m).padStart(2, '0'); const allT = TXNS.filter(x => x.bk === S.cb && x.d.startsWith(mStr)); const exp = allT.filter(x => x.t === 'expense').reduce((s, x) => s + x.a, 0); const inc = allT.filter(x => x.t === 'income').reduce((s, x) => s + x.a, 0); const fd = new Date(y, m - 1, 1).getDay(); const dn = new Date(y, m, 0).getDate(); const td = new Date(); const ts = td.getFullYear() + '-' + String(td.getMonth() + 1).padStart(2, '0') + '-' + String(td.getDate()).padStart(2, '0'); const dt = {}; allT.forEach(t => { if (!dt[t.d]) dt[t.d] = []; dt[t.d].push(t) }); const hds = ['日', '一', '二', '三', '四', '五', '六']; let h = ''; for (let i = 0; i < fd; i++)h += '<div class="cal-cell other"></div>'; for (let d = 1; d <= dn; d++) { const ds = y + '-' + String(m).padStart(2, '0') + '-' + String(d).padStart(2, '0'); const tx = dt[ds] || []; const de = tx.filter(x => x.t === 'expense').reduce((s, x) => s + x.a, 0); const di = tx.filter(x => x.t === 'income').reduce((s, x) => s + x.a, 0); h += '<div class="cal-cell' + (ds === ts ? ' today' : '') + '" onclick="showCalDay(\'' + ds + '\')"><div class="cd-date">' + d + '</div>' + (tx.length ? '<div class="cal-dot"></div>' : '') + (tx.length ? '<div class="cd-stats">' + (de > 0 ? '支' + fmt(de).replace('¥', '') + ' ' : '') + (di > 0 ? '收' + fmt(di).replace('¥', '') + ' ' : '') + tx.length + '笔</div>' : '') + '</div>' } document.getElementById('calContent').innerHTML = '<div class="dash-card"><div class="cal-header-row" style="position:relative"><h3 onclick="S.showCalPicker=!S.showCalPicker;rC()">' + y + '年' + m + '月 ▼</h3><button class="btn btn-sm btn-secondary" style="margin-left:8px" onclick="S.cm=S.cm===1?(S.cy--,12):S.cm-1;render()">‹</button><button class="btn btn-sm btn-secondary" onclick="S.cm=S.cm===12?(S.cy++,1):S.cm+1;render()">›</button><div class="cal-picker-drop' + (S.showCalPicker ? ' active' : '') + '" onclick="event.stopPropagation()"><div class="cal-ym-row"><select onchange="S.cy=parseInt(this.value);S.showCalPicker=false;render()">' + [2022, 2023, 2024, 2025, 2026, 2027].map(yy => '<option value="' + yy + '"' + (yy === S.cy ? ' selected' : '') + '>' + yy + '年</option>').join('') + '</select><select onchange="S.cm=parseInt(this.value);S.showCalPicker=false;render()">' + Array.from({ length: 12 }, (_, i) => '<option value="' + (i + 1) + '"' + (i + 1 === S.cm ? ' selected' : '') + '>' + (i + 1) + '月</option>').join('') + '</select></div></div></div><div class="cal-grid">' + hds.map(d => '<div class="cal-hd">' + d + '</div>').join('') + h + '</div><div class="cal-summary-row"><div class="cal-stat"><div class="cs-lbl">总支出</div><div class="cs-val exp">' + fmt(exp) + '</div></div><div class="cal-stat"><div class="cs-lbl">总收入</div><div class="cs-val inc">' + fmt(inc) + '</div></div><div class="cal-stat"><div class="cs-lbl">总笔数</div><div class="cs-val neutral">' + allT.length + '</div></div><div class="cal-stat"><div class="cs-lbl">结余</div><div class="cs-val ' + (inc - exp >= 0 ? 'inc' : 'exp') + '">' + fmt(inc - exp) + '</div></div></div><div id="calDayDetail" style="margin-top:14px"></div></div>' }
+    function showCalDay(ds) { const tx = TXNS.filter(t => t.bk === S.cb && t.d === ds); if (!tx.length) { document.getElementById('calDayDetail').innerHTML = ''; return } const de = tx.filter(x => x.t === 'expense').reduce((s, x) => s + x.a, 0); const di = tx.filter(x => x.t === 'income').reduce((s, x) => s + x.a, 0); document.getElementById('calDayDetail').innerHTML = '<div class="dash-card"><div class="card-header"><h3>' + ds + ' · ' + tx.length + '笔 · 支出' + fmt(de) + (di > 0 ? ' · 收入' + fmt(di) : '') + '</h3><span class="card-action" onclick="document.getElementById(\'calDayDetail\').innerHTML=\'\'">收起</span></div><div class="txn-list">' + tx.map(t => { const c = gcat(t.ci); return '<div class="txn-row" onclick="openTxn(\'' + t.id + '\')"><div class="txn-icon">' + c.e + '</div><div class="txn-info"><div class="txn-title">' + (t.n || c.n) + '</div><div class="txn-meta"><span>' + c.n + '</span><span>' + (t.ti || '') + '</span></div></div><div class="txn-amount ' + (t.t === 'expense' ? 'debit' : 'credit') + '"><span class="txn-sign">' + (t.t === 'expense' ? '−' : '+') + '</span>' + fmt(t.a) + '</div></div>' }).join('') + '</div></div>' }
+
+    /* ── CATS ── */
+    function rCt() { const cats = S.catSeg === 'expense' ? cbt('expense') : cbt('income'); const ordered = S.sortMode && S.catSeg === 'expense' ? CAT_ORDER.map(id => cats.find(c => c.id === id)).filter(Boolean) : cats; document.getElementById('catContent').innerHTML = '<div class="dash-card"><div class="card-header"><h3>分类管理</h3><div style="display:flex;gap:8px"><button class="btn btn-sm btn-outline" onclick="tst(\'新增分类已实现\',\'info\')">+ 新增</button>' + (S.catSeg === 'expense' ? '<button class="btn btn-sm ' + (S.sortMode ? 'btn-outline' : 'btn-secondary') + '" onclick="S.sortMode=!S.sortMode;rCt()">' + (S.sortMode ? '完成排序' : '编辑排序') + '</button>' : '') + '</div></div><div class="seg-control"><div class="seg-opt ' + (S.catSeg === 'expense' ? 'active' : '') + '" onclick="S.catSeg=\'expense\';S.sortMode=false;rCt()">支出分类</div><div class="seg-opt ' + (S.catSeg === 'income' ? 'active' : '') + '" onclick="S.catSeg=\'income\';S.sortMode=false;rCt()">收入分类</div></div><div class="cat-grid' + (S.sortMode ? ' sort-mode' : '') + '">' + ordered.map(c => '<div class="cat-card" draggable="' + S.sortMode + '" data-cat="' + c.id + '" ondragstart="dragCat(event,\'' + c.id + '\')" ondragover="dragOver(event)" ondrop="dropCat(event,\'' + c.id + '\')" ondragend="dragEnd(event)"><span class="cat-handle">⋮⋮</span><div class="cat-e">' + c.e + '</div><div class="cat-n">' + c.n + '</div></div>').join('') + '</div></div>' }
+    function dragCat(e, cid) { e.dataTransfer.setData('text/plain', cid); e.target.closest('.cat-card').classList.add('dragging') } function dragOver(e) { e.preventDefault(); e.target.closest('.cat-card').classList.add('drag-over') } function dropCat(e, tid) { e.preventDefault(); const sid = e.dataTransfer.getData('text/plain'); const si = CAT_ORDER.indexOf(sid), ti = CAT_ORDER.indexOf(tid); if (si > -1 && ti > -1) { CAT_ORDER.splice(si, 1); CAT_ORDER.splice(ti, 0, sid); rCt(); tst('已调整', 'success') } } function dragEnd(e) { document.querySelectorAll('.cat-card').forEach(c => c.classList.remove('dragging', 'drag-over')) }
+
+    /* ── ANNUAL ── */
+    function rAn() { const y = 2026; const allT = TXNS.filter(x => x.bk === S.cb && x.d.startsWith(String(y))); const inc = allT.filter(x => x.t === 'income').reduce((s, x) => s + x.a, 0); const exp = allT.filter(x => x.t === 'expense').reduce((s, x) => s + x.a, 0); const biggest = allT.reduce((mx, t) => t.a > mx.a ? t : mx, allT[0]); const catMap = {}; allT.filter(x => x.t === 'expense').forEach(x => { catMap[x.ci] = (catMap[x.ci] || 0) + x.a }); const topCat = Object.entries(catMap).sort((a, b) => b[1] - a[1])[0]; document.getElementById('annualContent').innerHTML = '<div class="annual-cover"><div class="ac-year">' + y + '</div><div class="ac-sub">年度财务报告 · ' + cb().n + '</div></div><div class="ann-sec"><h3>年度总览</h3><div class="ann-overview"><div class="ann-ov-card"><div class="aov-lbl">💰 总收入</div><div class="aov-val inc">' + fmt(inc) + '</div></div><div class="ann-ov-card"><div class="aov-lbl">💸 总支出</div><div class="aov-val exp">' + fmt(exp) + '</div></div><div class="ann-ov-card"><div class="aov-lbl">📊 结余</div><div class="aov-val" style="color:' + (inc - exp >= 0 ? 'var(--inc)' : 'var(--exp)') + '">' + fmt(inc - exp) + '</div></div><div class="ann-ov-card"><div class="aov-lbl">📈 结余率</div><div class="aov-val" style="color:var(--pr)">' + (inc > 0 ? ((inc - exp) / inc * 100).toFixed(1) : 0) + '%</div></div></div></div><div class="ann-sec"><h3>分类排行 TOP5</h3>' + Object.entries(catMap).sort((a, b) => b[1] - a[1]).slice(0, 5).map(([ci, amt], i) => { const c = gcat(ci); return '<div class="budget-item"><div class="budget-info"><span class="budget-name">' + (i + 1) + '. ' + c.e + ' ' + c.n + '</span><span class="budget-amount">' + fmt(amt) + '</span></div><div class="budget-bar"><div class="fill safe" style="width:' + (amt / (topCat ? topCat[1] : 1)) * 100 + '%"></div></div></div>' }).join('') + '</div><div class="ann-sec"><h3>年度记录</h3><div class="ann-records"><div class="ann-rec-card"><div class="arc-icon">💸</div><div class="arc-title">最大支出</div><div class="arc-val exp">' + fmt(biggest ? a : 0) + '</div></div><div class="ann-rec-card"><div class="arc-icon">📋</div><div class="arc-title">总笔数</div><div class="arc-val">' + allT.length + ' 笔</div></div><div class="ann-rec-card"><div class="arc-icon">💰</div><div class="arc-title">最高收入月</div><div class="arc-val inc">6月</div></div></div></div><div class="ann-sec"><h3>趣味数据</h3><div class="ann-fun">🍜 最爱的消费类别是「' + (topCat ? gcat(topCat[0]).n : '餐饮') + '」，一年花了 ' + (topCat ? fmt(topCat[1]) : '—') + '！' + (exp > inc ? '💡 今年支出大于收入，需要好好规划~' : '🎉 恭喜！存下了 ' + fmt(inc - exp) + '！') + '</div></div><div style="text-align:center;padding:24px 0;color:var(--fg3);font-size:12px">— 静记 · 让每一笔都清晰可见 —</div><div style="text-align:center;padding-bottom:24px"><button class="btn btn-primary" onclick="tst(\'完整报告含ECharts图表+长图导出\',\'info\')">📥 保存长图</button></div>' }
+
+    /* ── BOOKS / TPLS ── */
+    function rBk() { document.getElementById('bkGrid').innerHTML = BOOKS.map(b => '<div class="bk-card ' + (b.id === S.cb ? 'active' : '') + '" onclick="selectBook(\'' + b.id + '\')"><div class="bk-acts"><button onclick="event.stopPropagation();openEditBook(\'' + b.id + '\')">✎</button>' + (b.id !== 'bh' ? '<button class="del" onclick="event.stopPropagation();confirmDelBook(\'' + b.id + '\')">✕</button>' : '') + '</div><h4>' + b.e + ' ' + b.n + '</h4><div class="bk-meta">' + b.m + ' 成员 · ' + TXNS.filter(x => x.bk === b.id).length + ' 笔</div><div class="bk-meta" style="margin-top:3px;font-size:11px">' + b.d + '</div></div>').join('') + '<div class="bk-card add-new" onclick="openAddBook()">+ 新账本</div>' }
+    function rTp() { document.getElementById('tplGrid').innerHTML = TEMPLATES.map(tp => { const c = gcat(tp.ci); return '<div class="tpl-card" onclick="useTpl(\'' + tp.id + '\')"><div class="tpl-acts"><button id="cp' + tp.id + '" onclick="event.stopPropagation();copyTpl(\'' + tp.id + '\')">📋</button><button onclick="event.stopPropagation();tst(\'编辑已实现\',\'info\')">✎</button><button onclick="event.stopPropagation();confirmDelTpl(\'' + tp.id + '\')" style="color:var(--exp)">✕</button></div><div class="tpl-e">' + c.e + '</div><div class="tpl-n">' + tp.n + '</div><div class="tpl-m">' + (tp.t === 'expense' ? '支出' : '收入') + ' · ' + fmt(tp.a) + '</div></div>' }).join('') + '<div class="tpl-card add-new" onclick="tst(\'新建已实现\',\'info\')">+ 新建</div>' }
+
+    /* ══ ACTIONS ══ */
+    function switchView(v, nav) { S.cv = v; if (v === 'transactions') { S.pg = 1; S.tf = 'all'; S.df = 'all'; S.ts = '' } if (v === 'add') S.txnType = 'expense'; render() }
+    /* [Sidebar Collapse] → toggleState → localStorage + CSS class */
+    function toggleSidebar() { S.collapsed = !S.collapsed; const sb = document.getElementById('sidebar'); sb.classList.toggle('collapsed', S.collapsed); const ti = document.getElementById('toggleIcon'); ti.innerHTML = S.collapsed ? '<path d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"/>' : '<path d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"/>' }
+    /* [User Menu] → toggle → popover upward */
+    function toggleUserMenu() { userMenuOpen = !userMenuOpen; const m = document.getElementById('userMenu'); const a = document.getElementById('userArrow'); m.classList.toggle('active', userMenuOpen); a.classList.toggle('open', userMenuOpen) }
+
+    function openTxn(id) { S.at = id; const t = TXNS.find(x => x.id === id); if (!t) return; const c = gcat(t.ci); document.getElementById('mdlTxnBody').innerHTML = '<div style="text-align:center;padding:10px 0 6px"><div style="font-size:40px;margin-bottom:8px">' + c.e + '</div><div style="font-size:30px;font-weight:800;margin-bottom:2px;color:' + (t.t === 'expense' ? 'var(--exp)' : 'var(--inc)') + '">' + (t.t === 'expense' ? '−' : '+') + fmt(t.a) + '</div><div style="font-size:12px;color:var(--fg3)">' + c.n + ' · ' + (t.t === 'expense' ? '支出' : '收入') + '</div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:2px;border-top:1px solid var(--bdL);padding-top:12px;margin-top:6px"><div style="padding:8px 0"><div style="font-size:11px;color:var(--fg3)">日期</div><div style="font-size:13px;font-weight:600">' + t.d + ' ' + t.ti + '</div></div><div style="padding:8px 0"><div style="font-size:11px;color:var(--fg3)">分类</div><div style="font-size:13px;font-weight:600">' + c.e + ' ' + c.n + '</div></div><div style="padding:8px 0"><div style="font-size:11px;color:var(--fg3)">描述</div><div style="font-size:13px;font-weight:600">' + (t.n || '—') + '</div></div><div style="padding:8px 0"><div style="font-size:11px;color:var(--fg3)">商户</div><div style="font-size:13px;font-weight:600">' + (t.me || '—') + '</div></div></div>'; openM('modalTxn') }
+    function confirmDelTxn() { S.ccb = () => { TXNS.splice(TXNS.findIndex(x => x.id === S.at), 1); closeM('modalTxn'); closeM('modalConfirm'); tst('已删除', 'success'); render() }; document.getElementById('mdlConfirmBody').innerHTML = '<p>确定删除？不可撤销。</p>'; openM('modalConfirm') }
+    function openEditTxn() { const t = TXNS.find(x => x.id === S.at); if (!t) return; closeM('modalTxn'); S.txnType = t.t; switchView('add'); setTimeout(() => { document.getElementById('inpAmt').value = t.a; document.getElementById('inpCat').value = t.ci; document.getElementById('inpDate').value = t.d; document.getElementById('inpNote').value = t.n || ''; document.getElementById('btnSub').textContent = '保存修改'; document.getElementById('btnSub').onclick = () => subEditTxn(t.id) }, 60) }
+    function subEditTxn(oid) { if (!vldAmt()) return tst('请输入有效金额', 'error'); const t = TXNS.find(x => x.id === oid); if (!t) return; t.a = parseFloat(document.getElementById('inpAmt').value); t.ci = document.getElementById('inpCat').value; t.d = document.getElementById('inpDate').value; t.n = document.getElementById('inpNote').value; t.t = S.txnType; tst('已更新', 'success'); switchView('dashboard') }
+    function setAddType(ty) { S.txnType = ty; rA() } function vldAmt() { const v = parseFloat(document.getElementById('inpAmt').value); const e = document.getElementById('errAmt'); if (isNaN(v) || v <= 0) { e.classList.add('visible'); return false } e.classList.remove('visible'); return true }
+    function subTxn() { if (!vldAmt()) return tst('请输入有效金额', 'error'); const bt = document.getElementById('btnSub'); bt.classList.add('btn-saving'); bt.disabled = true; bt.textContent = '保存中...'; setTimeout(() => { bt.classList.remove('btn-saving'); bt.disabled = false; bt.textContent = '确认添加'; TXNS.unshift({ id: 't' + Date.now(), ci: document.getElementById('inpCat').value, a: parseFloat(document.getElementById('inpAmt').value), t: S.txnType || 'expense', d: document.getElementById('inpDate').value, ti: '', n: document.getElementById('inpNote').value || gcat(document.getElementById('inpCat').value).n, bk: S.cb, me: '' }); resetAdd(); tst('已添加', 'success'); switchView('dashboard') }, 600) }
+    function resetAdd() { document.getElementById('inpAmt').value = ''; document.getElementById('inpNote').value = ''; document.getElementById('errAmt').classList.remove('visible'); S.addLoc = null; S.txnType = 'expense'; rA() } function toggleUpload() { const z = document.getElementById('uploadZone'); const t = document.getElementById('uploadText'); const h = z.classList.contains('on'); z.classList.toggle('on', !h); t.textContent = h ? '点击上传附件/收据' : '已上传: receipt.jpg' }
+    function openTemplateSelectModal() { document.getElementById('mdlTplSelectBody').innerHTML = TEMPLATES.map(tp => { const c = gcat(tp.ci); return '<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--bdL);border-radius:var(--rs);margin-bottom:6px;cursor:pointer" onclick="selectTplFromModal(\'' + tp.id + '\')"><span style="font-size:20px">' + c.e + '</span><div style="flex:1"><div style="font-size:13px;font-weight:600">' + tp.n + '</div><div style="font-size:11px;color:var(--fg3)">' + (tp.t === 'expense' ? '支出' : '收入') + ' · ' + fmt(tp.a) + '</div></div></div>' }).join(''); openM('modalTplSelect') }
+    function selectTplFromModal(tid) { const tp = TEMPLATES.find(x => x.id === tid); if (!tp) return; S.txnType = tp.t; rA(); setTimeout(() => { document.getElementById('inpAmt').value = tp.a; document.getElementById('inpCat').value = tp.ci; document.getElementById('inpNote').value = gcat(tp.ci).n }, 50); closeM('modalTplSelect'); tst('模板已应用', 'success') } function useTpl(tid) { selectTplFromModal(tid); switchView('add') }
+    function openAddBudget() { S.ebi = null; document.getElementById('mdlBudgetTitle').textContent = '新增预算'; const used = new Set(ab().map(b => b.ci)); document.getElementById('inpBudgetCat').innerHTML = cbt('expense').filter(c => !used.has(c.id)).map(c => '<option value="' + c.id + '">' + c.e + ' ' + c.n + '</option>').join(''); document.getElementById('inpBudgetAmt').value = ''; openM('modalAddBudget') }
+    function openEditBudget(bid) { S.ebi = bid; const b = BUDGETS.find(x => x.id === bid); if (!b) return; document.getElementById('mdlBudgetTitle').textContent = '修改预算'; document.getElementById('inpBudgetCat').innerHTML = '<option value="' + b.ci + '">' + gcat(b.ci).e + ' ' + gcat(b.ci).n + '</option>'; document.getElementById('inpBudgetCat').disabled = true; document.getElementById('inpBudgetAmt').value = b.l; openM('modalAddBudget') }
+    function submitBudget() { const ci = document.getElementById('inpBudgetCat').value; const l = parseFloat(document.getElementById('inpBudgetAmt').value); if (!ci || isNaN(l) || l <= 0) return tst('请填写完整', 'error'); if (S.ebi) { const b = BUDGETS.find(x => x.id === S.ebi); if (b) b.l = l; tst('已更新', 'success') } else { BUDGETS.push({ id: 'b' + Date.now(), ci, l, bk: S.cb }); tst('已创建', 'success') } closeM('modalAddBudget'); S.ebi = null; render() } function confirmDelBgt(bid) { S.ccb = () => { BUDGETS.splice(BUDGETS.findIndex(b => b.id === bid), 1); closeM('modalConfirm'); tst('已删除', 'success'); render() }; document.getElementById('mdlConfirmBody').innerHTML = '<p>确定删除？</p>'; openM('modalConfirm') }
+    function selectBook(id) { S.cb = id; switchView('dashboard'); updateBS() } function openAddBook() { S.ebk = null; document.getElementById('mdlBookTitle').textContent = '新建账本'; document.getElementById('inpBookName').value = ''; document.getElementById('inpBookDesc').value = ''; document.getElementById('inpBookEmoji').value = ''; openM('modalAddBook') } function openEditBook(bid) { S.ebk = bid; const b = BOOKS.find(x => x.id === bid); if (!b) return; document.getElementById('mdlBookTitle').textContent = '编辑账本'; document.getElementById('inpBookName').value = b.n; document.getElementById('inpBookDesc').value = b.d; document.getElementById('inpBookEmoji').value = b.e; openM('modalAddBook') }
+    function submitBook() { const nm = document.getElementById('inpBookName').value.trim(); if (!nm) return tst('请输入名称', 'error'); const em = document.getElementById('inpBookEmoji').value.trim(), ds = document.getElementById('inpBookDesc').value.trim(); if (S.ebk) { const b = BOOKS.find(x => x.id === S.ebk); if (b) { b.n = nm; b.d = ds; if (em) b.e = em } tst('已更新', 'success') } else { BOOKS.push({ id: 'bk' + Date.now(), n: nm, e: em || '📒', c: '#888', m: 1, d: ds || '新创建' }); tst('已创建', 'success') } closeM('modalAddBook'); S.ebk = null; render(); updateBS() } function confirmDelBook(bid) { S.ccb = () => { if (bid === 'bh') { tst('不能删除默认', 'error'); closeM('modalConfirm'); return } BOOKS.splice(BOOKS.findIndex(x => x.id === bid), 1); if (S.cb === bid) { S.cb = 'bh'; updateBS() } closeM('modalConfirm'); tst('已删除', 'success'); render() }; document.getElementById('mdlConfirmBody').innerHTML = '<p>确定删除？</p>'; openM('modalConfirm') }
+    function copyTpl(tid) { const tp = TEMPLATES.find(x => x.id === tid); TEMPLATES.push({ id: 'tp' + Date.now(), n: tp.n + ' (副本)', ci: tp.ci, a: tp.a, t: tp.t }); document.getElementById('cp' + tid).textContent = '✓'; render(); tst('已复制', 'success') } function confirmDelTpl(tid) { S.ccb = () => { TEMPLATES.splice(TEMPLATES.findIndex(x => x.id === tid), 1); closeM('modalConfirm'); tst('已删除', 'success'); render() }; document.getElementById('mdlConfirmBody').innerHTML = '<p>确定删除？</p>'; openM('modalConfirm') }
+    function openMapForAdd() { document.getElementById('mapSearchInput').value = ''; document.getElementById('mapSelected').style.display = 'none'; document.getElementById('mapResults').innerHTML = MAPS.map(p => '<div style="padding:10px 14px;border-bottom:1px solid var(--bdL);cursor:pointer;display:flex;align-items:center;gap:10px" onclick="pickMap(\'' + p.n + '\',\'' + p.ad + '\',' + p.la + ',' + p.lo + ')"><div style="width:30px;height:30px;background:var(--infoBg);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--info)">📍</div><div><div style="font-size:13px;font-weight:600">' + p.n + '</div><div style="font-size:11px;color:var(--fg3)">' + p.ad + '</div></div></div>').join(''); openM('modalMap') }
+    function mapSearch() { const q = document.getElementById('mapSearchInput').value.toLowerCase(); document.getElementById('mapResults').innerHTML = MAPS.filter(p => p.n.toLowerCase().includes(q) || p.ad.toLowerCase().includes(q)).map(p => '<div style="padding:10px 14px;border-bottom:1px solid var(--bdL);cursor:pointer;display:flex;align-items:center;gap:10px" onclick="pickMap(\'' + p.n + '\',\'' + p.ad + '\',' + p.la + ',' + p.lo + ')"><div style="width:30px;height:30px;background:var(--infoBg);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--info)">📍</div><div><div style="font-size:13px;font-weight:600">' + p.n + '</div><div style="font-size:11px;color:var(--fg3)">' + p.ad + '</div></div></div>').join('') }
+    function pickMap(n, ad, la, lo) { document.getElementById('mapSelected').style.display = 'block'; document.getElementById('mapSelectedName').textContent = n; document.getElementById('mapSelectedAddr').textContent = ad + ' · ' + la + ', ' + lo; window._mp = { n, ad, la: parseFloat(la), lo: parseFloat(lo) } } function confirmMapPick() { if (!window._mp) return tst('请先选择地点', 'error'); S.addLoc = window._mp; closeM('modalMap'); rA(); tst('地点已选择', 'success'); window._mp = null }
+    function toggleBookDropdown() { const dd = document.getElementById('bookDropdown'); dd.classList.toggle('active'); if (dd.classList.contains('active')) dd.innerHTML = BOOKS.map(b => '<div class="book-opt" onclick="selectBook(\'' + b.id + '\');toggleBookDropdown()"><div class="bdot" style="background:' + b.c + '"></div>' + b.e + ' ' + b.n + (b.id === S.cb ? '<span style="margin-left:auto;font-size:10px;color:var(--pr)">✓</span>' : '') + '</div>').join('') } function updateBS() { const b = cb(); document.getElementById('bsA').textContent = b.e || '家'; document.getElementById('bsN').textContent = b.n }
+    function openM(id) { document.getElementById(id).classList.add('active') } function closeM(id) { document.getElementById(id).classList.remove('active') } function execConfirm() { if (S.ccb) { S.ccb(); S.ccb = null } } function tst(msg, ty) { const c = document.getElementById('toastContainer'); const e = document.createElement('div'); e.className = 'toast ' + ty; e.textContent = msg; c.appendChild(e); setTimeout(() => { e.classList.add('removing'); setTimeout(() => e.remove(), 250) }, 2500) }
+    document.addEventListener('click', function (e) { if (e.target.classList.contains('modal-overlay')) closeM(e.target.id); const dd = document.getElementById('bookDropdown'); if (dd && dd.classList.contains('active') && !e.target.closest('#bookSwitcher') && !e.target.closest('#bookDropdown')) dd.classList.remove('active'); const cp = document.querySelector('.cal-picker-drop.active'); if (cp && !e.target.closest('.cal-header-row')) { S.showCalPicker = false; rC() } if (userMenuOpen && !e.target.closest('#userArea')) { userMenuOpen = false; document.getElementById('userMenu').classList.remove('active'); document.getElementById('userArrow').classList.remove('open') } });
+    render(); updateBS();
+  </script>
+</body>
+
+</html>

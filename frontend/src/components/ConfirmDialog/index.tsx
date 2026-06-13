@@ -46,7 +46,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
       style={{
         position: 'fixed',
         inset: 0,
-        zIndex: 100,
+        zIndex: 1200,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',

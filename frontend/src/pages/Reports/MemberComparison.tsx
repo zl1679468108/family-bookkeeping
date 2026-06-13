@@ -218,7 +218,7 @@ const CategoryTable: React.FC<{ data: MemberComparisonItem[] }> = ({ data }) => 
                     className="mc-cat-td"
                     style={{
                       backgroundColor: amt > 0
-                        ? `rgba(99, 102, 241, ${(alpha * 0.55).toFixed(2)})`
+                        ? `rgba(45, 157, 138, ${(alpha * 0.55).toFixed(2)})`
                         : 'transparent',
                       color: alpha > 0.6 ? '#fff' : 'var(--fg)',
                     }}

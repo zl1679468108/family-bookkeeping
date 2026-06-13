@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState, useEffect, useRef } from 'react'
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import {
   clearStoredToken,
   getProfile,
@@ -8,102 +9,104 @@ import {
   register as apiRegister,
   storeToken,
   UserProfile,
-} from '../services/api'
+} from '../services/api';
 
 interface AuthContextType {
-  user: UserProfile | null
-  loading: boolean
-  signIn: (email: string, password: string) => Promise<void>
-  signUp: (email: string, password: string, username: string) => Promise<void>
-  signOut: () => Promise<void>
-  refreshUser: () => Promise<void>
+  user: UserProfile | null;
+  loading: boolean;
+  signIn: (email: string, password: string) => Promise<void>;
+  signUp: (email: string, password: string, username: string) => Promise<void>;
+  signOut: () => Promise<void>;
+  refreshUser: () => Promise<void>;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined)
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<UserProfile | null>(null)
-  const [loading, setLoading] = useState(true)
-  const initialized = useRef(false)
+  const [user, setUser] = useState<UserProfile | null>(null);
+  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
+
+  // 登录后重置所有与用户相关的缓存：账本 / 交易 / 预算等
+  const resetUserCache = useCallback(() => {
+    queryClient.clear();
+  }, [queryClient]);
 
   useEffect(() => {
-    if (initialized.current) return
-    initialized.current = true
-    
-    initializeAuth()
-  }, [])
-
-  const initializeAuth = async () => {
-    try {
-      if (hasToken()) {
-        await refreshUser()
+    let cancelled = false;
+    const init = async () => {
+      if (!hasToken()) {
+        setLoading(false);
+        return;
       }
-    } catch (error) {
-      console.error('认证初始化失败:', error)
-    } finally {
-      setLoading(false)
-    }
-  }
+      try {
+        const userData = await getProfile();
+        if (!cancelled) {
+          setUser(userData);
+        }
+      } catch (error) {
+        clearStoredToken();
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
+    init();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const refreshUser = async () => {
     try {
-      const userData = await getProfile()
-      setUser(userData)
+      const userData = await getProfile();
+      setUser(userData);
     } catch (error) {
-      // 获取用户信息失败，可能是未登录或 token 过期
-      setUser(null)
+      setUser(null);
     }
-  }
+  };
 
   const signIn = async (email: string, password: string) => {
-    try {
-      const { user: userData, token } = await apiLogin(email, password)
-      storeToken(token)
-      setUser(userData)
-    } catch (error) {
-      console.error('登录失败:', error)
-      throw error
-    }
-  }
+    const { user: userData, token } = await apiLogin(email, password);
+    storeToken(token.trim());
+    resetUserCache(); // 关键：切换账号时必须清除旧账号的缓存
+    setUser(userData);
+  };
 
   const signUp = async (email: string, password: string, username: string) => {
-    try {
-      const { user: userData, token } = await apiRegister(email, password, username)
-      storeToken(token)
-      setUser(userData)
-    } catch (error) {
-      console.error('注册失败:', error)
-      throw error
-    }
-  }
+    const { user: userData, token } = await apiRegister(email, password, username);
+    storeToken(token);
+    resetUserCache(); // 新注册账号也需要清除旧缓存
+    setUser(userData);
+  };
 
-  const signOut = async () => {
+  const signOut = useCallback(async () => {
     try {
       if (hasToken()) {
-        await apiLogout().catch(() => undefined)
+        await apiLogout().catch(() => undefined);
       }
     } finally {
-      clearStoredToken()
-      setUser(null)
+      clearStoredToken();
+      setUser(null);
+      resetUserCache();
     }
-  }
+  }, [resetUserCache]);
 
-  const value = {
+  const value: AuthContextType = {
     user,
     loading,
     signIn,
     signUp,
     signOut,
-    refreshUser
-  }
+    refreshUser,
+  };
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
-}
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+};
 
 export const useAuth = () => {
-  const context = useContext(AuthContext)
+  const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider')
+    throw new Error('useAuth must be used within an AuthProvider');
   }
-  return context
-}
+  return context;
+};

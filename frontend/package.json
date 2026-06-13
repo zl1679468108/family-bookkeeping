@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "start": "HOST=127.0.0.1 PORT=3001 REACT_APP_ENV=development react-scripts start",
-    "start:prod": "HOST=127.0.0.1 PORT=3002 REACT_APP_ENV=production react-scripts start",
+    "start": "HOST=127.0.0.1 PORT=3001 REACT_APP_ENV=development sh -c 'lsof -ti:3001 | xargs kill -9 2>/dev/null; react-scripts start'",
+    "start:prod": "HOST=127.0.0.1 PORT=3002 REACT_APP_ENV=production sh -c 'lsof -ti:3002 | xargs kill -9 2>/dev/null; react-scripts start'",
     "build": "REACT_APP_ENV=development react-scripts build",
     "build:prod": "REACT_APP_ENV=production react-scripts build",
     "test": "react-scripts test",
@@ -21,7 +21,10 @@
     }
   },
   "dependencies": {
+    "@fontsource/dm-mono": "^5.2.7",
+    "@fontsource/dm-sans": "^5.2.8",
     "@tanstack/react-query": "^5.20.3",
+    "@types/echarts": "^4.9.22",
     "@uiw/react-amap": "^7.1.15",
     "date-fns": "^2.30.0",
     "echarts": "^5.6.0",

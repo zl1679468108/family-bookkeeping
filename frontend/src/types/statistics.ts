@@ -7,6 +7,8 @@ export interface StatisticsSummary {
   totalIncome: number;
   totalExpense: number;
   balance: number;
+  incomeCount?: number;
+  expenseCount?: number;
   incomeChange: number;
   incomeChangePercent: number | null; // null 表示上月无数据
   expenseChange: number;
@@ -19,6 +21,8 @@ export interface StatisticsSummary {
 export interface MonthlyTrendItem {
   month: string; // "2025-01"
   amount: number;
+  income?: number;
+  expense?: number;
 }
 
 /** 分类占比 - 单条数据 */

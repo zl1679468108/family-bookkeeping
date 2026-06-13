@@ -54,7 +54,7 @@ export default function Profile() {
           {user?.username || "用户"}
         </Text>
         <Text className="profile-subtitle">
-          家庭记账 · 已坚持 186 天
+          静记 · 已坚持 186 天
         </Text>
       </View>
 

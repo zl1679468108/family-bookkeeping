@@ -160,6 +160,8 @@ interface MapCanvasProps {
   colorMap?: Map<string, string>;
   selectedMemberId?: string | null;
   onMapReady?: (map: any) => void;
+  /** 父组件（工具条）正在处理 POI 搜索——隐藏自身的浮动搜索浮层 */
+  hasExternalSearch?: boolean;
 }
 
 /* ------------------------------------------------------------------ */
@@ -172,9 +174,6 @@ const _MapCanvas: React.ForwardRefRenderFunction<MapCanvasHandle, MapCanvasProps
 ) => {
   const [activeInfo, setActiveInfo] = useState<{ merchant: MerchantSummary; pos: [number, number] } | null>(null);
   const [historyMerchant, setHistoryMerchant] = useState<MerchantSummary | null>(null);
-  const [searchText, setSearchText] = useState('');
-  const [searchResults, setSearchResults] = useState<any[]>([]);
-  const [searching, setSearching] = useState(false);
   const [locateError, setLocateError] = useState('');
 
   // ---- Map instance via pool ----
@@ -440,64 +439,11 @@ const _MapCanvas: React.ForwardRefRenderFunction<MapCanvasHandle, MapCanvasProps
     setHistoryMerchant(merchant);
   }, []);
 
-  const handleSearch = useCallback(() => {
-    if (!searchText.trim()) return;
-    const AMap = AmapManager.getInstance().AMap;
-    if (!AMap?.PlaceSearch) return;
-    setSearching(true);
-    const placeSearch = new AMap.PlaceSearch({ pageSize: 20, pageIndex: 1, city: '全国' });
-    placeSearch.search(searchText, (status: string, result: any) => {
-      setSearching(false);
-      if (status === 'complete' && result.poiList?.pois) {
-        setSearchResults(result.poiList.pois);
-      }
-    });
-  }, [searchText]);
-
-  const handleSearchResultClick = useCallback((poi: any) => {
-    if (mapRef.current) {
-      mapRef.current.setCenter([poi.location.lng, poi.location.lat]);
-      mapRef.current.setZoom(15);
-    }
-  }, []);
-
   /* ====== Render ====== */
 
   return (
     <>
       <div className="map-canvas-wrapper">
-        <div className="map-search-overlay">
-          <input
-            type="text" className="map-search-input"
-            placeholder="搜索附近商户..."
-            value={searchText}
-            onChange={(e) => setSearchText(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-          />
-          <button className="map-search-btn" onClick={handleSearch} disabled={searching}>
-            {searching ? '...' : '🔍'}
-          </button>
-          {searchResults.length > 0 && (
-            <div className="map-search-results">
-              {searchResults.map((poi: any, i: number) => {
-                const hasData = data.some((t) => t.poi_id === poi.id);
-                return (
-                  <div
-                    key={i}
-                    className={`map-search-item ${hasData ? 'has-data' : ''}`}
-                    onClick={() => handleSearchResultClick(poi)}
-                  >
-                    <span>{hasData ? '✅' : '📍'}</span>
-                    <span>{poi.name}</span>
-                    <span className="map-search-addr">{poi.address}</span>
-                  </div>
-                );
-              })}
-              <button className="map-search-clear" onClick={() => setSearchResults([])}>关闭</button>
-            </div>
-          )}
-        </div>
-
         {locateError && <div className="map-locate-error">{locateError}</div>}
 
         {/* Map container — managed by useMapInstance via callback ref */}

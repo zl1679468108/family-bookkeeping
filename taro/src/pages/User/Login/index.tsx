@@ -37,9 +37,9 @@ export default function Login() {
       {/* Brand area */}
       <View className="brand-section flex flex-col items-center">
         <View className="app-icon flex items-center justify-center">
-          <Text className="app-icon-text">家</Text>
+          <Text className="app-icon-text">静</Text>
         </View>
-        <Text className="app-name text-2xl font-bold mt-3">家庭记账</Text>
+        <Text className="app-name text-2xl font-bold mt-3">静记</Text>
         <Text className="app-slogan text-base text-secondary mt-2">
           记录每一笔，管好每一分
         </Text>

@@ -11,9 +11,6 @@ interface ReportMonthlyTrendProps {
   data: MonthlyItem[];
 }
 
-/**
- * 月度趋势图 - ECharts 双线图
- */
 export const ReportMonthlyTrend: React.FC<ReportMonthlyTrendProps> = ({ data }) => {
   const chartRef = useRef<HTMLDivElement>(null);
   const instanceRef = useRef<echarts.ECharts | null>(null);
@@ -23,6 +20,7 @@ export const ReportMonthlyTrend: React.FC<ReportMonthlyTrendProps> = ({ data }) 
 
     if (!instanceRef.current) {
       instanceRef.current = echarts.init(chartRef.current);
+      (chartRef.current as any).__echarts_instance__ = instanceRef.current;
     }
 
     const months = data.map((d) => `${d.month}月`);
@@ -32,15 +30,34 @@ export const ReportMonthlyTrend: React.FC<ReportMonthlyTrendProps> = ({ data }) 
     const isDark = document.documentElement.classList.contains('dark');
     const textColor = isDark ? '#9ca3af' : '#6b7280';
     const gridColor = isDark ? '#374151' : '#e5e7eb';
+    const bgColor = isDark ? '#1f2937' : '#ffffff';
 
     instanceRef.current.setOption({
+      backgroundColor: bgColor,
       tooltip: {
         trigger: 'axis',
+        backgroundColor: isDark ? '#374151' : '#ffffff',
+        borderColor: gridColor,
+        textStyle: { color: isDark ? '#f9fafb' : '#1f2937' },
+        formatter: (params: any) => {
+          let result = `<div style="padding: 8px;">`;
+          params.forEach((item: any) => {
+            result += `<div style="display: flex; justify-content: space-between; gap: 20px; margin: 4px 0;">
+              <span>${item.marker} ${item.seriesName}</span>
+              <span style="font-weight: 600;">¥${item.value.toLocaleString()}</span>
+            </div>`;
+          });
+          result += `</div>`;
+          return result;
+        },
       },
       legend: {
         data: ['收入', '支出'],
         bottom: 0,
         textStyle: { color: textColor, fontSize: 12 },
+        icon: 'circle',
+        itemWidth: 8,
+        itemHeight: 8,
       },
       grid: {
         left: '10px',
@@ -53,15 +70,17 @@ export const ReportMonthlyTrend: React.FC<ReportMonthlyTrendProps> = ({ data }) 
         type: 'category',
         data: months,
         axisLine: { lineStyle: { color: gridColor } },
-        axisLabel: { color: textColor, fontSize: 10 },
+        axisLabel: { color: textColor, fontSize: 11 },
+        axisTick: { show: false },
       },
       yAxis: {
         type: 'value',
         axisLine: { show: false },
+        axisTick: { show: false },
         splitLine: { lineStyle: { color: gridColor, type: 'dashed' } },
         axisLabel: {
           color: textColor,
-          fontSize: 10,
+          fontSize: 11,
           formatter: (value: number) => {
             if (value >= 10000) return (value / 10000).toFixed(1) + 'w';
             if (value >= 1000) return (value / 1000).toFixed(1) + 'k';
@@ -77,8 +96,14 @@ export const ReportMonthlyTrend: React.FC<ReportMonthlyTrendProps> = ({ data }) 
           smooth: true,
           symbol: 'circle',
           symbolSize: 6,
-          lineStyle: { color: '#10b981', width: 2 },
-          itemStyle: { color: '#10b981' },
+          lineStyle: { color: '#10b981', width: 3 },
+          itemStyle: { color: '#10b981', borderColor: bgColor, borderWidth: 2 },
+          areaStyle: {
+            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+              { offset: 0, color: 'rgba(16, 185, 129, 0.3)' },
+              { offset: 1, color: 'rgba(16, 185, 129, 0.02)' },
+            ]),
+          },
         },
         {
           name: '支出',
@@ -87,8 +112,14 @@ export const ReportMonthlyTrend: React.FC<ReportMonthlyTrendProps> = ({ data }) 
           smooth: true,
           symbol: 'circle',
           symbolSize: 6,
-          lineStyle: { color: '#ef4444', width: 2 },
-          itemStyle: { color: '#ef4444' },
+          lineStyle: { color: '#f97316', width: 3 },
+          itemStyle: { color: '#f97316', borderColor: bgColor, borderWidth: 2 },
+          areaStyle: {
+            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+              { offset: 0, color: 'rgba(249, 115, 22, 0.3)' },
+              { offset: 1, color: 'rgba(249, 115, 22, 0.02)' },
+            ]),
+          },
         },
       ],
     });
@@ -101,7 +132,6 @@ export const ReportMonthlyTrend: React.FC<ReportMonthlyTrendProps> = ({ data }) 
     };
   }, [data]);
 
-  // cleanup on unmount
   useEffect(() => {
     return () => {
       instanceRef.current?.dispose();
@@ -119,17 +149,18 @@ export const ReportMonthlyTrend: React.FC<ReportMonthlyTrendProps> = ({ data }) 
           marginBottom: '16px',
         }}
       >
-        📈 月度趋势
+        📈 12个月收支趋势
       </h2>
       <div
         ref={chartRef}
         style={{
-          height: '250px',
+          height: '280px',
           width: '100%',
           background: 'var(--surface)',
-          borderRadius: '12px',
-          padding: '12px',
+          borderRadius: '16px',
+          padding: '16px',
           border: '1px solid var(--border)',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
         }}
       />
     </div>

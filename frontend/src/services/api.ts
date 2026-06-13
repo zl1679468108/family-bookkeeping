@@ -6,9 +6,9 @@
 import { notify } from '../utils/notifications'
 import type { BatchRequest, BatchResponse } from '../types/batch'
 
-const API_BASE = process.env.REACT_APP_API_BASE_URL || 'http://localhost:3000/api'
-const AUTH_TOKEN_KEY = 'auth_token'
-const BOOK_ID_KEY = 'current_book_id'
+const API_BASE = process.env.REACT_APP_API_BASE_URL || 'http://localhost:5000/api'
+
+const TOKEN_KEY = 'auth_token'
 
 export interface Transaction {
   id: number
@@ -16,6 +16,7 @@ export interface Transaction {
   category: string
   type: 'income' | 'expense'
   date: string
+  time?: string
   description?: string
   location_name?: string
   image_url?: string
@@ -91,16 +92,16 @@ interface RequestOptions extends Omit<RequestInit, 'body'> {
   notifyOnError?: boolean
 }
 
-const getToken = (): string | null => localStorage.getItem(AUTH_TOKEN_KEY)
+const getToken = (): string | null => localStorage.getItem(TOKEN_KEY)
 
 export const hasToken = (): boolean => Boolean(getToken())
 
 export const storeToken = (token: string): void => {
-  localStorage.setItem(AUTH_TOKEN_KEY, token)
+  localStorage.setItem(TOKEN_KEY, token)
 }
 
 export const clearStoredToken = (): void => {
-  localStorage.removeItem(AUTH_TOKEN_KEY)
+  localStorage.removeItem(TOKEN_KEY)
 }
 
 const redirectToLogin = (): void => {
@@ -153,14 +154,13 @@ export const request = async <T>(path: string, options: RequestOptions = {}): Pr
 
   if (requiresAuth) {
     const token = getToken()
-    if (token) {
-      requestHeaders.Authorization = `Bearer ${token}`
+    if (!token) {
+      // token 不存在，直接跳转登录
+      handleUnauthorized(notifyOnError)
+      throw new ApiError('登录状态已失效，请重新登录', 401)
     }
-    // 传递当前选中的账本 ID
-    const bookId = localStorage.getItem(BOOK_ID_KEY)
-    if (bookId) {
-      requestHeaders['x-book-id'] = bookId
-    }
+    const trimmedToken = token.trim()
+    requestHeaders.Authorization = `Bearer ${trimmedToken}`
   }
 
   const response = await fetch(`${API_BASE}${path}`, {
@@ -342,9 +342,11 @@ export const login = async (
   email: string,
   password: string,
 ): Promise<{ user: UserProfile; token: string }> => {
+  // 获取当前存储的 token（如果有），传递给后端用于复用
+  const currentToken = getToken()
   return request<{ user: UserProfile; token: string }>('/auth/login', {
     method: 'POST',
-    body: { email, password },
+    body: { email, password, token: currentToken || undefined },
   })
 }
 
@@ -400,6 +402,20 @@ export const changePassword = async (
   return request<void>('/auth/change-password', {
     method: 'POST',
     body: data,
+    requiresAuth: true,
+  });
+}
+
+export const getCurrentUser = async (): Promise<UserProfile & { current_book_id?: string }> => {
+  return request<UserProfile & { current_book_id?: string }>('/auth/profile', {
+    requiresAuth: true,
+  });
+}
+
+export const setCurrentBook = async (bookId: string): Promise<{ book_id: string }> => {
+  return request<{ book_id: string }>('/auth/current-book', {
+    method: 'PUT',
+    body: { book_id: bookId },
     requiresAuth: true,
   });
 }

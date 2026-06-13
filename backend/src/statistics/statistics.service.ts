@@ -20,6 +20,8 @@ export interface SummaryResult {
   totalIncome: number;
   totalExpense: number;
   balance: number;
+  incomeCount: number;
+  expenseCount: number;
   incomeChange: number;
   incomeChangePercent: number | null;
   expenseChange: number;
@@ -32,6 +34,8 @@ export interface SummaryResult {
 export interface MonthlyTrendItem {
   month: string; // "YYYY-MM"
   amount: number;
+  income: number;
+  expense: number;
 }
 
 /** Return type for a single category entry in GET /api/statistics/category-breakdown. */
@@ -156,22 +160,28 @@ export class StatisticsService {
   }
 
   /**
-   * Aggregate a list of transactions into totalIncome / totalExpense.
+   * Aggregate a list of transactions into totalIncome / totalExpense / counts.
    */
   private aggregate(transactions: Transaction[]): {
     totalIncome: number;
     totalExpense: number;
+    incomeCount: number;
+    expenseCount: number;
   } {
     let totalIncome = 0;
     let totalExpense = 0;
+    let incomeCount = 0;
+    let expenseCount = 0;
     for (const t of transactions) {
       if (t.type === 'income') {
         totalIncome += t.amount;
+        incomeCount += 1;
       } else if (t.type === 'expense') {
         totalExpense += t.amount;
+        expenseCount += 1;
       }
     }
-    return { totalIncome, totalExpense };
+    return { totalIncome, totalExpense, incomeCount, expenseCount };
   }
 
   /**
@@ -236,6 +246,8 @@ export class StatisticsService {
       totalIncome: cur.totalIncome,
       totalExpense: cur.totalExpense,
       balance,
+      incomeCount: cur.incomeCount,
+      expenseCount: cur.expenseCount,
       incomeChange,
       incomeChangePercent,
       expenseChange,
@@ -249,7 +261,7 @@ export class StatisticsService {
    * GET /api/statistics/monthly-trend
    *
    * Returns monthly aggregated amounts for the last `months` months (default 6,
-   * max 24).  Missing months are filled with amount: 0.
+   * max 24).  Missing months are filled with 0.
    */
   async getMonthlyTrend(
     userId: string,
@@ -267,19 +279,27 @@ export class StatisticsService {
     const rangeStart = new Date(refEnd.getFullYear(), refEnd.getMonth() - (months - 1), 1);
     const startDateStr = rangeStart.toISOString().slice(0, 10);
 
-    const transactions = await this.queryTransactions(
+    // Query all transactions (both income and expense)
+    const allTransactions = await this.queryTransactions(
       userId,
       startDateStr,
       endDateStr,
-      type,
+      undefined, // no type filter - get both
       bookId,
     );
 
-    // Group by YYYY-MM
-    const monthMap: Record<string, number> = {};
-    for (const t of transactions) {
+    // Group by YYYY-MM and type
+    const monthMap: Record<string, { income: number; expense: number }> = {};
+    for (const t of allTransactions) {
       const key = t.date.slice(0, 7);
-      monthMap[key] = (monthMap[key] || 0) + t.amount;
+      if (!monthMap[key]) {
+        monthMap[key] = { income: 0, expense: 0 };
+      }
+      if (t.type === 'income') {
+        monthMap[key].income += t.amount;
+      } else if (t.type === 'expense') {
+        monthMap[key].expense += t.amount;
+      }
     }
 
     // Build ordered result, filling missing months with 0
@@ -287,7 +307,13 @@ export class StatisticsService {
     for (let i = months - 1; i >= 0; i--) {
       const d = new Date(refEnd.getFullYear(), refEnd.getMonth() - i, 1);
       const key = this.toYearMonth(d);
-      result.push({ month: key, amount: monthMap[key] || 0 });
+      const data = monthMap[key] || { income: 0, expense: 0 };
+      result.push({
+        month: key,
+        amount: type === 'income' ? data.income : data.expense,
+        income: data.income,
+        expense: data.expense,
+      });
     }
 
     return result;

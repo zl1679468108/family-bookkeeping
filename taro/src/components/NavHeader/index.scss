@@ -1,8 +1,11 @@
 /**
- * NavHeader v4 — 统一导航栏
- * 设计稿对齐：高度88rpx，标题居中，左右操作区
+ * NavHeader v5 — 固定顶部导航栏
+ * sticky 定位，始终可见，不影响 flex 流
  */
 .nav-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
   background-color: var(--color-card);
   border-bottom: 0.5px solid var(--color-border);
 }

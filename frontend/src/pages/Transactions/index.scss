@@ -1,0 +1,190 @@
+/* ═══ Transactions 流水查询模块样式 ═══ */
+
+/* 筛选栏 */
+.filter-sticky {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-50);
+  background: var(--bg);
+  padding: 10px 0 8px;
+  margin-bottom: 10px;
+}
+
+.filter-bar {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+  padding: 7px;
+  background: var(--srf);
+  border-radius: var(--rm);
+  border: 1px solid var(--bd);
+}
+
+.filter-chip {
+  padding: 5px 12px;
+  border: 1px solid var(--bd);
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--fg2);
+  cursor: pointer;
+  background: var(--srf);
+  transition: all var(--df);
+  white-space: nowrap;
+}
+
+.filter-chip:hover {
+  border-color: var(--prBd);
+}
+
+.filter-chip.active {
+  background: var(--fg);
+  color: #fff;
+  border-color: var(--fg);
+}
+
+.filter-summary {
+  font-size: 11px;
+  color: var(--fg3);
+  margin-left: auto;
+  white-space: nowrap;
+}
+
+.load-more {
+  text-align: center;
+  padding: 14px;
+  color: var(--fg3);
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.load-more:hover {
+  color: var(--pr);
+}
+
+/* 搜索框 */
+.srch-wrap {
+  position: relative;
+  flex: 1;
+  min-width: 140px;
+  max-width: 240px;
+}
+
+.srch-wrap input {
+  width: 100%;
+  padding: 7px 12px 7px 30px;
+  border: 1px solid var(--bd);
+  border-radius: 20px;
+  font-size: 12px;
+  font-family: var(--fn);
+  background: var(--bg);
+}
+
+.srch-wrap input:focus {
+  outline: none;
+  border-color: var(--pr);
+  box-shadow: 0 0 0 2px var(--prBg);
+}
+
+.srch-wrap .si {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--fg3);
+}
+
+/* 数据表格 */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.data-table th {
+  text-align: left;
+  padding: 8px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--fg3);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-bottom: 1px solid var(--bd);
+}
+
+.data-table td {
+  padding: 10px 12px;
+  font-size: 13px;
+  font-weight: 500;
+  border-bottom: 1px solid var(--bdL);
+  color: var(--fg);
+}
+
+.data-table tbody tr {
+  transition: background var(--df);
+  cursor: pointer;
+}
+
+.data-table tbody tr:hover {
+  background: var(--srfH);
+}
+
+.cell-amount {
+  font-weight: 700;
+  text-align: right;
+}
+
+.cell-amount.debit {
+  color: var(--exp);
+}
+
+.cell-amount.credit {
+  color: var(--inc);
+}
+
+.cell-cat {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 8px;
+  background: var(--bg);
+  border-radius: 14px;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+/* 分页 */
+.pagination-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 16px 0 8px;
+}
+
+.page-btn {
+  padding: 6px 16px;
+  font-size: 13px;
+  border-radius: 6px;
+  border: 1px solid var(--bd);
+  background: var(--surface);
+  color: var(--fg);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.page-btn:hover:not(:disabled) {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.page-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.page-info {
+  font-size: 13px;
+  color: var(--muted);
+}

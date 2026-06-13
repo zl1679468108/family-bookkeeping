@@ -3,12 +3,14 @@
  */
 export interface Category {
   id: string;
+  user_id: string;
   name: string;
   icon: string;
   type: 'expense' | 'income';
-  sort_order: number;
-  /** 是否为默认分类（后端使用 is_default） */
   is_default?: boolean;
+  sort_order: number;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface CreateCategoryInput {

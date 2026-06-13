@@ -9,9 +9,15 @@ import type { Category } from '../types/category'
  */
 export function useCategories(type?: 'expense' | 'income') {
   return useQuery({
-    queryKey: ['categories', type],
-    queryFn: () => fetchCategories(type),
+    queryKey: ['categories'],
+    queryFn: () => fetchCategories(),
     staleTime: 5 * 60 * 1000,
+    select: (data) => {
+      if (type) {
+        return data.filter(c => c.type === type);
+      }
+      return data;
+    }
   })
 }
 

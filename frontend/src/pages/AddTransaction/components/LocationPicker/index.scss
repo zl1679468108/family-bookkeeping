@@ -3,7 +3,7 @@
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.5);
-  z-index: 1000;
+  z-index: var(--z-modal);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -145,4 +145,24 @@
 .location-picker-actions {
   display: flex;
   gap: 8px;
+}
+
+/* 确认按钮 - 更明显的样式 */
+.location-picker-confirm-btn {
+  background: var(--accent) !important;
+  color: #fff !important;
+  border: none !important;
+  font-weight: 600 !important;
+  box-shadow: 0 2px 8px rgba(7, 193, 96, 0.3) !important;
+}
+
+.location-picker-confirm-btn:hover:not(:disabled) {
+  background: var(--accent-hover, #06a850) !important;
+  box-shadow: 0 4px 12px rgba(7, 193, 96, 0.4) !important;
+}
+
+.location-picker-confirm-btn:disabled {
+  opacity: 0.4 !important;
+  cursor: not-allowed !important;
+  box-shadow: none !important;
 }

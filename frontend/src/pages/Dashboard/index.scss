@@ -1,0 +1,267 @@
+/* ═══ Dashboard 模块样式 ═══ */
+
+/* 快捷操作 */
+.quick-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.quick-action {
+  background: var(--srf);
+  border: 1px solid var(--bd);
+  border-radius: var(--rl);
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  transition: all var(--dn, 0.25s) var(--ease, ease);
+}
+
+.quick-action:hover {
+  border-color: var(--prBd);
+  box-shadow: var(--sh2);
+}
+
+.qa-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: var(--rm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  flex-shrink: 0;
+}
+
+.qa-icon.add {
+  background: var(--prBg);
+  color: var(--pr);
+}
+
+.qa-icon.report {
+  background: var(--infoBg);
+  color: var(--info);
+}
+
+.qa-info h4 {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--fg);
+}
+
+.qa-info p {
+  font-size: 11px;
+  color: var(--fg3);
+}
+
+/* 统计卡片 */
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.stat-card {
+  background: var(--srf);
+  border-radius: var(--rl);
+  border: 1px solid var(--bd);
+  padding: 20px 22px;
+  transition: all var(--dn) var(--ease);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 100px;
+}
+
+.stat-card:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--sh2);
+}
+
+.stat-card.hero {
+  background: var(--prGr);
+  border: none;
+  color: #fff;
+}
+
+.stat-card.hero .stat-label {
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.stat-card.hero .stat-sub {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.stat-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.stat-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--rs);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+}
+
+.stat-icon.inc {
+  background: var(--incBg);
+  color: var(--inc);
+}
+
+.stat-icon.exp {
+  background: var(--expBg);
+  color: var(--exp);
+}
+
+.stat-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--fg3);
+}
+
+.stat-value {
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.stat-card:not(.hero) .stat-value {
+  color: var(--fg);
+}
+
+.stat-card.hero .stat-value {
+  color: #fff;
+}
+
+.stat-sub {
+  font-size: 11px;
+  color: var(--fg3);
+  margin-top: 2px;
+}
+
+/* Dashboard 卡片网格 */
+.dash-grid {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.dash-card {
+  background: var(--srf);
+  border-radius: var(--rl);
+  border: 1px solid var(--bd);
+  padding: 18px 22px;
+  transition: all var(--dn) var(--ease);
+}
+
+.dash-card:hover {
+  box-shadow: var(--sh1);
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  background: var(--srf);
+}
+
+.card-header h3 {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.card-action {
+  font-size: 12px;
+  color: var(--pr);
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.card-action:hover {
+  opacity: 0.8;
+}
+
+/* 交易列表 */
+.txn-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  background: var(--bdL);
+  border-radius: var(--rs);
+  overflow: hidden;
+}
+
+.txn-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: var(--srf);
+  transition: background var(--df);
+  cursor: pointer;
+}
+
+.txn-row:hover {
+  background: var(--srfH);
+}
+
+.txn-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--rs);
+  background: var(--bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  flex-shrink: 0;
+}
+
+.txn-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.txn-title {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.txn-meta {
+  font-size: 11px;
+  color: var(--fg3);
+  margin-top: 1px;
+  display: flex;
+  gap: 6px;
+}
+
+.txn-amount {
+  font-size: 14px;
+  font-weight: 700;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.txn-amount.debit {
+  color: var(--exp);
+}
+
+.txn-amount.credit {
+  color: var(--inc);
+}
+
+.txn-sign {
+  font-size: 11px;
+  font-weight: 600;
+}

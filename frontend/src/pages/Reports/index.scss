@@ -1,14 +1,69 @@
-/* Reports 页面样式 */
+/* ═══ Reports 报表模块样式 ═══ */
 
-.charts-grid {
-  display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: 20px;
-  margin-bottom: 32px;
+/* Tab 切换 */
+.reports-tab-row {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 12px;
+  padding: 4px;
+  background: var(--srf);
+  border: 1px solid var(--bd);
+  border-radius: var(--rm);
+  width: fit-content;
 }
 
-@media (max-width: 1024px) {
-  .charts-grid {
-    grid-template-columns: 1fr;
-  }
+.reports-tab {
+  padding: 8px 18px;
+  border: none;
+  background: transparent;
+  border-radius: var(--rs);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--fg2);
+  cursor: pointer;
+  font-family: var(--fn);
+  transition: all var(--df);
+}
+
+.reports-tab:hover {
+  color: var(--fg);
+}
+
+.reports-tab.active {
+  background: var(--pr);
+  color: #fff;
+}
+
+/* 报表切换行 */
+.rprs-row {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 14px;
+  padding: 3px;
+  background: var(--srf);
+  border-radius: var(--rm);
+  border: 1px solid var(--bd);
+  width: fit-content;
+}
+
+.rprs {
+  padding: 6px 14px;
+  border: none;
+  background: transparent;
+  border-radius: var(--rs);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--fg2);
+  cursor: pointer;
+  font-family: var(--fn);
+  transition: all var(--df);
+}
+
+.rprs:hover {
+  color: var(--fg);
+}
+
+.rprs.active {
+  background: var(--fg);
+  color: #fff;
 }

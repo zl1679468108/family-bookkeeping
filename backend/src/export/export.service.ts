@@ -61,7 +61,7 @@ export class ExportService {
 
     // 创建工作簿
     const workbook = new ExcelJS.Workbook();
-    workbook.creator = '家庭记账应用';
+    workbook.creator = '静记';
     workbook.created = new Date();
 
     // 创建工作表

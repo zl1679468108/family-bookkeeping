@@ -5,8 +5,8 @@
  * Image 组件 src 使用绝对路径 /assets/icons/xxx.svg
  *
  * 颜色方案：
- * - 绿色图标（选中状态）：xxx.svg（stroke="#5B9A7A"）
- * - 灰色图标（未选中状态）：xxx-gray.svg（stroke="#B0ADA6"）
+ * - 绿色图标（选中状态）：xxx.svg（stroke="#2D9D8A"）
+ * - 灰色图标（未选中状态）：xxx-gray.svg（stroke="#8B8E89"）
  * - 传了 color prop：动态创建 SVG（用 View + mask 方案）
  */
 import { View, Image } from "@tarojs/components";

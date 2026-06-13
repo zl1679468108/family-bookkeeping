@@ -59,7 +59,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
   return (
     <NotificationContext.Provider value={value}>
       {children}
-      <div className="fixed top-4 right-4 z-50 flex w-full max-w-sm flex-col gap-3 px-4 pointer-events-none">
+      <div className="fixed top-4 right-4 z-[3000] flex w-full max-w-sm flex-col gap-3 px-4 pointer-events-none">
         {notifications.map((item) => (
           <div
             key={item.id}
@@ -72,7 +72,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
             }`}
           >
             <div className="flex items-start justify-between gap-3">
-              <p className="text-sm leading-5">{item.message}</p>
+              <p className="text-sm leading-5 break-words whitespace-pre-wrap max-h-40 overflow-auto">{item.message}</p>
               <button
                 type="button"
                 onClick={() => setNotifications((current) => current.filter((notification) => notification.id !== item.id))}

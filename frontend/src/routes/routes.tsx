@@ -11,116 +11,34 @@ const ForgotPassword = lazy(() => import('../pages/User/ForgotPassword'))
 const Categories = lazy(() => import('../pages/Categories'))
 const Budgets = lazy(() => import('../pages/Budgets'))
 const Books = lazy(() => import('../pages/Books'))
-const BookMembers = lazy(() => import('../pages/BookMembers'))
-const BookSettings = lazy(() => import('../pages/BookSettings'))
 const MapPage = lazy(() => import('../pages/Map'))
 const Calendar = lazy(() => import('../pages/Calendar'))
-const TemplateManager = lazy(() => import('../pages/TemplateManager'))
+const Templates = lazy(() => import('../pages/Templates'))
 const AnnualReport = lazy(() => import('../pages/AnnualReport'))
 const Profile = lazy(() => import('../pages/User/Profile'))
 const AdminDashboard = lazy(() => import('../pages/Admin/AdminDashboard'))
 const AdminUsers = lazy(() => import('../pages/Admin/AdminUsers'))
 const AdminTransactions = lazy(() => import('../pages/Admin/AdminTransactions'))
+const Onboarding = lazy(() => import('../pages/Onboarding'))
 
 export const routes: RouteConfig[] = [
-  {
-    path: '/login',
-    element: <Login />,
-    isPrivate: false,
-  },
-  {
-    path: '/register',
-    element: <Register />,
-    isPrivate: false,
-  },
-  {
-    path: '/forgot-password',
-    element: <ForgotPassword />,
-    isPrivate: false,
-  },
-  {
-    path: '/',
-    element: <Dashboard />,
-    isPrivate: true,
-  },
-  {
-    path: '/transactions',
-    element: <Transactions />,
-    isPrivate: true,
-  },
-  {
-    path: '/reports',
-    element: <Reports />,
-    isPrivate: true,
-  },
-  {
-    path: '/add',
-    element: <AddTransaction />,
-    isPrivate: true,
-  },
-  {
-    path: '/categories',
-    element: <Categories />,
-    isPrivate: true,
-  },
-  {
-    path: '/budgets',
-    element: <Budgets />,
-    isPrivate: true,
-  },
-  {
-    path: '/books',
-    element: <Books />,
-    isPrivate: true,
-  },
-  {
-    path: '/books/:id/members',
-    element: <BookMembers />,
-    isPrivate: true,
-  },
-  {
-    path: '/books/:id/settings',
-    element: <BookSettings />,
-    isPrivate: true,
-  },
-  {
-    path: '/map',
-    element: <MapPage />,
-    isPrivate: true,
-  },
-  {
-    path: '/calendar',
-    element: <Calendar />,
-    isPrivate: true,
-  },
-  {
-    path: '/templates',
-    element: <TemplateManager />,
-    isPrivate: true,
-  },
-  {
-    path: '/annual-report',
-    element: <AnnualReport />,
-    isPrivate: true,
-  },
-  {
-    path: '/profile',
-    element: <Profile />,
-    isPrivate: true,
-  },
-  {
-    path: '/admin',
-    element: <AdminDashboard />,
-    isPrivate: true,
-  },
-  {
-    path: '/admin/users',
-    element: <AdminUsers />,
-    isPrivate: true,
-  },
-  {
-    path: '/admin/transactions',
-    element: <AdminTransactions />,
-    isPrivate: true,
-  },
+  { path: '/login', element: <Login />, isPrivate: false },
+  { path: '/register', element: <Register />, isPrivate: false },
+  { path: '/forgot-password', element: <ForgotPassword />, isPrivate: false },
+  { path: '/onboarding', element: <Onboarding />, isPrivate: true },
+  { path: '/', element: <Dashboard />, isPrivate: true },
+  { path: '/transactions', element: <Transactions />, isPrivate: true },
+  { path: '/reports', element: <Reports />, isPrivate: true },
+  { path: '/add', element: <AddTransaction />, isPrivate: true },
+  { path: '/categories', element: <Categories />, isPrivate: true },
+  { path: '/budgets', element: <Budgets />, isPrivate: true },
+  { path: '/books', element: <Books />, isPrivate: true },
+  { path: '/map', element: <MapPage />, isPrivate: true },
+  { path: '/calendar', element: <Calendar />, isPrivate: true },
+  { path: '/templates', element: <Templates />, isPrivate: true },
+  { path: '/annual-report', element: <AnnualReport />, isPrivate: true },
+  { path: '/profile', element: <Profile />, isPrivate: true },
+  { path: '/admin', element: <AdminDashboard />, isPrivate: true },
+  { path: '/admin/users', element: <AdminUsers />, isPrivate: true },
+  { path: '/admin/transactions', element: <AdminTransactions />, isPrivate: true },
 ]

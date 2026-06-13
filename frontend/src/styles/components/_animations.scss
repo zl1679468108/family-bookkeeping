@@ -1,0 +1,48 @@
+/* ═══ 动画样式 ═══ */
+
+/* Tooltip 淡入动画 */
+@keyframes tooltipFadeIn {
+  from { opacity: 0; transform: translateX(-50%) translateY(2px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+/* 骨架屏动画 */
+@keyframes skeletonShimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* 淡入动画 */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* 缩放淡入动画 */
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* 上浮淡入动画 */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Spotlight 聚焦脉冲动画 */
+@keyframes spotlightPulse {
+  0%, 100% { box-shadow: 0 0 0 0 var(--prBg); }
+  50% { box-shadow: 0 0 0 6px var(--prBg); }
+}
+
+/* Spotlight 边框辉光动画 */
+@keyframes spotlightBorderGlow {
+  0%, 100% { box-shadow: 0 0 4px var(--prBg); }
+  50% { box-shadow: 0 0 12px var(--prBg); }
+}
+
+/* 旋转动画 (用于按钮加载) */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}

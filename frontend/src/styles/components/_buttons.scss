@@ -1,0 +1,81 @@
+/* ═══ 全局按钮系统 ═══ */
+.btn {
+  padding: 8px 16px;
+  border-radius: var(--rs);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: all 0.15s ease;
+  font-family: var(--fn);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-primary {
+  background: var(--fg);
+  color: #fff;
+}
+.btn-primary:hover {
+  background: #000;
+}
+.btn-primary:disabled {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.btn-secondary {
+  background: var(--srf);
+  color: var(--fg);
+  border: 1px solid var(--bd);
+}
+.btn-secondary:hover {
+  background: var(--bg);
+}
+
+.btn-outline {
+  background: transparent;
+  color: var(--pr);
+  border: 1px solid var(--prBd);
+}
+.btn-outline:hover {
+  background: var(--prBg);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--fg2);
+}
+.btn-ghost:hover {
+  background: var(--bg);
+}
+
+.btn-danger {
+  background: var(--exp);
+  color: #fff;
+}
+.btn-danger:hover {
+  background: #c05045;
+}
+
+/* 按钮尺寸变体 */
+.btn-sm { padding: 5px 12px; font-size: 11px; }
+.btn-xs { padding: 3px 8px; font-size: 10px; }
+
+/* 加载态 */
+.btn-saving {
+  pointer-events: none;
+  opacity: 0.8;
+}
+.btn-saving::after {
+  content: '';
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border: 2px solid transparent;
+  border-top-color: currentColor;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+  margin-left: 6px;
+}

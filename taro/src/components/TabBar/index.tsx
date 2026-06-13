@@ -15,10 +15,6 @@ export default function TabBar() {
     Taro.switchTab({ url: path });
   };
 
-  const handleFabClick = () => {
-    Taro.switchTab({ url: "/pages/AddTransaction/index" });
-  };
-
   const homeActive = isActive("/pages/Home/index");
   const txActive = isActive("/pages/Transactions/index");
   const statsActive = isActive("/pages/Statistics/index");
@@ -50,10 +46,6 @@ export default function TabBar() {
         </Text>
       </View>
 
-      <View className="tab-bar-fab" onClick={handleFabClick}>
-        <Text className="tab-bar-fab-icon">+</Text>
-      </View>
-
       <View
         className="tab-bar-item"
         onClick={() => handleClick("/pages/Statistics/index")}
@@ -62,7 +54,7 @@ export default function TabBar() {
         <Text
           className={`tab-bar-label ${statsActive ? "tab-bar-label--active" : ""}`}
         >
-          统计
+          报表
         </Text>
       </View>
 

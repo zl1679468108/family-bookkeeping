@@ -118,4 +118,15 @@ export class AuthController {
     await this.authService.changePassword(user.id, dto);
     return { message: '密码修改成功', data: null };
   }
+
+  @UseGuards(TokenAuthGuard)
+  @Put('current-book')
+  @HttpCode(HttpStatus.OK)
+  async setCurrentBook(
+    @CurrentUser() user: { id: string },
+    @Body('book_id') bookId: string,
+  ) {
+    await this.authService.setCurrentBook(user.id, bookId);
+    return { message: '设置当前账本成功', data: { book_id: bookId } };
+  }
 }

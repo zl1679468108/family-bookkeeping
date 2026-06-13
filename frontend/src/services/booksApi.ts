@@ -7,13 +7,13 @@ export const fetchBooks = async (): Promise<Book[]> => {
 };
 
 /** 创建账本 */
-export const createBook = async (name: string): Promise<Book> => {
-  return request<Book>('/books', { method: 'POST', requiresAuth: true, body: { name } });
+export const createBook = async (data: { name: string; description?: string; icon?: string }): Promise<Book> => {
+  return request<Book>('/books', { method: 'POST', requiresAuth: true, body: data });
 };
 
-/** 重命名账本 */
-export const renameBook = async (id: string, name: string): Promise<Book> => {
-  return request<Book>(`/books/${id}`, { method: 'PUT', requiresAuth: true, body: { name } });
+/** 更新账本 */
+export const updateBook = async (data: { id: string; name: string; description?: string; icon?: string }): Promise<Book> => {
+  return request<Book>(`/books/${data.id}`, { method: 'PUT', requiresAuth: true, body: { name: data.name, description: data.description, icon: data.icon } });
 };
 
 /** 删除账本 */
@@ -55,5 +55,34 @@ export const transferOwner = async (
     method: 'PUT',
     requiresAuth: true,
     body: { newOwnerEmail, password },
+  });
+};
+
+/** 生成账本邀请码（Owner 专用） */
+export const createInvitation = async (
+  bookId: string,
+): Promise<{ code: string; book_name: string; expires_at: string }> => {
+  return request<{ code: string; book_name: string; expires_at: string }>(`/books/${bookId}/invitations`, {
+    method: 'POST',
+    requiresAuth: true,
+  });
+};
+
+/** 查询邀请码对应的账本信息 */
+export const getInvitation = async (
+  code: string,
+): Promise<{ book_id: string; book_name: string; expires_at: string } | null> => {
+  return request<{ book_id: string; book_name: string; expires_at: string } | null>(`/books/invitations/${code}`, {
+    requiresAuth: true,
+  });
+};
+
+/** 使用邀请码加入账本 */
+export const joinByInvitation = async (
+  code: string,
+): Promise<{ book_id: string; book_name: string }> => {
+  return request<{ book_id: string; book_name: string }>(`/books/invitations/${code}/join`, {
+    method: 'POST',
+    requiresAuth: true,
   });
 };

@@ -5,6 +5,7 @@ export interface BudgetRecord {
   id: string;
   user_id: string;
   category: string;
+  book_id?: string;
   amount: number;
   month: string;
   created_at: string;

@@ -2,21 +2,110 @@ import React, { useState, useEffect, useRef } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../../utils/auth'
 import { ThemeToggle } from '../../utils/theme'
-import { BookSwitcher } from '../BookSwitcher'
 import { Skeleton } from '../ui/Skeleton'
+import { useQuery } from '@tanstack/react-query'
+import { fetchBudgetStatus } from '../../services/budgetsApi'
+import { useBook } from '../../hooks/useBook'
+import { format } from 'date-fns'
+import { useDebouncedAction } from '../../hooks/useDebouncedAction'
 import './index.scss'
 
+// SVG 图标组件 - 直接定义SVG元素，与设计稿一致
+const Icons = {
+  dashboard: (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="3" width="7" height="7" rx="1" />
+      <rect x="14" y="3" width="7" height="7" rx="1" />
+      <rect x="3" y="14" width="7" height="7" rx="1" />
+      <rect x="14" y="14" width="7" height="7" rx="1" />
+    </svg>
+  ),
+  transactions: (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <line x1="8" y1="6" x2="21" y2="6" /><line x1="8" y1="12" x2="21" y2="12" />
+      <line x1="8" y1="18" x2="21" y2="18" /><line x1="3" y1="6" x2="3.01" y2="6" />
+    </svg>
+  ),
+  add: (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <line x1="12" y1="5" x2="12" y2="19" />
+      <line x1="5" y1="12" x2="19" y2="12" />
+    </svg>
+  ),
+  budgets: (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="10" />
+      <polyline points="12 6 12 12 16 14" />
+    </svg>
+  ),
+  reports: (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M21.21 15.89A10 10 0 1 1 8 2.83" />
+      <path d="M22 12A10 10 0 0 0 12 2v10z" />
+    </svg>
+  ),
+  'annual-report': (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+      <polyline points="14 2 14 8 20 8" />
+      <line x1="16" y1="13" x2="8" y2="13" />
+      <line x1="16" y1="17" x2="8" y2="17" />
+    </svg>
+  ),
+  books: (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+      <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+    </svg>
+  ),
+  calendar: (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="4" width="18" height="18" rx="2" />
+      <line x1="16" y1="2" x2="16" y2="6" />
+      <line x1="8" y1="2" x2="8" y2="6" />
+      <line x1="3" y1="10" x2="21" y2="10" />
+    </svg>
+  ),
+  templates: (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="3" width="18" height="18" rx="2" />
+      <line x1="3" y1="9" x2="21" y2="9" />
+      <line x1="9" y1="21" x2="9" y2="9" />
+    </svg>
+  ),
+  categories: (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="2" y="7" width="20" height="14" rx="2" />
+      <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
+    </svg>
+  ),
+  map: (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M9 3L3 6v15l6-3 6 3 6-3V3l-6 3-6-3z" />
+      <line x1="9" y1="3" x2="9" y2="18" />
+      <line x1="15" y1="6" x2="15" y2="21" />
+    </svg>
+  ),
+}
+
 const NAV_ITEMS = [
-  { id: 'dashboard', name: '概览', path: '/', icon: 'M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4z M3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6z M11 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z' },
-  { id: 'add', name: '记一笔', path: '/add', icon: 'M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z' },
-  { id: 'templates', name: '交易模板', path: '/templates', icon: 'M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z' },
-  { id: 'transactions', name: '交易记录', path: '/transactions', icon: 'M4 4a2 2 0 012-2h8a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm3 1a1 1 0 000 2h6a1 1 0 100-2H7z M7 8a1 1 0 011-1h4a1 1 0 011 1v2a1 1 0 01-1 1H8a1 1 0 01-1-1V8z' },
-  { id: 'reports', name: '统计报表', path: '/reports', icon: 'M2 10a8 8 0 018-8v8h8a8 8 0 11-16 0z M12 2.252A8.014 8.014 0 0117.748 8H12V2.252z' },
-  { id: 'map', name: '消费地图', path: '/map', icon: 'M12 1.586l-4 4v12.828l4-4V1.586zM3.707 3.293A1 1 0 002 4v10a1 1 0 00.293.707L6 18.414V5.586L3.707 3.293zM17.707 5.293L14 1.586v12.828l2.293 2.293A1 1 0 0018 16V6a1 1 0 00-.293-.707z' },
-  { id: 'calendar', name: '现金流日历', path: '/calendar', icon: 'M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z' },
-  { id: 'budgets', name: '预算管理', path: '/budgets', icon: 'M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z' },
-  { id: 'categories', name: '分类管理', path: '/categories', icon: 'M7 7h-.01M3 6a3 3 0 013-3h8a3 3 0 013 3v8a3 3 0 01-3 3H6a3 3 0 01-3-3V6z' },
-  { id: 'annual-report', name: '年度报告', path: '/annual-report', icon: 'M9 2a1 1 0 000 2h2a1 1 0 100-2H9z M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z' },
+  { id: 'dashboard', name: '首页', path: '/', type: 'normal' },
+  { id: 'transactions', name: '流水', path: '/transactions', type: 'normal' },
+  { id: 'add', name: '记一笔', path: '/add', type: 'add' },
+  { id: 'budgets', name: '预算', path: '/budgets', type: 'normal' },
+  { id: 'reports', name: '报表', path: '/reports', type: 'normal' },
+  { id: 'annual-report', name: '年报', path: '/annual-report', type: 'normal' },
+  { id: 'books', name: '账本', path: '/books', type: 'normal' },
+  { id: 'calendar', name: '日历', path: '/calendar', type: 'normal' },
+  { id: 'templates', name: '模板', path: '/templates', type: 'normal' },
+  { id: 'categories', name: '分类', path: '/categories', type: 'normal' },
+  { id: 'map', name: '地图', path: '/map', type: 'normal' },
+]
+
+const ADMIN_ITEMS = [
+  { id: 'admin-dashboard', name: '数据看板', path: '/admin', type: 'normal' },
+  { id: 'admin-users', name: '用户管理', path: '/admin/users', type: 'normal' },
+  { id: 'admin-transactions', name: '交易监控', path: '/admin/transactions', type: 'normal' },
 ]
 
 const COLLAPSED_KEY = 'sidebar_collapsed'
@@ -25,6 +114,9 @@ export const Sidebar: React.FC = () => {
   const navigate = useNavigate()
   const location = useLocation()
   const { user, signOut, loading } = useAuth()
+  const { run: handleLogout, isRunning: logoutLoading } = useDebouncedAction(async () => {
+    try { await signOut(); navigate('/login') } catch (e) { console.error(e) }
+  })
   const [collapsed, setCollapsed] = useState(() => localStorage.getItem(COLLAPSED_KEY) === 'true')
   const [menuOpen, setMenuOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
@@ -49,32 +141,51 @@ export const Sidebar: React.FC = () => {
   const getActiveId = () => {
     const p = location.pathname
     if (p === '/') return 'dashboard'
-    for (const item of NAV_ITEMS) {
-      if (item.path !== '/' && p.startsWith(item.path)) return item.id
+    const allItems = [...NAV_ITEMS, ...ADMIN_ITEMS]
+    let matchedItem = null
+    let maxLength = 0
+    for (const item of allItems) {
+      if (item.path !== '/' && p.startsWith(item.path)) {
+        if (item.path.length > maxLength) {
+          maxLength = item.path.length
+          matchedItem = item
+        }
+      }
     }
-    return 'dashboard'
+    return matchedItem?.id || 'dashboard'
   }
   const activeId = getActiveId()
-
-  const handleLogout = async () => {
-    try { await signOut(); navigate('/login') } catch (e) { console.error(e) }
-  }
 
   const handleProfile = () => {
     setMenuOpen(false)
     navigate('/profile')
   }
 
-  const avatarChar = user?.username?.charAt(0) || user?.email?.charAt(0) || 'U'
   const displayName = user?.username || '用户'
   const displayEmail = user?.email || ''
+  const avatarChar = (() => {
+    const name = user?.username || user?.email || '用户'
+    const chineseChar = name.match(/[\u4e00-\u9fa5]/)
+    if (chineseChar) return chineseChar[0]
+    return name.charAt(0).toUpperCase() || 'U'
+  })()
+
+  // 获取预算状态，计算超预算数量
+  const currentMonth = format(new Date(), 'yyyy-MM-dd')
+  const { hasBooks } = useBook()
+  const { data: budgetStatus } = useQuery({
+    queryKey: ['budgets', 'status', currentMonth],
+    queryFn: () => fetchBudgetStatus(currentMonth),
+    enabled: !collapsed && hasBooks, // 只在展开时且已有账本时获取数据
+  })
+  const overBudgetCount = budgetStatus?.categories?.filter(c => c.status === 'over').length || 0
 
   return (
     <aside className={`app-sidebar${collapsed ? ' collapsed' : ''}`}>
-      {/* Logo */}
+      {/* Logo — 静记 */}
       <div className="sidebar-logo">
-        <div className="sidebar-logo-icon">¥</div>
-        {!collapsed && <span className="sidebar-logo-text">家庭记账</span>}
+        <div className="sidebar-logo-icon">静</div>
+        {!collapsed && <span className="sidebar-logo-text">静记</span>}
       </div>
 
       {/* 折叠按钮 */}
@@ -82,31 +193,62 @@ export const Sidebar: React.FC = () => {
         title={collapsed ? '展开' : '折叠'}>
         <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor">
           {collapsed ? (
-            <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd"/>
+            <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
           ) : (
-            <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd"/>
+            <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
           )}
         </svg>
       </button>
 
-      {/* 账本切换 */}
-      <div className="sidebar-book-area">
-        <BookSwitcher />
-      </div>
-
       {/* 导航 */}
       <nav className="sidebar-nav">
-        {NAV_ITEMS.map((item) => (
+        {/* 主菜单 */}
+        {!collapsed && <div className="sidebar-nav-sep">主菜单</div>}
+        {NAV_ITEMS.slice(0, 6).map((item) => (
+          <button key={item.id}
+            className={`sidebar-nav-item${activeId === item.id ? ' active' : ''}${item.type === 'add' ? ' sidebar-nav-item--add' : ''}`}
+            onClick={() => navigate(item.path)}
+            title={collapsed ? item.name : undefined}>
+            <span className="sidebar-nav-icon">
+              {Icons[item.id as keyof typeof Icons]}
+            </span>
+            {!collapsed && <span className="sidebar-nav-label">{item.name}</span>}
+            {item.id === 'budgets' && !collapsed && overBudgetCount >= 1 && (
+              <span className="sidebar-nav-badge" id="budgetBadge">{overBudgetCount > 99 ? '99+' : overBudgetCount}</span>
+            )}
+          </button>
+        ))}
+        {/* 更多 */}
+        {!collapsed && <div className="sidebar-nav-sep">更多</div>}
+        {NAV_ITEMS.slice(6).map((item) => (
           <button key={item.id}
             className={`sidebar-nav-item${activeId === item.id ? ' active' : ''}`}
             onClick={() => navigate(item.path)}
             title={collapsed ? item.name : undefined}>
-            <svg viewBox="0 0 20 20" fill="currentColor" className="sidebar-nav-icon">
-              <path fillRule="evenodd" d={item.icon} clipRule="evenodd"/>
-            </svg>
+            <span className="sidebar-nav-icon">
+              {Icons[item.id as keyof typeof Icons]}
+            </span>
             {!collapsed && <span className="sidebar-nav-label">{item.name}</span>}
           </button>
         ))}
+
+        {/* 管理员菜单 */}
+        {user?.role === 'admin' && (
+          <>
+            {!collapsed && <div className="sidebar-nav-sep">管理后台</div>}
+            {ADMIN_ITEMS.map((item) => (
+              <button key={item.id}
+                className={`sidebar-nav-item${activeId === item.id ? ' active' : ''}`}
+                onClick={() => navigate(item.path)}
+                title={collapsed ? item.name : undefined}>
+                <span className="sidebar-nav-icon">
+                  {Icons[item.id === 'admin-dashboard' ? 'dashboard' : item.id === 'admin-users' ? 'books' : 'transactions']}
+                </span>
+                {!collapsed && <span className="sidebar-nav-label">{item.name}</span>}
+              </button>
+            ))}
+          </>
+        )}
       </nav>
 
       {/* 底部：个人中心 + 浮动菜单 */}
@@ -122,23 +264,23 @@ export const Sidebar: React.FC = () => {
             )}
           </div>
         ) : (
-        <button className="sidebar-user-btn" onClick={() => setMenuOpen(!menuOpen)}>
-          <div className="sidebar-user-avatar">
-            {user?.avatar_url ? (
-              <img src={user.avatar_url} alt="" />
-            ) : (
-              avatarChar
+          <button className="sidebar-user-btn" onClick={() => setMenuOpen(!menuOpen)}>
+            <div className="sidebar-user-avatar">
+              {user?.avatar_url ? (
+                <img src={user.avatar_url} alt="" />
+              ) : (
+                avatarChar
+              )}
+            </div>
+            {!collapsed && (
+              <>
+                <span className="sidebar-user-name">{displayName}</span>
+                <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor" className={`sidebar-user-arrow${menuOpen ? ' open' : ''}`} style={{ marginLeft: 'auto' }}>
+                  <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                </svg>
+              </>
             )}
-          </div>
-          {!collapsed && (
-            <>
-              <span className="sidebar-user-name">{displayName}</span>
-              <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor" className={`sidebar-user-arrow${menuOpen ? ' open' : ''}`} style={{ marginLeft: 'auto' }}>
-                <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd"/>
-              </svg>
-            </>
-          )}
-        </button>
+          </button>
         )}
 
         {/* 浮动菜单 */}
@@ -163,17 +305,20 @@ export const Sidebar: React.FC = () => {
             </div>
             <div className="user-menu-divider" />
             <button className="user-menu-item" onClick={handleProfile}>
-              <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd"/>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                <circle cx="12" cy="7" r="4" />
               </svg>
               个人信息
             </button>
             <div className="user-menu-divider" />
-            <button className="user-menu-item user-menu-item--danger" onClick={handleLogout}>
-              <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 001 1h12a1 1 0 001-1V4a1 1 0 00-1-1H3zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z" clipRule="evenodd"/>
+            <button className="user-menu-item user-menu-item--danger" onClick={handleLogout} disabled={logoutLoading}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                <polyline points="16 17 21 12 16 7" />
+                <line x1="21" y1="12" x2="9" y2="12" />
               </svg>
-              退出登录
+              {logoutLoading ? '退出中...' : '退出登录'}
             </button>
           </div>
         )}

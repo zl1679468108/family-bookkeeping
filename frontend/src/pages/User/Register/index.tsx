@@ -1,122 +1,116 @@
-import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '../../../utils/auth';
-import { notify } from '../../../utils/notifications';
-import { Button } from '../../../components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../../../components/ui/card';
-import { Input } from '../../../components/ui/input';
-import { Label } from '../../../components/ui/label';
+import React, { useState } from 'react'
+import { useNavigate, Link } from 'react-router-dom'
+import { useAuth } from '../../../utils/auth'
+import { useDebouncedAction } from '../../../hooks/useDebouncedAction'
+import { notify } from '../../../utils/notifications'
+import AuthLayout from '../../../components/AuthLayout'
+import { RegisterIllustration } from '../../../components/AuthLayout/AuthIllustrations'
 
 const RegisterPage: React.FC = () => {
-  const [username, setUsername] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [loading, setLoading] = useState(false);
-  const { signUp } = useAuth();
-  const navigate = useNavigate();
+  const [username, setUsername] = useState('')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const { signUp } = useAuth()
+  const navigate = useNavigate()
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
+  const { run: handleSubmit, isRunning: loading } = useDebouncedAction(async () => {
     if (password !== confirmPassword) {
-      notify({ type: 'error', message: '两次输入的密码不一致' });
-      return;
+      notify({ type: 'error', message: '两次输入的密码不一致' })
+      return
     }
 
     if (password.length < 6) {
-      notify({ type: 'error', message: '密码长度至少为6位' });
-      return;
+      notify({ type: 'error', message: '密码长度至少为6位' })
+      return
     }
-
-    setLoading(true);
 
     try {
-      await signUp(email, password, username);
-      navigate('/');
+      await signUp(email, password, username)
+      navigate('/')
     } catch {
       // 错误已由全局通知处理
-    } finally {
-      setLoading(false);
     }
-  };
+  })
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div className="text-center">
-          <h1 className="text-3xl font-bold text-gray-900">家庭记账</h1>
-          <p className="mt-2 text-sm text-gray-600">创建您的账户</p>
+    <AuthLayout
+      illustration={<RegisterIllustration />}
+      title="开始记账"
+      subtitle={
+        <>
+          <p>加入静记，开启智能记账之旅</p>
+          <p>让每一笔收支都一目了然</p>
+        </>
+      }
+    >
+      <h3>创建账户</h3>
+      <p className="form-desc">填写以下信息注册新账户</p>
+
+      <form onSubmit={(e) => { e.preventDefault(); handleSubmit() }}>
+        <div className="form-group">
+          <label htmlFor="regUser">用户名</label>
+          <input
+            id="regUser"
+            type="text"
+            placeholder="您的昵称"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            required
+            autoComplete="name"
+          />
         </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>注册账户</CardTitle>
-            <CardDescription>填写以下信息创建新账户</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="username">用户名</Label>
-                <Input
-                  id="username"
-                  type="text"
-                  placeholder="您的姓名"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="email">邮箱</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="name@example.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="password">密码</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="confirmPassword">确认密码</Label>
-                <Input
-                  id="confirmPassword"
-                  type="password"
-                  placeholder="••••••••"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  required
-                />
-              </div>
-              <Button type="submit" className="w-full" disabled={loading}>
-                {loading ? '注册中...' : '注册'}
-              </Button>
-            </form>
-          </CardContent>
-          <CardFooter>
-            <div className="text-sm text-gray-500 text-center w-full">
-              已有账户？{' '}
-              <Link to="/login" className="text-blue-600 hover:text-blue-500">
-                立即登录
-              </Link>
-            </div>
-          </CardFooter>
-        </Card>
-      </div>
-    </div>
-  );
-};
+        <div className="form-group">
+          <label htmlFor="regEmail">邮箱地址</label>
+          <input
+            id="regEmail"
+            type="email"
+            placeholder="your@email.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            autoComplete="email"
+          />
+        </div>
 
-export default RegisterPage;
+        <div className="form-row">
+          <div className="form-group">
+            <label htmlFor="regPass">密码</label>
+            <input
+              id="regPass"
+              type="password"
+              placeholder="至少6位"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              autoComplete="new-password"
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="regPass2">确认密码</label>
+            <input
+              id="regPass2"
+              type="password"
+              placeholder="再次输入"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              required
+              autoComplete="new-password"
+            />
+          </div>
+        </div>
+
+        <button type="submit" className="btn-submit" disabled={loading}>
+          {loading ? '注册中...' : '注 册'}
+        </button>
+      </form>
+
+      <div className="form-links" style={{ justifyContent: 'center' }}>
+        <Link to="/login">已有账户？立即登录</Link>
+      </div>
+    </AuthLayout>
+  )
+}
+
+export default RegisterPage

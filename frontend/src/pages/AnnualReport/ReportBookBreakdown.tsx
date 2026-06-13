@@ -11,7 +11,7 @@ interface Props {
   data: BookItem[];
 }
 
-const COLORS = ['#3b82f6', '#ef4444', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899'];
+const COLORS = ['#2D9D8A', '#ef4444', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899'];
 
 const ReportBookBreakdown: React.FC<Props> = ({ data }) => {
   if (!data || data.length <= 1) return null;

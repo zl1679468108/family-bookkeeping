@@ -1,41 +1,19 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { startOfMonth, format } from 'date-fns'
-import { Info } from 'lucide-react'
-import { Header } from '../../components/Header'
-import { Button } from '../../components/ui/button'
-import { StatCard } from '../../components/StatCard'
-import { TransactionsList } from '../../components/TransactionsList'
-import { Tooltip } from '../../components/ui/tooltip'
-import { BudgetProgressBar } from '../../components/BudgetProgressBar'
-import { BudgetAlertBanner } from '../../components/BudgetAlertBanner'
-import { useBudgetNavigate } from '../../hooks/useBudgetNavigation'
-import '../../styles/layout.scss'
 import { formatAmount } from '../../utils/common'
 import { getTransactions } from '../../services/api'
 import { fetchSummary } from '../../services/statisticsApi'
 import { fetchBudgetStatus } from '../../services/budgetsApi'
 import { useCategoryLookup } from '../../hooks/useCategories'
+import { useBook } from '../../hooks/useBook'
 import { Skeleton } from '../../components/ui/Skeleton'
-
-/** 格式化环比趋势数据 */
-const formatTrend = (
-  change: number,
-  changePercent: number | null,
-): { value: string; positive: boolean } | undefined => {
-  if (changePercent === null || changePercent === undefined) return undefined
-  if (changePercent === 0) return { value: '持平', positive: true }
-  const sign = change > 0 ? '+' : ''
-  return {
-    value: `${sign}${changePercent.toFixed(1)}%`,
-    positive: change > 0,
-  }
-}
 
 const Dashboard: React.FC = () => {
   const navigate = useNavigate()
   const { getCategoryName, getCategoryIcon } = useCategoryLookup()
+  const { hasBooks } = useBook()
 
   const monthStart = format(startOfMonth(new Date()), 'yyyy-MM-dd')
   const monthEnd = format(new Date(), 'yyyy-MM-dd')
@@ -44,248 +22,219 @@ const Dashboard: React.FC = () => {
   const { data: summary, isLoading: summaryLoading } = useQuery({
     queryKey: ['statistics', 'summary', monthStart, monthEnd],
     queryFn: () => fetchSummary({ startDate: monthStart, endDate: monthEnd }),
+    enabled: hasBooks,
   })
 
   const { data: recentPaginated, isLoading: recentLoading } = useQuery({
     queryKey: ['transactions', 'recent', monthStart, monthEnd],
     queryFn: () => getTransactions({ pageSize: 5, startDate: monthStart, endDate: monthEnd }),
+    enabled: hasBooks,
   })
 
   const { data: budgetStatus, isLoading: budgetLoading } = useQuery({
     queryKey: ['budgets', 'status', monthStr],
     queryFn: () => fetchBudgetStatus(monthStr),
+    enabled: hasBooks,
   })
 
   const recentTransactions = recentPaginated?.data || []
   const hasBudget = budgetStatus && budgetStatus.totalBudget > 0
-  const hasAlerts = budgetStatus && budgetStatus.alerts.length > 0
-
-  const navigateToCategory = useBudgetNavigate()
-  const [alertDismissed, setAlertDismissed] = useState(() => {
-    return localStorage.getItem(`dismissed_alert_${monthStr.substring(0, 7)}`) === 'true'
-  })
-
-  const handleDismissAlert = () => {
-    localStorage.setItem(`dismissed_alert_${monthStr.substring(0, 7)}`, 'true')
-    setAlertDismissed(true)
-  }
-
-  const handleBudgetNavigate = (categoryId: string) => {
-    navigateToCategory(categoryId, monthStr.substring(0, 7))
-  }
 
   return (
     <div className="page-container">
-      <Header title="概览" />
-
-      {/* 1. 月度概览卡片——3列 */}
-      <div className="cards-grid">
+      {/* 统计卡片行 */}
+      <div className="stats-row">
         {summaryLoading ? (
           <>
-            <div style={{ padding: '24px', background: 'var(--surface)', borderRadius: 'var(--radius-lg)' }}>
-              <Skeleton width="60%" height="14px" marginBottom="12px" />
-              <Skeleton width="80%" height="28px" marginBottom="8px" />
-              <Skeleton width="40%" height="12px" />
+            {/* 本月结余 - Hero 骨架 */}
+            <div className="stat-card hero" style={{ opacity: 0.95 }}>
+              <Skeleton width="50%" height="12px" marginBottom="10px" />
+              <Skeleton width="70%" height="26px" marginBottom="6px" />
+              <Skeleton width="35%" height="11px" />
             </div>
-            <div style={{ padding: '24px', background: 'var(--surface)', borderRadius: 'var(--radius-lg)' }}>
-              <Skeleton width="60%" height="14px" marginBottom="12px" />
-              <Skeleton width="80%" height="28px" marginBottom="8px" />
-              <Skeleton width="40%" height="12px" />
+            {/* 本月收入 - 骨架 */}
+            <div className="stat-card">
+              <div className="stat-header">
+                <div className="stat-icon inc" style={{ opacity: 0.6 }} />
+              </div>
+              <Skeleton width="50%" height="12px" marginBottom="10px" />
+              <Skeleton width="70%" height="26px" marginBottom="6px" />
+              <Skeleton width="30%" height="11px" />
             </div>
-            <div style={{ padding: '24px', background: 'var(--surface)', borderRadius: 'var(--radius-lg)' }}>
-              <Skeleton width="60%" height="14px" marginBottom="12px" />
-              <Skeleton width="80%" height="28px" marginBottom="8px" />
-              <Skeleton width="40%" height="12px" />
+            {/* 本月支出 - 骨架 */}
+            <div className="stat-card">
+              <div className="stat-header">
+                <div className="stat-icon exp" style={{ opacity: 0.6 }} />
+              </div>
+              <Skeleton width="50%" height="12px" marginBottom="10px" />
+              <Skeleton width="70%" height="26px" marginBottom="6px" />
+              <Skeleton width="30%" height="11px" />
             </div>
           </>
         ) : (
           <>
-            <StatCard
-              label="本月结余"
-              value={formatAmount(summary?.balance || 0)}
-              trend={summary ? formatTrend(summary.balanceChange, summary.balanceChangePercent) : undefined}
-              isBalance
-            />
-            <StatCard
-              label="本月收入"
-              value={formatAmount(summary?.totalIncome || 0)}
-              trend={summary ? formatTrend(summary.incomeChange, summary.incomeChangePercent) : undefined}
-            />
-            <StatCard
-              label="本月支出"
-              value={formatAmount(summary?.totalExpense || 0)}
-              trend={summary ? formatTrend(summary.expenseChange, summary.expenseChangePercent) : undefined}
-            />
+            {/* 本月结余 - Hero卡片 */}
+            <div className="stat-card hero">
+              <div className="stat-label">本月结余</div>
+              <div className="stat-value">{formatAmount(summary?.balance || 0)}</div>
+              <div className="stat-sub">共 {recentTransactions.length} 笔</div>
+            </div>
+            {/* 本月收入 */}
+            <div className="stat-card">
+              <div className="stat-header">
+                <div className="stat-icon inc">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
+                  </svg>
+                </div>
+              </div>
+              <div className="stat-label">本月收入</div>
+              <div className="stat-value">{formatAmount(summary?.totalIncome || 0)}</div>
+              <div className="stat-sub">{summary?.incomeCount || 0} 笔</div>
+            </div>
+            {/* 本月支出 */}
+            <div className="stat-card">
+              <div className="stat-header">
+                <div className="stat-icon exp">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <polyline points="23 18 13.5 8.5 8.5 13.5 1 6" />
+                  </svg>
+                </div>
+              </div>
+              <div className="stat-label">本月支出</div>
+              <div className="stat-value">{formatAmount(summary?.totalExpense || 0)}</div>
+              <div className="stat-sub">{summary?.expenseCount || 0} 笔</div>
+            </div>
           </>
         )}
       </div>
 
-      {/* 预算预警 Banner */}
-      {hasAlerts && !alertDismissed && (
-        <BudgetAlertBanner
-          alerts={budgetStatus!.alerts}
-          monthKey={monthStr.substring(0, 7)}
-          onDismiss={handleDismissAlert}
-        />
-      )}
+      {/* 第一行：最近交易 + 预算进度 */}
+      <div className="dash-grid">
+        {/* 左侧 - 最近交易 */}
+        <div className="dash-card">
+          <div className="card-header">
+            <h3>最近交易</h3>
+            <span className="card-action" onClick={() => navigate('/transactions')}>查看全部→</span>
+          </div>
+          {recentLoading ? (
+            <div className="txn-list">
+              {[0, 1, 2].map((i) => (
+                <div key={i} className="txn-row" style={{ cursor: 'default' }}>
+                  <div className="txn-icon" style={{ opacity: 0.4 }} />
+                  <div className="txn-info">
+                    <Skeleton width="55%" height="13px" marginBottom="4px" />
+                    <Skeleton width="35%" height="11px" />
+                  </div>
+                  <Skeleton width="60px" height="14px" />
+                </div>
+              ))}
+            </div>
+          ) : recentTransactions.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '40px', color: 'var(--fg3)' }}>
+              <p>暂无交易记录</p>
+              <button className="btn btn-primary" onClick={() => navigate('/add?type=expense')} style={{ marginTop: '16px' }}>
+                添加第一笔交易
+              </button>
+            </div>
+          ) : (
+            <div className="txn-list">
+              {recentTransactions.map((txn) => (
+                <div key={txn.id} className="txn-row" onClick={() => navigate(`/transactions?focus=${txn.id}`)}>
+                  <div className="txn-icon">
+                    {getCategoryIcon(txn.category)}
+                  </div>
+                  <div className="txn-info">
+                    <div className="txn-title">{txn.description || getCategoryName(txn.category)}</div>
+                    <div className="txn-meta">
+                      <span>{getCategoryName(txn.category)}</span>
+                      <span>{format(new Date(txn.date), 'MM-dd')} {txn.time ? txn.time : format(new Date(txn.created_at), 'HH:mm')}</span>
+                    </div>
+                  </div>
+                  <div className={`txn-amount ${txn.type === 'expense' ? 'debit' : 'credit'}`}>
+                    <span className="txn-sign">{txn.type === 'expense' ? '−' : '+'}</span>
+                    {formatAmount(txn.amount)}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
 
-      {/* 2. 预算概览 */}
-      {budgetLoading ? (
-        <div style={{ padding: '24px', background: 'var(--surface)', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border)', marginBottom: '24px' }}>
-          {/* 标题 */}
-          <Skeleton width="30%" height="16px" marginBottom="16px" />
-          {/* 总进度条行 */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px' }}>
-            <Skeleton width="80px" height="13px" />
-            <Skeleton width="100%" height="8px" borderRadius="4px" />
-            <Skeleton width="36px" height="13px" />
-          </div>
-          {/* 已花费/剩余 */}
-          <Skeleton width="40%" height="12px" marginBottom="16px" />
-          {/* 预警区域 */}
-          <div style={{ padding: '16px', borderRadius: 'var(--radius-md)', background: 'var(--bg)', marginBottom: '16px' }}>
-            <Skeleton width="25%" height="14px" marginBottom="10px" />
-            <Skeleton width="70%" height="12px" marginBottom="6px" />
-            <Skeleton width="60%" height="12px" marginBottom="6px" />
-            <Skeleton width="65%" height="12px" />
-          </div>
-          {/* 各分类进度条 */}
-          <div style={{ borderTop: '1px solid var(--border)', paddingTop: '12px' }}>
-            {[1, 2, 3, 4, 5].map((i) => (
-              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
-                <Skeleton width="20px" height="20px" borderRadius="4px" />
-                <Skeleton width="60px" height="13px" />
-                <Skeleton width="100%" height="6px" borderRadius="3px" />
-                <Skeleton width="32px" height="13px" />
+        {/* 右侧 - 预算进度 */}
+        {budgetLoading ? (
+          <div className="dash-card">
+            <div className="card-header">
+              <Skeleton width="30%" height="14px" />
+              <Skeleton width="18%" height="12px" />
+            </div>
+            {[0, 1, 2].map((i) => (
+              <div key={i} style={{ marginBottom: '12px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
+                  <Skeleton width="30%" height="12px" />
+                  <Skeleton width="20%" height="12px" />
+                </div>
+                <Skeleton width="100%" height="4px" borderRadius="2px" />
               </div>
             ))}
           </div>
-        </div>
-      ) : hasBudget ? (
-        <div style={{
-          background: 'var(--surface)', border: '1px solid var(--border)',
-          borderRadius: 'var(--radius-lg)', padding: '24px', marginBottom: '24px',
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
-            <h3 style={{ fontFamily: 'var(--font-display)', fontSize: '16px', fontWeight: 600 }}>📊 预算概览</h3>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px' }}>
-            <span style={{ color: 'var(--muted)', fontSize: '13px', whiteSpace: 'nowrap' }}>
-              总预算 ¥{budgetStatus.totalBudget.toLocaleString('zh-CN')}
-            </span>
-            <div style={{ flex: 1, height: '8px', background: 'var(--border)', borderRadius: '4px', overflow: 'hidden' }}>
-              <div style={{
-                height: '100%',
-                width: `${Math.min(budgetStatus.overallProgress, 100)}%`,
-                background: budgetStatus.overallProgress >= 100 ? 'var(--danger)' : budgetStatus.overallProgress >= 80 ? 'var(--warning)' : 'var(--success)',
-                borderRadius: '4px', transition: 'width 0.5s ease',
-              }} />
+        ) : hasBudget ? (
+          <div className="dash-card">
+            <div className="card-header">
+              <h3>预算进度</h3>
+              <span className="card-action" onClick={() => navigate('/budgets')}>管理→</span>
             </div>
-            <span style={{
-              fontSize: '13px', fontWeight: 600, whiteSpace: 'nowrap',
-              color: budgetStatus.overallProgress >= 100 ? 'var(--danger)' : budgetStatus.overallProgress >= 80 ? 'var(--warning)' : 'var(--muted)',
-            }}>
-              {budgetStatus.overallProgress}%
-            </span>
-          </div>
-          <div style={{ fontSize: '13px', color: 'var(--muted)', marginBottom: '12px' }}>
-            已花费 ¥{budgetStatus.totalSpent.toLocaleString('zh-CN')} / 剩余 ¥{budgetStatus.remaining.toLocaleString('zh-CN')}
-          </div>
-          {hasAlerts && (
-            <div style={{
-              marginTop: '16px', padding: '16px', borderRadius: 'var(--radius-md)',
-              background: budgetStatus.alerts.some(a => a.progress >= 100)
-                ? 'rgba(239, 68, 68, 0.06)' : 'rgba(245, 158, 11, 0.06)',
-              border: `1px solid ${budgetStatus.alerts.some(a => a.progress >= 100) ? 'rgba(239,68,68,0.2)' : 'rgba(245,158,11,0.2)'}`,
-            }}>
-              <div style={{
-                fontSize: '13px', fontWeight: 600, marginBottom: '10px',
-                color: budgetStatus.alerts.some(a => a.progress >= 100) ? 'var(--danger)' : 'var(--warning)',
-              }}>
-                {budgetStatus.alerts.some(a => a.progress >= 100) ? '⚠️ 预算超支' : '⚡ 预算预警'}
-              </div>
-              {budgetStatus.alerts.slice(0, 3).map((a) => (
-                <div key={a.category_id}
-                  onClick={() => navigate(`/budgets?focus=${encodeURIComponent(a.category_id)}`)}
-                  style={{
-                    display: 'flex', alignItems: 'center', gap: '6px',
-                    fontSize: '13px', marginBottom: '6px', cursor: 'pointer',
-                    color: a.progress >= 100 ? 'var(--danger)' : 'var(--warning)',
-                  }}
-                  onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.75' }}
-                  onMouseLeave={(e) => { e.currentTarget.style.opacity = '1' }}
-                >
-                  {getCategoryIcon(a.category_id)} {getCategoryName(a.category_id)}
-                  <span style={{ color: 'var(--muted)', marginLeft: '4px' }}>
-                    预算 ¥{a.budget.toLocaleString('zh-CN')} / 已花 ¥{a.spent.toLocaleString('zh-CN')}
-                  </span>
-                  <span style={{ marginLeft: 'auto', fontWeight: 600, color: a.progress >= 100 ? 'var(--danger)' : 'var(--warning)' }}>
-                    {a.progress}%
+            {/* 分类预算 */}
+            {budgetStatus.categories.slice(0, 4).map((cat) => (
+              <div key={cat.category_id} className="budget-item" onClick={() => navigate(`/budgets?focus=${cat.category_id}`)} style={{ cursor: 'pointer' }}>
+                <div className="budget-info">
+                  <span className="budget-name">{cat.category_icon} {cat.category_name}</span>
+                  <span className="budget-amount">
+                    ¥{cat.spent.toLocaleString('zh-CN')} / ¥{cat.budget.toLocaleString('zh-CN')}
                   </span>
                 </div>
-              ))}
-              {budgetStatus.alerts.length > 3 && (
-                <p style={{ color: 'var(--muted)', fontSize: '12px', marginTop: '4px' }}>
-                  还有 {budgetStatus.alerts.length - 3} 个分类超支...
-                </p>
-              )}
-              <div style={{ marginTop: '12px' }}>
-                <Button
-                  onClick={() => {
-                    const firstAlertCategory = budgetStatus.alerts[0]?.category_id
-                    navigate(`/budgets${firstAlertCategory ? `?focus=${encodeURIComponent(firstAlertCategory)}` : ''}`)
-                  }}
-                  style={{ fontSize: '13px' }}
-                >前往调整预算</Button>
+                <div className="budget-bar">
+                  <div
+                    className={`fill ${cat.progress >= 100 ? 'danger' : cat.progress >= 80 ? 'warn' : 'safe'}`}
+                    style={{ width: `${Math.min(cat.progress, 105)}%` }}
+                  />
+                </div>
+                <div className="budget-percent">{cat.progress}% {cat.progress >= 100 ? '超支!' : ''}</div>
               </div>
-            </div>
-          )}
+            ))}
+          </div>
+        ) : (
+          <div className="dash-card" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--fg3)', fontSize: '13px' }}>
+            暂无预算设置
+          </div>
+        )}
+      </div>
 
-          {/* 各分类预算进度条 */}
-          {budgetStatus.categories.length > 0 && (
-            <div style={{ marginTop: hasAlerts ? '8px' : '16px', borderTop: '1px solid var(--border)', paddingTop: '12px' }}>
-              {budgetStatus.categories.map((cat) => (
-                <BudgetProgressBar
-                  key={cat.category_id}
-                  categoryName={cat.category_name}
-                  categoryIcon={cat.category_icon}
-                  spent={cat.spent}
-                  budget={cat.budget}
-                  progress={cat.progress}
-                  clickable={true}
-                  onClick={() => handleBudgetNavigate(cat.category_id)}
-                />
-              ))}
-            </div>
-          )}
+      {/* 第二行：快捷操作 */}
+      <div className="quick-actions">
+        <div className="quick-action" onClick={() => navigate('/add')}>
+          <div className="qa-icon add">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+          </div>
+          <div className="qa-info">
+            <h4>记一笔</h4>
+            <p>快速记录一笔新交易</p>
+          </div>
         </div>
-      ) : null}
-
-      {/* 3. 最近交易 */}
-      <h2 className="section-title" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-        本月最近交易
-        <Tooltip content="近5个交易">
-          <span style={{ display: 'inline-flex', cursor: 'help', color: 'var(--muted)' }}>
-            <Info size={14} />
-          </span>
-        </Tooltip>
-      </h2>
-      {recentLoading ? (
-        <>
-          <Skeleton height="56px" marginBottom="8px" />
-          <Skeleton height="56px" marginBottom="8px" />
-          <Skeleton height="56px" marginBottom="8px" />
-        </>
-      ) : recentTransactions.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: '40px', color: '#666' }}>
-          <p>暂无交易记录</p>
-          <Button onClick={() => navigate('/add?type=expense')} style={{ marginTop: '16px' }}>
-            添加第一笔交易
-          </Button>
+        <div className="quick-action" onClick={() => navigate('/reports')}>
+          <div className="qa-icon report">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M18 20V10" /><path d="M12 20V4" /><path d="M6 20v-6" />
+            </svg>
+          </div>
+          <div className="qa-info">
+            <h4>查看报表</h4>
+            <p>分析消费趋势与分类</p>
+          </div>
         </div>
-      ) : (
-        <TransactionsList transactions={recentTransactions} dateMode="dashboard" />
-      )}
+      </div>
     </div>
   )
 }

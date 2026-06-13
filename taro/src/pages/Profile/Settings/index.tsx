@@ -27,7 +27,7 @@ export default function Settings() {
   };
 
   const handleVersion = () => {
-    Taro.showToast({ title: "家庭记账 v1.0.0", icon: "none" });
+    Taro.showToast({ title: "静记 v1.0.0", icon: "none" });
   };
 
   return (

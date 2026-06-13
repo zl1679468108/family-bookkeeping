@@ -13,6 +13,7 @@ export interface LocationResult {
   latitude: number;
   longitude: number;
   locationName: string;
+  address?: string;
   poiId: string | null;
 }
 
@@ -126,12 +127,13 @@ export default function LocationPicker({
       latitude: pos.lat,
       longitude: pos.lng,
       locationName: address,
+      address: address,
       poiId,
     });
   };
 
   const handleClear = () => {
-    onConfirm({ latitude: 0, longitude: 0, locationName: "", poiId: null });
+    onConfirm({ latitude: 0, longitude: 0, locationName: "", address: "", poiId: null });
   };
 
   if (!visible) return null;

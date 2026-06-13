@@ -1,6 +1,13 @@
 import { IsOptional, IsString, IsIn, IsNumberString, IsBooleanString } from 'class-validator';
 import { Transform } from 'class-transformer';
 
+/** 将空字符串、纯空白字符串转为 undefined，避免误作为筛选条件 */
+const emptyToUndefined = (value: unknown): string | undefined => {
+  if (value === undefined || value === null) return undefined;
+  const s = String(value).trim();
+  return s.length > 0 ? s : undefined;
+};
+
 export class QueryUsersDto {
   @IsOptional()
   @IsNumberString()
@@ -50,25 +57,31 @@ export class QueryAdminTransactionsDto {
 
   @IsOptional()
   @IsString()
+  @Transform(({ value }) => emptyToUndefined(value))
   search?: string;
 
   @IsOptional()
   @IsIn(['income', 'expense'])
+  @Transform(({ value }) => emptyToUndefined(value))
   type?: string;
 
   @IsOptional()
   @IsString()
+  @Transform(({ value }) => emptyToUndefined(value))
   user_id?: string;
 
   @IsOptional()
   @IsString()
+  @Transform(({ value }) => emptyToUndefined(value))
   book_id?: string;
 
   @IsOptional()
   @IsString()
+  @Transform(({ value }) => emptyToUndefined(value))
   date_from?: string;
 
   @IsOptional()
   @IsString()
+  @Transform(({ value }) => emptyToUndefined(value))
   date_to?: string;
 }

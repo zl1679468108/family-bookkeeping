@@ -1,0 +1,87 @@
+/* ═══ 表单样式 ═══ */
+
+/* 表单基础 */
+.form-group {
+  margin-bottom: 12px;
+}
+.form-group label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--fg2);
+  margin-bottom: 4px;
+}
+
+.form-input,
+.form-select {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1px solid var(--bd);
+  border-radius: var(--rs);
+  background: var(--srf);
+  font-size: 13px;
+  font-family: var(--fn);
+  color: var(--fg);
+  transition: border-color var(--df);
+}
+
+.form-input:focus,
+.form-select:focus {
+  outline: none;
+  border-color: var(--pr);
+  box-shadow: 0 0 0 3px var(--prBg);
+}
+
+.form-input.amt {
+  font-size: 24px;
+  font-weight: 700;
+  text-align: center;
+  padding: 14px;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.form-error {
+  font-size: 11px;
+  color: var(--exp);
+  margin-top: 3px;
+  display: none;
+}
+
+.form-error.visible {
+  display: block;
+}
+
+/* 表单标签页 */
+.form-tabs {
+  display: flex;
+  border: 1px solid var(--bd);
+  border-radius: var(--rs);
+  overflow: hidden;
+  margin-bottom: 14px;
+}
+
+.form-tabs button {
+  flex: 1;
+  padding: 9px;
+  border: none;
+  background: transparent;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: var(--fn);
+  transition: all var(--df);
+}
+
+.form-tabs button:first-child {
+  border-right: 1px solid var(--bd);
+}
+
+.form-tabs button.active {
+  background: var(--fg);
+  color: #fff;
+}

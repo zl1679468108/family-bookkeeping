@@ -85,7 +85,7 @@ export class AdminService {
 
     let query = supabase
       .from('users')
-      .select('id, email, username, role, status, created_at', { count: 'exact' });
+      .select('id, email, username, avatar_url, role, status, created_at', { count: 'exact' });
 
     if (filters.search) {
       query = query.or(`email.ilike.%${filters.search}%,username.ilike.%${filters.search}%`);
@@ -226,7 +226,7 @@ export class AdminService {
       .from('transactions')
       .select(
         `
-        id, amount, type, date, description, created_at,
+        id, amount, type, date, description, created_at, image_url,
         users (id, email, username),
         categories (id, name, icon, type),
         books (id, name)
@@ -261,12 +261,42 @@ export class AdminService {
       throw new Error(`查询交易列表失败: ${error.message}`);
     }
 
+    // 将 image_url 路径转换为完整 URL
+    const transactions = (data || []).map((t: any) => {
+      if (t.image_url && !t.image_url.startsWith('http')) {
+        const { data: urlData } = supabase.storage.from('receipts').getPublicUrl(t.image_url);
+        t.image_url = urlData?.publicUrl || t.image_url;
+      }
+      return t;
+    });
+
     return {
-      transactions: data || [],
+      transactions,
       total: count || 0,
       page,
       pageSize,
       totalPages: Math.ceil((count || 0) / pageSize),
+    };
+  }
+
+  /**
+   * 全平台账本列表（管理员筛选下拉用）
+   */
+  async getBooks() {
+    const supabase = this.supabaseService.getClient();
+
+    const { data, count, error } = await supabase
+      .from('books')
+      .select('id, name, description, created_at', { count: 'exact' })
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      throw new Error(`查询账本列表失败: ${error.message}`);
+    }
+
+    return {
+      books: data || [],
+      total: count || 0,
     };
   }
 }

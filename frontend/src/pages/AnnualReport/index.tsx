@@ -1,5 +1,4 @@
 import React, { useState, useRef, useMemo } from 'react';
-import { Header } from '../../components/Header';
 import { useAnnualReport } from '../../hooks/useAnnualReport';
 import { useBook } from '../../hooks/useBook';
 import { useAuth } from '../../utils/auth';
@@ -46,7 +45,7 @@ const AnnualReport: React.FC = () => {
       notify({ type: 'success', message: '年度报告已保存为图片' });
     } catch (err) {
       console.error('AnnualReport captureLongImage error:', err);
-      notify({ type: 'error', message: `保存图片失败: ${(err as Error)?.message || '未知错误'}` });
+      notify({ type: 'error', message: '保存图片失败，请重试' });
     }
   };
 
@@ -54,36 +53,54 @@ const AnnualReport: React.FC = () => {
 
   return (
     <div className="page-container">
-      <Header title="年度报告" />
-
-      {/* 控件区 */}
+      {/* 账本 & 年份选择区 */}
       <div
         style={{
-          padding: '16px',
+          paddingBottom: '16px',
           display: 'flex',
           gap: '12px',
           alignItems: 'center',
-          background: 'var(--surface)',
+          background: 'var(--bg)',
           borderBottom: '1px solid var(--border)',
         }}
       >
-        {/* 当前账本名称 */}
-        <span style={{ color: 'var(--muted)', fontSize: '13px' }}>
-          {currentBook?.name || '未选择账本'}
-        </span>
+        {/* 账本信息 */}
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            padding: '8px 12px',
+            background: 'var(--surface)',
+            borderRadius: '8px',
+            fontSize: '13px',
+            color: 'var(--fg)',
+          }}
+        >
+          <span>📒</span>
+          <span style={{ fontWeight: 500 }}>
+            {currentBook?.name || '未选择账本'}
+          </span>
+        </div>
 
         {/* 年份选择器 */}
         <select
           value={year}
           onChange={(e) => setYear(Number(e.target.value))}
           style={{
-            flex: 1,
-            padding: '8px 12px',
+            padding: '8px 32px 8px 14px',
             borderRadius: '8px',
             border: '1px solid var(--border)',
-            background: 'var(--bg)',
+            background: 'var(--surface)',
             color: 'var(--fg)',
             fontSize: '14px',
+            fontWeight: 500,
+            cursor: 'pointer',
+            appearance: 'none',
+            backgroundImage: `url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23999' viewBox='0 0 16 16'><path d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/></svg>")`,
+            backgroundRepeat: 'no-repeat',
+            backgroundPosition: 'right 10px center',
+            backgroundSize: '14px',
           }}
         >
           {yearOptions.map((y) => (
@@ -96,33 +113,35 @@ const AnnualReport: React.FC = () => {
 
       {/* Loading 状态 */}
       {isLoading && (
-        <div style={{ maxWidth: '640px', margin: '0 auto', padding: '24px' }}>
-          {/* 封面骨架 */}
-          <Skeleton width="70%" height="36px" marginBottom="32px" />
-          <Skeleton width="40%" height="20px" marginBottom="48px" />
-          {/* 总览卡片骨架 */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '12px', marginBottom: '32px' }}>
-            {[1,2,3,4].map(i => (
-              <div key={i} style={{ padding: '16px', borderRadius: '12px', background: '#fff' }}>
-                <Skeleton width="60%" height="12px" marginBottom="8px" />
-                <Skeleton width="80%" height="24px" />
+        <div style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+          <div style={{ width: '672px', minWidth: '672px', maxWidth: '672px', boxSizing: 'border-box', padding: '20px 16px', background: 'var(--bg)' }}>
+            {/* 封面骨架 */}
+            <Skeleton width="70%" height="36px" marginBottom="32px" />
+            <Skeleton width="40%" height="20px" marginBottom="48px" />
+            {/* 总览卡片骨架 */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '12px', marginBottom: '32px' }}>
+              {[1, 2, 3, 4].map(i => (
+                <div key={i} style={{ padding: '16px', borderRadius: '12px', background: 'var(--surface, #fff)' }}>
+                  <Skeleton width="60%" height="12px" marginBottom="8px" />
+                  <Skeleton width="80%" height="24px" />
+                </div>
+              ))}
+            </div>
+            {/* 图表骨架 */}
+            <Skeleton width="100%" height="200px" borderRadius="12px" marginBottom="24px" />
+            <Skeleton width="100%" height="200px" borderRadius="12px" marginBottom="24px" />
+            {/* 列表骨架 */}
+            {[1, 2, 3].map(i => (
+              <div key={i} style={{ display: 'flex', alignItems: 'center', padding: '12px 0', borderBottom: '1px solid var(--border, #f0f0f0)' }}>
+                <Skeleton width="40px" height="40px" borderRadius="8px" />
+                <div style={{ flex: 1, marginLeft: '12px', marginRight: '12px' }}>
+                  <Skeleton width="55%" height="14px" marginBottom="6px" />
+                  <Skeleton width="35%" height="12px" />
+                </div>
+                <Skeleton width="64px" height="14px" />
               </div>
             ))}
           </div>
-          {/* 图表骨架 */}
-          <Skeleton width="100%" height="200px" borderRadius="12px" marginBottom="24px" />
-          <Skeleton width="100%" height="200px" borderRadius="12px" marginBottom="24px" />
-          {/* 列表骨架 */}
-          {[1,2,3].map(i => (
-            <div key={i} style={{ display: 'flex', alignItems: 'center', padding: '12px 0', borderBottom: '1px solid #f0f0f0' }}>
-              <Skeleton width="40px" height="40px" borderRadius="8px" />
-              <div style={{ flex: 1, marginLeft: '12px', marginRight: '12px' }}>
-                <Skeleton width="55%" height="14px" marginBottom="6px" />
-                <Skeleton width="35%" height="12px" />
-              </div>
-              <Skeleton width="64px" height="14px" />
-            </div>
-          ))}
         </div>
       )}
 
@@ -143,26 +162,30 @@ const AnnualReport: React.FC = () => {
       {/* 报告内容 */}
       {!isLoading && !error && reportData && (
         <>
-          {/* 报告容器 */}
-          <div
-            ref={reportRef}
-            style={{
-              width: '100%',
-              maxWidth: '640px',
-              margin: '0 auto',
-              padding: '20px 16px',
-              background: 'var(--bg)',
-            }}
-          >
-            <ReportCover year={year} nickname={user?.username || '用户'} />
-            <ReportOverview data={reportData.overview} />
-            <ReportMonthlyTrend data={reportData.monthly} />
-            <ReportCategoryRank data={reportData.top_categories} />
-            <ReportRecords data={reportData.records} />
-            <ReportBookBreakdown data={reportData.book_breakdown} />
-            <ReportMemberRanking data={reportData.member_ranking} />
-            <ReportFunFact data={reportData.fun_fact} />
-            <ReportFooter />
+          {/* 居中 wrapper — 仅负责水平居中，不参与导出测量 */}
+          <div style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+            {/* 报告容器 */}
+            <div
+              ref={reportRef}
+              style={{
+                width: '672px',
+                minWidth: '672px',
+                maxWidth: '672px',
+                boxSizing: 'border-box',
+                padding: '20px 16px',
+                background: 'var(--bg)',
+              }}
+            >
+              <ReportCover year={year} nickname={user?.username || '用户'} />
+              <ReportOverview data={reportData.overview} />
+              <ReportMonthlyTrend data={reportData.monthly} />
+              <ReportCategoryRank data={reportData.top_categories} />
+              <ReportRecords data={reportData.records} />
+              <ReportBookBreakdown data={reportData.book_breakdown} />
+              <ReportMemberRanking data={reportData.member_ranking} />
+              <ReportFunFact data={reportData.fun_fact} />
+              <ReportFooter />
+            </div>
           </div>
 
           {/* 底部保存按钮 */}
@@ -179,19 +202,28 @@ const AnnualReport: React.FC = () => {
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: '8px',
-                padding: '12px 32px',
-                borderRadius: '10px',
+                gap: '10px',
+                padding: '14px 40px',
+                borderRadius: '12px',
                 border: 'none',
-                background: 'linear-gradient(135deg, #667eea, #764ba2)',
+                background: 'linear-gradient(135deg, #4CAF50 0%, #45B74A 100%)',
                 color: '#fff',
-                fontSize: '15px',
+                fontSize: '16px',
                 fontWeight: 600,
                 cursor: 'pointer',
-                boxShadow: '0 4px 12px rgba(102,126,234,0.35)',
+                boxShadow: '0 6px 20px rgba(76, 175, 80, 0.4)',
+                transition: 'all 0.3s ease',
+              }}
+              onMouseOver={(e) => {
+                e.currentTarget.style.transform = 'translateY(-2px)';
+                e.currentTarget.style.boxShadow = '0 8px 24px rgba(76, 175, 80, 0.5)';
+              }}
+              onMouseOut={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = '0 6px 20px rgba(76, 175, 80, 0.4)';
               }}
             >
-              💾 保存长图
+              📷 保存为图片
             </button>
           </div>
         </>

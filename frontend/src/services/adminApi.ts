@@ -44,6 +44,7 @@ export interface UsersListResponse {
     role: string;
     status: string;
     created_at: string;
+    avatar_url?: string;
   }>;
   total: number;
   page: number;
@@ -144,6 +145,8 @@ export interface AdminTransactionsResponse {
     date: string;
     description: string;
     created_at: string;
+    receipt_url?: string;
+    image_url?: string;
     users: {
       id: string;
       email: string;
@@ -166,23 +169,57 @@ export interface AdminTransactionsResponse {
   totalPages: number;
 }
 
+/** 账本选项（用于筛选下拉） */
+export interface AdminBookOption {
+  id: string;
+  name: string;
+}
+
+/** 用户选项（用于筛选下拉） */
+export interface AdminUserOption {
+  id: string;
+  username: string;
+  email: string;
+}
+
 /** 获取全平台交易列表 */
 export const getAdminTransactions = async (
   params: QueryAdminTransactionsParams = {},
 ): Promise<AdminTransactionsResponse> => {
+  const normalize = (v: unknown): string | undefined => {
+    if (v === undefined || v === null) return undefined;
+    const s = String(v).trim();
+    return s.length > 0 ? s : undefined;
+  };
+
   const query = new URLSearchParams();
-  if (params.page) query.append('page', String(params.page));
-  if (params.pageSize) query.append('pageSize', String(params.pageSize));
-  if (params.search) query.append('search', params.search);
-  if (params.type) query.append('type', params.type);
-  if (params.user_id) query.append('user_id', params.user_id);
-  if (params.book_id) query.append('book_id', params.book_id);
-  if (params.date_from) query.append('date_from', params.date_from);
-  if (params.date_to) query.append('date_to', params.date_to);
+  if (normalize(params.page)) query.append('page', String(params.page));
+  if (normalize(params.pageSize)) query.append('pageSize', String(params.pageSize));
+  if (normalize(params.search)) query.append('search', normalize(params.search)!);
+  if (normalize(params.type)) query.append('type', normalize(params.type)!);
+  if (normalize(params.user_id)) query.append('user_id', normalize(params.user_id)!);
+  if (normalize(params.book_id)) query.append('book_id', normalize(params.book_id)!);
+  if (normalize(params.date_from)) query.append('date_from', normalize(params.date_from)!);
+  if (normalize(params.date_to)) query.append('date_to', normalize(params.date_to)!);
 
   const queryString = query.toString();
   return request(`/admin/transactions${queryString ? `?${queryString}` : ''}`, {
     method: 'GET',
     requiresAuth: true,
   });
+};
+
+/** 获取全平台账本列表（管理员筛选下拉用） */
+export interface AdminBookListResponse {
+  books: Array<{
+    id: string;
+    name: string;
+    description?: string;
+    created_at: string;
+  }>;
+  total: number;
+}
+
+export const getAdminBooks = async (): Promise<AdminBookListResponse> => {
+  return request('/admin/books', { method: 'GET', requiresAuth: true });
 };

@@ -13,7 +13,7 @@ import { TokenAuthGuard } from '../auth/token-auth.guard';
 import { CurrentUser } from '../auth/current-user.decorator';
 import { BooksService } from './books.service';
 import { AuthService } from '../auth/auth.service';
-import { CreateBookDto, InviteMemberDto, RenameBookDto } from './dto/book.dto';
+import { CreateBookDto, InviteMemberDto, UpdateBookDto } from './dto/book.dto';
 
 @Controller('books')
 @UseGuards(TokenAuthGuard)
@@ -53,19 +53,19 @@ export class BooksController {
     @CurrentUser('id') userId: string,
     @Body() dto: CreateBookDto,
   ) {
-    const data = await this.booksService.create(userId, dto.name);
+    const data = await this.booksService.create(userId, dto.name, dto.description, dto.icon);
     return { message: '创建账本成功', data };
   }
 
-  /** PUT /api/books/:id — 重命名账本 */
+  /** PUT /api/books/:id — 更新账本 */
   @Put(':id')
-  async rename(
+  async update(
     @CurrentUser('id') userId: string,
     @Param('id') bookId: string,
-    @Body() dto: RenameBookDto,
+    @Body() dto: UpdateBookDto,
   ) {
-    const data = await this.booksService.rename(bookId, userId, dto.name);
-    return { message: '重命名成功', data };
+    const data = await this.booksService.update(bookId, userId, dto.name!, dto.description, dto.icon);
+    return { message: '更新成功', data };
   }
 
   /** DELETE /api/books/:id — 删除账本 */
@@ -162,5 +162,35 @@ export class BooksController {
   ) {
     const data = await this.booksService.updateDescription(bookId, userId, body.description);
     return { message: '描述已更新', data };
+  }
+
+  /** POST /api/books/:id/invitations — 生成邀请码（Owner 专用） */
+  @Post(':id/invitations')
+  async createInvitation(
+    @CurrentUser('id') userId: string,
+    @Param('id') bookId: string,
+  ) {
+    const data = await this.booksService.generateInvitationCode(bookId, userId);
+    return { message: '邀请码已生成', data };
+  }
+
+  /** GET /api/books/invitations/:code — 查询邀请码对应的账本信息 */
+  @Get('invitations/:code')
+  async getInvitation(@Param('code') code: string) {
+    const data = await this.booksService.getInvitationByCode(code);
+    if (!data) {
+      return { success: false, message: '邀请码无效或已过期' };
+    }
+    return { success: true, message: '邀请码有效', data };
+  }
+
+  /** POST /api/books/invitations/:code/join — 使用邀请码加入账本 */
+  @Post('invitations/:code/join')
+  async joinByInvitation(
+    @CurrentUser('id') userId: string,
+    @Param('code') code: string,
+  ) {
+    const data = await this.booksService.joinByInvitationCode(code, userId);
+    return { message: '成功加入账本', data };
   }
 }

@@ -10,6 +10,9 @@ export interface Book {
   id: string;
   name: string;
   owner_id: string;
+  is_archived?: boolean;
+  icon?: string;
+  description?: string;
   created_at: string;
   updated_at: string;
 }
@@ -30,18 +33,28 @@ export class BooksService {
     return this.supabaseService.getClient();
   }
 
+  /** 生成 6 位大写字母+数字邀请码（排除易混淆字符） */
+  private randomCode(): string {
+    const alphabet = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
+    let result = '';
+    for (let i = 0; i < 6; i++) {
+      result += alphabet.charAt(Math.floor(Math.random() * alphabet.length));
+    }
+    return result;
+  }
+
   /** 创建账本 */
-  async create(userId: string, name: string): Promise<Book> {
+  async create(userId: string, name: string, description?: string, icon?: string): Promise<Book> {
     const supabase = this.getClient();
 
     const { data: book, error } = await supabase
       .from('books')
-      .insert({ name, owner_id: userId })
+      .insert({ name, owner_id: userId, description, icon })
       .select()
       .single();
 
     if (error) {
-      throw new ConflictException(`创建账本失败: ${error.message}`);
+      throw new ConflictException(`创建账本失败：${error.message}`);
     }
 
     // 自动将创建者添加为 owner 成员
@@ -54,8 +67,8 @@ export class BooksService {
     return book as Book;
   }
 
-  /** 获取用户的账本列表（包含当前用户在账本中的角色） */
-  async listByUser(userId: string): Promise<(Book & { role: string })[]> {
+  /** 获取用户的账本列表（包含当前用户在账本中的角色和交易笔数） */
+  async listByUser(userId: string): Promise<(Book & { role: string; txn_count?: number })[]> {
     const supabase = this.getClient();
 
     // 查询用户作为成员的账本，同时获取角色
@@ -65,7 +78,7 @@ export class BooksService {
       .eq('user_id', userId);
 
     if (memberError) {
-      throw new Error(`查询成员关系失败: ${memberError.message}`);
+      throw new Error(`查询成员关系失败：${memberError.message}`);
     }
 
     if (!memberBooks || memberBooks.length === 0) {
@@ -76,20 +89,33 @@ export class BooksService {
     const { data, error } = await supabase
       .from('books')
       .select('*')
-      .in('id', bookIds);
+      .in('id', bookIds)
+      .order('is_archived', { ascending: true })
+      .order('updated_at', { ascending: false });
 
     if (error) {
-      throw new Error(`查询账本失败: ${error.message}`);
+      throw new Error(`查询账本失败：${error.message}`);
     }
 
-    // 将 role 信息合并到账本数据中
+    // 统计每个账本的交易笔数
+    const txnCountMap = new Map<string, number>();
+    for (const bookId of bookIds) {
+      const { count } = await supabase
+        .from('transactions')
+        .select('*', { count: 'exact', head: true })
+        .eq('book_id', bookId);
+      txnCountMap.set(bookId, count || 0);
+    }
+
+    // 将 role 和 txn_count 信息合并到账本数据中
     const roleMap = new Map(memberBooks.map((m) => [m.book_id, m.role]));
     const booksWithRole = (data ?? []).map((book: any) => ({
       ...book,
       role: roleMap.get(book.id) || 'member',
+      txn_count: txnCountMap.get(book.id) || 0,
     }));
 
-    return booksWithRole as (Book & { role: string })[];
+    return booksWithRole as (Book & { role: string; txn_count?: number })[];
   }
 
   /** 获取单个账本 */
@@ -101,133 +127,140 @@ export class BooksService {
       .eq('id', bookId)
       .single();
 
-    if (error || !data) {
-      throw new NotFoundException('账本不存在');
+    if (error) {
+      throw new NotFoundException(`账本不存在：${bookId}`);
     }
 
     return data as Book;
   }
 
-  /** 重命名账本 */
-  async rename(bookId: string, userId: string, name: string): Promise<Book> {
-    await this.ensureOwner(bookId, userId);
+  /** 检查用户是否为账本 Owner */
+  async checkOwner(bookId: string, userId: string): Promise<{ isOwner: boolean }> {
+    const book = await this.getById(bookId);
+    return { isOwner: book.owner_id === userId };
+  }
+
+  /** 更新账本 */
+  async update(bookId: string, userId: string, name: string, description?: string, icon?: string): Promise<Book> {
+    const book = await this.getById(bookId);
+    if (book.owner_id !== userId) {
+      throw new ForbiddenException('只有账主可以修改账本信息');
+    }
 
     const supabase = this.getClient();
     const { data, error } = await supabase
       .from('books')
-      .update({ name, updated_at: new Date().toISOString() })
+      .update({ name, description, icon, updated_at: new Date().toISOString() })
       .eq('id', bookId)
       .select()
       .single();
 
     if (error) {
-      throw new Error(`重命名失败: ${error.message}`);
+      throw new ConflictException(`更新账本失败：${error.message}`);
     }
+
     return data as Book;
   }
 
-  /** 获取账本成员 */
-  async getMembers(bookId: string) {
-    const supabase = this.getClient();
+  /** 删除账本 */
+  async delete(bookId: string, userId: string): Promise<void> {
+    const book = await this.getById(bookId);
+    if (book.owner_id !== userId) {
+      throw new ForbiddenException('只有账主可以删除账本');
+    }
 
+    const supabase = this.getClient();
+    const { error } = await supabase
+      .from('books')
+      .delete()
+      .eq('id', bookId);
+
+    if (error) {
+      throw new ConflictException(`删除账本失败：${error.message}`);
+    }
+  }
+
+  /** 获取账本成员 */
+  async getMembers(bookId: string): Promise<any[]> {
+    const supabase = this.getClient();
     const { data, error } = await supabase
       .from('book_members')
-      .select('id, book_id, user_id, role, joined_at, users(email, username)')
+      .select('id, book_id, user_id, role, joined_at, users(id, email, username)')
       .eq('book_id', bookId);
 
     if (error) {
-      throw new Error(`查询成员失败: ${error.message}`);
+      throw new Error(`查询成员失败：${error.message}`);
     }
 
     return (data ?? []).map((m: any) => ({
-      id: m.id,
-      bookId: m.book_id,
-      userId: m.user_id,
-      role: m.role,
-      joinedAt: m.joined_at,
+      ...m,
       email: m.users?.email,
       username: m.users?.username,
     }));
   }
 
-  /** 邀请成员 — 仅验证邮箱对应的用户是否存在，不发送邮件 */
-  async inviteMember(bookId: string, ownerId: string, email: string) {
+  /** 邀请成员 */
+  async inviteMember(bookId: string, userId: string, email: string): Promise<any> {
+    const book = await this.getById(bookId);
+    if (book.owner_id !== userId) {
+      throw new ForbiddenException('只有账主可以邀请成员');
+    }
+
     const supabase = this.getClient();
 
-    // 验证 invitee 是 owner
-    await this.ensureOwner(bookId, ownerId);
-
-    // 查找被邀请用户
-    const { data: targetUser, error: userError } = await supabase
+    // 查询用户
+    const { data: user } = await supabase
       .from('users')
       .select('id')
       .eq('email', email)
       .single();
 
-    if (userError || !targetUser) {
-      throw new NotFoundException('该用户不存在，请检查邮箱是否正确');
+    if (!user) {
+      throw new NotFoundException(`用户不存在：${email}`);
     }
 
-    // 检查是否已是成员
+    // 检查是否已经是成员
     const { data: existing } = await supabase
       .from('book_members')
       .select('id')
       .eq('book_id', bookId)
-      .eq('user_id', targetUser.id)
+      .eq('user_id', user.id)
       .single();
 
     if (existing) {
-      throw new ConflictException('该用户已是账本成员');
+      throw new ConflictException('该用户已经是成员');
     }
 
     // 添加成员
-    const { error } = await supabase.from('book_members').insert({
-      book_id: bookId,
-      user_id: targetUser.id,
-      role: 'member',
-    });
-
-    if (error) {
-      throw new Error(`添加成员失败: ${error.message}`);
-    }
-
-    return { message: '添加成功' };
-  }
-
-  /** 删除账本 */
-  async delete(bookId: string, userId: string) {
-    await this.ensureOwner(bookId, userId);
-
-    const supabase = this.getClient();
-    const { error } = await supabase.from('books').delete().eq('id', bookId);
-
-    if (error) {
-      throw new Error(`删除账本失败: ${error.message}`);
-    }
-
-    return { message: '账本已删除' };
-  }
-
-  /** 退出账本 */
-  async leave(bookId: string, userId: string) {
-    const supabase = this.getClient();
-
-    // 检查是否为 owner — owner 不能直接退出，必须先转让或删除
-    const { data: membership } = await supabase
+    const { data: member, error } = await supabase
       .from('book_members')
-      .select('role')
-      .eq('book_id', bookId)
-      .eq('user_id', userId)
+      .insert({
+        book_id: bookId,
+        user_id: user.id,
+        role: 'member',
+      })
+      .select()
       .single();
 
-    if (!membership) {
-      throw new NotFoundException('你不在该账本中');
+    if (error) {
+      throw new ConflictException(`添加成员失败：${error.message}`);
     }
 
-    if (membership.role === 'owner') {
-      throw new ForbiddenException('账本所有者不能退出，请先转让所有权或删除账本');
+    return member;
+  }
+
+  /** 移除成员 */
+  async removeMember(bookId: string, ownerId: string, userId: string): Promise<void> {
+    const book = await this.getById(bookId);
+    if (book.owner_id !== ownerId) {
+      throw new ForbiddenException('只有账主可以移除成员');
     }
 
+    if (book.owner_id === userId) {
+      throw new ForbiddenException('不能移除账主');
+    }
+
+    const supabase = this.getClient();
     const { error } = await supabase
       .from('book_members')
       .delete()
@@ -235,216 +268,243 @@ export class BooksService {
       .eq('user_id', userId);
 
     if (error) {
-      throw new Error(`退出失败: ${error.message}`);
-    }
-
-    return { message: '已退出账本' };
-  }
-
-  /** 确认当前用户是账本 owner */
-  private async ensureOwner(bookId: string, userId: string) {
-    const supabase = this.getClient();
-    const { data } = await supabase
-      .from('book_members')
-      .select('role')
-      .eq('book_id', bookId)
-      .eq('user_id', userId)
-      .single();
-
-    if (!data || data.role !== 'owner') {
-      throw new ForbiddenException('只有账本所有者才能执行此操作');
+      throw new ConflictException(`移除成员失败：${error.message}`);
     }
   }
 
-  /** 检查当前用户是否是指定账本的 Owner */
-  async checkOwner(bookId: string, userId: string): Promise<{ isOwner: boolean }> {
-    const supabase = this.getClient();
-    const { data, error } = await supabase
-      .from('book_members')
-      .select('role')
-      .eq('book_id', bookId)
-      .eq('user_id', userId)
-      .single();
-
-    if (error || !data) {
-      return { isOwner: false };
-    }
-
-    return { isOwner: data.role === 'owner' };
-  }
-
-  /** 归档账本 - Owner 专用 */
-  async archiveBook(bookId: string, userId: string): Promise<void> {
-    await this.ensureOwner(bookId, userId);
-
-    const supabase = this.getClient();
-    const { error } = await supabase
-      .from('books')
-      .update({ 
-        is_archived: true, 
-        archived_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      })
-      .eq('id', bookId);
-
-    if (error) {
-      throw new Error(`归档账本失败: ${error.message}`);
-    }
-  }
-
-  /** 取消归档账本 - Owner 专用 */
-  async unarchiveBook(bookId: string, userId: string): Promise<void> {
-    await this.ensureOwner(bookId, userId);
-
-    const supabase = this.getClient();
-    const { error } = await supabase
-      .from('books')
-      .update({ 
-        is_archived: false, 
-        archived_at: null,
-        updated_at: new Date().toISOString(),
-      })
-      .eq('id', bookId);
-
-    if (error) {
-      throw new Error(`取消归档失败: ${error.message}`);
-    }
-  }
-
-  /** 更新账本描述 - Owner 专用 */
-  async updateDescription(bookId: string, userId: string, description: string): Promise<Book> {
-    await this.ensureOwner(bookId, userId);
-
-    const supabase = this.getClient();
-    const { data, error } = await supabase
-      .from('books')
-      .update({ 
-        description,
-        updated_at: new Date().toISOString(),
-      })
-      .eq('id', bookId)
-      .select()
-      .single();
-
-    if (error) {
-      throw new Error(`更新描述失败: ${error.message}`);
-    }
-
-    return data as Book;
-  }
-
-  /** 移除成员 - Owner 专用 */
-  async removeMember(bookId: string, ownerId: string, targetUserId: string): Promise<void> {
-    // 验证操作者是否是 owner
-    await this.ensureOwner(bookId, ownerId);
-
-    // 不能移除自己
-    if (ownerId === targetUserId) {
-      throw new ForbiddenException('不能移除自己，请使用转让或删除账本功能');
+  /** 退出账本 */
+  async leave(bookId: string, userId: string): Promise<void> {
+    const book = await this.getById(bookId);
+    if (book.owner_id === userId) {
+      throw new ForbiddenException('账主不能退出账本');
     }
 
     const supabase = this.getClient();
-
-    // 检查目标用户是否是成员
-    const { data: targetMember } = await supabase
-      .from('book_members')
-      .select('role')
-      .eq('book_id', bookId)
-      .eq('user_id', targetUserId)
-      .single();
-
-    if (!targetMember) {
-      throw new NotFoundException('该用户不是账本成员');
-    }
-
-    // 不能移除 owner（应该先转让）
-    if (targetMember.role === 'owner') {
-      throw new ForbiddenException('不能移除账本所有者，请先转让所有权');
-    }
-
-    // 移除成员
     const { error } = await supabase
       .from('book_members')
       .delete()
       .eq('book_id', bookId)
-      .eq('user_id', targetUserId);
+      .eq('user_id', userId);
 
     if (error) {
-      throw new Error(`移除成员失败: ${error.message}`);
+      throw new ConflictException(`退出账本失败：${error.message}`);
     }
   }
 
-  /** 转让 Owner - 需要验证密码（由 Controller 层完成验证） */
+  /** 转让账主 */
   async transferOwner(bookId: string, currentOwnerId: string, newOwnerEmail: string): Promise<void> {
-    // 验证当前用户是否是 owner
-    await this.ensureOwner(bookId, currentOwnerId);
+    const book = await this.getById(bookId);
+    if (book.owner_id !== currentOwnerId) {
+      throw new ForbiddenException('只有账主可以转让所有权');
+    }
 
     const supabase = this.getClient();
 
-    // 验证当前用户的密码（通过调用 auth 服务）
-    // 注意：这里需要调用 AuthService 来验证密码
-    // 为简化，我们假设密码验证已经在 Controller 层完成
-    // 或者我们可以在 BooksService 中注入 AuthService
-
-    // 查找新 owner 用户
-    const { data: newOwner, error: userError } = await supabase
+    // 查询新账主
+    const { data: newOwner } = await supabase
       .from('users')
       .select('id')
       .eq('email', newOwnerEmail)
       .single();
 
-    if (userError || !newOwner) {
-      throw new NotFoundException('该用户不存在，请检查邮箱是否正确');
+    if (!newOwner) {
+      throw new NotFoundException(`用户不存在：${newOwnerEmail}`);
     }
 
-    // 检查新 owner 是否是成员
-    const { data: member } = await supabase
-      .from('book_members')
-      .select('id')
-      .eq('book_id', bookId)
-      .eq('user_id', newOwner.id)
-      .single();
+    // 更新账主
+    const { error: updateError } = await supabase
+      .from('books')
+      .update({ owner_id: newOwner.id, updated_at: new Date().toISOString() })
+      .eq('id', bookId);
 
-    if (!member) {
-      throw new NotFoundException('该用户不是账本成员，请先邀请该用户加入账本');
+    if (updateError) {
+      throw new ConflictException(`转让失败：${updateError.message}`);
     }
 
-    // 将原 owner 降级为 member
-    const { error: updateOldError } = await supabase
+    // 更新原账主为普通成员
+    await supabase
       .from('book_members')
       .update({ role: 'member' })
       .eq('book_id', bookId)
       .eq('user_id', currentOwnerId);
 
-    if (updateOldError) {
-      throw new Error(`转让所有权失败: ${updateOldError.message}`);
-    }
-
-    // 将新用户提升为 owner
-    const { error: updateNewError } = await supabase
+    // 更新新账主为 owner
+    await supabase
       .from('book_members')
       .update({ role: 'owner' })
       .eq('book_id', bookId)
       .eq('user_id', newOwner.id);
+  }
 
-    if (updateNewError) {
-      // 回滚
-      await supabase
-        .from('book_members')
-        .update({ role: 'owner' })
-        .eq('book_id', bookId)
-        .eq('user_id', currentOwnerId);
-      throw new Error(`转让所有权失败: ${updateNewError.message}`);
+  /** 归档账本 */
+  async archiveBook(bookId: string, userId: string): Promise<void> {
+    const book = await this.getById(bookId);
+    if (book.owner_id !== userId) {
+      throw new ForbiddenException('只有账主可以归档账本');
     }
 
-    // 更新 books 表的 owner_id
-    const { error: updateBookError } = await supabase
+    const supabase = this.getClient();
+    const { error } = await supabase
       .from('books')
-      .update({ owner_id: newOwner.id, updated_at: new Date().toISOString() })
+      .update({ is_archived: true, updated_at: new Date().toISOString() })
       .eq('id', bookId);
 
-    if (updateBookError) {
-      throw new Error(`更新账本所有者失败: ${updateBookError.message}`);
+    if (error) {
+      throw new ConflictException(`归档失败：${error.message}`);
     }
+  }
+
+  /** 取消归档 */
+  async unarchiveBook(bookId: string, userId: string): Promise<void> {
+    const book = await this.getById(bookId);
+    if (book.owner_id !== userId) {
+      throw new ForbiddenException('只有账主可以取消归档');
+    }
+
+    const supabase = this.getClient();
+    const { error } = await supabase
+      .from('books')
+      .update({ is_archived: false, updated_at: new Date().toISOString() })
+      .eq('id', bookId);
+
+    if (error) {
+      throw new ConflictException(`取消归档失败：${error.message}`);
+    }
+  }
+
+  /** 生成邀请码 */
+  async generateInvitationCode(bookId: string, userId: string): Promise<{ code: string; book_name: string; expires_at: string }> {
+    const book = await this.getById(bookId);
+    if (book.owner_id !== userId) {
+      throw new ForbiddenException('只有账主可以生成邀请码');
+    }
+
+    const supabase = this.getClient();
+    const code = this.randomCode();
+    const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+
+    const { data, error } = await supabase
+      .from('book_invitations')
+      .insert({
+        book_id: bookId,
+        code,
+        created_by: userId,
+        expires_at: expiresAt,
+      })
+      .select('code, expires_at')
+      .single();
+
+    if (error) {
+      throw new ConflictException(`生成邀请码失败：${error.message}`);
+    }
+
+    return { code: data.code, book_name: book.name, expires_at: data.expires_at };
+  }
+
+  /** 查询邀请码是否有效 */
+  async getInvitationByCode(code: string): Promise<{ book_id: string; book_name: string; expires_at: string } | null> {
+    const supabase = this.getClient();
+    const now = new Date().toISOString();
+
+    const { data, error } = await supabase
+      .from('book_invitations')
+      .select('book_id, expires_at, used_at')
+      .eq('code', code)
+      .gt('expires_at', now)
+      .is('used_at', null)
+      .limit(1)
+      .single();
+
+    if (error || !data) {
+      return null;
+    }
+
+    // 获取账本名称
+    const book = await this.getById(data.book_id);
+
+    return {
+      book_id: data.book_id,
+      book_name: book.name,
+      expires_at: data.expires_at,
+    };
+  }
+
+  /** 使用邀请码加入账本 */
+  async joinByInvitationCode(code: string, userId: string): Promise<{ book_id: string; book_name: string }> {
+    const supabase = this.getClient();
+    const now = new Date().toISOString();
+
+    // 1. 查找有效邀请码
+    const { data: invitation, error: inviteError } = await supabase
+      .from('book_invitations')
+      .select('id, book_id, expires_at, used_at')
+      .eq('code', code)
+      .gt('expires_at', now)
+      .is('used_at', null)
+      .limit(1)
+      .single();
+
+    if (inviteError || !invitation) {
+      throw new NotFoundException('邀请码无效或已过期');
+    }
+
+    // 2. 检查用户是否已经是成员
+    const { data: existingMember } = await supabase
+      .from('book_members')
+      .select('id')
+      .eq('book_id', invitation.book_id)
+      .eq('user_id', userId)
+      .limit(1)
+      .single();
+
+    if (existingMember) {
+      // 已在账本中，也算成功
+      const book = await this.getById(invitation.book_id);
+      return { book_id: book.id, book_name: book.name };
+    }
+
+    // 3. 添加为成员
+    const { error: memberError } = await supabase
+      .from('book_members')
+      .insert({
+        book_id: invitation.book_id,
+        user_id: userId,
+        role: 'member',
+      });
+
+    if (memberError) {
+      throw new ConflictException(`加入账本失败：${memberError.message}`);
+    }
+
+    // 4. 标记邀请码已使用
+    await supabase
+      .from('book_invitations')
+      .update({ used_by: userId, used_at: now })
+      .eq('id', invitation.id);
+
+    const book = await this.getById(invitation.book_id);
+    return { book_id: book.id, book_name: book.name };
+  }
+
+  /** 更新账本描述 */
+  async updateDescription(bookId: string, userId: string, description: string): Promise<Book> {
+    const book = await this.getById(bookId);
+    if (book.owner_id !== userId) {
+      throw new ForbiddenException('只有账主可以修改描述');
+    }
+
+    const supabase = this.getClient();
+    const { data, error } = await supabase
+      .from('books')
+      .update({ description, updated_at: new Date().toISOString() })
+      .eq('id', bookId)
+      .select()
+      .single();
+
+    if (error) {
+      throw new ConflictException(`更新描述失败：${error.message}`);
+    }
+
+    return data as Book;
   }
 }

@@ -1,6 +1,8 @@
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { notify } from '../utils/notifications';
+import { useAuth } from '../utils/auth';
+import { setCurrentBook as setCurrentBookApi } from '../services/api';
+import { fetchBooks } from '../services/booksApi';
 
 export interface Book {
   id: string;
@@ -8,24 +10,20 @@ export interface Book {
   owner_id: string;
   created_at: string;
   updated_at: string;
-  /** 当前用户在账本中的角色 */
   role?: string;
+  icon?: string;
+  description?: string;
 }
 
-const BOOK_KEY = 'current_book_id';
-const DEFAULT_BOOK_NAME_KEY = 'default_book_name';
-
 interface BookContextType {
-  /** 当前选中的账本 */
   currentBook: Book | null;
-  /** 所有账本列表 */
   books: Book[];
-  /** 切换到指定账本 */
   switchBook: (book: Book | null) => void;
-  /** 加载中 */
   loading: boolean;
-  /** 当前用户是否是当前账本的 Owner */
   isOwner: boolean;
+  setCurrentBookId: (bookId: string) => void;
+  hasBooks: boolean;
+  refetchBooks: () => Promise<void>;
 }
 
 const BookContext = createContext<BookContextType>({
@@ -34,83 +32,95 @@ const BookContext = createContext<BookContextType>({
   switchBook: () => {},
   loading: false,
   isOwner: false,
+  setCurrentBookId: () => {},
+  hasBooks: false,
+  refetchBooks: async () => {},
 });
 
-export const useBook = () => useContext(BookContext);
-
-/** 获取存储的当前账本 ID */
-export const getStoredBookId = (): string | null => {
-  return localStorage.getItem(BOOK_KEY);
-};
-
-/** 存储当前账本 ID */
-export const setStoredBookId = (id: string | null): void => {
-  if (id) {
-    localStorage.setItem(BOOK_KEY, id);
-  } else {
-    localStorage.removeItem(BOOK_KEY);
-  }
-};
-
-/** 默认账本名称（localStorage 持久化） */
-export const getDefaultBookName = (): string => {
-  return localStorage.getItem(DEFAULT_BOOK_NAME_KEY) || '默认账本';
-};
-
-export const setDefaultBookName = (name: string): void => {
-  localStorage.setItem(DEFAULT_BOOK_NAME_KEY, name);
-};
+const useBook = () => useContext(BookContext);
+export { useBook };
 
 export const BookProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [currentBook, setCurrentBook] = useState<Book | null>(null);
+  const { user } = useAuth();
   const queryClient = useQueryClient();
 
-  const { data: books = [], isLoading: loading } = useQuery({
-    queryKey: ['books'],
-    queryFn: async () => {
-      const { fetchBooks } = await import('../services/booksApi');
-      return fetchBooks();
-    },
-    staleTime: 5 * 60 * 1000,
+  // 关键修复：books 查询依赖 user.id。用户切换时，query key 变化会自动重新请求
+  const { data: books = [], isLoading: booksLoading, refetch } = useQuery({
+    queryKey: ['books', user?.id || 'guest'],
+    queryFn: () => fetchBooks(),
+    // 移除 staleTime，避免长时间用旧缓存
+    enabled: !!user, // 只有登录用户才查询
   });
 
-  // 从 localStorage 恢复上次选择的账本；没有则自动选中默认账本
+  const refetchBooks = useCallback(async () => {
+    try {
+      await refetch();
+    } catch (e) {
+      console.error('刷新账本列表失败', e);
+    }
+  }, [refetch]);
+
+  // 用户切换时必须重置 currentBook（避免显示旧账号选中的账本）
   useEffect(() => {
-    if (currentBook || books.length === 0) return;
-    const storedId = getStoredBookId();
-    if (storedId) {
-      const found = books.find((b: Book) => b.id === storedId);
+    if (!user) {
+      setCurrentBook(null);
+    }
+  }, [user?.id]);
+
+  // 账本列表加载完成后：按后端的 current_book_id 选中默认账本
+  useEffect(() => {
+    if (booksLoading || !user || books.length === 0) return;
+    // 如果当前已有选中的账本且仍在列表中，不做处理
+    if (currentBook && books.some((b: Book) => b.id === currentBook.id)) return;
+
+    const serverBookId = (user as any)?.current_book_id;
+    if (serverBookId) {
+      const found = books.find((b: Book) => b.id === serverBookId);
       if (found) {
         setCurrentBook(found);
         return;
       }
     }
-    // 没有缓存或缓存失效 → 选中默认账本
-    const defaultBook = books.find((b: Book) => b.name === '默认账本');
-    if (defaultBook) {
-      setCurrentBook(defaultBook);
-      setStoredBookId(defaultBook.id);
-    }
-  }, [books, currentBook]);
+    // 否则选中列表中的第一个账本
+    setCurrentBook(books[0]);
+  }, [books, booksLoading, user]);
 
-  // 计算当前用户是否是当前账本的 Owner
   const isOwner = currentBook?.role === 'owner';
+  const hasBooks = !booksLoading && books.length > 0;
 
   const switchBook = useCallback((book: Book | null) => {
     setCurrentBook(book);
-    setStoredBookId(book?.id ?? null);
-    // 切换账本时刷新所有相关数据
+    if (book?.id) {
+      setCurrentBookApi(book.id).catch((err) => console.error('设置当前账本失败', err));
+    }
+    // 切换账本时刷新所有依赖账本 ID 的查询
     queryClient.invalidateQueries({ queryKey: ['transactions'] });
     queryClient.invalidateQueries({ queryKey: ['statistics'] });
     queryClient.invalidateQueries({ queryKey: ['budgets'] });
-    // 切换提示
-    if (book) {
-      notify({ type: 'info', message: `已切换到「${book.name}」` });
-    }
   }, [queryClient]);
 
+  const setCurrentBookId = useCallback(
+    (bookId: string) => {
+      const book = books.find((b: Book) => b.id === bookId);
+      if (book) switchBook(book);
+    },
+    [books, switchBook],
+  );
+
   return (
-    <BookContext.Provider value={{ currentBook, books, switchBook, loading, isOwner }}>
+    <BookContext.Provider
+      value={{
+        currentBook,
+        books,
+        switchBook,
+        loading: booksLoading,
+        isOwner,
+        setCurrentBookId,
+        hasBooks,
+        refetchBooks,
+      }}
+    >
       {children}
     </BookContext.Provider>
   );

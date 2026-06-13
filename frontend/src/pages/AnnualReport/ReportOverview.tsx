@@ -9,41 +9,79 @@ interface Props {
   };
 }
 
-const Card: React.FC<{ label: string; value: string; color: string }> = ({
+const Card: React.FC<{ label: string; value: string; color: string; bgColor: string; icon: string }> = ({
   label,
   value,
   color,
+  bgColor,
+  icon,
 }) => (
-  <div className="bg-gray-50 rounded-xl p-4 text-center">
-    <div className="text-xs text-gray-500 mb-1">{label}</div>
-    <div className={`text-xl font-bold ${color}`}>{value}</div>
+  <div
+    className="rounded-xl p-4 text-center relative overflow-hidden"
+    style={{
+      background: bgColor,
+      boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
+    }}
+  >
+    <div
+      className="absolute top-2 right-2 opacity-20"
+      style={{ fontSize: '32px' }}
+    >
+      {icon}
+    </div>
+    <div className="text-xs text-gray-500 mb-1 relative z-10">{label}</div>
+    <div className={`text-xl font-bold ${color} relative z-10`}>{value}</div>
   </div>
 );
 
 const ReportOverview: React.FC<Props> = ({ data }) => {
+  const formatNumber = (n: number) => {
+    if (n >= 10000) {
+      return '¥' + (n / 10000).toFixed(1) + 'w';
+    }
+    return '¥' + n.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  };
+
   return (
-    <div className="px-4 py-8">
-      <h2 className="text-lg font-bold text-gray-800 mb-4 text-center">年度总览</h2>
+    <div style={{ marginBottom: '24px' }}>
+      <h2
+        style={{
+          fontSize: '18px',
+          fontWeight: 600,
+          color: 'var(--fg)',
+          marginBottom: '16px',
+        }}
+      >
+        📊 年度总览
+      </h2>
       <div className="grid grid-cols-2 gap-3">
         <Card
-          label="总收入"
-          value={`¥${data.total_income.toFixed(0)}`}
+          label="年度总收入"
+          value={formatNumber(data.total_income)}
           color="text-green-600"
+          bgColor="#E8F5E9"
+          icon="📈"
         />
         <Card
-          label="总支出"
-          value={`¥${data.total_expense.toFixed(0)}`}
-          color="text-red-500"
+          label="年度总支出"
+          value={formatNumber(data.total_expense)}
+          color="text-orange-500"
+          bgColor="#FFF3E0"
+          icon="💳"
         />
         <Card
-          label="结余"
-          value={`¥${data.balance.toFixed(0)}`}
+          label="年度结余"
+          value={formatNumber(data.balance)}
           color={data.balance >= 0 ? 'text-blue-600' : 'text-red-500'}
+          bgColor={data.balance >= 0 ? '#E3F2FD' : '#FFEBEE'}
+          icon="💰"
         />
         <Card
           label="结余率"
           value={`${data.balance_rate}%`}
           color="text-purple-600"
+          bgColor="#F3E5F5"
+          icon="📉"
         />
       </div>
     </div>

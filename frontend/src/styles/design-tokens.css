@@ -1,0 +1,193 @@
+/* ═══════════════════════════════════════════
+   静记 Design Tokens v1.0
+   基于 design-auth-pages.html + design-mockup-v11.html
+   绿色系 · DM Sans 字体 · 统一 CSS 变量
+   ═══════════════════════════════════════════ */
+
+/* ── 字体 ── */
+@import '@fontsource/dm-sans/400.css';
+@import '@fontsource/dm-sans/500.css';
+@import '@fontsource/dm-sans/600.css';
+@import '@fontsource/dm-sans/700.css';
+@import '@fontsource/dm-mono/400.css';
+@import '@fontsource/dm-mono/500.css';
+
+:root {
+  /* ═══ 主色系统 — 绿色 ═══ */
+  --pr:    #2D9D8A;
+  --prH:   #248B78;
+  --prD:   #1A7A6A;
+  --prBg:  #E7F5F2;
+  --prBd:  #C4E5DE;
+  --prGr:  linear-gradient(135deg, #2D9D8A 0%, #45B7A7 100%);
+
+  /* ═══ 中性色 ═══ */
+  --bg:    #F6F7F4;
+  --srf:   #FFFFFF;
+  --srfH:  #F9FAF8;
+  --fg:    #1A1C19;
+  --fg2:   #5A5D58;
+  --fg3:   #8B8E89;
+  --bd:    #E0E2DD;
+  --bdL:   #EDEEE9;
+
+  /* ═══ 语义色 ═══ */
+  --inc:    #3BA272;   /* 收入 */
+  --incBg:  #EAF7F0;
+  --exp:    #E06055;   /* 支出 */
+  --expBg:  #FCEEED;
+  --warn:   #E8A838;   /* 警告 */
+  --warnBg: #FDF6E8;
+  --info:   #4A90D9;   /* 信息 */
+  --infoBg: #ECF3FB;
+
+  /* ═══ 遮罩 ═══ */
+  --ov: rgba(0, 0, 0, 0.35);
+
+  /* ═══ 圆角 ═══ */
+  --rs:  8px;    /* 小：标签/按钮/输入框 */
+  --rm:  12px;   /* 中：卡片/弹窗 */
+  --rl:  18px;   /* 大：面板 */
+  --rx:  24px;   /* 超大：模态 */
+
+  /* ═══ 阴影 ═══ */
+  --sh1: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --sh2: 0 2px 8px rgba(0, 0, 0, 0.06);
+  --sh3: 0 8px 24px rgba(0, 0, 0, 0.08);
+  --sh4: 0 16px 48px rgba(0, 0, 0, 0.12);
+
+  /* ═══ 全局 Z-Index 层级系统 ═══
+     从低到高，确保组件层级有序，避免互相遮挡
+  */
+  --z-baseline:  0;       /* 默认流 */
+  --z-1:         1;       /* 基础内容/装饰元素 */
+  --z-5:         5;       /* 组件内部底层 */
+  --z-10:       10;       /* 浮动控件（地图瓦片、标签） */
+  --z-30:       30;       /* 下拉菜单、地图控件 */
+  --z-50:       50;       /* 筛选栏、地图工具栏 */
+  --z-100:     100;       /* 侧边栏、日历选择 */
+  --z-200:     200;       /* 侧边栏展开内容、地图切换器 */
+  --z-400:     400;       /* Tooltip 提示 */
+  --z-900:     900;       /* 详情弹窗 */
+  --z-modal:  1000;       /* 主模态弹窗 */
+  --z-critical: 2000;     /* 最高优先级（无账本、强制提示） */
+  --z-toast:  3000;       /* Toast 通知（必须高于所有弹窗） */
+
+  /* ═══ 字体栈 ═══ */
+  --fn: 'DM Sans', -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif;
+  --fm: 'DM Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+
+  /* ═══ 缓动函数 ═══ */
+  --ease: cubic-bezier(0.25, 0, 0, 1);
+  --sp:   cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* ═══ 过渡时长 ═══ */
+  --df: 0.15s;   /* 微交互 hover */
+  --dn: 0.25s;   /* 正常过渡 展开/折叠 */
+  --ds: 0.35s;   /* 慢过渡 图表动画 */
+
+  /* ═══ 侧边栏 ═══ */
+  --sw:  240px;  /* 展开宽度 */
+  --swc: 64px;   /* 折叠宽度 */
+
+  /* ── 向后兼容旧变量名 (过渡期, 后续逐步移除) ── */
+  --accent:       var(--pr);
+  --accent-hover: var(--prH);
+  --accent-light: var(--prBg);  /* 兼容旧代码 */
+  --surface:      var(--srf);
+  --muted:        var(--fg2);
+  --border:       var(--bd);
+  --success:      var(--inc);
+  --danger:       var(--exp);
+  --warning:      var(--warn);
+
+  --font-display: var(--fn);
+  --font-body:    var(--fn);
+  --font-mono:    var(--fm);
+
+  --radius-sm: var(--rs);
+  --radius-md: var(--rm);
+  --radius-lg: var(--rl);
+
+  --shadow-sm: var(--sh1);
+  --shadow-md: var(--sh2);
+  --shadow-lg: var(--sh3);
+}
+
+/* ═══ 深色模式 ═══ */
+[data-theme="dark"] {
+  --bg:    #1A1C19;
+  --srf:   #252825;
+  --srfH:  #2C2F2C;
+  --fg:    #E8EAE5;
+  --fg2:   #A5A8A3;
+  --fg3:   #6E716C;
+  --bd:    #3A3D39;
+  --bdL:   #303330;
+
+  --pr:    #45B7A7;
+  --prH:   #52C4B4;
+  --prD:   #2D9D8A;
+  --prBg:  #1A3A35;
+  --prBd:  #2A5A52;
+
+  --inc:    #52C494;
+  --incBg:  #1A3528;
+  --exp:    #F08075;
+  --expBg:  #3A2020;
+  --warn:   #F0C040;
+  --warnBg: #3A3020;
+  --info:   #60A5FA;
+  --infoBg: #1A2A40;
+
+  --ov: rgba(0, 0, 0, 0.55);
+
+  --sh1: 0 1px 2px rgba(0, 0, 0, 0.2);
+  --sh2: 0 2px 8px rgba(0, 0, 0, 0.3);
+  --sh3: 0 8px 24px rgba(0, 0, 0, 0.4);
+  --sh4: 0 16px 48px rgba(0, 0, 0, 0.5);
+}
+
+/* ═══ 全局动画关键帧 ═══ */
+@keyframes fadeIn    { from { opacity: 0; }                    to { opacity: 1; } }
+@keyframes fadeInUp  { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes scaleIn   { from { opacity: 0; transform: scale(0.95); }     to { opacity: 1; transform: scale(1); } }
+@keyframes tin       { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes tout      { from { opacity: 1; transform: translateX(0); }    to { opacity: 0; transform: translateX(40px); } }
+@keyframes spin      { to { transform: rotate(360deg); } }
+
+/* ═══ Spotlight 聚焦动画 (绿色版) ═══ */
+@keyframes spotlightPulse {
+  0%, 100% {
+    box-shadow: 0 0 0 1px rgba(45, 157, 138, 0.45), 0 0 14px rgba(45, 157, 138, 0.18);
+  }
+  50% {
+    box-shadow: 0 0 0 2px rgba(45, 157, 138, 0.7), 0 0 24px rgba(45, 157, 138, 0.32);
+  }
+}
+@keyframes spotlightBorderGlow {
+  0%   { border-color: var(--pr); }
+  50%  { border-color: var(--prH); }
+  100% { border-color: var(--pr); }
+}
+[data-theme="dark"] .spotlight--focused {
+  animation: spotlightPulseDark 1.6s ease-in-out infinite;
+}
+@keyframes spotlightPulseDark {
+  0%, 100% {
+    box-shadow: 0 0 0 1px rgba(69, 183, 167, 0.5), 0 0 16px rgba(69, 183, 167, 0.22);
+  }
+  50% {
+    box-shadow: 0 0 0 2px rgba(69, 183, 167, 0.75), 0 0 28px rgba(69, 183, 167, 0.38);
+  }
+}
+[data-theme="dark"] .spotlight--focused.budgets-table-row {
+  animation: spotlightBorderGlowDark 0.8s ease-in-out infinite;
+  border-color: var(--pr);
+  background: rgba(69, 183, 167, 0.04);
+}
+@keyframes spotlightBorderGlowDark {
+  0%   { border-color: var(--pr); }
+  50%  { border-color: var(--prH); }
+  100% { border-color: var(--pr); }
+}

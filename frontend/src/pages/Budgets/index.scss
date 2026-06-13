@@ -1,337 +1,89 @@
-/* Budgets 页面样式 */
+/* ═══ Budgets 预算模块样式 ═══ */
 
-
-/* 工具栏：月份选择器 + 复制按钮 */
-.budgets-toolbar {
-  display: flex;
-  align-items: flex-end;
-  gap: 16px;
-  margin-bottom: 24px;
-  flex-wrap: wrap;
+.budget-item {
+  margin-bottom: 12px;
 }
 
-.budgets-month-selector {
+.budget-info {
   display: flex;
-  flex-direction: column;
+  justify-content: space-between;
+  margin-bottom: 5px;
+  align-items: center;
+}
+
+.budget-name {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.budget-amount {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--fg2);
+  display: flex;
+  align-items: center;
   gap: 6px;
 }
 
-.budgets-month-label {
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--muted);
-}
-
-.budgets-month-input {
-  padding: 8px 12px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  background: var(--surface);
-  color: var(--fg);
-  font-size: 14px;
-  font-family: var(--font-body);
-  outline: none;
-  transition: border-color 0.2s ease;
-}
-
-.budgets-month-input:focus {
-  border-color: var(--accent);
-}
-
-/* 表格区域 */
-.budgets-table-section {
-  margin-bottom: 24px;
-}
-
-.budgets-section-title {
-  font-family: var(--font-display);
-  font-size: 16px;
-  font-weight: 600;
-  margin-bottom: 16px;
-  color: var(--fg);
-}
-
-/* 表格 */
-.budgets-table {
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-  background: var(--surface);
-}
-
-.budgets-table-header {
+.budget-actions {
   display: flex;
-  align-items: center;
-  padding: 12px 20px;
-  background: var(--bg);
-  border-bottom: 1px solid var(--border);
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--muted);
-}
-
-.budgets-table-row {
-  display: flex;
-  align-items: center;
-  padding: 14px 20px;
-  border-bottom: 1px solid var(--border);
-  transition: background 0.15s ease;
-}
-
-.budgets-table-row:last-child {
-  border-bottom: none;
-}
-
-.budgets-table-row:hover {
-  background: var(--bg);
-}
-
-/* 列宽 */
-.budgets-col {
-  flex-shrink: 0;
-}
-
-.budgets-col--category {
-  flex: 1;
-  min-width: 120px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.budgets-col--budget {
-  width: 160px;
-}
-
-.budgets-col--spent {
-  width: 120px;
-  text-align: right;
-}
-
-.budgets-col--progress {
-  width: 180px;
-  padding-left: 16px;
-}
-
-/* 分类图标和名称 */
-.budgets-category-icon {
-  font-size: 18px;
-  flex-shrink: 0;
-}
-
-.budgets-category-name {
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--fg);
-}
-
-/* 预算金额输入 */
-.budgets-amount-input-wrapper {
-  display: flex;
-  align-items: center;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  overflow: hidden;
-  background: var(--bg);
-  transition: border-color 0.2s ease;
-}
-
-.budgets-amount-input-wrapper:focus-within {
-  border-color: var(--accent);
-}
-
-.budgets-amount-prefix {
-  padding: 0 0 0 10px;
-  color: var(--muted);
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.budgets-amount-input {
-  width: 100%;
-  padding: 8px 10px 8px 4px;
-  border: none;
-  background: transparent;
-  color: var(--fg);
-  font-size: 14px;
-  font-family: var(--font-body);
-  outline: none;
-  -moz-appearance: textfield;
-}
-
-.budgets-amount-input::-webkit-inner-spin-button,
-.budgets-amount-input::-webkit-outer-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
-
-/* 已花费 */
-.budgets-spent-value {
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--fg);
-}
-
-/* 区域标题旁的禁用标签 */
-.budgets-section-badge {
-  display: inline-flex;
-  align-items: center;
   gap: 3px;
-  font-size: 11px;
-  font-weight: 500;
-  padding: 2px 8px;
-  border-radius: 10px;
-  vertical-align: middle;
-  margin-left: 8px;
-
-  &--disabled {
-    background: rgba(0, 0, 0, 0.06);
-    color: var(--muted);
-    border: 1px solid var(--border);
-    cursor: not-allowed;
-  }
+  opacity: 0;
+  transition: opacity var(--df);
 }
 
-/* 进度条 */
-.budgets-progress-wrapper {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+.budget-item:hover .budget-actions {
+  opacity: 1;
 }
 
-.budgets-progress-bar {
-  flex: 1;
-  height: 8px;
-  background: var(--border);
-  border-radius: 4px;
-  overflow: hidden;
-}
-
-.budgets-progress-fill {
-  height: 100%;
-  border-radius: 4px;
-  transition: width 0.4s ease;
-  min-width: 2px;
-}
-
-.budgets-progress-fill.progress--safe {
-  background: var(--success);
-}
-
-.budgets-progress-fill.progress--warning {
-  background: var(--warning);
-}
-
-.budgets-progress-fill.progress--over {
-  background: var(--danger);
-}
-
-.budgets-progress-label {
-  font-size: 12px;
-  font-weight: 600;
-  min-width: 42px;
-  text-align: right;
-}
-
-.budgets-progress-label.progress--safe {
-  color: var(--success);
-}
-
-.budgets-progress-label.progress--warning {
-  color: var(--warning);
-}
-
-.budgets-progress-label.progress--over {
-  color: var(--danger);
-}
-
-/* 收入分类提示 — 强禁用效果 */
-.budgets-income-hint {
-  position: relative;
+.budget-actions button {
   background: var(--bg);
-  border: 1px dashed var(--border);
-  border-radius: var(--radius-lg);
-  padding: 32px 24px;
-  text-align: center;
-  filter: grayscale(1);
-  opacity: 0.5;
-  cursor: not-allowed;
+  border: 1px solid var(--bd);
+  border-radius: 5px;
+  font-size: 10px;
+  cursor: pointer;
+  color: var(--fg3);
+  padding: 2px 6px;
+}
+
+.budget-actions button:hover {
+  background: var(--srf);
+  color: var(--fg);
+  border-color: var(--prBd);
+}
+
+.budget-actions button.del:hover {
+  color: var(--exp);
+  border-color: var(--exp);
+}
+
+.budget-bar {
+  height: 5px;
+  background: var(--bg);
+  border-radius: 3px;
   overflow: hidden;
-
-  /* 斜纹背景，强化禁用感 */
-  &::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: repeating-linear-gradient(
-      -45deg,
-      transparent,
-      transparent 8px,
-      rgba(0, 0, 0, 0.03) 8px,
-      rgba(0, 0, 0, 0.03) 16px
-    );
-    pointer-events: none;
-  }
-
-  /* 子元素保持正常排列 */
-  > * {
-    position: relative;
-    z-index: 1;
-  }
-
-  p {
-    font-size: 14px;
-    color: var(--muted);
-    margin-bottom: 16px;
-  }
 }
 
-.budgets-income-categories {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  justify-content: center;
+.fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width var(--ds) var(--sp);
 }
 
-.budgets-income-tag {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 6px 14px;
-  border-radius: 20px;
-  font-size: 13px;
-  background: var(--surface);
-  color: var(--muted);
-  border: 1px solid var(--border);
-  opacity: 0.6;
-  cursor: not-allowed;
+.fill.safe {
+  background: var(--prGr);
 }
 
-/* 保存区域 */
-.budgets-save-area {
-  margin-top: 32px;
-  padding: 24px 0;
-  display: flex;
-  justify-content: center;
-  border-top: 1px solid var(--border);
+.fill.warn {
+  background: linear-gradient(90deg, #E8A838, #F0C040);
 }
 
-/* 响应式 */
-@media (max-width: 768px) {
-  .budgets-col--budget {
-    width: 120px;
-  }
+.fill.danger {
+  background: linear-gradient(90deg, #E06055, #F08075);
+}
 
-  .budgets-col--spent {
-    width: 90px;
-  }
-
-  .budgets-col--progress {
-    width: 120px;
-  }
-
-  .budgets-table-header,
-  .budgets-table-row {
-    padding: 10px 12px;
-  }
+.budget-percent {
+  font-size: 11px;
+  color: var(--fg3);
+  margin-top: 2px;
 }

@@ -123,4 +123,13 @@ export class AdminController {
       date_to: query.date_to,
     });
   }
+
+  /**
+   * GET /api/admin/books
+   * 全平台账本列表（管理员筛选下拉用）
+   */
+  @Get('books')
+  async getBooks() {
+    return this.adminService.getBooks();
+  }
 }

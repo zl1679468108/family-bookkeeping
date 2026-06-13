@@ -1,0 +1,206 @@
+/* ═══ Templates 模板模块样式 ═══ */
+
+/* 模板网格 */
+.tpl-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.tpl-card {
+  width: 185px;
+  padding: 14px;
+  background: var(--srf);
+  border: 1px solid var(--bd);
+  border-radius: var(--rm);
+  cursor: pointer;
+  transition: all var(--df);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  text-align: left;
+}
+
+.tpl-card:hover {
+  border-color: var(--prBd);
+  box-shadow: var(--sh2);
+}
+
+.tpl-card.dragging {
+  opacity: 0.5;
+  border-style: dashed;
+}
+
+.tpl-card.drag-over {
+  border-color: var(--pr);
+  box-shadow: 0 0 0 2px var(--prBg);
+}
+
+.tpl-handle {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  font-size: 10px;
+  color: var(--fg3);
+  display: none;
+}
+
+.sort-mode .tpl-handle {
+  display: block;
+}
+
+/* 网格式新增卡片样式 */
+.tpl-card.add-new {
+  border-style: dashed;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  min-height: 120px;
+  color: var(--fg3);
+  font-size: 13px;
+}
+
+.tpl-card.add-new:hover {
+  border-color: var(--pr);
+  background: var(--prBg);
+}
+
+.tpl-card.add-new .add-icon {
+  font-size: 32px;
+  color: var(--pr);
+  font-weight: 300;
+}
+
+.tpl-card.add-new .add-text {
+  font-size: 12px;
+  color: var(--fg3);
+}
+
+.tpl-card.add-new:hover .add-icon,
+.tpl-card.add-new:hover .add-text {
+  color: var(--pr);
+}
+
+.tpl-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.tpl-e {
+  font-size: 28px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.tpl-content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tpl-n {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--fg);
+  flex: 1;
+  min-width: 0;
+  padding-top: 2px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.tpl-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  color: var(--fg3);
+  flex-wrap: wrap;
+  padding-top: 2px;
+}
+
+.tpl-type {
+  padding: 2px 6px;
+  background: rgba(45, 157, 138, 0.1);
+  color: var(--pr);
+  border-radius: 4px;
+  font-weight: 500;
+  white-space: nowrap;
+  font-size: 10px;
+}
+
+.tpl-type.income {
+  background: rgba(16, 185, 129, 0.1);
+  color: var(--inc);
+}
+
+.tpl-type.expense {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--exp);
+}
+
+.tpl-cat {
+  color: var(--fg3);
+  font-size: 10px;
+}
+
+.tpl-amt {
+  font-weight: 600;
+  color: var(--fg);
+  margin-left: auto;
+}
+
+.tpl-m {
+  font-size: 11px;
+  color: var(--fg3);
+}
+
+/* 模板操作按钮 */
+.tpl-acts {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: flex;
+  gap: 2px;
+  opacity: 0;
+  transition: opacity var(--df);
+}
+
+.tpl-card:hover .tpl-acts {
+  opacity: 1;
+}
+
+.tpl-acts button {
+  background: var(--srf);
+  border: 1px solid var(--bd);
+  border-radius: 5px;
+  padding: 2px 6px;
+  font-size: 10px;
+  cursor: pointer;
+  color: var(--fg3);
+}
+
+.tpl-acts button:hover {
+  color: var(--fg);
+}
+
+/* 响应式 */
+@media (max-width: 768px) {
+  .tpl-grid {
+    gap: 6px;
+  }
+  .tpl-card {
+    width: calc(33.333% - 4px);
+  }
+}

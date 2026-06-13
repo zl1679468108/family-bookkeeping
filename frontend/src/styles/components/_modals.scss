@@ -1,0 +1,60 @@
+/* ═══ 模态框样式 ═══ */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--ov);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: var(--z-modal);
+  animation: fadeIn 0.2s var(--ease);
+}
+
+.modal-content {
+  background: var(--srf);
+  border-radius: var(--rl);
+  box-shadow: var(--sh4);
+  width: 90%;
+  max-width: 420px;
+  animation: scaleIn 0.25s var(--sp);
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 22px;
+  border-bottom: 1px solid var(--bdL);
+}
+
+.modal-header h3 {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.modal-header button {
+  background: none;
+  border: none;
+  font-size: 16px;
+  color: var(--fg3);
+  cursor: pointer;
+  padding: 4px;
+}
+
+.modal-header button:hover {
+  color: var(--fg);
+}
+
+.modal-body {
+  padding: 18px 22px;
+}
+
+.modal-footer {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  padding: 14px 22px;
+  border-top: 1px solid var(--bdL);
+}

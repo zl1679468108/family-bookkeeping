@@ -1,0 +1,500 @@
+/* ═══ Sidebar 侧边栏样式 ═══ */
+
+/* 侧边栏主体 */
+.sidebar {
+  width: var(--sw);
+  min-width: var(--sw);
+  height: 100vh;
+  background: var(--srf);
+  border-right: 1px solid var(--bd);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  z-index: var(--z-100);
+  transition: width var(--dn) var(--ease);
+}
+
+.sidebar.collapsed {
+  width: var(--swc);
+  min-width: var(--swc);
+}
+
+/* Logo 区域 */
+.sidebar-brand {
+  padding: 18px 18px 8px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: all var(--dn) var(--ease);
+}
+
+.sidebar.collapsed .sidebar-brand {
+  padding: 16px 0 8px;
+  justify-content: center;
+}
+
+.brand-icon {
+  width: 30px;
+  height: 30px;
+  background: var(--prGr);
+  border-radius: var(--rm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  flex-shrink: 0;
+  transition: all var(--dn) var(--ease);
+}
+
+.brand-text {
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  transition: opacity var(--df), width var(--dn);
+}
+
+.sidebar.collapsed .brand-text {
+  opacity: 0;
+  width: 0;
+  display: none;
+}
+
+/* 折叠按钮 */
+.sidebar-toggle {
+  position: absolute;
+  top: 66px;
+  right: -12px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 1px solid var(--bd);
+  background: var(--srf);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: var(--z-10);
+  color: var(--fg3);
+  box-shadow: var(--sh1);
+  transition: all var(--df);
+}
+
+.sidebar-toggle:hover {
+  color: var(--pr);
+  border-color: var(--pr);
+}
+
+.sidebar.collapsed .sidebar-toggle {
+  top: 52px;
+}
+
+/* Book Switcher */
+.book-area {
+  padding: 0 12px 6px;
+  position: relative;
+  transition: all var(--dn);
+}
+
+.sidebar.collapsed .book-area {
+  padding: 4px 0 8px;
+  display: flex;
+  justify-content: center;
+}
+
+.book-trigger {
+  padding: 7px 10px;
+  background: var(--bg);
+  border-radius: var(--rs);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all var(--df);
+  white-space: nowrap;
+}
+
+.book-trigger:hover {
+  background: var(--srfH);
+}
+
+.sidebar.collapsed .book-trigger {
+  justify-content: center;
+  padding: 6px;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--rm);
+  gap: 0;
+}
+
+.book-avatar {
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  background: var(--prGr);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  flex-shrink: 0;
+  transition: all var(--dn);
+}
+
+.sidebar.collapsed .book-avatar {
+  width: 24px;
+  height: 24px;
+  font-size: 12px;
+}
+
+.book-name {
+  font-size: 12px;
+  font-weight: 600;
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sidebar.collapsed .book-name {
+  display: none;
+}
+
+.book-chevron {
+  margin-left: auto;
+  color: var(--fg3);
+  font-size: 9px;
+  transition: transform var(--df);
+}
+
+.sidebar.collapsed .book-chevron {
+  display: none;
+}
+
+.book-dropdown {
+  position: absolute;
+  left: 8px;
+  top: 100%;
+  width: 200px;
+  background: var(--srf);
+  border: 1px solid var(--bd);
+  border-radius: var(--rm);
+  box-shadow: var(--sh3);
+  z-index: var(--z-200);
+  display: none;
+  overflow: hidden;
+}
+
+.book-dropdown.active {
+  display: block;
+  animation: scaleIn 0.2s var(--sp);
+}
+
+.book-opt {
+  padding: 9px 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  transition: background var(--df);
+}
+
+.book-opt:hover {
+  background: var(--bg);
+}
+
+.book-opt .bdot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* Nav */
+.nav-scroll {
+  flex: 1;
+  padding: 2px 6px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.sidebar.collapsed .nav-scroll {
+  padding: 2px 0;
+}
+
+.nav-section {
+  margin-bottom: 4px;
+}
+
+.nav-sep {
+  padding: 0 10px;
+  margin: 10px 0 2px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--fg3);
+  transition: all var(--df);
+}
+
+.sidebar.collapsed .nav-sep {
+  opacity: 0;
+  height: 0;
+  margin: 0;
+  overflow: hidden;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  margin: 1px 0;
+  border-radius: var(--rs);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--fg2);
+  cursor: pointer;
+  transition: all var(--df);
+  white-space: nowrap;
+  position: relative;
+}
+
+.nav-item:hover {
+  background: var(--bg);
+  color: var(--fg);
+}
+
+.nav-item.active {
+  background: var(--prBg);
+  color: var(--pr);
+  font-weight: 600;
+}
+
+.sidebar.collapsed .nav-item {
+  justify-content: center;
+  padding: 9px;
+  gap: 0;
+}
+
+.nav-icon {
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all var(--dn);
+}
+
+.sidebar.collapsed .nav-icon {
+  width: 20px;
+  height: 20px;
+}
+
+.nav-label {
+  font-size: 13px;
+  transition: opacity var(--df);
+}
+
+.sidebar.collapsed .nav-label {
+  display: none;
+}
+
+.nav-badge {
+  margin-left: auto;
+  font-size: 10px;
+  font-weight: 700;
+  background: var(--exp);
+  color: #fff;
+  padding: 1px 5px;
+  border-radius: 10px;
+}
+
+.sidebar.collapsed .nav-badge {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  font-size: 8px;
+  padding: 1px 4px;
+  margin-left: 0;
+}
+
+/* Footer / User Area */
+.sidebar-footer {
+  border-top: 1px solid var(--bdL);
+  padding: 8px 12px;
+  position: relative;
+  transition: all var(--dn);
+}
+
+.sidebar.collapsed .sidebar-footer {
+  padding: 8px 4px;
+}
+
+.user-trigger {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  padding: 4px 0;
+  border: none;
+  background: none;
+  width: 100%;
+  font-family: var(--fn);
+  transition: all var(--df);
+}
+
+.user-trigger:hover {
+  opacity: 0.8;
+}
+
+.sidebar.collapsed .user-trigger {
+  justify-content: center;
+  gap: 0;
+}
+
+.user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--prGr);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.user-avatar img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.user-info {
+  flex: 1;
+  min-width: 0;
+  text-align: left;
+}
+
+.sidebar.collapsed .user-info {
+  display: none;
+}
+
+.user-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--fg);
+  line-height: 1.2;
+}
+
+.user-arrow {
+  color: var(--fg3);
+  font-size: 10px;
+  transition: transform var(--df);
+}
+
+.user-arrow.open {
+  transform: rotate(180deg);
+}
+
+.sidebar.collapsed .user-arrow {
+  display: none;
+}
+
+/* User Menu Popover */
+.user-menu {
+  position: absolute;
+  left: 8px;
+  bottom: 100%;
+  margin-bottom: 8px;
+  width: 220px;
+  background: var(--srf);
+  border: 1px solid var(--bd);
+  border-radius: var(--rm);
+  box-shadow: var(--sh4);
+  z-index: var(--z-200);
+  overflow: hidden;
+  display: none;
+}
+
+.user-menu.active {
+  display: block;
+  animation: scaleIn 0.2s var(--sp);
+}
+
+.sidebar.collapsed .user-menu {
+  left: 0;
+  margin-left: 4px;
+}
+
+.um-header {
+  padding: 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--bg);
+}
+
+.um-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--prGr);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.um-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--fg);
+}
+
+.um-email {
+  font-size: 11px;
+  color: var(--fg3);
+  margin-top: 1px;
+}
+
+.um-divider {
+  height: 1px;
+  background: var(--bdL);
+}
+
+.um-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  font-size: 13px;
+  color: var(--fg2);
+  cursor: pointer;
+  transition: background var(--df);
+}
+
+.um-item:hover {
+  background: var(--bg);
+}
+
+.um-item.danger {
+  color: var(--exp);
+}
+
+.um-item.danger:hover {
+  background: var(--expBg);
+}

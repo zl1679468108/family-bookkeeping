@@ -154,6 +154,20 @@
   color: var(--color-text-hint);
   margin-left: 4rpx;
 }
+.form-value-col {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4rpx;
+}
+.form-value-sub {
+  font-size: var(--font-xs);
+  color: var(--color-text-hint);
+  max-width: 400rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 
 /* Save button */
 .add-save-wrap {

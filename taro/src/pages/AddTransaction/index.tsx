@@ -133,9 +133,10 @@ export default function AddTransaction() {
       if (locData.latitude && locData.longitude) {
         setLocation({
           name: locData.location_name || "",
-          address: "",
+          address: locData.location_address || "",
           lat: locData.latitude,
           lng: locData.longitude,
+          poiId: locData.poi_id || null,
         });
       }
     }
@@ -204,8 +205,10 @@ export default function AddTransaction() {
       date: date.toISOString(),
       description: note || undefined,
       location_name: location?.name,
+      location_address: location?.address,
       location_lat: location?.lat,
       location_lng: location?.lng,
+      poi_id: location?.poiId,
     };
     try {
       if (isEdit) {
@@ -357,10 +360,23 @@ export default function AddTransaction() {
               onClick={() => setShowLocationPicker(true)}
             >
               <Text className="form-label">位置</Text>
-              <Text className="form-value">
-                {location?.name || "选择位置"}
-                <Text className="form-chevron">▸</Text>
-              </Text>
+              <View className="form-value-col">
+                <Text className="form-value">
+                  {location?.name || "选择位置"}
+                  <Text className="form-chevron">▸</Text>
+                </Text>
+                {location?.lat && location?.lng ? (
+                  <Text className="form-value-sub">
+                    {location.lat.toFixed(6)}, {location.lng.toFixed(6)}
+                  </Text>
+                ) : null}
+                {location?.address && location.address !== location.name ? (
+                  <Text className="form-value-sub">{location.address}</Text>
+                ) : null}
+                {location?.poiId ? (
+                  <Text className="form-value-sub">POI: {location.poiId}</Text>
+                ) : null}
+              </View>
             </View>
           </View>
         </View>
@@ -444,9 +460,10 @@ export default function AddTransaction() {
         onConfirm={(loc) => {
           setLocation({
             name: loc.locationName,
-            address: "",
+            address: loc.address || loc.locationName,
             lat: loc.latitude,
             lng: loc.longitude,
+            poiId: loc.poiId,
           });
           setShowLocationPicker(false);
         }}

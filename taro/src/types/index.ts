@@ -211,4 +211,5 @@ export interface LocationInfo {
   address: string;
   lat: number;
   lng: number;
+  poiId?: string | null;
 }

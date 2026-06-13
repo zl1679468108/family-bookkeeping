@@ -1,115 +1,327 @@
-/* Map 页面样式 */
+/* ═══════════════════════════════════════════
+   消费地图 · 页面样式（重构版：下拉框布局）
+   ═══════════════════════════════════════════ */
 
 .map-page {
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 64px);
+  gap: 16px;
+  padding-bottom: 8px;
 }
 
-/* 工具栏 */
-.map-toolbar {
+/* ── 工具条卡片 ── */
+.map-toolbar-card {
+  background: var(--srf, #ffffff);
+  border: 1px solid var(--bd, #e5e7eb);
+  border-radius: var(--rl, 16px);
+  padding: 16px 18px;
+  box-shadow: var(--sh1, 0 1px 2px rgba(0, 0, 0, 0.04));
   display: flex;
   flex-direction: column;
-  padding: 12px 24px;
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
-  gap: 8px;
+  gap: 12px;
 }
 
+/* 工具条主行：下拉框 + 统计 */
 .map-toolbar-row {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
   flex-wrap: wrap;
 }
 
-.map-toolbar-bottom {
-  justify-content: space-between;
+/* 占位：把统计信息推到右边 */
+.map-toolbar-spacer {
+  flex: 1 1 auto;
+  min-width: 16px;
 }
 
-/* 筛选 Chip */
-.map-chip {
+/* 统计信息（右侧的浅色标签） */
+.map-stats-inline {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.map-stat-chip {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 4px 12px;
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  background: var(--bg);
-  color: var(--muted);
-  font-size: 12px;
+  padding: 6px 12px;
+  background: var(--bg, #f9fafb);
+  border: 1px solid var(--bd, #e5e7eb);
+  border-radius: 999px;
+  color: var(--fg, #1f2937);
+  font-size: 13px;
+  line-height: 1;
+}
+
+.map-stat-chip strong {
+  color: var(--pr, #16a34a);
+  font-weight: 700;
+  font-size: 13px;
+  margin: 0 2px;
+}
+
+/* ── 子行：自定义日期 ── */
+.map-toolbar-subrow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  background: var(--bg, #f9fafb);
+  border-radius: var(--rm, 12px);
+  font-size: 13px;
+}
+
+.map-subrow-label {
+  color: var(--fg2, #4b5563);
+  font-weight: 500;
+}
+
+.map-date-input {
+  padding: 6px 10px;
+  border: 1px solid var(--bd, #d1d5db);
+  border-radius: var(--rs, 8px);
+  background: var(--srf, #ffffff);
+  color: var(--fg, #1f2937);
+  font-family: var(--fn, system-ui);
+  font-size: 13px;
+  outline: none;
+  transition: border-color var(--df, 0.15s) ease, box-shadow var(--df, 0.15s) ease;
+}
+
+.map-date-input:focus {
+  border-color: var(--pr, #16a34a);
+  box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.12);
+}
+
+.map-date-sep {
+  color: var(--fg3, #9ca3af);
+}
+
+.map-btn-secondary {
+  padding: 6px 14px;
+  border: 1px solid var(--pr, #16a34a);
+  background: var(--pr, #16a34a);
+  color: #ffffff;
+  border-radius: var(--rs, 8px);
+  font-size: 13px;
   cursor: pointer;
-  transition: all 0.15s;
-  white-space: nowrap;
+  font-family: var(--fn, system-ui);
+  font-weight: 500;
+  transition: background var(--df, 0.15s) ease;
 }
 
-.map-chip:hover {
-  border-color: var(--accent);
-  color: var(--accent);
+.map-btn-secondary:hover {
+  background: var(--prD, #15803d);
 }
 
-.map-chip.active {
-  background: var(--accent, #5470C6);
-  border-color: var(--accent, #5470C6);
-  color: #fff;
-}
-
-.map-chip.mini {
-  padding: 2px 8px;
-  font-size: 11px;
-}
-
-.map-chip.disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
-/* 分类、视图、类型筛选 */
-.map-category-filter {
+/* ── 搜索行 ── */
+.map-toolbar-search {
+  position: relative;
   display: flex;
-  gap: 4px;
-  flex-wrap: wrap;
-}
-
-.map-view-toggle {
-  display: flex;
+  align-items: center;
   gap: 8px;
 }
 
-.map-type-filter {
-  display: flex;
-  gap: 4px;
-}
-
-/* 统计摘要 */
-.map-stats {
-  display: flex;
-  gap: 20px;
-  font-size: 13px;
-  color: var(--muted);
-}
-
-.map-stat-item strong {
-  color: var(--fg);
-}
-
-/* 面板容器：始终渲染，CSS 切显隐（避免地图重新初始化） */
-.map-content {
+.map-toolbar-search .map-search-input {
   flex: 1;
-  position: relative;
+  height: 40px;
+  padding: 0 14px;
+  border: 1px solid var(--bd, #d1d5db);
+  border-radius: var(--rm, 12px);
+  background: var(--bg, #f9fafb);
+  color: var(--fg, #1f2937);
+  font-size: 14px;
+  font-family: var(--fn, system-ui);
+  outline: none;
+  transition: border-color var(--df, 0.15s) ease, box-shadow var(--df, 0.15s) ease, background var(--df, 0.15s) ease;
+}
+
+.map-toolbar-search .map-search-input::placeholder {
+  color: var(--fg3, #9ca3af);
+}
+
+.map-toolbar-search .map-search-input:focus {
+  border-color: var(--pr, #16a34a);
+  background: var(--srf, #ffffff);
+  box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.12);
+}
+
+.map-toolbar-search .map-search-btn {
+  height: 40px;
+  padding: 0 18px;
+  border: none;
+  border-radius: var(--rm, 12px);
+  background: var(--pr, #16a34a);
+  color: #ffffff;
+  cursor: pointer;
+  font-size: 14px;
+  font-family: var(--fn, system-ui);
+  font-weight: 500;
+  transition: background var(--df, 0.15s) ease;
+  white-space: nowrap;
+}
+
+.map-toolbar-search .map-search-btn:hover:not(:disabled) {
+  background: var(--prD, #15803d);
+}
+
+.map-toolbar-search .map-search-btn:disabled {
+  background: var(--bd, #d1d5db);
+  cursor: not-allowed;
+}
+
+/* 搜索结果面板 */
+.map-search-panel {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  max-height: 320px;
+  overflow-y: auto;
+  background: var(--srf, #ffffff);
+  border: 1px solid var(--bd, #e5e7eb);
+  border-radius: var(--rm, 12px);
+  box-shadow: var(--sh3, 0 8px 24px rgba(0, 0, 0, 0.08));
+  z-index: var(--z-50);
+  padding: 6px;
+}
+
+.map-search-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: var(--rs, 8px);
+  cursor: pointer;
+  font-size: 13px;
+  transition: background var(--df, 0.15s) ease;
+}
+
+.map-search-item:hover {
+  background: var(--prBg, #f0fdf4);
+}
+
+.map-search-item.has-data {
+  background: var(--prBg, #f0fdf4);
+}
+
+.map-search-item-icon {
+  font-size: 14px;
+  flex-shrink: 0;
+  line-height: 1.4;
+}
+
+.map-search-item-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.map-search-item-name {
+  color: var(--fg, #1f2937);
+  font-weight: 600;
+  white-space: nowrap;
   overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.map-search-item-addr {
+  color: var(--fg3, #9ca3af);
+  font-size: 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.map-search-clear {
+  display: block;
+  width: 100%;
+  padding: 8px;
+  margin-top: 4px;
+  border: none;
+  border-top: 1px solid var(--bd, #f3f4f6);
+  background: transparent;
+  color: var(--fg2, #4b5563);
+  font-size: 13px;
+  cursor: pointer;
+  font-family: var(--fn, system-ui);
+}
+
+.map-search-clear:hover {
+  color: var(--pr, #16a34a);
+}
+
+/* ── 地图/列表 内容容器 ── */
+.map-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-height: 560px;
 }
 
 .map-panel {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
   display: none;
+  flex: 1;
+  background: var(--srf, #ffffff);
+  border: 1px solid var(--bd, #e5e7eb);
+  border-radius: var(--rl, 16px);
+  overflow: hidden;
+  box-shadow: var(--sh1, 0 1px 2px rgba(0, 0, 0, 0.04));
 }
 
 .map-panel.active {
   display: flex;
-  flex-direction: column;
+}
+
+.map-canvas-wrapper {
+  width: 100%;
+  height: 560px;
+  border-radius: var(--rl, 16px);
+  overflow: hidden;
+  position: relative;
+}
+
+/* 定位失败提示 */
+.map-locate-error {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: var(--z-10);
+  background: #fff;
+  border: 1px solid var(--exp, #ef4444);
+  color: var(--exp, #ef4444);
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-size: 12px;
+  box-shadow: var(--sh2, 0 2px 8px rgba(0, 0, 0, 0.06));
+}
+
+/* ═══ MemberLocationToggle 微调：让它与下拉框同行显示看起来更一致 ═══ */
+
+/* ═══ 响应式：窄屏时的降级布局 ═══ */
+@media (max-width: 768px) {
+  .map-toolbar-card {
+    padding: 12px;
+    gap: 10px;
+  }
+
+  .map-toolbar-row {
+    gap: 6px;
+  }
+
+  .map-stats-inline {
+    width: 100%;
+    justify-content: flex-start;
+    order: 99;
+    margin-top: 2px;
+  }
+
+  .map-canvas-wrapper {
+    height: 480px;
+  }
 }

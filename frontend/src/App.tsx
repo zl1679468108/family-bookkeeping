@@ -1,12 +1,17 @@
-import React, { Suspense } from 'react'
-import { HashRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom'
+import React, { Suspense, useEffect } from 'react'
+import { HashRouter as Router, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { Sidebar } from './components/Sidebar'
 import { routes } from './routes'
 import { AuthProvider, useAuth } from './utils/auth'
 import { ThemeProvider } from './utils/theme'
-import { BookProvider } from './hooks/useBook'
+import { BookProvider, useBook } from './hooks/useBook'
 import { hasToken } from './services/api'
 import { Skeleton } from './components/ui/Skeleton'
+
+const PROJECT_NAME = '静记'
+
+// 当用户已登录但没有账本时允许访问的路由（引导性页面）
+const NO_BOOK_ALLOWED = ['/onboarding', '/books', '/profile'] as const
 
 const PrivateRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, loading } = useAuth()
@@ -36,20 +41,25 @@ const PrivateRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => 
   return <>{children}</>
 }
 
-// 公开路由（登录/注册/忘记密码），不渲染侧边栏
 const AUTH_ROUTES = ['/login', '/register', '/forgot-password'] as const
 
 const AppLayout: React.FC = () => {
-  const { user, loading } = useAuth()
+  const { user, loading: authLoading } = useAuth()
+  const { hasBooks, loading: booksLoading } = useBook()
   const location = useLocation()
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    document.title = PROJECT_NAME
+  }, [location.pathname])
 
   const isAuthPage = AUTH_ROUTES.includes(location.pathname as any)
 
-  // 公开路由 → 不渲染侧边栏，直接展示页面
+  // 公开路由（登录/注册/忘记密码）→ 不渲染侧边栏
   if (isAuthPage) {
     return (
       <Suspense fallback={
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', background: '#f9fafb' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', background: 'var(--bg)' }}>
           <Skeleton width="200px" height="20px" borderRadius="4px" />
         </div>
       }>
@@ -64,8 +74,20 @@ const AppLayout: React.FC = () => {
   }
 
   // token 不存在且未加载中 → 跳转登录
-  if (!hasToken() && !loading) {
+  if (!hasToken() && !authLoading) {
     return <Navigate to="/login" replace />
+  }
+
+  const isAllowedWithoutBooks = NO_BOOK_ALLOWED.includes(location.pathname as any)
+
+  // 已登录且账本列表已加载，但没有任何账本 → 引导到 onboarding
+  if (user && !booksLoading && !hasBooks && !isAllowedWithoutBooks) {
+    return <Navigate to="/onboarding" replace />
+  }
+
+  // 已登录有账本，但用户自己跑到 /onboarding → 直接回首页
+  if (user && hasBooks && location.pathname === '/onboarding') {
+    return <Navigate to="/" replace />
   }
 
   const showLayout = hasToken() || Boolean(user)
@@ -73,8 +95,8 @@ const AppLayout: React.FC = () => {
   // 加载中 → 展示布局骨架屏
   if (!showLayout) {
     return (
-      <div style={{ display: 'flex', minHeight: '100vh', background: '#f9fafb' }}>
-        <div style={{ width: '240px', padding: '24px 20px', borderRight: '1px solid #e5e7eb' }}>
+      <div style={{ display: 'flex', minHeight: '100vh', background: 'var(--bg)' }}>
+        <div style={{ width: '240px', padding: '24px 20px', borderRight: '1px solid var(--bd)' }}>
           <Skeleton width="120px" height="28px" marginBottom="32px" />
           {[1,2,3,4].map(i => <Skeleton key={i} height="40px" borderRadius="8px" marginBottom="8px" />)}
         </div>
@@ -82,7 +104,7 @@ const AppLayout: React.FC = () => {
           <Skeleton width="30%" height="32px" marginBottom="24px" />
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '20px', marginBottom: '24px' }}>
             {[1,2,3].map(i => (
-              <div key={i} style={{ height: '120px', borderRadius: '12px', background: '#fff', padding: '24px' }}>
+              <div key={i} style={{ height: '120px', borderRadius: '12px', background: 'var(--srf)', padding: '24px' }}>
                 <Skeleton width="60%" height="14px" marginBottom="12px" />
                 <Skeleton width="80%" height="28px" />
               </div>
@@ -94,10 +116,13 @@ const AppLayout: React.FC = () => {
     )
   }
 
+  // onboarding 和 /books 也不显示侧边栏（避免不必要的请求）
+  const hideSidebar = location.pathname === '/onboarding'
+
   return (
     <div className="app">
-      <Sidebar />
-      <main className="main">
+      {!hideSidebar && <Sidebar />}
+      <main className="main" style={hideSidebar ? { marginLeft: 0 } : undefined}>
         <Suspense fallback={
           <div style={{ padding: '24px 32px' }}>
             <Skeleton width="220px" height="20px" borderRadius="4px" />

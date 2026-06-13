@@ -1,0 +1,140 @@
+/* ═══ DropdownSelect — 下拉选择组件 ═══ */
+
+.dd-select {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+  font-family: var(--fn);
+  font-size: 13px;
+  color: var(--fg);
+}
+
+.dd-select__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 36px;
+  padding: 0 12px;
+  background: var(--srf);
+  border: 1px solid var(--bd);
+  border-radius: var(--rs);
+  color: var(--fg);
+  cursor: pointer;
+  transition: border-color var(--df) ease, box-shadow var(--df) ease, background var(--df) ease;
+  white-space: nowrap;
+  font-family: inherit;
+  font-size: inherit;
+  line-height: 1;
+}
+
+.dd-select__btn:hover {
+  border-color: var(--pr);
+  box-shadow: 0 0 0 3px rgba(45, 157, 138, 0.1);
+}
+
+.dd-select.is-open .dd-select__btn {
+  border-color: var(--pr);
+  box-shadow: 0 0 0 3px rgba(45, 157, 138, 0.12);
+  background: var(--srfH);
+}
+
+.dd-select__label {
+  color: var(--fg3);
+  font-weight: 500;
+  margin-right: 2px;
+}
+
+.dd-select__icon {
+  font-size: 14px;
+  line-height: 1;
+}
+
+.dd-select__value {
+  font-weight: 600;
+  color: var(--fg);
+}
+
+.dd-select__chevron {
+  color: var(--fg3);
+  font-size: 10px;
+  margin-left: 2px;
+  transition: transform var(--df) ease;
+}
+
+.dd-select.is-open .dd-select__chevron {
+  transform: rotate(180deg);
+}
+
+/* ── Panel ── */
+.dd-select__panel {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  min-width: 140px;
+  max-width: 240px;
+  max-height: 320px;
+  overflow-y: auto;
+  background: var(--srf);
+  border: 1px solid var(--bd);
+  border-radius: var(--rs);
+  box-shadow: var(--sh3);
+  z-index: var(--z-30);
+  padding: 4px;
+  animation: ddFadeIn var(--df) ease;
+}
+
+@keyframes ddFadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.dd-select__item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--fg);
+  transition: background var(--df) ease, color var(--df) ease;
+  white-space: nowrap;
+}
+
+.dd-select__item:hover {
+  background: var(--prBg);
+  color: var(--prD);
+}
+
+.dd-select__item.is-active {
+  background: var(--prBg);
+  color: var(--prD);
+  font-weight: 600;
+}
+
+.dd-select__item-icon {
+  display: inline-flex;
+  width: 16px;
+  justify-content: center;
+  font-size: 13px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.dd-select__item-color {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.dd-select__item-label {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Dark mode */
+[data-theme="dark"] .dd-select__item-icon {
+  color: var(--fg2);
+}

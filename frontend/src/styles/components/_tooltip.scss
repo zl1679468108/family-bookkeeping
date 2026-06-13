@@ -1,0 +1,57 @@
+/* ═══ Tooltip 样式 ═══ */
+
+/* Tooltip 气泡样式 */
+.tooltip-bubble {
+  background: var(--fg);
+  color: var(--bg);
+  font-size: 12px;
+  font-weight: 500;
+  padding: 4px 10px;
+  border-radius: 6px;
+  line-height: 1.5;
+  box-shadow: var(--sh2);
+  animation: tooltipFadeIn 0.15s ease;
+}
+
+.tooltip-bubble::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.tooltip-top::after {
+  top: 100%;
+  border: 5px solid transparent;
+  border-top-color: var(--fg);
+}
+
+.tooltip-bottom::after {
+  bottom: 100%;
+  border: 5px solid transparent;
+  border-bottom-color: var(--fg);
+}
+
+/* Nav Tooltip */
+.nav-tip {
+  position: fixed;
+  left: 72px;
+  padding: 6px 10px;
+  background: var(--fg);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: var(--rs);
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateX(-4px);
+  transition: all var(--df);
+  z-index: var(--z-400);
+}
+
+.nav-item:hover + .nav-tip,
+.nav-item:hover .nav-tip {
+  opacity: 1;
+  transform: translateX(0);
+}

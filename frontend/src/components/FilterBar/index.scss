@@ -1,5 +1,10 @@
 .filter-bar {
   margin-bottom: 20px;
+  position: sticky;
+  top: 0;
+  z-index: var(--z-50);
+  background: var(--bg);
+  padding: 10px 0 8px;
 }
 
 /* 搜索框 */
@@ -40,7 +45,7 @@
 
 .filter-search-input:focus {
   border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+  box-shadow: 0 0 0 3px var(--prBg);
 }
 
 .filter-search-clear {
@@ -73,26 +78,27 @@
 }
 
 .filter-chip {
-  padding: 8px 16px;
-  border-radius: 20px;
-  font-size: 13px;
+  padding: 5px 12px;
+  border-radius: 16px;
+  font-size: 12px;
   font-weight: 500;
   cursor: pointer;
   border: 1px solid var(--border);
   background: var(--surface);
-  color: var(--muted);
-  transition: all 0.2s ease;
+  color: var(--fg2);
+  transition: all 0.15s;
+  white-space: nowrap;
 }
 
 .filter-chip:hover {
-  border-color: var(--accent);
+  border-color: var(--prBd);
   color: var(--fg);
 }
 
 .filter-chip.active {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: white;
+  background: var(--fg);
+  border-color: var(--fg);
+  color: #fff;
 }
 
 .category-chip.disabled {

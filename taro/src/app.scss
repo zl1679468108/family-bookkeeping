@@ -1,49 +1,46 @@
 /* ============================================
-   家庭记账 · 安静记账 Design System v4.0
-   Primary: Sage Green (#5B9A7A)
-   Expense: Terracotta (#D4785C)
-   Background: Warm Gray (#F5F2ED)
+   静记 · 移动端 Design System v5.0
+   对齐 PC 端绿色主题 (#2D9D8A)
    Style: Clean, flat, calm — card+border, no shadows
-   Ref: quiet-bookkeeping-design-v4.html
    ============================================ */
 
 /* === Design Tokens === */
 page {
-  /* Primary — Sage Green */
-  --color-primary: #5b9a7a;
-  --color-primary-dark: #3d7056;
-  --color-primary-bg: #e8f2ec;
-  --color-primary-hover: #4a8768;
+  /* Primary — Teal Green (对齐 PC 端 #2D9D8A) */
+  --color-primary: #2d9d8a;
+  --color-primary-dark: #1a7a6a;
+  --color-primary-bg: #e7f5f2;
+  --color-primary-hover: #248b78;
 
-  /* Expense — Terracotta */
-  --color-expense: #d4785c;
-  --color-expense-dark: #b5573a;
-  --color-expense-bg: #fdf0eb;
+  /* Expense — Soft Red (对齐 PC 端 #E06055) */
+  --color-expense: #e06055;
+  --color-expense-dark: #c05040;
+  --color-expense-bg: #fceeed;
 
-  /* Income — same as primary */
-  --color-income: #5b9a7a;
-  --color-income-bg: #e8f2ec;
+  /* Income —独立绿色 (对齐 PC 端 #3BA272) */
+  --color-income: #3ba272;
+  --color-income-bg: #eaf7f0;
 
   /* Semantic */
   --color-danger: #c0503a;
   --color-danger-bg: #fbe8e2;
-  --color-warning: #d4a34a;
-  --color-warning-bg: #fcf6ed;
+  --color-warning: #e8a838;
+  --color-warning-bg: #fdf6e8;
 
-  /* Backgrounds */
-  --color-bg: #f5f2ed;
+  /* Backgrounds — 对齐 PC 端 cool gray */
+  --color-bg: #f6f7f4;
   --color-card: #ffffff;
-  --color-subtle: #f9f7f3;
+  --color-subtle: #f9faf8;
 
   /* Text */
-  --color-text: #1a1a1a;
-  --color-text-secondary: #666666;
-  --color-text-hint: #b0ada6;
-  --color-text-disabled: #cccccc;
+  --color-text: #1a1c19;
+  --color-text-secondary: #5a5d58;
+  --color-text-hint: #8b8e89;
+  --color-text-disabled: #c0c3bd;
 
   /* Border & Divider */
-  --color-border: #ebe7e0;
-  --color-divider: #f0ede6;
+  --color-border: #e0e2dd;
+  --color-divider: #edeee9;
 
   /* Modal shadow (only for overlays) */
   --shadow-modal: 0 8px 32px rgba(0, 0, 0, 0.12);
@@ -971,40 +968,42 @@ scroll-view {
   background-color: var(--color-expense-bg);
 }
 .cat-dot-slate {
-  background-color: #edf0f5;
+  background-color: #eef0ec;
 }
 .cat-dot-stone {
-  background-color: #ede8df;
+  background-color: #eee8e0;
 }
 .cat-dot-rust {
   background-color: var(--color-danger-bg);
 }
 
 /* ==============================================
-   DARK MODE (P2)
+   DARK MODE — 对齐 PC 端暗色主题
    ============================================== */
 @media (prefers-color-scheme: dark) {
   page {
-    --color-primary: #6baa8a;
-    --color-primary-dark: #4a8768;
-    --color-primary-bg: #1a3324;
-    --color-expense: #e0886c;
-    --color-expense-bg: #2a1a14;
-    --color-income: #6baa8a;
-    --color-income-bg: #1a3324;
+    --color-primary: #45b7a7;
+    --color-primary-dark: #2d9d8a;
+    --color-primary-bg: #1a3a35;
+    --color-primary-hover: #52c4b4;
+    --color-expense: #f08075;
+    --color-expense-dark: #e06055;
+    --color-expense-bg: #3a2020;
+    --color-income: #52c494;
+    --color-income-bg: #1a3528;
     --color-danger: #d0604a;
     --color-danger-bg: #2a1410;
-    --color-warning: #e4b35a;
-    --color-warning-bg: #2a2010;
-    --color-bg: #1a1a1a;
-    --color-card: #252525;
-    --color-subtle: #2a2a2a;
-    --color-text: #e8e8e8;
-    --color-text-secondary: #999999;
-    --color-text-hint: #666666;
-    --color-text-disabled: #444444;
-    --color-border: #333333;
-    --color-divider: #2a2a2a;
+    --color-warning: #f0c040;
+    --color-warning-bg: #3a3020;
+    --color-bg: #1a1c19;
+    --color-card: #252825;
+    --color-subtle: #2c2f2c;
+    --color-text: #e8eae5;
+    --color-text-secondary: #a5a8a3;
+    --color-text-hint: #6e716c;
+    --color-text-disabled: #4a4d49;
+    --color-border: #3a3d39;
+    --color-divider: #303330;
   }
 }
 

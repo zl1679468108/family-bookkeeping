@@ -1,0 +1,231 @@
+/* ═══ Books 账本模块样式 ═══ */
+
+.bk-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+
+.bk-card {
+  padding: 20px;
+  background: var(--srf);
+  border: 1px solid var(--bd);
+  border-radius: var(--rl);
+  cursor: pointer;
+  transition: all var(--dn) var(--ease);
+  position: relative;
+}
+
+.bk-card:hover {
+  border-color: var(--prBd);
+  box-shadow: var(--sh2);
+}
+
+.bk-card.active {
+  border-color: var(--pr);
+  background: var(--prBg);
+  box-shadow: 0 0 0 3px var(--prBg);
+}
+
+.bk-card.add-new {
+  border-style: dashed;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 90px;
+  color: var(--fg3);
+  font-size: 13px;
+}
+
+.bk-card h4 {
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+.bk-acts {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: flex;
+  gap: 4px;
+  opacity: 0;
+  transition: opacity var(--df);
+}
+
+.bk-acts button {
+  padding: 3px 8px;
+  font-size: 10px;
+  border-radius: 5px;
+  border: 1px solid var(--bd);
+  background: var(--srf);
+  cursor: pointer;
+  color: var(--fg3);
+}
+
+.bk-acts button:hover {
+  background: var(--srf);
+  color: var(--fg);
+  border-color: var(--prBd);
+}
+
+.bk-acts button.del:hover {
+  color: var(--exp);
+  border-color: var(--exp);
+}
+
+.bk-card:hover .bk-acts {
+  opacity: 1;
+}
+
+.bk-meta {
+  font-size: 12px;
+  color: var(--fg3);
+}
+
+.bk-meta.bk-desc {
+  font-size: 11px;
+  color: var(--fg3);
+}
+
+/* 成员明细样式 */
+.member-section {
+  margin-top: 16px;
+}
+
+.member-section-header {
+  margin-bottom: 12px;
+}
+
+.member-section-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--fg);
+}
+
+.member-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.member-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  background: var(--bg);
+  border-radius: var(--rs);
+  transition: background var(--df);
+}
+
+.member-item:hover {
+  background: var(--srfH);
+}
+
+.member-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.member-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--fg);
+  margin-bottom: 2px;
+}
+
+.member-email {
+  font-size: 11px;
+  color: var(--fg3);
+}
+
+.member-role {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.role-badge {
+  padding: 2px 8px;
+  font-size: 10px;
+  font-weight: 600;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+.role-badge.owner {
+  background: rgba(251, 191, 36, 0.15);
+  color: #f59e0b;
+}
+
+.role-badge.admin {
+  background: rgba(45, 157, 138, 0.15);
+  color: var(--pr);
+}
+
+.role-badge.member {
+  background: rgba(100, 116, 139, 0.1);
+  color: var(--fg3);
+}
+
+.btn-remove-member {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 1px solid var(--bd);
+  background: transparent;
+  color: var(--fg3);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  transition: all var(--df);
+  flex-shrink: 0;
+}
+
+.btn-remove-member:hover {
+  background: var(--expBg);
+  border-color: var(--exp);
+  color: var(--exp);
+}
+
+/* 空状态 */
+.bk-empty-state {
+  grid-column: 1 / -1;
+  padding: 36px 20px;
+  text-align: center;
+  border: 1px dashed var(--bd);
+  border-radius: var(--rl);
+  background: var(--srf);
+}
+
+.bk-empty-state__icon {
+  font-size: 40px;
+  margin-bottom: 8px;
+  line-height: 1;
+}
+
+.bk-empty-state__title {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.bk-empty-state__desc {
+  font-size: 12px;
+  color: var(--fg3);
+}
+
+/* 响应式 */
+@media (max-width: 1024px) {
+  .bk-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .bk-grid {
+    grid-template-columns: 1fr;
+  }
+}

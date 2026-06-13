@@ -26,7 +26,8 @@ export default function DatePicker({
   const todayStr = useMemo(() => formatDateStr(new Date()), []);
 
   const handleChange = (e: any) => {
-    onChange(new Date(e.detail.value));
+    const [year, month, day] = e.detail.value.split("-").map(Number);
+    onChange(new Date(year, month - 1, day));
   };
 
   return (

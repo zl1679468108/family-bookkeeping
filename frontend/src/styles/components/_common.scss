@@ -1,0 +1,145 @@
+/* ═══ 通用布局样式 ═══ */
+
+/* 图标网格 */
+.icon-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 8px;
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.icon-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 6px;
+  border: 1.5px solid var(--bd);
+  border-radius: var(--rm);
+  background: var(--srf);
+  cursor: pointer;
+  transition: all var(--df);
+  font-family: var(--fn);
+}
+
+.icon-btn:hover {
+  border-color: var(--prBd);
+  box-shadow: var(--sh2);
+}
+
+.icon-btn.active {
+  border-color: var(--pr);
+  background: var(--prBg);
+  box-shadow: 0 0 0 2px var(--prBg);
+}
+
+.icon-btn-emoji {
+  font-size: 22px;
+  line-height: 1;
+}
+
+.icon-btn-label {
+  font-size: 10px;
+  color: var(--fg3);
+  white-space: nowrap;
+}
+
+.icon-btn.active .icon-btn-label {
+  color: var(--pr);
+  font-weight: 600;
+}
+
+/* 分段控件 */
+.seg-control {
+  display: flex;
+  border: 1px solid var(--bd);
+  border-radius: var(--rm);
+  overflow: hidden;
+  width: fit-content;
+  margin-bottom: 14px;
+  background: var(--srf);
+}
+
+.seg-opt {
+  padding: 8px 20px;
+  border: none;
+  background: transparent;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--fg2);
+  cursor: pointer;
+  font-family: var(--fn);
+  transition: all var(--df);
+}
+
+.seg-opt:first-child {
+  border-right: 1px solid var(--bd);
+}
+
+.seg-opt.active {
+  background: var(--fg);
+  color: #fff;
+}
+
+/* ═════════ 聚焦高亮 ═════════
+   给 JS 加上 .spotlight--focused 的元素一个柔和显眼的绿色效果。
+   元素本身直接带这个 class，无需嵌套选择器。
+   ───────────────────────────── */
+
+.spotlight--focused {
+  animation: spotlightPulse 1.4s ease-in-out infinite !important;
+  box-shadow: 0 0 0 1px var(--pr), 0 0 18px rgba(45, 157, 138, 0.25) !important;
+  background-color: rgba(45, 157, 138, 0.08) !important;
+  transition: box-shadow 0.25s ease, background-color 0.25s ease;
+  border-radius: var(--rm);
+}
+
+/* —— 针对不同元素的微调 —— */
+
+/* 表格行（<tr>）：border-box 上做高亮比单独改 <td> 更自然 */
+tr.spotlight--focused {
+  background-color: rgba(45, 157, 138, 0.1) !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(45, 157, 138, 0.55),
+    0 0 18px rgba(45, 157, 138, 0.35) !important;
+  border-radius: 4px;
+}
+
+tr.spotlight--focused td {
+  background-color: transparent !important;
+}
+
+/* 预算项（budget-item） */
+.spotlight--focused.budget-item {
+  padding-right: 6px;
+  padding-left: 6px;
+}
+
+/* 预算表格行（budgets-table-row） */
+.spotlight--focused.budgets-table-row {
+  animation: spotlightPulse 1.4s ease-in-out infinite !important;
+}
+
+/* 商户名称截断显示 */
+.merchant-name-truncate {
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+  
+  &:hover {
+    overflow: visible;
+    text-overflow: clip;
+    background: var(--bg);
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+}
+
+/* 详情弹窗金额 inline 显示 */
+.detail-amount-inline {
+  font-weight: 600;
+  color: var(--fg);
+}

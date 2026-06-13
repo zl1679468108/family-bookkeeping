@@ -261,7 +261,14 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
           <Button variant="secondary" onClick={handleClear}>清除位置</Button>
           <div className="location-picker-actions">
             <Button variant="secondary" onClick={onClose}>取消</Button>
-            <Button onClick={handleConfirm} disabled={!selectedPos || !selectedAddress}>确认位置</Button>
+            <Button
+              variant="primary"
+              onClick={handleConfirm}
+              disabled={!selectedPos || !selectedAddress}
+              className="location-picker-confirm-btn"
+            >
+              确认位置
+            </Button>
           </div>
         </div>
       </div>

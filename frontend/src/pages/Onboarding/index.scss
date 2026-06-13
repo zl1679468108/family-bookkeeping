@@ -1,0 +1,354 @@
+.onboarding-wrap {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 16px;
+  background: var(--bg);
+  position: relative;
+  overflow: hidden;
+}
+
+.onboarding-wrap::before {
+  content: '';
+  position: absolute;
+  top: -20%;
+  right: -10%;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, var(--prBg) 0%, transparent 70%);
+  opacity: 0.6;
+}
+
+.onboarding-wrap::after {
+  content: '';
+  position: absolute;
+  bottom: -15%;
+  left: -8%;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, color-mix(in srgb, var(--pr) 15%, transparent) 0%, transparent 65%);
+  opacity: 0.3;
+}
+
+.onboarding-card {
+  position: relative;
+  width: 100%;
+  max-width: 460px;
+  background: var(--srf);
+  border-radius: var(--rx);
+  padding: 40px 32px;
+  box-shadow: var(--sh3);
+  border: 1px solid var(--bdL);
+}
+
+.onboarding-hero {
+  text-align: center;
+  margin-bottom: 36px;
+  position: relative;
+}
+
+.onboarding-logo {
+  width: 72px;
+  height: 72px;
+  margin: 0 auto 16px;
+  background: var(--prGr);
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  box-shadow: 0 8px 28px rgba(45, 157, 138, 0.35);
+}
+
+.onboarding-hero h1 {
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--fg);
+  margin: 0 0 10px 0;
+  letter-spacing: -0.3px;
+}
+
+.onboarding-hero p {
+  font-size: 14px;
+  color: var(--fg3);
+  margin: 0;
+  line-height: 1.6;
+}
+
+.onboarding-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.onboarding-btn {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 24px;
+  background: var(--bg);
+  border: 1.5px solid var(--bd);
+  border-radius: var(--rm);
+  cursor: pointer;
+  text-align: left;
+  transition: all var(--dn) var(--ease);
+  color: var(--fg);
+  font-family: inherit;
+  position: relative;
+  overflow: hidden;
+}
+
+.onboarding-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--srfH);
+  opacity: 0;
+  transition: opacity var(--df);
+}
+
+.onboarding-btn:hover {
+  border-color: var(--pr);
+  box-shadow: 0 4px 16px rgba(45, 157, 138, 0.15);
+  transform: translateY(-2px);
+}
+
+.onboarding-btn:active {
+  transform: translateY(0);
+}
+
+.onboarding-btn--primary {
+  background: var(--prGr);
+  border-color: var(--pr);
+  color: #fff;
+}
+
+.onboarding-btn--primary::before {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.onboarding-btn--primary:hover {
+  box-shadow: 0 8px 28px rgba(45, 157, 138, 0.4);
+  border-color: var(--prD);
+}
+
+.onboarding-btn-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--rs);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  flex-shrink: 0;
+  position: relative;
+  z-index: var(--z-1);
+}
+
+.onboarding-btn--primary .onboarding-btn-icon {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.onboarding-btn:not(.onboarding-btn--primary) .onboarding-btn-icon {
+  background: var(--srf);
+  border: 1px solid var(--bd);
+}
+
+.onboarding-btn-content {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  position: relative;
+  z-index: var(--z-1);
+  flex: 1;
+}
+
+.onboarding-btn-title {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.onboarding-btn--primary .onboarding-btn-title {
+  color: #fff;
+}
+
+.onboarding-btn-desc {
+  font-size: 12px;
+  color: var(--fg3);
+}
+
+.onboarding-btn--primary .onboarding-btn-desc {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.onboarding-btn-arrow {
+  position: relative;
+  z-index: var(--z-1);
+  font-size: 14px;
+  color: var(--fg3);
+  transition: transform var(--df);
+}
+
+.onboarding-btn:hover .onboarding-btn-arrow {
+  transform: translateX(4px);
+}
+
+.onboarding-btn--primary .onboarding-btn-arrow {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+/* 邀请码弹窗样式 */
+.invite-modal-content {
+  background: var(--srf);
+  border-radius: var(--rx);
+  box-shadow: var(--sh4);
+  width: 90%;
+  max-width: 440px;
+  animation: scaleIn 0.25s var(--sp);
+  overflow: hidden;
+}
+
+.invite-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 24px;
+  border-bottom: 1px solid var(--bdL);
+}
+
+.invite-modal-header h3 {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--fg);
+  margin: 0;
+}
+
+.invite-modal-close {
+  background: transparent;
+  border: none;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  color: var(--fg3);
+  cursor: pointer;
+  transition: all var(--df);
+}
+
+.invite-modal-close:hover {
+  background: var(--srfH);
+  color: var(--fg);
+}
+
+.invite-modal-body {
+  padding: 24px;
+}
+
+.invite-modal-icon {
+  display: none;
+}
+
+.invite-form-group {
+  margin-bottom: 16px;
+}
+
+.invite-form-group label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--fg2);
+  margin-bottom: 8px;
+}
+
+.invite-input-wrapper {
+  position: relative;
+}
+
+.invite-input {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1px solid var(--bd);
+  border-radius: var(--rs);
+  background: var(--srf);
+  font-size: 14px;
+  font-family: var(--fn);
+  color: var(--fg);
+  transition: border-color var(--df);
+  box-sizing: border-box;
+}
+
+.invite-input:focus {
+  outline: none;
+  border-color: var(--pr);
+  box-shadow: 0 0 0 3px var(--prBg);
+}
+
+.invite-input::placeholder {
+  color: var(--fg3);
+}
+
+.invite-form-tip {
+  font-size: 12px;
+  color: var(--fg3);
+  line-height: 1.6;
+  background: var(--srfH);
+  padding: 10px 14px;
+  border-radius: var(--rs);
+  margin: 0;
+}
+
+.invite-form-tip strong {
+  color: var(--fg2);
+  font-weight: 600;
+}
+
+.invite-modal-footer {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  padding: 14px 24px;
+  border-top: 1px solid var(--bdL);
+  background: var(--srfH);
+}
+
+.invite-btn {
+  padding: 9px 20px;
+  border-radius: var(--rs);
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all var(--df);
+  border: 1.5px solid transparent;
+}
+
+.invite-btn--secondary {
+  background: var(--srf);
+  border-color: var(--bd);
+  color: var(--fg2);
+}
+
+.invite-btn--secondary:hover {
+  border-color: var(--fg3);
+  color: var(--fg);
+}
+
+.invite-btn--primary {
+  background: var(--pr);
+  color: #fff;
+  border-color: var(--pr);
+}
+
+.invite-btn--primary:hover:not(:disabled) {
+  background: var(--prH);
+  border-color: var(--prH);
+}
+
+.invite-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

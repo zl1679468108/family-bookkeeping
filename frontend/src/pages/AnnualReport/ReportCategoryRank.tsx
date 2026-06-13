@@ -1,5 +1,4 @@
-import React, { useEffect, useRef } from 'react';
-import * as echarts from 'echarts';
+import React from 'react';
 
 interface CategoryItem {
   category_name: string;
@@ -12,97 +11,15 @@ interface ReportCategoryRankProps {
   data: CategoryItem[];
 }
 
-/**
- * 支出分类排名 - ECharts 环形图
- */
+const colors = ['#FF7043', '#42A5F5', '#66BB6A', '#AB47BC', '#FFA726'];
+
 export const ReportCategoryRank: React.FC<ReportCategoryRankProps> = ({ data }) => {
-  const chartRef = useRef<HTMLDivElement>(null);
-  const instanceRef = useRef<echarts.ECharts | null>(null);
-
-  useEffect(() => {
-    if (!chartRef.current) return;
-
-    if (!instanceRef.current) {
-      instanceRef.current = echarts.init(chartRef.current);
+  const formatAmount = (n: number) => {
+    if (n >= 10000) {
+      return '¥' + (n / 10000).toFixed(1) + 'w';
     }
-
-    const isDark = document.documentElement.classList.contains('dark');
-
-    const colors = ['#3b82f6', '#ef4444', '#10b981', '#f59e0b', '#8b5cf6'];
-
-    instanceRef.current.setOption({
-      tooltip: {
-        trigger: 'item',
-        formatter: '{b}: ¥{c} ({d}%)',
-      },
-      legend: {
-        orient: 'vertical',
-        right: '5%',
-        top: 'center',
-        itemWidth: 10,
-        itemHeight: 10,
-        textStyle: {
-          color: isDark ? '#9ca3af' : '#6b7280',
-          fontSize: 11,
-        },
-      },
-      series: [
-        {
-          name: '支出分类',
-          type: 'pie',
-          radius: ['40%', '70%'],
-          center: ['35%', '50%'],
-          avoidLabelOverlap: false,
-          itemStyle: {
-            borderRadius: 6,
-            borderColor: '#fff',
-            borderWidth: 2,
-          },
-          label: { show: false },
-          emphasis: {
-            label: {
-              show: true,
-              fontSize: 14,
-              fontWeight: 'bold',
-            },
-          },
-          data: data.map((item, i) => ({
-            value: item.amount,
-            name: `${item.category_icon || ''} ${item.category_name}`,
-            itemStyle: { color: colors[i % colors.length] },
-          })),
-        },
-      ],
-      graphic: [
-        {
-          type: 'text',
-          left: '29%',
-          top: 'center',
-          style: {
-            text: '支出\n分类',
-            textAlign: 'center',
-            fill: isDark ? '#9ca3af' : '#6b7280',
-            fontSize: 13,
-            lineHeight: 20,
-          },
-        },
-      ],
-    });
-
-    const handleResize = () => instanceRef.current?.resize();
-    window.addEventListener('resize', handleResize);
-
-    return () => {
-      window.removeEventListener('resize', handleResize);
-    };
-  }, [data]);
-
-  useEffect(() => {
-    return () => {
-      instanceRef.current?.dispose();
-      instanceRef.current = null;
-    };
-  }, []);
+    return '¥' + n.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  };
 
   return (
     <div style={{ marginBottom: '24px' }}>
@@ -117,16 +34,51 @@ export const ReportCategoryRank: React.FC<ReportCategoryRankProps> = ({ data }) 
         🏷️ 支出分类 TOP5
       </h2>
       <div
-        ref={chartRef}
         style={{
-          height: '250px',
-          width: '100%',
           background: 'var(--surface)',
           borderRadius: '12px',
-          padding: '12px',
+          padding: '16px',
           border: '1px solid var(--border)',
         }}
-      />
+      >
+        <div className="space-y-4">
+          {data.map((item, index) => (
+            <div key={item.category_name} className="flex items-center gap-3">
+              <div
+                className="w-8 h-8 rounded-lg flex items-center justify-center text-sm"
+                style={{ backgroundColor: colors[index % colors.length] + '20' }}
+              >
+                <span>{item.category_icon || '📦'}</span>
+              </div>
+              <div className="flex-1">
+                <div className="flex items-center justify-between mb-2">
+                  <span style={{ fontSize: '14px', fontWeight: 500, color: 'var(--fg)' }}>
+                    {item.category_name}
+                  </span>
+                  <div className="flex items-center gap-2">
+                    <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--fg)' }}>
+                      {formatAmount(item.amount)}
+                    </span>
+                    <span style={{ fontSize: '12px', color: 'var(--muted)' }}>
+                      {item.percentage}%
+                    </span>
+                  </div>
+                </div>
+                <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                  <div
+                    className="h-full rounded-full transition-all duration-500 ease-out"
+                    style={{
+                      width: `${item.percentage}%`,
+                      backgroundColor: colors[index % colors.length],
+                      boxShadow: `0 0 8px ${colors[index % colors.length]}40`,
+                    }}
+                  />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 };

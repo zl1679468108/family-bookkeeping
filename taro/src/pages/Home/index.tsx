@@ -1,6 +1,6 @@
 /**
- * Home — v3.0 安静记账首页
- * 白色导航栏 · 结余卡片(支出terra+收入sage) · 预算进度 · 近期流水
+ * Home — 静记首页 v5
+ * 导航栏 · 结余卡片 · 预算进度 · 近期流水 · 悬浮记账按钮
  */
 import { useEffect, useState, useCallback } from "react";
 import { View, Text } from "@tarojs/components";
@@ -97,7 +97,7 @@ export default function Home() {
 
   return (
     <PageLayout
-      title="家庭记账"
+      title="静记"
       tabBar
       loading={loading}
       loadingText="拉取账本数据…"
@@ -254,7 +254,7 @@ export default function Home() {
               description="点击下方 + 开始记账"
               actionText="记一笔"
               onAction={() =>
-                Taro.switchTab({ url: "/pages/AddTransaction/index" })
+                Taro.navigateTo({ url: "/pages/AddTransaction/index" })
               }
             />
           </View>
@@ -274,7 +274,7 @@ export default function Home() {
                   date={t.date?.slice(5)}
                   onClick={() => {
                     Taro.setStorageSync("edit_tx_id", t.id);
-                    Taro.switchTab({ url: "/pages/AddTransaction/index" });
+                    Taro.navigateTo({ url: "/pages/AddTransaction/index" });
                   }}
                 />
               );
@@ -282,6 +282,14 @@ export default function Home() {
           </View>
         )}
       </>
+
+      {/* Floating Action Button — 右下角悬浮记账 */}
+      <View
+        className="home-fab"
+        onClick={() => Taro.navigateTo({ url: "/pages/AddTransaction/index" })}
+      >
+        <Text className="home-fab-icon">+</Text>
+      </View>
     </PageLayout>
   );
 }

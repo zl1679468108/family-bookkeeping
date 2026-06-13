@@ -1,118 +1,9 @@
--- 家庭记账应用 - 数据库初始化脚本（不启用 RLS 版本）
--- 在 Supabase SQL 编辑器中执行此脚本时选择 "Run without RLS"
+-- 静记 - 数据库初始化脚本
+-- 用途：创建表结构、索引、触发器，提升查询性能
+-- 在 Supabase SQL 编辑器中执行
 
 -- ==============================================
--- 1. 用户表
--- ==============================================
-CREATE TABLE IF NOT EXISTS users (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  email VARCHAR(255) UNIQUE NOT NULL,
-  username VARCHAR(100) NOT NULL,
-  password_hash VARCHAR(255) NOT NULL,
-  avatar_url TEXT,
-  role VARCHAR(20) NOT NULL DEFAULT 'user' CHECK (role IN ('user', 'admin')),
-  status VARCHAR(20) NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'suspended', 'deleted')),
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
-
--- ==============================================
--- 2. 密码重置表
--- ==============================================
-CREATE TABLE IF NOT EXISTS password_resets (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  token VARCHAR(500) NOT NULL,
-  code VARCHAR(10),
-  expires_at TIMESTAMP WITH TIME ZONE NOT NULL,
-  used_at TIMESTAMP WITH TIME ZONE,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
-
--- ==============================================
--- 3. 会话表
--- ==============================================
-CREATE TABLE IF NOT EXISTS user_sessions (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  token_hash VARCHAR(255) UNIQUE NOT NULL,
-  expires_at TIMESTAMP WITH TIME ZONE NOT NULL,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
-
--- ==============================================
--- 4. 交易记录表
--- 2026-05-29: category 改为 UUID 关联 categories 表
--- ==============================================
-CREATE TABLE IF NOT EXISTS transactions (
-  id SERIAL PRIMARY KEY,
-  amount DECIMAL(10, 2) NOT NULL,
-  category UUID REFERENCES categories(id) ON DELETE SET NULL,
-  type VARCHAR(10) NOT NULL CHECK (type IN ('income', 'expense')),
-  date DATE NOT NULL DEFAULT CURRENT_DATE,
-  description TEXT,
-  image_url VARCHAR(500),
-  user_id UUID REFERENCES users(id) ON DELETE CASCADE,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
-
--- ==============================================
--- 5. 预算表
--- 2026-05-29: category 改为 UUID 关联 categories 表
--- ==============================================
-CREATE TABLE IF NOT EXISTS budgets (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  category UUID NOT NULL REFERENCES categories(id) ON DELETE CASCADE,
-  amount DECIMAL(10, 2) NOT NULL,
-  month DATE NOT NULL,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  UNIQUE(user_id, category, month)
-);
-
--- ==============================================
--- 创建索引优化查询性能
--- ==============================================
-DROP INDEX IF EXISTS idx_users_email;
-DROP INDEX IF EXISTS idx_password_resets_token;
-DROP INDEX IF EXISTS idx_password_resets_user_id;
-DROP INDEX IF EXISTS idx_user_sessions_token_hash;
-DROP INDEX IF EXISTS idx_user_sessions_user_id;
-DROP INDEX IF EXISTS idx_user_sessions_expires_at;
-DROP INDEX IF EXISTS idx_transactions_user_id;
-DROP INDEX IF EXISTS idx_transactions_date;
-DROP INDEX IF EXISTS idx_transactions_type;
-DROP INDEX IF EXISTS idx_transactions_category;
-DROP INDEX IF EXISTS idx_budgets_user_id;
-DROP INDEX IF EXISTS idx_budgets_user_month;
-
-CREATE INDEX idx_users_email ON users(email);
-CREATE INDEX idx_password_resets_token ON password_resets(token);
-CREATE INDEX idx_password_resets_user_id ON password_resets(user_id);
-CREATE INDEX idx_user_sessions_token_hash ON user_sessions(token_hash);
-CREATE INDEX idx_user_sessions_user_id ON user_sessions(user_id);
-CREATE INDEX idx_user_sessions_expires_at ON user_sessions(expires_at);
-CREATE INDEX idx_transactions_user_id ON transactions(user_id);
-CREATE INDEX idx_transactions_date ON transactions(date);
-CREATE INDEX idx_transactions_type ON transactions(type);
-CREATE INDEX idx_transactions_category ON transactions(category);
-
-CREATE INDEX idx_budgets_user_id ON budgets(user_id);
-CREATE INDEX idx_budgets_user_month ON budgets(user_id, month);
-
--- ==============================================
--- 添加注释
--- ==============================================
-COMMENT ON TABLE users IS '用户表';
-COMMENT ON TABLE password_resets IS '密码重置表';
-COMMENT ON TABLE user_sessions IS '用户会话表';
-COMMENT ON TABLE transactions IS '交易记录表';
-COMMENT ON TABLE budgets IS '预算表';
-
--- ==============================================
--- 创建触发器自动更新 updated_at
+-- 触发器函数：自动更新 updated_at
 -- ==============================================
 CREATE OR REPLACE FUNCTION update_updated_at_column()
 RETURNS TRIGGER AS $$
@@ -122,33 +13,93 @@ BEGIN
 END;
 $$ language 'plpgsql';
 
-DROP TRIGGER IF EXISTS update_users_updated_at ON users;
-DROP TRIGGER IF EXISTS update_budgets_updated_at ON budgets;
+-- ==============================================
+-- 1. 用户表
+-- ==============================================
+CREATE TABLE IF NOT EXISTS users (
+  id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  email       VARCHAR(255) UNIQUE NOT NULL,
+  username    VARCHAR(100) NOT NULL,
+  password_hash VARCHAR(255) NOT NULL,
+  avatar_url  TEXT,
+  role        VARCHAR(20) NOT NULL DEFAULT 'user' CHECK (role IN ('user', 'admin')),
+  status      VARCHAR(20) NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'suspended', 'deleted')),
+  created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
 
+CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
+
+COMMENT ON TABLE users IS '用户表 - 存储系统注册用户的基本信息';
+COMMENT ON COLUMN users.id IS '用户唯一标识符，UUID 类型，自动生成';
+COMMENT ON COLUMN users.email IS '用户邮箱，用于登录和接收通知，必须唯一';
+COMMENT ON COLUMN users.username IS '用户昵称/显示名称，用于界面展示';
+COMMENT ON COLUMN users.password_hash IS '加密后的密码哈希值，不存储明文密码';
+COMMENT ON COLUMN users.avatar_url IS '用户头像图片的 URL 地址，可为空';
+COMMENT ON COLUMN users.role IS '用户角色：user(普通用户) / admin(管理员)，决定权限范围';
+COMMENT ON COLUMN users.status IS '用户状态：active(正常) / suspended(停用) / deleted(已注销)';
+COMMENT ON COLUMN users.created_at IS '用户注册时间，自动记录创建时刻';
+COMMENT ON COLUMN users.updated_at IS '用户信息最后更新时间，由触发器自动维护';
+
+DROP TRIGGER IF EXISTS update_users_updated_at ON users;
 CREATE TRIGGER update_users_updated_at BEFORE UPDATE ON users
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
-CREATE TRIGGER update_budgets_updated_at BEFORE UPDATE ON budgets
-    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+-- ==============================================
+-- 2. 密码重置表
+-- ==============================================
+CREATE TABLE IF NOT EXISTS password_resets (
+  id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id     UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  token       VARCHAR(500) NOT NULL,
+  code        VARCHAR(10),
+  expires_at  TIMESTAMPTZ NOT NULL,
+  used_at     TIMESTAMPTZ,
+  created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_password_resets_token ON password_resets(token);
+CREATE INDEX IF NOT EXISTS idx_password_resets_user_id ON password_resets(user_id);
+
+COMMENT ON TABLE password_resets IS '密码重置表 - 存储用户找回密码时的临时令牌和验证码';
+COMMENT ON COLUMN password_resets.id IS '密码重置记录唯一标识符，UUID 类型';
+COMMENT ON COLUMN password_resets.user_id IS '关联的用户 ID，外键引用 users 表，删除用户时级联删除';
+COMMENT ON COLUMN password_resets.token IS '密码重置令牌，用于验证重置链接的有效性';
+COMMENT ON COLUMN password_resets.code IS '6 位数字验证码，用于短信或邮件验证';
+COMMENT ON COLUMN password_resets.expires_at IS '令牌/验证码过期时间，超时后失效';
+COMMENT ON COLUMN password_resets.used_at IS '令牌使用时间，记录何时被使用过';
+COMMENT ON COLUMN password_resets.created_at IS '密码重置请求创建时间';
+COMMENT ON COLUMN password_resets.updated_at IS '密码重置记录最后更新时间';
 
 DROP TRIGGER IF EXISTS update_password_resets_updated_at ON password_resets;
-
--- 迁移：确保 password_resets 有 updated_at 列（兼容旧表）
-DO $$
-BEGIN
-  IF NOT EXISTS (
-    SELECT 1 FROM information_schema.columns
-    WHERE table_name = 'password_resets' AND column_name = 'updated_at'
-  ) THEN
-    ALTER TABLE password_resets ADD COLUMN updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
-  END IF;
-END $$;
-
 CREATE TRIGGER update_password_resets_updated_at BEFORE UPDATE ON password_resets
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 -- ==============================================
--- 6. 分类表（2026-05-29: 重构为用户级分类，注册时预设 2 个默认分类）
+-- 3. 会话表
+-- ==============================================
+CREATE TABLE IF NOT EXISTS user_sessions (
+  id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id     UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  token_hash  VARCHAR(255) UNIQUE NOT NULL,
+  expires_at  TIMESTAMPTZ NOT NULL,
+  created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_user_sessions_token_hash ON user_sessions(token_hash);
+CREATE INDEX IF NOT EXISTS idx_user_sessions_user_id ON user_sessions(user_id);
+CREATE INDEX IF NOT EXISTS idx_user_sessions_expires_at ON user_sessions(expires_at);
+
+COMMENT ON TABLE user_sessions IS '用户会话表 - 存储用户登录后的会话信息，用于保持登录状态';
+COMMENT ON COLUMN user_sessions.id IS '会话记录唯一标识符，UUID 类型';
+COMMENT ON COLUMN user_sessions.user_id IS '关联的用户 ID，外键引用 users 表，删除用户时级联删除';
+COMMENT ON COLUMN user_sessions.token_hash IS '会话令牌的哈希值，用于验证登录状态，必须唯一';
+COMMENT ON COLUMN user_sessions.expires_at IS '会话过期时间，超时后需要重新登录';
+COMMENT ON COLUMN user_sessions.created_at IS '会话创建时间，即用户登录时间';
+
+-- ==============================================
+-- 4. 分类表（用户级，注册时预设默认分类）
 -- ==============================================
 CREATE TABLE IF NOT EXISTS categories (
   id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -162,53 +113,26 @@ CREATE TABLE IF NOT EXISTS categories (
   updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- 迁移：如果 categories 表已存在，确保 user_id 为 NOT NULL，移除全局默认分类
-DO $$
-BEGIN
-    -- 删除旧的系统默认分类（user_id IS NULL）
-    DELETE FROM categories WHERE user_id IS NULL;
-
-    -- 改为 NOT NULL
-    IF EXISTS (
-        SELECT 1 FROM information_schema.columns
-        WHERE table_name = 'categories' AND column_name = 'user_id' AND is_nullable = 'YES'
-    ) THEN
-        ALTER TABLE categories ALTER COLUMN user_id SET NOT NULL;
-    END IF;
-
-    -- 新增 is_default 列
-    IF NOT EXISTS (
-        SELECT 1 FROM information_schema.columns
-        WHERE table_name = 'categories' AND column_name = 'is_default'
-    ) THEN
-        ALTER TABLE categories ADD COLUMN is_default BOOLEAN NOT NULL DEFAULT false;
-    END IF;
-
-    -- 新增 sort_order 列
-    IF NOT EXISTS (
-        SELECT 1 FROM information_schema.columns
-        WHERE table_name = 'categories' AND column_name = 'sort_order'
-    ) THEN
-        ALTER TABLE categories ADD COLUMN sort_order INTEGER NOT NULL DEFAULT 0;
-    END IF;
-END $$;
-
 CREATE INDEX IF NOT EXISTS idx_categories_user_id ON categories(user_id);
-
--- 唯一约束：同一用户下分类名+类型不能重复
 CREATE UNIQUE INDEX IF NOT EXISTS idx_categories_user_name_type ON categories(user_id, name, type);
 
--- 清理旧版全局默认分类的唯一索引
-DROP INDEX IF EXISTS idx_categories_default_name_type;
-
-COMMENT ON TABLE categories IS '分类表（用户级，注册时预设购物+工资 2 个默认分类）';
+COMMENT ON TABLE categories IS '分类表（用户级，注册时预设默认分类） - 存储用户的收支分类定义';
+COMMENT ON COLUMN categories.id IS '分类唯一标识符，UUID 类型';
+COMMENT ON COLUMN categories.user_id IS '分类所属用户 ID，外键引用 users 表，删除用户时级联删除';
+COMMENT ON COLUMN categories.name IS '分类名称，如"餐饮"、"交通"、"工资"等';
+COMMENT ON COLUMN categories.icon IS '分类图标，使用 Emoji 或自定义图标';
+COMMENT ON COLUMN categories.type IS '分类类型：expense(支出) / income(收入)';
+COMMENT ON COLUMN categories.is_default IS '是否为系统默认分类，用户注册时自动创建';
+COMMENT ON COLUMN categories.sort_order IS '分类排序序号，数值越小越靠前';
+COMMENT ON COLUMN categories.created_at IS '分类创建时间';
+COMMENT ON COLUMN categories.updated_at IS '分类最后更新时间';
 
 DROP TRIGGER IF EXISTS update_categories_updated_at ON categories;
 CREATE TRIGGER update_categories_updated_at BEFORE UPDATE ON categories
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 -- ==============================================
--- 7. 账本表（2026-05-28: P2 多账本功能）
+-- 5. 账本表
 -- ==============================================
 CREATE TABLE IF NOT EXISTS books (
   id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -216,42 +140,30 @@ CREATE TABLE IF NOT EXISTS books (
   owner_id    UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   is_archived BOOLEAN NOT NULL DEFAULT FALSE,
   description TEXT,
+  icon        VARCHAR(50),
   created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 CREATE INDEX IF NOT EXISTS idx_books_owner_id ON books(owner_id);
-
-COMMENT ON TABLE books IS '账本表';
-
--- ==============================================
--- 迁移：为已有 books 表添加 is_archived 和 description 字段（2026-06-09）
--- ==============================================
-DO $$
-BEGIN
-  IF NOT EXISTS (
-    SELECT 1 FROM information_schema.columns
-    WHERE table_name = 'books' AND column_name = 'is_archived'
-  ) THEN
-    ALTER TABLE books ADD COLUMN is_archived BOOLEAN NOT NULL DEFAULT FALSE;
-  END IF;
-
-  IF NOT EXISTS (
-    SELECT 1 FROM information_schema.columns
-    WHERE table_name = 'books' AND column_name = 'description'
-  ) THEN
-    ALTER TABLE books ADD COLUMN description TEXT;
-  END IF;
-END $$;
-
 CREATE INDEX IF NOT EXISTS idx_books_is_archived ON books(is_archived);
+
+COMMENT ON TABLE books IS '账本表 - 存储用户创建的账本信息，支持多账本管理';
+COMMENT ON COLUMN books.id IS '账本唯一标识符，UUID 类型';
+COMMENT ON COLUMN books.name IS '账本名称，如"家庭账本"、"旅行基金"等';
+COMMENT ON COLUMN books.owner_id IS '账本所有者 ID，外键引用 users 表，删除用户时级联删除';
+COMMENT ON COLUMN books.is_archived IS '是否已归档，归档账本不再显示在默认列表中';
+COMMENT ON COLUMN books.description IS '账本描述，说明账本用途或备注信息';
+COMMENT ON COLUMN books.icon IS '账本图标，用于界面展示';
+COMMENT ON COLUMN books.created_at IS '账本创建时间';
+COMMENT ON COLUMN books.updated_at IS '账本最后更新时间';
 
 DROP TRIGGER IF EXISTS update_books_updated_at ON books;
 CREATE TRIGGER update_books_updated_at BEFORE UPDATE ON books
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 -- ==============================================
--- 8. 账本成员表（2026-05-28: P2 多账本功能）
+-- 6. 账本成员表
 -- ==============================================
 CREATE TABLE IF NOT EXISTS book_members (
   id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -265,134 +177,132 @@ CREATE TABLE IF NOT EXISTS book_members (
 CREATE INDEX IF NOT EXISTS idx_book_members_book_id ON book_members(book_id);
 CREATE INDEX IF NOT EXISTS idx_book_members_user_id ON book_members(user_id);
 
-COMMENT ON TABLE book_members IS '账本成员表';
+COMMENT ON TABLE book_members IS '账本成员表 - 存储账本的共享成员信息，支持多人协作记账';
+COMMENT ON COLUMN book_members.id IS '成员记录唯一标识符，UUID 类型';
+COMMENT ON COLUMN book_members.book_id IS '关联的账本 ID，外键引用 books 表，删除账本时级联删除';
+COMMENT ON COLUMN book_members.user_id IS '成员用户 ID，外键引用 users 表，删除用户时级联删除';
+COMMENT ON COLUMN book_members.role IS '成员角色：owner(所有者) / member(普通成员)，决定管理权限';
+COMMENT ON COLUMN book_members.joined_at IS '加入账本的时间';
 
 -- ==============================================
--- 迁移：为现有表添加 book_id 字段
+-- 7. 交易记录表
 -- ==============================================
-DO $$
-BEGIN
-  IF NOT EXISTS (
-    SELECT 1 FROM information_schema.columns
-    WHERE table_name = 'transactions' AND column_name = 'book_id'
-  ) THEN
-    ALTER TABLE transactions ADD COLUMN book_id UUID REFERENCES books(id) ON DELETE SET NULL;
-    CREATE INDEX idx_transactions_book_id ON transactions(book_id);
-  END IF;
+CREATE TABLE IF NOT EXISTS transactions (
+  id            SERIAL PRIMARY KEY,
+  amount        DECIMAL(10, 2) NOT NULL,
+  category      UUID REFERENCES categories(id) ON DELETE SET NULL,
+  type          VARCHAR(10) NOT NULL CHECK (type IN ('income', 'expense')),
+  date          DATE NOT NULL DEFAULT CURRENT_DATE,
+  description   TEXT,
+  image_url     VARCHAR(500),
+  user_id       UUID REFERENCES users(id) ON DELETE CASCADE,
+  book_id       UUID REFERENCES books(id) ON DELETE SET NULL,
+  latitude      DECIMAL(10, 7),
+  longitude     DECIMAL(10, 7),
+  location_name VARCHAR(200),
+  poi_id        VARCHAR(100),
+  created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
 
-  IF NOT EXISTS (
-    SELECT 1 FROM information_schema.columns
-    WHERE table_name = 'budgets' AND column_name = 'book_id'
-  ) THEN
-    ALTER TABLE budgets ADD COLUMN book_id UUID REFERENCES books(id) ON DELETE SET NULL;
-    CREATE INDEX idx_budgets_book_id ON budgets(book_id);
-  END IF;
-END $$;
-
-COMMENT ON COLUMN transactions.book_id IS '所属账本 ID（NULL = 迁移前数据，等同于默认账本）';
-COMMENT ON COLUMN budgets.book_id IS '所属账本 ID（NULL = 迁移前数据，等同于默认账本）';
-
--- ==============================================
--- 迁移：地图功能 - 交易表新增位置字段（2026-05-28）
--- ==============================================
-DO $$
-BEGIN
-  IF NOT EXISTS (
-    SELECT 1 FROM information_schema.columns
-    WHERE table_name = 'transactions' AND column_name = 'latitude'
-  ) THEN
-    ALTER TABLE transactions ADD COLUMN latitude DECIMAL(10, 7);
-  END IF;
-
-  IF NOT EXISTS (
-    SELECT 1 FROM information_schema.columns
-    WHERE table_name = 'transactions' AND column_name = 'longitude'
-  ) THEN
-    ALTER TABLE transactions ADD COLUMN longitude DECIMAL(10, 7);
-  END IF;
-
-  IF NOT EXISTS (
-    SELECT 1 FROM information_schema.columns
-    WHERE table_name = 'transactions' AND column_name = 'location_name'
-  ) THEN
-    ALTER TABLE transactions ADD COLUMN location_name VARCHAR(200);
-  END IF;
-
-  IF NOT EXISTS (
-    SELECT 1 FROM information_schema.columns
-    WHERE table_name = 'transactions' AND column_name = 'poi_id'
-  ) THEN
-    ALTER TABLE transactions ADD COLUMN poi_id VARCHAR(100);
-  END IF;
-END $$;
-
--- 部分索引：仅索引有位置信息的交易
-CREATE INDEX IF NOT EXISTS idx_transactions_location
-  ON transactions(latitude, longitude)
+CREATE INDEX IF NOT EXISTS idx_transactions_user_id ON transactions(user_id);
+CREATE INDEX IF NOT EXISTS idx_transactions_date ON transactions(date);
+CREATE INDEX IF NOT EXISTS idx_transactions_type ON transactions(type);
+CREATE INDEX IF NOT EXISTS idx_transactions_category ON transactions(category);
+CREATE INDEX IF NOT EXISTS idx_transactions_book_id ON transactions(book_id);
+CREATE INDEX IF NOT EXISTS idx_transactions_location ON transactions(latitude, longitude)
   WHERE latitude IS NOT NULL AND longitude IS NOT NULL;
 
-COMMENT ON COLUMN transactions.latitude IS '纬度，范围 -90 ~ 90';
-COMMENT ON COLUMN transactions.longitude IS '经度，范围 -180 ~ 180';
-COMMENT ON COLUMN transactions.location_name IS '地点名称/地址描述';
-COMMENT ON COLUMN transactions.poi_id IS '高德地图 POI ID';
+COMMENT ON TABLE transactions IS '交易记录表 - 存储用户的每一笔收支记录';
+COMMENT ON COLUMN transactions.id IS '交易记录自增 ID，主键';
+COMMENT ON COLUMN transactions.amount IS '交易金额，精确到小数点后 2 位';
+COMMENT ON COLUMN transactions.category IS '关联的分类 ID，外键引用 categories 表，删除分类时设为 NULL';
+COMMENT ON COLUMN transactions.type IS '交易类型：income(收入) / expense(支出)';
+COMMENT ON COLUMN transactions.date IS '交易发生日期';
+COMMENT ON COLUMN transactions.description IS '交易描述/备注，如"午餐 - 川味小馆"';
+COMMENT ON COLUMN transactions.image_url IS '交易凭证图片 URL，如收据、发票照片';
+COMMENT ON COLUMN transactions.user_id IS '记录所属用户 ID，外键引用 users 表，删除用户时级联删除';
+COMMENT ON COLUMN transactions.book_id IS '所属账本 ID，外键引用 books 表，删除账本时设为 NULL';
+COMMENT ON COLUMN transactions.latitude IS '纬度，范围 -90 ~ 90，记录交易发生地点';
+COMMENT ON COLUMN transactions.longitude IS '经度，范围 -180 ~ 180，记录交易发生地点';
+COMMENT ON COLUMN transactions.location_name IS '地点名称/地址描述，如"美致酒店 (红谷滩万达翠苑路地铁站店)"';
+COMMENT ON COLUMN transactions.poi_id IS '高德地图 POI ID，用于地图选点功能';
+COMMENT ON COLUMN transactions.created_at IS '记录创建时间';
 
 -- ==============================================
--- 迁移：category 字段从 VARCHAR 改为 UUID（2026-05-29）
--- 注意：此迁移仅适用于已有数据的库。新库直接使用上方 CREATE TABLE 即可。
+-- 8. 预算表
 -- ==============================================
-DO $$
-BEGIN
-  -- transactions 表迁移
-  IF EXISTS (
-    SELECT 1 FROM information_schema.columns
-    WHERE table_name = 'transactions' AND column_name = 'category'
-      AND data_type = 'character varying'
-  ) THEN
-    -- Step 1: 新增 category_id UUID 列
-    ALTER TABLE transactions ADD COLUMN category_id UUID REFERENCES categories(id) ON DELETE SET NULL;
+CREATE TABLE IF NOT EXISTS budgets (
+  id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id     UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  category    UUID NOT NULL REFERENCES categories(id) ON DELETE CASCADE,
+  amount      DECIMAL(10, 2) NOT NULL,
+  month       DATE NOT NULL,
+  book_id     UUID REFERENCES books(id) ON DELETE SET NULL,
+  created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  UNIQUE(user_id, category, month)
+);
 
-    -- Step 2: 通过 user_id + category name 匹配回填 category_id
-    UPDATE transactions t
-    SET category_id = c.id
-    FROM categories c
-    WHERE t.user_id = c.user_id AND t.category = c.name;
+CREATE INDEX IF NOT EXISTS idx_budgets_user_id ON budgets(user_id);
+CREATE INDEX IF NOT EXISTS idx_budgets_user_month ON budgets(user_id, month);
+CREATE INDEX IF NOT EXISTS idx_budgets_book_id ON budgets(book_id);
 
-    -- Step 3: 交换列名
-    ALTER TABLE transactions DROP COLUMN category;
-    ALTER TABLE transactions RENAME COLUMN category_id TO category;
+COMMENT ON TABLE budgets IS '预算表 - 存储用户每月各分类的预算设置';
+COMMENT ON COLUMN budgets.id IS '预算记录唯一标识符，UUID 类型';
+COMMENT ON COLUMN budgets.user_id IS '预算所属用户 ID，外键引用 users 表，删除用户时级联删除';
+COMMENT ON COLUMN budgets.category IS '预算分类 ID，外键引用 categories 表，删除分类时级联删除';
+COMMENT ON COLUMN budgets.amount IS '预算金额，该分类每月的预算上限';
+COMMENT ON COLUMN budgets.month IS '预算月份，格式为月初日期 (如 2026-06-01 表示 2026 年 6 月)';
+COMMENT ON COLUMN budgets.book_id IS '所属账本 ID，外键引用 books 表，删除账本时设为 NULL';
+COMMENT ON COLUMN budgets.created_at IS '预算设置创建时间';
+COMMENT ON COLUMN budgets.updated_at IS '预算设置最后更新时间';
 
-    -- Step 4: 重建索引
-    DROP INDEX IF EXISTS idx_transactions_category;
-    CREATE INDEX idx_transactions_category ON transactions(category);
-  END IF;
-
-  -- budgets 表迁移
-  IF EXISTS (
-    SELECT 1 FROM information_schema.columns
-    WHERE table_name = 'budgets' AND column_name = 'category'
-      AND data_type = 'character varying'
-  ) THEN
-    -- Step 1: 新增 category_id UUID 列
-    ALTER TABLE budgets ADD COLUMN category_id UUID REFERENCES categories(id) ON DELETE CASCADE;
-
-    -- Step 2: 通过 user_id + category name 匹配回填
-    UPDATE budgets b
-    SET category_id = c.id
-    FROM categories c
-    WHERE b.user_id = c.user_id AND b.category = c.name;
-
-    -- Step 3: 交换列名
-    ALTER TABLE budgets DROP COLUMN category;
-    ALTER TABLE budgets RENAME COLUMN category_id TO category;
-
-    -- Step 4: 重建唯一约束（含 book_id，支持多账本独立预算）
-    ALTER TABLE budgets DROP CONSTRAINT IF EXISTS budgets_user_id_category_month_key;
-    ALTER TABLE budgets ADD CONSTRAINT budgets_user_id_category_month_key UNIQUE NULLS NOT DISTINCT (user_id, book_id, category, month);
-  END IF;
-END $$;
+DROP TRIGGER IF EXISTS update_budgets_updated_at ON budgets;
+CREATE TRIGGER update_budgets_updated_at BEFORE UPDATE ON budgets
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 -- ==============================================
--- P1 地图功能 — 成员位置共享表（2025-06-11）
+-- 9. 交易模板表（快捷记账）
+-- ==============================================
+CREATE TABLE IF NOT EXISTS transaction_templates (
+  id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id       UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  name          VARCHAR(50) NOT NULL,
+  type          VARCHAR(10) NOT NULL DEFAULT 'expense' CHECK (type IN ('expense', 'income')),
+  amount        NUMERIC(12, 2),
+  category_id   UUID REFERENCES categories(id) ON DELETE SET NULL,
+  note          VARCHAR(200),
+  latitude      DOUBLE PRECISION,
+  longitude     DOUBLE PRECISION,
+  location_name VARCHAR(100),
+  poi_id        VARCHAR(100),
+  merchant_name VARCHAR(100),
+  book_id       UUID REFERENCES books(id) ON DELETE SET NULL,
+  sort_order    INTEGER NOT NULL DEFAULT 0,
+  created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_transaction_templates_user_id ON transaction_templates(user_id);
+
+COMMENT ON TABLE transaction_templates IS '交易模板表（快捷记账） - 存储用户预设的记账模板，支持一键填充表单';
+COMMENT ON COLUMN transaction_templates.id IS '模板唯一标识符，UUID 类型';
+COMMENT ON COLUMN transaction_templates.user_id IS '模板所属用户 ID，外键引用 users 表，删除用户时级联删除';
+COMMENT ON COLUMN transaction_templates.name IS '模板名称，如"源溜小区 131 栋吃饭消费模版"';
+COMMENT ON COLUMN transaction_templates.type IS '交易类型：expense(支出) / income(收入)';
+COMMENT ON COLUMN transaction_templates.amount IS '预设金额，可为空，由用户选择后填写';
+COMMENT ON COLUMN transaction_templates.category_id IS '关联的分类 ID，外键引用 categories 表，删除分类时设为 NULL';
+COMMENT ON COLUMN transaction_templates.note IS '预设备注，如"吃饭消费"、"缴纳电费"';
+COMMENT ON COLUMN transaction_templates.latitude IS '纬度，模板关联的位置信息';
+COMMENT ON COLUMN transaction_templates.longitude IS '经度，模板关联的位置信息';
+COMMENT ON COLUMN transaction_templates.location_name IS '地点名称，模板关联的地址描述';
+COMMENT ON COLUMN transaction_templates.poi_id IS '高德地图 POI ID，模板关联的地点标识';
+COMMENT ON COLUMN transaction_templates.merchant_name IS '商户名称，如餐厅名、店铺名';
+COMMENT ON COLUMN transaction_templates.book_id IS '所属账本 ID，外键引用 books 表，删除账本时设为 NULL';
+COMMENT ON COLUMN transaction_templates.sort_order IS '模板排序序号，数值越小越靠前';
+COMMENT ON COLUMN transaction_templates.created_at IS '模板创建时间';
+
+-- ==============================================
+-- 10. 成员位置共享表
 -- ==============================================
 CREATE TABLE IF NOT EXISTS member_locations (
   id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -405,75 +315,42 @@ CREATE TABLE IF NOT EXISTS member_locations (
   UNIQUE(book_id, user_id)
 );
 
-CREATE INDEX IF NOT EXISTS idx_member_locations_book_id
-  ON member_locations(book_id)
+CREATE INDEX IF NOT EXISTS idx_member_locations_book_id ON member_locations(book_id)
   WHERE is_sharing = true;
 
-COMMENT ON TABLE member_locations IS '成员位置共享表';
+COMMENT ON TABLE member_locations IS '成员位置共享表 - 存储账本成员的实时位置信息，支持家庭成员位置共享';
+COMMENT ON COLUMN member_locations.id IS '位置记录唯一标识符，UUID 类型';
+COMMENT ON COLUMN member_locations.book_id IS '关联的账本 ID，外键引用 books 表，删除账本时级联删除';
+COMMENT ON COLUMN member_locations.user_id IS '成员用户 ID，外键引用 users 表，删除用户时级联删除';
+COMMENT ON COLUMN member_locations.latitude IS '纬度，范围 -90 ~ 90，成员当前位置';
+COMMENT ON COLUMN member_locations.longitude IS '经度，范围 -180 ~ 180，成员当前位置';
 COMMENT ON COLUMN member_locations.is_sharing IS '是否正在共享位置，关闭时保留最后位置但不可见';
+COMMENT ON COLUMN member_locations.updated_at IS '位置最后更新时间';
 
 -- ==============================================
--- 9. 交易模板表（2026-06-01: P1-5 快捷记账）
+-- 11. 账本邀请码表
 -- ==============================================
-CREATE TABLE IF NOT EXISTS transaction_templates (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  name VARCHAR(50) NOT NULL,
-  type VARCHAR(10) NOT NULL DEFAULT 'expense' CHECK (type IN ('expense', 'income')),
-  amount NUMERIC(12,2),
-  category_id UUID REFERENCES categories(id) ON DELETE SET NULL,
-  note VARCHAR(200),
-  latitude DOUBLE PRECISION,
-  longitude DOUBLE PRECISION,
-  location_name VARCHAR(100),
-  poi_id VARCHAR(100),
-  merchant_name VARCHAR(100),
-  book_id UUID REFERENCES books(id) ON DELETE SET NULL,
-  sort_order INT DEFAULT 0,
-  created_at TIMESTAMPTZ DEFAULT now()
+CREATE TABLE IF NOT EXISTS book_invitations (
+  id          BIGSERIAL PRIMARY KEY,
+  book_id     UUID NOT NULL REFERENCES books(id) ON DELETE CASCADE,
+  code        VARCHAR(32) NOT NULL UNIQUE,
+  created_by  UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  used_by     UUID REFERENCES users(id) ON DELETE SET NULL,
+  expires_at  TIMESTAMPTZ NOT NULL,
+  used_at     TIMESTAMPTZ,
+  created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX IF NOT EXISTS idx_transaction_templates_user_id ON transaction_templates(user_id);
+CREATE INDEX IF NOT EXISTS idx_book_invitations_code ON book_invitations(code);
+CREATE INDEX IF NOT EXISTS idx_book_invitations_book_id ON book_invitations(book_id);
+CREATE INDEX IF NOT EXISTS idx_book_invitations_active ON book_invitations(code, expires_at, used_at);
 
-COMMENT ON TABLE transaction_templates IS '交易模板表（P1-5 快捷记账）';
-
--- ==============================================
--- 迁移脚本：为已部署环境添加 avatar_url 字段（2026-06-09）
--- ==============================================
-DO $$
-BEGIN
-  IF NOT EXISTS (
-    SELECT 1 FROM information_schema.columns
-    WHERE table_name = 'users' AND column_name = 'avatar_url'
-  ) THEN
-    ALTER TABLE users ADD COLUMN avatar_url TEXT;
-  ELSE
-    ALTER TABLE users ALTER COLUMN avatar_url TYPE TEXT;
-  END IF;
-END $$;
-
--- ==============================================
--- 迁移脚本：为 users 表添加 role 和 status 字段（2026-06-09）
--- ==============================================
-DO $$
-BEGIN
-  -- 添加 role 字段
-  IF NOT EXISTS (
-    SELECT 1 FROM information_schema.columns
-    WHERE table_name = 'users' AND column_name = 'role'
-  ) THEN
-    ALTER TABLE users ADD COLUMN role VARCHAR(20) NOT NULL DEFAULT 'user' CHECK (role IN ('user', 'admin'));
-  END IF;
-
-  -- 添加 status 字段
-  IF NOT EXISTS (
-    SELECT 1 FROM information_schema.columns
-    WHERE table_name = 'users' AND column_name = 'status'
-  ) THEN
-    ALTER TABLE users ADD COLUMN status VARCHAR(20) NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'suspended', 'deleted'));
-  END IF;
-END $$;
-
--- 为 role 和 status 字段添加注释
-COMMENT ON COLUMN users.role IS '用户角色：user(普通用户) / admin(管理员)';
-COMMENT ON COLUMN users.status IS '用户状态：active(正常) / suspended(停用) / deleted(已注销)';
+COMMENT ON TABLE book_invitations IS '账本邀请码表 - 存储账本邀请码，支持他人通过邀请码加入账本';
+COMMENT ON COLUMN book_invitations.id IS '邀请记录唯一自增 ID';
+COMMENT ON COLUMN book_invitations.book_id IS '关联的账本 ID，外键引用 books 表';
+COMMENT ON COLUMN book_invitations.code IS '邀请码，6 位大写字母+数字，全局唯一';
+COMMENT ON COLUMN book_invitations.created_by IS '邀请码创建者用户 ID，外键引用 users 表';
+COMMENT ON COLUMN book_invitations.used_by IS '使用邀请码加入的用户 ID，可为空';
+COMMENT ON COLUMN book_invitations.expires_at IS '邀请码过期时间';
+COMMENT ON COLUMN book_invitations.used_at IS '邀请码使用时间，NULL 表示未使用';
+COMMENT ON COLUMN book_invitations.created_at IS '邀请码创建时间';

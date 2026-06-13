@@ -2,30 +2,43 @@ import { toPng } from 'html-to-image';
 
 /**
  * 截取 DOM 元素生成长图并触发下载
- * 使用 html-to-image（SVG foreignObject），原生支持 oklch() 等现代 CSS
+ * 
+ * 容器在 index.tsx 中已设置固定 672px 宽度 + minWidth + maxWidth + boxSizing: border-box。
+ * 此处只需要确保 echarts 已绘制完成，然后直接导出。
  */
 export async function captureLongImage(
   element: HTMLElement,
   filename: string = '年度报告.png',
 ): Promise<void> {
-  // 暂存原始样式，截图后恢复
-  const orig = {
-    overflow: element.style.overflow,
-    maxWidth: element.style.maxWidth,
-    width: element.style.width,
-  };
+  // 保存原始 overflow
+  const origOverflow = element.style.overflow;
 
-  // 临时解除宽度限制，确保长图捕获完整内容
+  // 允许溢出（避免父容器裁切）
   element.style.overflow = 'visible';
-  element.style.maxWidth = 'none';
-  element.style.width = 'auto';
+
+  // 1. 收集所有 echarts 实例
+  const echartsInstances: any[] = [];
+  element.querySelectorAll('div').forEach((dom) => {
+    const inst = (dom as any).__echarts_instance__;
+    if (inst && typeof inst.resize === 'function') {
+      echartsInstances.push(inst);
+    }
+  });
+
+  // 2. 触发 echarts resize，让图表适配容器实际宽度（672px）
+  echartsInstances.forEach((inst) => {
+    try { inst.resize(); } catch (e) { /* ignore */ }
+  });
+
+  // 3. 等待浏览器布局 + echarts 绘制完成（约 500ms）
+  await new Promise((r) => setTimeout(r, 500));
 
   try {
+    // 4. html-to-image 按元素实际尺寸导出（元素固定 672px）
     const dataUrl = await toPng(element, {
-      pixelRatio: 2,
+      pixelRatio: 1,
       quality: 1,
-      width: element.scrollWidth,
-      height: element.scrollHeight,
+      cacheBust: true,
     });
 
     const a = document.createElement('a');
@@ -35,8 +48,6 @@ export async function captureLongImage(
     a.click();
     document.body.removeChild(a);
   } finally {
-    element.style.overflow = orig.overflow;
-    element.style.maxWidth = orig.maxWidth;
-    element.style.width = orig.width;
+    element.style.overflow = origOverflow;
   }
 }
