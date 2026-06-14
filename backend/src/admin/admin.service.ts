@@ -226,7 +226,7 @@ export class AdminService {
       .from('transactions')
       .select(
         `
-        id, amount, type, date, description, created_at, image_url,
+        id, amount, type, date, description, created_at, image_urls,
         users (id, email, username),
         categories (id, name, icon, type),
         books (id, name)
@@ -261,12 +261,30 @@ export class AdminService {
       throw new Error(`查询交易列表失败: ${error.message}`);
     }
 
-    // 将 image_url 路径转换为完整 URL
+    // 解析 image_urls（数据库可能存储为 JSON 字符串），并将路径转换为完整 URL
     const transactions = (data || []).map((t: any) => {
-      if (t.image_url && !t.image_url.startsWith('http')) {
-        const { data: urlData } = supabase.storage.from('receipts').getPublicUrl(t.image_url);
-        t.image_url = urlData?.publicUrl || t.image_url;
+      let urls: string[] = [];
+      if (t.image_urls) {
+        if (Array.isArray(t.image_urls)) {
+          urls = t.image_urls;
+        } else if (typeof t.image_urls === 'string') {
+          try {
+            const parsed = JSON.parse(t.image_urls);
+            if (Array.isArray(parsed)) {
+              urls = parsed;
+            }
+          } catch {
+            urls = [];
+          }
+        }
       }
+      t.image_urls = urls.map((path: string) => {
+        if (path && !path.startsWith('http')) {
+          const { data: urlData } = supabase.storage.from('receipts').getPublicUrl(path);
+          return urlData?.publicUrl || path;
+        }
+        return path;
+      });
       return t;
     });
 

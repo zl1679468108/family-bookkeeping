@@ -6,7 +6,6 @@ import { AuthProvider, useAuth } from './utils/auth'
 import { ThemeProvider } from './utils/theme'
 import { BookProvider, useBook } from './hooks/useBook'
 import { hasToken } from './services/api'
-import { Skeleton, StatCardsSkeleton, TransactionListSkeleton } from './components/ui/Skeleton'
 import { ProgressBar } from './components/ui/ProgressBar'
 
 const PROJECT_NAME = '静记'
@@ -19,12 +18,7 @@ const PrivateRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => 
   const location = useLocation()
 
   if (loading) {
-    return (
-      <div style={{ padding: '32px' }}>
-        <StatCardsSkeleton count={3} />
-        <TransactionListSkeleton count={5} />
-      </div>
-    )
+    return null
   }
 
   if (!user) {
@@ -40,7 +34,6 @@ const AppLayout: React.FC = () => {
   const { user, loading: authLoading } = useAuth()
   const { hasBooks, loading: booksLoading } = useBook()
   const location = useLocation()
-  const navigate = useNavigate()
 
   useEffect(() => {
     document.title = PROJECT_NAME
@@ -51,11 +44,7 @@ const AppLayout: React.FC = () => {
   // 公开路由（登录/注册/忘记密码）→ 不渲染侧边栏
   if (isAuthPage) {
     return (
-      <Suspense fallback={
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', background: 'var(--bg)' }}>
-          <Skeleton width="200px" height="20px" borderRadius="4px" />
-        </div>
-      }>
+      <Suspense fallback={null}>
         <Routes>
           {routes.map((route) => (
             <Route key={route.path} path={route.path} element={route.element} />
@@ -91,11 +80,7 @@ const AppLayout: React.FC = () => {
     <div className="app">
       {!hideSidebar && <Sidebar />}
       <main className="main" style={hideSidebar ? { marginLeft: 0 } : undefined}>
-        <Suspense fallback={
-          <div style={{ padding: '24px 32px' }}>
-            <Skeleton width="220px" height="20px" borderRadius="4px" />
-          </div>
-        }>
+        <Suspense fallback={null}>
           <Routes>
             {routes.map((route) => (
               <Route

@@ -13,8 +13,11 @@ export interface Transaction {
   category: string;
   type: 'income' | 'expense';
   date: string;
-  description: string;
+  description?: string;
+  brand?: string;
   image_url?: string;
+  image_urls?: string;
+  image_url_list?: string[];
   created_at: string;
   user_id?: string;
   book_id?: string;
@@ -132,12 +135,11 @@ export class TransactionService {
       baseQuery = baseQuery.lte('date', filters.endDate);
     }
 
-    if (filters?.search) {
-      baseQuery = baseQuery.ilike('description', `%${filters.search}%`);
-    }
-
-    if (filters?.keyword) {
-      baseQuery = baseQuery.ilike('description', `%${filters.keyword}%`);
+    // 合并 search / keyword 作为模糊搜索词，同时匹配 description 和 brand
+    const fuzzyTerm = filters?.keyword || filters?.search;
+    if (fuzzyTerm) {
+      const likeTerm = `%${fuzzyTerm}%`;
+      baseQuery = baseQuery.or(`description.ilike.${likeTerm},brand.ilike.${likeTerm}`);
     }
 
     if (filters?.min_amount) {
@@ -172,8 +174,10 @@ export class TransactionService {
     if (filters?.category) countQuery = countQuery.eq('category', filters.category);
     if (filters?.startDate) countQuery = countQuery.gte('date', filters.startDate);
     if (filters?.endDate) countQuery = countQuery.lte('date', filters.endDate);
-    if (filters?.search) countQuery = countQuery.ilike('description', `%${filters.search}%`);
-    if (filters?.keyword) countQuery = countQuery.ilike('description', `%${filters.keyword}%`);
+    if (fuzzyTerm) {
+      const likeTerm = `%${fuzzyTerm}%`;
+      countQuery = countQuery.or(`description.ilike.${likeTerm},brand.ilike.${likeTerm}`);
+    }
     if (filters?.min_amount) countQuery = countQuery.gte('amount', Number(filters.min_amount));
     if (filters?.max_amount) countQuery = countQuery.lte('amount', Number(filters.max_amount));
     if (filters?.date_from) countQuery = countQuery.gte('date', filters.date_from);
@@ -571,17 +575,44 @@ export class TransactionService {
   }
 
   /**
-   * 将相对路径的 image_url 转换为完整的 Supabase Storage 公开 URL
+   * 将相对路径的 image_url / image_urls 转换为完整的 Supabase Storage 公开 URL
+   * - image_urls 优先：JSON 字符串数组，每个元素可能是相对路径
+   * - image_url 兼容：旧字段，单张图片路径
    */
   private resolveImageUrl(transaction: any): any {
-    if (!transaction?.image_url || transaction.image_url.startsWith('http')) {
-      return transaction;
-    }
     const supabase = this.supabaseService.getClient();
-    const { data } = supabase.storage.from('receipts').getPublicUrl(transaction.image_url);
+    const resolveOne = (url: string): string => {
+      if (!url || url.startsWith('http')) return url;
+      const { data } = supabase.storage.from('receipts').getPublicUrl(url);
+      return data?.publicUrl || url;
+    };
+
+    let resolved: string[] = [];
+    if (transaction?.image_urls) {
+      try {
+        const parsed = JSON.parse(transaction.image_urls);
+        if (Array.isArray(parsed)) {
+          resolved = parsed.map((p: any) => resolveOne(String(p))).filter(Boolean);
+        }
+      } catch {
+        // 解析失败，可能是未转义的逗号分隔字符串，尝试兜底
+        if (typeof transaction.image_urls === 'string') {
+          resolved = transaction.image_urls
+            .split(',')
+            .map((p: string) => resolveOne(p.trim()))
+            .filter(Boolean);
+        }
+      }
+    } else if (transaction?.image_url) {
+      // 旧字段兼容：单张图作为单元素数组返回
+      resolved = [resolveOne(transaction.image_url)];
+    }
+
     return {
       ...transaction,
-      image_url: data?.publicUrl || transaction.image_url,
+      image_url: resolved[0] || transaction?.image_url,
+      image_urls: resolved.length > 0 ? JSON.stringify(resolved) : undefined,
+      image_url_list: resolved,
     };
   }
 }

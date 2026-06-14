@@ -1,0 +1,31 @@
+/* ═══ Input & Textarea — 表单控件通用样式 ═══ */
+
+/* 通用清空按钮 —— 输入框右侧 */
+.input-clear-btn {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  color: #9ca3af;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  border-radius: 50%;
+  padding: 0;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+
+.input-clear-btn:hover {
+  color: #4b5563;
+  background: rgba(0, 0, 0, 0.06);
+}
+
+/* 为 Tailwind pr-8 兼容性 —— 右侧预留清空按钮空间 */
+.pr-8 {
+  padding-right: 2rem;
+}

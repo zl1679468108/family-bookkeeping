@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../../utils/auth'
-import { getProfile, updateProfile, changePassword } from '../../../services/api'
+import { updateProfile, changePassword } from '../../../services/api'
 import { useDebouncedAction } from '../../../hooks/useDebouncedAction'
 import { notify } from '../../../utils/notifications'
 import './index.scss'
@@ -192,19 +192,15 @@ const ProfilePage: React.FC = () => {
   const [error, setError] = useState('')
   const [showPasswordModal, setShowPasswordModal] = useState(false)
 
-  // 加载个人信息
+  // user 来自 AuthProvider（已在初始化时拉过一次 /auth/profile），这里直接复用，避免重复请求
   useEffect(() => {
-    getProfile()
-      .then(data => {
-        setUsername(data.username || '')
-        setEmail(data.email || '')
-        setAvatarUrl(data.avatar_url || '')
-        setAvatarPreview(data.avatar_url || '')
-      })
-      .catch(() => {
-        notify({ type: 'error', message: '获取个人信息失败' })
-      })
-  }, [])
+    if (user) {
+      setUsername(user.username || '')
+      setEmail(user.email || '')
+      setAvatarUrl(user.avatar_url || '')
+      setAvatarPreview(user.avatar_url || '')
+    }
+  }, [user?.id])
 
   // 头像上传
   const handleAvatarChange = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {

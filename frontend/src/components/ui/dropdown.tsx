@@ -21,8 +21,8 @@ interface DropdownSelectProps {
   placeholder?: string;
   /** 自定义 class */
   className?: string;
-  /** 是否可清空（点击"全部"或首项清空）；默认 true */
-  clearable?: boolean;
+  /** 是否可清空；默认 true；为 true 时右侧显示清空按钮 */
+  allowClear?: boolean;
 }
 
 export const DropdownSelect: React.FC<DropdownSelectProps> = ({
@@ -32,7 +32,7 @@ export const DropdownSelect: React.FC<DropdownSelectProps> = ({
   onChange,
   placeholder = '全部',
   className = '',
-  clearable = true,
+  allowClear = true,
 }) => {
   const [open, setOpen] = useState(false);
   const [internalValue, setInternalValue] = useState<string | null>(value ?? null);
@@ -58,17 +58,27 @@ export const DropdownSelect: React.FC<DropdownSelectProps> = ({
   const currentOption = options.find(o => o.key === internalValue);
   const displayText = currentOption ? currentOption.label : placeholder;
   const displayIcon = currentOption?.icon;
+  const hasValue = internalValue !== null && internalValue !== '';
 
   const handleSelect = (key: string) => {
-    const next = (clearable && internalValue === key) ? null : key;
-    setInternalValue(next);
-    onChange?.(next ?? '');
+    setInternalValue(key);
+    onChange?.(key);
     setOpen(false);
   };
+
+  const handleClear = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setInternalValue(null);
+    onChange?.('');
+    if (inputRef.current) inputRef.current.focus();
+  };
+
+  const inputRef = useRef<HTMLButtonElement>(null);
 
   return (
     <div className={`dd-select ${open ? 'is-open' : ''} ${className}`} ref={containerRef}>
       <button
+        ref={inputRef}
         type="button"
         className="dd-select__btn"
         onClick={() => setOpen(v => !v)}
@@ -76,17 +86,30 @@ export const DropdownSelect: React.FC<DropdownSelectProps> = ({
         {label && <span className="dd-select__label">{label}</span>}
         {displayIcon && <span className="dd-select__icon">{displayIcon}</span>}
         <span className="dd-select__value">{displayText}</span>
+        {allowClear && hasValue && (
+          <span
+            className="dd-select__clear"
+            onClick={handleClear}
+            role="button"
+            aria-label="清空"
+          >
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </span>
+        )}
         <span className="dd-select__chevron">▾</span>
       </button>
 
       {open && (
         <div className="dd-select__panel" role="listbox">
-          {clearable && (
+          {allowClear && (
             <div
-              className={`dd-select__item ${internalValue === null || internalValue === '' ? 'is-active' : ''}`}
+              className={`dd-select__item ${!hasValue ? 'is-active' : ''}`}
               onClick={() => handleSelect('')}
               role="option"
-              aria-selected={internalValue === null || internalValue === ''}
+              aria-selected={!hasValue}
             >
               <span className="dd-select__item-icon">✓</span>
               <span className="dd-select__item-label">{placeholder}</span>

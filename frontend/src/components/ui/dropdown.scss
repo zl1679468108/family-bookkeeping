@@ -54,6 +54,24 @@
   color: var(--fg);
 }
 
+.dd-select__clear {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  color: var(--fg3);
+  cursor: pointer;
+  border-radius: 50%;
+  margin-left: 4px;
+  transition: color var(--df) ease, background var(--df) ease;
+}
+
+.dd-select__clear:hover {
+  color: var(--fg);
+  background: rgba(0, 0, 0, 0.06);
+}
+
 .dd-select__chevron {
   color: var(--fg3);
   font-size: 10px;

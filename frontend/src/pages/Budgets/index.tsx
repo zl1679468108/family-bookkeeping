@@ -185,7 +185,7 @@ const Budgets: React.FC = () => {
           value={selectedMonth}
           onChange={(key) => key && setSelectedMonth(key)}
           placeholder="选择月份"
-          clearable={false}
+          allowClear={false}
         />
       </div>
 

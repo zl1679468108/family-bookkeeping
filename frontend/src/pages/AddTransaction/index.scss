@@ -310,3 +310,126 @@
     color: var(--exp);
   }
 }
+
+/* 多行文本框 + 字数计数 */
+.form-input.textarea {
+  min-height: 80px;
+  resize: vertical;
+  font-family: var(--fn);
+  line-height: 1.6;
+}
+
+.char-counter {
+  text-align: right;
+  font-size: 11px;
+  color: var(--fg3);
+  margin-top: -4px;
+  padding-right: 4px;
+}
+
+/* 上传头部 */
+.upload-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.upload-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--fg2);
+}
+
+.link-btn {
+  background: none;
+  border: none;
+  color: var(--accent);
+  font-size: 12px;
+  cursor: pointer;
+  padding: 2px 6px;
+  font-family: var(--fn);
+}
+
+.link-btn:hover {
+  text-decoration: underline;
+}
+
+/* 多图网格 */
+.image-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(88px, 1fr));
+  gap: 10px;
+  padding: 6px;
+}
+
+.image-item {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--bg);
+  border: 1px solid var(--bd);
+}
+
+.image-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.image-remove {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.65);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s ease;
+  padding: 0;
+}
+
+.image-remove:hover {
+  background: rgba(220, 38, 38, 0.85);
+}
+
+.image-add {
+  aspect-ratio: 1 / 1;
+  border: 2px dashed var(--bd);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  background: var(--bg);
+  color: var(--fg3);
+}
+
+.image-add:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-light, #f0f5ff);
+}
+
+.image-add-icon {
+  font-size: 24px;
+  line-height: 1;
+}
+
+.image-add-text {
+  font-size: 11px;
+}

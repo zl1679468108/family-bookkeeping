@@ -12,6 +12,33 @@ import { Skeleton } from '../../components/ui/Skeleton'
 import { compressImage } from '../../utils/imageCompress'
 import type { LocationResult } from '../../types/map'
 
+const MAX_NOTE_LENGTH = 500
+const MAX_IMAGES = 5
+
+interface PendingImage {
+  localUrl: string
+  blob: Blob
+}
+
+const parseImageList = (tx: any): string[] => {
+  if (tx?.image_url_list && Array.isArray(tx.image_url_list) && tx.image_url_list.length > 0) {
+    return tx.image_url_list
+  }
+  if (tx?.image_urls) {
+    try {
+      const parsed = JSON.parse(tx.image_urls)
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed
+    } catch {
+      // 解析失败，尝试按逗号分割
+      if (typeof tx.image_urls === 'string' && tx.image_urls.includes(',')) {
+        return tx.image_urls.split(',').map((s: string) => s.trim()).filter(Boolean)
+      }
+    }
+  }
+  if (tx?.image_url) return [tx.image_url]
+  return []
+}
+
 const AddTransaction: React.FC = () => {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
@@ -31,16 +58,18 @@ const AddTransaction: React.FC = () => {
     category: '',
     type: 'expense' as 'expense' | 'income',
     date: todayStr,
-    note: ''
+    brand: '',
+    note: '',
   })
 
   const [location, setLocation] = useState<LocationResult | null>(null)
   const [showLocationPicker, setShowLocationPicker] = useState(false)
-  const [receiptImageUrl, setReceiptImageUrl] = useState<string | null>(null)
+  // 已存在的图片 URL（编辑态来自原记录，或者上传后的 URL）
+  const [savedImageUrls, setSavedImageUrls] = useState<string[]>([])
+  // 新选但未上传的图片
+  const [pendingImages, setPendingImages] = useState<PendingImage[]>([])
   const [showTemplateSelector, setShowTemplateSelector] = useState(false)
   const [ocrProcessing, setOcrProcessing] = useState(false)
-  // 保存待上传的文件，提交时再上传
-  const pendingFileRef = useRef<Blob | null>(null)
 
   const { data: editData, isLoading: editLoading } = useQuery({
     queryKey: ['transaction', editId],
@@ -58,6 +87,7 @@ const AddTransaction: React.FC = () => {
         category: editData.category,
         type: editData.type,
         date: editData.date,
+        brand: (editData as any).brand || '',
         note: editData.description || '',
       })
       if ((editData as any).latitude && (editData as any).longitude) {
@@ -68,11 +98,19 @@ const AddTransaction: React.FC = () => {
           poiId: (editData as any).poi_id || null,
         })
       }
-      if (editData.image_url) {
-        setReceiptImageUrl(editData.image_url)
-      }
+      setSavedImageUrls(parseImageList(editData))
     }
   }, [editData])
+
+  const allImageUrls = useMemo(
+    () => [...savedImageUrls, ...pendingImages.map((p) => p.localUrl)],
+    [savedImageUrls, pendingImages],
+  )
+
+  const imageUrlsJson = useMemo(() => {
+    if (savedImageUrls.length === 0) return undefined
+    return JSON.stringify(savedImageUrls)
+  }, [savedImageUrls])
 
   const createMutation = useMutation({
     mutationFn: async () => {
@@ -82,6 +120,7 @@ const AddTransaction: React.FC = () => {
         type: formData.type,
         date: formData.date,
         description: formData.note || undefined,
+        brand: formData.brand || undefined,
         latitude: location?.latitude,
         longitude: location?.longitude,
         location_name: location?.locationName,
@@ -99,11 +138,12 @@ const AddTransaction: React.FC = () => {
         type: formData.type,
         date: formData.date,
         description: formData.note || undefined,
+        brand: formData.brand || undefined,
         latitude: location?.latitude,
         longitude: location?.longitude,
         location_name: location?.locationName,
         poi_id: location?.poiId,
-        image_url: receiptImageUrl || undefined,
+        image_urls: imageUrlsJson,
       }
       return updateTransaction(Number(editId), payload)
     },
@@ -127,31 +167,49 @@ const AddTransaction: React.FC = () => {
 
     try {
       if (isEditMode) {
-        // 编辑模式：直接更新
+        // 编辑模式：直接更新 text 字段，上传新图并追加到 image_urls
         await updateMutation.mutateAsync()
-        // 如果有待上传的文件，先上传再更新
-        if (pendingFileRef.current && editId) {
-          const uploadResult = await uploadMutation.mutateAsync({
-            transactionId: Number(editId),
-            file: pendingFileRef.current,
-          })
-          await updateTransaction(Number(editId), { image_url: uploadResult.image_url })
+
+        // 上传新选的图片并追加
+        if (pendingImages.length > 0 && editId) {
+          const newUrls: string[] = []
+          for (const p of pendingImages) {
+            const r = await uploadMutation.mutateAsync({
+              transactionId: Number(editId),
+              file: p.blob,
+            })
+            if (r?.image_url) newUrls.push(r.image_url)
+          }
+          if (newUrls.length > 0) {
+            const merged = [...savedImageUrls, ...newUrls]
+            await updateTransaction(Number(editId), {
+              image_urls: JSON.stringify(merged),
+            })
+          }
         }
+
         queryClient.invalidateQueries({ queryKey: ['transactions'] })
         queryClient.invalidateQueries({ queryKey: ['statistics'] })
         notify({ type: 'success', message: '交易已更新' })
       } else {
-        // 新建模式：先创建交易，再上传图片
+        // 新建模式：先创建交易，再上传全部图片
         const result = await createMutation.mutateAsync()
         const newTransactionId = (result as any).id
 
-        // 如果有待上传的文件，上传到新建的交易
-        if (pendingFileRef.current && newTransactionId) {
-          const uploadResult = await uploadMutation.mutateAsync({
-            transactionId: newTransactionId,
-            file: pendingFileRef.current,
-          })
-          await updateTransaction(newTransactionId, { image_url: uploadResult.image_url })
+        if (pendingImages.length > 0 && newTransactionId) {
+          const uploadedUrls: string[] = []
+          for (const p of pendingImages) {
+            const r = await uploadMutation.mutateAsync({
+              transactionId: newTransactionId,
+              file: p.blob,
+            })
+            if (r?.image_url) uploadedUrls.push(r.image_url)
+          }
+          if (uploadedUrls.length > 0) {
+            await updateTransaction(newTransactionId, {
+              image_urls: JSON.stringify(uploadedUrls),
+            })
+          }
         }
 
         queryClient.invalidateQueries({ queryKey: ['transactions'] })
@@ -165,14 +223,14 @@ const AddTransaction: React.FC = () => {
   })
 
   const handleTemplateConfirm = (template: any) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       type: (template.type as 'expense' | 'income') || prev.type,
       category: template.category_id || prev.category,
       amount: template.amount ? String(template.amount) : prev.amount,
+      brand: template.brand || prev.brand,
       note: template.note ?? prev.note,
     }))
-    // 填充模板中的位置信息
     if (template.latitude && template.longitude) {
       setLocation({
         locationName: template.location_name || '',
@@ -194,60 +252,89 @@ const AddTransaction: React.FC = () => {
     return buildCategoryOptions(categories, formData.type)
   }, [formData.type, categories])
 
-  // 文件上传处理（合并附件/相册/OCR）
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
+    const files = e.target.files
+    if (!files || files.length === 0) return
+
+    const remaining = MAX_IMAGES - allImageUrls.length
+    if (remaining <= 0) {
+      notify({ type: 'error', message: `最多只能上传 ${MAX_IMAGES} 张图片` })
+      e.target.value = ''
+      return
+    }
+
+    const toProcess = Array.from(files).slice(0, remaining)
 
     try {
-      const compressed = await compressImage(file, 1200, 0.7)
-      const localUrl = URL.createObjectURL(compressed)
-      setReceiptImageUrl(localUrl)
+      const newPending: PendingImage[] = []
+      let firstOcrDone = false
 
-      // 保存压缩后的文件，提交时再上传
-      pendingFileRef.current = compressed
+      for (const file of toProcess) {
+        const compressed = await compressImage(file, 1200, 0.7)
+        const localUrl = URL.createObjectURL(compressed)
+        newPending.push({ localUrl, blob: compressed })
 
-      // 尝试 OCR 解析
-      setOcrProcessing(true)
-      try {
-        const ocrResult = await parseReceiptOCR(compressed)
-        if (ocrResult) {
-          setFormData(prev => ({
-            ...prev,
-            amount: ocrResult.amount || prev.amount,
-            category: ocrResult.category || prev.category,
-            note: ocrResult.note || prev.note,
-            date: ocrResult.date || prev.date,
-          }))
-          notify({ type: 'success', message: 'OCR 识别成功，已自动填充表单' })
+        // 只对第一张图尝试 OCR
+        if (!firstOcrDone) {
+          firstOcrDone = true
+          setOcrProcessing(true)
+          try {
+            const ocrResult = await parseReceiptOCR(compressed)
+            if (ocrResult) {
+              setFormData((prev) => ({
+                ...prev,
+                amount: ocrResult.amount || prev.amount,
+                category: ocrResult.category || prev.category,
+                note: ocrResult.note || prev.note,
+                date: ocrResult.date || prev.date,
+              }))
+              notify({ type: 'success', message: 'OCR 识别成功，已自动填充表单' })
+            }
+          } catch {
+            // OCR 失败不影响上传
+          } finally {
+            setOcrProcessing(false)
+          }
         }
-      } catch {
-        // OCR 失败不影响上传
-      } finally {
-        setOcrProcessing(false)
       }
+
+      setPendingImages((prev) => [...prev, ...newPending])
     } catch {
       notify({ type: 'error', message: '图片处理失败' })
     }
     e.target.value = ''
   }
 
-  // 简易 OCR 解析（从图片文件名或后续接入真实 OCR API）
-  const parseReceiptOCR = async (_blob: Blob): Promise<{ amount?: string; category?: string; note?: string; date?: string } | null> => {
-    // TODO: 接入真实 OCR API（如 tesseract.js 或后端 OCR 服务）
-    // 当前返回 null，由用户手动填写
+  const parseReceiptOCR = async (
+    _blob: Blob,
+  ): Promise<{ amount?: string; category?: string; note?: string; date?: string } | null> => {
     return null
   }
 
-  const handleDeleteImage = () => {
-    if (receiptImageUrl && receiptImageUrl.startsWith('blob:')) {
-      URL.revokeObjectURL(receiptImageUrl)
-    }
-    setReceiptImageUrl(null)
-    pendingFileRef.current = null
+  const handleRemoveSavedImage = (idx: number) => {
+    setSavedImageUrls((prev) => prev.filter((_, i) => i !== idx))
   }
 
-  const isSubmitting = submitInProgress || createMutation.isPending || updateMutation.isPending || uploadMutation.isPending
+  const handleRemovePendingImage = (idx: number) => {
+    setPendingImages((prev) => {
+      const removed = prev[idx]
+      if (removed && removed.localUrl.startsWith('blob:')) {
+        URL.revokeObjectURL(removed.localUrl)
+      }
+      return prev.filter((_, i) => i !== idx)
+    })
+  }
+
+  const handleClearAllImages = () => {
+    pendingImages.forEach((p) => {
+      if (p.localUrl.startsWith('blob:')) URL.revokeObjectURL(p.localUrl)
+    })
+    setPendingImages([])
+    setSavedImageUrls([])
+  }
+
+  const isSubmitting =
+    submitInProgress || createMutation.isPending || updateMutation.isPending || uploadMutation.isPending
 
   if (isEditMode && editLoading) {
     return (
@@ -268,6 +355,8 @@ const AddTransaction: React.FC = () => {
     )
   }
 
+  const canAddMore = allImageUrls.length < MAX_IMAGES
+
   return (
     <div className="page-container">
       <div className="add-grid">
@@ -277,17 +366,21 @@ const AddTransaction: React.FC = () => {
           <div className="form-tabs">
             <button
               className={formData.type !== 'income' ? 'active' : ''}
-              onClick={() => setFormData(prev => ({ ...prev, type: 'expense', category: '' }))}
-            >支出</button>
+              onClick={() => setFormData((prev) => ({ ...prev, type: 'expense', category: '' }))}
+            >
+              支出
+            </button>
             <button
               className={formData.type === 'income' ? 'active' : ''}
-              onClick={() => setFormData(prev => ({ ...prev, type: 'income', category: '' }))}
-            >收入</button>
+              onClick={() => setFormData((prev) => ({ ...prev, type: 'income', category: '' }))}
+            >
+              收入
+            </button>
           </div>
 
           {/* 金额 */}
           <div className="form-group">
-            <label>金额</label>
+            <label className="field-required">金额</label>
             <input
               type="text"
               className="form-input amt"
@@ -295,73 +388,124 @@ const AddTransaction: React.FC = () => {
               value={formData.amount}
               onChange={(e) => {
                 const v = e.target.value.replace(/[^0-9.]/g, '')
-                setFormData(prev => ({ ...prev, amount: v }))
+                setFormData((prev) => ({ ...prev, amount: v }))
               }}
             />
           </div>
 
           <div className="form-row">
             <div className="form-group">
-              <label>分类</label>
+              <label className="field-required">分类</label>
               <select
                 className="form-select"
                 value={formData.category}
-                onChange={(e) => setFormData(prev => ({ ...prev, category: e.target.value }))}
+                onChange={(e) => setFormData((prev) => ({ ...prev, category: e.target.value }))}
               >
                 <option value="">选择分类</option>
                 {categoryOptions.map((cat) => (
-                  <option key={cat.value} value={cat.value}>{cat.label}</option>
+                  <option key={cat.value} value={cat.value}>
+                    {cat.label}
+                  </option>
                 ))}
               </select>
             </div>
             <div className="form-group">
-              <label>日期</label>
+              <label className="field-required">日期</label>
               <input
                 type="date"
                 className="form-input"
                 value={formData.date}
-                onChange={(e) => setFormData(prev => ({ ...prev, date: e.target.value }))}
+                onChange={(e) => setFormData((prev) => ({ ...prev, date: e.target.value }))}
               />
             </div>
           </div>
 
+          {/* 品牌 */}
           <div className="form-group">
-            <label>备注</label>
+            <label>品牌</label>
             <input
               type="text"
               className="form-input"
-              placeholder="例如：午餐·川味小馆"
-              value={formData.note}
-              onChange={(e) => setFormData(prev => ({ ...prev, note: e.target.value }))}
+              placeholder="例如：雅诗兰黛、苹果"
+              value={formData.brand}
+              onChange={(e) => setFormData((prev) => ({ ...prev, brand: e.target.value }))}
+              maxLength={100}
             />
           </div>
 
-          {/* 合并的附件上传区域 */}
+          {/* 备注：多行文本 + 字数统计 */}
+          <div className="form-group">
+            <label>备注</label>
+            <textarea
+              className="form-input textarea"
+              placeholder="例如：小棕瓶 50ml，给妈妈买的礼物"
+              value={formData.note}
+              onChange={(e) => {
+                const v = e.target.value.slice(0, MAX_NOTE_LENGTH)
+                setFormData((prev) => ({ ...prev, note: v }))
+              }}
+              maxLength={MAX_NOTE_LENGTH}
+              rows={4}
+            />
+            <div className="char-counter">
+              {formData.note.length} / {MAX_NOTE_LENGTH}
+            </div>
+          </div>
+
+          {/* 多图上传区域 */}
           <div className="upload-section">
-            {receiptImageUrl ? (
-              <div className="upload-preview">
-                <img src={receiptImageUrl} alt="附件预览" />
-                <div className="upload-actions">
-                  <button className="upload-btn replace" onClick={() => fileInputRef.current?.click()}>
-                    替换
-                  </button>
-                  <button className="upload-btn delete" onClick={handleDeleteImage}>
-                    删除
+            <div className="upload-header">
+              <span className="upload-title">
+                附件 ({allImageUrls.length} / {MAX_IMAGES})
+              </span>
+              {allImageUrls.length > 0 && (
+                <button className="link-btn" onClick={handleClearAllImages}>
+                  清空
+                </button>
+              )}
+            </div>
+
+            <div className="image-grid">
+              {/* 已保存的图片 */}
+              {savedImageUrls.map((url, idx) => (
+                <div key={`saved-${idx}`} className="image-item">
+                  <img src={url} alt={`附件 ${idx + 1}`} />
+                  <button
+                    className="image-remove"
+                    onClick={() => handleRemoveSavedImage(idx)}
+                    title="删除此图"
+                  >
+                    ×
                   </button>
                 </div>
-                {ocrProcessing && <span className="upload-ocr-tip">OCR 识别中...</span>}
-              </div>
-            ) : (
-              <div className="upload-area" onClick={() => fileInputRef.current?.click()}>
-                <div className="upload-icon">📎</div>
-                <div className="upload-text">点击上传附件/收据</div>
-                <div className="upload-hint">支持拍照、相册、文件，上传后自动 OCR 识别</div>
-              </div>
-            )}
+              ))}
+              {/* 新选的待上传图片 */}
+              {pendingImages.map((p, idx) => (
+                <div key={`pending-${idx}`} className="image-item">
+                  <img src={p.localUrl} alt={`待上传 ${idx + 1}`} />
+                  <button
+                    className="image-remove"
+                    onClick={() => handleRemovePendingImage(idx)}
+                    title="删除此图"
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
+              {/* 添加按钮 */}
+              {canAddMore && (
+                <div className="image-add" onClick={() => fileInputRef.current?.click()}>
+                  <span className="image-add-icon">+</span>
+                  <span className="image-add-text">添加图片</span>
+                </div>
+              )}
+            </div>
+            {ocrProcessing && <span className="upload-ocr-tip">OCR 识别中...</span>}
             <input
               ref={fileInputRef}
               type="file"
               accept="image/*"
+              multiple
               capture="environment"
               style={{ display: 'none' }}
               onChange={handleFileSelect}
@@ -382,9 +526,7 @@ const AddTransaction: React.FC = () => {
                       {location.latitude.toFixed(6)}, {location.longitude.toFixed(6)}
                     </div>
                   )}
-                  {location.poiId && (
-                    <div className="loc-poi">商户ID: {location.poiId}</div>
-                  )}
+                  {location.poiId && <div className="loc-poi">商户ID: {location.poiId}</div>}
                   <div className="loc-edit">· 点击修改</div>
                 </div>
               ) : (
@@ -401,16 +543,25 @@ const AddTransaction: React.FC = () => {
               onClick={handleSubmit}
               disabled={isSubmitting}
             >
-              {isSubmitting ? '保存中...' : (isEditMode ? '保存修改' : '确认添加')}
+              {isSubmitting ? '保存中...' : isEditMode ? '保存修改' : '确认添加'}
             </button>
             <button
               className="btn btn-secondary"
               onClick={() => {
-                setFormData({ amount: '', category: '', type: 'expense', date: todayStr, note: '' })
+                setFormData({
+                  amount: '',
+                  category: '',
+                  type: 'expense',
+                  date: todayStr,
+                  brand: '',
+                  note: '',
+                })
                 setLocation(null)
-                handleDeleteImage()
+                handleClearAllImages()
               }}
-            >重置</button>
+            >
+              重置
+            </button>
           </div>
         </div>
 

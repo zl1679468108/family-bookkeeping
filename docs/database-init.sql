@@ -194,7 +194,9 @@ CREATE TABLE IF NOT EXISTS transactions (
   type          VARCHAR(10) NOT NULL CHECK (type IN ('income', 'expense')),
   date          DATE NOT NULL DEFAULT CURRENT_DATE,
   description   TEXT,
+  brand         VARCHAR(100),
   image_url     VARCHAR(500),
+  image_urls    TEXT,
   user_id       UUID REFERENCES users(id) ON DELETE CASCADE,
   book_id       UUID REFERENCES books(id) ON DELETE SET NULL,
   latitude      DECIMAL(10, 7),
@@ -204,11 +206,15 @@ CREATE TABLE IF NOT EXISTS transactions (
   created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+ALTER TABLE transactions ADD COLUMN IF NOT EXISTS brand VARCHAR(100);
+ALTER TABLE transactions ADD COLUMN IF NOT EXISTS image_urls TEXT;
+
 CREATE INDEX IF NOT EXISTS idx_transactions_user_id ON transactions(user_id);
 CREATE INDEX IF NOT EXISTS idx_transactions_date ON transactions(date);
 CREATE INDEX IF NOT EXISTS idx_transactions_type ON transactions(type);
 CREATE INDEX IF NOT EXISTS idx_transactions_category ON transactions(category);
 CREATE INDEX IF NOT EXISTS idx_transactions_book_id ON transactions(book_id);
+CREATE INDEX IF NOT EXISTS idx_transactions_brand ON transactions(brand);
 CREATE INDEX IF NOT EXISTS idx_transactions_location ON transactions(latitude, longitude)
   WHERE latitude IS NOT NULL AND longitude IS NOT NULL;
 

@@ -19,8 +19,14 @@ export interface Transaction {
   date: string
   time?: string
   description?: string
-  location_name?: string
+  brand?: string
   image_url?: string
+  image_urls?: string
+  image_url_list?: string[]
+  location_name?: string
+  latitude?: number
+  longitude?: number
+  poi_id?: string | null
   created_at: string
 }
 

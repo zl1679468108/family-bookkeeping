@@ -216,7 +216,7 @@ const MapPage: React.FC = () => {
             value={viewMode}
             onChange={handleViewSelect}
             placeholder="视图"
-            clearable={false}
+            allowClear={false}
           />
 
           {/* 位置共享按钮 */}
@@ -246,7 +246,7 @@ const MapPage: React.FC = () => {
             value={activeDateKey}
             onChange={handleDateSelect}
             placeholder="全部"
-            clearable={false}
+            allowClear={false}
           />
 
           {/* 类型 */}

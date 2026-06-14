@@ -11,6 +11,7 @@ import {
 } from '../../../services/adminApi';
 import { useDebounce } from '../../../hooks/useDebounce';
 import { TableRowsSkeleton } from '../../../components/ui/Skeleton';
+import { DetailModal } from '../../../components/DetailModal';
 
 const AdminTransactions: React.FC = () => {
   const [page, setPage] = useState(1);
@@ -20,6 +21,10 @@ const AdminTransactions: React.FC = () => {
   const [bookFilter, setBookFilter] = useState('');
   const [userFilter, setUserFilter] = useState('');
   const pageSize = 20;
+
+  // 图片预览弹窗状态
+  const [previewImages, setPreviewImages] = useState<string[]>([]);
+  const [showPreview, setShowPreview] = useState(false);
 
   // 获取所有用户（用于筛选下拉）
   const { data: usersData } = useQuery<UsersListResponse>({
@@ -50,10 +55,14 @@ const AdminTransactions: React.FC = () => {
       }),
   });
 
+  const handleOpenPreview = (urls: string[]) => {
+    if (!urls || urls.length === 0) return;
+    setPreviewImages(urls);
+    setShowPreview(true);
+  };
+
   const handleViewImage = (url: string) => {
-    if (url) {
-      window.open(url, '_blank');
-    }
+    window.open(url, '_blank');
   };
 
   const totalPages = data?.totalPages || 1;
@@ -171,25 +180,13 @@ const AdminTransactions: React.FC = () => {
                       <td>{t.description || '-'}</td>
                       <td className="data-table__col--fixed">
                         <div className="action-buttons" style={{ gap: '4px', flexWrap: 'wrap' }}>
-                          {(t.image_url || t.receipt_url) ? (
-                            <>
-                              {t.image_url && (
-                                <button
-                                  className="btn btn-outline btn-sm"
-                                  onClick={() => handleViewImage(t.image_url!)}
-                                >
-                                  查看图片
-                                </button>
-                              )}
-                              {t.receipt_url && (
-                                <button
-                                  className="btn btn-outline btn-sm"
-                                  onClick={() => handleViewImage(t.receipt_url!)}
-                                >
-                                  查看凭证
-                                </button>
-                              )}
-                            </>
+                          {t.image_urls && t.image_urls.length > 0 ? (
+                            <button
+                              className="btn btn-outline btn-sm"
+                              onClick={() => handleOpenPreview(t.image_urls!)}
+                            >
+                              查看图片 ({t.image_urls.length})
+                            </button>
                           ) : (
                             <span className="status status--muted">无</span>
                           )}
@@ -225,6 +222,30 @@ const AdminTransactions: React.FC = () => {
           </>
         )}
       </div>
+
+      {/* 图片预览弹窗 */}
+      <DetailModal
+        visible={showPreview}
+        onClose={() => setShowPreview(false)}
+        title={`图片预览（${previewImages.length}张）`}
+      >
+        <div className="detail-image-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))', gap: '12px' }}>
+          {previewImages.map((url, idx) => (
+            <a
+              key={idx}
+              onClick={(e) => {
+                e.preventDefault();
+                handleViewImage(url);
+              }}
+              className="detail-image-item"
+              style={{ cursor: 'pointer', display: 'block', borderRadius: '8px', overflow: 'hidden', border: '1px solid var(--line)', aspectRatio: '1 / 1', backgroundColor: 'var(--bg)' }}
+              title="点击在新窗口打开"
+            >
+              <img src={url} alt={`图片 ${idx + 1}`} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+            </a>
+          ))}
+        </div>
+      </DetailModal>
     </AdminLayout>
   );
 };

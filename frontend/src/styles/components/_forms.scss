@@ -85,3 +85,24 @@
   background: var(--fg);
   color: #fff;
 }
+
+/* 全局必填标记（红星） */
+.field-required::before {
+  content: '*';
+  color: var(--exp);
+  font-size: 13px;
+  font-weight: 700;
+  margin-right: 4px;
+  vertical-align: middle;
+  line-height: 1;
+}
+
+.field-required {
+  display: inline-flex;
+  align-items: center;
+}
+
+/* 为 form-group 中的必填 label 增加快捷支持 */
+.form-group label.field-required::before {
+  color: var(--exp);
+}

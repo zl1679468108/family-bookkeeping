@@ -1,29 +1,33 @@
-import React, { InputHTMLAttributes, useState, useEffect, useRef } from 'react'
+import React, { TextareaHTMLAttributes, useState, useEffect, useRef } from 'react'
 import './input.scss'
 
-interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
+interface TextareaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
   label?: string;
   error?: string;
   allowClear?: boolean;
+  showCount?: boolean;
+  maxLength?: number;
 }
 
-export const Input: React.FC<InputProps> = ({ 
-  label, 
-  error, 
-  className = '', 
+export const Textarea: React.FC<TextareaProps> = ({
+  label,
+  error,
+  className = '',
   id,
   allowClear = false,
+  showCount = false,
+  maxLength,
   value,
   defaultValue,
   onChange,
-  ...props 
+  ...props
 }) => {
-  const inputId = id || `input-${Math.random().toString(36).substr(2, 9)}`
+  const textareaId = id || `textarea-${Math.random().toString(36).substr(2, 9)}`
   const isControlled = value !== undefined
   const [internalValue, setInternalValue] = useState<string>(
     isControlled ? (value as string) ?? '' : (defaultValue as string) ?? ''
   )
-  const inputRef = useRef<HTMLInputElement>(null)
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
 
   useEffect(() => {
     if (isControlled) {
@@ -33,7 +37,7 @@ export const Input: React.FC<InputProps> = ({
 
   const currentValue = isControlled ? (value as string) ?? '' : internalValue
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     if (!isControlled) {
       setInternalValue(e.target.value)
     }
@@ -45,25 +49,27 @@ export const Input: React.FC<InputProps> = ({
     if (!isControlled) {
       setInternalValue('')
     }
-    const event = { target: { value: '' } } as React.ChangeEvent<HTMLInputElement>
+    const event = { target: { value: '' } } as React.ChangeEvent<HTMLTextAreaElement>
     onChange?.(event)
-    inputRef.current?.focus()
+    textareaRef.current?.focus()
   }
+
+  const charCount = currentValue.length
 
   return (
     <div className="w-full">
       {label && (
-        <label 
-          htmlFor={inputId}
+        <label
+          htmlFor={textareaId}
           className="block text-sm font-medium text-gray-700 mb-1"
         >
           {label}
         </label>
       )}
       <div className="relative">
-        <input
-          ref={inputRef}
-          id={inputId}
+        <textarea
+          ref={textareaRef}
+          id={textareaId}
           className={`
             w-full px-3 py-2 border rounded-lg
             focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
@@ -73,6 +79,7 @@ export const Input: React.FC<InputProps> = ({
           `}
           value={currentValue}
           onChange={handleChange}
+          maxLength={maxLength}
           {...props}
         />
         {allowClear && currentValue && (
@@ -89,9 +96,16 @@ export const Input: React.FC<InputProps> = ({
           </button>
         )}
       </div>
+      {showCount && (
+        <div className="text-right mt-1 text-sm text-gray-500">
+          {charCount}{maxLength ? ` / ${maxLength}` : ''}
+        </div>
+      )}
       {error && (
         <p className="mt-1 text-sm text-red-600">{error}</p>
       )}
     </div>
   )
 }
+
+export default Textarea;

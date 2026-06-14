@@ -29,15 +29,14 @@ export function parseAmount(str: string): number {
 
 export function formatDate(dateStr: string, mode: 'full' | 'dashboard' = 'full'): string {
   const date = new Date(dateStr.replace(' ', 'T'))
-  
+
   if (isNaN(date.getTime())) {
     return dateStr
   }
 
+  const year = date.getFullYear()
   const month = date.getMonth() + 1
   const day = date.getDate()
-  const hours = date.getHours().toString().padStart(2, '0')
-  const minutes = date.getMinutes().toString().padStart(2, '0')
 
   if (mode === 'dashboard') {
     const now = new Date()
@@ -45,15 +44,18 @@ export function formatDate(dateStr: string, mode: 'full' | 'dashboard' = 'full')
     const yesterday = new Date(today)
     yesterday.setDate(yesterday.getDate() - 1)
     const transactionDay = new Date(date.getFullYear(), date.getMonth(), date.getDate())
-    
+
     if (transactionDay.getTime() === today.getTime()) {
-      return `今天 ${hours}:${minutes}`
+      return '今天'
     } else if (transactionDay.getTime() === yesterday.getTime()) {
-      return `昨天 ${hours}:${minutes}`
+      return '昨天'
+    } else if (year === today.getFullYear()) {
+      return `${month}月${day}日`
     } else {
-      return `${month}月${day}日 ${hours}:${minutes}`
+      return `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`
     }
   }
 
-  return `${month}月${day}日 ${hours}:${minutes}`
+  // full 模式：仅展示 年-月-日（交易数据只有年月日，没有时分秒）
+  return `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`
 }

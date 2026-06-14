@@ -146,7 +146,7 @@ export interface AdminTransactionsResponse {
     description: string;
     created_at: string;
     receipt_url?: string;
-    image_url?: string;
+    image_urls?: string[];
     users: {
       id: string;
       email: string;

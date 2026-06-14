@@ -44,6 +44,40 @@
   border-color: var(--fg);
 }
 
+/* 下拉筛选框 */
+.filter-select {
+  padding: 6px 28px 6px 12px;
+  border: 1px solid var(--bd);
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--fg);
+  background-color: var(--srf);
+  background-image: linear-gradient(45deg, transparent 50%, var(--fg3) 50%),
+                    linear-gradient(135deg, var(--fg3) 50%, transparent 50%);
+  background-position: right 12px top 50%,
+                       right 8px top 50%;
+  background-size: 4px 4px, 4px 4px;
+  background-repeat: no-repeat;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  cursor: pointer;
+  transition: all var(--df);
+  font-family: var(--fn);
+  min-width: 110px;
+}
+
+.filter-select:hover {
+  border-color: var(--prBd);
+}
+
+.filter-select:focus {
+  outline: none;
+  border-color: var(--pr);
+  box-shadow: 0 0 0 2px var(--prBg);
+}
+
 .filter-summary {
   font-size: 11px;
   color: var(--fg3);
@@ -100,6 +134,19 @@
 .data-table {
   width: 100%;
   border-collapse: collapse;
+}
+
+/* 交易表格 - 固定布局以支持列宽和截断 */
+.txn-table {
+  table-layout: fixed;
+}
+
+.cell-desc {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--fg);
 }
 
 .data-table th {
@@ -187,4 +234,24 @@
 .page-info {
   font-size: 13px;
   color: var(--muted);
+}
+
+/* 品牌标签 */
+.brand-tag {
+  display: inline-block;
+  padding: 2px 8px;
+  background: var(--infoBg);
+  color: var(--info);
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+/* 图片数量徽标 */
+.img-badge {
+  display: inline-block;
+  margin-left: 6px;
+  font-size: 11px;
+  color: var(--accent);
+  font-weight: 600;
 }

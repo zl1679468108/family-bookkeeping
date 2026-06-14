@@ -210,6 +210,7 @@
   background: var(--srf);
   transition: background var(--df);
   cursor: pointer;
+  overflow: hidden;
 }
 
 .txn-row:hover {
@@ -231,11 +232,16 @@
 .txn-info {
   flex: 1;
   min-width: 0;
+  overflow: hidden;
 }
 
 .txn-title {
+  width: 300px;
   font-size: 13px;
   font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .txn-meta {

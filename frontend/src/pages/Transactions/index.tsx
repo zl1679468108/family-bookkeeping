@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { startOfMonth, format } from 'date-fns'
 import { getTransactions, deleteTransaction } from '../../services/api'
-import { useCategoryLookup } from '../../hooks/useCategories'
+import { useCategoryLookup, useCategories } from '../../hooks/useCategories'
 import { useDebounce } from '../../hooks/useDebounce'
 import { useDebouncedAction } from '../../hooks/useDebouncedAction'
 import { useFocusItem } from '../../hooks/useFocusItem'
@@ -16,6 +16,24 @@ import { useQueryClient } from '@tanstack/react-query'
 
 const PAGE_SIZE = 20
 
+const parseImageList = (tx: any): string[] => {
+  if (tx?.image_url_list && Array.isArray(tx.image_url_list) && tx.image_url_list.length > 0) {
+    return tx.image_url_list
+  }
+  if (tx?.image_urls) {
+    try {
+      const parsed = JSON.parse(tx.image_urls)
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed
+    } catch {
+      if (typeof tx.image_urls === 'string' && tx.image_urls.includes(',')) {
+        return tx.image_urls.split(',').map((s: string) => s.trim()).filter(Boolean)
+      }
+    }
+  }
+  if (tx?.image_url) return [tx.image_url]
+  return []
+}
+
 const Transactions: React.FC = () => {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
@@ -27,16 +45,39 @@ const Transactions: React.FC = () => {
   const monthStart = format(startOfMonth(today), 'yyyy-MM-dd')
   const todayStr = format(today, 'yyyy-MM-dd')
 
+  // 获取分类列表（用于分类下拉框）
+  const { data: allCategories = [] }: any = useCategories()
+
   const [typeFilter, setTypeFilter] = useState<'all' | 'income' | 'expense'>(() => {
     const t = searchParams.get('type')
     return (t as 'all' | 'income' | 'expense') || 'all'
   })
   const [dateFilter, setDateFilter] = useState<'all' | 'week' | 'month'>('all')
+  const [categoryFilter, setCategoryFilter] = useState<string>('')
   const [search, setSearch] = useState('')
   const [page, setPage] = useState(1)
-  const debouncedSearch = useDebounce(search, 300)
+  const debouncedSearch = useDebounce(search, 800)
 
-  // 详情弹窗状态
+  // 分类下拉框选项（与当前类型联动）
+  const categoryOptions = useMemo(() => {
+    const opts: Array<{ value: string; label: string }> = [{ value: '', label: '全部分类' }]
+    allCategories
+      .filter((c: any) => typeFilter === 'all' || c.type === typeFilter)
+      .forEach((c: any) => opts.push({ value: c.id, label: `${c.icon || ''} ${c.name}` }))
+    return opts
+  }, [typeFilter, allCategories])
+
+  // 类型变化时：若已选分类与新类型不匹配，则清空分类
+  const handleTypeChange = (newType: 'all' | 'income' | 'expense') => {
+    setTypeFilter(newType)
+    if (categoryFilter) {
+      const matched = allCategories.find((c: any) => c.id === categoryFilter)
+      if (matched && newType !== 'all' && matched.type !== newType) {
+        setCategoryFilter('')
+      }
+    }
+  }
+
   const [selectedTransaction, setSelectedTransaction] = useState<any>(null)
   const [showDetail, setShowDetail] = useState(false)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
@@ -61,12 +102,12 @@ const Transactions: React.FC = () => {
   }, [dateFilter, monthStart])
 
   const { data: paginated, isLoading } = useQuery({
-    queryKey: ['transactions', typeFilter, effectiveStartDate, todayStr, debouncedSearch, page],
+    queryKey: ['transactions', typeFilter, categoryFilter, effectiveStartDate, todayStr, debouncedSearch, page],
     queryFn: () => getTransactions({
       type: typeFilter !== 'all' ? typeFilter : undefined,
+      category: categoryFilter || undefined,
       startDate: effectiveStartDate || undefined,
       endDate: todayStr,
-      search: debouncedSearch || undefined,
       keyword: debouncedSearch || undefined,
       page,
       pageSize: PAGE_SIZE,
@@ -85,7 +126,6 @@ const Transactions: React.FC = () => {
 
   return (
     <div className="page-container">
-      {/* 筛选栏 */}
       <div className="filter-sticky">
         <div className="filter-bar">
           <div className="srch-wrap">
@@ -94,31 +134,56 @@ const Transactions: React.FC = () => {
                 <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
               </svg>
             </span>
-            <input type="text" placeholder="搜索..." value={search} onChange={(e) => setSearch(e.target.value)} />
+            <input type="text" placeholder="搜索描述/品牌..." value={search} onChange={(e) => setSearch(e.target.value)} />
           </div>
-          <div className={`filter-chip ${typeFilter === 'all' ? 'active' : ''}`} onClick={() => setTypeFilter('all')}>全部</div>
-          <div className={`filter-chip ${typeFilter === 'expense' ? 'active' : ''}`} onClick={() => setTypeFilter('expense')}>支出</div>
-          <div className={`filter-chip ${typeFilter === 'income' ? 'active' : ''}`} onClick={() => setTypeFilter('income')}>收入</div>
-          <div className={`filter-chip ${dateFilter === 'all' ? 'active' : ''}`} onClick={() => setDateFilter('all')}>全部</div>
-          <div className={`filter-chip ${dateFilter === 'week' ? 'active' : ''}`} onClick={() => setDateFilter('week')}>近7天</div>
-          <div className={`filter-chip ${dateFilter === 'month' ? 'active' : ''}`} onClick={() => setDateFilter('month')}>本月</div>
+
+          <select
+            className="filter-select"
+            value={typeFilter}
+            onChange={(e) => handleTypeChange(e.target.value as 'all' | 'income' | 'expense')}
+          >
+            <option value="all">全部类型</option>
+            <option value="income">收入</option>
+            <option value="expense">支出</option>
+          </select>
+
+          <select
+            className="filter-select"
+            value={categoryFilter}
+            onChange={(e) => setCategoryFilter(e.target.value)}
+          >
+            {categoryOptions.map((opt) => (
+              <option key={opt.value || 'all'} value={opt.value}>{opt.label}</option>
+            ))}
+          </select>
+
+          <select
+            className="filter-select"
+            value={dateFilter}
+            onChange={(e) => setDateFilter(e.target.value as 'all' | 'week' | 'month')}
+          >
+            <option value="all">全部时间</option>
+            <option value="week">近 7 天</option>
+            <option value="month">近 30 天</option>
+          </select>
+
           <span className="filter-summary">
             {transactions.length}笔 · 支出{formatAmount(totalExpense)} · 收入{formatAmount(totalIncome)}
           </span>
         </div>
       </div>
 
-      {/* 数据表格 */}
       {isLoading ? (
         <>
           <div className="dash-card">
             <table className="data-table">
               <thead>
                 <tr>
-                  <th><Skeleton width="40%" height="12px" /></th>
-                  <th><Skeleton width="50%" height="12px" /></th>
+                  <th style={{ width: 110 }}><Skeleton width="40%" height="12px" /></th>
+                  <th style={{ width: 120 }}><Skeleton width="50%" height="12px" /></th>
+                  <th style={{ width: 120 }}><Skeleton width="50%" height="12px" /></th>
                   <th><Skeleton width="60%" height="12px" /></th>
-                  <th style={{ textAlign: 'right' }}><Skeleton width="40%" height="12px" /></th>
+                  <th style={{ textAlign: 'right', width: 120 }}><Skeleton width="40%" height="12px" /></th>
                 </tr>
               </thead>
               <tbody>
@@ -126,6 +191,7 @@ const Transactions: React.FC = () => {
                   <tr key={i} style={{ cursor: 'default' }}>
                     <td><Skeleton width="50%" height="13px" /></td>
                     <td><Skeleton width="60%" height="13px" /></td>
+                    <td><Skeleton width="40%" height="13px" /></td>
                     <td><Skeleton width="70%" height="13px" /></td>
                     <td style={{ textAlign: 'right' }}><Skeleton width="55%" height="13px" /></td>
                   </tr>
@@ -133,7 +199,6 @@ const Transactions: React.FC = () => {
               </tbody>
             </table>
           </div>
-          {/* 分页骨架 */}
           <div className="pagination-bar" style={{ opacity: 0.5 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
               <Skeleton width="60px" height="28px" borderRadius="var(--rs)" />
@@ -152,31 +217,50 @@ const Transactions: React.FC = () => {
       ) : (
         <>
           <div className="dash-card">
-            <table className="data-table">
+            <table className="data-table txn-table">
               <thead>
                 <tr>
-                  <th>日期</th>
-                  <th>分类</th>
+                  <th style={{ width: 110 }}>日期</th>
+                  <th style={{ width: 120 }}>分类</th>
+                  <th style={{ width: 120 }}>品牌</th>
                   <th>描述</th>
-                  <th style={{ textAlign: 'right' }}>金额</th>
+                  <th style={{ textAlign: 'right', width: 120 }}>金额</th>
                 </tr>
               </thead>
               <tbody>
-                {transactions.map((t) => (
-                  <tr key={t.id} data-focus={t.id} onClick={() => { setSelectedTransaction(t); setShowDetail(true) }} style={{ cursor: 'pointer' }}>
-                    <td>{format(new Date(t.date), 'MM-dd')}</td>
-                    <td><span className="cell-cat">{getCategoryIcon(t.category)} {getCategoryName(t.category)}</span></td>
-                    <td>{t.description || getCategoryName(t.category)}</td>
-                    <td className={`cell-amount ${t.type === 'expense' ? 'debit' : 'credit'}`}>
-                      {formatAmountWithType(t.amount, t.type === 'income')}
-                    </td>
-                  </tr>
-                ))}
+                {transactions.map((t) => {
+                  const imgs = parseImageList(t)
+                  return (
+                    <tr
+                      key={t.id}
+                      data-focus={t.id}
+                      onClick={() => { setSelectedTransaction(t); setShowDetail(true) }}
+                      style={{ cursor: 'pointer' }}
+                    >
+                      <td>{format(new Date(t.date), 'yyyy-MM-dd')}</td>
+                      <td><span className="cell-cat">{getCategoryIcon(t.category)} {getCategoryName(t.category)}</span></td>
+                      <td>
+                        {(t as any).brand ? (
+                          <span className="brand-tag">{(t as any).brand}</span>
+                        ) : (
+                          <span style={{ color: 'var(--fg3)' }}>—</span>
+                        )}
+                      </td>
+                      <td>
+                        <span className="cell-desc" title={t.description || getCategoryName(t.category)}>
+                          {t.description || getCategoryName(t.category)}
+                        </span>
+                      </td>
+                      <td className={`cell-amount ${t.type === 'expense' ? 'debit' : 'credit'}`}>
+                        {formatAmountWithType(t.amount, t.type === 'income')}
+                      </td>
+                    </tr>
+                  )
+                })}
               </tbody>
             </table>
           </div>
 
-          {/* 分页 */}
           {totalPages > 1 && (
             <div className="pagination-bar">
               <button
@@ -201,7 +285,6 @@ const Transactions: React.FC = () => {
         </>
       )}
 
-      {/* 交易详情弹窗 */}
       {selectedTransaction && (
         <DetailModal
           visible={showDetail}
@@ -226,7 +309,7 @@ const Transactions: React.FC = () => {
             <div className="detail-content">
               <div className="detail-title">{getCategoryName(selectedTransaction.category)}</div>
               <div className="detail-subtitle">
-                {selectedTransaction.type === 'expense' ? '支出' : '收入'} · {format(new Date(selectedTransaction.date), 'yyyy-MM-dd HH:mm')}
+                {selectedTransaction.type === 'expense' ? '支出' : '收入'} · {format(new Date(selectedTransaction.date), 'yyyy-MM-dd')}
               </div>
               <div className="detail-amount">
                 <div className={`detail-amount-value ${selectedTransaction.type === 'income' ? 'income' : ''}`}>
@@ -237,10 +320,16 @@ const Transactions: React.FC = () => {
           </div>
           <div className="detail-divider" />
           <div className="detail-grid">
+            {(selectedTransaction as any).brand && (
+              <div className="detail-item">
+                <span className="detail-item-label">品牌</span>
+                <span className="detail-item-value">{(selectedTransaction as any).brand}</span>
+              </div>
+            )}
             {selectedTransaction.description && (
               <div className="detail-item" style={{ gridColumn: '1 / -1' }}>
                 <span className="detail-item-label">描述</span>
-                <span className="detail-item-value">{selectedTransaction.description}</span>
+                <span className="detail-item-value" style={{ whiteSpace: 'pre-wrap' }}>{selectedTransaction.description}</span>
               </div>
             )}
             {selectedTransaction.location_name && (
@@ -272,27 +361,39 @@ const Transactions: React.FC = () => {
             {selectedTransaction.created_at && (
               <div className="detail-item">
                 <span className="detail-item-label">创建时间</span>
-                <span className="detail-item-value">{format(new Date(selectedTransaction.created_at), 'yyyy-MM-dd HH:mm')}</span>
+                <span className="detail-item-value">{format(new Date(selectedTransaction.created_at), 'yyyy-MM-dd')}</span>
               </div>
             )}
           </div>
-          {selectedTransaction.image_url && (
-            <>
-              <div className="detail-divider" />
-              <div className="detail-item" style={{ gridColumn: '1 / -1' }}>
-                <span className="detail-item-label">附件</span>
-                <span className="detail-item-value">
-                  <a href={selectedTransaction.image_url} target="_blank" rel="noopener noreferrer" className="detail-attachment-link">
-                    查看附件
-                  </a>
-                </span>
-              </div>
-            </>
-          )}
+
+          {(() => {
+            const imgs = parseImageList(selectedTransaction)
+            if (imgs.length === 0) return null
+            return (
+              <>
+                <div className="detail-divider" />
+                <div className="detail-item" style={{ gridColumn: '1 / -1' }}>
+                  <span className="detail-item-label">附件（{imgs.length}）</span>
+                  <div className="detail-image-grid">
+                    {imgs.map((url, idx) => (
+                      <a
+                        key={idx}
+                        href={url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="detail-image-item"
+                      >
+                        <img src={url} alt={`附件 ${idx + 1}`} />
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              </>
+            )
+          })()}
         </DetailModal>
       )}
 
-      {/* 删除确认对话框 */}
       <ConfirmDialog
         open={showDeleteConfirm}
         title="确认删除"
@@ -300,7 +401,6 @@ const Transactions: React.FC = () => {
         onConfirm={handleDelete}
         onCancel={() => {
           setShowDeleteConfirm(false)
-          // 不关闭详情弹窗
         }}
         loading={deleteLoading}
       />

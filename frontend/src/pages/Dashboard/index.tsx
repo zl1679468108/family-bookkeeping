@@ -148,7 +148,7 @@ const Dashboard: React.FC = () => {
                     <div className="txn-title">{txn.description || getCategoryName(txn.category)}</div>
                     <div className="txn-meta">
                       <span>{getCategoryName(txn.category)}</span>
-                      <span>{format(new Date(txn.date), 'MM-dd')} {txn.time ? txn.time : format(new Date(txn.created_at), 'HH:mm')}</span>
+                      <span>{format(new Date(txn.date), 'MM-dd')}</span>
                     </div>
                   </div>
                   <div className={`txn-amount ${txn.type === 'expense' ? 'debit' : 'credit'}`}>
