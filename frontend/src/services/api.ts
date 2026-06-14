@@ -4,6 +4,7 @@
  */
 
 import { notify } from '../utils/notifications'
+import { trackRequest } from '../utils/progress'
 import type { BatchRequest, BatchResponse } from '../types/batch'
 
 const API_BASE = process.env.REACT_APP_API_BASE_URL || 'http://localhost:5000/api'
@@ -90,6 +91,12 @@ interface RequestOptions extends Omit<RequestInit, 'body'> {
   requiresAuth?: boolean
   responseType?: 'json' | 'blob'
   notifyOnError?: boolean
+  /**
+   * 是否显示顶部进度条。
+   * 未显式指定时：POST/PUT/DELETE/PATCH 写操作默认显示（按钮点击等显式交互），
+   * GET/HEAD 等读操作默认不显示（页面初始化类加载走骨架屏即可）。
+   */
+  showProgress?: boolean
 }
 
 const getToken = (): string | null => localStorage.getItem(TOKEN_KEY)
@@ -139,9 +146,21 @@ export const request = async <T>(path: string, options: RequestOptions = {}): Pr
     requiresAuth = false,
     responseType = 'json',
     notifyOnError = true,
+    showProgress,
     headers,
+    method,
     ...rest
   } = options
+
+  // 写操作（POST/PUT/DELETE/PATCH）默认显示进度条，读操作默认不显示
+  const effectiveMethod = (method ?? 'GET').toUpperCase()
+  const isWrite = ['POST', 'PUT', 'DELETE', 'PATCH'].includes(effectiveMethod)
+  const shouldShowProgress = showProgress ?? isWrite
+
+  const requestId = `${Date.now()}-${Math.random().toString(16).slice(2, 8)}-${path}`
+  if (shouldShowProgress) {
+    trackRequest(requestId, 'start')
+  }
 
   const requestHeaders: Record<string, string> = {
     ...(headers as Record<string, string> || {}),
@@ -156,6 +175,9 @@ export const request = async <T>(path: string, options: RequestOptions = {}): Pr
     const token = getToken()
     if (!token) {
       // token 不存在，直接跳转登录
+      if (shouldShowProgress) {
+        trackRequest(requestId, 'end')
+      }
       handleUnauthorized(notifyOnError)
       throw new ApiError('登录状态已失效，请重新登录', 401)
     }
@@ -163,35 +185,49 @@ export const request = async <T>(path: string, options: RequestOptions = {}): Pr
     requestHeaders.Authorization = `Bearer ${trimmedToken}`
   }
 
-  const response = await fetch(`${API_BASE}${path}`, {
-    ...rest,
-    headers: requestHeaders,
-    body: body === undefined ? undefined : isFormData ? (body as FormData) : JSON.stringify(body),
-  })
+  try {
+    const response = await fetch(`${API_BASE}${path}`, {
+      ...rest,
+      method: effectiveMethod,
+      headers: requestHeaders,
+      body: body === undefined ? undefined : isFormData ? (body as FormData) : JSON.stringify(body),
+    })
 
-  if (!response.ok) {
-    const errorPayload = await parseErrorPayload(response)
-    const error = new ApiError(
-      errorPayload.message || '请求失败',
-      errorPayload.statusCode || response.status,
-      errorPayload.code,
-    )
+    if (!response.ok) {
+      const errorPayload = await parseErrorPayload(response)
+      const error = new ApiError(
+        errorPayload.message || '请求失败',
+        errorPayload.statusCode || response.status,
+        errorPayload.code,
+      )
 
-    if (requiresAuth && response.status === 401) {
-      handleUnauthorized(notifyOnError)
-    } else if (notifyOnError) {
-      notify({ type: 'error', message: error.message })
+      if (requiresAuth && response.status === 401) {
+        handleUnauthorized(notifyOnError)
+      } else if (notifyOnError) {
+        notify({ type: 'error', message: error.message })
+      }
+
+      throw error
     }
 
-    throw error
-  }
+    if (responseType === 'blob') {
+      return await response.blob() as T
+    }
 
-  if (responseType === 'blob') {
-    return await response.blob() as T
+    const payload = await response.json() as ApiEnvelope<T>
+    return payload.data
+  } catch (err) {
+    // 网络层错误（如断网、DNS 失败）也通知用户
+    if (notifyOnError && !(err instanceof ApiError)) {
+      const message = err instanceof Error ? err.message : '请求失败'
+      notify({ type: 'error', message })
+    }
+    throw err
+  } finally {
+    if (shouldShowProgress) {
+      trackRequest(requestId, 'end')
+    }
   }
-
-  const payload = await response.json() as ApiEnvelope<T>
-  return payload.data
 }
 
 const downloadBlob = (blob: Blob, filename: string): void => {
@@ -268,6 +304,7 @@ export const exportToExcel = async (filters?: TransactionFilters): Promise<void>
   const blob = await request<Blob>(`/export/excel${query}`, {
     requiresAuth: true,
     responseType: 'blob',
+    showProgress: true,
   })
 
   downloadBlob(blob, `transactions_${Date.now()}.xlsx`)
@@ -285,6 +322,7 @@ export const exportToPDF = async (filters?: TransactionFilters): Promise<void> =
   const blob = await request<Blob>(`/export/pdf${query}`, {
     requiresAuth: true,
     responseType: 'blob',
+    showProgress: true,
   })
 
   downloadBlob(blob, `transactions_${Date.now()}.pdf`)

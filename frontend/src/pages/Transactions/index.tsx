@@ -7,7 +7,7 @@ import { useCategoryLookup } from '../../hooks/useCategories'
 import { useDebounce } from '../../hooks/useDebounce'
 import { useDebouncedAction } from '../../hooks/useDebouncedAction'
 import { useFocusItem } from '../../hooks/useFocusItem'
-import { formatAmount } from '../../utils/common'
+import { formatAmount, formatAmountWithType } from '../../utils/common'
 import { Skeleton } from '../../components/ui/Skeleton'
 import { DetailModal } from '../../components/DetailModal'
 import { ConfirmDialog } from '../../components/ConfirmDialog'
@@ -168,7 +168,7 @@ const Transactions: React.FC = () => {
                     <td><span className="cell-cat">{getCategoryIcon(t.category)} {getCategoryName(t.category)}</span></td>
                     <td>{t.description || getCategoryName(t.category)}</td>
                     <td className={`cell-amount ${t.type === 'expense' ? 'debit' : 'credit'}`}>
-                      {t.type === 'expense' ? '−' : '+'}{formatAmount(t.amount)}
+                      {formatAmountWithType(t.amount, t.type === 'income')}
                     </td>
                   </tr>
                 ))}
@@ -230,7 +230,7 @@ const Transactions: React.FC = () => {
               </div>
               <div className="detail-amount">
                 <div className={`detail-amount-value ${selectedTransaction.type === 'income' ? 'income' : ''}`}>
-                  {selectedTransaction.type === 'expense' ? '−' : '+'}¥{formatAmount(selectedTransaction.amount)}
+                  {formatAmountWithType(selectedTransaction.amount, selectedTransaction.type === 'income')}
                 </div>
               </div>
             </div>
@@ -279,7 +279,14 @@ const Transactions: React.FC = () => {
           {selectedTransaction.image_url && (
             <>
               <div className="detail-divider" />
-              <img src={selectedTransaction.image_url} alt="凭证" className="detail-image" />
+              <div className="detail-item" style={{ gridColumn: '1 / -1' }}>
+                <span className="detail-item-label">附件</span>
+                <span className="detail-item-value">
+                  <a href={selectedTransaction.image_url} target="_blank" rel="noopener noreferrer" className="detail-attachment-link">
+                    查看附件
+                  </a>
+                </span>
+              </div>
             </>
           )}
         </DetailModal>

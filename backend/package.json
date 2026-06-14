@@ -32,6 +32,7 @@
     "noto-sans-sc": "^37.0.0",
     "pdfkit": "^0.18.0",
     "pdfkit-table": "^0.2.11",
+    "pg": "^8.21.0",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.1",
     "ws": "^8.16.0"
@@ -46,6 +47,7 @@
     "@types/multer": "^2.1.0",
     "@types/node": "^20.10.6",
     "@types/pdfkit": "^0.13.3",
+    "@types/pg": "^8.20.0",
     "@typescript-eslint/eslint-plugin": "^6.17.0",
     "@typescript-eslint/parser": "^6.17.0",
     "eslint": "^8.56.0",

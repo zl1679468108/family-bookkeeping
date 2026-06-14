@@ -187,8 +187,9 @@ const _MapCanvas: React.ForwardRefRenderFunction<MapCanvasHandle, MapCanvasProps
   const locateDone = useRef(false);
   const dataFittedRef = useRef(false);
 
-  // ---- Imperative InfoWindow ----
+  // ---- Imperative InfoWindow & Heatmap ref (统一提前声明，供后面的清理回调使用) ----
   const infoWindowRef = useRef<any>(null);
+  const heatmapRef = useRef<any>(null);
 
   // ---- Expose map instance ----
   useImperativeHandle(ref, () => ({
@@ -208,6 +209,28 @@ const _MapCanvas: React.ForwardRefRenderFunction<MapCanvasHandle, MapCanvasProps
   // 多成员且已选择成员时启用成员着色
   const useMemberColor = (colorMap?.size ?? 0) >= 2 && selectedMemberId !== null;
 
+  // ---- Handlers（提前定义，供 markers/infoWindow 使用，保证依赖稳定） ----
+  const dataRef = useRef(data);
+  dataRef.current = data;
+
+  const handleMerchantClick = useCallback(
+    (merchant: MerchantSummary) => {
+      const tx = dataRef.current.find((t) => t.location_name === merchant.location_name);
+      if (!tx) return;
+      setActiveInfo({ merchant, pos: [tx.longitude, tx.latitude] });
+      // 点击点位后，地图平滑移动到该点位，保证其在视口中央
+      if (map && typeof map.panTo === 'function') {
+        map.panTo([tx.longitude, tx.latitude]);
+      }
+    },
+    [map],
+  );
+
+  const handleShowHistory = useCallback((merchant: MerchantSummary) => {
+    setActiveInfo(null);
+    setHistoryMerchant(merchant);
+  }, []);
+
   // 筛选/视图切换时关闭已打开的信息窗
   useEffect(() => {
     setActiveInfo(null);
@@ -226,41 +249,96 @@ const _MapCanvas: React.ForwardRefRenderFunction<MapCanvasHandle, MapCanvasProps
     return data.map((t) => [t.longitude, t.latitude] as [number, number]);
   }, [data, merchants, viewMode]);
 
-  /* ====== fit：resize 只在尺寸变化时调用，setBounds 在数据变化时调用 ====== */
-  const lastFitPointsRef = useRef<string>('');
+  /* ====== 统一清理工具 ====== */
+  const clearMarkers = useCallback((mapInstance: any) => {
+    if (!mapInstance) return;
+    const oldMarkers = (mapInstance as any).__amapMarkers as any[] | undefined;
+    if (oldMarkers) {
+      oldMarkers.forEach((m) => { if (m?.setMap) m.setMap(null); });
+      delete (mapInstance as any).__amapMarkers;
+    }
+  }, []);
+
+  const clearHeatmap = useCallback(() => {
+    if (heatmapRef.current) {
+      try { heatmapRef.current.setMap(null); } catch {}
+      heatmapRef.current = null;
+    }
+  }, []);
+
+  /* ====== 视图切换时，清理对方模式的覆盖物 + infoWindow ====== */
+  useEffect(() => {
+    if (!map) return;
+    if (viewMode === 'heatmap') {
+      clearMarkers(map);
+    } else if (viewMode === 'footprints') {
+      clearHeatmap();
+    }
+    if (infoWindowRef.current) {
+      try { infoWindowRef.current.close(); } catch {}
+    }
+    setActiveInfo(null);
+  }, [viewMode, map, clearMarkers, clearHeatmap]);
+
+  /* ====== fit-bounds：数据或视图变化时，将所有点位融入视口 ====== */
+  const lastFitGenRef = useRef<string>('');
   const lastSizeRef = useRef({ w: 0, h: 0 });
   useEffect(() => {
     const AMap = AmapManager.getInstance().AMap;
-    if (!map || !AMap?.LngLat || allPoints.length === 0) return;
+    if (!map || !AMap?.LngLat) return;
 
-    const pointsKey = allPoints.map(p => p[0].toFixed(5) + ',' + p[1].toFixed(5)).sort().join(';');
-    if (lastFitPointsRef.current === pointsKey) return;
+    // generation = viewMode + 前 50 个点坐标字符串（避免"同长度不同坐标"被误判为缓存命中）
+    const sample = allPoints.slice(0, 50).map(p => `${p[0].toFixed(4)},${p[1].toFixed(4)}`).join('|');
+    const generation = `${viewMode}|${allPoints.length}|${merchants.length}|${data.length}|${sample}`;
 
     const el = (map as any).getContainer?.() ?? (map as any)._container;
     const w = el ? (el.clientWidth || 0) : 0;
     const h = el ? (el.clientHeight || 0) : 0;
-    const sizeChanged = w > 0 && h > 0 && (w !== lastSizeRef.current.w || h !== lastSizeRef.current.h);
+    const sizeChanged = w !== lastSizeRef.current.w || h !== lastSizeRef.current.h;
     lastSizeRef.current = { w, h };
-    lastFitPointsRef.current = pointsKey;
 
-    // Only resize when container size actually changed (coming from pool)
-    // Otherwise resize would clear content markers already placed on the map
-    if (sizeChanged && typeof map.resize === 'function') map.resize();
+    if ((w === 0 || h === 0) && typeof map.resize === 'function') {
+      map.resize();
+    }
+
+    // generation 未变化且已有数据，不重复执行（空数据不做缓存跳过）
+    if (lastFitGenRef.current === generation && allPoints.length > 0) return;
+    lastFitGenRef.current = generation;
+
+    if (allPoints.length === 0) {
+      setLocateError('');
+      dataFittedRef.current = true;
+      return;
+    }
 
     setLocateError('');
     dataFittedRef.current = true;
+
+    // 确保 map 容器尺寸已就绪后再定位
+    if (sizeChanged || w === 0 || h === 0) {
+      if (typeof map.resize === 'function') map.resize();
+    }
 
     if (allPoints.length >= 2) {
       const lngs = allPoints.map(p => p[0]);
       const lats = allPoints.map(p => p[1]);
       const sw = new AMap.LngLat(Math.min(...lngs), Math.min(...lats));
       const ne = new AMap.LngLat(Math.max(...lngs), Math.max(...lats));
-      map.setBounds(new AMap.Bounds(sw, ne), false, [60, 40, 80, 40]);
+      // 延迟一帧执行 setBounds，确保瓦片加载完成
+      setTimeout(() => {
+        try {
+          map.setBounds(new AMap.Bounds(sw, ne), false, [120, 80, 120, 80]);
+        } catch {}
+      }, 0);
     } else {
-      map.setCenter(allPoints[0]);
-      map.setZoom(15);
+      setTimeout(() => {
+        try {
+          map.setCenter(allPoints[0]);
+          map.setZoom(15);
+        } catch {}
+      }, 0);
     }
-  }, [allPoints, map]);
+  }, [allPoints, map, viewMode, merchants.length, data.length]);
 
   /* ====== 超时无数据 → 定位当前位置 ====== */
   useEffect(() => {
@@ -288,17 +366,13 @@ const _MapCanvas: React.ForwardRefRenderFunction<MapCanvasHandle, MapCanvasProps
     return () => clearTimeout(timer);
   }, [map]);
 
-  /* ====== 热力图 ====== */
-  const heatmapRef = useRef<any>(null);
-
+  /* ====== 热力图 — 只管理自己的图层，切换筛选时先清后建 ====== */
   useEffect(() => {
     if (!map) return;
     const AMap = AmapManager.getInstance().AMap;
 
-    if (heatmapRef.current) {
-      heatmapRef.current.setMap(null);
-      heatmapRef.current = null;
-    }
+    // 先清自己上一次的 heatmap（切换筛选条件或 data 变化时重建）
+    clearHeatmap();
 
     if (viewMode !== 'heatmap' || data.length === 0 || !AMap?.HeatMap) return;
 
@@ -323,35 +397,24 @@ const _MapCanvas: React.ForwardRefRenderFunction<MapCanvasHandle, MapCanvasProps
 
     return () => {
       if (heatmapRef.current) {
-        heatmapRef.current.setMap(null);
+        try { heatmapRef.current.setMap(null); } catch {}
         heatmapRef.current = null;
       }
     };
-  }, [viewMode, data, map]);
+  }, [viewMode, data, map, clearHeatmap, clearMarkers]);
 
-  /* ====== Footprint markers — 每次数据变化全量重建，确保筛选条件生效 ====== */
+  /* ====== Footprint markers — 只管理自己的图层，切换筛选时先清后建 ====== */
   useEffect(() => {
-    if (!map || !ready || viewMode !== 'footprints') {
-      if (map) {
-        const old = (map as any).__amapMarkers as any[] | undefined;
-        if (old) {
-          old.forEach((m) => { if (m?.setMap) m.setMap(null); });
-          delete (map as any).__amapMarkers;
-        }
-      }
-      return;
-    }
+    if (!map || !ready) return;
+
+    // 先清自己上一次的 markers（切换筛选条件或 data 变化时重建）
+    clearMarkers(map);
+
+    if (viewMode !== 'footprints') return;
 
     const AMap = AmapManager.getInstance().AMap;
     if (!AMap) return;
 
-    // 清除旧标记
-    const old = (map as any).__amapMarkers as any[] | undefined;
-    if (old) {
-      old.forEach((m) => { if (m?.setMap) m.setMap(null); });
-    }
-
-    // 全量重建（merchants/data 变化已经由 effect deps 精确控制触发时机）
     const newMarkers: any[] = [];
     merchants.forEach((merchant) => {
       const tx = data.find((t) => t.location_name === merchant.location_name);
@@ -372,33 +435,37 @@ const _MapCanvas: React.ForwardRefRenderFunction<MapCanvasHandle, MapCanvasProps
     });
 
     (map as any).__amapMarkers = newMarkers;
-  }, [map, ready, viewMode, merchants, data, useMemberColor, colorMap, members]);
 
-  /* ====== InfoWindow (imperative) ====== */
+    return () => {
+      // 组件卸载或依赖变化时，清除 markers
+      clearMarkers(map);
+    };
+  }, [map, ready, viewMode, merchants, data, useMemberColor, colorMap, members, clearMarkers, handleMerchantClick]);
+
+  /* ====== InfoWindow (imperative)：每次 map 变化时重建，避免绑定到已失效的 map ====== */
 
   useEffect(() => {
     if (!map) return;
     const AMap = AmapManager.getInstance().AMap;
     if (!AMap) return;
 
+    // map 变化时：先销毁旧 infoWindow，避免绑定到已失效的 map
     if (infoWindowRef.current) {
-      infoWindowRef.current.close();
-      return;
+      try { infoWindowRef.current.close(); } catch {}
+      infoWindowRef.current = null;
     }
 
-    infoWindowRef.current = new AMap.InfoWindow({
+    const infoWindow = new AMap.InfoWindow({
       offset: new AMap.Pixel(0, -25),
     });
 
     const closeHandler = () => setActiveInfo(null);
-    infoWindowRef.current.on('close', closeHandler);
+    infoWindow.on('close', closeHandler);
+    infoWindowRef.current = infoWindow;
 
     return () => {
-      if (infoWindowRef.current) {
-        infoWindowRef.current.close();
-        infoWindowRef.current.off('close', closeHandler);
-        infoWindowRef.current = null;
-      }
+      try { infoWindow.close(); } catch {}
+      infoWindowRef.current = null;
     };
   }, [map]);
 
@@ -415,29 +482,9 @@ const _MapCanvas: React.ForwardRefRenderFunction<MapCanvasHandle, MapCanvasProps
       iw.setContent(contentEl);
       iw.open(map, activeInfo.pos);
     } else {
-      iw.close();
+      try { iw.close(); } catch {}
     }
   }, [activeInfo, map, colorMap]);
-
-  /* ====== Handlers ====== */
-
-  const dataRef = useRef(data);
-  dataRef.current = data;
-
-  const handleMerchantClick = useCallback(
-    (merchant: MerchantSummary) => {
-      const tx = dataRef.current.find((t) => t.location_name === merchant.location_name);
-      if (tx) {
-        setActiveInfo({ merchant, pos: [tx.longitude, tx.latitude] });
-      }
-    },
-    [],
-  );
-
-  const handleShowHistory = useCallback((merchant: MerchantSummary) => {
-    setActiveInfo(null);
-    setHistoryMerchant(merchant);
-  }, []);
 
   /* ====== Render ====== */
 

@@ -1,33 +1,22 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { BookCreateModal } from '../../components/BookCreateModal';
-import { joinByInvitation } from '../../services/booksApi';
-import { notify } from '../../utils/notifications';
+import { BookCreateModal } from '../Books/BookCreateModal';
+import { BookInviteModal } from '../Books/BookInviteModal';
 import './index.scss';
 
 const OnboardingPage: React.FC = () => {
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
 
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showJoinModal, setShowJoinModal] = useState(false);
-  const [inviteCode, setInviteCode] = useState('');
-
-  const joinMutation = useMutation({
-    mutationFn: () => joinByInvitation(inviteCode.trim().toUpperCase()),
-    onSuccess: () => {
-      notify({ type: 'success', message: '加入成功' });
-      queryClient.invalidateQueries({ queryKey: ['books'] });
-      setShowJoinModal(false);
-      setInviteCode('');
-      navigate('/', { replace: true });
-    },
-  });
 
   const handleCreateSuccess = () => {
-    queryClient.invalidateQueries({ queryKey: ['books'] });
     setShowCreateModal(false);
+    navigate('/', { replace: true });
+  };
+
+  const handleJoinSuccess = () => {
+    setShowJoinModal(false);
     navigate('/', { replace: true });
   };
 
@@ -76,64 +65,12 @@ const OnboardingPage: React.FC = () => {
         onSuccess={handleCreateSuccess}
       />
 
-      {/* 优化后的邀请码弹窗 */}
-      {showJoinModal && (
-        <div className="modal-overlay" onClick={() => setShowJoinModal(false)}>
-          <div
-            className="invite-modal-content"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="invite-modal-header">
-              <h3>使用邀请码加入</h3>
-              <button
-                className="invite-modal-close"
-                onClick={() => setShowJoinModal(false)}
-              >
-                ✕
-              </button>
-            </div>
-            <div className="invite-modal-body">
-              <div className="invite-modal-icon">
-                <span>🔗</span>
-              </div>
-              <div className="invite-form-group">
-                <label>邀请码</label>
-                <div className="invite-input-wrapper">
-                  <input
-                    type="text"
-                    className="invite-input"
-                    value={inviteCode}
-                    onChange={(e) => setInviteCode(e.target.value.toUpperCase())}
-                    placeholder="例如 A3F8K2"
-                    maxLength={32}
-                    autoFocus
-                  />
-                </div>
-              </div>
-              <p className="invite-form-tip">
-                <strong>邀请码获取方式：</strong>由账主在「账本详情 → 生成邀请码」中生成，有效期为 7 天。
-              </p>
-            </div>
-            <div className="invite-modal-footer">
-              <button
-                type="button"
-                className="invite-btn invite-btn--secondary"
-                onClick={() => setShowJoinModal(false)}
-              >
-                取消
-              </button>
-              <button
-                type="button"
-                className="invite-btn invite-btn--primary"
-                disabled={joinMutation.isPending || inviteCode.trim().length < 4}
-                onClick={() => joinMutation.mutate()}
-              >
-                {joinMutation.isPending ? '加入中...' : '加入账本'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* 邀请码弹窗 —— 使用抽离后的 BookInviteModal */}
+      <BookInviteModal
+        open={showJoinModal}
+        onClose={() => setShowJoinModal(false)}
+        onSuccess={handleJoinSuccess}
+      />
     </div>
   );
 };

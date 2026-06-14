@@ -372,7 +372,7 @@ export class BooksService {
     }
   }
 
-  /** 生成邀请码 */
+  /** 生成邀请码（有效期内复用已有邀请码，过期或不存在时生成新码） */
   async generateInvitationCode(bookId: string, userId: string): Promise<{ code: string; book_name: string; expires_at: string }> {
     const book = await this.getById(bookId);
     if (book.owner_id !== userId) {
@@ -380,6 +380,23 @@ export class BooksService {
     }
 
     const supabase = this.getClient();
+    const now = new Date().toISOString();
+
+    // 1. 查找该账本是否已有未过期、未使用的邀请码，有则直接返回
+    const { data: existing } = await supabase
+      .from('book_invitations')
+      .select('code, expires_at')
+      .eq('book_id', bookId)
+      .gt('expires_at', now)
+      .is('used_at', null)
+      .limit(1)
+      .single();
+
+    if (existing) {
+      return { code: existing.code, book_name: book.name, expires_at: existing.expires_at };
+    }
+
+    // 2. 没有可用邀请码，生成新码（7 天有效期）
     const code = this.randomCode();
     const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
 
@@ -437,7 +454,7 @@ export class BooksService {
     // 1. 查找有效邀请码
     const { data: invitation, error: inviteError } = await supabase
       .from('book_invitations')
-      .select('id, book_id, expires_at, used_at')
+      .select('id, book_id, expires_at, used_at, created_by')
       .eq('code', code)
       .gt('expires_at', now)
       .is('used_at', null)
@@ -448,22 +465,29 @@ export class BooksService {
       throw new NotFoundException('邀请码无效或已过期');
     }
 
-    // 2. 检查用户是否已经是成员
+    // 2. 不能使用自己创建的邀请码
+    if (invitation.created_by === userId) {
+      throw new ConflictException('不能使用自己生成的邀请码加入账本');
+    }
+
+    // 3. 检查用户是否已经是成员
     const { data: existingMember } = await supabase
       .from('book_members')
-      .select('id')
+      .select('role')
       .eq('book_id', invitation.book_id)
       .eq('user_id', userId)
       .limit(1)
       .single();
 
     if (existingMember) {
-      // 已在账本中，也算成功
-      const book = await this.getById(invitation.book_id);
-      return { book_id: book.id, book_name: book.name };
+      const msg =
+        existingMember.role === 'owner'
+          ? '你已是该账主，无需加入'
+          : '你已是该账本成员，无需重复加入';
+      throw new ConflictException(msg);
     }
 
-    // 3. 添加为成员
+    // 4. 添加为成员
     const { error: memberError } = await supabase
       .from('book_members')
       .insert({
@@ -476,7 +500,7 @@ export class BooksService {
       throw new ConflictException(`加入账本失败：${memberError.message}`);
     }
 
-    // 4. 标记邀请码已使用
+    // 5. 标记邀请码已使用
     await supabase
       .from('book_invitations')
       .update({ used_by: userId, used_at: now })

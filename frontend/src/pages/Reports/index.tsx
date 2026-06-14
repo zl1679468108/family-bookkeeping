@@ -1,6 +1,5 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react'
 import * as echarts from 'echarts'
-import { useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { startOfMonth, endOfMonth, format, subMonths, parseISO } from 'date-fns'
 import { fetchMonthlyTrend, fetchCategoryBreakdown, fetchDailySummary, fetchYearOverYear } from '../../services/statisticsApi'
@@ -11,8 +10,52 @@ import { Skeleton } from '../../components/ui/Skeleton'
 import MemberComparison from './MemberComparison'
 import type { CategoryBreakdownItem } from '../../types/statistics'
 
+// 排行列表组件：收入和支出合并排序，各自保留颜色区分
+type RankListItem = CategoryBreakdownItem & { type: 'expense' | 'income' }
+
+function RankList({
+  items,
+  getCategoryIcon,
+  getCategoryName,
+}: {
+  items: RankListItem[]
+  getCategoryIcon: (id: string) => React.ReactNode
+  getCategoryName: (id: string) => string
+}) {
+  if (items.length === 0) {
+    return <div style={{ fontSize: '12px', color: 'var(--fg3)', padding: '12px 0' }}>暂无数据</div>
+  }
+  const total = items.reduce((s, d) => s + Number(d.amount), 0)
+  return (
+    <>
+      {items.map((item) => {
+        const amount = Number(item.amount)
+        const pct = total > 0 ? (amount / total) * 100 : 0
+        const colorVar = item.type === 'expense' ? 'var(--exp)' : 'var(--inc)'
+        return (
+          <div key={`${item.type}-${item.category_id}`} style={{ marginBottom: '10px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+              <span style={{ fontSize: '13px', fontWeight: 600 }}>
+                {getCategoryIcon(item.category_id)} {getCategoryName(item.category_id)}
+                <span style={{ marginLeft: '6px', fontSize: '11px', color: colorVar, fontWeight: 500 }}>
+                  {item.type === 'expense' ? '支' : '收'}
+                </span>
+              </span>
+              <span style={{ fontSize: '13px', fontWeight: 700, color: colorVar }}>
+                {formatAmount(amount)} · {pct.toFixed(1)}%
+              </span>
+            </div>
+            <div style={{ height: 4, background: 'var(--bg)', borderRadius: 2, overflow: 'hidden' }}>
+              <div style={{ height: '100%', width: `${pct}%`, background: colorVar, borderRadius: 2, transition: 'width 0.35s' }} />
+            </div>
+          </div>
+        )
+      })}
+    </>
+  )
+}
+
 const Reports: React.FC = () => {
-  const navigate = useNavigate()
   const { getCategoryName, getCategoryIcon } = useCategoryLookup()
   const { currentBook } = useBook()
 
@@ -147,26 +190,139 @@ const Reports: React.FC = () => {
     enabled: isDailyView || isMonthCompare,
   })
 
-  // 获取年度对比数据
-  const { data: yoyData = [], isLoading: yoyLoading } = useQuery({
-    queryKey: ['statistics', 'yoy-comparison', yearCompare?.currentYear, yearCompare?.compareYear],
-    queryFn: () => fetchYearOverYear({ 
-      year: yearCompare?.currentYear, 
+  // 获取年度对比数据（支出）
+  const { data: yoyExpenseData = [], isLoading: yoyExpenseLoading } = useQuery({
+    queryKey: ['statistics', 'yoy-comparison', yearCompare?.currentYear, yearCompare?.compareYear, 'expense'],
+    queryFn: () => fetchYearOverYear({
+      year: yearCompare?.currentYear,
       compareYear: yearCompare?.compareYear,
       type: 'expense'
     }),
     enabled: isYearCompare && !!yearCompare,
   })
 
-  // 获取分类 breakdown 数据
-  const { data: breakdownData = [], isLoading: breakdownLoading } = useQuery({
-    queryKey: ['statistics', 'category-breakdown', startDate, endDate, 'expense'],
-    queryFn: () => fetchCategoryBreakdown({ startDate, endDate, type: 'expense' }),
+  // 获取年度对比数据（收入）
+  const { data: yoyIncomeData = [], isLoading: yoyIncomeLoading } = useQuery({
+    queryKey: ['statistics', 'yoy-comparison', yearCompare?.currentYear, yearCompare?.compareYear, 'income'],
+    queryFn: () => fetchYearOverYear({
+      year: yearCompare?.currentYear,
+      compareYear: yearCompare?.compareYear,
+      type: 'income'
+    }),
+    enabled: isYearCompare && !!yearCompare,
   })
 
-  const sortedBreakdown = useMemo(() => {
-    return [...breakdownData].sort((a, b) => Number(b.amount) - Number(a.amount))
-  }, [breakdownData])
+  // --- 分类排行：对比模式下按「期」拉取，其他模式按全局范围拉取 ---
+
+  // 月对比：当期月份
+  const currentMonthRange = useMemo(() => ({
+    startDate: format(startOfMonth(now), 'yyyy-MM-dd'),
+    endDate: format(endOfMonth(now), 'yyyy-MM-dd'),
+  }), [now])
+
+  // 月对比：对比期月份
+  const targetMonthRange = useMemo(() => ({
+    startDate: format(startOfMonth(parseISO(monthCompareTarget)), 'yyyy-MM-dd'),
+    endDate: format(endOfMonth(parseISO(monthCompareTarget)), 'yyyy-MM-dd'),
+  }), [monthCompareTarget])
+
+  // 年对比：当期年（最近 12 个月以当前月份为终点）
+  const currentYearRange = useMemo(() => ({
+    startDate: format(startOfMonth(subMonths(now, 11)), 'yyyy-MM-dd'),
+    endDate: format(endOfMonth(now), 'yyyy-MM-dd'),
+  }), [now])
+
+  // 年对比：对比年（以对比年的当前月份结束的 12 个月）
+  const targetYearRange = useMemo(() => {
+    const compareEnd = new Date(yearCompareTarget, now.getMonth(), 1)
+    return {
+      startDate: format(startOfMonth(subMonths(compareEnd, 11)), 'yyyy-MM-dd'),
+      endDate: format(endOfMonth(compareEnd), 'yyyy-MM-dd'),
+    }
+  }, [yearCompareTarget, now])
+
+  // 默认模式下全局范围（支出/收入）
+  const { data: expenseBreakdown = [], isLoading: expenseBreakdownLoading } = useQuery({
+    queryKey: ['statistics', 'category-breakdown', startDate, endDate, 'expense'],
+    queryFn: () => fetchCategoryBreakdown({ startDate, endDate, type: 'expense' }),
+    enabled: !isMonthCompare && !isYearCompare,
+  })
+
+  const { data: incomeBreakdown = [], isLoading: incomeBreakdownLoading } = useQuery({
+    queryKey: ['statistics', 'category-breakdown', startDate, endDate, 'income'],
+    queryFn: () => fetchCategoryBreakdown({ startDate, endDate, type: 'income' }),
+    enabled: !isMonthCompare && !isYearCompare,
+  })
+
+  // 月对比 - 当期月（支出+收入）
+  const { data: currentMonthExpense = [], isLoading: currentMonthExpenseLoading } = useQuery({
+    queryKey: ['statistics', 'category-breakdown', currentMonthRange.startDate, currentMonthRange.endDate, 'expense'],
+    queryFn: () => fetchCategoryBreakdown({ startDate: currentMonthRange.startDate, endDate: currentMonthRange.endDate, type: 'expense' }),
+    enabled: isMonthCompare,
+  })
+  const { data: currentMonthIncome = [], isLoading: currentMonthIncomeLoading } = useQuery({
+    queryKey: ['statistics', 'category-breakdown', currentMonthRange.startDate, currentMonthRange.endDate, 'income'],
+    queryFn: () => fetchCategoryBreakdown({ startDate: currentMonthRange.startDate, endDate: currentMonthRange.endDate, type: 'income' }),
+    enabled: isMonthCompare,
+  })
+
+  // 月对比 - 对比月（支出+收入）
+  const { data: targetMonthExpense = [], isLoading: targetMonthExpenseLoading } = useQuery({
+    queryKey: ['statistics', 'category-breakdown', targetMonthRange.startDate, targetMonthRange.endDate, 'expense'],
+    queryFn: () => fetchCategoryBreakdown({ startDate: targetMonthRange.startDate, endDate: targetMonthRange.endDate, type: 'expense' }),
+    enabled: isMonthCompare,
+  })
+  const { data: targetMonthIncome = [], isLoading: targetMonthIncomeLoading } = useQuery({
+    queryKey: ['statistics', 'category-breakdown', targetMonthRange.startDate, targetMonthRange.endDate, 'income'],
+    queryFn: () => fetchCategoryBreakdown({ startDate: targetMonthRange.startDate, endDate: targetMonthRange.endDate, type: 'income' }),
+    enabled: isMonthCompare,
+  })
+
+  // 年对比 - 当期年（支出+收入）
+  const { data: currentYearExpense = [], isLoading: currentYearExpenseLoading } = useQuery({
+    queryKey: ['statistics', 'category-breakdown', currentYearRange.startDate, currentYearRange.endDate, 'expense'],
+    queryFn: () => fetchCategoryBreakdown({ startDate: currentYearRange.startDate, endDate: currentYearRange.endDate, type: 'expense' }),
+    enabled: isYearCompare,
+  })
+  const { data: currentYearIncome = [], isLoading: currentYearIncomeLoading } = useQuery({
+    queryKey: ['statistics', 'category-breakdown', currentYearRange.startDate, currentYearRange.endDate, 'income'],
+    queryFn: () => fetchCategoryBreakdown({ startDate: currentYearRange.startDate, endDate: currentYearRange.endDate, type: 'income' }),
+    enabled: isYearCompare,
+  })
+
+  // 年对比 - 对比年（支出+收入）
+  const { data: targetYearExpense = [], isLoading: targetYearExpenseLoading } = useQuery({
+    queryKey: ['statistics', 'category-breakdown', targetYearRange.startDate, targetYearRange.endDate, 'expense'],
+    queryFn: () => fetchCategoryBreakdown({ startDate: targetYearRange.startDate, endDate: targetYearRange.endDate, type: 'expense' }),
+    enabled: isYearCompare,
+  })
+  const { data: targetYearIncome = [], isLoading: targetYearIncomeLoading } = useQuery({
+    queryKey: ['statistics', 'category-breakdown', targetYearRange.startDate, targetYearRange.endDate, 'income'],
+    queryFn: () => fetchCategoryBreakdown({ startDate: targetYearRange.startDate, endDate: targetYearRange.endDate, type: 'income' }),
+    enabled: isYearCompare,
+  })
+
+  // 将支出/收入合并后按金额倒序，每个项目保留自己的类型（支出/收入），用于渲染时上色
+  type MergedBreakdownItem = CategoryBreakdownItem & { type: 'expense' | 'income' }
+
+  const mergeSorted = (exp: CategoryBreakdownItem[], inc: CategoryBreakdownItem[]): MergedBreakdownItem[] => {
+    const merged: MergedBreakdownItem[] = [
+      ...exp.map(d => ({ ...d, type: 'expense' as const })),
+      ...inc.map(d => ({ ...d, type: 'income' as const })),
+    ]
+    return merged.sort((a, b) => Number(b.amount) - Number(a.amount))
+  }
+
+  // 其他模式：全局支出+收入合并为单栏
+  const mergedDefaultBreakdown = useMemo(() => mergeSorted(expenseBreakdown, incomeBreakdown), [expenseBreakdown, incomeBreakdown])
+
+  // 月对比：当期 / 对比期
+  const currentMonthMerged = useMemo(() => mergeSorted(currentMonthExpense, currentMonthIncome), [currentMonthExpense, currentMonthIncome])
+  const targetMonthMerged = useMemo(() => mergeSorted(targetMonthExpense, targetMonthIncome), [targetMonthExpense, targetMonthIncome])
+
+  // 年对比：当期 / 对比期
+  const currentYearMerged = useMemo(() => mergeSorted(currentYearExpense, currentYearIncome), [currentYearExpense, currentYearIncome])
+  const targetYearMerged = useMemo(() => mergeSorted(targetYearExpense, targetYearIncome), [targetYearExpense, targetYearIncome])
 
   // 处理每日数据（本月视图）
   const dailyData = useMemo(() => {
@@ -307,20 +463,30 @@ const Reports: React.FC = () => {
           }
         ]
       }
-    } else if (isYearCompare && yoyData.length > 0) {
-      // 年对比视图
-      const monthLabels = yoyData.map(d => d.monthLabel)
-      const currentYearAmounts = yoyData.map(d => Number(d.currentYear || 0))
-      const targetYearAmounts = yoyData.map(d => Number(d.lastYear || 0))
+    } else if (isYearCompare && yoyExpenseData.length > 0 && yoyIncomeData.length > 0) {
+      // 年对比视图（同时展示支出和收入）
+      const monthLabels = yoyExpenseData.map(d => d.monthLabel)
+      // 支出数据
+      const currentYearExpenses = yoyExpenseData.map(d => Number(d.currentYear || 0))
+      const targetYearExpenses = yoyExpenseData.map(d => Number(d.lastYear || 0))
+      // 收入数据
+      const currentYearIncomes = yoyIncomeData.map(d => Number(d.currentYear || 0))
+      const targetYearIncomes = yoyIncomeData.map(d => Number(d.lastYear || 0))
 
       option = {
         tooltip: {
           trigger: 'axis',
           axisPointer: { type: 'shadow' },
           formatter: (params: any) => {
-            const currentVal = params.find((p: any) => p.seriesName === `${currentYear}年`)?.value || 0
-            const targetVal = params.find((p: any) => p.seriesName === `${yearCompareTarget}年`)?.value || 0
-            return `${params[0].name}<br/>${currentYear}年：${formatAmount(currentVal)}<br/>${yearCompareTarget}年：${formatAmount(targetVal)}`
+            const currExp = params.find((p: any) => p.seriesName === `${currentYear}年 支出`)?.value || 0
+            const currInc = params.find((p: any) => p.seriesName === `${currentYear}年 收入`)?.value || 0
+            const targetExp = params.find((p: any) => p.seriesName === `${yearCompareTarget}年 支出`)?.value || 0
+            const targetInc = params.find((p: any) => p.seriesName === `${yearCompareTarget}年 收入`)?.value || 0
+            return `${params[0].name}<br/>
+              ${currentYear}年 支出：${formatAmount(currExp)}<br/>
+              ${currentYear}年 收入：${formatAmount(currInc)}<br/>
+              ${yearCompareTarget}年 支出：${formatAmount(targetExp)}<br/>
+              ${yearCompareTarget}年 收入：${formatAmount(targetInc)}`
           }
         },
         grid: { left: '3%', right: '4%', bottom: '3%', top: '10%', containLabel: true },
@@ -337,17 +503,29 @@ const Reports: React.FC = () => {
         },
         series: [
           {
-            name: `${currentYear}年`,
+            name: `${currentYear}年 支出`,
             type: 'bar',
-            data: currentYearAmounts,
+            data: currentYearExpenses,
             itemStyle: { color: '#c0392b' },
             barGap: '20%'
           },
           {
-            name: `${yearCompareTarget}年`,
+            name: `${currentYear}年 收入`,
             type: 'bar',
-            data: targetYearAmounts,
+            data: currentYearIncomes,
+            itemStyle: { color: '#1e8449' }
+          },
+          {
+            name: `${yearCompareTarget}年 支出`,
+            type: 'bar',
+            data: targetYearExpenses,
             itemStyle: { color: '#e74c3c' }
+          },
+          {
+            name: `${yearCompareTarget}年 收入`,
+            type: 'bar',
+            data: targetYearIncomes,
+            itemStyle: { color: '#27ae60' }
           }
         ]
       }
@@ -407,9 +585,14 @@ const Reports: React.FC = () => {
     return () => {
       window.removeEventListener('resize', handleResize)
     }
-  }, [period, dailyData, monthCompareData, yoyData, trendData, currentMonth, currentYear, monthCompareTarget, yearCompareTarget, now])
+  }, [period, dailyData, monthCompareData, yoyExpenseData, yoyIncomeData, trendData, currentMonth, currentYear, monthCompareTarget, yearCompareTarget, now])
 
-  const mainLoading = trendLoading || dailySummaryQueries.isLoading || yoyLoading
+  const mainLoading = trendLoading || dailySummaryQueries.isLoading || yoyExpenseLoading || yoyIncomeLoading
+  const categoryLoading = isMonthCompare
+    ? currentMonthExpenseLoading || currentMonthIncomeLoading || targetMonthExpenseLoading || targetMonthIncomeLoading
+    : isYearCompare
+    ? currentYearExpenseLoading || currentYearIncomeLoading || targetYearExpenseLoading || targetYearIncomeLoading
+    : expenseBreakdownLoading || incomeBreakdownLoading
 
   return (
     <div className="page-container">
@@ -512,7 +695,7 @@ const Reports: React.FC = () => {
 
       {/* 分类排行 */}
       <div className="dash-card" style={{ marginTop: '14px' }}>
-        {breakdownLoading ? (
+        {categoryLoading ? (
           <>
             <div className="card-header">
               <Skeleton width="25%" height="14px" />
@@ -538,28 +721,42 @@ const Reports: React.FC = () => {
                 {isYearCompare && `（${currentYear}年 vs ${yearCompareTarget}年）`}
               </h3>
             </div>
-            <div>
-              {sortedBreakdown.map((item, i) => {
-                const amount = Number(item.amount)
-                const total = sortedBreakdown.reduce((s, d) => s + Number(d.amount), 0)
-                const pct = total > 0 ? (amount / total) * 100 : 0
-                return (
-                  <div key={item.category_id} style={{ marginBottom: '10px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
-                      <span style={{ fontSize: '13px', fontWeight: 600 }}>
-                        {getCategoryIcon(item.category_id)} {getCategoryName(item.category_id)}
-                      </span>
-                      <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--exp)' }}>
-                        {formatAmount(amount)} · {pct.toFixed(1)}%
-                      </span>
-                    </div>
-                    <div style={{ height: 4, background: 'var(--bg)', borderRadius: 2, overflow: 'hidden' }}>
-                      <div style={{ height: '100%', width: `${pct}%`, background: 'var(--exp)', borderRadius: 2, transition: 'width 0.35s' }} />
-                    </div>
+            {(isMonthCompare || isYearCompare) ? (
+              // 月对比 / 年对比：分两栏，左当期，右对比期，每期收入支出混排
+              <div style={{ display: 'flex', gap: '24px' }}>
+                {/* 左栏：当期 */}
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--fg)', marginBottom: '10px' }}>
+                    {isMonthCompare ? format(now, 'yyyy 年 MM 月') : `${currentYear}年`}
                   </div>
-                )
-              })}
-            </div>
+                  <RankList
+                    items={isMonthCompare ? currentMonthMerged : currentYearMerged}
+                    getCategoryIcon={getCategoryIcon}
+                    getCategoryName={getCategoryName}
+                  />
+                </div>
+                {/* 右栏：对比期 */}
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--fg)', marginBottom: '10px' }}>
+                    {isMonthCompare ? format(parseISO(monthCompareTarget), 'yyyy 年 MM 月') : `${yearCompareTarget}年`}
+                  </div>
+                  <RankList
+                    items={isMonthCompare ? targetMonthMerged : targetYearMerged}
+                    getCategoryIcon={getCategoryIcon}
+                    getCategoryName={getCategoryName}
+                  />
+                </div>
+              </div>
+            ) : (
+              // 其他模式：单栏，收入和支出放一起排行
+              <div>
+                <RankList
+                  items={mergedDefaultBreakdown}
+                  getCategoryIcon={getCategoryIcon}
+                  getCategoryName={getCategoryName}
+                />
+              </div>
+            )}
           </>
         )}
       </div>

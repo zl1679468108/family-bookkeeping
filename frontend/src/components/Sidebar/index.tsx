@@ -92,15 +92,15 @@ const NAV_ITEMS = [
   { id: 'dashboard', name: '首页', path: '/', type: 'normal' },
   { id: 'transactions', name: '流水', path: '/transactions', type: 'normal' },
   { id: 'add', name: '记一笔', path: '/add', type: 'add' },
-  { id: 'budgets', name: '预算', path: '/budgets', type: 'normal' },
   { id: 'reports', name: '报表', path: '/reports', type: 'normal' },
   { id: 'annual-report', name: '年报', path: '/annual-report', type: 'normal' },
-  { id: 'books', name: '账本', path: '/books', type: 'normal' },
   { id: 'calendar', name: '日历', path: '/calendar', type: 'normal' },
-  { id: 'templates', name: '模板', path: '/templates', type: 'normal' },
-  { id: 'categories', name: '分类', path: '/categories', type: 'normal' },
   { id: 'map', name: '地图', path: '/map', type: 'normal' },
-]
+  { id: 'books', name: '账本', path: '/books', type: 'normal' },
+  { id: 'categories', name: '分类', path: '/categories', type: 'normal' },
+  { id: 'templates', name: '模板', path: '/templates', type: 'normal' },
+  { id: 'budgets', name: '预算', path: '/budgets', type: 'normal' },
+];
 
 const ADMIN_ITEMS = [
   { id: 'admin-dashboard', name: '数据看板', path: '/admin', type: 'normal' },
@@ -204,7 +204,7 @@ export const Sidebar: React.FC = () => {
       <nav className="sidebar-nav">
         {/* 主菜单 */}
         {!collapsed && <div className="sidebar-nav-sep">主菜单</div>}
-        {NAV_ITEMS.slice(0, 6).map((item) => (
+        {NAV_ITEMS.slice(0, 7).map((item) => (
           <button key={item.id}
             className={`sidebar-nav-item${activeId === item.id ? ' active' : ''}${item.type === 'add' ? ' sidebar-nav-item--add' : ''}`}
             onClick={() => navigate(item.path)}
@@ -220,7 +220,7 @@ export const Sidebar: React.FC = () => {
         ))}
         {/* 更多 */}
         {!collapsed && <div className="sidebar-nav-sep">更多</div>}
-        {NAV_ITEMS.slice(6).map((item) => (
+        {NAV_ITEMS.slice(7).map((item) => (
           <button key={item.id}
             className={`sidebar-nav-item${activeId === item.id ? ' active' : ''}`}
             onClick={() => navigate(item.path)}

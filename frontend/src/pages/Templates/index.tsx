@@ -6,7 +6,7 @@ import { fetchTemplates, createTemplate, updateTemplate, deleteTemplate, reorder
 import { useCategories } from '../../hooks/useCategories'
 import { formatAmount } from '../../utils/common'
 import { notify } from '../../utils/notifications'
-import { Skeleton } from '../../components/ui/Skeleton'
+import { Skeleton, CardGridSkeleton } from '../../components/ui/Skeleton'
 import { DetailModal } from '../../components/DetailModal'
 import { ConfirmDialog } from '../../components/ConfirmDialog'
 import { LocationPicker } from '../AddTransaction/components/LocationPicker'
@@ -180,25 +180,7 @@ const Templates: React.FC = () => {
               <Skeleton width="80px" height="14px" />
               <Skeleton width="90px" height="24px" borderRadius="6px" />
             </div>
-            <div className={`tpl-grid`}>
-              {[0, 1, 2, 3].map(i => (
-                <div key={i} className="tpl-card" style={{ pointerEvents: 'none' }}>
-                  <div className="tpl-header">
-                    <div className="tpl-e" style={{ opacity: 0.4 }}>
-                  <Skeleton width="28px" height="28px" borderRadius="8px" />
-                </div>
-                <Skeleton width="50%" height="14px" />
-              </div>
-              <div className="tpl-content">
-                <div className="tpl-meta">
-                  <Skeleton width="30%" height="11px" />
-                  <Skeleton width="40%" height="11px" />
-                  <Skeleton width="35%" height="11px" />
-                </div>
-              </div>
-            </div>
-              ))}
-            </div>
+            <CardGridSkeleton count={4} columns={6} />
           </>
         ) : (
           <>

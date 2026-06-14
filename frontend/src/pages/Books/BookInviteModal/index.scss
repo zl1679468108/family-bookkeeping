@@ -1,0 +1,164 @@
+/* 邀请码弹窗样式（BookInviteModal） */
+
+.book-invite-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--ov, rgba(0, 0, 0, 0.45));
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: var(--z-modal);
+  padding: 16px;
+  animation: fadeIn 0.2s var(--ease);
+}
+
+.book-invite-content {
+  background: var(--srf);
+  border-radius: var(--rx);
+  box-shadow: var(--sh4);
+  width: 90%;
+  max-width: 440px;
+  animation: scaleIn 0.25s var(--sp);
+  overflow: hidden;
+}
+
+.book-invite-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 24px;
+  border-bottom: 1px solid var(--bdL);
+}
+
+.book-invite-header h3 {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--fg);
+  margin: 0;
+}
+
+.book-invite-close {
+  background: transparent;
+  border: none;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  color: var(--fg3);
+  cursor: pointer;
+  transition: all var(--df);
+}
+
+.book-invite-close:hover {
+  background: var(--srfH);
+  color: var(--fg);
+}
+
+.book-invite-body {
+  padding: 24px;
+}
+
+.book-invite-form-group {
+  margin-bottom: 16px;
+}
+
+.book-invite-form-group label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--fg2);
+  margin-bottom: 8px;
+}
+
+.book-invite-input-wrapper {
+  position: relative;
+}
+
+.book-invite-input {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1px solid var(--bd);
+  border-radius: var(--rs);
+  background: var(--srf);
+  font-size: 14px;
+  font-family: var(--fn);
+  color: var(--fg);
+  transition: border-color var(--df);
+  box-sizing: border-box;
+}
+
+.book-invite-input:focus {
+  outline: none;
+  border-color: var(--pr);
+  box-shadow: 0 0 0 3px var(--prBg);
+}
+
+.book-invite-input::placeholder {
+  color: var(--fg3);
+}
+
+.book-invite-form-tip {
+  font-size: 12px;
+  color: var(--fg3);
+  line-height: 1.6;
+  background: var(--srfH);
+  padding: 10px 14px;
+  border-radius: var(--rs);
+  margin: 0;
+}
+
+.book-invite-form-tip strong {
+  color: var(--fg2);
+  font-weight: 600;
+}
+
+.book-invite-footer {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  padding: 14px 24px;
+  border-top: 1px solid var(--bdL);
+  background: var(--srfH);
+}
+
+.book-invite-btn {
+  padding: 9px 20px;
+  border-radius: var(--rs);
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all var(--df);
+  border: 1.5px solid transparent;
+}
+
+.book-invite-btn--secondary {
+  background: var(--srf);
+  border-color: var(--bd);
+  color: var(--fg2);
+}
+
+.book-invite-btn--secondary:hover {
+  border-color: var(--fg3);
+  color: var(--fg);
+}
+
+.book-invite-btn--primary {
+  background: var(--pr);
+  color: #fff;
+  border-color: var(--pr);
+}
+
+.book-invite-btn--primary:hover:not(:disabled) {
+  background: var(--prH);
+  border-color: var(--prH);
+}
+
+.book-invite-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

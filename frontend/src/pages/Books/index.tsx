@@ -2,11 +2,12 @@ import React, { useState } from 'react';
 import { format } from 'date-fns';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ConfirmDialog } from '../../components/ConfirmDialog';
-import { BookCreateModal } from '../../components/BookCreateModal';
+import { BookCreateModal } from './BookCreateModal';
+import { BookInviteModal } from './BookInviteModal';
 import { useBook } from '../../hooks/useBook';
 import { fetchBooks, deleteBook, fetchBookMembers, removeMember, inviteMember, createInvitation } from '../../services/booksApi';
 import { notify } from '../../utils/notifications';
-import { Skeleton } from '../../components/ui/Skeleton';
+import { Skeleton, CardGridSkeleton } from '../../components/ui/Skeleton';
 import { DetailModal } from '../../components/DetailModal';
 import { getBookIconByKey, getBookEmojiByKey } from '../../utils/bookIcons';
 import './index.scss';
@@ -19,14 +20,15 @@ const BooksPage: React.FC = () => {
   const [selectedBook, setSelectedBook] = useState<any>(null);
   const [showDetail, setShowDetail] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showInviteModal, setShowInviteModal] = useState(false);
   const [editTarget, setEditTarget] = useState<any>(null);
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
   const [showMemberConfirm, setShowMemberConfirm] = useState(false);
   const [removingMember, setRemovingMember] = useState<any>(null);
-  const [showInviteModal, setShowInviteModal] = useState(false);
   const [inviteEmail, setInviteEmail] = useState('');
   const [generatedInviteCode, setGeneratedInviteCode] = useState<{ code: string; book_name: string; expires_at: string } | null>(null);
   const [showInviteCodeModal, setShowInviteCodeModal] = useState(false);
+  const [showInviteJoinModal, setShowInviteJoinModal] = useState(false);
 
   const { data: books = [], isLoading } = useQuery({
     queryKey: ['books'],
@@ -95,15 +97,7 @@ const BooksPage: React.FC = () => {
               <div className="card-header">
                 <Skeleton width="80px" height="14px" />
               </div>
-              <div className="bk-grid">
-                {[0, 1, 2].map((i) => (
-                  <div key={i} className="bk-card" style={{ opacity: 0.7 }}>
-                    <Skeleton width="40%" height="14px" marginBottom="4px" />
-                    <Skeleton width="70%" height="11px" marginBottom="3px" />
-                    <Skeleton width="55%" height="10px" />
-                  </div>
-                ))}
-              </div>
+              <CardGridSkeleton count={3} columns={6} />
             </>
           ) : (
             <>
@@ -141,8 +135,14 @@ const BooksPage: React.FC = () => {
                   );
                 })}
 
-                <div className="bk-card add-new" onClick={() => setShowCreateModal(true)}>
-                  + 新账本
+                <div key="add-new" className="bk-card add-new" onClick={() => setShowCreateModal(true)}>
+                  <span className="add-icon">+</span>
+                  <span className="add-text">新建</span>
+                </div>
+
+                <div key="join-by-code" className="bk-card add-new join-by-code" onClick={() => setShowInviteJoinModal(true)}>
+                  <span className="add-icon">✉️</span>
+                  <span className="add-text">使用邀请码加入</span>
                 </div>
               </div>
             </>
@@ -435,6 +435,13 @@ const BooksPage: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* 邀请码加入弹窗 */}
+      <BookInviteModal
+        open={showInviteJoinModal}
+        onClose={() => setShowInviteJoinModal(false)}
+        onSuccess={handleCreateSuccess}
+      />
     </div>
   );
 };

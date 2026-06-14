@@ -1,12 +1,12 @@
 /* ═══════════════════════════════════════════
-   消费地图 · 页面样式（重构版：下拉框布局）
+   消费地图 · 页面样式
    ═══════════════════════════════════════════ */
 
 .map-page {
   display: flex;
   flex-direction: column;
   gap: 16px;
-  padding-bottom: 8px;
+  width: 100%;
 }
 
 /* ── 工具条卡片 ── */
@@ -14,14 +14,16 @@
   background: var(--srf, #ffffff);
   border: 1px solid var(--bd, #e5e7eb);
   border-radius: var(--rl, 16px);
-  padding: 16px 18px;
+  padding: 14px 18px;
   box-shadow: var(--sh1, 0 1px 2px rgba(0, 0, 0, 0.04));
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-/* 工具条主行：下拉框 + 统计 */
+/* ── 工具条主行：下拉 + 位置共享 + 统计 ── */
 .map-toolbar-row {
   display: flex;
   align-items: center;
@@ -29,17 +31,17 @@
   flex-wrap: wrap;
 }
 
-/* 占位：把统计信息推到右边 */
 .map-toolbar-spacer {
   flex: 1 1 auto;
   min-width: 16px;
 }
 
-/* 统计信息（右侧的浅色标签） */
+/* 右侧统计信息：商户数 + 总金额 */
 .map-stats-inline {
   display: flex;
   align-items: center;
   gap: 6px;
+  flex-shrink: 0;
 }
 
 .map-stat-chip {
@@ -53,209 +55,17 @@
   color: var(--fg, #1f2937);
   font-size: 13px;
   line-height: 1;
+  font-weight: 500;
 }
 
 .map-stat-chip strong {
-  color: var(--pr, #16a34a);
+  color: var(--pr, #2d9d8a);
   font-weight: 700;
   font-size: 13px;
   margin: 0 2px;
 }
 
-/* ── 子行：自定义日期 ── */
-.map-toolbar-subrow {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 12px;
-  background: var(--bg, #f9fafb);
-  border-radius: var(--rm, 12px);
-  font-size: 13px;
-}
-
-.map-subrow-label {
-  color: var(--fg2, #4b5563);
-  font-weight: 500;
-}
-
-.map-date-input {
-  padding: 6px 10px;
-  border: 1px solid var(--bd, #d1d5db);
-  border-radius: var(--rs, 8px);
-  background: var(--srf, #ffffff);
-  color: var(--fg, #1f2937);
-  font-family: var(--fn, system-ui);
-  font-size: 13px;
-  outline: none;
-  transition: border-color var(--df, 0.15s) ease, box-shadow var(--df, 0.15s) ease;
-}
-
-.map-date-input:focus {
-  border-color: var(--pr, #16a34a);
-  box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.12);
-}
-
-.map-date-sep {
-  color: var(--fg3, #9ca3af);
-}
-
-.map-btn-secondary {
-  padding: 6px 14px;
-  border: 1px solid var(--pr, #16a34a);
-  background: var(--pr, #16a34a);
-  color: #ffffff;
-  border-radius: var(--rs, 8px);
-  font-size: 13px;
-  cursor: pointer;
-  font-family: var(--fn, system-ui);
-  font-weight: 500;
-  transition: background var(--df, 0.15s) ease;
-}
-
-.map-btn-secondary:hover {
-  background: var(--prD, #15803d);
-}
-
-/* ── 搜索行 ── */
-.map-toolbar-search {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.map-toolbar-search .map-search-input {
-  flex: 1;
-  height: 40px;
-  padding: 0 14px;
-  border: 1px solid var(--bd, #d1d5db);
-  border-radius: var(--rm, 12px);
-  background: var(--bg, #f9fafb);
-  color: var(--fg, #1f2937);
-  font-size: 14px;
-  font-family: var(--fn, system-ui);
-  outline: none;
-  transition: border-color var(--df, 0.15s) ease, box-shadow var(--df, 0.15s) ease, background var(--df, 0.15s) ease;
-}
-
-.map-toolbar-search .map-search-input::placeholder {
-  color: var(--fg3, #9ca3af);
-}
-
-.map-toolbar-search .map-search-input:focus {
-  border-color: var(--pr, #16a34a);
-  background: var(--srf, #ffffff);
-  box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.12);
-}
-
-.map-toolbar-search .map-search-btn {
-  height: 40px;
-  padding: 0 18px;
-  border: none;
-  border-radius: var(--rm, 12px);
-  background: var(--pr, #16a34a);
-  color: #ffffff;
-  cursor: pointer;
-  font-size: 14px;
-  font-family: var(--fn, system-ui);
-  font-weight: 500;
-  transition: background var(--df, 0.15s) ease;
-  white-space: nowrap;
-}
-
-.map-toolbar-search .map-search-btn:hover:not(:disabled) {
-  background: var(--prD, #15803d);
-}
-
-.map-toolbar-search .map-search-btn:disabled {
-  background: var(--bd, #d1d5db);
-  cursor: not-allowed;
-}
-
-/* 搜索结果面板 */
-.map-search-panel {
-  position: absolute;
-  top: calc(100% + 6px);
-  left: 0;
-  right: 0;
-  max-height: 320px;
-  overflow-y: auto;
-  background: var(--srf, #ffffff);
-  border: 1px solid var(--bd, #e5e7eb);
-  border-radius: var(--rm, 12px);
-  box-shadow: var(--sh3, 0 8px 24px rgba(0, 0, 0, 0.08));
-  z-index: var(--z-50);
-  padding: 6px;
-}
-
-.map-search-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  padding: 10px 12px;
-  border-radius: var(--rs, 8px);
-  cursor: pointer;
-  font-size: 13px;
-  transition: background var(--df, 0.15s) ease;
-}
-
-.map-search-item:hover {
-  background: var(--prBg, #f0fdf4);
-}
-
-.map-search-item.has-data {
-  background: var(--prBg, #f0fdf4);
-}
-
-.map-search-item-icon {
-  font-size: 14px;
-  flex-shrink: 0;
-  line-height: 1.4;
-}
-
-.map-search-item-main {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 0;
-}
-
-.map-search-item-name {
-  color: var(--fg, #1f2937);
-  font-weight: 600;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.map-search-item-addr {
-  color: var(--fg3, #9ca3af);
-  font-size: 12px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.map-search-clear {
-  display: block;
-  width: 100%;
-  padding: 8px;
-  margin-top: 4px;
-  border: none;
-  border-top: 1px solid var(--bd, #f3f4f6);
-  background: transparent;
-  color: var(--fg2, #4b5563);
-  font-size: 13px;
-  cursor: pointer;
-  font-family: var(--fn, system-ui);
-}
-
-.map-search-clear:hover {
-  color: var(--pr, #16a34a);
-}
-
-/* ── 地图/列表 内容容器 ── */
+/* ── 地图 / 列表 容器 ── */
 .map-content {
   display: flex;
   flex-direction: column;
@@ -266,52 +76,115 @@
 .map-panel {
   display: none;
   flex: 1;
-  background: var(--srf, #ffffff);
-  border: 1px solid var(--bd, #e5e7eb);
-  border-radius: var(--rl, 16px);
-  overflow: hidden;
-  box-shadow: var(--sh1, 0 1px 2px rgba(0, 0, 0, 0.04));
+  min-width: 0;
+  position: relative; /* 给 loading overlay 做定位锚点 */
 }
 
 .map-panel.active {
   display: flex;
+  flex-direction: column;
 }
 
+/* ── 地图画布容器 ── */
 .map-canvas-wrapper {
   width: 100%;
   height: 560px;
   border-radius: var(--rl, 16px);
   overflow: hidden;
   position: relative;
+  border: 1px solid var(--bd, #e5e7eb);
+  box-shadow: var(--sh1, 0 1px 2px rgba(0, 0, 0, 0.04));
 }
 
-/* 定位失败提示 */
+/* 定位错误提示（地图内） */
 .map-locate-error {
   position: absolute;
   top: 12px;
   left: 50%;
   transform: translateX(-50%);
-  z-index: var(--z-10);
+  z-index: 10;
   background: #fff;
-  border: 1px solid var(--exp, #ef4444);
-  color: var(--exp, #ef4444);
+  border: 1px solid var(--exp, #e06055);
+  color: var(--exp, #e06055);
   border-radius: 999px;
   padding: 6px 14px;
   font-size: 12px;
   box-shadow: var(--sh2, 0 2px 8px rgba(0, 0, 0, 0.06));
 }
 
-/* ═══ MemberLocationToggle 微调：让它与下拉框同行显示看起来更一致 ═══ */
+/* ── 加载进度条覆盖层 ── */
+.map-loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  border-radius: var(--rl, 16px);
+  pointer-events: none;
+}
 
-/* ═══ 响应式：窄屏时的降级布局 ═══ */
+.map-loading-spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid var(--bd, #e5e7eb);
+  border-top-color: var(--pr, #2d9d8a);
+  border-radius: 50%;
+  animation: map-spin 0.8s linear infinite;
+}
+
+.map-loading-text {
+  font-size: 14px;
+  color: var(--fg, #1f2937);
+  font-weight: 500;
+}
+
+.map-loading-bar {
+  width: 200px;
+  height: 4px;
+  background: var(--bg, #f9fafb);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.map-loading-bar-inner {
+  height: 100%;
+  width: 35%;
+  background: var(--pr, #2d9d8a);
+  border-radius: 999px;
+  animation: map-progress 1.4s ease-in-out infinite;
+}
+
+@keyframes map-spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes map-progress {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(300%); }
+}
+
+/* 深色模式下 loading overlay 反色 */
+[data-theme="dark"] .map-loading-overlay {
+  background: rgba(17, 24, 39, 0.55);
+}
+[data-theme="dark"] .map-loading-bar {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* ── 响应式 ── */
 @media (max-width: 768px) {
   .map-toolbar-card {
     padding: 12px;
     gap: 10px;
-  }
-
-  .map-toolbar-row {
-    gap: 6px;
   }
 
   .map-stats-inline {

@@ -183,3 +183,13 @@
   border: 1px solid var(--border);
   margin-top: 16px;
 }
+
+.detail-attachment-link {
+  color: var(--primary);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.detail-attachment-link:hover {
+  text-decoration: underline;
+}

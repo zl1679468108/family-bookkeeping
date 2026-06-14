@@ -5,7 +5,7 @@ import { fetchCategories, createCategory, updateCategory, deleteCategory, reorde
 import { EMOJI_PRESETS } from '../../utils/emojiPresets'
 import { useDebouncedAction } from '../../hooks/useDebouncedAction'
 import { notify } from '../../utils/notifications'
-import { Skeleton } from '../../components/ui/Skeleton'
+import { Skeleton, CardGridSkeleton } from '../../components/ui/Skeleton'
 import { DetailModal } from '../../components/DetailModal'
 import { IconPicker } from '../../components/IconPicker'
 import { useSort } from '../../hooks/useSort'
@@ -275,14 +275,7 @@ const Categories: React.FC = () => {
               <Skeleton width="80px" height="28px" borderRadius="6px" />
             </div>
             <div className="cat-grid">
-              {[0, 1, 2, 3].map(i => (
-                <div key={i} className="cat-card">
-                  <div className="cat-e" style={{ opacity: 0.5 }}>
-                    <Skeleton width="40px" height="40px" borderRadius="10px" />
-                  </div>
-                  <Skeleton width="60%" height="12px" />
-                </div>
-              ))}
+              <CardGridSkeleton count={4} columns={6} />
             </div>
           </>
         ) : (
@@ -358,9 +351,11 @@ const Categories: React.FC = () => {
                       <span className="cat-badge-custom">自定义</span>
                     )}
                   </div>
-                  <div className="cat-e">{cat.icon}</div>
-                  <div className="cat-content">
-                    <div className="cat-n">{cat.name}</div>
+                  <div className="cat-header">
+                    <span className="cat-e">{cat.icon}</span>
+                    <div className="cat-content">
+                      <div className="cat-n">{cat.name}</div>
+                    </div>
                   </div>
                 </div>
               )

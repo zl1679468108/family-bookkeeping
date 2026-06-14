@@ -6,7 +6,8 @@ import { AuthProvider, useAuth } from './utils/auth'
 import { ThemeProvider } from './utils/theme'
 import { BookProvider, useBook } from './hooks/useBook'
 import { hasToken } from './services/api'
-import { Skeleton } from './components/ui/Skeleton'
+import { Skeleton, StatCardsSkeleton, TransactionListSkeleton } from './components/ui/Skeleton'
+import { ProgressBar } from './components/ui/ProgressBar'
 
 const PROJECT_NAME = '静记'
 
@@ -20,16 +21,8 @@ const PrivateRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => 
   if (loading) {
     return (
       <div style={{ padding: '32px' }}>
-        <Skeleton width="30%" height="32px" marginBottom="24px" />
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '20px', marginBottom: '24px' }}>
-          {[1,2,3].map(i => (
-            <div key={i} style={{ height: '120px', borderRadius: '12px', background: '#fff', padding: '24px' }}>
-              <Skeleton width="60%" height="14px" marginBottom="12px" />
-              <Skeleton width="80%" height="28px" />
-            </div>
-          ))}
-        </div>
-        {[1,2,3,4,5].map(i => <Skeleton key={i} height="52px" borderRadius="8px" marginBottom="8px" />)}
+        <StatCardsSkeleton count={3} />
+        <TransactionListSkeleton count={5} />
       </div>
     )
   }
@@ -90,31 +83,6 @@ const AppLayout: React.FC = () => {
     return <Navigate to="/" replace />
   }
 
-  const showLayout = hasToken() || Boolean(user)
-
-  // 加载中 → 展示布局骨架屏
-  if (!showLayout) {
-    return (
-      <div style={{ display: 'flex', minHeight: '100vh', background: 'var(--bg)' }}>
-        <div style={{ width: '240px', padding: '24px 20px', borderRight: '1px solid var(--bd)' }}>
-          <Skeleton width="120px" height="28px" marginBottom="32px" />
-          {[1,2,3,4].map(i => <Skeleton key={i} height="40px" borderRadius="8px" marginBottom="8px" />)}
-        </div>
-        <div style={{ flex: 1, padding: '32px' }}>
-          <Skeleton width="30%" height="32px" marginBottom="24px" />
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '20px', marginBottom: '24px' }}>
-            {[1,2,3].map(i => (
-              <div key={i} style={{ height: '120px', borderRadius: '12px', background: 'var(--srf)', padding: '24px' }}>
-                <Skeleton width="60%" height="14px" marginBottom="12px" />
-                <Skeleton width="80%" height="28px" />
-              </div>
-            ))}
-          </div>
-          {[1,2,3,4,5].map(i => <Skeleton key={i} height="52px" borderRadius="8px" marginBottom="8px" />)}
-        </div>
-      </div>
-    )
-  }
 
   // onboarding 和 /books 也不显示侧边栏（避免不必要的请求）
   const hideSidebar = location.pathname === '/onboarding'
@@ -159,6 +127,7 @@ interface AppProps {
 const App: React.FC<AppProps> = () => {
   return (
     <ThemeProvider>
+      <ProgressBar />
       <AuthProvider>
         <BookProvider>
           <Router>

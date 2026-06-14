@@ -1,7 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import type { MerchantSummary } from '../../../../types/map';
 import { TransactionHistoryModal } from '../TransactionHistoryModal';
-import { Skeleton } from '../../../../components/ui/Skeleton';
 import './index.scss';
 
 interface MerchantListProps {
@@ -9,132 +8,118 @@ interface MerchantListProps {
   loading: boolean;
 }
 
-type SortKey = 'total_amount' | 'transaction_count';
+type SortKey = 'expense' | 'income' | 'expense_count' | 'income_count';
 
 export const MerchantList: React.FC<MerchantListProps> = ({ merchants, loading }) => {
-  const [sortKey, setSortKey] = useState<SortKey>('total_amount');
+  const [sortKey, setSortKey] = useState<SortKey>('expense');
   const [historyMerchant, setHistoryMerchant] = useState<MerchantSummary | null>(null);
 
   const sorted = useMemo(() => {
     return [...merchants].sort((a, b) => {
-      if (sortKey === 'total_amount') {
-        return b.total_amount - a.total_amount;
+      switch (sortKey) {
+        case 'income':
+          return b.income_total - a.income_total;
+        case 'expense_count':
+          return b.expense_count - a.expense_count;
+        case 'income_count':
+          return b.income_count - a.income_count;
+        case 'expense':
+        default:
+          return b.expense_total - a.expense_total;
       }
-      return b.transaction_count - a.transaction_count;
     });
   }, [merchants, sortKey]);
 
   if (loading) {
     return (
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', padding: '8px 0' }}>
-        {[1,2,3,4,5].map(i => (
-          <div key={i} style={{ display: 'flex', alignItems: 'center', padding: '10px 12px', borderRadius: '10px', background: '#fff' }}>
-            <Skeleton width="36px" height="36px" borderRadius="8px" />
-            <div style={{ flex: 1, marginLeft: '12px', marginRight: '12px' }}>
-              <Skeleton width="55%" height="14px" marginBottom="6px" />
-              <Skeleton width="35%" height="12px" />
-            </div>
-            <Skeleton width="64px" height="14px" />
-          </div>
-        ))}
-      </div>
+      <div className="merchant-list-loading">加载中…</div>
     );
   }
 
   if (merchants.length === 0) {
     return (
       <div className="merchant-list-empty">
-        <div className="map-empty-icon">🏪</div>
-        <h3>暂无商户数据</h3>
-        <p>记一笔时添加位置信息，系统会自动按商户聚合消费数据</p>
+        <div className="merchant-list-empty-icon">🏪</div>
+        <div className="merchant-list-empty-title">暂无商户数据</div>
+        <div className="merchant-list-empty-desc">记一笔时添加位置信息，系统会自动按商户聚合消费数据</div>
       </div>
     );
   }
-
-  const maxAmount = Math.max(...merchants.map((m) => m.total_amount));
-  const maxCount = Math.max(...merchants.map((m) => m.transaction_count));
 
   return (
     <>
       <div className="merchant-list">
         <div className="merchant-list-header">
-          <h3>商户足迹排行</h3>
-          <div className="merchant-sort">
+          <div className="merchant-list-title">商户足迹排行</div>
+          <div className="merchant-sort-group">
             <button
-              className={`map-chip ${sortKey === 'total_amount' ? 'active' : ''}`}
-              onClick={() => setSortKey('total_amount')}
+              className={`merchant-sort-btn ${sortKey === 'expense' ? 'active' : ''}`}
+              onClick={() => setSortKey('expense')}
             >
-              按金额
+              支出金额
             </button>
             <button
-              className={`map-chip ${sortKey === 'transaction_count' ? 'active' : ''}`}
-              onClick={() => setSortKey('transaction_count')}
+              className={`merchant-sort-btn ${sortKey === 'income' ? 'active' : ''}`}
+              onClick={() => setSortKey('income')}
             >
-              按次数
+              收入金额
+            </button>
+            <button
+              className={`merchant-sort-btn ${sortKey === 'expense_count' ? 'active' : ''}`}
+              onClick={() => setSortKey('expense_count')}
+            >
+              支出次数
+            </button>
+            <button
+              className={`merchant-sort-btn ${sortKey === 'income_count' ? 'active' : ''}`}
+              onClick={() => setSortKey('income_count')}
+            >
+              收入次数
             </button>
           </div>
         </div>
 
         <div className="merchant-list-body">
-          {sorted.map((m, idx) => {
-            const amountRatio = maxAmount > 0 ? m.total_amount / maxAmount : 0;
-            const countRatio = maxCount > 0 ? m.transaction_count / maxCount : 0;
+          {sorted.map((m, idx) => (
+            <div
+              key={idx}
+              className="merchant-row"
+              onClick={() => setHistoryMerchant(m)}
+            >
+              <div className="merchant-row-rank">#{idx + 1}</div>
+              <div className="merchant-row-info">
+                <div className="merchant-row-name">🏪 {m.location_name}</div>
 
-            return (
-              <div
-                key={idx}
-                className="merchant-row"
-                onClick={() => setHistoryMerchant(m)}
-              >
-                <div className="merchant-row-rank">#{idx + 1}</div>
-                <div className="merchant-row-info">
-                  <div className="merchant-row-name">🏪 {m.location_name}</div>
-
-                  {/* 金额和次数进度条 */}
-                  <div className="merchant-row-bars">
-                    <div className="merchant-bar-row">
-                      <span className="merchant-bar-label">总额</span>
-                      <div className="merchant-bar-track">
-                        <div
-                          className="merchant-bar-fill amount"
-                          style={{ width: `${Math.max(amountRatio * 100, 2)}%` }}
-                        />
-                      </div>
-                      <span className="merchant-bar-value">
-                        ¥ {m.total_amount.toLocaleString('zh-CN', { minimumFractionDigits: 2 })}
+                <div className="merchant-row-stats">
+                  {/* 支出 */}
+                  {m.expense_count > 0 && (
+                    <div className="merchant-stat-item expense">
+                      <span className="merchant-stat-label">支出</span>
+                      <span className="merchant-stat-amount">
+                        ¥{m.expense_total.toLocaleString('zh-CN', { minimumFractionDigits: 2 })}
                       </span>
+                      <span className="merchant-stat-count">{m.expense_count} 次</span>
                     </div>
-                    <div className="merchant-bar-row">
-                      <span className="merchant-bar-label">次数</span>
-                      <div className="merchant-bar-track">
-                        <div
-                          className="merchant-bar-fill count"
-                          style={{ width: `${Math.max(countRatio * 100, 2)}%` }}
-                        />
-                      </div>
-                      <span className="merchant-bar-value">{m.transaction_count} 次</span>
+                  )}
+                  {/* 收入 */}
+                  {m.income_count > 0 && (
+                    <div className="merchant-stat-item income">
+                      <span className="merchant-stat-label">收入</span>
+                      <span className="merchant-stat-amount">
+                        ¥{m.income_total.toLocaleString('zh-CN', { minimumFractionDigits: 2 })}
+                      </span>
+                      <span className="merchant-stat-count">{m.income_count} 次</span>
                     </div>
-                  </div>
-
-                  {/* 收入/支出明细 */}
-                  <div className="merchant-row-detail">
-                    {m.expense_count > 0 && (
-                      <span className="detail-tag expense">支 {m.expense_count}次 · ¥{m.expense_total.toLocaleString('zh-CN', { minimumFractionDigits: 2 })}</span>
-                    )}
-                    {m.income_count > 0 && (
-                      <span className="detail-tag income">收 {m.income_count}次 · ¥{m.income_total.toLocaleString('zh-CN', { minimumFractionDigits: 2 })}</span>
-                    )}
-                  </div>
-
-                  <div className="merchant-row-date">最近: {m.last_transaction_date}</div>
+                  )}
                 </div>
+
+                <div className="merchant-row-date">最近交易: {m.last_transaction_date}</div>
               </div>
-            );
-          })}
+            </div>
+          ))}
         </div>
       </div>
 
-      {/* 交易历史弹窗 */}
       {historyMerchant && (
         <TransactionHistoryModal
           merchant={historyMerchant}
@@ -144,3 +129,5 @@ export const MerchantList: React.FC<MerchantListProps> = ({ merchants, loading }
     </>
   );
 };
+
+export default MerchantList;

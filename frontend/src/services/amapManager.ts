@@ -174,6 +174,24 @@ class AmapManager {
     if (pooled && !pooled.inUse) {
       parentEl.appendChild(pooled.container);
       pooled.inUse = true;
+      // 强制清理复用时残留的 overlays (markers / infoWindow / polygons 等)
+      try {
+        const m = pooled.map;
+        if (m && typeof m.clearMap === 'function') {
+          m.clearMap();
+        } else if (m && typeof m.getAllOverlays === 'function') {
+          // 兜底：遍历 marker/polyline/polygon/circle/rectangle 并 remove
+          ['marker', 'polyline', 'polygon', 'circle', 'rectangle', 'text', 'infowindow'].forEach((ot) => {
+            try {
+              const items = m.getAllOverlays(ot);
+              if (items && items.length) items.forEach((item: any) => item.setMap && item.setMap(null));
+            } catch {}
+          });
+        }
+        // 清除可能被组件附加的自定义字段
+        delete (m as any).__amapMarkers;
+        delete (m as any).__amapHeatmap;
+      } catch {}
       // No resize here — let the ResizeObserver in the hook handle it
       return pooled.map;
     }

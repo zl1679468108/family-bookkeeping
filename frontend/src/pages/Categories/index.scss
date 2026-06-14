@@ -1,14 +1,13 @@
-/* ═══ Categories 分类模块样式 ═══ */
+/* ═══ Categories 分类模块样式 —— 5+1 统一紧凑布局 ═══ */
 
 /* 分类网格 */
 .cat-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 12px;
 }
 
 .cat-card {
-  width: 180px;
   padding: 14px;
   background: var(--srf);
   border: 1px solid var(--bd);
@@ -17,15 +16,14 @@
   transition: all var(--df);
   user-select: none;
   position: relative;
+  min-height: 88px;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  min-height: 120px;
+  gap: 6px;
 }
 
 .cat-card:hover {
+  border-color: var(--prBd);
   box-shadow: var(--sh2);
 }
 
@@ -52,33 +50,35 @@
   display: block;
 }
 
+.cat-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
 .cat-e {
-  font-size: 36px;
-  margin-bottom: 8px;
+  font-size: 16px;
+  line-height: 1;
+  flex-shrink: 0;
 }
 
 .cat-content {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 0 4px;
+  flex: 1;
+  min-width: 0;
 }
 
 .cat-n {
   font-size: 13px;
   font-weight: 600;
   color: var(--fg);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  line-height: 1.4;
 }
 
 /* 右上角标签容器 */
 .cat-badges {
   position: absolute;
-  top: 6px;
-  right: 6px;
+  top: 8px;
+  right: 8px;
   display: flex;
   gap: 4px;
 }
@@ -114,20 +114,21 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 4px;
   cursor: pointer;
-  min-height: 120px;
   color: var(--fg3);
-  font-size: 13px;
+  font-size: 12px;
+  font-weight: 600;
 }
 
 .cat-card.add-new:hover {
   border-color: var(--pr);
   background: var(--prBg);
+  color: var(--pr);
 }
 
 .cat-card.add-new .add-icon {
-  font-size: 32px;
+  font-size: 20px;
   color: var(--pr);
   font-weight: 300;
 }
@@ -143,11 +144,26 @@
 }
 
 /* 响应式 */
-@media (max-width: 768px) {
+@media (max-width: 1200px) {
   .cat-grid {
-    gap: 6px;
+    grid-template-columns: repeat(5, 1fr);
   }
-  .cat-card {
-    width: calc(25% - 6px);
+}
+
+@media (max-width: 900px) {
+  .cat-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (max-width: 700px) {
+  .cat-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 520px) {
+  .cat-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
 }

@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useMutation } from '@tanstack/react-query';
-import { createBook, updateBook } from '../../services/booksApi';
-import { BOOK_ICONS, getBookIconByKey } from '../../utils/bookIcons';
-import { notify } from '../../utils/notifications';
+import { createBook, updateBook } from '../../../services/booksApi';
+import { BOOK_ICONS, getBookIconByKey } from '../../../utils/bookIcons';
+import { notify } from '../../../utils/notifications';
 import './index.scss';
 
 interface BookCreateModalProps {

@@ -1,0 +1,23 @@
+.progress-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: transparent;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 200ms ease-out;
+
+  &--visible {
+    opacity: 1;
+  }
+
+  &__inner {
+    height: 100%;
+    background: var(--primary, #2d9d8a);
+    box-shadow: 0 0 6px rgba(45, 157, 138, 0.4);
+    transition: width 250ms ease-out;
+  }
+}

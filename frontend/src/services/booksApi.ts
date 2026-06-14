@@ -80,9 +80,11 @@ export const getInvitation = async (
 /** 使用邀请码加入账本 */
 export const joinByInvitation = async (
   code: string,
+  options?: { notifyOnError?: boolean },
 ): Promise<{ book_id: string; book_name: string }> => {
   return request<{ book_id: string; book_name: string }>(`/books/invitations/${code}/join`, {
     method: 'POST',
     requiresAuth: true,
+    notifyOnError: options?.notifyOnError,
   });
 };
