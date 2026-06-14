@@ -284,15 +284,6 @@
 }
 
 /* ============ 筛选栏 ============ */
-.filter-sticky {
-  position: sticky;
-  top: 0;
-  z-index: var(--z-50);
-  background: var(--bg);
-  padding: 10px 0 8px;
-  margin-bottom: 10px;
-}
-
 .filter-bar {
   display: flex;
   gap: 10px;

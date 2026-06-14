@@ -1,0 +1,137 @@
+/* ═══ Button —— 通用按钮组件样式 ═══ */
+
+.ui-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 1px solid var(--bd);
+  border-radius: var(--rs);
+  background: var(--srf);
+  color: var(--fg);
+  font-family: inherit;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--df) ease;
+  white-space: nowrap;
+  user-select: none;
+}
+
+.ui-btn:hover:not(:disabled) {
+  border-color: var(--bdH);
+  background: var(--srfH);
+}
+
+.ui-btn:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.ui-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* sizes */
+.ui-btn--sm {
+  height: 28px;
+  padding: 0 12px;
+  font-size: 12px;
+}
+
+.ui-btn--md {
+  height: 36px;
+  padding: 0 16px;
+  font-size: 13px;
+}
+
+.ui-btn--lg {
+  height: 44px;
+  padding: 0 24px;
+  font-size: 14px;
+}
+
+/* variants */
+.ui-btn--default {
+  background: var(--srf);
+  color: var(--fg);
+  border-color: var(--bd);
+}
+
+.ui-btn--default:hover:not(:disabled) {
+  border-color: var(--pr);
+  color: var(--pr);
+  background: var(--prBg);
+}
+
+.ui-btn--primary {
+  background: var(--pr);
+  color: #fff;
+  border-color: var(--pr);
+}
+
+.ui-btn--primary:hover:not(:disabled) {
+  background: var(--prH);
+  border-color: var(--prH);
+  opacity: 0.92;
+}
+
+.ui-btn--secondary {
+  background: var(--bg);
+  color: var(--fg);
+  border-color: var(--bd);
+}
+
+.ui-btn--secondary:hover:not(:disabled) {
+  background: var(--srf);
+  border-color: var(--bdH);
+}
+
+.ui-btn--outline {
+  background: transparent;
+  color: var(--fg);
+  border-color: var(--bd);
+}
+
+.ui-btn--outline:hover:not(:disabled) {
+  border-color: var(--pr);
+  color: var(--pr);
+  background: var(--prBg);
+}
+
+.ui-btn--ghost {
+  background: transparent;
+  color: var(--fg2);
+  border-color: transparent;
+}
+
+.ui-btn--ghost:hover:not(:disabled) {
+  background: var(--srfH);
+  color: var(--fg);
+}
+
+.ui-btn--danger {
+  background: transparent;
+  color: var(--exp);
+  border-color: rgba(220, 53, 69, 0.3);
+}
+
+.ui-btn--danger:hover:not(:disabled) {
+  background: rgba(220, 53, 69, 0.06);
+  border-color: var(--exp);
+}
+
+/* block */
+.ui-btn--block {
+  width: 100%;
+}
+
+.ui-btn-icon {
+  display: inline-flex;
+  align-items: center;
+  font-size: inherit;
+  line-height: 1;
+}
+
+.ui-btn-text {
+  line-height: 1;
+}

@@ -1,0 +1,40 @@
+/* ═══ FilterBar —— 通用过滤栏样式 ═══ */
+
+.filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  flex-wrap: wrap;
+}
+
+.filter-bar--compact {
+  padding: 10px 0;
+  gap: 8px;
+}
+
+.filter-bar--header {
+  display: flex;
+  justify-content: space-between;
+  padding: 0;
+  margin-bottom: 20px;
+}
+
+.filter-bar__left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.filter-bar__right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* filter-bar 在页面顶部场景，确保子元素垂直居中 */
+.filter-bar > * {
+  flex-shrink: 0;
+}

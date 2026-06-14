@@ -1,0 +1,42 @@
+/* ═══ IconGrid —— 图标网格选择器样式 ═══ */
+
+.icon-grid {
+  display: grid;
+  gap: 8px;
+}
+
+.icon-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 10px 6px;
+  background: var(--bg);
+  border: 1px solid var(--bd);
+  border-radius: var(--rs);
+  cursor: pointer;
+  transition: all var(--df) ease;
+  font-family: inherit;
+}
+
+.icon-btn:hover {
+  border-color: var(--pr);
+  background: var(--prBg);
+}
+
+.icon-btn.active {
+  border-color: var(--pr);
+  background: var(--prBg);
+  box-shadow: 0 0 0 2px rgba(45, 157, 138, 0.15);
+}
+
+.icon-btn-emoji {
+  font-size: 20px;
+  line-height: 1;
+}
+
+.icon-btn-label {
+  font-size: 11px;
+  color: var(--fg2);
+}

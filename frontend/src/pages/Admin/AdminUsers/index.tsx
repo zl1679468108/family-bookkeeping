@@ -9,7 +9,14 @@ import {
 } from '../../../services/adminApi';
 import { ConfirmDialog } from '../../../components/ConfirmDialog';
 import { useDebounce } from '../../../hooks/useDebounce';
-import { TableRowsSkeleton } from '../../../components/ui/Skeleton';
+import { FilterBar } from '../../../components/ui/FilterBar'
+import { SearchInput, Input } from '../../../components/ui/Input'
+import { DropdownSelect } from '../../../components/ui/Dropdown'
+import { Card } from '../../../components/ui/Card'
+import { Button } from '../../../components/ui/Button'
+import { Pagination } from '../../../components/ui/Pagination'
+import { EmptyState } from '../../../components/ui/EmptyState'
+import { TableRowsSkeleton } from '../../../components/ui/Skeleton'
 
 const AdminUsers: React.FC = () => {
   const queryClient = useQueryClient();
@@ -19,13 +26,13 @@ const AdminUsers: React.FC = () => {
   const debouncedSearch = useDebounce(search, 300);
   const [roleFilter, setRoleFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
-  
+
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const [selectedUserName, setSelectedUserName] = useState('');
   const [selectedUserRole, setSelectedUserRole] = useState<'user' | 'admin'>('user');
   const [selectedUserStatus, setSelectedUserStatus] = useState<'active' | 'suspended' | 'deleted'>('active');
   const [actionType, setActionType] = useState<'role' | 'status' | null>(null);
-  
+
   const [password, setPassword] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
 
@@ -94,44 +101,63 @@ const AdminUsers: React.FC = () => {
   const totalPages = data?.totalPages || 1;
   const total = data?.total || 0;
 
+  const roleOptions = [
+    { key: 'user', label: '普通用户' },
+    { key: 'admin', label: '管理员' },
+  ];
+
+  const statusOptions = [
+    { key: 'active', label: '正常' },
+    { key: 'suspended', label: '停用' },
+    { key: 'deleted', label: '已注销' },
+  ];
+
+  const handleSearchChange = (value: string) => {
+    setSearch(value);
+    setPage(1);
+  };
+
+  const handleRoleFilterChange = (key: string) => {
+    setRoleFilter(key);
+    setPage(1);
+  };
+
+  const handleStatusFilterChange = (key: string) => {
+    setStatusFilter(key);
+    setPage(1);
+  };
+
   return (
     <AdminLayout>
       <div className="filter-sticky">
-        <div className="filter-bar">
-          <input
-            type="text"
-            className="form-input filter-bar__input"
-            placeholder="搜索用户名/邮箱..."
-            value={search}
-            onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-          />
-          <select
-            className="form-input form-input--select"
+        <FilterBar>
+          <DropdownSelect
+            options={roleOptions}
             value={roleFilter}
-            onChange={(e) => { setRoleFilter(e.target.value); setPage(1); }}
-          >
-            <option value="">全部角色</option>
-            <option value="user">普通用户</option>
-            <option value="admin">管理员</option>
-          </select>
-          <select
-            className="form-input form-input--select"
+            onChange={handleRoleFilterChange}
+            placeholder="全部角色"
+          />
+          <DropdownSelect
+            options={statusOptions}
             value={statusFilter}
-            onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
-          >
-            <option value="">全部状态</option>
-            <option value="active">正常</option>
-            <option value="suspended">停用</option>
-            <option value="deleted">已注销</option>
-          </select>
-        </div>
+            onChange={handleStatusFilterChange}
+            placeholder="全部状态"
+          />
+          <SearchInput
+            value={search}
+            onChange={handleSearchChange}
+            placeholder="搜索用户名/邮箱..."
+          />
+        </FilterBar>
       </div>
 
-      <div className="card card--scrollable">
+      <Card padding="none">
         {isLoading ? (
           <div className="data-table-wrapper">
-            <TableRowsSkeleton columns={6} rows={10} />
+            <TableRowsSkeleton columns={9} rows={10} />
           </div>
+        ) : (data?.users || []).length === 0 ? (
+          <EmptyState icon="👥" title="暂无用户" variant="compact" />
         ) : (
           <>
             <div className="data-table-wrapper">
@@ -176,8 +202,8 @@ const AdminUsers: React.FC = () => {
                             user.status === 'active'
                               ? 'status status--success'
                               : user.status === 'suspended'
-                              ? 'status status--danger'
-                              : 'status status--muted'
+                                ? 'status status--danger'
+                                : 'status status--muted'
                           }
                         >
                           {user.status === 'active' ? '正常' : user.status === 'suspended' ? '停用' : '已注销'}
@@ -188,18 +214,16 @@ const AdminUsers: React.FC = () => {
                       </td>
                       <td className="data-table__col--fixed">
                         <div className="action-buttons">
-                          <button
-                            className="btn btn-outline btn-sm"
-                            onClick={() => openRoleDialog(user)}
-                          >
+                          <Button variant="outline" size="sm" onClick={() => openRoleDialog(user)}>
                             {user.role === 'admin' ? '降级' : '升级'}
-                          </button>
-                          <button
-                            className={`btn btn-sm ${user.status === 'active' ? 'btn-danger' : 'btn-secondary'}`}
+                          </Button>
+                          <Button
+                            variant={user.status === 'active' ? 'danger' : 'secondary'}
+                            size="sm"
                             onClick={() => openStatusDialog(user)}
                           >
                             {user.status === 'active' ? '停用' : '启用'}
-                          </button>
+                          </Button>
                         </div>
                       </td>
                     </tr>
@@ -208,30 +232,15 @@ const AdminUsers: React.FC = () => {
               </table>
             </div>
 
-            {totalPages > 1 && (
-              <div className="pagination-bar">
-                <button
-                  className="page-btn"
-                  onClick={() => setPage((p) => Math.max(1, p - 1))}
-                  disabled={page <= 1}
-                >
-                  上一页
-                </button>
-                <span className="page-info">
-                  第 {page} / {totalPages} 页 · 共 {total} 条
-                </span>
-                <button
-                  className="page-btn"
-                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                  disabled={page >= totalPages}
-                >
-                  下一页
-                </button>
-              </div>
-            )}
+            <Pagination
+              page={page}
+              totalPages={totalPages}
+              onChange={setPage}
+              info={`第 ${page} / ${totalPages} 页 · 共 ${total} 条`}
+            />
           </>
         )}
-      </div>
+      </Card>
 
       <ConfirmDialog
         open={actionType === 'role'}
@@ -243,14 +252,13 @@ const AdminUsers: React.FC = () => {
         loading={roleMutation.isPending}
       >
         <div style={{ marginTop: '12px' }}>
-          <input
+          <Input
             type="password"
-            className="form-input"
             placeholder="输入您的管理员密码"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            error={errorMsg}
           />
-          {errorMsg && <div className="form-error">{errorMsg}</div>}
         </div>
       </ConfirmDialog>
 
@@ -264,14 +272,13 @@ const AdminUsers: React.FC = () => {
         loading={statusMutation.isPending}
       >
         <div style={{ marginTop: '12px' }}>
-          <input
+          <Input
             type="password"
-            className="form-input"
             placeholder="输入您的管理员密码"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            error={errorMsg}
           />
-          {errorMsg && <div className="form-error">{errorMsg}</div>}
         </div>
       </ConfirmDialog>
     </AdminLayout>

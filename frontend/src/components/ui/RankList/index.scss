@@ -1,0 +1,111 @@
+/* ═══ RankList —— 排行/进度行样式 ═══ */
+
+.rank-row {
+  padding: 12px 0;
+}
+
+.rank-row__info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.rank-row__name {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--fg);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.rank-row__icon {
+  font-size: 14px;
+}
+
+.rank-row__amount {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--fg);
+}
+
+.rank-row__bar {
+  height: 4px;
+  background: var(--bg);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 4px;
+}
+
+.rank-row__bar .fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.35s ease;
+}
+
+.rank-row__bar .fill.safe { background: var(--pr); }
+.rank-row__bar .fill.income { background: var(--inc); }
+.rank-row__bar .fill.warn { background: var(--warn, #f59e0b); }
+.rank-row__bar .fill.danger { background: var(--exp); }
+
+.rank-row__meta {
+  font-size: 12px;
+  color: var(--fg3);
+}
+
+.rank-row__extra {
+  margin-left: 8px;
+  color: var(--fg2);
+}
+
+/* ReportRankList */
+.report-rank-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.report-rank-item {
+  padding: 10px 0;
+}
+
+.report-rank-item__top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.report-rank-item__name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--fg);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.report-rank-item__tag {
+  font-size: 11px;
+  font-weight: 500;
+  margin-left: 4px;
+}
+
+.report-rank-item__amount {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.report-rank-item__bar {
+  height: 4px;
+  background: var(--bg);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.rank-list__empty {
+  padding: 16px 0;
+  text-align: center;
+  font-size: 12px;
+  color: var(--fg3);
+}

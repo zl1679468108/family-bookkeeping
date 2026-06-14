@@ -7,149 +7,15 @@ import { useDebouncedAction } from '../../hooks/useDebouncedAction'
 import { notify } from '../../utils/notifications'
 import { Skeleton, CardGridSkeleton } from '../../components/ui/Skeleton'
 import { DetailModal } from '../../components/DetailModal'
-import { IconPicker } from '../../components/IconPicker'
+import { Modal, ModalFooter } from '../../components/ui/Modal'
+import { Card, CardHeader } from '../../components/ui/Card'
+import { Button } from '../../components/ui/Button'
+import { Input } from '../../components/ui/Input'
+import { IconGrid } from '../../components/ui/IconGrid'
+import { SegControl } from '../../components/ui/SegControl'
 import { useSort } from '../../hooks/useSort'
 import type { Category, CreateCategoryInput } from '../../types/category'
-
-// ─── Modal 组件 ──────────────────────────────────────────────────────────────
-
-interface CategoryModalProps {
-  open: boolean
-  mode: 'add' | 'edit'
-  type: 'expense' | 'income'
-  initialName?: string
-  initialIcon?: string
-  onConfirm: (name: string, icon: string) => void
-  onClose: () => void
-  loading?: boolean
-}
-
-const CategoryModal: React.FC<CategoryModalProps> = ({
-  open,
-  mode,
-  type,
-  initialName = '',
-  initialIcon = '📌',
-  onConfirm,
-  onClose,
-  loading = false,
-}) => {
-  const [name, setName] = useState(initialName)
-  const [icon, setIcon] = useState(initialIcon)
-
-  React.useEffect(() => {
-    if (open) {
-      setName(initialName)
-      setIcon(initialIcon)
-    }
-  }, [open, initialName, initialIcon])
-
-  if (!open) return null
-
-  const isValid = name.trim().length > 0 && icon.length > 0
-
-  const handleSubmit = () => {
-    if (!isValid || loading) return
-    onConfirm(name.trim(), icon)
-  }
-
-  const typeLabel = type === 'expense' ? '支出' : '收入'
-
-  return (
-    <div
-      className="modal-overlay"
-      onClick={onClose}
-    >
-      <div
-        className="modal-content"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="modal-header">
-          <h3>{mode === 'add' ? `新增${typeLabel}分类` : `编辑${typeLabel}分类`}</h3>
-          <button onClick={onClose}>✕</button>
-        </div>
-        <div className="modal-body">
-          {/* 名称 */}
-          <div className="form-group">
-            <label>名称</label>
-            <input
-              type="text"
-              className="form-input"
-              placeholder="输入分类名称"
-              maxLength={10}
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              autoFocus
-            />
-          </div>
-
-          {/* 图标 */}
-          <div className="form-group">
-            <label>图标</label>
-            <IconPicker
-              value={icon}
-              onChange={setIcon}
-              icons={EMOJI_PRESETS}
-              label=""
-            />
-          </div>
-        </div>
-        <div className="modal-footer">
-          <button className="btn btn-secondary" onClick={onClose} disabled={loading}>取消</button>
-          <button className="btn btn-primary" onClick={handleSubmit} disabled={!isValid || loading}>
-            {loading ? '保存中...' : '确认'}
-          </button>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-// ─── 删除确认弹窗 ────────────────────────────────────────────────────────────
-
-interface DeleteConfirmModalProps {
-  open: boolean
-  categoryName: string
-  onConfirm: () => void
-  onClose: () => void
-  loading?: boolean
-}
-
-const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
-  open,
-  categoryName,
-  onConfirm,
-  onClose,
-  loading = false,
-}) => {
-  if (!open) return null
-
-  return (
-    <div
-      className="modal-overlay"
-      onClick={onClose}
-    >
-      <div
-        className="modal-content"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="modal-header">
-          <h3>确认删除</h3>
-          <button onClick={onClose}>✕</button>
-        </div>
-        <div className="modal-body">
-          <p>确定删除自定义分类「{categoryName}」吗？删除后不可恢复。</p>
-        </div>
-        <div className="modal-footer">
-          <button className="btn btn-secondary" onClick={onClose} disabled={loading}>取消</button>
-          <button className="btn btn-danger" onClick={onConfirm} disabled={loading}>
-            {loading ? '删除中...' : '确认删除'}
-          </button>
-        </div>
-      </div>
-    </div>
-  )
-}
+import './index.scss'
 
 // ─── 主页面组件 ──────────────────────────────────────────────────────────────
 
@@ -161,6 +27,8 @@ const Categories: React.FC = () => {
   const [modalOpen, setModalOpen] = useState(false)
   const [modalMode, setModalMode] = useState<'add' | 'edit'>('add')
   const [editingCategory, setEditingCategory] = useState<Category | null>(null)
+  const [modalName, setModalName] = useState('')
+  const [modalIcon, setModalIcon] = useState('📌')
 
   // 删除确认状态
   const [deleteTarget, setDeleteTarget] = useState<Category | null>(null)
@@ -233,25 +101,29 @@ const Categories: React.FC = () => {
   const handleOpenAdd = useCallback(() => {
     setModalMode('add')
     setEditingCategory(null)
+    setModalName('')
+    setModalIcon('📌')
     setModalOpen(true)
   }, [])
 
   const handleOpenEdit = useCallback((cat: Category) => {
     setModalMode('edit')
     setEditingCategory(cat)
+    setModalName(cat.name)
+    setModalIcon(cat.icon)
     setModalOpen(true)
   }, [])
 
-  const handleModalConfirm = useCallback(
-    (name: string, icon: string) => {
-      if (modalMode === 'add') {
-        createMutation.mutate({ name, icon, type: activeTab })
-      } else if (modalMode === 'edit' && editingCategory) {
-        updateMutation.mutate({ id: editingCategory.id, name, icon })
-      }
-    },
-    [modalMode, editingCategory, activeTab, createMutation, updateMutation],
-  )
+  const handleModalConfirm = useCallback(() => {
+    const trimmedName = modalName.trim()
+    if (!trimmedName || !modalIcon) return
+
+    if (modalMode === 'add') {
+      createMutation.mutate({ name: trimmedName, icon: modalIcon, type: activeTab })
+    } else if (modalMode === 'edit' && editingCategory) {
+      updateMutation.mutate({ id: editingCategory.id, name: trimmedName, icon: modalIcon })
+    }
+  }, [modalMode, modalName, modalIcon, editingCategory, activeTab, createMutation, updateMutation])
 
   const handleDeleteConfirm = useCallback(() => {
     if (deleteTarget) {
@@ -259,140 +131,192 @@ const Categories: React.FC = () => {
     }
   }, [deleteTarget, deleteMutation])
 
+  const typeLabel = activeTab === 'expense' ? '支出' : '收入'
+  const modalTitle = modalMode === 'add' ? `新增${typeLabel}分类` : `编辑${typeLabel}分类`
+  const modalIsValid = modalName.trim().length > 0 && modalIcon.length > 0
+
+  const iconOptions = React.useMemo(
+    () => EMOJI_PRESETS.map((emoji) => ({ value: emoji, icon: emoji })),
+    [],
+  )
+
   // ── 渲染 ───────────────────────────────────────────────────────────────────
 
   return (
     <div className="page-container">
-      <div className="dash-card">
+      <Card>
         {isLoading || !customCategories ? (
           <>
-            <div className="card-header">
-              <Skeleton width="80px" height="14px" />
-              <Skeleton width="90px" height="24px" borderRadius="6px" />
-            </div>
-            <div className="seg-control" style={{ opacity: 0.7 }}>
-              <Skeleton width="80px" height="28px" borderRadius="6px" />
-              <Skeleton width="80px" height="28px" borderRadius="6px" />
+            <CardHeader
+              title={<Skeleton width="80px" height="14px" />}
+              action={<Skeleton width="90px" height="24px" borderRadius="6px" />}
+            />
+            <div style={{ opacity: 0.6 }}>
+              <SegControl
+                options={[
+                  { value: 'expense', label: <Skeleton width="70px" height="14px" /> },
+                  { value: 'income', label: <Skeleton width="70px" height="14px" /> },
+                ]}
+                value="expense"
+                onChange={() => {}}
+              />
             </div>
             <div className="cat-grid">
-              <CardGridSkeleton count={4} columns={6} />
+              {[0, 1, 2, 3, 4, 5].map((i) => (
+                <div key={i} className="cat-card" style={{ pointerEvents: 'none' }}>
+                  <div className="cat-header">
+                    <div className="cat-e">
+                      <Skeleton width="16px" height="16px" borderRadius="4px" />
+                    </div>
+                    <div className="cat-content">
+                      <div className="cat-n">
+                        <Skeleton width="70%" height="13px" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
           </>
         ) : (
           <>
-            <div className="card-header">
-              <h3>分类管理</h3>
-              <button
-                className={`btn btn-sm ${sortingMode ? 'btn-outline' : 'btn-secondary'}`}
-                onClick={() => {
-                  if (sortingMode) {
-                    handleSaveSort();
-                    notify({ type: 'success', message: '排序已保存' });
-                  } else {
-                    handleEnterSortMode();
-                  }
-                }}
-                disabled={isSaving}
-              >
-                {isSaving ? '保存中...' : (sortingMode ? '完成排序' : '编辑排序')}
-              </button>
-            </div>
+            <CardHeader
+              title="分类管理"
+              action={
+                <Button
+                  variant={sortingMode ? 'outline' : 'secondary'}
+                  size="sm"
+                  onClick={() => {
+                    if (sortingMode) {
+                      handleSaveSort()
+                      notify({ type: 'success', message: '排序已保存' })
+                    } else {
+                      handleEnterSortMode()
+                    }
+                  }}
+                  disabled={isSaving}
+                >
+                  {isSaving ? '保存中...' : (sortingMode ? '完成排序' : '编辑排序')}
+                </Button>
+              }
+            />
 
             {/* Tab 切换 */}
-            <div className="seg-control">
-              <button
-                className={`seg-opt ${activeTab === 'expense' ? 'active' : ''}`}
-                onClick={() => {
-                  if (sortingMode) {
-                    handleCancelSort()
-                  }
-                  setActiveTab('expense')
-                }}
-              >
-                支出分类
-              </button>
-              <button
-                className={`seg-opt ${activeTab === 'income' ? 'active' : ''}`}
-                onClick={() => {
-                  if (sortingMode) {
-                    handleCancelSort()
-                  }
-                  setActiveTab('income')
-                }}
-              >
-                收入分类
-              </button>
-            </div>
+            <SegControl
+              options={[
+                { value: 'expense', label: '支出分类' },
+                { value: 'income', label: '收入分类' },
+              ]}
+              value={activeTab}
+              onChange={(v) => {
+                if (sortingMode) {
+                  handleCancelSort()
+                }
+                setActiveTab(v)
+              }}
+            />
 
             {/* 分类列表 */}
             <div className={`cat-grid${sortingMode ? ' sort-mode' : ''}`}>
-            {orderedList.map((cat, idx) => {
-              const isDragging = dragIndex === idx
-              return (
-                <div
-                  key={cat.id}
-                  className={`cat-card${isDragging ? ' dragging' : ''}`}
-                  draggable={sortingMode}
-                  onDragStart={() => handleDragStart(idx)}
-                  onDragOver={(e) => handleDragOver(e, idx)}
-                  onDrop={handleDrop}
-                  onDragEnd={handleDragEnd}
-                  onClick={() => { if (!sortingMode) { setSelectedCategory(cat); setShowDetail(true); } }}
-                  style={{ cursor: sortingMode ? 'grab' : 'pointer' }}
-                >
-                  {/* 拖拽手柄 */}
-                  <span className="cat-handle">⋮⋮</span>
-                  {/* 右上角标签 */}
-                  <div className="cat-badges">
-                    {cat.is_default && (
-                      <span className="cat-badge-default">默认</span>
-                    )}
-                    {!cat.is_default && (
-                      <span className="cat-badge-custom">自定义</span>
-                    )}
-                  </div>
-                  <div className="cat-header">
-                    <span className="cat-e">{cat.icon}</span>
-                    <div className="cat-content">
-                      <div className="cat-n">{cat.name}</div>
+              {orderedList.map((cat, idx) => {
+                const isDragging = dragIndex === idx
+                return (
+                  <div
+                    key={cat.id}
+                    className={`cat-card${isDragging ? ' dragging' : ''}`}
+                    draggable={sortingMode}
+                    onDragStart={() => handleDragStart(idx)}
+                    onDragOver={(e) => handleDragOver(e, idx)}
+                    onDrop={handleDrop}
+                    onDragEnd={handleDragEnd}
+                    onClick={() => {
+                      if (!sortingMode) {
+                        setSelectedCategory(cat)
+                        setShowDetail(true)
+                      }
+                    }}
+                    style={{ cursor: sortingMode ? 'grab' : 'pointer' }}
+                  >
+                    <span className="cat-handle">⋮⋮</span>
+                    <div className="cat-header">
+                      <span className="cat-e">{cat.icon}</span>
+                      <div className="cat-content">
+                        <div className="cat-n">{cat.name}</div>
+                      </div>
+                    </div>
+                    <div className="cat-badges">
+                      {cat.is_default && <span className="cat-badge-default">默认</span>}
+                      {!cat.is_default && <span className="cat-badge-custom">自定义</span>}
                     </div>
                   </div>
-                </div>
-              )
-            })}
-            {/* 网格式新增入口 */}
-            <div className="cat-card add-new" onClick={() => { handleOpenAdd() }}>
-              <span className="add-icon">+</span>
-              <span className="add-text">新建</span>
+                )
+              })}
+              <div className="cat-card add-new" onClick={handleOpenAdd}>
+                <span className="add-icon">+</span>
+                <span className="add-text">新建</span>
+              </div>
             </div>
-          </div>
           </>
         )}
-      </div>
+      </Card>
 
-      {/* 分类编辑/新增弹窗 */}
-      <CategoryModal
+      {/* 分类编辑/新增弹窗 - 使用通用Modal */}
+      <Modal
         open={modalOpen}
-        mode={modalMode}
-        type={activeTab}
-        initialName={editingCategory?.name || ''}
-        initialIcon={editingCategory?.icon || '📌'}
-        onConfirm={handleModalConfirm}
-        onClose={() => { setModalOpen(false); setEditingCategory(null) }}
-        loading={createMutation.isPending || updateMutation.isPending}
-      />
-
-      {/* 删除确认弹窗 */}
-      <DeleteConfirmModal
-        open={!!deleteTarget}
-        categoryName={deleteTarget?.name || ''}
-        onConfirm={handleDeleteConfirm}
         onClose={() => {
-          setDeleteTarget(null)
-          // 不关闭详情弹窗
+          setModalOpen(false)
+          setEditingCategory(null)
         }}
-        loading={deleteMutation.isPending}
-      />
+        title={modalTitle}
+        footer={
+          <ModalFooter
+            onCancel={() => {
+              setModalOpen(false)
+              setEditingCategory(null)
+            }}
+            onConfirm={handleModalConfirm}
+            confirmText={createMutation.isPending || updateMutation.isPending ? '保存中...' : '确认'}
+            confirmLoading={createMutation.isPending || updateMutation.isPending}
+          />
+        }
+      >
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <Input
+            label="名称"
+            placeholder="输入分类名称"
+            maxLength={10}
+            value={modalName}
+            onChange={(e) => setModalName(e.target.value)}
+            autoFocus
+          />
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+            <label style={{ fontSize: '13px', color: 'var(--muted)' }}>图标</label>
+            <IconGrid
+              options={iconOptions}
+              value={modalIcon}
+              onChange={setModalIcon}
+            />
+          </div>
+        </div>
+      </Modal>
+
+      {/* 删除确认弹窗 - 使用通用Modal */}
+      <Modal
+        open={!!deleteTarget}
+        onClose={() => setDeleteTarget(null)}
+        title="确认删除"
+        footer={
+          <ModalFooter
+            onCancel={() => setDeleteTarget(null)}
+            onConfirm={handleDeleteConfirm}
+            confirmText={deleteMutation.isPending ? '删除中...' : '确认删除'}
+            confirmLoading={deleteMutation.isPending}
+            confirmDanger
+          />
+        }
+      >
+        <p>确定删除自定义分类「{deleteTarget?.name || ''}」吗？删除后不可恢复。</p>
+      </Modal>
 
       {/* 分类详情弹窗 */}
       {selectedCategory && (
@@ -403,20 +327,23 @@ const Categories: React.FC = () => {
           footer={
             <>
               {!selectedCategory.is_default && (
-                <button
-                  className="btn btn-secondary"
-                  onClick={() => { handleOpenEdit(selectedCategory); setShowDetail(false) }}
+                <Button
+                  variant="secondary"
+                  onClick={() => {
+                    handleOpenEdit(selectedCategory)
+                    setShowDetail(false)
+                  }}
                 >
                   编辑
-                </button>
+                </Button>
               )}
               {!selectedCategory.is_default && (
-                <button
-                  className="btn btn-danger"
-                  onClick={() => { setDeleteTarget(selectedCategory); }}
+                <Button
+                  variant="danger"
+                  onClick={() => setDeleteTarget(selectedCategory)}
                 >
                   删除
-                </button>
+                </Button>
               )}
             </>
           }
@@ -426,7 +353,8 @@ const Categories: React.FC = () => {
             <div className="detail-content">
               <div className="detail-title">{selectedCategory.name}</div>
               <div className="detail-subtitle">
-                {selectedCategory.type === 'expense' ? '支出' : '收入'}分类 · {selectedCategory.is_default ? '系统默认' : '自定义'}
+                {selectedCategory.type === 'expense' ? '支出' : '收入'}分类 ·{' '}
+                {selectedCategory.is_default ? '系统默认' : '自定义'}
               </div>
               <div className="detail-grid">
                 <div className="detail-item">

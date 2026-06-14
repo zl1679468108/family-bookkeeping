@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef } from 'react'
+import React, { useState, useRef } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { format, startOfMonth } from 'date-fns'
 import { fetchBudgets, fetchBudgetStatus, upsertBudgets } from '../../services/budgetsApi'
@@ -8,10 +8,17 @@ import { useFocusItem } from '../../hooks/useFocusItem'
 import type { BudgetRecord, UpsertBudgetInput } from '../../types/budget'
 import { notify } from '../../utils/notifications'
 import { Skeleton } from '../../components/ui/Skeleton'
+import { Modal, ModalFooter } from '../../components/ui/Modal'
+import { Card, CardHeader } from '../../components/ui/Card'
+import { DropdownSelect } from '../../components/ui/Dropdown'
+import type { DropdownOption } from '../../components/ui/Dropdown'
+import { Button } from '../../components/ui/Button'
+import { NumberInput } from '../../components/ui/Input'
+import { RankRow } from '../../components/ui/RankList'
+import { ProgressBar } from '../../components/ui/ProgressBar'
+import { EmptyState } from '../../components/ui/EmptyState'
 import { DetailModal } from '../../components/DetailModal'
 import { ConfirmDialog } from '../../components/ConfirmDialog'
-import { DropdownSelect } from '../../components/ui/dropdown'
-import type { DropdownOption } from '../../components/ui/dropdown'
 
 const getCurrentMonthStr = (): string => {
   return format(startOfMonth(new Date()), 'yyyy-MM-dd')
@@ -32,7 +39,6 @@ const Budgets: React.FC = () => {
 
   const expenseCategories = categories.filter((c) => c.type === 'expense')
 
-  // 详情弹窗状态
   const [selectedBudget, setSelectedBudget] = useState<any>(null)
   const [showDetail, setShowDetail] = useState(false)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
@@ -76,7 +82,7 @@ const Budgets: React.FC = () => {
     return initial
   })
 
-  const lastSynced = useRef('');
+  const lastSynced = useRef('')
 
   React.useEffect(() => {
     if (expenseCategories.length === 0) return
@@ -127,11 +133,14 @@ const Budgets: React.FC = () => {
     })
   })
 
-  const getProgressClass = (status: string): string => {
+  const getStatusVariant = (status: string): 'safe' | 'warn' | 'danger' => {
     switch (status) {
-      case 'over': return 'danger'
-      case 'warning': return 'warn'
-      default: return 'safe'
+      case 'over':
+        return 'danger'
+      case 'warning':
+        return 'warn'
+      default:
+        return 'safe'
     }
   }
 
@@ -152,7 +161,6 @@ const Budgets: React.FC = () => {
     const num = parseFloat(editFormValues.budget)
     const newAmount = isNaN(num) ? 0 : Math.max(0, num)
     handleAmountChange(selectedBudget.category.name, String(newAmount))
-    // 同步更新 selectedBudget，使详情页立即显示新值
     setSelectedBudget((prev: any) => ({
       ...prev,
       budget: newAmount,
@@ -161,7 +169,6 @@ const Budgets: React.FC = () => {
     setShowEditForm(false)
   }
 
-  // 生成过去 12 个月份选项
   const generateMonthOptions = (): DropdownOption[] => {
     const options: DropdownOption[] = []
     const today = new Date()
@@ -178,7 +185,6 @@ const Budgets: React.FC = () => {
 
   return (
     <div className="page-container">
-      {/* 月份选择器 */}
       <div style={{ marginBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <DropdownSelect
           options={monthOptions}
@@ -189,75 +195,96 @@ const Budgets: React.FC = () => {
         />
       </div>
 
-      {/* 本月预算卡片 */}
-      <div className="dash-card">
-        <div className="card-header">
-          <h3>预算明细</h3>
-          {budgetsLoading ? (
-            <Skeleton width="60px" height="28px" borderRadius="var(--rs)" />
-          ) : (
-            <button className="btn btn-primary" onClick={handleSave} style={{ fontSize: '12px', padding: '5px 12px' }} disabled={saveLoading}>
-              {saveLoading ? '保存中...' : '保存'}
-            </button>
-          )}
-        </div>
+      <Card>
+        <CardHeader
+          title="预算明细"
+          action={
+            budgetsLoading ? (
+              <Skeleton width="60px" height="28px" borderRadius="var(--rs)" />
+            ) : (
+                <Button variant="primary" size="sm" onClick={handleSave} disabled={saveLoading}>
+                  {saveLoading ? '保存中...' : '保存'}
+                </Button>
+              )
+          }
+        />
 
         {budgetsLoading ? (
           <>
             {[0, 1, 2, 3, 4].map((i) => (
               <div key={i} className="budget-item" style={{ pointerEvents: 'none' }}>
                 <div className="budget-info">
-                  <Skeleton width="35%" height="13px" />
-                  <Skeleton width="25%" height="13px" />
-                </div>
-                <Skeleton width="100%" height="5px" borderRadius="3px" />
-                <Skeleton width="40%" height="12px" />
-              </div>
-            ))}
-          </>
-        ) : (
-          <>
-            {expenseCategories.map((cat) => {
-            const catKey = cat.id
-            const catStatus = statusMap.get(cat.id)
-            const spent = catStatus?.spent || 0
-            const budget = editValues[cat.name] || 0
-            const progress = catStatus?.progress || 0
-            const status = catStatus?.status || 'safe'
-            const isFocused = hasFocus && focusId === catKey
-            const remaining = budget - spent
-
-            return (
-              <div
-                key={cat.name}
-                data-focus={catKey}
-                className={`budget-item${isFocused ? ' spotlight--focused' : ''}`}
-                onClick={() => { setSelectedBudget({ category: cat, spent, budget, progress, status, remaining }); setShowDetail(true) }}
-                style={{ cursor: 'pointer' }}
-              >
-                <div className="budget-info">
-                  <span className="budget-name">{cat.icon} {cat.name}</span>
+                  <span className="budget-name">
+                    <Skeleton width="12px" height="12px" borderRadius="3px" />
+                    <span style={{ marginLeft: '6px', display: 'inline-block', verticalAlign: 'middle' }}>
+                      <Skeleton width="80px" height="13px" />
+                    </span>
+                  </span>
                   <span className="budget-amount">
-                    ¥{spent.toLocaleString('zh-CN')} / ¥{budget.toLocaleString('zh-CN')}
+                    <Skeleton width="120px" height="12px" />
                   </span>
                 </div>
                 <div className="budget-bar">
-                  <div
-                    className={`fill ${getProgressClass(status)}`}
-                    style={{ width: `${Math.min(progress, 100)}%` }}
-                  />
+                  <div className="fill" style={{ width: [60, 85, 45, 70, 30][i] + '%' }} />
                 </div>
                 <div className="budget-percent">
-                  {progress}% · 剩余 ¥{remaining.toLocaleString('zh-CN')}
+                  <Skeleton width="40%" height="11px" />
                 </div>
               </div>
-            )
-          })}
+            ))}
+          </>
+        ) : expenseCategories.length === 0 ? (
+          <EmptyState
+            icon="📊"
+            title="暂无支出分类"
+            description="请先在分类管理中添加支出分类"
+          />
+        ) : (
+          <>
+            {expenseCategories.map((cat) => {
+              const catKey = cat.id
+              const catStatus = statusMap.get(cat.id)
+              const spent = catStatus?.spent || 0
+              const budget = editValues[cat.name] || 0
+              const progress = catStatus?.progress || 0
+              const status = catStatus?.status || 'safe'
+              const isFocused = hasFocus && focusId === catKey
+              const remaining = budget - spent
+
+              return (
+                <div
+                  key={cat.name}
+                  data-focus={catKey}
+                  className={`budget-item${isFocused ? ' spotlight--focused' : ''}`}
+                  style={{ cursor: 'pointer' }}
+                  onClick={() => {
+                    setSelectedBudget({ category: cat, spent, budget, progress, status, remaining })
+                    setShowDetail(true)
+                  }}
+                >
+                  <RankRow
+                    id={cat.id}
+                    icon={cat.icon}
+                    label={cat.name}
+                    amount={spent}
+                    totalAmount={budget > 0 ? budget : undefined}
+                    progress={budget > 0 ? progress : undefined}
+                    status={getStatusVariant(status)}
+                    meta={<span className="budget-percent">剩余 ¥{remaining.toLocaleString('zh-CN')}</span>}
+                  />
+                  {budget === 0 && (
+                    <ProgressBar
+                      value={0}
+                      variant={getStatusVariant(status)}
+                    />
+                  )}
+                </div>
+              )
+            })}
           </>
         )}
-      </div>
+      </Card>
 
-      {/* 预算详情弹窗 */}
       {selectedBudget && (
         <DetailModal
           visible={showDetail}
@@ -265,18 +292,15 @@ const Budgets: React.FC = () => {
           title="预算详情"
           footer={
             <>
-              <button
-                className="btn btn-secondary"
+              <Button
+                variant="secondary"
                 onClick={() => handleOpenEditForm(selectedBudget)}
               >
                 编辑预算
-              </button>
-              <button
-                className="btn btn-danger"
-                onClick={() => setShowDeleteConfirm(true)}
-              >
+              </Button>
+              <Button variant="danger" onClick={() => setShowDeleteConfirm(true)}>
                 删除预算
-              </button>
+              </Button>
             </>
           }
         >
@@ -284,9 +308,7 @@ const Budgets: React.FC = () => {
             <div className="detail-icon">{selectedBudget.category.icon}</div>
             <div className="detail-content">
               <div className="detail-title">{selectedBudget.category.name}</div>
-              <div className="detail-subtitle">
-                已使用 {selectedBudget.progress}%
-              </div>
+              <div className="detail-subtitle">已使用 {selectedBudget.progress}%</div>
               <div className="detail-amount">
                 <div className="detail-amount-value">
                   ¥{selectedBudget.spent.toLocaleString('zh-CN')} / ¥{selectedBudget.budget.toLocaleString('zh-CN')}
@@ -318,56 +340,31 @@ const Budgets: React.FC = () => {
         </DetailModal>
       )}
 
-      {/* 编辑表单弹窗 */}
-      {showEditForm && selectedBudget && (
-        <DetailModal
-          visible={showEditForm}
-          onClose={() => setShowEditForm(false)}
-          title={`编辑预算 - ${selectedBudget.category.name}`}
-          footer={
-            <>
-              <button
-                className="btn btn-secondary"
-                onClick={() => setShowEditForm(false)}
-              >
-                取消
-              </button>
-              <button
-                className="btn btn-primary"
-                onClick={handleEditFormSave}
-              >
-                确定
-              </button>
-            </>
-          }
-        >
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', padding: '8px 0' }}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-              <label style={{ fontSize: '13px', color: 'var(--muted)' }}>
-                {selectedBudget.category.icon} {selectedBudget.category.name} 预算金额
-              </label>
-              <input
-                type="number"
-                value={editFormValues.budget || '0'}
-                onChange={(e) => handleEditFormChange(e.target.value)}
-                style={{
-                  padding: '8px 12px',
-                  fontSize: '14px',
-                  borderRadius: 'var(--rs)',
-                  border: '1px solid var(--line)',
-                  backgroundColor: 'var(--bg)',
-                  color: 'var(--fg)',
-                  width: '100%',
-                  boxSizing: 'border-box',
-                }}
-                autoFocus
-              />
-            </div>
-          </div>
-        </DetailModal>
-      )}
+      <Modal
+        open={showEditForm && !!selectedBudget}
+        onClose={() => setShowEditForm(false)}
+        title={`编辑预算 - ${selectedBudget?.category.name || ''}`}
+        footer={
+          <ModalFooter
+            onCancel={() => setShowEditForm(false)}
+            onConfirm={handleEditFormSave}
+            confirmText="确定"
+          />
+        }
+      >
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+          <label style={{ fontSize: '13px', color: 'var(--muted)' }}>
+            {selectedBudget?.category.icon} {selectedBudget?.category.name} 预算金额
+          </label>
+          <NumberInput
+            prefix="¥"
+            value={editFormValues.budget || '0'}
+            onChange={handleEditFormChange}
+            min={0}
+          />
+        </div>
+      </Modal>
 
-      {/* 删除确认对话框 */}
       <ConfirmDialog
         open={showDeleteConfirm}
         title="确认删除"

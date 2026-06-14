@@ -1,18 +1,27 @@
 import React, { TextareaHTMLAttributes, useState, useEffect, useRef } from 'react'
-import './input.scss'
+import './index.scss'
 
+/**
+ * 通用文本域组件 —— 取代各页面手写的 `<textarea>` 结构
+ *
+ * 用法：
+ *  <Textarea value={desc} onChange={setDesc} placeholder="描述…" />
+ *  <Textarea value={note} onChange={setNote} showCount maxLength={200} />
+ */
 interface TextareaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
-  label?: string;
-  error?: string;
-  allowClear?: boolean;
-  showCount?: boolean;
-  maxLength?: number;
+  label?: string
+  error?: string
+  allowClear?: boolean
+  showCount?: boolean
+  autoResize?: boolean
+  wrapperClassName?: string
 }
 
 export const Textarea: React.FC<TextareaProps> = ({
   label,
   error,
   className = '',
+  wrapperClassName = '',
   id,
   allowClear = false,
   showCount = false,
@@ -57,38 +66,23 @@ export const Textarea: React.FC<TextareaProps> = ({
   const charCount = currentValue.length
 
   return (
-    <div className="w-full">
+    <div className={`ui-textarea-wrap ${wrapperClassName}`.trim()}>
       {label && (
-        <label
-          htmlFor={textareaId}
-          className="block text-sm font-medium text-gray-700 mb-1"
-        >
+        <label htmlFor={textareaId} className="ui-input-label">
           {label}
         </label>
       )}
-      <div className="relative">
+      <div className={`ui-textarea ${error ? 'has-error' : ''} ${className}`.trim()}>
         <textarea
           ref={textareaRef}
           id={textareaId}
-          className={`
-            w-full px-3 py-2 border rounded-lg
-            focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
-            ${error ? 'border-red-500' : 'border-gray-300'}
-            ${allowClear && currentValue ? 'pr-8' : ''}
-            ${className}
-          `}
           value={currentValue}
           onChange={handleChange}
           maxLength={maxLength}
           {...props}
         />
         {allowClear && currentValue && (
-          <button
-            type="button"
-            className="input-clear-btn"
-            onClick={handleClear}
-            aria-label="清空"
-          >
+          <button type="button" className="ui-textarea-clear" onClick={handleClear} aria-label="清空">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <line x1="18" y1="6" x2="6" y2="18" />
               <line x1="6" y1="6" x2="18" y2="18" />
@@ -96,16 +90,18 @@ export const Textarea: React.FC<TextareaProps> = ({
           </button>
         )}
       </div>
-      {showCount && (
-        <div className="text-right mt-1 text-sm text-gray-500">
-          {charCount}{maxLength ? ` / ${maxLength}` : ''}
+      {(showCount || error) && (
+        <div className="ui-textarea-footer">
+          {error && <span className="ui-input-error">{error}</span>}
+          {showCount && (
+            <span className="ui-textarea-count">
+              {charCount}{maxLength ? ` / ${maxLength}` : ''}
+            </span>
+          )}
         </div>
-      )}
-      {error && (
-        <p className="mt-1 text-sm text-red-600">{error}</p>
       )}
     </div>
   )
 }
 
-export default Textarea;
+export default Textarea

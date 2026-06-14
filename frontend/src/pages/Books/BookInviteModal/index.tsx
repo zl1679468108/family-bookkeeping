@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { joinByInvitation } from '../../../services/booksApi';
 import { notify } from '../../../utils/notifications';
+import { Modal, ModalFooter } from '../../../components/ui/Modal';
+import { Input } from '../../../components/ui/Input';
 import './index.scss';
 
 interface BookInviteModalProps {
@@ -35,58 +37,42 @@ export const BookInviteModal: React.FC<BookInviteModalProps> = ({ open, onClose,
     },
   });
 
-  if (!open) return null;
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = () => {
     if (inviteCode.trim().length < 4) return;
     joinMutation.mutate();
   };
 
   return (
-    <div className="modal-overlay book-invite-overlay" onClick={onClose}>
-      <div className="book-invite-content" onClick={(e) => e.stopPropagation()}>
-        <div className="book-invite-header">
-          <h3>使用邀请码加入</h3>
-          <button className="book-invite-close" onClick={onClose}>
-            ✕
-          </button>
-        </div>
-        <form onSubmit={handleSubmit}>
-          <div className="book-invite-body">
-            <div className="book-invite-form-group">
-              <label>邀请码</label>
-              <div className="book-invite-input-wrapper">
-                <input
-                  type="text"
-                  className="book-invite-input"
-                  value={inviteCode}
-                  onChange={(e) => setInviteCode(e.target.value.toUpperCase())}
-                  placeholder="例如 A3F8K2"
-                  maxLength={32}
-                  autoFocus
-                />
-              </div>
-            </div>
-            <p className="book-invite-form-tip">
-              <strong>邀请码获取方式：</strong>由账主在「账本详情 → 生成邀请码」中生成，有效期为 7 天。
-            </p>
-          </div>
-          <div className="book-invite-footer">
-            <button type="button" className="book-invite-btn book-invite-btn--secondary" onClick={onClose}>
-              取消
-            </button>
-            <button
-              type="submit"
-              className="book-invite-btn book-invite-btn--primary"
-              disabled={joinMutation.isPending || inviteCode.trim().length < 4}
-            >
-              {joinMutation.isPending ? '加入中...' : '加入账本'}
-            </button>
-          </div>
-        </form>
+    <Modal
+      open={open}
+      onClose={onClose}
+      title="使用邀请码加入"
+      width={440}
+      footer={
+        <ModalFooter
+          onCancel={onClose}
+          onConfirm={handleSubmit}
+          confirmText={joinMutation.isPending ? '加入中...' : '加入账本'}
+          confirmLoading={joinMutation.isPending}
+          confirmDisabled={inviteCode.trim().length < 4}
+        />
+      }
+    >
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        <Input
+          label="邀请码"
+          type="text"
+          value={inviteCode}
+          onChange={(e) => setInviteCode(e.target.value.toUpperCase())}
+          placeholder="例如 A3F8K2"
+          maxLength={32}
+          autoFocus
+        />
+        <p style={{ fontSize: '12px', color: 'var(--fg3)', margin: 0 }}>
+          <strong>邀请码获取方式：</strong>由账主在「账本详情 → 生成邀请码」中生成，有效期为 7 天。
+        </p>
       </div>
-    </div>
+    </Modal>
   );
 };
 

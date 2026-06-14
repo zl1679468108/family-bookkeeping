@@ -1,0 +1,53 @@
+/* ═══ Pagination —— 通用分页器样式 ═══ */
+
+.pagination-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 0;
+}
+
+.pagination-bar--center {
+  justify-content: center;
+}
+
+.pagination-bar--right {
+  justify-content: flex-end;
+}
+
+.pagination-bar--left {
+  justify-content: flex-start;
+}
+
+.pagination-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 32px;
+  padding: 0 16px;
+  background: var(--srf);
+  border: 1px solid var(--bd);
+  border-radius: var(--rs);
+  color: var(--fg);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--df) ease;
+}
+
+.pagination-btn:hover:not(:disabled) {
+  border-color: var(--pr);
+  color: var(--pr);
+  background: var(--prBg);
+}
+
+.pagination-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.pagination-info {
+  font-size: 12px;
+  color: var(--fg3);
+}

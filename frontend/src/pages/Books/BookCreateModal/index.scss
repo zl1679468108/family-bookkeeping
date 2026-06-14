@@ -110,6 +110,16 @@
   border-radius: var(--rs);
   outline: none;
   transition: all var(--df);
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+select.book-modal-field__input {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  padding-right: 36px;
+  cursor: pointer;
 }
 
 .book-modal-field__input::placeholder {
@@ -209,7 +219,29 @@
   background: var(--prH);
 }
 
+.book-modal-btn--danger {
+  background: var(--exp);
+  color: #fff;
+}
+
+.book-modal-btn--danger:hover:not(:disabled) {
+  filter: brightness(1.1);
+}
+
 .book-modal-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+/* —— 双列字段行 —— */
+
+.book-modal-field-row {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.book-modal-field-row .book-modal-field {
+  flex: 1;
+  margin-top: 0 !important;
 }

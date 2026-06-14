@@ -8,7 +8,11 @@ import { useBook } from '../../hooks/useBook';
 import { fetchBooks, deleteBook, fetchBookMembers, removeMember, inviteMember, createInvitation } from '../../services/booksApi';
 import { notify } from '../../utils/notifications';
 import { Skeleton, CardGridSkeleton } from '../../components/ui/Skeleton';
-import { DetailModal } from '../../components/DetailModal';
+import { Card, CardHeader } from '../../components/ui/Card';
+import { Modal, ModalFooter } from '../../components/ui/Modal';
+import { Button } from '../../components/ui/Button';
+import { Input } from '../../components/ui/Input';
+import { EmptyState } from '../../components/ui/EmptyState';
 import { getBookIconByKey, getBookEmojiByKey } from '../../utils/bookIcons';
 import './index.scss';
 
@@ -91,26 +95,37 @@ const BooksPage: React.FC = () => {
   return (
     <div className="page-container">
       <section className="view-panel active">
-        <div className="dash-card">
+        <Card>
           {isLoading ? (
             <>
-              <div className="card-header">
-                <Skeleton width="80px" height="14px" />
+              <CardHeader title={<Skeleton width="80px" height="14px" />} />
+              <div className="bk-grid">
+                {[0, 1, 2, 3, 4, 5].map((i) => (
+                  <div key={i} className="bk-card" style={{ pointerEvents: 'none' }}>
+                    <h4 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <Skeleton width="16px" height="16px" borderRadius="4px" />
+                      <Skeleton width="60%" height="13px" />
+                    </h4>
+                    <div className="bk-meta">
+                      <Skeleton width="50%" height="11px" />
+                    </div>
+                    <div className="bk-meta" style={{ marginTop: '3px' }}>
+                      <Skeleton width="30%" height="11px" />
+                    </div>
+                  </div>
+                ))}
               </div>
-              <CardGridSkeleton count={3} columns={6} />
             </>
           ) : (
             <>
-              <div className="card-header">
-                <h3>我的账本</h3>
-              </div>
+              <CardHeader title="我的账本" />
               <div className="bk-grid">
                 {books.length === 0 && (
-                  <div className="bk-empty-state">
-                    <div className="bk-empty-state__icon">📖</div>
-                    <div className="bk-empty-state__title">还没有任何账本</div>
-                    <div className="bk-empty-state__desc">创建你的第一个账本，或等待他人邀请你加入。</div>
-                  </div>
+                  <EmptyState
+                    icon="📖"
+                    title="还没有任何账本"
+                    description="创建你的第一个账本，或等待他人邀请你加入。"
+                  />
                 )}
                 {books.map((book: any) => {
                   const isActive = currentBook?.id === book.id;
@@ -147,7 +162,7 @@ const BooksPage: React.FC = () => {
               </div>
             </>
           )}
-        </div>
+        </Card>
       </section>
 
       {/* 创建/编辑账本弹窗 —— 复用 BookCreateModal */}
@@ -198,24 +213,25 @@ const BooksPage: React.FC = () => {
 
       {/* 账本详情弹窗 */}
       {selectedBook && (
-        <DetailModal
-          visible={showDetail}
+        <Modal
+          open={showDetail}
           onClose={() => setShowDetail(false)}
           title="账本详情"
+          width={520}
           footer={
             <>
-              <button className="btn btn-secondary" onClick={() => setShowInviteModal(true)}>
+              <Button variant="secondary" onClick={() => setShowInviteModal(true)}>
                 邀请成员
-              </button>
-              <button
-                className="btn btn-secondary"
+              </Button>
+              <Button
+                variant="secondary"
                 onClick={() => selectedBook?.id && inviteCodeMutation.mutate(selectedBook.id)}
                 disabled={inviteCodeMutation.isPending}
               >
                 {inviteCodeMutation.isPending ? '生成中...' : '生成邀请码'}
-              </button>
-              <button
-                className="btn btn-secondary"
+              </Button>
+              <Button
+                variant="secondary"
                 onClick={() => {
                   setEditTarget(selectedBook);
                   setShowDetail(false);
@@ -223,25 +239,22 @@ const BooksPage: React.FC = () => {
                 }}
               >
                 编辑
-              </button>
+              </Button>
               {selectedBook.name !== DEFAULT_BOOK_NAME && (
-                <button
-                  className="btn btn-danger"
-                  onClick={() => setDeleteTarget(selectedBook.id)}
-                >
+                <Button variant="danger" onClick={() => setDeleteTarget(selectedBook.id)}>
                   删除
-                </button>
+                </Button>
               )}
               {currentBook?.id !== selectedBook.id && (
-                <button
-                  className="btn btn-primary"
+                <Button
+                  variant="primary"
                   onClick={() => {
                     switchBook(selectedBook);
                     setShowDetail(false);
                   }}
                 >
                   切换到此账本
-                </button>
+                </Button>
               )}
             </>
           }
@@ -309,8 +322,9 @@ const BooksPage: React.FC = () => {
                         {member.role === 'admin' && <span className="role-badge admin">管理员</span>}
                         {member.role === 'member' && <span className="role-badge member">成员</span>}
                         {member.role !== 'owner' && (
-                          <button
-                            className="btn-remove-member"
+                          <Button
+                            variant="ghost"
+                            size="sm"
                             onClick={() => {
                               setRemovingMember(member);
                               setShowMemberConfirm(true);
@@ -318,7 +332,7 @@ const BooksPage: React.FC = () => {
                             title="移除成员"
                           >
                             ✕
-                          </button>
+                          </Button>
                         )}
                       </div>
                     </div>
@@ -327,114 +341,97 @@ const BooksPage: React.FC = () => {
               </div>
             </>
           )}
-        </DetailModal>
+        </Modal>
       )}
 
-      {/* 邀请成员弹窗 */}
-      {showInviteModal && selectedBook && (
-        <div className="modal-overlay" onClick={() => setShowInviteModal(false)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '400px' }}>
-            <div className="modal-header">
-              <h3>邀请成员</h3>
-              <button className="modal-close" onClick={() => setShowInviteModal(false)}>
-                ✕
-              </button>
-            </div>
-            <div className="modal-body">
-              <div className="form-group">
-                <label>邮箱地址</label>
-                <input
-                  className="form-input"
-                  type="email"
-                  placeholder="请输入对方的邮箱"
-                  value={inviteEmail}
-                  onChange={(e) => setInviteEmail(e.target.value)}
-                  autoFocus
-                />
-              </div>
-            </div>
-            <div className="modal-footer">
-              <button className="btn btn-secondary" onClick={() => setShowInviteModal(false)}>
-                取消
-              </button>
-              <button
-                className="btn btn-primary"
-                onClick={() => {
-                  if (!inviteEmail.trim()) {
-                    notify({ type: 'error', message: '请输入邮箱地址' });
-                    return;
-                  }
-                  inviteMutation.mutate({ bookId: selectedBook.id, email: inviteEmail.trim() });
-                }}
-                disabled={inviteMutation.isPending}
-              >
-                {inviteMutation.isPending ? '发送中...' : '发送邀请'}
-              </button>
-            </div>
-          </div>
+      {/* 邀请成员弹窗 - 使用通用Modal */}
+      <Modal
+        open={showInviteModal && !!selectedBook}
+        onClose={() => setShowInviteModal(false)}
+        title="邀请成员"
+        width={400}
+        footer={
+          <ModalFooter
+            onCancel={() => setShowInviteModal(false)}
+            onConfirm={() => {
+              if (!inviteEmail.trim()) {
+                notify({ type: 'error', message: '请输入邮箱地址' });
+                return;
+              }
+              if (selectedBook) {
+                inviteMutation.mutate({ bookId: selectedBook.id, email: inviteEmail.trim() });
+              }
+            }}
+            confirmText={inviteMutation.isPending ? '发送中...' : '发送邀请'}
+            confirmLoading={inviteMutation.isPending}
+          />
+        }
+      >
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+          <Input
+            label="邮箱地址"
+            type="email"
+            placeholder="请输入对方的邮箱"
+            value={inviteEmail}
+            onChange={(e) => setInviteEmail(e.target.value)}
+            autoFocus
+          />
         </div>
-      )}
+      </Modal>
 
-      {/* 邀请码显示弹窗 */}
-      {showInviteCodeModal && generatedInviteCode && (
-        <div className="modal-overlay" onClick={() => setShowInviteCodeModal(false)}>
+      {/* 邀请码显示弹窗 - 使用通用Modal */}
+      <Modal
+        open={showInviteCodeModal && !!generatedInviteCode}
+        onClose={() => setShowInviteCodeModal(false)}
+        title="邀请码已生成"
+        width={460}
+        footer={
+          <ModalFooter
+            onConfirm={() => {
+              if (generatedInviteCode) {
+                navigator.clipboard?.writeText(generatedInviteCode.code);
+                notify({ type: 'success', message: '邀请码已复制' });
+              }
+            }}
+            confirmText="复制邀请码"
+          />
+        }
+      >
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ fontSize: '13px', color: 'var(--fg2)', marginBottom: '12px' }}>
+            将以下邀请码分享给他人，对方注册并进入 /onboarding 页面后输入邀请码即可加入账本
+            <strong>「{generatedInviteCode?.book_name}」</strong>
+          </div>
           <div
-            className="modal-content invite-code-content"
-            onClick={(e) => e.stopPropagation()}
-            style={{ maxWidth: '460px', textAlign: 'center' }}
+            className="invite-code-display"
+            onClick={() => {
+              if (generatedInviteCode) {
+                navigator.clipboard?.writeText(generatedInviteCode.code);
+                notify({ type: 'success', message: '邀请码已复制' });
+              }
+            }}
+            style={{
+              padding: '20px',
+              fontSize: '28px',
+              fontWeight: 700,
+              letterSpacing: '4px',
+              background: 'var(--bg)',
+              border: '1px dashed var(--bd)',
+              borderRadius: '10px',
+              cursor: 'pointer',
+              userSelect: 'all',
+              color: 'var(--accent, #4f9cfd)',
+            }}
           >
-            <div className="modal-header">
-              <h3>邀请码已生成</h3>
-              <button className="modal-close" onClick={() => setShowInviteCodeModal(false)}>
-                ✕
-              </button>
-            </div>
-            <div className="modal-body">
-              <div style={{ fontSize: '13px', color: 'var(--fg2)', marginBottom: '12px' }}>
-                将以下邀请码分享给他人，对方注册并进入 /onboarding 页面后输入邀请码即可加入账本
-                <strong>「{generatedInviteCode.book_name}」</strong>
-              </div>
-              <div
-                className="invite-code-display"
-                onClick={() => {
-                  navigator.clipboard?.writeText(generatedInviteCode.code);
-                  notify({ type: 'success', message: '邀请码已复制' });
-                }}
-                style={{
-                  padding: '20px',
-                  fontSize: '28px',
-                  fontWeight: 700,
-                  letterSpacing: '4px',
-                  background: 'var(--bg)',
-                  border: '1px dashed var(--bd)',
-                  borderRadius: '10px',
-                  cursor: 'pointer',
-                  userSelect: 'all',
-                  color: 'var(--accent, #4f9cfd)',
-                }}
-              >
-                {generatedInviteCode.code}
-              </div>
-              <div style={{ fontSize: '12px', color: 'var(--fg3)', marginTop: '10px' }}>
-                点击邀请码即可复制
-                <br />
-                有效期至：{format(new Date(generatedInviteCode.expires_at), 'yyyy-MM-dd HH:mm')}
-              </div>
-            </div>
-            <div className="modal-footer">
-              <button
-                className="btn btn-primary"
-                onClick={() => {
-                  navigator.clipboard?.writeText(generatedInviteCode.code);
-                  notify({ type: 'success', message: '邀请码已复制' });
-                }}
-              >
-                复制邀请码
-              </button>
-            </div>
+            {generatedInviteCode?.code}
+          </div>
+          <div style={{ fontSize: '12px', color: 'var(--fg3)', marginTop: '10px' }}>
+            点击邀请码即可复制
+            <br />
+            有效期至：{generatedInviteCode && format(new Date(generatedInviteCode.expires_at), 'yyyy-MM-dd HH:mm')}
           </div>
         </div>
-      )}
+      </Modal>
 
       {/* 邀请码加入弹窗 */}
       <BookInviteModal

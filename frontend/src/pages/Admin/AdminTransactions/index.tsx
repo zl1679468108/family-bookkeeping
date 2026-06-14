@@ -10,7 +10,14 @@ import {
   AdminBookListResponse,
 } from '../../../services/adminApi';
 import { useDebounce } from '../../../hooks/useDebounce';
-import { TableRowsSkeleton } from '../../../components/ui/Skeleton';
+import { FilterBar } from '../../../components/ui/FilterBar'
+import { SearchInput } from '../../../components/ui/Input'
+import { DropdownSelect } from '../../../components/ui/Dropdown'
+import { Card } from '../../../components/ui/Card'
+import { Button } from '../../../components/ui/Button'
+import { Pagination } from '../../../components/ui/Pagination'
+import { EmptyState } from '../../../components/ui/EmptyState'
+import { TableRowsSkeleton } from '../../../components/ui/Skeleton'
 import { DetailModal } from '../../../components/DetailModal';
 
 const AdminTransactions: React.FC = () => {
@@ -22,11 +29,9 @@ const AdminTransactions: React.FC = () => {
   const [userFilter, setUserFilter] = useState('');
   const pageSize = 20;
 
-  // 图片预览弹窗状态
   const [previewImages, setPreviewImages] = useState<string[]>([]);
   const [showPreview, setShowPreview] = useState(false);
 
-  // 获取所有用户（用于筛选下拉）
   const { data: usersData } = useQuery<UsersListResponse>({
     queryKey: ['admin', 'users-for-select'],
     queryFn: () => getAdminUsers({ page: 1, pageSize: 1000 }),
@@ -34,7 +39,6 @@ const AdminTransactions: React.FC = () => {
 
   const usersForSelect = usersData?.users || [];
 
-  // 获取所有账本（用于筛选下拉）
   const { data: booksData } = useQuery<AdminBookListResponse>({
     queryKey: ['admin', 'books-for-select'],
     queryFn: () => getAdminBooks(),
@@ -68,59 +72,72 @@ const AdminTransactions: React.FC = () => {
   const totalPages = data?.totalPages || 1;
   const total = data?.total || 0;
 
+  const bookOptions = booksForSelect.map((b) => ({ key: b.id, label: b.name }));
+  const userOptions = usersForSelect.map((u) => ({ key: u.id, label: u.username }));
+  const typeOptions = [
+    { key: 'income', label: '收入' },
+    { key: 'expense', label: '支出' },
+  ];
+
+  const handleBookChange = (key: string) => {
+    setBookFilter(key);
+    setPage(1);
+  };
+
+  const handleUserChange = (key: string) => {
+    setUserFilter(key);
+    setPage(1);
+  };
+
+  const handleTypeChange = (key: string) => {
+    setTypeFilter(key);
+    setPage(1);
+  };
+
+  const handleSearchChange = (value: string) => {
+    setSearch(value);
+    setPage(1);
+  };
+
   return (
     <AdminLayout>
       <div className="filter-sticky">
-        <div className="filter-bar">
-          <select
-            className="form-input form-input--select"
+        <FilterBar>
+          <DropdownSelect
+            options={bookOptions}
             value={bookFilter}
-            onChange={(e) => { setBookFilter(e.target.value); setPage(1); }}
-          >
-            <option value="">全部账本</option>
-            {booksForSelect.map((book) => (
-              <option key={book.id} value={book.id}>{book.name}</option>
-            ))}
-          </select>
-
-          <select
-            className="form-input form-input--select"
-            value={userFilter}
-            onChange={(e) => { setUserFilter(e.target.value); setPage(1); }}
-          >
-            <option value="">全部用户</option>
-            {usersForSelect.map((user) => (
-              <option key={user.id} value={user.id}>{user.username}</option>
-            ))}
-          </select>
-
-          <select
-            className="form-input form-input--select"
-            value={typeFilter}
-            onChange={(e) => { setTypeFilter(e.target.value); setPage(1); }}
-          >
-            <option value="">全部类型</option>
-            <option value="income">收入</option>
-            <option value="expense">支出</option>
-          </select>
-
-          <input
-            type="text"
-            className="form-input filter-bar__input"
-            placeholder="搜索交易描述..."
-            value={search}
-            onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+            onChange={handleBookChange}
+            placeholder="全部账本"
           />
-        </div>
+          <DropdownSelect
+            options={userOptions}
+            value={userFilter}
+            onChange={handleUserChange}
+            placeholder="全部用户"
+          />
+          <DropdownSelect
+            options={typeOptions}
+            value={typeFilter}
+            onChange={handleTypeChange}
+            placeholder="全部类型"
+          />
+          <SearchInput
+            value={search}
+            onChange={handleSearchChange}
+            placeholder="搜索交易描述..."
+          />
+        </FilterBar>
       </div>
 
-      <div className="card card--scrollable">
+      <Card padding="none">
         {isLoading ? (
           <div className="data-table-wrapper">
             <TableRowsSkeleton columns={9} rows={10} />
           </div>
         ) : error ? (
-          <div className="empty-state empty-state--error">加载失败，请重试</div>
+          <EmptyState icon="⚠️" title="加载失败" description="请稍后重试" variant="compact" />
+        ) : (data?.transactions || []).length === 0 ? (
+          <EmptyState icon="📭" title="暂无交易记录" variant="compact" />
         ) : (
           <>
             <div className="data-table-wrapper">
@@ -181,12 +198,13 @@ const AdminTransactions: React.FC = () => {
                       <td className="data-table__col--fixed">
                         <div className="action-buttons" style={{ gap: '4px', flexWrap: 'wrap' }}>
                           {t.image_urls && t.image_urls.length > 0 ? (
-                            <button
-                              className="btn btn-outline btn-sm"
+                            <Button
+                              variant="outline"
+                              size="sm"
                               onClick={() => handleOpenPreview(t.image_urls!)}
                             >
                               查看图片 ({t.image_urls.length})
-                            </button>
+                            </Button>
                           ) : (
                             <span className="status status--muted">无</span>
                           )}
@@ -198,32 +216,16 @@ const AdminTransactions: React.FC = () => {
               </table>
             </div>
 
-            {totalPages > 1 && (
-              <div className="pagination-bar">
-                <button
-                  className="page-btn"
-                  onClick={() => setPage((p) => Math.max(1, p - 1))}
-                  disabled={page <= 1}
-                >
-                  上一页
-                </button>
-                <span className="page-info">
-                  第 {page} / {totalPages} 页 · 共 {total} 条
-                </span>
-                <button
-                  className="page-btn"
-                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                  disabled={page >= totalPages}
-                >
-                  下一页
-                </button>
-              </div>
-            )}
+            <Pagination
+              page={page}
+              totalPages={totalPages}
+              onChange={setPage}
+              info={`第 ${page} / ${totalPages} 页 · 共 ${total} 条`}
+            />
           </>
         )}
-      </div>
+      </Card>
 
-      {/* 图片预览弹窗 */}
       <DetailModal
         visible={showPreview}
         onClose={() => setShowPreview(false)}
@@ -231,18 +233,19 @@ const AdminTransactions: React.FC = () => {
       >
         <div className="detail-image-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))', gap: '12px' }}>
           {previewImages.map((url, idx) => (
-            <a
+            <button
               key={idx}
+              type="button"
               onClick={(e) => {
                 e.preventDefault();
                 handleViewImage(url);
               }}
               className="detail-image-item"
-              style={{ cursor: 'pointer', display: 'block', borderRadius: '8px', overflow: 'hidden', border: '1px solid var(--line)', aspectRatio: '1 / 1', backgroundColor: 'var(--bg)' }}
+              style={{ cursor: 'pointer', display: 'block', borderRadius: '8px', overflow: 'hidden', border: '1px solid var(--line)', aspectRatio: '1 / 1', backgroundColor: 'var(--bg)', padding: 0 }}
               title="点击在新窗口打开"
             >
               <img src={url} alt={`图片 ${idx + 1}`} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
-            </a>
+            </button>
           ))}
         </div>
       </DetailModal>

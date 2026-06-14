@@ -180,7 +180,26 @@ const Templates: React.FC = () => {
               <Skeleton width="80px" height="14px" />
               <Skeleton width="90px" height="24px" borderRadius="6px" />
             </div>
-            <CardGridSkeleton count={4} columns={6} />
+            <div className="tpl-grid">
+              {[0, 1, 2, 3, 4, 5].map((i) => (
+                <div key={i} className="tpl-card" style={{ pointerEvents: 'none' }}>
+                  <div className="tpl-header">
+                    <div className="tpl-e">
+                      <Skeleton width="16px" height="16px" borderRadius="4px" />
+                    </div>
+                    <div className="tpl-n">
+                      <Skeleton width="80%" height="13px" />
+                    </div>
+                  </div>
+                  <div className="tpl-content">
+                    <div className="tpl-meta">
+                      <Skeleton width="30%" height="11px" />
+                      <Skeleton width="40%" height="11px" />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </>
         ) : (
           <>
@@ -354,17 +373,17 @@ const Templates: React.FC = () => {
 
       {/* 新建/编辑模板弹窗 */}
       {showForm && (
-        <div className="modal-overlay" onClick={resetForm}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h3>{editingId ? '编辑模板' : '新建模板'}</h3>
-              <button onClick={resetForm}>✕</button>
+        <div className="book-modal-overlay" onClick={resetForm}>
+          <div className="book-modal-dialog" onClick={(e) => e.stopPropagation()}>
+            <div className="book-modal-dialog__header">
+              <h3 className="book-modal-dialog__title">{editingId ? '编辑模板' : '新建模板'}</h3>
+              <button className="book-modal-dialog__close" onClick={resetForm}>✕</button>
             </div>
-            <div className="modal-body">
-              <div className="form-group">
-                <label>模板名称</label>
+            <div className="book-modal-dialog__body">
+              <div className="book-modal-field">
+                <label className="book-modal-field__label">模板名称</label>
                 <input
-                  className="form-input"
+                  className="book-modal-field__input"
                   placeholder="如：公司食堂午餐"
                   value={form.name}
                   onChange={(e) => setForm(prev => ({ ...prev, name: e.target.value.slice(0, 20) }))}
@@ -372,11 +391,11 @@ const Templates: React.FC = () => {
                   maxLength={20}
                 />
               </div>
-              <div className="form-row">
-                <div className="form-group">
-                  <label>类型</label>
+              <div className="book-modal-field-row">
+                <div className="book-modal-field">
+                  <label className="book-modal-field__label">类型</label>
                   <select
-                    className="form-select"
+                    className="book-modal-field__input"
                     value={form.type}
                     onChange={(e) => setForm(prev => ({ ...prev, type: e.target.value as 'income' | 'expense', category_id: '' }))}
                   >
@@ -384,10 +403,10 @@ const Templates: React.FC = () => {
                     <option value="income">收入</option>
                   </select>
                 </div>
-                <div className="form-group">
-                  <label>分类</label>
+                <div className="book-modal-field">
+                  <label className="book-modal-field__label">分类</label>
                   <select
-                    className="form-select"
+                    className="book-modal-field__input"
                     value={form.category_id}
                     onChange={(e) => setForm(prev => ({ ...prev, category_id: e.target.value }))}
                   >
@@ -400,41 +419,42 @@ const Templates: React.FC = () => {
                   </select>
                 </div>
               </div>
-              <div className="form-group">
-                <label>金额</label>
+              <div className="book-modal-field">
+                <label className="book-modal-field__label">金额</label>
                 <input
-                  className="form-input"
+                  className="book-modal-field__input"
                   placeholder="0.00"
                   value={form.amount}
                   onChange={(e) => setForm(prev => ({ ...prev, amount: e.target.value.replace(/[^0-9.]/g, '') }))}
                 />
               </div>
-              <div className="form-group">
-                <label>备注</label>
+              <div className="book-modal-field">
+                <label className="book-modal-field__label">备注</label>
                 <input
-                  className="form-input"
+                  className="book-modal-field__input"
                   placeholder="添加备注（可选）"
                   value={form.note}
                   onChange={(e) => setForm(prev => ({ ...prev, note: e.target.value }))}
                 />
               </div>
-              <div className="form-group">
-                <label>位置信息</label>
+              <div className="book-modal-field">
+                <label className="book-modal-field__label">位置信息</label>
                 <div className="location-select-wrapper">
                   <button
                     type="button"
-                    className="btn btn-secondary location-select-btn"
+                    className="book-modal-btn book-modal-btn--secondary"
+                    style={{ padding: '8px 14px', fontSize: '13px' }}
                     onClick={() => setShowLocationPicker(true)}
                   >
                     📍 选择位置
                   </button>
                   {form.location_name && (
-                    <div className="location-selected-info">
-                      <span className="location-info-icon">✓</span>
-                      <span className="location-info-text">{form.location_name}</span>
+                    <div className="location-selected-info" style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: 'var(--fg2)' }}>
+                      <span style={{ color: 'var(--pr)' }}>✓</span>
+                      <span>{form.location_name}</span>
                       <button
                         type="button"
-                        className="location-clear-btn"
+                        style={{ background: 'none', border: 'none', color: 'var(--fg3)', cursor: 'pointer', padding: '0 4px' }}
                         onClick={() => setForm(prev => ({ ...prev, latitude: '', longitude: '', location_name: '', poi_id: '' }))}
                       >
                         ✕
@@ -443,21 +463,20 @@ const Templates: React.FC = () => {
                   )}
                 </div>
               </div>
-              <div className="form-row">
-                <div className="form-group">
-                  <label>商户 ID</label>
+              <div className="book-modal-field-row">
+                <div className="book-modal-field">
+                  <label className="book-modal-field__label">商户 ID</label>
                   <input
-                    className="form-input"
+                    className="book-modal-field__input"
                     value={form.poi_id}
-                    onChange={(e) => setForm(prev => ({ ...prev, poi_id: e.target.value }))}
                     disabled
                     readOnly
                   />
                 </div>
-                <div className="form-group">
-                  <label>排序</label>
+                <div className="book-modal-field">
+                  <label className="book-modal-field__label">排序</label>
                   <input
-                    className="form-input"
+                    className="book-modal-field__input"
                     type="number"
                     placeholder="0"
                     value={form.sort_order}
@@ -466,9 +485,14 @@ const Templates: React.FC = () => {
                 </div>
               </div>
             </div>
-            <div className="modal-footer">
-              <button className="btn btn-secondary" onClick={resetForm}>取消</button>
-              <button className="btn btn-primary" onClick={handleSave} disabled={saveLoading || !form.name.trim() || !form.category_id}>
+            <div className="book-modal-dialog__footer">
+              <button type="button" className="book-modal-btn book-modal-btn--secondary" onClick={resetForm}>取消</button>
+              <button
+                type="button"
+                className="book-modal-btn book-modal-btn--primary"
+                onClick={handleSave}
+                disabled={saveLoading || !form.name.trim() || !form.category_id}
+              >
                 {saveLoading ? '保存中...' : (editingId ? '更新' : '创建')}
               </button>
             </div>

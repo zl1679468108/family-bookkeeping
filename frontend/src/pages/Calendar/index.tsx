@@ -226,11 +226,13 @@ const Calendar: React.FC = () => {
           {/* 日期格子 */}
           {summaryLoading ? (
             Array.from({ length: 35 }).map((_, idx) => (
-              <div key={idx} className="cal-cell">
-                <Skeleton width="20px" height="14px" borderRadius="3px" marginBottom="4px" />
-                <div className="cd-stats" style={{ opacity: 0.5, gap: '2px' }}>
-                  <Skeleton width="28px" height="9px" borderRadius="2px" />
-                  <Skeleton width="28px" height="9px" borderRadius="2px" />
+              <div key={idx} className="cal-cell" style={{ pointerEvents: 'none' }}>
+                <div className="cd-date">
+                  <Skeleton width="20px" height="12px" borderRadius="3px" />
+                </div>
+                <div className="cd-stats" style={{ opacity: 0.7 }}>
+                  <Skeleton width="30px" height="9px" borderRadius="2px" />
+                  <Skeleton width="30px" height="9px" borderRadius="2px" />
                   <Skeleton width="20px" height="9px" borderRadius="2px" />
                 </div>
               </div>
@@ -270,10 +272,22 @@ const Calendar: React.FC = () => {
         <div className="cal-summary-row">
           {summaryLoading ? (
             <>
-              <div className="cal-stat"><div className="cs-lbl"><Skeleton width="40px" height="10px" /></div><Skeleton width="60px" height="16px" /></div>
-              <div className="cal-stat"><div className="cs-lbl"><Skeleton width="40px" height="10px" /></div><Skeleton width="60px" height="16px" /></div>
-              <div className="cal-stat"><div className="cs-lbl"><Skeleton width="40px" height="10px" /></div><Skeleton width="50px" height="16px" /></div>
-              <div className="cal-stat"><div className="cs-lbl"><Skeleton width="40px" height="10px" /></div><Skeleton width="60px" height="16px" /></div>
+              <div className="cal-stat" style={{ pointerEvents: 'none' }}>
+                <div className="cs-lbl"><Skeleton width="40px" height="11px" /></div>
+                <Skeleton width="80px" height="18px" />
+              </div>
+              <div className="cal-stat" style={{ pointerEvents: 'none' }}>
+                <div className="cs-lbl"><Skeleton width="40px" height="11px" /></div>
+                <Skeleton width="80px" height="18px" />
+              </div>
+              <div className="cal-stat" style={{ pointerEvents: 'none' }}>
+                <div className="cs-lbl"><Skeleton width="40px" height="11px" /></div>
+                <Skeleton width="60px" height="18px" />
+              </div>
+              <div className="cal-stat" style={{ pointerEvents: 'none' }}>
+                <div className="cs-lbl"><Skeleton width="40px" height="11px" /></div>
+                <Skeleton width="80px" height="18px" />
+              </div>
             </>
           ) : (
             <>
@@ -316,7 +330,9 @@ const Calendar: React.FC = () => {
               <div className="txn-list" style={{ pointerEvents: 'none' }}>
                 {[0, 1, 2].map((i) => (
                   <div key={i} className="txn-row">
-                    <div className="txn-icon" style={{ opacity: 0.5 }} />
+                    <div className="txn-icon">
+                      <Skeleton width="100%" height="100%" borderRadius="8px" />
+                    </div>
                     <div className="txn-info">
                       <Skeleton width="50%" height="13px" marginBottom="4px" />
                       <Skeleton width="35%" height="11px" />

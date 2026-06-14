@@ -6,14 +6,18 @@ import { formatAmount } from '../../utils/common'
 import { getTransactions } from '../../services/api'
 import { fetchSummary } from '../../services/statisticsApi'
 import { fetchBudgetStatus } from '../../services/budgetsApi'
-import { useCategoryLookup } from '../../hooks/useCategories'
 import { useBook } from '../../hooks/useBook'
+import { useCategoryLookup } from '../../hooks/useCategories'
 import { Skeleton } from '../../components/ui/Skeleton'
+import { Card, CardHeader } from '../../components/ui/Card'
+import { EmptyState } from '../../components/ui/EmptyState'
+import { StatCard } from '../../components/ui/StatCard'
+import { Button } from '../../components/ui/Button'
 
 const Dashboard: React.FC = () => {
   const navigate = useNavigate()
-  const { getCategoryName, getCategoryIcon } = useCategoryLookup()
   const { hasBooks } = useBook()
+  const { getCategoryIcon } = useCategoryLookup()
 
   const monthStart = format(startOfMonth(new Date()), 'yyyy-MM-dd')
   const monthEnd = format(new Date(), 'yyyy-MM-dd')
@@ -40,71 +44,65 @@ const Dashboard: React.FC = () => {
   const recentTransactions = recentPaginated?.data || []
   const hasBudget = budgetStatus && budgetStatus.totalBudget > 0
 
+  const isAnyLoading = summaryLoading || recentLoading || budgetLoading
+
   return (
     <div className="page-container">
       {/* 统计卡片行 */}
       <div className="stats-row">
         {summaryLoading ? (
           <>
-            {/* 本月结余 - Hero 骨架 */}
-            <div className="stat-card hero" style={{ opacity: 0.95 }}>
-              <Skeleton width="50%" height="12px" marginBottom="10px" />
-              <Skeleton width="70%" height="26px" marginBottom="6px" />
-              <Skeleton width="35%" height="11px" />
-            </div>
-            {/* 本月收入 - 骨架 */}
-            <div className="stat-card">
-              <div className="stat-header">
-                <div className="stat-icon inc" style={{ opacity: 0.6 }} />
-              </div>
-              <Skeleton width="50%" height="12px" marginBottom="10px" />
-              <Skeleton width="70%" height="26px" marginBottom="6px" />
-              <Skeleton width="30%" height="11px" />
-            </div>
-            {/* 本月支出 - 骨架 */}
-            <div className="stat-card">
-              <div className="stat-header">
-                <div className="stat-icon exp" style={{ opacity: 0.6 }} />
-              </div>
-              <Skeleton width="50%" height="12px" marginBottom="10px" />
-              <Skeleton width="70%" height="26px" marginBottom="6px" />
-              <Skeleton width="30%" height="11px" />
-            </div>
+            <StatCard
+              label={<Skeleton width="50%" height="12px" marginBottom="6px" />}
+              value={<Skeleton width="70%" height="22px" marginBottom="8px" />}
+              sub={<Skeleton width="35%" height="12px" />}
+              variant="hero"
+            />
+            <StatCard
+              icon={<Skeleton width="36px" height="36px" borderRadius="10px" />}
+              label={<Skeleton width="50%" height="12px" marginBottom="6px" />}
+              value={<Skeleton width="70%" height="22px" marginBottom="8px" />}
+              sub={<Skeleton width="30%" height="12px" />}
+              variant="income"
+            />
+            <StatCard
+              icon={<Skeleton width="36px" height="36px" borderRadius="10px" />}
+              label={<Skeleton width="50%" height="12px" marginBottom="6px" />}
+              value={<Skeleton width="70%" height="22px" marginBottom="8px" />}
+              sub={<Skeleton width="30%" height="12px" />}
+              variant="expense"
+            />
           </>
         ) : (
           <>
-            {/* 本月结余 - Hero卡片 */}
-            <div className="stat-card hero">
-              <div className="stat-label">本月结余</div>
-              <div className="stat-value">{formatAmount(summary?.balance || 0)}</div>
-              <div className="stat-sub">共 {recentTransactions.length} 笔</div>
-            </div>
-            {/* 本月收入 */}
-            <div className="stat-card">
-              <div className="stat-header">
-                <div className="stat-icon inc">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                    <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
-                  </svg>
-                </div>
-              </div>
-              <div className="stat-label">本月收入</div>
-              <div className="stat-value">{formatAmount(summary?.totalIncome || 0)}</div>
-              <div className="stat-sub">{summary?.incomeCount || 0} 笔</div>
-            </div>
-            {/* 本月支出 */}
-            <div className="stat-card">
-              <div className="stat-header">
-                <div className="stat-icon exp">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                    <polyline points="23 18 13.5 8.5 8.5 13.5 1 6" />
-                  </svg>
-                </div>
-              </div>
-              <div className="stat-label">本月支出</div>
-              <div className="stat-value">{formatAmount(summary?.totalExpense || 0)}</div>
-              <div className="stat-sub">{summary?.expenseCount || 0} 笔</div>
-            </div>
+            <StatCard
+              label="本月结余"
+              value={formatAmount(summary?.balance || 0)}
+              sub={`共 ${recentTransactions.length} 笔`}
+              variant="hero"
+            />
+            <StatCard
+              icon={
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                  <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
+                </svg>
+              }
+              label="本月收入"
+              value={formatAmount(summary?.totalIncome || 0)}
+              sub={`${summary?.incomeCount || 0} 笔`}
+              variant="income"
+            />
+            <StatCard
+              icon={
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                  <polyline points="23 18 13.5 8.5 8.5 13.5 1 6" />
+                </svg>
+              }
+              label="本月支出"
+              value={formatAmount(summary?.totalExpense || 0)}
+              sub={`${summary?.expenseCount || 0} 笔`}
+              variant="expense"
+            />
           </>
         )}
       </div>
@@ -112,16 +110,30 @@ const Dashboard: React.FC = () => {
       {/* 第一行：最近交易 + 预算进度 */}
       <div className="dash-grid">
         {/* 左侧 - 最近交易 */}
-        <div className="dash-card">
-          <div className="card-header">
-            <h3>最近交易</h3>
-            <span className="card-action" onClick={() => navigate('/transactions')}>查看全部→</span>
-          </div>
+        <Card>
+          <CardHeader
+            title={recentLoading ? <Skeleton width="70px" height="14px" /> : "最近交易"}
+            action={
+              recentLoading ? (
+                <Skeleton width="60px" height="12px" />
+              ) : (
+                <span
+                  className="card-action"
+                  onClick={() => navigate('/transactions')}
+                  style={{ cursor: 'pointer' }}
+                >
+                  查看全部→
+                </span>
+              )
+            }
+          />
           {recentLoading ? (
             <div className="txn-list">
               {[0, 1, 2].map((i) => (
                 <div key={i} className="txn-row" style={{ cursor: 'default' }}>
-                  <div className="txn-icon" style={{ opacity: 0.4 }} />
+                  <div className="txn-icon">
+                    <Skeleton width="100%" height="100%" borderRadius="8px" />
+                  </div>
                   <div className="txn-info">
                     <Skeleton width="55%" height="13px" marginBottom="4px" />
                     <Skeleton width="35%" height="11px" />
@@ -131,23 +143,30 @@ const Dashboard: React.FC = () => {
               ))}
             </div>
           ) : recentTransactions.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '40px', color: 'var(--fg3)' }}>
-              <p>暂无交易记录</p>
-              <button className="btn btn-primary" onClick={() => navigate('/add?type=expense')} style={{ marginTop: '16px' }}>
-                添加第一笔交易
-              </button>
-            </div>
+            <EmptyState
+              icon="📭"
+              title="暂无交易记录"
+              action={
+                <Button
+                  variant="primary"
+                  onClick={() => navigate('/add?type=expense')}
+                >
+                  添加第一笔交易
+                </Button>
+              }
+            />
           ) : (
             <div className="txn-list">
               {recentTransactions.map((txn) => (
-                <div key={txn.id} className="txn-row" onClick={() => navigate(`/transactions?focus=${txn.id}`)}>
-                  <div className="txn-icon">
-                    {getCategoryIcon(txn.category)}
-                  </div>
+                <div
+                  key={txn.id}
+                  className="txn-row"
+                  onClick={() => navigate(`/transactions?focus=${txn.id}`)}
+                >
+                  <div className="txn-icon">{getCategoryIcon(txn.category)}</div>
                   <div className="txn-info">
-                    <div className="txn-title">{txn.description || getCategoryName(txn.category)}</div>
+                    <div className="txn-title">{txn.description || '交易'}</div>
                     <div className="txn-meta">
-                      <span>{getCategoryName(txn.category)}</span>
                       <span>{format(new Date(txn.date), 'MM-dd')}</span>
                     </div>
                   </div>
@@ -159,36 +178,52 @@ const Dashboard: React.FC = () => {
               ))}
             </div>
           )}
-        </div>
+        </Card>
 
         {/* 右侧 - 预算进度 */}
         {budgetLoading ? (
-          <div className="dash-card">
-            <div className="card-header">
-              <Skeleton width="30%" height="14px" />
-              <Skeleton width="18%" height="12px" />
-            </div>
+          <Card>
+            <CardHeader
+              title={<Skeleton width="70px" height="14px" />}
+              action={<Skeleton width="50px" height="12px" />}
+            />
             {[0, 1, 2].map((i) => (
-              <div key={i} style={{ marginBottom: '12px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
-                  <Skeleton width="30%" height="12px" />
-                  <Skeleton width="20%" height="12px" />
+              <div key={i} className="budget-item" style={{ pointerEvents: 'none' }}>
+                <div className="budget-info">
+                  <Skeleton width="30%" height="13px" />
+                  <Skeleton width="25%" height="12px" />
                 </div>
-                <Skeleton width="100%" height="4px" borderRadius="2px" />
+                <div className="budget-bar">
+                  <Skeleton width={[60, 85, 45][i] + '%'} height="5px" borderRadius="3px" />
+                </div>
+                <Skeleton width="20%" height="11px" />
               </div>
             ))}
-          </div>
+          </Card>
         ) : hasBudget ? (
-          <div className="dash-card">
-            <div className="card-header">
-              <h3>预算进度</h3>
-              <span className="card-action" onClick={() => navigate('/budgets')}>管理→</span>
-            </div>
-            {/* 分类预算 */}
+          <Card>
+            <CardHeader
+              title="预算进度"
+              action={
+                <span
+                  className="card-action"
+                  onClick={() => navigate('/budgets')}
+                  style={{ cursor: 'pointer' }}
+                >
+                  管理→
+                </span>
+              }
+            />
             {budgetStatus.categories.slice(0, 4).map((cat) => (
-              <div key={cat.category_id} className="budget-item" onClick={() => navigate(`/budgets?focus=${cat.category_id}`)} style={{ cursor: 'pointer' }}>
+              <div
+                key={cat.category_id}
+                className="budget-item"
+                onClick={() => navigate(`/budgets?focus=${cat.category_id}`)}
+              >
                 <div className="budget-info">
-                  <span className="budget-name">{cat.category_icon} {cat.category_name}</span>
+                  <span className="budget-name">
+                    {cat.category_icon} {cat.category_name}
+                  </span>
                   <span className="budget-amount">
                     ¥{cat.spent.toLocaleString('zh-CN')} / ¥{cat.budget.toLocaleString('zh-CN')}
                   </span>
@@ -199,14 +234,25 @@ const Dashboard: React.FC = () => {
                     style={{ width: `${Math.min(cat.progress, 105)}%` }}
                   />
                 </div>
-                <div className="budget-percent">{cat.progress}% {cat.progress >= 100 ? '超支!' : ''}</div>
+                <div className="budget-percent">
+                  {cat.progress}% {cat.progress >= 100 ? '超支!' : ''}
+                </div>
               </div>
             ))}
-          </div>
+          </Card>
         ) : (
-          <div className="dash-card" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--fg3)', fontSize: '13px' }}>
-            暂无预算设置
-          </div>
+          <Card>
+            <EmptyState
+              icon="📊"
+              title="暂无预算设置"
+              description="设置预算可以更好地控制支出"
+              action={
+                <Button variant="primary" onClick={() => navigate('/budgets')}>
+                  去设置
+                </Button>
+              }
+            />
+          </Card>
         )}
       </div>
 
@@ -215,7 +261,8 @@ const Dashboard: React.FC = () => {
         <div className="quick-action" onClick={() => navigate('/add')}>
           <div className="qa-icon add">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
+              <line x1="12" y1="5" x2="12" y2="19" />
+              <line x1="5" y1="12" x2="19" y2="12" />
             </svg>
           </div>
           <div className="qa-info">
@@ -226,7 +273,9 @@ const Dashboard: React.FC = () => {
         <div className="quick-action" onClick={() => navigate('/reports')}>
           <div className="qa-icon report">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M18 20V10" /><path d="M12 20V4" /><path d="M6 20v-6" />
+              <path d="M18 20V10" />
+              <path d="M12 20V4" />
+              <path d="M6 20v-6" />
             </svg>
           </div>
           <div className="qa-info">

@@ -1,4 +1,4 @@
-/* ═══ DropdownSelect — 下拉选择组件 ═══ */
+/* ═══ DropdownSelect —— 通用下拉选择组件样式 ═══ */
 
 .dd-select {
   position: relative;
@@ -25,6 +25,7 @@
   font-family: inherit;
   font-size: inherit;
   line-height: 1;
+  width: 100%;
 }
 
 .dd-select__btn:hover {
@@ -52,6 +53,10 @@
 .dd-select__value {
   font-weight: 600;
   color: var(--fg);
+  flex: 1;
+  text-align: left;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .dd-select__clear {
@@ -83,13 +88,12 @@
   transform: rotate(180deg);
 }
 
-/* ── Panel ── */
+/* panel */
 .dd-select__panel {
   position: absolute;
   top: calc(100% + 6px);
-  left: 0;
   min-width: 140px;
-  max-width: 240px;
+  max-width: 260px;
   max-height: 320px;
   overflow-y: auto;
   background: var(--srf);
@@ -101,9 +105,17 @@
   animation: ddFadeIn var(--df) ease;
 }
 
+.dd-select__panel--left {
+  left: 0;
+}
+
+.dd-select__panel--right {
+  right: 0;
+}
+
 @keyframes ddFadeIn {
   from { opacity: 0; transform: translateY(-4px); }
-  to   { opacity: 1; transform: translateY(0); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .dd-select__item {
@@ -150,9 +162,4 @@
   flex: 1;
   overflow: hidden;
   text-overflow: ellipsis;
-}
-
-/* Dark mode */
-[data-theme="dark"] .dd-select__item-icon {
-  color: var(--fg2);
 }

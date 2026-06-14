@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import { notify } from '../../../utils/notifications'
+import { Link } from 'react-router-dom'
 import { resetPasswordByCode, sendResetCode } from '../../../services/api'
 import { useDebouncedAction } from '../../../hooks/useDebouncedAction'
 import AuthLayout from '../../../components/AuthLayout'
@@ -15,7 +14,6 @@ const ForgotPassword: React.FC = () => {
   const [countdown, setCountdown] = useState(0)
   const [message, setMessage] = useState('')
   const [messageType, setMessageType] = useState<'success' | 'error'>('success')
-  const navigate = useNavigate()
 
   // 倒计时
   useEffect(() => {

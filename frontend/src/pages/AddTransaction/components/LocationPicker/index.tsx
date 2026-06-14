@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
-import { Button } from '../../../../components/ui/button';
+import { Button } from '../../../../components/ui/Button';
 import type { LocationResult } from '../../../../types/map';
 import { useMapInstance } from '../../../../hooks/useMapInstance';
 import { AmapManager } from '../../../../services/amapManager';

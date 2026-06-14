@@ -1,0 +1,62 @@
+/* ═══ SegControl —— 通用分段控制器样式 ═══ */
+
+.seg-control {
+  display: inline-flex;
+  background: var(--bg);
+  border: 1px solid var(--bd);
+  border-radius: var(--rs);
+  padding: 3px;
+  gap: 2px;
+}
+
+.seg-control--sm {
+  padding: 2px;
+}
+
+.seg-control--pill {
+  border-radius: 999px;
+  padding: 3px;
+}
+
+.seg-opt {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: none;
+  background: transparent;
+  padding: 6px 14px;
+  border-radius: calc(var(--rs) - 3px);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--fg2);
+  cursor: pointer;
+  transition: all var(--df) ease;
+  white-space: nowrap;
+}
+
+.seg-control--sm .seg-opt {
+  padding: 4px 10px;
+  font-size: 12px;
+}
+
+.seg-opt:hover {
+  color: var(--fg);
+  background: var(--srf);
+}
+
+.seg-opt.active {
+  background: var(--pr);
+  color: #fff;
+}
+
+.seg-opt.active:hover {
+  background: var(--prH);
+}
+
+.seg-opt__icon {
+  display: inline-flex;
+  align-items: center;
+  font-size: 13px;
+  line-height: 1;
+}

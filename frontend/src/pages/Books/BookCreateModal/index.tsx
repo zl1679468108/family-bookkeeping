@@ -3,6 +3,10 @@ import { useMutation } from '@tanstack/react-query';
 import { createBook, updateBook } from '../../../services/booksApi';
 import { BOOK_ICONS, getBookIconByKey } from '../../../utils/bookIcons';
 import { notify } from '../../../utils/notifications';
+import { Modal, ModalFooter } from '../../../components/ui/Modal';
+import { Input } from '../../../components/ui/Input';
+import { Textarea } from '../../../components/ui/Textarea';
+import { IconGrid } from '../../../components/ui/IconGrid';
 import './index.scss';
 
 interface BookCreateModalProps {
@@ -43,10 +47,7 @@ export const BookCreateModal: React.FC<BookCreateModalProps> = ({ open, onClose,
     },
   });
 
-  if (!open) return null;
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = () => {
     if (!bookName.trim()) {
       notify({ type: 'error', message: '请输入名称' });
       return;
@@ -54,75 +55,54 @@ export const BookCreateModal: React.FC<BookCreateModalProps> = ({ open, onClose,
     mutation.mutate();
   };
 
+  const iconOptions = BOOK_ICONS.map((item) => ({
+    value: item.key,
+    icon: getBookIconByKey(item.key),
+    label: item.label,
+  }));
+
   return (
-    <div className="book-modal-overlay" onClick={onClose}>
-      <div className="book-modal-dialog" onClick={(e) => e.stopPropagation()}>
-        <div className="book-modal-dialog__header">
-          <h3 className="book-modal-dialog__title">{isEdit ? '编辑账本' : '创建账本'}</h3>
-          <button className="book-modal-dialog__close" onClick={onClose}>✕</button>
+    <Modal
+      open={open}
+      onClose={onClose}
+      title={isEdit ? '编辑账本' : '创建账本'}
+      width={520}
+      footer={
+        <ModalFooter
+          onCancel={onClose}
+          onConfirm={handleSubmit}
+          confirmText={mutation.isPending ? '处理中...' : (isEdit ? '保存' : '创建账本')}
+          confirmLoading={mutation.isPending}
+          confirmDisabled={!bookName.trim()}
+        />
+      }
+    >
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+        <Input
+          label="账本名称"
+          type="text"
+          value={bookName}
+          onChange={(e) => setBookName(e.target.value)}
+          placeholder="如：家庭账本"
+          maxLength={50}
+          autoFocus
+        />
+
+        <Textarea
+          label="描述（可选）"
+          value={bookDesc}
+          onChange={(e) => setBookDesc(e.target.value)}
+          placeholder="简单介绍一下这个账本"
+          maxLength={200}
+          rows={3}
+        />
+
+        <div>
+          <label className="ui-input-label" style={{ display: 'block', marginBottom: '6px' }}>图标</label>
+          <IconGrid options={iconOptions} value={bookIconKey} onChange={setBookIconKey} columns={5} />
         </div>
-
-        <form onSubmit={handleSubmit}>
-          <div className="book-modal-dialog__body">
-            {/* 账本名称 */}
-            <div className="book-modal-field">
-              <label className="book-modal-field__label">账本名称</label>
-              <input
-                type="text"
-                className="book-modal-field__input"
-                value={bookName}
-                onChange={(e) => setBookName(e.target.value)}
-                placeholder="如：家庭账本"
-                maxLength={50}
-                autoFocus
-              />
-            </div>
-
-            {/* 描述 */}
-            <div className="book-modal-field">
-              <label className="book-modal-field__label">描述（可选）</label>
-              <input
-                type="text"
-                className="book-modal-field__input"
-                value={bookDesc}
-                onChange={(e) => setBookDesc(e.target.value)}
-                placeholder="简单介绍一下这个账本"
-                maxLength={200}
-              />
-            </div>
-
-            {/* 图标选择 */}
-            <div className="book-modal-field">
-              <label className="book-modal-field__label">图标</label>
-              <div className="book-modal-icon-grid">
-                {BOOK_ICONS.map((item) => (
-                  <button
-                    key={item.key}
-                    type="button"
-                    className={`book-modal-icon-btn ${bookIconKey === item.key ? 'is-active' : ''}`}
-                    onClick={() => setBookIconKey(item.key)}
-                  >
-                    <span className="book-modal-icon-btn__icon">{getBookIconByKey(item.key)}</span>
-                    <span className="book-modal-icon-btn__label">{item.label}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          <div className="book-modal-dialog__footer">
-            <button type="button" className="book-modal-btn book-modal-btn--secondary" onClick={onClose}>取消</button>
-            <button
-              type="submit"
-              className="book-modal-btn book-modal-btn--primary"
-              disabled={mutation.isPending || !bookName.trim()}
-            >
-              {mutation.isPending ? '处理中...' : (isEdit ? '保存' : '创建账本')}
-            </button>
-          </div>
-        </form>
       </div>
-    </div>
+    </Modal>
   );
 };
 
