@@ -26,7 +26,7 @@ export const LocationDisplay: React.FC<LocationDisplayProps> = ({
     if (showButton && onClick) {
       return (
         <button className="loc-display-btn" onClick={onClick}>
-          📍 选择地点
+          选择地点
         </button>
       )
     }
@@ -38,32 +38,33 @@ export const LocationDisplay: React.FC<LocationDisplayProps> = ({
 
   return (
     <div className="loc-display">
-      <div className="loc-display-header" onClick={onClick}>
-        <span className="loc-display-icon">📍</span>
-        <span className="loc-display-name">{locationName}</span>
-      </div>
-      {(latitude || longitude) && (
-        <div className="loc-display-coords">
-          {lat}, {lng}
-        </div>
-      )}
-      {poiId && (
-        <div className="loc-display-poi">
-          商户ID: {poiId}
-        </div>
-      )}
-      <div className="loc-display-actions">
-        {onClick && (
-          <span className="loc-display-edit" onClick={onClick}>
-            · 点击修改
-          </span>
+      <div className="loc-display-name">{locationName}</div>
+      <div className="loc-display-body">
+        {(latitude || longitude) && (
+          <div className="loc-display-coords">
+            {lat}, {lng}
+          </div>
         )}
-        {onClear && (
-          <button className="loc-display-clear" onClick={onClear}>
-            ✕
-          </button>
+        {poiId && (
+          <div className="loc-display-poi">
+            商户ID: {poiId}
+          </div>
         )}
       </div>
+      {(onClick || onClear) && (
+        <div className="loc-display-footer">
+          {onClick && (
+            <span className="loc-display-edit" onClick={onClick}>
+              点击修改
+            </span>
+          )}
+          {onClear && (
+            <span className="loc-display-clear" onClick={onClear}>
+              关闭
+            </span>
+          )}
+        </div>
+      )}
     </div>
   )
 }

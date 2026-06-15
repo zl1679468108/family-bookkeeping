@@ -15,6 +15,7 @@ interface TextareaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
   showCount?: boolean
   autoResize?: boolean
   wrapperClassName?: string
+  required?: boolean
 }
 
 export const Textarea: React.FC<TextareaProps> = ({
@@ -29,6 +30,7 @@ export const Textarea: React.FC<TextareaProps> = ({
   value,
   defaultValue,
   onChange,
+  required,
   ...props
 }) => {
   const textareaId = id || `textarea-${Math.random().toString(36).substr(2, 9)}`
@@ -68,7 +70,7 @@ export const Textarea: React.FC<TextareaProps> = ({
   return (
     <div className={`ui-textarea-wrap ${wrapperClassName}`.trim()}>
       {label && (
-        <label htmlFor={textareaId} className="ui-input-label">
+        <label htmlFor={textareaId} className={`ui-input-label${required ? ' field-required' : ''}`}>
           {label}
         </label>
       )}

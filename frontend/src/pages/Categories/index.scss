@@ -110,4 +110,79 @@
     gap: 10px;
     align-items: center;
   }
+
+  .detail-content-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 0;
+  }
+
+  .detail-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: var(--bg);
+    font-size: 24px;
+    flex-shrink: 0;
+  }
+
+  .detail-content {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .detail-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--fg);
+    margin-bottom: 8px;
+  }
+
+  .detail-tags {
+    display: flex;
+    gap: 8px;
+  }
+
+  .detail-tag {
+    padding: 3px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+
+    &.type-expense {
+      background: #fee2e2;
+      color: #dc2626;
+    }
+
+    &.type-income {
+      background: #d1fae5;
+      color: #059669;
+    }
+
+    &.tag-default {
+      background: var(--bg);
+      color: var(--fg3);
+    }
+
+    &.tag-custom {
+      background: var(--prBg);
+      color: var(--pr);
+    }
+  }
+
+  .detail-divider {
+    height: 1px;
+    background: var(--bd);
+    margin: 16px 0;
+  }
+
+  .detail-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
 }

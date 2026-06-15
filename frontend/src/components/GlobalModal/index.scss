@@ -1,0 +1,305 @@
+/* ═══ Global Modal —— 统一弹窗组件样式 ═══ */
+
+/* 基础遮罩样式 */
+.global-modal-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: modalFadeIn var(--df) ease;
+  padding: 20px;
+}
+
+/* 确认对话框遮罩 */
+.global-modal-overlay--confirm {
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(2px);
+}
+
+/* 详情弹窗遮罩 */
+.global-modal-overlay--detail {
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+}
+
+/* 通用弹窗遮罩 */
+.global-modal-overlay--modal {
+  background: rgba(0, 0, 0, 0.5);
+}
+
+/* 基础对话框样式 */
+.global-modal-dialog {
+  background: var(--srf);
+  border-radius: var(--rm);
+  box-shadow: var(--sh3);
+  overflow: hidden;
+  animation: modalSlideIn var(--df) ease;
+  max-height: calc(100vh - 40px);
+  display: flex;
+  flex-direction: column;
+}
+
+/* 确认对话框 */
+.global-modal-dialog--confirm {
+  margin: 0 16px;
+  width: 100%;
+  max-width: 380px;
+  padding: 24px;
+  border: 1px solid var(--bd);
+  animation: confirmSlideUp 0.2s ease;
+}
+
+/* 详情对话框 */
+.global-modal-dialog--detail {
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: slideUp 0.3s ease;
+}
+
+/* 通用对话框 */
+.global-modal-dialog--modal {
+  /* 默认样式 */
+}
+
+/* 对话框头部 */
+.global-modal-dialog__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid var(--bd);
+  gap: 16px;
+
+  &__header-text {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  &__title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--fg);
+    margin: 0;
+  }
+
+  &__desc {
+    font-size: 12px;
+    color: var(--fg3);
+  }
+
+  &__close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    background: transparent;
+    border: none;
+    border-radius: 6px;
+    color: var(--fg3);
+    cursor: pointer;
+    font-size: 14px;
+    transition: color var(--df) ease, background var(--df) ease;
+    flex-shrink: 0;
+
+    &:hover {
+      color: var(--fg);
+      background: var(--srfH);
+    }
+  }
+}
+
+/* 确认对话框标题 */
+.global-modal-dialog--confirm .global-modal-dialog__title {
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--fg);
+  margin: 0 0 8px 0;
+}
+
+/* 确认对话框消息 */
+.global-modal-dialog__message {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--fg2);
+  margin: 0;
+}
+
+/* 对话框内容体 */
+.global-modal-dialog__body {
+  padding: 24px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+/* 对话框底部 */
+.global-modal-dialog__footer {
+  padding: 16px 24px;
+  border-top: 1px solid var(--bd);
+  background: var(--bg);
+
+  &-inner {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+  }
+}
+
+/* 对话框操作按钮区域 */
+.global-modal-dialog__actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+/* 对话框按钮 */
+.global-modal-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 36px;
+  padding: 0 20px;
+  border-radius: var(--rs);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--df) ease;
+  border: 1px solid transparent;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  &--primary {
+    background: var(--pr);
+    color: #fff;
+    border-color: var(--pr);
+
+    &:hover:not(:disabled) {
+      background: var(--prH);
+      border-color: var(--prH);
+    }
+  }
+
+  &--secondary {
+    background: var(--srf);
+    color: var(--fg);
+    border-color: var(--bd);
+
+    &:hover:not(:disabled) {
+      background: var(--srfH);
+      border-color: var(--bdH);
+    }
+  }
+
+  &--danger {
+    background: var(--exp);
+    color: #fff;
+    border-color: var(--exp);
+
+    &:hover:not(:disabled) {
+      opacity: 0.9;
+    }
+  }
+
+  /* 确认对话框按钮 */
+  &--cancel {
+    flex: 1;
+    padding: 10px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    border-radius: var(--rs);
+    cursor: pointer;
+    transition: background 0.15s ease, opacity 0.15s ease;
+    font-family: inherit;
+    border: 1px solid var(--bd);
+    background: var(--srf);
+    color: var(--fg);
+
+    &:hover:not(:disabled) {
+      background: var(--srfH);
+    }
+  }
+
+  &--confirm {
+    flex: 1;
+    padding: 10px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    border-radius: var(--rs);
+    cursor: pointer;
+    transition: background 0.15s ease, opacity 0.15s ease;
+    font-family: inherit;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    color: #fff;
+
+    &.danger {
+      background: var(--exp);
+
+      &:hover:not(:disabled) {
+        opacity: 0.9;
+      }
+    }
+
+    &.primary {
+      background: var(--pr);
+
+      &:hover:not(:disabled) {
+        opacity: 0.9;
+      }
+    }
+  }
+}
+
+/* 加载动画 */
+.global-modal-dialog__spinner {
+  width: 16px;
+  height: 16px;
+  animation: spin 0.8s linear infinite;
+}
+
+/* 动画关键帧 */
+@keyframes modalFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes modalSlideIn {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes confirmSlideUp {
+  from {
+    transform: translateY(10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}

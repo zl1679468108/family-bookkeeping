@@ -47,9 +47,8 @@ export function useMapInstance(
   // ---- SDK readiness ----
   const [sdkReady, setSdkReady] = useState(manager.isLoaded);
 
-  // ---- Parent DOM element (React-managed wrapper div) ----
-  const parentElRef = useRef<HTMLDivElement | null>(null);
-  const parentElSetRef = useRef(false);
+  ///* ---- Parent DOM element (React-managed wrapper div) ---- */
+  const [parentEl, setParentEl] = useState<HTMLDivElement | null>(null);
 
   // ---- Map instance ----
   const [map, setMap] = useState<any>(null);
@@ -74,13 +73,12 @@ export function useMapInstance(
 
   /* ---- Acquire / release ---- */
   useEffect(() => {
-    if (!active || !sdkReady || !parentElRef.current) return;
+    if (!active || !sdkReady || !parentEl) return;
 
-    const el = parentElRef.current;
     let cancelled = false;
 
     manager
-      .acquire(id, el, resolvedOptions)
+      .acquire(id, parentEl, resolvedOptions)
       .then((m: any) => {
         if (cancelled) {
           manager.release(id);
@@ -100,10 +98,10 @@ export function useMapInstance(
                 m.resize();
               }
             }, 300);
-            (el as any).__amapResizeTimer = resizeTimer;
+            (parentEl as any).__amapResizeTimer = resizeTimer;
           });
-          ro.observe(el);
-          (el as any).__amapResizeObserver = ro;
+          ro.observe(parentEl);
+          (parentEl as any).__amapResizeObserver = ro;
         }
       })
       .catch((err: any) => {
@@ -112,13 +110,13 @@ export function useMapInstance(
 
     return () => {
       cancelled = true;
-      if (el && (el as any).__amapResizeObserver) {
-        (el as any).__amapResizeObserver.disconnect();
-        delete (el as any).__amapResizeObserver;
+      if (parentEl && (parentEl as any).__amapResizeObserver) {
+        (parentEl as any).__amapResizeObserver.disconnect();
+        delete (parentEl as any).__amapResizeObserver;
       }
-      if (el && (el as any).__amapResizeTimer) {
-        clearTimeout((el as any).__amapResizeTimer);
-        delete (el as any).__amapResizeTimer;
+      if (parentEl && (parentEl as any).__amapResizeTimer) {
+        clearTimeout((parentEl as any).__amapResizeTimer);
+        delete (parentEl as any).__amapResizeTimer;
       }
       if (acquiredRef.current) {
         manager.release(id);
@@ -127,19 +125,12 @@ export function useMapInstance(
         setReady(false);
       }
     };
-  }, [id, active, sdkReady, resolvedOptions, manager]);
+  }, [id, active, sdkReady, resolvedOptions, manager, parentEl]);
 
   /* ---- Callback ref for the React wrapper div ---- */
   const mapContainerRef: React.RefCallback<HTMLDivElement> = useCallback(
     (el: HTMLDivElement | null) => {
-      if (el && !parentElSetRef.current) {
-        parentElRef.current = el;
-        parentElSetRef.current = true;
-      }
-      if (!el && parentElSetRef.current) {
-        parentElRef.current = null;
-        parentElSetRef.current = false;
-      }
+      setParentEl(el);
     },
     [],
   );

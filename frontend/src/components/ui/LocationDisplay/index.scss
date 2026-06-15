@@ -1,91 +1,90 @@
 .loc-display {
-  padding: 9px 12px;
+  padding: 12px 14px;
   border: 1px solid var(--inc);
   border-radius: var(--rm);
   background: var(--incBg);
-  color: var(--inc);
-  font-size: 12px;
-  cursor: pointer;
-  transition: all var(--df);
   font-family: var(--fn);
 }
 
-.loc-display:hover {
-  background: #E8F8F0;
-}
-
-.loc-display-header {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.loc-display-icon {
-  font-size: 12px;
-}
-
 .loc-display-name {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
+  color: var(--inc);
+  margin-bottom: 6px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.loc-display-body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 8px;
 }
 
 .loc-display-coords {
-  font-size: 10px;
+  font-size: 12px;
   color: var(--fg3);
   font-family: monospace;
-  margin-top: 2px;
 }
 
 .loc-display-poi {
-  font-size: 10px;
+  font-size: 12px;
   color: var(--fg3);
-  margin-top: 2px;
 }
 
-.loc-display-actions {
+.loc-display-footer {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-top: 2px;
+  justify-content: space-between;
+  padding-top: 8px;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
 }
 
 .loc-display-edit {
-  font-size: 10px;
-  color: var(--fg3);
+  font-size: 12px;
+  color: var(--fg2);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color var(--df);
+
+  &:hover {
+    color: var(--pr);
+  }
 }
 
 .loc-display-clear {
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  color: var(--exp);
   font-size: 12px;
-  padding: 0;
-  line-height: 1;
+  color: var(--exp);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color var(--df);
 
   &:hover {
-    opacity: 0.8;
+    color: #c54a40;
   }
 }
 
 .loc-display-btn {
   width: 100%;
-  padding: 9px 12px;
+  padding: 10px 14px;
   border: 1px dashed var(--info);
   border-radius: var(--rm);
   background: var(--infoBg);
   color: var(--info);
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 8px;
   transition: all var(--df);
   font-family: var(--fn);
 
   &:hover {
     background: #D8E8F7;
+    border-style: solid;
   }
 }

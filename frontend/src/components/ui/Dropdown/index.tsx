@@ -28,6 +28,7 @@ interface DropdownSelectProps {
   allowClear?: boolean
   width?: string | number
   align?: 'left' | 'right'
+  required?: boolean
 }
 
 export const DropdownSelect: React.FC<DropdownSelectProps> = ({
@@ -40,6 +41,7 @@ export const DropdownSelect: React.FC<DropdownSelectProps> = ({
   allowClear = true,
   width,
   align = 'left',
+  required,
 }) => {
   const [open, setOpen] = useState(false)
   const [internalValue, setInternalValue] = useState<string | null>(value ?? null)
@@ -89,7 +91,7 @@ export const DropdownSelect: React.FC<DropdownSelectProps> = ({
         className="dd-select__btn"
         onClick={() => setOpen((v) => !v)}
       >
-        {label && <span className="dd-select__label">{label}</span>}
+        {label && <span className={`dd-select__label${required ? ' field-required' : ''}`}>{label}</span>}
         {currentOption?.icon && <span className="dd-select__icon">{currentOption.icon}</span>}
         <span className="dd-select__value">{currentOption ? currentOption.label : placeholder}</span>
         {allowClear && hasValue && (

@@ -88,7 +88,7 @@ const PasswordModal: React.FC<PasswordModalProps> = ({ visible, onClose }) => {
         <h3 className="modal-title">修改密码</h3>
         <form onSubmit={(e) => { e.preventDefault(); handleSubmit() }} className="modal-form">
           <div className="form-group">
-            <label className="form-label">当前密码</label>
+            <label className="form-label field-required">当前密码</label>
             <div className="password-wrapper">
               <input
                 type={showOld ? 'text' : 'password'}
@@ -110,7 +110,7 @@ const PasswordModal: React.FC<PasswordModalProps> = ({ visible, onClose }) => {
           </div>
 
           <div className="form-group">
-            <label className="form-label">新密码</label>
+            <label className="form-label field-required">新密码</label>
             <div className="password-wrapper">
               <input
                 type={showNew ? 'text' : 'password'}
@@ -132,7 +132,7 @@ const PasswordModal: React.FC<PasswordModalProps> = ({ visible, onClose }) => {
           </div>
 
           <div className="form-group">
-            <label className="form-label">确认新密码</label>
+            <label className="form-label field-required">确认新密码</label>
             <div className="password-wrapper">
               <input
                 type={showConfirm ? 'text' : 'password'}
@@ -303,7 +303,7 @@ const ProfilePage: React.FC = () => {
           <div className="profile-info">
             <form className="profile-form" onSubmit={(e) => { e.preventDefault(); handleSubmit() }}>
               <div className="form-group">
-                <label className="form-label">用户名</label>
+                <label className="form-label field-required">用户名</label>
                 <input
                   type="text"
                   className="form-input"
@@ -315,7 +315,7 @@ const ProfilePage: React.FC = () => {
               </div>
 
               <div className="form-group">
-                <label className="form-label">邮箱</label>
+                <label className="form-label field-required">邮箱</label>
                 <input
                   type="email"
                   className="form-input"

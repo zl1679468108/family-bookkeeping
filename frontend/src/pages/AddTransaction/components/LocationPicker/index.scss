@@ -1,70 +1,24 @@
-/* 遮罩层 */
-.location-picker-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.5);
-  z-index: var(--z-modal);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  backdrop-filter: blur(2px);
+/* LocationPicker 使用 GlobalModal 适配样式 */
+
+.location-picker-modal.global-modal-dialog {
+  height: 600px !important;
 }
 
-.location-picker-overlay.hidden {
-  visibility: hidden;
-  pointer-events: none;
-}
-
-/* 弹窗容器 */
-.location-picker-modal {
-  background: var(--surface);
-  border-radius: 12px;
-  width: 90vw;
-  max-width: 720px;
-  height: 80vh;
-  max-height: 640px;
+.location-picker-modal .location-picker-body {
+  padding: 0;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  height: 480px;
   overflow: hidden;
-}
-
-/* 头部 */
-.location-picker-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px 20px;
-  border-bottom: 1px solid var(--border);
-}
-
-.location-picker-header h3 {
-  margin: 0;
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--fg);
-}
-
-.location-picker-close {
-  background: none;
-  border: none;
-  font-size: 20px;
-  cursor: pointer;
-  color: var(--muted);
-  padding: 4px;
-  line-height: 1;
-}
-
-.location-picker-close:hover {
-  color: var(--fg);
 }
 
 /* 搜索栏 */
 .location-picker-search {
   display: flex;
   gap: 8px;
-  padding: 12px 20px;
+  padding: 12px 16px;
   border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
 }
 
 .location-search-input {
@@ -88,20 +42,22 @@
 }
 
 .location-picker-error {
-  margin: 0 20px;
+  margin: 8px 16px 0;
   padding: 6px 12px;
   background: #fff2f0;
   border: 1px solid #ffccc7;
   border-radius: 6px;
   color: #ff4d4f;
   font-size: 12px;
+  flex-shrink: 0;
 }
 
-/* 地图区域 */
+/* 地图区域 - 必须设固定高度 */
 .location-picker-map {
-  flex: 1;
-  min-height: 300px;
+  height: 350px !important;
+  min-height: 350px !important;
   position: relative;
+  flex-shrink: 0;
 }
 
 /* 选中地址信息 */
@@ -109,9 +65,10 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 12px 20px;
+  padding: 12px 16px;
   background: var(--accent-light, #f0f5ff);
   border-top: 1px solid var(--border);
+  flex-shrink: 0;
 }
 
 .location-picker-info-icon {
@@ -127,42 +84,9 @@
 /* 提示文字 */
 .location-picker-hint {
   text-align: center;
-  padding: 16px;
+  padding: 12px;
   font-size: 13px;
   color: var(--muted);
   border-top: 1px solid var(--border);
-}
-
-/* 底部按钮 */
-.location-picker-footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 20px;
-  border-top: 1px solid var(--border);
-}
-
-.location-picker-actions {
-  display: flex;
-  gap: 8px;
-}
-
-/* 确认按钮 - 更明显的样式 */
-.location-picker-confirm-btn {
-  background: var(--accent) !important;
-  color: #fff !important;
-  border: none !important;
-  font-weight: 600 !important;
-  box-shadow: 0 2px 8px rgba(7, 193, 96, 0.3) !important;
-}
-
-.location-picker-confirm-btn:hover:not(:disabled) {
-  background: var(--accent-hover, #06a850) !important;
-  box-shadow: 0 4px 12px rgba(7, 193, 96, 0.4) !important;
-}
-
-.location-picker-confirm-btn:disabled {
-  opacity: 0.4 !important;
-  cursor: not-allowed !important;
-  box-shadow: none !important;
+  flex-shrink: 0;
 }

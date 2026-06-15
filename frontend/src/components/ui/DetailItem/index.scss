@@ -1,0 +1,21 @@
+.detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  &-label {
+    font-size: 13px;
+    color: var(--fg3);
+  }
+
+  &-value {
+    font-size: 14px;
+    color: var(--fg);
+    font-weight: 500;
+    word-break: break-all;
+  }
+
+  &.full-width {
+    grid-column: 1 / -1;
+  }
+}

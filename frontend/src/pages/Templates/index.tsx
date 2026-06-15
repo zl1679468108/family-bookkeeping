@@ -6,9 +6,7 @@ import { useCategories } from '../../hooks/useCategories'
 import { formatAmount } from '../../utils/common'
 import { notify } from '../../utils/notifications'
 import { Skeleton } from '../../components/ui/Skeleton'
-import { DetailModal } from '../../components/DetailModal'
-import { ConfirmDialog } from '../../components/ConfirmDialog'
-import { Modal, ModalFooter } from '../../components/ui/Modal'
+import { GlobalModal, DetailItem, Space } from '../../components/ui'
 import { CardHeader } from '../../components/ui/Card'
 import { Button } from '../../components/ui/Button'
 import { Input, NumberInput } from '../../components/ui/Input'
@@ -192,16 +190,17 @@ const Templates: React.FC = () => {
                 <div key={i} className="tpl-card" style={{ pointerEvents: 'none' }}>
                   <div className="tpl-header">
                     <div className="tpl-e">
-                      <Skeleton width="16px" height="16px" borderRadius="4px" />
+                      <Skeleton width="24px" height="24px" borderRadius="6px" />
                     </div>
                     <div className="tpl-n">
-                      <Skeleton width="80%" height="13px" />
+                      <Skeleton width="100%" height="14px" />
                     </div>
                   </div>
                   <div className="tpl-content">
                     <div className="tpl-meta">
-                      <Skeleton width="30%" height="11px" />
-                      <Skeleton width="40%" height="11px" />
+                      <Skeleton width="32px" height="18px" borderRadius="6px" />
+                      <Skeleton width="40px" height="12px" />
+                      <Skeleton width="50px" height="12px" />
                     </div>
                   </div>
                 </div>
@@ -261,7 +260,7 @@ const Templates: React.FC = () => {
                     <div className="tpl-meta">
                       <span className={`tpl-type ${t.type}`}>{t.type === 'expense' ? '支出' : '收入'}</span>
                       <span className="tpl-cat">{cat.name}</span>
-                      {t.amount && <span className="tpl-amt">{formatAmount(t.amount)}</span>}
+                      {t.amount && <span className={`tpl-amt tpl-amt-${t.type}`}>{formatAmount(t.amount)}</span>}
                     </div>
                   </div>
                 </div>
@@ -274,15 +273,16 @@ const Templates: React.FC = () => {
 
       {/* 模板详情弹窗 */}
       {selectedTemplate && (
-        <DetailModal
-          visible={showDetail}
+        <GlobalModal
+          type="detail"
+          open={showDetail}
           onClose={() => {
             setShowDetail(false)
             setSelectedTemplate(null)
           }}
           title="模板详情"
           footer={
-            <>
+            <Space size="sm">
               <Button variant="secondary" onClick={() => handleEdit(selectedTemplate)}>
                 编辑
               </Button>
@@ -295,7 +295,7 @@ const Templates: React.FC = () => {
               >
                 删除
               </Button>
-            </>
+            </Space>
           }
         >
           <div className="detail-content-wrapper">
@@ -303,99 +303,78 @@ const Templates: React.FC = () => {
             <div className="detail-content">
               <div className="detail-title">{selectedTemplate.name}</div>
               <div className="detail-subtitle">
-                {selectedTemplate.type === 'expense' ? '支出' : '收入'}
+                <span className={`tpl-tag tpl-tag-type tpl-tag-${selectedTemplate.type}`}>
+                  {selectedTemplate.type === 'expense' ? '支出' : '收入'}
+                </span>
                 {selectedTemplate.amount && (
-                  <span className="detail-amount-inline">
-                    {' '}· ¥{selectedTemplate.amount.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  <span className={`tpl-tag tpl-tag-amount tpl-tag-${selectedTemplate.type}`}>
+                    ¥{selectedTemplate.amount.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </span>
                 )}
-                {' · '}
-                {getCategoryInfo(selectedTemplate.category_id).icon} {getCategoryInfo(selectedTemplate.category_id).name}
+                <span className="tpl-tag tpl-tag-cat">
+                  {getCategoryInfo(selectedTemplate.category_id).name}
+                </span>
               </div>
             </div>
           </div>
           <div className="detail-divider" />
           <div className="detail-grid">
-            {selectedTemplate.note && (
-              <div className="detail-item">
-                <span className="detail-item-label">备注</span>
-                <span className="detail-item-value">{selectedTemplate.note}</span>
-              </div>
-            )}
+            {selectedTemplate.note && <DetailItem label="备注" value={selectedTemplate.note} />}
             {selectedTemplate.latitude && selectedTemplate.longitude && (
-              <div className="detail-item" style={{ gridColumn: '1 / -1' }}>
-                <span className="detail-item-label">位置</span>
-                <span className="detail-item-value">
-                  {selectedTemplate.latitude}, {selectedTemplate.longitude}
-                </span>
-              </div>
+              <DetailItem label="位置" value={`${selectedTemplate.latitude}, ${selectedTemplate.longitude}`} className="full-width" />
             )}
             {selectedTemplate.location_name && (
-              <div className="detail-item" style={{ gridColumn: '1 / -1' }}>
-                <span className="detail-item-label">地址</span>
-                <span className="detail-item-value">{selectedTemplate.location_name}</span>
-              </div>
+              <DetailItem label="地址" value={selectedTemplate.location_name} className="full-width" />
             )}
-            {selectedTemplate.poi_id && (
-              <div className="detail-item">
-                <span className="detail-item-label">商户 ID</span>
-                <span className="detail-item-value">{selectedTemplate.poi_id}</span>
-              </div>
-            )}
+            {selectedTemplate.poi_id && <DetailItem label="商户 ID" value={selectedTemplate.poi_id} />}
             {selectedTemplate.merchant_name && (
-              <div className="detail-item">
-                <span className="detail-item-label">商户名称</span>
-                <span className="detail-item-value merchant-name-truncate" title={selectedTemplate.merchant_name}>
-                  {selectedTemplate.merchant_name}
-                </span>
-              </div>
+              <DetailItem
+                label="商户名称"
+                value={<span className="merchant-name-truncate" title={selectedTemplate.merchant_name}>{selectedTemplate.merchant_name}</span>}
+              />
             )}
-            {selectedTemplate.book_id && (
-              <div className="detail-item">
-                <span className="detail-item-label">账本 ID</span>
-                <span className="detail-item-value">{selectedTemplate.book_id}</span>
-              </div>
-            )}
+            {selectedTemplate.book_id && <DetailItem label="账本 ID" value={selectedTemplate.book_id} />}
             {selectedTemplate.sort_order !== undefined && (
-              <div className="detail-item">
-                <span className="detail-item-label">排序</span>
-                <span className="detail-item-value">第 {selectedTemplate.sort_order + 1} 位</span>
-              </div>
+              <DetailItem label="排序" value={`第 ${selectedTemplate.sort_order + 1} 位`} />
             )}
             {selectedTemplate.created_at && (
-              <div className="detail-item">
-                <span className="detail-item-label">创建时间</span>
-                <span className="detail-item-value">{format(new Date(selectedTemplate.created_at), 'yyyy-MM-dd HH:mm')}</span>
-              </div>
+              <DetailItem label="创建时间" value={format(new Date(selectedTemplate.created_at), 'yyyy-MM-dd HH:mm')} />
             )}
           </div>
-        </DetailModal>
+        </GlobalModal>
       )}
 
       {/* 删除确认对话框 */}
-      <ConfirmDialog
+      <GlobalModal
+        type="confirm"
         open={showDeleteConfirm}
         title="确认删除"
-        message="确定要删除这个模板吗？"
+        children="确定要删除这个模板吗？"
         onConfirm={handleDeleteTemplate}
-        onCancel={() => {
+        onClose={() => {
           setShowDeleteConfirm(false)
         }}
         loading={deleteLoading}
+        confirmText="确认删除"
+        confirmDanger
       />
 
       {/* 新建/编辑模板弹窗 */}
-      <Modal
+      <GlobalModal
         open={showForm}
         onClose={resetForm}
         title={editingId ? '编辑模板' : '新建模板'}
         footer={
-          <ModalFooter
-            onCancel={resetForm}
-            onConfirm={handleSave}
-            confirmText={saveLoading ? '保存中...' : (editingId ? '更新' : '创建')}
-            confirmLoading={saveLoading}
-          />
+          <div className="global-modal-dialog__footer-inner">
+            <Button variant="secondary" onClick={resetForm}>取消</Button>
+            <Button
+              variant="primary"
+              onClick={handleSave}
+              disabled={saveLoading}
+            >
+              {saveLoading ? '保存中...' : (editingId ? '更新' : '创建')}
+            </Button>
+          </div>
         }
       >
         <div className="tpl-form">
@@ -406,6 +385,7 @@ const Templates: React.FC = () => {
             onChange={(e) => setForm(prev => ({ ...prev, name: e.target.value.slice(0, 20) }))}
             autoFocus
             maxLength={20}
+            required
           />
           <div className="tpl-form-row">
             <DropdownSelect
@@ -417,6 +397,7 @@ const Templates: React.FC = () => {
                 { key: 'income', label: '收入' },
               ]}
               placeholder="选择类型"
+              required
             />
             <DropdownSelect
               label="分类"
@@ -426,6 +407,7 @@ const Templates: React.FC = () => {
                 .filter(c => c.type === form.type)
                 .map(c => ({ key: c.id, label: `${c.icon} ${c.name}` }))}
               placeholder="选择分类"
+              required
             />
           </div>
           <NumberInput
@@ -460,17 +442,18 @@ const Templates: React.FC = () => {
               )}
             </div>
           </div>
-          <div className="tpl-form-row">
-            <div></div>
-            <NumberInput
-              label="排序"
-              value={String(form.sort_order || 0)}
-              onChange={(v) => setForm(prev => ({ ...prev, sort_order: parseInt(v) || 0 }))}
-              placeholder="0"
-            />
-          </div>
+          {!editingId && (
+            <div className="tpl-form-row full-width">
+              <NumberInput
+                label="排序"
+                value={String(form.sort_order || 0)}
+                onChange={(v) => setForm(prev => ({ ...prev, sort_order: parseInt(v) || 0 }))}
+                placeholder="0"
+              />
+            </div>
+          )}
         </div>
-      </Modal>
+      </GlobalModal>
 
       {/* 地图选点弹窗 */}
       <LocationPicker

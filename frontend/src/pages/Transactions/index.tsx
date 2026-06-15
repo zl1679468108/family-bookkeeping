@@ -9,8 +9,7 @@ import { useDebouncedAction } from '../../hooks/useDebouncedAction'
 import { useFocusItem } from '../../hooks/useFocusItem'
 import { formatAmount, formatAmountWithType } from '../../utils/common'
 import { Skeleton } from '../../components/ui/Skeleton'
-import { DetailModal } from '../../components/DetailModal'
-import { ConfirmDialog } from '../../components/ConfirmDialog'
+import { GlobalModal, DetailItem, Space } from '../../components/ui'
 import { Card } from '../../components/ui/Card'
 import { DropdownSelect } from '../../components/ui/Dropdown'
 import { Pagination } from '../../components/ui/Pagination'
@@ -280,12 +279,13 @@ const Transactions: React.FC = () => {
       )}
 
       {selectedTransaction && (
-        <DetailModal
-          visible={showDetail}
+        <GlobalModal
+          type="detail"
+          open={showDetail}
           onClose={() => setShowDetail(false)}
           title="交易详情"
           footer={
-            <>
+            <Space size="sm">
               <button className="btn btn-secondary" onClick={() => { navigate(`/add?edit=${selectedTransaction.id}`); setShowDetail(false) }}>
                 编辑
               </button>
@@ -295,7 +295,7 @@ const Transactions: React.FC = () => {
               >
                 删除
               </button>
-            </>
+            </Space>
           }
         >
           <div className="detail-content-wrapper">
@@ -314,49 +314,22 @@ const Transactions: React.FC = () => {
           </div>
           <div className="detail-divider" />
           <div className="detail-grid">
-            {(selectedTransaction as any).brand && (
-              <div className="detail-item">
-                <span className="detail-item-label">品牌</span>
-                <span className="detail-item-value">{(selectedTransaction as any).brand}</span>
-              </div>
-            )}
+            {(selectedTransaction as any).brand && <DetailItem label="品牌" value={(selectedTransaction as any).brand} />}
             {selectedTransaction.description && (
-              <div className="detail-item" style={{ gridColumn: '1 / -1' }}>
-                <span className="detail-item-label">描述</span>
-                <span className="detail-item-value" style={{ whiteSpace: 'pre-wrap' }}>{selectedTransaction.description}</span>
-              </div>
+              <DetailItem
+                label="描述"
+                value={<span style={{ whiteSpace: 'pre-wrap' }}>{selectedTransaction.description}</span>}
+                className="full-width"
+              />
             )}
-            {selectedTransaction.location_name && (
-              <div className="detail-item">
-                <span className="detail-item-label">地点</span>
-                <span className="detail-item-value">{selectedTransaction.location_name}</span>
-              </div>
-            )}
+            {selectedTransaction.location_name && <DetailItem label="地点" value={selectedTransaction.location_name} />}
             {selectedTransaction.latitude && selectedTransaction.longitude && (
-              <div className="detail-item">
-                <span className="detail-item-label">坐标</span>
-                <span className="detail-item-value">
-                  {selectedTransaction.latitude}, {selectedTransaction.longitude}
-                </span>
-              </div>
+              <DetailItem label="坐标" value={`${selectedTransaction.latitude}, ${selectedTransaction.longitude}`} />
             )}
-            {selectedTransaction.poi_id && (
-              <div className="detail-item">
-                <span className="detail-item-label">商户 ID</span>
-                <span className="detail-item-value">{selectedTransaction.poi_id}</span>
-              </div>
-            )}
-            {selectedTransaction.book_id && (
-              <div className="detail-item">
-                <span className="detail-item-label">账本 ID</span>
-                <span className="detail-item-value">{selectedTransaction.book_id}</span>
-              </div>
-            )}
+            {selectedTransaction.poi_id && <DetailItem label="商户 ID" value={selectedTransaction.poi_id} />}
+            {selectedTransaction.book_id && <DetailItem label="账本 ID" value={selectedTransaction.book_id} />}
             {selectedTransaction.created_at && (
-              <div className="detail-item">
-                <span className="detail-item-label">创建时间</span>
-                <span className="detail-item-value">{format(new Date(selectedTransaction.created_at), 'yyyy-MM-dd')}</span>
-              </div>
+              <DetailItem label="创建时间" value={format(new Date(selectedTransaction.created_at), 'yyyy-MM-dd')} />
             )}
           </div>
 
@@ -385,18 +358,21 @@ const Transactions: React.FC = () => {
               </>
             )
           })()}
-        </DetailModal>
+        </GlobalModal>
       )}
 
-      <ConfirmDialog
+      <GlobalModal
+        type="confirm"
         open={showDeleteConfirm}
         title="确认删除"
-        message="确定要删除这笔交易吗？"
+        children="确定要删除这笔交易吗？"
         onConfirm={handleDelete}
-        onCancel={() => {
+        onClose={() => {
           setShowDeleteConfirm(false)
         }}
         loading={deleteLoading}
+        confirmText="确认删除"
+        confirmDanger
       />
     </div>
   )

@@ -6,6 +6,7 @@ import { AuthProvider, useAuth } from './utils/auth'
 import { ThemeProvider } from './utils/theme'
 import { BookProvider, useBook } from './hooks/useBook'
 import { hasToken } from './services/api'
+import { PageProgressBar } from './components/PageProgressBar'
 
 const PROJECT_NAME = '静记'
 
@@ -111,6 +112,7 @@ interface AppProps {
 const App: React.FC<AppProps> = () => {
   return (
     <ThemeProvider>
+      <PageProgressBar />
       <AuthProvider>
         <BookProvider>
           <Router>

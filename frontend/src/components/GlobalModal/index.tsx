@@ -1,0 +1,179 @@
+import React, { useEffect } from 'react';
+import { useModalZIndex } from '../../hooks/useModalZIndex';
+import './index.scss';
+
+export type GlobalModalType = 'confirm' | 'detail' | 'modal';
+
+interface GlobalModalProps {
+  /** 是否显示弹窗 */
+  open: boolean;
+  /** 关闭回调 */
+  onClose: () => void;
+  /** 弹窗类型 */
+  type?: GlobalModalType;
+  /** 标题 */
+  title?: React.ReactNode;
+  /** 描述（仅 modal 类型可用） */
+  description?: React.ReactNode;
+  /** 内容 */
+  children?: React.ReactNode;
+  /** 底部内容 */
+  footer?: React.ReactNode;
+  /** 宽度 */
+  width?: string | number;
+  /** 是否可关闭 */
+  closable?: boolean;
+  /** 点击遮罩是否关闭 */
+  closeOnMask?: boolean;
+  /** 自定义类名 */
+  className?: string;
+  /** 内容体类名 */
+  bodyClassName?: string;
+  /** 尺寸（仅 modal 类型可用） */
+  size?: 'sm' | 'md' | 'lg';
+  /** 确认对话框专用：确认按钮文字 */
+  confirmText?: string;
+  /** 确认对话框专用：取消按钮文字 */
+  cancelText?: string;
+  /** 确认对话框专用：确认按钮是否为危险样式 */
+  confirmDanger?: boolean;
+  /** 确认对话框专用：是否加载中 */
+  loading?: boolean;
+  /** 确认对话框专用：确认回调 */
+  onConfirm?: () => void;
+}
+
+export const GlobalModal: React.FC<GlobalModalProps> = ({
+  open,
+  onClose,
+  type = 'modal',
+  title,
+  description,
+  children,
+  footer,
+  width,
+  closable = true,
+  closeOnMask = true,
+  className = '',
+  bodyClassName = '',
+  size = 'md',
+  confirmText = '确认',
+  cancelText = '取消',
+  confirmDanger = false,
+  loading = false,
+  onConfirm,
+}) => {
+  // 根据类型确定基础 z-index
+  const zIndexType = type === 'confirm' ? 'critical' : type === 'detail' ? 'detail' : 'modal';
+  const zIndex = useModalZIndex(open, zIndexType);
+
+  // ESC 键关闭弹窗
+  useEffect(() => {
+    if (!open || !closable) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.stopPropagation();
+        onClose();
+      }
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [open, closable, onClose]);
+
+  if (!open) return null;
+
+  // 根据类型确定样式类名
+  const overlayClass = `global-modal-overlay global-modal-overlay--${type}`;
+  const dialogClass = `global-modal-dialog global-modal-dialog--${type} ${className}`;
+
+  // 默认宽度
+  const getDefaultWidth = () => {
+    if (width !== undefined) return width;
+    if (type === 'confirm') return 380;
+    if (size === 'sm') return 420;
+    if (size === 'lg') return 720;
+    return 520;
+  };
+
+  const defaultWidth = getDefaultWidth();
+
+  // 渲染确认对话框模式
+  if (type === 'confirm') {
+    const confirmVariant = confirmDanger ? 'danger' : 'primary';
+    return (
+      <div className={overlayClass} onClick={onClose} style={{ zIndex }}>
+        <div className={dialogClass} onClick={(e) => e.stopPropagation()}>
+          {title && <h3 className="global-modal-dialog__title">{title}</h3>}
+          {children && <p className="global-modal-dialog__message">{children}</p>}
+          <div className="global-modal-dialog__actions">
+            <button
+              type="button"
+              className="global-modal-btn global-modal-btn--cancel"
+              onClick={onClose}
+              disabled={loading}
+            >
+              {cancelText}
+            </button>
+            <button
+              type="button"
+              className={`global-modal-btn global-modal-btn--confirm ${confirmVariant}`}
+              onClick={onConfirm}
+              disabled={loading}
+            >
+              {loading && (
+                <svg
+                  className="global-modal-dialog__spinner"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle style={{ opacity: 0.25 }} cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path style={{ opacity: 0.75 }} fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                </svg>
+              )}
+              {confirmText}
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // 渲染详情弹窗和通用弹窗模式
+  return (
+    <div className={overlayClass} onClick={() => closeOnMask && onClose()} style={{ zIndex }}>
+      <div
+        className={dialogClass}
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          maxWidth: typeof defaultWidth === 'number' ? `${defaultWidth}px` : defaultWidth,
+          width: '100%',
+        }}
+      >
+        {(title || closable) && (
+          <div className="global-modal-dialog__header">
+            <div className="global-modal-dialog__header-text">
+              {title && <h3 className="global-modal-dialog__title">{title}</h3>}
+              {description && <div className="global-modal-dialog__desc">{description}</div>}
+            </div>
+            {closable && (
+              <button type="button" className="global-modal-dialog__close" onClick={onClose} aria-label="关闭">
+                ✕
+              </button>
+            )}
+          </div>
+        )}
+
+        {children && (
+          <div className={`global-modal-dialog__body ${bodyClassName}`}>
+            {children}
+          </div>
+        )}
+
+        {footer && <div className="global-modal-dialog__footer">{footer}</div>}
+      </div>
+    </div>
+  );
+};
+
+export default GlobalModal;

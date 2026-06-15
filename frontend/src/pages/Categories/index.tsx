@@ -5,8 +5,7 @@ import { fetchCategories, createCategory, updateCategory, deleteCategory, reorde
 import { EMOJI_PRESETS } from '../../utils/emojiPresets'
 import { notify } from '../../utils/notifications'
 import { Skeleton } from '../../components/ui/Skeleton'
-import { DetailModal } from '../../components/DetailModal'
-import { Modal, ModalFooter } from '../../components/ui/Modal'
+import { GlobalModal, DetailItem, Space } from '../../components/ui'
 import { Card, CardHeader } from '../../components/ui/Card'
 import { Button } from '../../components/ui/Button'
 import { Input } from '../../components/ui/Input'
@@ -263,8 +262,8 @@ const Categories: React.FC = () => {
         )}
       </Card>
 
-      {/* 分类编辑/新增弹窗 - 使用通用Modal */}
-      <Modal
+      {/* 分类编辑/新增弹窗 */}
+      <GlobalModal
         open={modalOpen}
         onClose={() => {
           setModalOpen(false)
@@ -272,15 +271,24 @@ const Categories: React.FC = () => {
         }}
         title={modalTitle}
         footer={
-          <ModalFooter
-            onCancel={() => {
-              setModalOpen(false)
-              setEditingCategory(null)
-            }}
-            onConfirm={handleModalConfirm}
-            confirmText={createMutation.isPending || updateMutation.isPending ? '保存中...' : '确认'}
-            confirmLoading={createMutation.isPending || updateMutation.isPending}
-          />
+          <div className="global-modal-dialog__footer-inner">
+            <Button
+              variant="secondary"
+              onClick={() => {
+                setModalOpen(false)
+                setEditingCategory(null)
+              }}
+            >
+              取消
+            </Button>
+            <Button
+              variant="primary"
+              onClick={handleModalConfirm}
+              disabled={createMutation.isPending || updateMutation.isPending}
+            >
+              {createMutation.isPending || updateMutation.isPending ? '保存中...' : '确认'}
+            </Button>
+          </div>
         }
       >
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -291,6 +299,7 @@ const Categories: React.FC = () => {
             value={modalName}
             onChange={(e) => setModalName(e.target.value)}
             autoFocus
+            required
           />
           <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
             <label style={{ fontSize: '13px', color: 'var(--muted)' }}>图标</label>
@@ -301,37 +310,33 @@ const Categories: React.FC = () => {
             />
           </div>
         </div>
-      </Modal>
+      </GlobalModal>
 
-      {/* 删除确认弹窗 - 使用通用Modal */}
-      <Modal
+      {/* 删除确认弹窗 */}
+      <GlobalModal
+        type="confirm"
         open={!!deleteTarget}
-        onClose={() => setDeleteTarget(null)}
         title="确认删除"
-        footer={
-          <ModalFooter
-            onCancel={() => setDeleteTarget(null)}
-            onConfirm={handleDeleteConfirm}
-            confirmText={deleteMutation.isPending ? '删除中...' : '确认删除'}
-            confirmLoading={deleteMutation.isPending}
-            confirmDanger
-          />
-        }
-      >
-        <p>确定删除自定义分类「{deleteTarget?.name || ''}」吗？删除后不可恢复。</p>
-      </Modal>
+        children={`确定删除自定义分类「${deleteTarget?.name || ''}」吗？删除后不可恢复。`}
+        onConfirm={handleDeleteConfirm}
+        onClose={() => setDeleteTarget(null)}
+        confirmText={deleteMutation.isPending ? '删除中...' : '确认删除'}
+        loading={deleteMutation.isPending}
+        confirmDanger
+      />
 
       {/* 分类详情弹窗 */}
       {selectedCategory && (
-        <DetailModal
-          visible={showDetail}
+        <GlobalModal
+          type="detail"
+          open={showDetail}
           onClose={() => {
             setShowDetail(false)
             setSelectedCategory(null)
           }}
           title="分类详情"
           footer={
-            <>
+            <Space size="sm">
               {!selectedCategory.is_default && (
                 <Button
                   variant="secondary"
@@ -348,46 +353,35 @@ const Categories: React.FC = () => {
                   删除
                 </Button>
               )}
-            </>
+            </Space>
           }
         >
           <div className="detail-content-wrapper">
             <div className="detail-icon">{selectedCategory.icon}</div>
             <div className="detail-content">
               <div className="detail-title">{selectedCategory.name}</div>
-              <div className="detail-subtitle">
-                {selectedCategory.type === 'expense' ? '支出' : '收入'}分类 ·{' '}
-                {selectedCategory.is_default ? '系统默认' : '自定义'}
-              </div>
-              <div className="detail-grid">
-                <div className="detail-item">
-                  <span className="detail-item-label">分类 ID</span>
-                  <span className="detail-item-value">{selectedCategory.id}</span>
-                </div>
-                <div className="detail-item">
-                  <span className="detail-item-label">排序</span>
-                  <span className="detail-item-value">第 {selectedCategory.sort_order + 1} 位</span>
-                </div>
-                {selectedCategory.created_at && (
-                  <div className="detail-item">
-                    <span className="detail-item-label">创建时间</span>
-                    <span className="detail-item-value">
-                      {format(new Date(selectedCategory.created_at), 'yyyy-MM-dd HH:mm')}
-                    </span>
-                  </div>
-                )}
-                {selectedCategory.updated_at && (
-                  <div className="detail-item">
-                    <span className="detail-item-label">更新时间</span>
-                    <span className="detail-item-value">
-                      {format(new Date(selectedCategory.updated_at), 'yyyy-MM-dd HH:mm')}
-                    </span>
-                  </div>
-                )}
+              <div className="detail-tags">
+                <span className={`detail-tag ${selectedCategory.type === 'expense' ? 'type-expense' : 'type-income'}`}>
+                  {selectedCategory.type === 'expense' ? '支出' : '收入'}
+                </span>
+                <span className={`detail-tag ${selectedCategory.is_default ? 'tag-default' : 'tag-custom'}`}>
+                  {selectedCategory.is_default ? '默认' : '自定义'}
+                </span>
               </div>
             </div>
           </div>
-        </DetailModal>
+          <div className="detail-divider" />
+          <div className="detail-grid">
+            <DetailItem label="分类 ID" value={selectedCategory.id} />
+            <DetailItem label="排序" value={`第 ${selectedCategory.sort_order + 1} 位`} />
+            {selectedCategory.created_at && (
+              <DetailItem label="创建时间" value={format(new Date(selectedCategory.created_at), 'yyyy-MM-dd HH:mm')} />
+            )}
+            {selectedCategory.updated_at && (
+              <DetailItem label="更新时间" value={format(new Date(selectedCategory.updated_at), 'yyyy-MM-dd HH:mm')} />
+            )}
+          </div>
+        </GlobalModal>
       )}
     </div>
   )

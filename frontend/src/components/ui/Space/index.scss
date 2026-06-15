@@ -1,0 +1,27 @@
+.space {
+  display: flex;
+
+  &--horizontal {
+    flex-direction: row;
+  }
+
+  &--vertical {
+    flex-direction: column;
+  }
+
+  &--xs {
+    gap: 4px;
+  }
+
+  &--sm {
+    gap: 8px;
+  }
+
+  &--md {
+    gap: 12px;
+  }
+
+  &--lg {
+    gap: 16px;
+  }
+}

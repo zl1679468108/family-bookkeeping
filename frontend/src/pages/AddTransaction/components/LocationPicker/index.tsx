@@ -1,5 +1,6 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { Button } from '../../../../components/ui/Button';
+import { GlobalModal } from '../../../../components/GlobalModal';
 import type { LocationResult } from '../../../../types/map';
 import { useMapInstance } from '../../../../hooks/useMapInstance';
 import { AmapManager } from '../../../../services/amapManager';
@@ -105,14 +106,18 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
 
   /* ---- Resize map when modal becomes visible ---- */
   useEffect(() => {
-    if (visible && map) {
-      const timer = setTimeout(() => {
-        if (map && typeof map.resize === 'function') {
-          map.resize();
-        }
-      }, 150);
-      return () => clearTimeout(timer);
-    }
+    if (!visible || !map) return;
+    const timer = setTimeout(() => {
+      if (map && typeof map.resize === 'function') {
+        map.resize();
+      }
+    }, 300);
+    const timer2 = setTimeout(() => {
+      if (map && typeof map.resize === 'function') {
+        map.resize();
+      }
+    }, 600);
+    return () => { clearTimeout(timer); clearTimeout(timer2); };
   }, [visible, map]);
 
   /* ---- 弹窗显隐时重置 ---- */
@@ -218,60 +223,64 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
     setError('');
   };
 
-  return (
-    <div className={`location-picker-overlay${visible ? '' : ' hidden'}`} onClick={visible ? onClose : undefined}>
-      <div className="location-picker-modal" onClick={(e) => e.stopPropagation()}>
-        <div className="location-picker-header">
-          <h3>选择消费位置</h3>
-          <button className="location-picker-close" onClick={onClose}>✕</button>
-        </div>
-
-        <div className="location-picker-search">
-          <input
-            type="text" className="location-search-input"
-            placeholder="搜索地址或商户名称..."
-            value={searchText}
-            onChange={(e) => setSearchText(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-          />
-          <Button variant="secondary" onClick={handleSearch} disabled={searching}>
-            {searching ? '搜索中...' : '搜索'}
-          </Button>
-          <Button variant="secondary" onClick={handleLocate} title="定位到当前位置" style={{ padding: '0 10px' }}>
-            📍
-          </Button>
-        </div>
-
-        {error && <div className="location-picker-error">{error}</div>}
-
-        <div className="location-picker-map">
-          <div ref={mapContainerRef} style={{ width: '100%', height: '100%' }} />
-        </div>
-
-        {selectedAddress ? (
-          <div className="location-picker-info">
-            <span className="location-picker-info-icon">📍</span>
-            <span className="location-picker-info-text">{selectedAddress}</span>
-          </div>
-        ) : (
-          <div className="location-picker-hint">在地图上点击选择位置，或使用搜索查找地址</div>
-        )}
-
-        <div className="location-picker-footer">
-          <Button variant="secondary" onClick={handleClear}>清除位置</Button>
-          <div className="location-picker-actions">
-            <Button variant="secondary" onClick={onClose}>取消</Button>
-            <Button
-              variant="primary"
-              onClick={handleConfirm}
-              disabled={!selectedPos || !selectedAddress}
-              className="location-picker-confirm-btn"
-            >
-              确认位置
-            </Button>
-          </div>
-        </div>
+  const modalFooter = (
+    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', width: '100%' }}>
+      <Button variant="secondary" onClick={handleClear}>清除位置</Button>
+      <div style={{ display: 'flex', gap: '8px', marginLeft: 'auto' }}>
+        <Button variant="secondary" onClick={onClose}>取消</Button>
+        <Button
+          variant="primary"
+          onClick={handleConfirm}
+          disabled={!selectedPos || !selectedAddress}
+        >
+          确认位置
+        </Button>
       </div>
     </div>
+  );
+
+  return (
+    <GlobalModal
+      open={visible}
+      onClose={onClose}
+      type="modal"
+      title="选择消费位置"
+      size="lg"
+      closeOnMask={false}
+      footer={modalFooter}
+      className="location-picker-modal"
+      bodyClassName="location-picker-body"
+    >
+      <div className="location-picker-search">
+        <input
+          type="text" className="location-search-input"
+          placeholder="搜索地址或商户名称..."
+          value={searchText}
+          onChange={(e) => setSearchText(e.target.value)}
+          onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+        />
+        <Button variant="secondary" onClick={handleSearch} disabled={searching}>
+          {searching ? '搜索中...' : '搜索'}
+        </Button>
+        <Button variant="secondary" onClick={handleLocate} title="定位到当前位置" style={{ padding: '0 10px' }}>
+          📍
+        </Button>
+      </div>
+
+      {error && <div className="location-picker-error">{error}</div>}
+
+      <div className="location-picker-map" style={{ height: '350px', minHeight: '350px' }}>
+        <div ref={mapContainerRef} style={{ width: '100%', height: '100%' }} />
+      </div>
+
+      {selectedAddress ? (
+        <div className="location-picker-info">
+          <span className="location-picker-info-icon">📍</span>
+          <span className="location-picker-info-text">{selectedAddress}</span>
+        </div>
+      ) : (
+        <div className="location-picker-hint">在地图上点击选择位置，或使用搜索查找地址</div>
+      )}
+    </GlobalModal>
   );
 };

@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { compressImage } from '../../utils/imageCompress';
 import { useReceipt } from '../../hooks/useReceipt';
-import { ConfirmDialog } from '../ConfirmDialog';
+import { GlobalModal } from '../ui';
 import { notify } from '../../utils/notifications';
 
 interface ReceiptUploaderProps {
@@ -162,15 +162,16 @@ export const ReceiptUploader: React.FC<ReceiptUploaderProps> = ({
         />
 
         {/* 删除确认 */}
-        <ConfirmDialog
+        <GlobalModal
+          type="confirm"
           open={showDeleteConfirm}
           title="确认删除"
-          message="确定要删除这张相册图片吗？删除后不可恢复。"
+          children="确定要删除这张相册图片吗？删除后不可恢复。"
           confirmText="确认删除"
-          confirmDanger={true}
+          confirmDanger
           loading={isDeleting}
           onConfirm={handleDelete}
-          onCancel={() => setShowDeleteConfirm(false)}
+          onClose={() => setShowDeleteConfirm(false)}
         />
       </div>
     );

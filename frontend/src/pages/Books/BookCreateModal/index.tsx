@@ -3,7 +3,8 @@ import { useMutation } from '@tanstack/react-query';
 import { createBook, updateBook } from '../../../services/booksApi';
 import { BOOK_ICONS, getBookIconByKey } from '../../../utils/bookIcons';
 import { notify } from '../../../utils/notifications';
-import { Modal, ModalFooter } from '../../../components/ui/Modal';
+import { GlobalModal } from '../../../components/ui';
+import { Button } from '../../../components/ui/Button';
 import { Input } from '../../../components/ui/Input';
 import { Textarea } from '../../../components/ui/Textarea';
 import { IconGrid } from '../../../components/ui/IconGrid';
@@ -62,19 +63,22 @@ export const BookCreateModal: React.FC<BookCreateModalProps> = ({ open, onClose,
   }));
 
   return (
-    <Modal
+    <GlobalModal
       open={open}
       onClose={onClose}
       title={isEdit ? '编辑账本' : '创建账本'}
       width={520}
       footer={
-        <ModalFooter
-          onCancel={onClose}
-          onConfirm={handleSubmit}
-          confirmText={mutation.isPending ? '处理中...' : (isEdit ? '保存' : '创建账本')}
-          confirmLoading={mutation.isPending}
-          confirmDisabled={!bookName.trim()}
-        />
+        <div className="global-modal-dialog__footer-inner">
+            <Button variant="secondary" onClick={onClose}>取消</Button>
+            <Button
+              variant="primary"
+              onClick={handleSubmit}
+              disabled={mutation.isPending || !bookName.trim()}
+            >
+              {mutation.isPending ? '处理中...' : (isEdit ? '保存' : '创建账本')}
+            </Button>
+          </div>
       }
     >
       <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
@@ -86,6 +90,7 @@ export const BookCreateModal: React.FC<BookCreateModalProps> = ({ open, onClose,
           placeholder="如：家庭账本"
           maxLength={50}
           autoFocus
+          required
         />
 
         <Textarea
@@ -102,7 +107,7 @@ export const BookCreateModal: React.FC<BookCreateModalProps> = ({ open, onClose,
           <IconGrid options={iconOptions} value={bookIconKey} onChange={setBookIconKey} columns={5} />
         </div>
       </div>
-    </Modal>
+    </GlobalModal>
   );
 };
 

@@ -18,7 +18,7 @@ import { Button } from '../../../components/ui/Button'
 import { Pagination } from '../../../components/ui/Pagination'
 import { EmptyState } from '../../../components/ui/EmptyState'
 import { TableRowsSkeleton } from '../../../components/ui/Skeleton'
-import { DetailModal } from '../../../components/DetailModal';
+import { GlobalModal } from '../../../components/ui';
 
 const AdminTransactions: React.FC = () => {
   const [page, setPage] = useState(1);
@@ -226,8 +226,9 @@ const AdminTransactions: React.FC = () => {
         )}
       </Card>
 
-      <DetailModal
-        visible={showPreview}
+      <GlobalModal
+        type="detail"
+        open={showPreview}
         onClose={() => setShowPreview(false)}
         title={`图片预览（${previewImages.length}张）`}
       >
@@ -248,7 +249,7 @@ const AdminTransactions: React.FC = () => {
             </button>
           ))}
         </div>
-      </DetailModal>
+      </GlobalModal>
     </AdminLayout>
   );
 };

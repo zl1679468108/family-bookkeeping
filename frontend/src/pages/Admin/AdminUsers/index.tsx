@@ -7,7 +7,7 @@ import {
   updateUserStatus,
   UsersListResponse,
 } from '../../../services/adminApi';
-import { ConfirmDialog } from '../../../components/ConfirmDialog';
+import { GlobalModal } from '../../../components/ui';
 import { useDebounce } from '../../../hooks/useDebounce';
 import { FilterBar } from '../../../components/ui/FilterBar'
 import { SearchInput, Input } from '../../../components/ui/Input'
@@ -242,45 +242,55 @@ const AdminUsers: React.FC = () => {
         )}
       </Card>
 
-      <ConfirmDialog
+      <GlobalModal
+        type="confirm"
         open={actionType === 'role'}
         title="修改用户角色"
-        message={`确认将用户 ${selectedUserName} 的角色改为 ${selectedUserRole === 'admin' ? '管理员' : '普通用户'}？需要输入您的密码确认。`}
-        confirmText="确认修改"
-        onCancel={() => { setActionType(null); setPassword(''); setErrorMsg(''); }}
+        onClose={() => { setActionType(null); setPassword(''); setErrorMsg(''); }}
         onConfirm={handleRoleSubmit}
         loading={roleMutation.isPending}
+        confirmText="确认修改"
       >
-        <div style={{ marginTop: '12px' }}>
-          <Input
-            type="password"
-            placeholder="输入您的管理员密码"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            error={errorMsg}
-          />
+        <div>
+          <p className="global-modal-dialog__message">
+            确认将用户 {selectedUserName} 的角色改为 {selectedUserRole === 'admin' ? '管理员' : '普通用户'}？需要输入您的密码确认。
+          </p>
+          <div style={{ marginTop: '12px' }}>
+            <Input
+              type="password"
+              placeholder="输入您的管理员密码"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              error={errorMsg}
+            />
+          </div>
         </div>
-      </ConfirmDialog>
+      </GlobalModal>
 
-      <ConfirmDialog
+      <GlobalModal
+        type="confirm"
         open={actionType === 'status'}
         title="修改用户状态"
-        message={`确认将用户 ${selectedUserName} 的状态改为 ${selectedUserStatus === 'active' ? '正常' : '停用'}？需要输入您的密码确认。`}
-        confirmText="确认修改"
-        onCancel={() => { setActionType(null); setPassword(''); setErrorMsg(''); }}
+        onClose={() => { setActionType(null); setPassword(''); setErrorMsg(''); }}
         onConfirm={handleStatusSubmit}
         loading={statusMutation.isPending}
+        confirmText="确认修改"
       >
-        <div style={{ marginTop: '12px' }}>
-          <Input
-            type="password"
-            placeholder="输入您的管理员密码"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            error={errorMsg}
-          />
+        <div>
+          <p className="global-modal-dialog__message">
+            确认将用户 {selectedUserName} 的状态改为 {selectedUserStatus === 'active' ? '正常' : '停用'}？需要输入您的密码确认。
+          </p>
+          <div style={{ marginTop: '12px' }}>
+            <Input
+              type="password"
+              placeholder="输入您的管理员密码"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              error={errorMsg}
+            />
+          </div>
         </div>
-      </ConfirmDialog>
+      </GlobalModal>
     </AdminLayout>
   );
 };

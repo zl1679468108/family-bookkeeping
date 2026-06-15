@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { joinByInvitation } from '../../../services/booksApi';
 import { notify } from '../../../utils/notifications';
-import { Modal, ModalFooter } from '../../../components/ui/Modal';
+import { GlobalModal } from '../../../components/ui';
+import { Button } from '../../../components/ui/Button';
 import { Input } from '../../../components/ui/Input';
 import './index.scss';
 
@@ -43,19 +44,22 @@ export const BookInviteModal: React.FC<BookInviteModalProps> = ({ open, onClose,
   };
 
   return (
-    <Modal
+    <GlobalModal
       open={open}
       onClose={onClose}
       title="使用邀请码加入"
       width={440}
       footer={
-        <ModalFooter
-          onCancel={onClose}
-          onConfirm={handleSubmit}
-          confirmText={joinMutation.isPending ? '加入中...' : '加入账本'}
-          confirmLoading={joinMutation.isPending}
-          confirmDisabled={inviteCode.trim().length < 4}
-        />
+        <div className="global-modal-dialog__footer-inner">
+            <Button variant="secondary" onClick={onClose}>取消</Button>
+            <Button
+              variant="primary"
+              onClick={handleSubmit}
+              disabled={joinMutation.isPending || inviteCode.trim().length < 4}
+            >
+              {joinMutation.isPending ? '加入中...' : '加入账本'}
+            </Button>
+          </div>
       }
     >
       <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -67,12 +71,13 @@ export const BookInviteModal: React.FC<BookInviteModalProps> = ({ open, onClose,
           placeholder="例如 A3F8K2"
           maxLength={32}
           autoFocus
+          required
         />
         <p style={{ fontSize: '12px', color: 'var(--fg3)', margin: 0 }}>
           <strong>邀请码获取方式：</strong>由账主在「账本详情 → 生成邀请码」中生成，有效期为 7 天。
         </p>
       </div>
-    </Modal>
+    </GlobalModal>
   );
 };
 

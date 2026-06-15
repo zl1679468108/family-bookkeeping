@@ -1,5 +1,7 @@
 export { Card, CardHeader, CardContent } from './Card'
-export { Modal, ModalFooter } from './Modal'
+export { GlobalModal } from '../GlobalModal'
+export { DetailItem } from './DetailItem'
+export { Space } from './Space'
 export { Button } from './Button'
 export { Input, SearchInput, NumberInput } from './Input'
 export { Textarea } from './Textarea'

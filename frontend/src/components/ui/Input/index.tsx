@@ -14,6 +14,7 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   allowClear?: boolean
   icon?: React.ReactNode
   wrapperClassName?: string
+  required?: boolean
 }
 
 export const Input: React.FC<InputProps> = ({
@@ -27,6 +28,7 @@ export const Input: React.FC<InputProps> = ({
   value,
   defaultValue,
   onChange,
+  required,
   ...props
 }) => {
   const inputId = id || `input-${Math.random().toString(36).substr(2, 9)}`
@@ -64,7 +66,7 @@ export const Input: React.FC<InputProps> = ({
   return (
     <div className={`ui-input-wrap ${wrapperClassName}`.trim()}>
       {label && (
-        <label htmlFor={inputId} className="ui-input-label">
+        <label htmlFor={inputId} className={`ui-input-label${required ? ' field-required' : ''}`}>
           {label}
         </label>
       )}
@@ -182,6 +184,7 @@ interface NumberInputProps {
   min?: number
   max?: number
   step?: string | number
+  required?: boolean
 }
 
 export const NumberInput: React.FC<NumberInputProps> = ({
@@ -197,10 +200,11 @@ export const NumberInput: React.FC<NumberInputProps> = ({
   min,
   max,
   step = '0.01',
+  required,
 }) => {
   return (
     <div className={`ui-input-wrap ${wrapperClassName}`.trim()}>
-      {label && <label className="ui-input-label">{label}</label>}
+      {label && <label className={`ui-input-label${required ? ' field-required' : ''}`}>{label}</label>}
       <div className={`ui-input ${disabled ? 'is-disabled' : ''}`.trim()}>
         {prefix && <span className="ui-input-prefix">{prefix}</span>}
         <input

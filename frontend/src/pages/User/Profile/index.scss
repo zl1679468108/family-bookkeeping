@@ -111,6 +111,16 @@
   font-size: 14px;
   font-weight: 600;
   color: var(--color-fg, #1a1a2e);
+  display: inline-flex;
+  align-items: center;
+
+  &.field-required::before {
+    content: '*';
+    color: var(--exp);
+    font-size: 13px;
+    font-weight: 700;
+    margin-right: 4px;
+  }
 }
 
 .form-input {

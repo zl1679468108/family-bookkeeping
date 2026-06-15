@@ -8,15 +8,12 @@ import { useFocusItem } from '../../hooks/useFocusItem'
 import type { BudgetRecord, UpsertBudgetInput } from '../../types/budget'
 import { notify } from '../../utils/notifications'
 import { Skeleton } from '../../components/ui/Skeleton'
-import { Modal, ModalFooter } from '../../components/ui/Modal'
+import { GlobalModal, DetailItem, Space } from '../../components/ui'
 import { Card, CardHeader } from '../../components/ui/Card'
 import { Button } from '../../components/ui/Button'
 import { NumberInput } from '../../components/ui/Input'
 import { RankRow } from '../../components/ui/RankList'
-import { ProgressBar } from '../../components/ui/ProgressBar'
 import { EmptyState } from '../../components/ui/EmptyState'
-import { DetailModal } from '../../components/DetailModal'
-import { ConfirmDialog } from '../../components/ConfirmDialog'
 import { DropdownSelect } from '../../components/ui/Dropdown'
 
 const getCurrentMonthStr = (): string => {
@@ -207,10 +204,10 @@ const Budgets: React.FC = () => {
             budgetsLoading ? (
               <Skeleton width="60px" height="28px" borderRadius="var(--rs)" />
             ) : (
-                <Button variant="primary" size="sm" onClick={handleSave} disabled={saveLoading}>
-                  {saveLoading ? '保存中...' : '保存'}
-                </Button>
-              )
+              <Button variant="primary" size="sm" onClick={handleSave} disabled={saveLoading}>
+                {saveLoading ? '保存中...' : '保存'}
+              </Button>
+            )
           }
         />
 
@@ -285,15 +282,16 @@ const Budgets: React.FC = () => {
       </Card>
 
       {selectedBudget && (
-        <DetailModal
-          visible={showDetail}
+        <GlobalModal
+          type="detail"
+          open={showDetail}
           onClose={() => {
             setShowDetail(false)
             setSelectedBudget(null)
           }}
           title="预算详情"
           footer={
-            <>
+            <Space size="sm">
               <Button
                 variant="secondary"
                 onClick={() => handleOpenEditForm(selectedBudget)}
@@ -303,60 +301,49 @@ const Budgets: React.FC = () => {
               <Button variant="danger" onClick={() => setShowDeleteConfirm(true)}>
                 删除预算
               </Button>
-            </>
+            </Space>
           }
         >
           <div className="detail-content-wrapper">
             <div className="detail-icon">{selectedBudget.category.icon}</div>
             <div className="detail-content">
               <div className="detail-title">{selectedBudget.category.name}</div>
-              <div className="detail-subtitle">已使用 {selectedBudget.progress}%</div>
-              <div className="detail-amount">
-                <div className="detail-amount-value">
-                  ¥{selectedBudget.spent.toLocaleString('zh-CN')} / ¥{selectedBudget.budget.toLocaleString('zh-CN')}
-                </div>
-              </div>
             </div>
           </div>
           <div className="detail-divider" />
           <div className="detail-grid">
-            <div className="detail-item">
-              <span className="detail-item-label">剩余</span>
-              <span className="detail-item-value">¥{selectedBudget.remaining.toLocaleString('zh-CN')}</span>
-            </div>
-            <div className="detail-item">
-              <span className="detail-item-label">状态</span>
-              <span className="detail-item-value">
-                {selectedBudget.status === 'over' && '超预算'}
-                {selectedBudget.status === 'warning' && '接近预算'}
-                {selectedBudget.status === 'safe' && '正常'}
-              </span>
-            </div>
+            <DetailItem label="使用进度" value={`${selectedBudget.progress}%`} />
+            <DetailItem label="已使用" value={`¥${selectedBudget.spent.toLocaleString('zh-CN')}`} />
+            <DetailItem label="预算" value={`¥${selectedBudget.budget.toLocaleString('zh-CN')}`} />
+            <DetailItem label="剩余" value={`¥${selectedBudget.remaining.toLocaleString('zh-CN')}`} />
+            <DetailItem
+              label="状态"
+              value={
+                selectedBudget.status === 'over' ? '超预算' :
+                  selectedBudget.status === 'warning' ? '接近预算' : '正常'
+              }
+            />
             {selectedBudget.month && (
-              <div className="detail-item">
-                <span className="detail-item-label">月份</span>
-                <span className="detail-item-value">{formatMonthToDisplay(selectedBudget.month)}</span>
-              </div>
+              <DetailItem label="月份" value={formatMonthToDisplay(selectedBudget.month)} />
             )}
           </div>
-        </DetailModal>
+        </GlobalModal>
       )}
 
-      <Modal
+      <GlobalModal
         open={showEditForm && !!selectedBudget}
         onClose={() => setShowEditForm(false)}
         title={`编辑预算 - ${selectedBudget?.category.name || ''}`}
         footer={
-          <ModalFooter
-            onCancel={() => setShowEditForm(false)}
-            onConfirm={handleEditFormSave}
-            confirmText="确定"
-          />
+          <div className="global-modal-dialog__footer-inner">
+            <Button variant="secondary" onClick={() => setShowEditForm(false)}>取消</Button>
+            <Button variant="primary" onClick={handleEditFormSave}>确定</Button>
+          </div>
         }
       >
         <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-          <label style={{ fontSize: '13px', color: 'var(--muted)' }}>
-            {selectedBudget?.category.icon} {selectedBudget?.category.name} 预算金额
+          <label style={{ fontSize: '13px', color: 'var(--muted)' }} className="field-required">
+            预算金额
           </label>
           <NumberInput
             prefix="¥"
@@ -365,15 +352,17 @@ const Budgets: React.FC = () => {
             min={0}
           />
         </div>
-      </Modal>
+      </GlobalModal>
 
-      <ConfirmDialog
+      <GlobalModal
+        type="confirm"
         open={showDeleteConfirm}
         title="确认删除"
-        message="确定要删除这个预算吗？"
+        children="确定要删除这个预算吗？"
         onConfirm={handleDeleteBudget}
-        onCancel={() => setShowDeleteConfirm(false)}
-        loading={false}
+        onClose={() => setShowDeleteConfirm(false)}
+        confirmText="确认删除"
+        confirmDanger
       />
     </div>
   )
