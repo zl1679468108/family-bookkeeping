@@ -88,11 +88,11 @@ export const TransactionsList: React.FC<TransactionsListProps> = ({
               {amount}
             </div>
 
-            {(showActions || item.image_url) && (
+            {(showActions || (item.image_url_list && item.image_url_list.length > 0) || item.image_urls) && (
               <div className="action-panel">
-                {item.image_url && (
+                {((item.image_url_list && item.image_url_list.length > 0) || item.image_urls) && (
                   <a
-                    href={item.image_url}
+                    href={Array.isArray(item.image_url_list) && item.image_url_list.length > 0 ? item.image_url_list[0] : undefined}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="action-btn action-btn--receipt"

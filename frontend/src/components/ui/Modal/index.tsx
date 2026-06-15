@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import './index.scss'
 
 /**
@@ -39,6 +39,19 @@ export const Modal: React.FC<ModalProps> = ({
   className = '',
   bodyClassName = '',
 }) => {
+  // ESC 键关闭弹窗
+  useEffect(() => {
+    if (!open || !closable) return
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.stopPropagation()
+        onClose()
+      }
+    }
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [open, closable, onClose])
+
   if (!open) return null
 
   const defaultWidth = size === 'sm' ? 420 : size === 'lg' ? 720 : 520

@@ -1,211 +1,181 @@
-/* ═══ Templates 模板模块样式 —— 5+1 统一紧凑布局 ═══ */
+/* ═══ Templates —— 模板管理模块样式 ═══ */
 
-/* 模板网格 */
-.tpl-grid {
-  display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: 12px;
-}
-
-.tpl-card {
-  padding: 14px;
-  background: var(--srf);
-  border: 1px solid var(--bd);
-  border-radius: var(--rm);
-  cursor: pointer;
-  transition: all var(--df);
-  position: relative;
-  min-height: 88px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.tpl-card:hover {
-  border-color: var(--prBd);
-  box-shadow: var(--sh2);
-}
-
-.tpl-card.dragging {
-  opacity: 0.5;
-  border-style: dashed;
-}
-
-.tpl-card.drag-over {
-  border-color: var(--pr);
-  box-shadow: 0 0 0 2px var(--prBg);
-}
-
-.tpl-handle {
-  position: absolute;
-  top: 6px;
-  left: 6px;
-  font-size: 10px;
-  color: var(--fg3);
-  display: none;
-}
-
-.sort-mode .tpl-handle {
-  display: block;
-}
-
-/* 网格新增卡片样式 */
-.tpl-card.add-new {
-  border-style: dashed;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  cursor: pointer;
-  color: var(--fg3);
-  font-size: 12px;
-  font-weight: 600;
-}
-
-.tpl-card.add-new:hover {
-  border-color: var(--pr);
-  background: var(--prBg);
-  color: var(--pr);
-}
-
-.tpl-card.add-new .add-icon {
-  font-size: 20px;
-  color: var(--pr);
-  font-weight: 300;
-}
-
-.tpl-card.add-new:hover .add-icon,
-.tpl-card.add-new:hover .add-text {
-  color: var(--pr);
-}
-
-.tpl-header {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-}
-
-.tpl-e {
-  font-size: 16px;
-  line-height: 1;
-  flex-shrink: 0;
-}
-
-.tpl-n {
-  font-size: 13px;
-  font-weight: 600;
-  line-height: 1.4;
-  color: var(--fg);
-  flex: 1;
-  min-width: 0;
-  padding-top: 1px;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.tpl-content {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.tpl-meta {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 11px;
-  color: var(--fg3);
-  flex-wrap: wrap;
-  padding-top: 2px;
-}
-
-.tpl-type {
-  padding: 2px 6px;
-  background: rgba(45, 157, 138, 0.1);
-  color: var(--pr);
-  border-radius: 4px;
-  font-weight: 500;
-  white-space: nowrap;
-  font-size: 10px;
-}
-
-.tpl-type.income {
-  background: rgba(16, 185, 129, 0.1);
-  color: var(--inc);
-}
-
-.tpl-type.expense {
-  background: rgba(239, 68, 68, 0.1);
-  color: var(--exp);
-}
-
-.tpl-cat {
-  color: var(--fg3);
-  font-size: 11px;
-}
-
-.tpl-amt {
-  font-weight: 600;
-  color: var(--fg);
-  margin-left: auto;
-  font-size: 11px;
-}
-
-/* 模板操作按钮 */
-.tpl-acts {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  display: flex;
-  gap: 4px;
-  opacity: 0;
-  transition: opacity var(--df);
-}
-
-.tpl-card:hover .tpl-acts {
-  opacity: 1;
-}
-
-.tpl-acts button {
-  background: var(--srf);
-  border: 1px solid var(--bd);
-  border-radius: 5px;
-  padding: 2px 6px;
-  font-size: 10px;
-  cursor: pointer;
-  color: var(--fg3);
-}
-
-.tpl-acts button:hover {
-  color: var(--fg);
-}
-
-/* 响应式 */
-@media (max-width: 1200px) {
+.page-container {
   .tpl-grid {
-    grid-template-columns: repeat(5, 1fr);
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 12px;
+    margin-top: 12px;
+
+    &.sort-mode .tpl-handle {
+      display: inline-flex;
+    }
   }
-}
 
-@media (max-width: 900px) {
-  .tpl-grid {
-    grid-template-columns: repeat(4, 1fr);
+  .tpl-card {
+    background: var(--srf);
+    border: 1px solid var(--bd);
+    border-radius: var(--rm);
+    padding: 14px;
+    cursor: pointer;
+    transition: all var(--df) ease;
+
+    &:hover {
+      border-color: var(--pr);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    }
+
+    &.dragging {
+      opacity: 0.5;
+      border-style: dashed;
+    }
+
+    .tpl-handle {
+      display: none;
+      cursor: grab;
+      color: var(--fg2);
+      font-size: 14px;
+      padding: 4px;
+      border-radius: 4px;
+      line-height: 1;
+      flex-shrink: 0;
+      user-select: none;
+
+      &:hover {
+        color: var(--fg);
+      }
+
+      &:active {
+        cursor: grabbing;
+      }
+    }
+
+    .tpl-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .tpl-e {
+      font-size: 22px;
+      flex-shrink: 0;
+    }
+
+    .tpl-n {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--fg);
+    }
+
+    .tpl-content {
+      margin-left: 0;
+    }
+
+    .tpl-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--fg3);
+
+      .tpl-type {
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-size: 11px;
+        font-weight: 500;
+      }
+
+      .tpl-type.expense {
+        color: var(--exp);
+        background: var(--expBg);
+      }
+
+      .tpl-type.income {
+        color: var(--inc);
+        background: var(--incBg);
+      }
+
+      .tpl-cat {
+        color: var(--fg2);
+      }
+
+      .tpl-amt {
+        color: var(--exp);
+        font-weight: 600;
+      }
+    }
   }
-}
 
-@media (max-width: 700px) {
-  .tpl-grid {
-    grid-template-columns: repeat(3, 1fr);
+  .tpl-header-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
   }
-}
 
-@media (max-width: 520px) {
-  .tpl-grid {
-    grid-template-columns: repeat(2, 1fr);
+  /* 模板表单样式 */
+  .tpl-form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 12px;
+    margin-bottom: 12px;
+  }
+
+  .tpl-form-location {
+    margin-top: 8px;
+  }
+
+  .tpl-form-label {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--fg);
+    margin-bottom: 6px;
+    display: block;
+  }
+
+  .tpl-form-location-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-top: 4px;
+
+    .loc-display {
+      width: 100%;
+    }
+
+    .btn,
+    button {
+      width: 100%;
+    }
+  }
+
+  .tpl-form-location-info {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--fg);
+    background: var(--bg);
+    padding: 6px 10px;
+    border-radius: var(--rs);
+  }
+
+  .tpl-form-location-check {
+    color: var(--prGr);
+    font-size: 12px;
+  }
+
+  .tpl-form-location-clear {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: var(--exp);
+    font-size: 12px;
+    margin-left: 4px;
+
+    &:hover {
+      opacity: 0.8;
+    }
   }
 }

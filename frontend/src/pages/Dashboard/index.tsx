@@ -44,8 +44,6 @@ const Dashboard: React.FC = () => {
   const recentTransactions = recentPaginated?.data || []
   const hasBudget = budgetStatus && budgetStatus.totalBudget > 0
 
-  const isAnyLoading = summaryLoading || recentLoading || budgetLoading
-
   return (
     <div className="page-container">
       {/* 统计卡片行 */}

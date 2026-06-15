@@ -1,14 +1,19 @@
 import React, { useState } from 'react'
 import { format } from 'date-fns'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { useNavigate } from 'react-router-dom'
 import { fetchTemplates, createTemplate, updateTemplate, deleteTemplate, reorderTemplates } from '../../services/templatesApi'
 import { useCategories } from '../../hooks/useCategories'
 import { formatAmount } from '../../utils/common'
 import { notify } from '../../utils/notifications'
-import { Skeleton, CardGridSkeleton } from '../../components/ui/Skeleton'
+import { Skeleton } from '../../components/ui/Skeleton'
 import { DetailModal } from '../../components/DetailModal'
 import { ConfirmDialog } from '../../components/ConfirmDialog'
+import { Modal, ModalFooter } from '../../components/ui/Modal'
+import { CardHeader } from '../../components/ui/Card'
+import { Button } from '../../components/ui/Button'
+import { Input, NumberInput } from '../../components/ui/Input'
+import { DropdownSelect } from '../../components/ui/Dropdown'
+import { LocationDisplay } from '../../components/ui/LocationDisplay'
 import { LocationPicker } from '../AddTransaction/components/LocationPicker'
 import { useSort } from '../../hooks/useSort'
 import { useDebouncedAction } from '../../hooks/useDebouncedAction'
@@ -16,7 +21,6 @@ import type { CreateTemplateInput } from '../../types/template'
 import type { LocationResult } from '../../types/map'
 
 const Templates: React.FC = () => {
-  const navigate = useNavigate()
   const queryClient = useQueryClient()
 
   const [selectedTemplate, setSelectedTemplate] = useState<any>(null)
@@ -28,6 +32,7 @@ const Templates: React.FC = () => {
     queryClient.invalidateQueries({ queryKey: ['templates'] })
     setShowDetail(false)
     setShowDeleteConfirm(false)
+    setSelectedTemplate(null)
     notify({ type: 'success', message: '模板已删除' })
   })
   const { data: templates = [], isLoading } = useQuery({
@@ -43,7 +48,6 @@ const Templates: React.FC = () => {
     orderedList,
     handleEnterSortMode,
     handleSaveSort,
-    handleCancelSort,
     handleDragStart,
     handleDragOver,
     handleDrop,
@@ -68,6 +72,9 @@ const Templates: React.FC = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['templates'] })
       notify({ type: 'success', message: '模板已更新' })
+      setShowForm(false)
+      setShowDetail(false)
+      setSelectedTemplate(null)
     },
   })
 
@@ -203,16 +210,24 @@ const Templates: React.FC = () => {
           </>
         ) : (
           <>
-            <div className="card-header">
-              <h3>交易模板</h3>
-              <button
-                className={`btn btn-sm ${sortingMode ? 'btn-outline' : 'btn-secondary'}`}
-                onClick={sortingMode ? handleSaveSort : handleEnterSortMode}
-                disabled={isSaving}
-              >
-                {isSaving ? '保存中...' : (sortingMode ? '完成排序' : '编辑排序')}
-              </button>
-            </div>
+            <CardHeader
+              title="交易模板"
+              action={
+                <div className="tpl-header-actions">
+                  <Button
+                    variant={sortingMode ? 'outline' : 'secondary'}
+                    size="sm"
+                    onClick={sortingMode ? handleSaveSort : handleEnterSortMode}
+                    disabled={isSaving}
+                  >
+                    {isSaving ? '保存中...' : (sortingMode ? '完成排序' : '编辑排序')}
+                  </Button>
+                  <Button variant="primary" size="sm" onClick={() => { resetForm(); setShowForm(true) }}>
+                    + 新建模板
+                  </Button>
+                </div>
+              }
+            />
 
             {/* 模板网格 */}
             <div className={`tpl-grid${sortingMode ? ' sort-mode' : ''}`}>
@@ -244,7 +259,7 @@ const Templates: React.FC = () => {
                   </div>
                   <div className="tpl-content">
                     <div className="tpl-meta">
-                      <span className="tpl-type">{t.type === 'expense' ? '支出' : '收入'}</span>
+                      <span className={`tpl-type ${t.type}`}>{t.type === 'expense' ? '支出' : '收入'}</span>
                       <span className="tpl-cat">{cat.name}</span>
                       {t.amount && <span className="tpl-amt">{formatAmount(t.amount)}</span>}
                     </div>
@@ -252,11 +267,6 @@ const Templates: React.FC = () => {
                 </div>
               )
             })}
-            {/* 网格式新增入口 */}
-            <div className="tpl-card add-new" onClick={() => { resetForm(); setShowForm(true) }}>
-              <span className="add-icon">+</span>
-              <span className="add-text">新建</span>
-            </div>
           </div>
           </>
         )}
@@ -266,22 +276,25 @@ const Templates: React.FC = () => {
       {selectedTemplate && (
         <DetailModal
           visible={showDetail}
-          onClose={() => setShowDetail(false)}
+          onClose={() => {
+            setShowDetail(false)
+            setSelectedTemplate(null)
+          }}
           title="模板详情"
           footer={
             <>
-              <button className="btn btn-secondary" onClick={() => { handleEdit(selectedTemplate); setShowDetail(false) }}>
+              <Button variant="secondary" onClick={() => handleEdit(selectedTemplate)}>
                 编辑
-              </button>
-              <button className="btn btn-secondary" onClick={() => { handleCopy(selectedTemplate); setShowDetail(false) }}>
+              </Button>
+              <Button variant="secondary" onClick={() => handleCopy(selectedTemplate)}>
                 复制
-              </button>
-              <button
-                className="btn btn-danger"
+              </Button>
+              <Button
+                variant="danger"
                 onClick={() => setShowDeleteConfirm(true)}
               >
                 删除
-              </button>
+              </Button>
             </>
           }
         >
@@ -372,133 +385,92 @@ const Templates: React.FC = () => {
       />
 
       {/* 新建/编辑模板弹窗 */}
-      {showForm && (
-        <div className="book-modal-overlay" onClick={resetForm}>
-          <div className="book-modal-dialog" onClick={(e) => e.stopPropagation()}>
-            <div className="book-modal-dialog__header">
-              <h3 className="book-modal-dialog__title">{editingId ? '编辑模板' : '新建模板'}</h3>
-              <button className="book-modal-dialog__close" onClick={resetForm}>✕</button>
-            </div>
-            <div className="book-modal-dialog__body">
-              <div className="book-modal-field">
-                <label className="book-modal-field__label">模板名称</label>
-                <input
-                  className="book-modal-field__input"
-                  placeholder="如：公司食堂午餐"
-                  value={form.name}
-                  onChange={(e) => setForm(prev => ({ ...prev, name: e.target.value.slice(0, 20) }))}
-                  autoFocus
-                  maxLength={20}
+      <Modal
+        open={showForm}
+        onClose={resetForm}
+        title={editingId ? '编辑模板' : '新建模板'}
+        footer={
+          <ModalFooter
+            onCancel={resetForm}
+            onConfirm={handleSave}
+            confirmText={saveLoading ? '保存中...' : (editingId ? '更新' : '创建')}
+            confirmLoading={saveLoading}
+          />
+        }
+      >
+        <div className="tpl-form">
+          <Input
+            label="模板名称"
+            placeholder="如：公司食堂午餐"
+            value={form.name}
+            onChange={(e) => setForm(prev => ({ ...prev, name: e.target.value.slice(0, 20) }))}
+            autoFocus
+            maxLength={20}
+          />
+          <div className="tpl-form-row">
+            <DropdownSelect
+              label="类型"
+              value={form.type}
+              onChange={(v) => setForm(prev => ({ ...prev, type: v as 'income' | 'expense', category_id: '' }))}
+              options={[
+                { key: 'expense', label: '支出' },
+                { key: 'income', label: '收入' },
+              ]}
+              placeholder="选择类型"
+            />
+            <DropdownSelect
+              label="分类"
+              value={form.category_id}
+              onChange={(v) => setForm(prev => ({ ...prev, category_id: v }))}
+              options={categories
+                .filter(c => c.type === form.type)
+                .map(c => ({ key: c.id, label: `${c.icon} ${c.name}` }))}
+              placeholder="选择分类"
+            />
+          </div>
+          <NumberInput
+            label="金额"
+            prefix="¥"
+            placeholder="0.00"
+            value={form.amount}
+            onChange={(v) => setForm(prev => ({ ...prev, amount: v }))}
+          />
+          <Input
+            label="备注"
+            placeholder="添加备注（可选）"
+            value={form.note}
+            onChange={(e) => setForm(prev => ({ ...prev, note: e.target.value }))}
+          />
+          <div className="tpl-form-location">
+            <label className="tpl-form-label">位置信息</label>
+            <div className="tpl-form-location-row">
+              {form.location_name ? (
+                <LocationDisplay
+                  locationName={form.location_name}
+                  latitude={form.latitude}
+                  longitude={form.longitude}
+                  poiId={form.poi_id || undefined}
+                  onClick={() => setShowLocationPicker(true)}
+                  onClear={() => setForm(prev => ({ ...prev, latitude: '', longitude: '', location_name: '', poi_id: '' }))}
                 />
-              </div>
-              <div className="book-modal-field-row">
-                <div className="book-modal-field">
-                  <label className="book-modal-field__label">类型</label>
-                  <select
-                    className="book-modal-field__input"
-                    value={form.type}
-                    onChange={(e) => setForm(prev => ({ ...prev, type: e.target.value as 'income' | 'expense', category_id: '' }))}
-                  >
-                    <option value="expense">支出</option>
-                    <option value="income">收入</option>
-                  </select>
-                </div>
-                <div className="book-modal-field">
-                  <label className="book-modal-field__label">分类</label>
-                  <select
-                    className="book-modal-field__input"
-                    value={form.category_id}
-                    onChange={(e) => setForm(prev => ({ ...prev, category_id: e.target.value }))}
-                  >
-                    <option value="">选择分类</option>
-                    {categories
-                      .filter(c => c.type === form.type)
-                      .map(c => (
-                        <option key={c.id} value={c.id}>{c.icon} {c.name}</option>
-                      ))}
-                  </select>
-                </div>
-              </div>
-              <div className="book-modal-field">
-                <label className="book-modal-field__label">金额</label>
-                <input
-                  className="book-modal-field__input"
-                  placeholder="0.00"
-                  value={form.amount}
-                  onChange={(e) => setForm(prev => ({ ...prev, amount: e.target.value.replace(/[^0-9.]/g, '') }))}
-                />
-              </div>
-              <div className="book-modal-field">
-                <label className="book-modal-field__label">备注</label>
-                <input
-                  className="book-modal-field__input"
-                  placeholder="添加备注（可选）"
-                  value={form.note}
-                  onChange={(e) => setForm(prev => ({ ...prev, note: e.target.value }))}
-                />
-              </div>
-              <div className="book-modal-field">
-                <label className="book-modal-field__label">位置信息</label>
-                <div className="location-select-wrapper">
-                  <button
-                    type="button"
-                    className="book-modal-btn book-modal-btn--secondary"
-                    style={{ padding: '8px 14px', fontSize: '13px' }}
-                    onClick={() => setShowLocationPicker(true)}
-                  >
-                    📍 选择位置
-                  </button>
-                  {form.location_name && (
-                    <div className="location-selected-info" style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: 'var(--fg2)' }}>
-                      <span style={{ color: 'var(--pr)' }}>✓</span>
-                      <span>{form.location_name}</span>
-                      <button
-                        type="button"
-                        style={{ background: 'none', border: 'none', color: 'var(--fg3)', cursor: 'pointer', padding: '0 4px' }}
-                        onClick={() => setForm(prev => ({ ...prev, latitude: '', longitude: '', location_name: '', poi_id: '' }))}
-                      >
-                        ✕
-                      </button>
-                    </div>
-                  )}
-                </div>
-              </div>
-              <div className="book-modal-field-row">
-                <div className="book-modal-field">
-                  <label className="book-modal-field__label">商户 ID</label>
-                  <input
-                    className="book-modal-field__input"
-                    value={form.poi_id}
-                    disabled
-                    readOnly
-                  />
-                </div>
-                <div className="book-modal-field">
-                  <label className="book-modal-field__label">排序</label>
-                  <input
-                    className="book-modal-field__input"
-                    type="number"
-                    placeholder="0"
-                    value={form.sort_order}
-                    onChange={(e) => setForm(prev => ({ ...prev, sort_order: parseInt(e.target.value) || 0 }))}
-                  />
-                </div>
-              </div>
-            </div>
-            <div className="book-modal-dialog__footer">
-              <button type="button" className="book-modal-btn book-modal-btn--secondary" onClick={resetForm}>取消</button>
-              <button
-                type="button"
-                className="book-modal-btn book-modal-btn--primary"
-                onClick={handleSave}
-                disabled={saveLoading || !form.name.trim() || !form.category_id}
-              >
-                {saveLoading ? '保存中...' : (editingId ? '更新' : '创建')}
-              </button>
+              ) : (
+                <Button variant="secondary" size="sm" onClick={() => setShowLocationPicker(true)}>
+                  📍 选择位置
+                </Button>
+              )}
             </div>
           </div>
+          <div className="tpl-form-row">
+            <div></div>
+            <NumberInput
+              label="排序"
+              value={String(form.sort_order || 0)}
+              onChange={(v) => setForm(prev => ({ ...prev, sort_order: parseInt(v) || 0 }))}
+              placeholder="0"
+            />
+          </div>
         </div>
-      )}
+      </Modal>
 
       {/* 地图选点弹窗 */}
       <LocationPicker

@@ -6,6 +6,7 @@ import { getTransactions, deleteTransaction } from '../../services/api'
 import { useCategoryLookup, useCategories } from '../../hooks/useCategories'
 import { useDebounce } from '../../hooks/useDebounce'
 import { useDebouncedAction } from '../../hooks/useDebouncedAction'
+import { useFocusItem } from '../../hooks/useFocusItem'
 import { formatAmount, formatAmountWithType } from '../../utils/common'
 import { Skeleton } from '../../components/ui/Skeleton'
 import { DetailModal } from '../../components/DetailModal'
@@ -35,7 +36,6 @@ const parseImageList = (tx: any): string[] => {
       }
     }
   }
-  if (tx?.image_url) return [tx.image_url]
   return []
 }
 
@@ -44,6 +44,9 @@ const Transactions: React.FC = () => {
   const [searchParams] = useSearchParams()
   const queryClient = useQueryClient()
   const { getCategoryName, getCategoryIcon } = useCategoryLookup()
+
+  // 高亮聚焦项
+  useFocusItem()
 
   const today = new Date()
   const monthStart = format(startOfMonth(today), 'yyyy-MM-dd')

@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { useMemberComparison } from '../../hooks/useMemberComparison';
-import type { MemberComparisonItem, MemberCategoryBreakdown } from '../../types/memberComparison';
+import type { MemberComparisonItem } from '../../types/memberComparison';
 import { Skeleton } from '../../components/ui/Skeleton';
 import './MemberComparison.scss';
 

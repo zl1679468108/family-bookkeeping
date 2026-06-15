@@ -1,4 +1,5 @@
-import React from 'react'
+import React, { useEffect } from 'react'
+import './index.scss'
 
 interface ConfirmDialogProps {
   open: boolean
@@ -11,6 +12,7 @@ interface ConfirmDialogProps {
   onConfirm: () => void
   onCancel: () => void
   children?: React.ReactNode
+  closable?: boolean
 }
 
 /**
@@ -38,71 +40,37 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
   onConfirm,
   onCancel,
   children,
+  closable = true,
 }) => {
+  // ESC 键关闭弹窗
+  useEffect(() => {
+    if (!open || !closable) return
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.stopPropagation()
+        onCancel()
+      }
+    }
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [open, closable, onCancel])
+
   if (!open) return null
 
+  const confirmVariant = confirmDanger ? 'danger' : 'primary'
+
   return (
-    <div
-      style={{
-        position: 'fixed',
-        inset: 0,
-        zIndex: 1200,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        background: 'rgba(0, 0, 0, 0.4)',
-        backdropFilter: 'blur(2px)',
-      }}
-      onClick={onCancel}
-    >
-      <div
-        style={{
-          margin: '0 16px',
-          width: '100%',
-          maxWidth: '380px',
-          borderRadius: 'var(--radius-lg)',
-          background: 'var(--surface)',
-          padding: '24px',
-          boxShadow: 'var(--shadow-lg)',
-          border: '1px solid var(--border)',
-        }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <h3 style={{
-          fontFamily: 'var(--font-display)',
-          fontSize: '16px',
-          fontWeight: 600,
-          color: 'var(--fg)',
-          marginBottom: '8px',
-        }}>
-          {title}
-        </h3>
-        <p style={{
-          fontSize: '14px',
-          lineHeight: 1.6,
-          color: 'var(--muted)',
-        }}>
-          {message}
-        </p>
+    <div className="confirm-dialog-overlay" onClick={onCancel}>
+      <div className="confirm-dialog" onClick={(e) => e.stopPropagation()}>
+        <h3 className="confirm-dialog__title">{title}</h3>
+        <p className="confirm-dialog__message">{message}</p>
 
-        {children}
+        {children && <div className="confirm-dialog__children">{children}</div>}
 
-        <div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+        <div className="confirm-dialog__actions">
           <button
             type="button"
-            style={{
-              flex: 1,
-              border: '1px solid var(--border)',
-              borderRadius: 'var(--radius-md)',
-              background: 'var(--surface)',
-              color: 'var(--fg)',
-              padding: '10px 16px',
-              fontSize: '14px',
-              fontWeight: 500,
-              cursor: loading ? 'not-allowed' : 'pointer',
-              opacity: loading ? 0.5 : 1,
-              transition: 'background 0.15s ease',
-            }}
+            className="confirm-dialog__btn confirm-dialog__btn--cancel"
             onClick={onCancel}
             disabled={loading}
           >
@@ -110,29 +78,13 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
           </button>
           <button
             type="button"
-            style={{
-              flex: 1,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '6px',
-              border: 'none',
-              borderRadius: 'var(--radius-md)',
-              background: confirmDanger ? 'var(--danger)' : 'var(--accent)',
-              color: '#fff',
-              padding: '10px 16px',
-              fontSize: '14px',
-              fontWeight: 500,
-              cursor: loading ? 'not-allowed' : 'pointer',
-              opacity: loading ? 0.7 : 1,
-              transition: 'opacity 0.15s ease',
-            }}
+            className={`confirm-dialog__btn confirm-dialog__btn--confirm ${confirmVariant}`}
             onClick={onConfirm}
             disabled={loading}
           >
             {loading && (
               <svg
-                style={{ width: '16px', height: '16px', animation: 'spin 0.8s linear infinite' }}
+                className="confirm-dialog__spinner"
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
                 viewBox="0 0 24 24"
@@ -145,7 +97,6 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
           </button>
         </div>
       </div>
-      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>
   )
 }

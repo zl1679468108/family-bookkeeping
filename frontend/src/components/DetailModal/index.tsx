@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import './index.scss'
 
 interface DetailModalProps {
@@ -7,6 +7,7 @@ interface DetailModalProps {
   title: string
   children: React.ReactNode
   footer?: React.ReactNode
+  closable?: boolean
 }
 
 export const DetailModal: React.FC<DetailModalProps> = ({
@@ -15,7 +16,21 @@ export const DetailModal: React.FC<DetailModalProps> = ({
   title,
   children,
   footer,
+  closable = true,
 }) => {
+  // ESC 键关闭弹窗
+  useEffect(() => {
+    if (!visible || !closable) return
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.stopPropagation()
+        onClose()
+      }
+    }
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [visible, closable, onClose])
+
   if (!visible) return null
 
   return (

@@ -10,7 +10,7 @@ interface Transaction {
   type: 'income' | 'expense';
   date: string;
   description: string;
-  image_url?: string;
+  image_urls?: string;
   created_at: string;
   user_id?: string;
 }

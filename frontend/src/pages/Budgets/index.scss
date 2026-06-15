@@ -1,89 +1,91 @@
-/* ═══ Budgets 预算模块样式 ═══ */
+/* ═══ Budgets 预算模块样式 —— 嵌套写法实现样式隔离 ═══ */
 
-.budget-item {
-  margin-bottom: 12px;
-}
+.page-container {
+  .budget-item {
+    margin-bottom: 12px;
 
-.budget-info {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 5px;
-  align-items: center;
-}
+    .budget-info {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 5px;
+      align-items: center;
+    }
 
-.budget-name {
-  font-size: 13px;
-  font-weight: 600;
-}
+    .budget-name {
+      font-size: 13px;
+      font-weight: 600;
+    }
 
-.budget-amount {
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--fg2);
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
+    .budget-amount {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--fg2);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
 
-.budget-actions {
-  display: flex;
-  gap: 3px;
-  opacity: 0;
-  transition: opacity var(--df);
-}
+    .budget-actions {
+      display: flex;
+      gap: 3px;
+      opacity: 0;
+      transition: opacity var(--df);
+    }
 
-.budget-item:hover .budget-actions {
-  opacity: 1;
-}
+    &:hover .budget-actions {
+      opacity: 1;
+    }
 
-.budget-actions button {
-  background: var(--bg);
-  border: 1px solid var(--bd);
-  border-radius: 5px;
-  font-size: 10px;
-  cursor: pointer;
-  color: var(--fg3);
-  padding: 2px 6px;
-}
+    .budget-actions button {
+      background: var(--bg);
+      border: 1px solid var(--bd);
+      border-radius: 5px;
+      font-size: 10px;
+      cursor: pointer;
+      color: var(--fg3);
+      padding: 2px 6px;
 
-.budget-actions button:hover {
-  background: var(--srf);
-  color: var(--fg);
-  border-color: var(--prBd);
-}
+      &:hover {
+        background: var(--srf);
+        color: var(--fg);
+        border-color: var(--prBd);
+      }
+    }
 
-.budget-actions button.del:hover {
-  color: var(--exp);
-  border-color: var(--exp);
-}
+    .budget-actions button.del:hover {
+      color: var(--exp);
+      border-color: var(--exp);
+    }
 
-.budget-bar {
-  height: 5px;
-  background: var(--bg);
-  border-radius: 3px;
-  overflow: hidden;
-}
+    .budget-bar {
+      height: 5px;
+      background: var(--bg);
+      border-radius: 3px;
+      overflow: hidden;
 
-.fill {
-  height: 100%;
-  border-radius: 3px;
-  transition: width var(--ds) var(--sp);
-}
+      .fill {
+        height: 100%;
+        border-radius: 3px;
+        transition: width var(--ds) var(--sp);
+      }
 
-.fill.safe {
-  background: var(--prGr);
-}
+      .fill.safe {
+        background: var(--prGr);
+      }
 
-.fill.warn {
-  background: linear-gradient(90deg, #E8A838, #F0C040);
-}
+      .fill.warn {
+        background: linear-gradient(90deg, #E8A838, #F0C040);
+      }
 
-.fill.danger {
-  background: linear-gradient(90deg, #E06055, #F08075);
-}
+      .fill.danger {
+        background: linear-gradient(90deg, #E06055, #F08075);
+      }
+    }
 
-.budget-percent {
-  font-size: 11px;
-  color: var(--fg3);
-  margin-top: 2px;
+    .budget-percent {
+      font-size: 11px;
+      color: var(--fg3);
+      margin-top: 2px;
+    }
+  }
 }

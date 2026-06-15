@@ -170,6 +170,18 @@ export class BooksService {
     }
 
     const supabase = this.getClient();
+
+    // 先删除关联的账本成员记录
+    const { error: memberError } = await supabase
+      .from('book_members')
+      .delete()
+      .eq('book_id', bookId);
+
+    if (memberError) {
+      throw new ConflictException(`删除账本成员失败：${memberError.message}`);
+    }
+
+    // 再删除账本本身
     const { error } = await supabase
       .from('books')
       .delete()

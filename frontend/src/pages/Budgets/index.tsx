@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react'
+import { format } from 'date-fns'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { format, startOfMonth } from 'date-fns'
 import { fetchBudgets, fetchBudgetStatus, upsertBudgets } from '../../services/budgetsApi'
 import { useDebouncedAction } from '../../hooks/useDebouncedAction'
 import { useCategoryLookup } from '../../hooks/useCategories'
@@ -10,8 +10,6 @@ import { notify } from '../../utils/notifications'
 import { Skeleton } from '../../components/ui/Skeleton'
 import { Modal, ModalFooter } from '../../components/ui/Modal'
 import { Card, CardHeader } from '../../components/ui/Card'
-import { DropdownSelect } from '../../components/ui/Dropdown'
-import type { DropdownOption } from '../../components/ui/Dropdown'
 import { Button } from '../../components/ui/Button'
 import { NumberInput } from '../../components/ui/Input'
 import { RankRow } from '../../components/ui/RankList'
@@ -19,9 +17,12 @@ import { ProgressBar } from '../../components/ui/ProgressBar'
 import { EmptyState } from '../../components/ui/EmptyState'
 import { DetailModal } from '../../components/DetailModal'
 import { ConfirmDialog } from '../../components/ConfirmDialog'
+import { DropdownSelect } from '../../components/ui/Dropdown'
 
 const getCurrentMonthStr = (): string => {
-  return format(startOfMonth(new Date()), 'yyyy-MM-dd')
+  const today = new Date()
+  const firstOfMonth = new Date(today.getFullYear(), today.getMonth(), 1)
+  return format(firstOfMonth, 'yyyy-MM-dd')
 }
 
 const formatMonthToDisplay = (monthStr: string): string => {
@@ -167,10 +168,11 @@ const Budgets: React.FC = () => {
       remaining: newAmount - prev.spent,
     }))
     setShowEditForm(false)
+    setShowDetail(false)
   }
 
-  const generateMonthOptions = (): DropdownOption[] => {
-    const options: DropdownOption[] = []
+  const generateMonthOptions = (): { key: string; label: string }[] => {
+    const options: { key: string; label: string }[] = []
     const today = new Date()
     for (let i = 0; i < 12; i++) {
       const date = new Date(today.getFullYear(), today.getMonth() - i, 1)
@@ -185,19 +187,22 @@ const Budgets: React.FC = () => {
 
   return (
     <div className="page-container">
-      <div style={{ marginBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <DropdownSelect
-          options={monthOptions}
-          value={selectedMonth}
-          onChange={(key) => key && setSelectedMonth(key)}
-          placeholder="选择月份"
-          allowClear={false}
-        />
-      </div>
-
       <Card>
         <CardHeader
           title="预算明细"
+          subTitle={
+            budgetsLoading ? (
+              <Skeleton width="100px" height="14px" borderRadius="var(--rs)" />
+            ) : (
+              <DropdownSelect
+                options={monthOptions}
+                value={selectedMonth}
+                onChange={(key) => key && setSelectedMonth(key)}
+                allowClear={false}
+                width="auto"
+              />
+            )
+          }
           action={
             budgetsLoading ? (
               <Skeleton width="60px" height="28px" borderRadius="var(--rs)" />
@@ -270,14 +275,8 @@ const Budgets: React.FC = () => {
                     totalAmount={budget > 0 ? budget : undefined}
                     progress={budget > 0 ? progress : undefined}
                     status={getStatusVariant(status)}
-                    meta={<span className="budget-percent">剩余 ¥{remaining.toLocaleString('zh-CN')}</span>}
+                    meta={<span className="budget-percent">{budget > 0 ? `剩余 ¥${remaining.toLocaleString('zh-CN')}` : '未设置预算'}</span>}
                   />
-                  {budget === 0 && (
-                    <ProgressBar
-                      value={0}
-                      variant={getStatusVariant(status)}
-                    />
-                  )}
                 </div>
               )
             })}
@@ -288,7 +287,10 @@ const Budgets: React.FC = () => {
       {selectedBudget && (
         <DetailModal
           visible={showDetail}
-          onClose={() => setShowDetail(false)}
+          onClose={() => {
+            setShowDetail(false)
+            setSelectedBudget(null)
+          }}
           title="预算详情"
           footer={
             <>

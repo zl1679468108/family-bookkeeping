@@ -109,7 +109,7 @@ const Calendar: React.FC = () => {
     return result;
   }, [startDow, totalDays, viewYear, viewMonth, dateMap]);
 
-  // ---- 导航 ----
+  // ---- 月份切换 ----
   const goPrevMonth = useCallback(() => {
     if (viewMonth === 1) {
       setViewYear((y) => y - 1);
@@ -118,7 +118,7 @@ const Calendar: React.FC = () => {
       setViewMonth((m) => m - 1);
     }
     setSelectedDate(null);
-  }, [viewMonth]);
+  }, [viewMonth, viewYear]);
 
   const goNextMonth = useCallback(() => {
     if (viewMonth === 12) {
@@ -128,7 +128,7 @@ const Calendar: React.FC = () => {
       setViewMonth((m) => m + 1);
     }
     setSelectedDate(null);
-  }, [viewMonth]);
+  }, [viewMonth, viewYear]);
 
   // ---- 点击日期 ----
   const handleDateClick = useCallback((dateStr: string) => {
@@ -362,7 +362,6 @@ const Calendar: React.FC = () => {
                         </div>
                       </div>
                       <div className={`txn-amount ${isIncome ? 'credit' : 'debit'}`}>
-                        <span className="txn-sign">{isIncome ? '+' : '−'}</span>
                         {formatAmountWithType(parseFloat(String(item.amount)), isIncome)}
                       </div>
                     </div>

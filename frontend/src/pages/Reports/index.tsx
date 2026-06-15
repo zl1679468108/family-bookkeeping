@@ -389,13 +389,13 @@ const Reports: React.FC = () => {
             return `${params[0].name}<br/>支出：${formatAmount(expense)}<br/>收入：${formatAmount(income)}`
           },
         },
-        grid: { left: '3%', right: '4%', bottom: '3%', top: '10%', containLabel: true },
+        grid: { left: '3%', right: '4%', bottom: '3%', top: '15%', containLabel: true },
         xAxis: { type: 'category', data: dates },
         yAxis: {
           type: 'value',
           axisLabel: { formatter: (value: number) => formatAmount(value) },
         },
-        legend: { data: ['支出', '收入'], bottom: 0 },
+        legend: { data: ['支出', '收入'], top: 5 },
         series: [
           { name: '支出', type: 'bar', data: expenses, itemStyle: { color: '#e74c3c' } },
           { name: '收入', type: 'bar', data: incomes, itemStyle: { color: '#27ae60' } },
@@ -426,13 +426,13 @@ const Reports: React.FC = () => {
               ${format(parseISO(monthCompareTarget), 'yyyy 年 MM 月')} 收入：${formatAmount(targetInc)}`
           },
         },
-        grid: { left: '3%', right: '4%', bottom: '3%', top: '10%', containLabel: true },
+        grid: { left: '3%', right: '4%', bottom: '3%', top: '15%', containLabel: true },
         xAxis: { type: 'category', data: dates },
         yAxis: {
           type: 'value',
           axisLabel: { formatter: (value: number) => formatAmount(value) },
         },
-        legend: { bottom: 0 },
+        legend: { top: 5 },
         series: [
           { name: `${format(now, 'yyyy 年 MM 月')} 支出`, type: 'bar', data: currExpenses, itemStyle: { color: '#c0392b' }, barGap: '20%' },
           { name: `${format(now, 'yyyy 年 MM 月')} 收入`, type: 'bar', data: currIncomes, itemStyle: { color: '#1e8449' } },
@@ -463,13 +463,13 @@ const Reports: React.FC = () => {
               ${yearCompareTarget}年 收入：${formatAmount(targetInc)}`
           },
         },
-        grid: { left: '3%', right: '4%', bottom: '3%', top: '10%', containLabel: true },
+        grid: { left: '3%', right: '4%', bottom: '3%', top: '15%', containLabel: true },
         xAxis: { type: 'category', data: monthLabels },
         yAxis: {
           type: 'value',
           axisLabel: { formatter: (value: number) => formatAmount(value) },
         },
-        legend: { bottom: 0 },
+        legend: { top: 5 },
         series: [
           { name: `${currentYear}年 支出`, type: 'bar', data: currentYearExpenses, itemStyle: { color: '#c0392b' }, barGap: '20%' },
           { name: `${currentYear}年 收入`, type: 'bar', data: currentYearIncomes, itemStyle: { color: '#1e8449' } },
@@ -492,13 +492,13 @@ const Reports: React.FC = () => {
             return `${params[0].name}<br/>支出：${formatAmount(expense)}<br/>收入：${formatAmount(income)}`
           },
         },
-        grid: { left: '3%', right: '4%', bottom: '3%', top: '10%', containLabel: true },
+        grid: { left: '3%', right: '4%', bottom: '3%', top: '15%', containLabel: true },
         xAxis: { type: 'category', data: monthLabels },
         yAxis: {
           type: 'value',
           axisLabel: { formatter: (value: number) => formatAmount(value) },
         },
-        legend: { data: ['支出', '收入'], bottom: 0 },
+        legend: { data: ['支出', '收入'], top: 5 },
         series: [
           { name: '支出', type: 'bar', data: expenses, itemStyle: { color: '#e74c3c' } },
           { name: '收入', type: 'bar', data: incomes, itemStyle: { color: '#27ae60' } },
@@ -619,9 +619,14 @@ const Reports: React.FC = () => {
           {/* 时间周期选择 */}
           <div>
             {mainLoading ? (
-              <div style={{ display: 'flex', gap: '8px', opacity: 0.7 }}>
-                {[0, 1, 2, 3, 4, 5].map((i) => (
-                  <Skeleton key={i} width="60px" height="28px" borderRadius="var(--rs)" />
+              <div className="seg-control" style={{ pointerEvents: 'none' }}>
+                {periodOptions.map((opt, i) => (
+                  <Skeleton
+                    key={i}
+                    width={String(opt.label).length * 14 + 28}
+                    height="26px"
+                    borderRadius="calc(var(--rs) - 3px)"
+                  />
                 ))}
               </div>
             ) : (
@@ -638,8 +643,16 @@ const Reports: React.FC = () => {
             {mainLoading ? (
               <>
                 <CardHeader
-                  title={<Skeleton width="35%" height="14px" />}
-                  action={<Skeleton width="25%" height="12px" />}
+                  title={<Skeleton width="45%" height="16px" />}
+                  action={
+                    (isMonthCompare || isYearCompare) ? (
+                      <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                        <Skeleton width="100px" height="14px" />
+                        <Skeleton width="20px" height="12px" />
+                        <Skeleton width="120px" height="28px" borderRadius="var(--rs)" />
+                      </div>
+                    ) : null
+                  }
                 />
                 <Skeleton width="100%" height="300px" borderRadius="var(--rs)" />
               </>
@@ -674,24 +687,73 @@ const Reports: React.FC = () => {
           <Card style={{ marginTop: '14px' }}>
             {categoryLoading ? (
               <>
-                <CardHeader title={<Skeleton width="25%" height="14px" />} />
-                <div className="report-rank-list" style={{ pointerEvents: 'none' }}>
-                  {[0, 1, 2, 3, 4].map((i) => (
-                    <div key={i} className="report-rank-item">
-                      <div className="report-rank-item__top">
-                        <span className="report-rank-item__name">
-                          <Skeleton width="80%" height="13px" />
-                        </span>
-                        <span className="report-rank-item__amount" style={{ color: 'var(--fg3)' }}>
-                          <Skeleton width="80px" height="13px" />
-                        </span>
+                <CardHeader title={<Skeleton width="35%" height="16px" />} />
+                {isMonthCompare || isYearCompare ? (
+                  <div style={{ display: 'flex', gap: '24px' }}>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontSize: '13px', fontWeight: 700, marginBottom: '10px' }}>
+                        <Skeleton width="100px" height="14px" />
                       </div>
-                      <div className="report-rank-item__bar">
-                        <Skeleton width={[60, 85, 45, 70, 30][i] + '%'} height="100%" borderRadius="2px" />
+                      <div className="report-rank-list" style={{ pointerEvents: 'none' }}>
+                        {[0, 1, 2, 3, 4].map((i) => (
+                          <div key={i} className="report-rank-item">
+                            <div className="report-rank-item__top">
+                              <span className="report-rank-item__name">
+                                <Skeleton width="130px" height="13px" />
+                              </span>
+                              <span className="report-rank-item__amount" style={{ color: 'var(--fg3)' }}>
+                                <Skeleton width="130px" height="13px" />
+                              </span>
+                            </div>
+                            <div className="report-rank-item__bar">
+                              <Skeleton width={[60, 85, 45, 70, 30][i] + '%'} height="100%" borderRadius="2px" />
+                            </div>
+                          </div>
+                        ))}
                       </div>
                     </div>
-                  ))}
-                </div>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontSize: '13px', fontWeight: 700, marginBottom: '10px' }}>
+                        <Skeleton width="100px" height="14px" />
+                      </div>
+                      <div className="report-rank-list" style={{ pointerEvents: 'none' }}>
+                        {[0, 1, 2, 3, 4].map((i) => (
+                          <div key={i} className="report-rank-item">
+                            <div className="report-rank-item__top">
+                              <span className="report-rank-item__name">
+                                <Skeleton width="130px" height="13px" />
+                              </span>
+                              <span className="report-rank-item__amount" style={{ color: 'var(--fg3)' }}>
+                                <Skeleton width="130px" height="13px" />
+                              </span>
+                            </div>
+                            <div className="report-rank-item__bar">
+                              <Skeleton width={[70, 50, 80, 40, 60][i] + '%'} height="100%" borderRadius="2px" />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="report-rank-list" style={{ pointerEvents: 'none' }}>
+                    {[0, 1, 2, 3, 4].map((i) => (
+                      <div key={i} className="report-rank-item">
+                        <div className="report-rank-item__top">
+                          <span className="report-rank-item__name">
+                            <Skeleton width="130px" height="13px" />
+                          </span>
+                          <span className="report-rank-item__amount" style={{ color: 'var(--fg3)' }}>
+                            <Skeleton width="130px" height="13px" />
+                          </span>
+                        </div>
+                        <div className="report-rank-item__bar">
+                          <Skeleton width={[60, 85, 45, 70, 30][i] + '%'} height="100%" borderRadius="2px" />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </>
             ) : (
               <>

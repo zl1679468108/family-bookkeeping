@@ -9,6 +9,7 @@ import { useTemplates } from '../../hooks/useTemplates'
 import { useDebouncedAction } from '../../hooks/useDebouncedAction'
 import { notify } from '../../utils/notifications'
 import { Skeleton } from '../../components/ui/Skeleton'
+import { LocationDisplay } from '../../components/ui/LocationDisplay'
 import { compressImage } from '../../utils/imageCompress'
 import type { LocationResult } from '../../types/map'
 
@@ -35,7 +36,6 @@ const parseImageList = (tx: any): string[] => {
       }
     }
   }
-  if (tx?.image_url) return [tx.image_url]
   return []
 }
 
@@ -514,25 +514,15 @@ const AddTransaction: React.FC = () => {
 
           {/* 位置按钮 */}
           <div style={{ marginTop: 14 }}>
-            <button
-              className={`loc-btn ${location ? 'sel' : ''}`}
+            <LocationDisplay
+              locationName={location?.locationName}
+              latitude={location?.latitude}
+              longitude={location?.longitude}
+              poiId={location?.poiId || undefined}
               onClick={() => setShowLocationPicker(true)}
-            >
-              {location ? (
-                <div className="loc-btn-content">
-                  <div className="loc-name">📍 {location.locationName}</div>
-                  {location.latitude && location.longitude && (
-                    <div className="loc-coords">
-                      {location.latitude.toFixed(6)}, {location.longitude.toFixed(6)}
-                    </div>
-                  )}
-                  {location.poiId && <div className="loc-poi">商户ID: {location.poiId}</div>}
-                  <div className="loc-edit">· 点击修改</div>
-                </div>
-              ) : (
-                '📍 选择地点（高德地图选点）'
-              )}
-            </button>
+              onClear={() => setLocation(null)}
+              showButton={!location}
+            />
           </div>
 
           {/* 操作按钮 */}

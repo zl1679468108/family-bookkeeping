@@ -3,9 +3,8 @@ import { format } from 'date-fns'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { fetchCategories, createCategory, updateCategory, deleteCategory, reorderCategories } from '../../services/categoriesApi'
 import { EMOJI_PRESETS } from '../../utils/emojiPresets'
-import { useDebouncedAction } from '../../hooks/useDebouncedAction'
 import { notify } from '../../utils/notifications'
-import { Skeleton, CardGridSkeleton } from '../../components/ui/Skeleton'
+import { Skeleton } from '../../components/ui/Skeleton'
 import { DetailModal } from '../../components/DetailModal'
 import { Modal, ModalFooter } from '../../components/ui/Modal'
 import { Card, CardHeader } from '../../components/ui/Card'
@@ -83,7 +82,9 @@ const Categories: React.FC = () => {
       queryClient.invalidateQueries({ queryKey: ['categories'] })
       notify({ type: 'success', message: '分类已更新' })
       setModalOpen(false)
+      setShowDetail(false)
       setEditingCategory(null)
+      setSelectedCategory(null)
     },
   })
 
@@ -93,6 +94,8 @@ const Categories: React.FC = () => {
       queryClient.invalidateQueries({ queryKey: ['categories'] })
       notify({ type: 'success', message: '已删除' })
       setDeleteTarget(null)
+      setShowDetail(false)
+      setSelectedCategory(null)
     },
   })
 
@@ -133,7 +136,6 @@ const Categories: React.FC = () => {
 
   const typeLabel = activeTab === 'expense' ? '支出' : '收入'
   const modalTitle = modalMode === 'add' ? `新增${typeLabel}分类` : `编辑${typeLabel}分类`
-  const modalIsValid = modalName.trim().length > 0 && modalIcon.length > 0
 
   const iconOptions = React.useMemo(
     () => EMOJI_PRESETS.map((emoji) => ({ value: emoji, icon: emoji })),
@@ -183,21 +185,26 @@ const Categories: React.FC = () => {
             <CardHeader
               title="分类管理"
               action={
-                <Button
-                  variant={sortingMode ? 'outline' : 'secondary'}
-                  size="sm"
-                  onClick={() => {
-                    if (sortingMode) {
-                      handleSaveSort()
-                      notify({ type: 'success', message: '排序已保存' })
-                    } else {
-                      handleEnterSortMode()
-                    }
-                  }}
-                  disabled={isSaving}
-                >
-                  {isSaving ? '保存中...' : (sortingMode ? '完成排序' : '编辑排序')}
-                </Button>
+                <div className="cat-header-actions">
+                  <Button
+                    variant={sortingMode ? 'outline' : 'secondary'}
+                    size="sm"
+                    onClick={() => {
+                      if (sortingMode) {
+                        handleSaveSort()
+                        notify({ type: 'success', message: '排序已保存' })
+                      } else {
+                        handleEnterSortMode()
+                      }
+                    }}
+                    disabled={isSaving}
+                  >
+                    {isSaving ? '保存中...' : (sortingMode ? '完成排序' : '编辑排序')}
+                  </Button>
+                  <Button variant="primary" size="sm" onClick={handleOpenAdd}>
+                    + 新建分类
+                  </Button>
+                </div>
               }
             />
 
@@ -251,10 +258,6 @@ const Categories: React.FC = () => {
                   </div>
                 )
               })}
-              <div className="cat-card add-new" onClick={handleOpenAdd}>
-                <span className="add-icon">+</span>
-                <span className="add-text">新建</span>
-              </div>
             </div>
           </>
         )}
@@ -322,17 +325,17 @@ const Categories: React.FC = () => {
       {selectedCategory && (
         <DetailModal
           visible={showDetail}
-          onClose={() => setShowDetail(false)}
+          onClose={() => {
+            setShowDetail(false)
+            setSelectedCategory(null)
+          }}
           title="分类详情"
           footer={
             <>
               {!selectedCategory.is_default && (
                 <Button
                   variant="secondary"
-                  onClick={() => {
-                    handleOpenEdit(selectedCategory)
-                    setShowDetail(false)
-                  }}
+                  onClick={() => handleOpenEdit(selectedCategory)}
                 >
                   编辑
                 </Button>

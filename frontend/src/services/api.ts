@@ -20,7 +20,6 @@ export interface Transaction {
   time?: string
   description?: string
   brand?: string
-  image_url?: string
   image_urls?: string
   image_url_list?: string[]
   location_name?: string
@@ -446,12 +445,6 @@ export const changePassword = async (
   return request<void>('/auth/change-password', {
     method: 'POST',
     body: data,
-    requiresAuth: true,
-  });
-}
-
-export const getCurrentUser = async (): Promise<UserProfile & { current_book_id?: string }> => {
-  return request<UserProfile & { current_book_id?: string }>('/auth/profile', {
     requiresAuth: true,
   });
 }

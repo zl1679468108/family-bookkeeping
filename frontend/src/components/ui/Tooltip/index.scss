@@ -7,7 +7,7 @@
 
 .tooltip-bubble {
   position: absolute;
-  z-index: 1000;
+  z-index: var(--z-400);
   pointer-events: none;
   white-space: nowrap;
   background: var(--fg);

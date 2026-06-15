@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   clearStoredToken,
   getProfile,
@@ -23,8 +23,6 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<UserProfile | null>(null);
-  const [loading, setLoading] = useState(true);
   const queryClient = useQueryClient();
 
   // 登录后重置所有与用户相关的缓存：账本 / 交易 / 预算等
@@ -32,51 +30,51 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     queryClient.clear();
   }, [queryClient]);
 
-  useEffect(() => {
-    let cancelled = false;
-    const init = async () => {
-      if (!hasToken()) {
-        setLoading(false);
-        return;
-      }
+  // 用 useQuery 管理 /auth/profile 请求，直接用 profileData 作为 user
+  // 关键：不再经过额外的 useState 同步，避免渲染时序间隙导致误判登录状态
+  const { data: profileData, isLoading: profileLoading, refetch, isFetched } = useQuery({
+    queryKey: ['auth', 'profile'],
+    queryFn: async () => {
       try {
-        const userData = await getProfile();
-        if (!cancelled) {
-          setUser(userData);
-        }
+        return await getProfile();
       } catch (error) {
+        // token 无效时清除
         clearStoredToken();
-      } finally {
-        if (!cancelled) setLoading(false);
+        return null;
       }
-    };
-    init();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+    },
+    enabled: hasToken(),
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+  });
+
+  // user 直接从 profileData 派生：
+  //  - 无 token → user = null，loading = false
+  //  - 有 token 但 profile 还没返回 → user = null，loading = true
+  //  - 有 token 且 profile 已返回 → user = profileData（可能是普通用户或 null），loading = false
+  const user = profileData ?? null;
+  const loading = hasToken() ? !isFetched : false;
 
   const refreshUser = async () => {
-    try {
-      const userData = await getProfile();
-      setUser(userData);
-    } catch (error) {
-      setUser(null);
-    }
+    await refetch();
   };
 
   const signIn = async (email: string, password: string) => {
     const { user: userData, token } = await apiLogin(email, password);
     storeToken(token.trim());
-    resetUserCache(); // 关键：切换账号时必须清除旧账号的缓存
-    setUser(userData);
+    resetUserCache(); // 切换账号时必须清除旧账号的缓存
+    // 写入 query 缓存并触发 refetch 确保组件重新渲染
+    queryClient.setQueryData(['auth', 'profile'], userData);
+    await refetch();
   };
 
   const signUp = async (email: string, password: string, username: string) => {
     const { user: userData, token } = await apiRegister(email, password, username);
     storeToken(token);
     resetUserCache(); // 新注册账号也需要清除旧缓存
-    setUser(userData);
+    queryClient.setQueryData(['auth', 'profile'], userData);
+    await refetch();
   };
 
   const signOut = useCallback(async () => {
@@ -86,10 +84,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     } finally {
       clearStoredToken();
-      setUser(null);
+      queryClient.setQueryData(['auth', 'profile'], null);
       resetUserCache();
     }
-  }, [resetUserCache]);
+  }, [queryClient, resetUserCache]);
 
   const value: AuthContextType = {
     user,

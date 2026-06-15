@@ -59,7 +59,10 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
   return (
     <NotificationContext.Provider value={value}>
       {children}
-      <div className="fixed top-4 right-4 z-[3000] flex w-full max-w-sm flex-col gap-3 px-4 pointer-events-none">
+      <div
+        className="fixed top-4 right-4 flex w-full max-w-sm flex-col gap-3 px-4 pointer-events-none"
+        style={{ zIndex: 'var(--z-toast)' }}
+      >
         {notifications.map((item) => (
           <div
             key={item.id}

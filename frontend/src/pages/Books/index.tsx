@@ -5,39 +5,50 @@ import { ConfirmDialog } from '../../components/ConfirmDialog';
 import { BookCreateModal } from './BookCreateModal';
 import { BookInviteModal } from './BookInviteModal';
 import { useBook } from '../../hooks/useBook';
-import { fetchBooks, deleteBook, fetchBookMembers, removeMember, inviteMember, createInvitation } from '../../services/booksApi';
+import { deleteBook, fetchBookMembers, removeMember, inviteMember, createInvitation } from '../../services/booksApi';
 import { notify } from '../../utils/notifications';
-import { Skeleton, CardGridSkeleton } from '../../components/ui/Skeleton';
+import { Skeleton } from '../../components/ui/Skeleton';
 import { Card, CardHeader } from '../../components/ui/Card';
 import { Modal, ModalFooter } from '../../components/ui/Modal';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { EmptyState } from '../../components/ui/EmptyState';
-import { getBookIconByKey, getBookEmojiByKey } from '../../utils/bookIcons';
+import { getBookIconByKey } from '../../utils/bookIcons';
 import './index.scss';
 
 const DEFAULT_BOOK_NAME = '默认账本';
 
 const BooksPage: React.FC = () => {
   const queryClient = useQueryClient();
-  const { currentBook, switchBook } = useBook();
+  const { currentBook, switchBook, books, loading, refetchBooks } = useBook();
   const [selectedBook, setSelectedBook] = useState<any>(null);
   const [showDetail, setShowDetail] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [showInviteModal, setShowInviteModal] = useState(false);
+  const [showInviteJoinModal, setShowInviteJoinModal] = useState(false);
   const [editTarget, setEditTarget] = useState<any>(null);
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
   const [showMemberConfirm, setShowMemberConfirm] = useState(false);
   const [removingMember, setRemovingMember] = useState<any>(null);
+  const [showInviteMemberModal, setShowInviteMemberModal] = useState(false);
   const [inviteEmail, setInviteEmail] = useState('');
   const [generatedInviteCode, setGeneratedInviteCode] = useState<{ code: string; book_name: string; expires_at: string } | null>(null);
   const [showInviteCodeModal, setShowInviteCodeModal] = useState(false);
-  const [showInviteJoinModal, setShowInviteJoinModal] = useState(false);
 
-  const { data: books = [], isLoading } = useQuery({
-    queryKey: ['books'],
-    queryFn: fetchBooks,
-  });
+  // 统一关闭所有弹窗（操作成功后调用）
+  const closeAllDialogs = () => {
+    setShowDetail(false);
+    setShowCreateModal(false);
+    setShowInviteJoinModal(false);
+    setShowInviteMemberModal(false);
+    setShowInviteCodeModal(false);
+    setShowMemberConfirm(false);
+    setDeleteTarget(null);
+    setEditTarget(null);
+    setRemovingMember(null);
+    setSelectedBook(null);
+    setInviteEmail('');
+    setGeneratedInviteCode(null);
+  };
 
   // 获取账本成员
   const { data: members = [] } = useQuery({
@@ -52,8 +63,7 @@ const BooksPage: React.FC = () => {
     mutationFn: ({ bookId, email }: { bookId: string; email: string }) => inviteMember(bookId, email),
     onSuccess: () => {
       notify({ type: 'success', message: '邀请已发送' });
-      setShowInviteModal(false);
-      setInviteEmail('');
+      closeAllDialogs();
       queryClient.invalidateQueries({ queryKey: ['book-members'] });
     },
   });
@@ -71,8 +81,8 @@ const BooksPage: React.FC = () => {
     mutationFn: deleteBook,
     onSuccess: () => {
       notify({ type: 'success', message: '账本已删除' });
-      setDeleteTarget(null);
-      queryClient.invalidateQueries({ queryKey: ['books'] });
+      closeAllDialogs();
+      refetchBooks();
     },
   });
 
@@ -87,7 +97,7 @@ const BooksPage: React.FC = () => {
   });
 
   const handleCreateSuccess = () => {
-    queryClient.invalidateQueries({ queryKey: ['books'] });
+    refetchBooks();
   };
 
   const getIconNode = (iconKey: string | undefined): React.ReactNode => getBookIconByKey(iconKey);
@@ -96,7 +106,7 @@ const BooksPage: React.FC = () => {
     <div className="page-container">
       <section className="view-panel active">
         <Card>
-          {isLoading ? (
+          {loading ? (
             <>
               <CardHeader title={<Skeleton width="80px" height="14px" />} />
               <div className="bk-grid">
@@ -118,7 +128,19 @@ const BooksPage: React.FC = () => {
             </>
           ) : (
             <>
-              <CardHeader title="我的账本" />
+              <CardHeader
+                title="我的账本"
+                action={
+                  <div className="bk-header-actions">
+                    <Button variant="secondary" size="sm" onClick={() => setShowInviteJoinModal(true)}>
+                      使用邀请码加入
+                    </Button>
+                    <Button variant="primary" size="sm" onClick={() => setShowCreateModal(true)}>
+                      + 新建账本
+                    </Button>
+                  </div>
+                }
+              />
               <div className="bk-grid">
                 {books.length === 0 && (
                   <EmptyState
@@ -149,16 +171,6 @@ const BooksPage: React.FC = () => {
                     </div>
                   );
                 })}
-
-                <div key="add-new" className="bk-card add-new" onClick={() => setShowCreateModal(true)}>
-                  <span className="add-icon">+</span>
-                  <span className="add-text">新建</span>
-                </div>
-
-                <div key="join-by-code" className="bk-card add-new join-by-code" onClick={() => setShowInviteJoinModal(true)}>
-                  <span className="add-icon">✉️</span>
-                  <span className="add-text">使用邀请码加入</span>
-                </div>
               </div>
             </>
           )}
@@ -171,6 +183,8 @@ const BooksPage: React.FC = () => {
         onClose={() => {
           setShowCreateModal(false);
           setEditTarget(null);
+          setShowDetail(false);
+          setSelectedBook(null);
         }}
         editTarget={
           editTarget
@@ -200,7 +214,7 @@ const BooksPage: React.FC = () => {
         title="确认移除"
         message={`确定要移除成员 ${removingMember?.username || removingMember?.email}？`}
         onConfirm={() => {
-          if (removingMember) {
+          if (removingMember && selectedBook) {
             removeMemberMutation.mutate({ bookId: selectedBook.id, userId: removingMember.id });
           }
         }}
@@ -215,12 +229,15 @@ const BooksPage: React.FC = () => {
       {selectedBook && (
         <Modal
           open={showDetail}
-          onClose={() => setShowDetail(false)}
+          onClose={() => {
+            setShowDetail(false);
+            setSelectedBook(null);
+          }}
           title="账本详情"
           width={520}
           footer={
             <>
-              <Button variant="secondary" onClick={() => setShowInviteModal(true)}>
+              <Button variant="secondary" onClick={() => setShowInviteMemberModal(true)}>
                 邀请成员
               </Button>
               <Button
@@ -234,8 +251,6 @@ const BooksPage: React.FC = () => {
                 variant="secondary"
                 onClick={() => {
                   setEditTarget(selectedBook);
-                  setShowDetail(false);
-                  setShowCreateModal(false);
                 }}
               >
                 编辑
@@ -251,6 +266,7 @@ const BooksPage: React.FC = () => {
                   onClick={() => {
                     switchBook(selectedBook);
                     setShowDetail(false);
+                    setSelectedBook(null);
                   }}
                 >
                   切换到此账本
@@ -346,13 +362,13 @@ const BooksPage: React.FC = () => {
 
       {/* 邀请成员弹窗 - 使用通用Modal */}
       <Modal
-        open={showInviteModal && !!selectedBook}
-        onClose={() => setShowInviteModal(false)}
+        open={showInviteMemberModal && !!selectedBook}
+        onClose={() => setShowInviteMemberModal(false)}
         title="邀请成员"
         width={400}
         footer={
           <ModalFooter
-            onCancel={() => setShowInviteModal(false)}
+            onCancel={() => setShowInviteMemberModal(false)}
             onConfirm={() => {
               if (!inviteEmail.trim()) {
                 notify({ type: 'error', message: '请输入邮箱地址' });

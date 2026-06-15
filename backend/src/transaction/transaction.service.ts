@@ -15,7 +15,6 @@ export interface Transaction {
   date: string;
   description?: string;
   brand?: string;
-  image_url?: string;
   image_urls?: string;
   image_url_list?: string[];
   created_at: string;
@@ -526,10 +525,25 @@ export class TransactionService {
     const { data: urlData } = supabase.storage.from('receipts').getPublicUrl(path);
     const publicUrl = urlData.publicUrl;
 
-    // 更新数据库 image_url 字段（存储路径，非完整 URL）
+    // 更新数据库 image_urls 字段：追加新图到数组（存储相对路径）
+    let existingPaths: string[] = [];
+    if (transaction.image_urls) {
+      try {
+        const parsed = JSON.parse(transaction.image_urls);
+        if (Array.isArray(parsed)) {
+          existingPaths = parsed.map((p: any) => String(p));
+        }
+      } catch {
+        if (typeof transaction.image_urls === 'string' && transaction.image_urls.includes(',')) {
+          existingPaths = transaction.image_urls.split(',').map((s) => s.trim());
+        }
+      }
+    }
+    const mergedPaths = [...existingPaths, path];
+
     const { error: updateErr } = await supabase
       .from('transactions')
-      .update({ image_url: path })
+      .update({ image_urls: JSON.stringify(mergedPaths) })
       .eq('id', id);
 
     if (updateErr) {
@@ -547,7 +561,21 @@ export class TransactionService {
   async deleteReceipt(id: number, userId: string): Promise<void> {
     const transaction = await this.findOne(id, userId);
 
-    if (!transaction.image_url) {
+    let existingPaths: string[] = [];
+    if (transaction.image_urls) {
+      try {
+        const parsed = JSON.parse(transaction.image_urls);
+        if (Array.isArray(parsed)) {
+          existingPaths = parsed.map((p: any) => String(p));
+        }
+      } catch {
+        if (typeof transaction.image_urls === 'string' && transaction.image_urls.includes(',')) {
+          existingPaths = transaction.image_urls.split(',').map((s) => s.trim());
+        }
+      }
+    }
+
+    if (existingPaths.length === 0) {
       throw new NotFoundException('该交易记录没有收据');
     }
 
@@ -556,17 +584,17 @@ export class TransactionService {
     // 删除存储文件
     const { error: removeErr } = await supabase.storage
       .from('receipts')
-      .remove([transaction.image_url]);
+      .remove(existingPaths);
 
     if (removeErr) {
       // 文件可能已被删除，日志记录但不阻断流程
       console.warn('删除收据存储文件失败:', removeErr.message);
     }
 
-    // 清空 image_url 字段
+    // 清空 image_urls 字段
     const { error: updateErr } = await supabase
       .from('transactions')
-      .update({ image_url: null })
+      .update({ image_urls: null })
       .eq('id', id);
 
     if (updateErr) {
@@ -575,9 +603,7 @@ export class TransactionService {
   }
 
   /**
-   * 将相对路径的 image_url / image_urls 转换为完整的 Supabase Storage 公开 URL
-   * - image_urls 优先：JSON 字符串数组，每个元素可能是相对路径
-   * - image_url 兼容：旧字段，单张图片路径
+   * 将相对路径的 image_urls 转换为完整的 Supabase Storage 公开 URL
    */
   private resolveImageUrl(transaction: any): any {
     const supabase = this.supabaseService.getClient();
@@ -603,14 +629,10 @@ export class TransactionService {
             .filter(Boolean);
         }
       }
-    } else if (transaction?.image_url) {
-      // 旧字段兼容：单张图作为单元素数组返回
-      resolved = [resolveOne(transaction.image_url)];
     }
 
     return {
       ...transaction,
-      image_url: resolved[0] || transaction?.image_url,
       image_urls: resolved.length > 0 ? JSON.stringify(resolved) : undefined,
       image_url_list: resolved,
     };

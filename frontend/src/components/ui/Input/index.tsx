@@ -175,6 +175,7 @@ interface NumberInputProps {
   placeholder?: string
   prefix?: React.ReactNode
   suffix?: React.ReactNode
+  label?: string
   className?: string
   wrapperClassName?: string
   disabled?: boolean
@@ -189,6 +190,7 @@ export const NumberInput: React.FC<NumberInputProps> = ({
   placeholder,
   prefix,
   suffix,
+  label,
   className = '',
   wrapperClassName = '',
   disabled = false,
@@ -197,20 +199,77 @@ export const NumberInput: React.FC<NumberInputProps> = ({
   step = '0.01',
 }) => {
   return (
-    <div className={`ui-input ${disabled ? 'is-disabled' : ''} ${wrapperClassName}`.trim()}>
-      {prefix && <span className="ui-input-prefix">{prefix}</span>}
-      <input
-        type="number"
-        className={`ui-number-field ${className}`.trim()}
-        placeholder={placeholder}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        disabled={disabled}
-        min={min}
-        max={max}
-        step={step}
-      />
-      {suffix && <span className="ui-input-suffix">{suffix}</span>}
+    <div className={`ui-input-wrap ${wrapperClassName}`.trim()}>
+      {label && <label className="ui-input-label">{label}</label>}
+      <div className={`ui-input ${disabled ? 'is-disabled' : ''}`.trim()}>
+        {prefix && <span className="ui-input-prefix">{prefix}</span>}
+        <input
+          type="number"
+          className={`ui-number-field ${className}`.trim()}
+          placeholder={placeholder}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          disabled={disabled}
+          min={min}
+          max={max}
+          step={step}
+        />
+        {suffix && <span className="ui-input-suffix">{suffix}</span>}
+      </div>
+    </div>
+  )
+}
+
+/**
+ * 下拉选择框组件 —— 取代页面中手写的 `<select>` 结构
+ *
+ * 用法：
+ *  <Select value={type} onChange={setType} options={[{ value: 'expense', label: '支出' }]} />
+ */
+interface SelectOption {
+  value: string
+  label: string
+}
+
+interface SelectProps {
+  value: string
+  onChange: (value: string) => void
+  options: SelectOption[]
+  label?: string
+  placeholder?: string
+  disabled?: boolean
+  className?: string
+  wrapperClassName?: string
+}
+
+export const Select: React.FC<SelectProps> = ({
+  value,
+  onChange,
+  options,
+  label,
+  placeholder,
+  disabled = false,
+  className = '',
+  wrapperClassName = '',
+}) => {
+  return (
+    <div className={`ui-select-wrap ${wrapperClassName}`.trim()}>
+      {label && <label className="ui-input-label">{label}</label>}
+      <div className={`ui-input ${disabled ? 'is-disabled' : ''}`.trim()}>
+        <select
+          className={`ui-select-field ${className}`.trim()}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          disabled={disabled}
+        >
+          {placeholder && <option value="">{placeholder}</option>}
+          {options.map((opt) => (
+            <option key={opt.value} value={opt.value}>
+              {opt.label}
+            </option>
+          ))}
+        </select>
+      </div>
     </div>
   )
 }

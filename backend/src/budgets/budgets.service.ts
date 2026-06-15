@@ -110,6 +110,7 @@ export class BudgetsService {
   /**
    * 获取预算执行状态
    * 同时被 Budgets 页面和 Dashboard 使用
+   * categories 同时覆盖“已设置预算”和“已有花费”的支出分类
    */
   async getStatus(userId: string, month: string, bookId?: string): Promise<BudgetStatus> {
     // 1. 获取该月所有预算
@@ -118,35 +119,46 @@ export class BudgetsService {
     // 2. 计算已花费：从 transactions 表按 category + 月份汇总
     const spentMap = await this.calculateSpent(userId, month, bookId);
 
-    // 3. 获取所有涉及的分类信息
-    const categoryIds = [...new Set(budgets.map((b) => b.category))];
+    // 3. 收集需要展示的分类 ID：
+    //    - 已设置预算的分类 (budgets)
+    //    - 本月已有花费的分类 (spentMap)
+    const categoryIdsFromBudgets = budgets.map((b) => b.category);
+    const categoryIdsFromSpent = [...spentMap.keys()];
+    const categoryIds = [...new Set([...categoryIdsFromBudgets, ...categoryIdsFromSpent])];
+
+    // 4. 获取所有涉及的分类信息
     const categoryInfoMap = await this.loadCategoryInfo(categoryIds);
 
-    // 4. 逐分类计算进度
-    const categories: BudgetCategoryStatus[] = budgets.map((b) => {
-      const spent = spentMap.get(b.category) || 0;
-      const progress = b.amount > 0 ? Math.round((spent / b.amount) * 1000) / 10 : 0;
+    // 5. 构造 budget 查找表（category -> amount）
+    const budgetAmountMap = new Map<string, number>();
+    budgets.forEach((b) => budgetAmountMap.set(b.category, b.amount));
+
+    // 6. 逐分类计算进度
+    const categories: BudgetCategoryStatus[] = categoryIds.map((catId) => {
+      const budget = budgetAmountMap.get(catId) || 0;
+      const spent = spentMap.get(catId) || 0;
+      const progress = budget > 0 ? Math.round((spent / budget) * 1000) / 10 : 0;
       const status: 'safe' | 'warning' | 'over' =
         progress >= 100 ? 'over' : progress >= 80 ? 'warning' : 'safe';
-      const info = categoryInfoMap.get(b.category);
+      const info = categoryInfoMap.get(catId);
       return {
-        category_id: b.category,
+        category_id: catId,
         category_name: info?.name || '未知',
         category_icon: info?.icon || '📌',
-        budget: b.amount, spent, progress, status,
+        budget, spent, progress, status,
       };
     });
 
-    // 4. 聚合计算
+    // 7. 聚合计算
     const totalBudget = budgets.reduce((sum, b) => sum + b.amount, 0);
     const totalSpent = categories.reduce((sum, c) => sum + c.spent, 0);
     const remaining = totalBudget - totalSpent;
     const overallProgress =
       totalBudget > 0 ? Math.round((totalSpent / totalBudget) * 1000) / 10 : 0;
 
-    // 5. 预警列表（超支 + 接近超支），按进度从高到低排序
+    // 8. 预警列表（超支 + 接近超支），按进度从高到低排序
     const alerts: BudgetAlert[] = categories
-      .filter((c) => c.status !== 'safe')
+      .filter((c) => c.status !== 'safe' && c.budget > 0)
       .map((c) => ({
         category_id: c.category_id,
         category_name: c.category_name,

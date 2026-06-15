@@ -1,0 +1,91 @@
+.loc-display {
+  padding: 9px 12px;
+  border: 1px solid var(--inc);
+  border-radius: var(--rm);
+  background: var(--incBg);
+  color: var(--inc);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all var(--df);
+  font-family: var(--fn);
+}
+
+.loc-display:hover {
+  background: #E8F8F0;
+}
+
+.loc-display-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.loc-display-icon {
+  font-size: 12px;
+}
+
+.loc-display-name {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.loc-display-coords {
+  font-size: 10px;
+  color: var(--fg3);
+  font-family: monospace;
+  margin-top: 2px;
+}
+
+.loc-display-poi {
+  font-size: 10px;
+  color: var(--fg3);
+  margin-top: 2px;
+}
+
+.loc-display-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 2px;
+}
+
+.loc-display-edit {
+  font-size: 10px;
+  color: var(--fg3);
+}
+
+.loc-display-clear {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--exp);
+  font-size: 12px;
+  padding: 0;
+  line-height: 1;
+
+  &:hover {
+    opacity: 0.8;
+  }
+}
+
+.loc-display-btn {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1px dashed var(--info);
+  border-radius: var(--rm);
+  background: var(--infoBg);
+  color: var(--info);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all var(--df);
+  font-family: var(--fn);
+
+  &:hover {
+    background: #D8E8F7;
+  }
+}
