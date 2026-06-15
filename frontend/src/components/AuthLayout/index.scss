@@ -329,6 +329,41 @@
   cursor: not-allowed;
 }
 
+/* ── 图形验证码 ── */
+.captcha-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.captcha-row input {
+  flex: 1;
+}
+
+.captcha-img {
+  width: 120px;
+  height: 40px;
+  border: 1px solid var(--bd);
+  border-radius: var(--rs);
+  cursor: pointer;
+  overflow: hidden;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f0f0f0;
+  transition: opacity 0.15s;
+}
+
+.captcha-img:hover {
+  opacity: 0.8;
+}
+
+.captcha-img svg {
+  width: 100%;
+  height: 100%;
+}
+
 /* ── 成功卡片 ── */
 .success-card {
   text-align: center;

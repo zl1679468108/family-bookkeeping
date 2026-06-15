@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useCallback } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   clearStoredToken,
@@ -14,7 +14,7 @@ import {
 interface AuthContextType {
   user: UserProfile | null;
   loading: boolean;
-  signIn: (email: string, password: string) => Promise<void>;
+  signIn: (email: string, password: string, captchaId: string, captchaCode: string) => Promise<void>;
   signUp: (email: string, password: string, username: string) => Promise<void>;
   signOut: () => Promise<void>;
   refreshUser: () => Promise<void>;
@@ -32,7 +32,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // 用 useQuery 管理 /auth/profile 请求，直接用 profileData 作为 user
   // 关键：不再经过额外的 useState 同步，避免渲染时序间隙导致误判登录状态
-  const { data: profileData, isLoading: profileLoading, refetch, isFetched } = useQuery({
+  const { data: profileData, refetch, isFetched } = useQuery({
     queryKey: ['auth', 'profile'],
     queryFn: async () => {
       try {
@@ -60,8 +60,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     await refetch();
   };
 
-  const signIn = async (email: string, password: string) => {
-    const { user: userData, token } = await apiLogin(email, password);
+  const signIn = async (email: string, password: string, captchaId: string, captchaCode: string) => {
+    const { user: userData, token } = await apiLogin(email, password, captchaId, captchaCode);
     storeToken(token.trim());
     resetUserCache(); // 切换账号时必须清除旧账号的缓存
     // 写入 query 缓存并触发 refetch 确保组件重新渲染

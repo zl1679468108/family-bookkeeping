@@ -1,25 +1,47 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useNavigate, Link, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../../../utils/auth'
 import { useDebouncedAction } from '../../../hooks/useDebouncedAction'
 import AuthLayout from '../../../components/AuthLayout'
 import { LoginIllustration } from '../../../components/AuthLayout/AuthIllustrations'
+import { getCaptcha } from '../../../services/api'
 
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [captchaCode, setCaptchaCode] = useState('')
+  const [captchaId, setCaptchaId] = useState('')
+  const [captchaSvg, setCaptchaSvg] = useState('')
   const { signIn } = useAuth()
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
 
-  const { run: handleSubmit, isRunning: loading } = useDebouncedAction(async () => {
-    if (!email || !password) return
+  // 获取验证码
+  const refreshCaptcha = async () => {
     try {
-      await signIn(email, password)
+      const { captchaId, svg } = await getCaptcha()
+      setCaptchaId(captchaId)
+      setCaptchaSvg(svg)
+      setCaptchaCode('')
+    } catch {
+      // 错误已由全局通知处理
+    }
+  }
+
+  // 页面加载时获取验证码
+  useEffect(() => {
+    refreshCaptcha()
+  }, [])
+
+  const { run: handleSubmit, isRunning: loading } = useDebouncedAction(async () => {
+    if (!email || !password || !captchaCode) return
+    try {
+      await signIn(email, password, captchaId, captchaCode)
       const redirect = searchParams.get('redirect') || '/'
       navigate(redirect)
     } catch {
-      // 错误已由全局通知处理
+      // 登录失败刷新验证码
+      refreshCaptcha()
     }
   })
 
@@ -62,6 +84,28 @@ const LoginPage: React.FC = () => {
             required
             autoComplete="current-password"
           />
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="captchaCode">验证码</label>
+          <div className="captcha-row">
+            <input
+              id="captchaCode"
+              type="text"
+              placeholder="请输入验证码"
+              value={captchaCode}
+              onChange={(e) => setCaptchaCode(e.target.value)}
+              required
+              maxLength={4}
+              autoComplete="off"
+            />
+            <div
+              className="captcha-img"
+              onClick={refreshCaptcha}
+              title="点击刷新验证码"
+              dangerouslySetInnerHTML={{ __html: captchaSvg }}
+            />
+          </div>
         </div>
 
         <button type="submit" className="btn-submit" disabled={loading}>

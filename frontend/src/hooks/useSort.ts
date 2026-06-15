@@ -49,10 +49,15 @@ export function useSort<T extends SortableItem>(
   // 本地排序列表
   const [orderedList, setOrderedList] = useState<T[]>(list)
 
-  // 同步列表数据
+  // 同步列表数据（仅在内容变化时更新，避免引用变化导致无限循环）
   useEffect(() => {
     if (!sortingMode) {
-      setOrderedList(list)
+      setOrderedList(prev => {
+        if (prev.length === list.length && prev.every((item, i) => item.id === list[i].id)) {
+          return prev
+        }
+        return list
+      })
     }
   }, [list, sortingMode])
 

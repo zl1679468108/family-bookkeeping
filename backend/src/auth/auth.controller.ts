@@ -20,6 +20,7 @@ import { CurrentUser } from './current-user.decorator';
 import { UpdateProfileDto } from './auth.service';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { TokenAuthGuard } from './token-auth.guard';
+import { CaptchaService } from './captcha.service';
 
 class SendResetCodeDto {
   email: string;
@@ -34,12 +35,21 @@ class ResetPasswordByCodeDto {
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly captchaService: CaptchaService,
+  ) {}
 
   @Post('register')
   async register(@Body() dto: RegisterDto) {
     const data = await this.authService.register(dto);
     return { message: '注册成功', data };
+  }
+
+  @Get('captcha')
+  async getCaptcha() {
+    const { captchaId, svg } = this.captchaService.generate();
+    return { data: { captchaId, svg } };
   }
 
   @Post('login')

@@ -12,6 +12,7 @@ import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import { TokenService } from './token.service';
 import { ChangePasswordDto } from './dto/change-password.dto';
+import { CaptchaService } from './captcha.service';
 
 export interface User {
   id: string;
@@ -40,6 +41,7 @@ export class AuthService {
     private readonly supabaseService: SupabaseService,
     private readonly mailService: MailService,
     private readonly tokenService: TokenService,
+    private readonly captchaService: CaptchaService,
   ) {}
 
   async register(
@@ -84,6 +86,12 @@ export class AuthService {
   }
 
   async login(dto: LoginDto): Promise<{ user: SafeUser; token: string }> {
+    // 先校验验证码
+    const isCaptchaValid = this.captchaService.validate(dto.captchaId, dto.captchaCode);
+    if (!isCaptchaValid) {
+      throw new BadRequestException('验证码错误');
+    }
+
     const supabase = this.supabaseService.getClient();
 
     const { data: user, error } = await supabase

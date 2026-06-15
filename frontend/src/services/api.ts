@@ -384,13 +384,19 @@ export const register = async (
 export const login = async (
   email: string,
   password: string,
+  captchaId: string,
+  captchaCode: string,
 ): Promise<{ user: UserProfile; token: string }> => {
   // 获取当前存储的 token（如果有），传递给后端用于复用
   const currentToken = getToken()
   return request<{ user: UserProfile; token: string }>('/auth/login', {
     method: 'POST',
-    body: { email, password, token: currentToken || undefined },
+    body: { email, password, token: currentToken || undefined, captchaId, captchaCode },
   })
+}
+
+export const getCaptcha = async (): Promise<{ captchaId: string; svg: string }> => {
+  return request<{ captchaId: string; svg: string }>('/auth/captcha')
 }
 
 export const forgotPassword = async (email: string): Promise<void> => {
