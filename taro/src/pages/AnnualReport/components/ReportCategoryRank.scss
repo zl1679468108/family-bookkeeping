@@ -1,0 +1,102 @@
+.report-cat-rank {
+  background: #ffffff;
+}
+
+.cat-rank__empty {
+  padding: 40rpx 0;
+  text-align: center;
+}
+
+.cat-rank__empty-text {
+  color: #9ca3af;
+  font-size: 26rpx;
+}
+
+.cat-rank__item {
+  display: flex;
+  align-items: center;
+  padding: 20rpx 0;
+  border-bottom: 1rpx solid #f3f4f6;
+}
+
+.cat-rank__item:last-child {
+  border-bottom: none;
+}
+
+.cat-rank__rank {
+  width: 36rpx;
+  height: 36rpx;
+  border-radius: 8rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24rpx;
+  font-weight: 700;
+  margin-right: 16rpx;
+  background: #e5e7eb;
+  color: #6b7280;
+}
+
+.cat-rank__rank--top {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  color: #d97706;
+}
+
+.cat-rank__icon {
+  font-size: 40rpx;
+  margin-right: 16rpx;
+}
+
+.cat-rank__info {
+  flex: 1;
+  min-width: 0;
+}
+
+.cat-rank__name {
+  display: block;
+  font-size: 28rpx;
+  font-weight: 500;
+  color: #1a1c19;
+  margin-bottom: 8rpx;
+}
+
+.cat-rank__bar {
+  height: 8rpx;
+  background: #f3f4f6;
+  border-radius: 4rpx;
+  overflow: hidden;
+}
+
+.cat-rank__bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #dc2626 0%, #f87171 100%);
+  border-radius: 4rpx;
+  transition: width 0.3s ease;
+}
+
+.cat-rank__bar-fill--income {
+  background: linear-gradient(90deg, #059669 0%, #10b981 100%);
+}
+
+.cat-rank__stats {
+  text-align: right;
+  margin-left: 16rpx;
+}
+
+.cat-rank__amount {
+  display: block;
+  font-size: 28rpx;
+  font-weight: 700;
+  color: #dc2626;
+}
+
+.cat-rank__amount--income {
+  color: #059669;
+}
+
+.cat-rank__count {
+  display: block;
+  font-size: 22rpx;
+  color: #9ca3af;
+  margin-top: 4rpx;
+}

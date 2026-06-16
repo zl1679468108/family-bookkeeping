@@ -90,15 +90,24 @@ export default function ForgotPassword() {
   }, [email, code, password, confirmPassword]);
 
   return (
-    <View className="forgot-password-page min-h-screen bg-bg">
-      {/* Content card */}
-      <View className="px-4 pt-4">
-        <View className="forgot-card card-padded">
-          <Text className="text-sm text-secondary text-center block mb-3">
-            {step === "email" ? "输入邮箱获取验证码" : "输入验证码设置新密码"}
-          </Text>
-          {step === "email" ? (
-            <View className="flex flex-col" style={{ gap: "20rpx" }}>
+    <View className="forgot-password-page min-h-screen bg-white flex flex-col">
+      {/* Brand area */}
+      <View className="brand-section flex flex-col items-center">
+        <View className="app-icon flex items-center justify-center">
+          <Text className="app-icon-text">静</Text>
+        </View>
+        <Text className="app-name text-2xl font-bold mt-3">静记</Text>
+        <Text className="app-slogan text-base text-secondary mt-2">
+          {step === "email" ? "输入邮箱获取验证码" : "输入验证码设置新密码"}
+        </Text>
+      </View>
+
+      {/* Form */}
+      <View className="forgot-form flex flex-col px-4">
+        {step === "email" ? (
+          <View className="form-content">
+            <View className="form-item">
+              <Text className="input-label">邮箱</Text>
               <Input
                 className="auth-input"
                 value={email}
@@ -108,23 +117,31 @@ export default function ForgotPassword() {
                 confirmType="done"
                 onConfirm={handleSendCode}
               />
-              {error ? (
-                <Text className="text-sm text-danger px-1">{error}</Text>
-              ) : null}
+            </View>
+
+            {error ? (
+              <Text className="form-error text-sm text-danger">{error}</Text>
+            ) : null}
+
+            <View className="forgot-form-submit">
               <View
-                className={`btn-primary ${sending ? "opacity-60" : ""}`}
+                className={`forgot-btn ${sending ? "opacity-60" : ""}`}
                 onClick={() => !sending && handleSendCode()}
               >
                 <Text>{sending ? "发送中..." : "获取验证码"}</Text>
               </View>
             </View>
-          ) : (
-            <View className="flex flex-col" style={{ gap: "20rpx" }}>
-              {success ? (
-                <Text className="text-sm text-primary text-center">
-                  {success}
-                </Text>
-              ) : null}
+          </View>
+        ) : (
+          <View className="form-content">
+            {success ? (
+              <Text className="form-success text-sm text-primary text-center">
+                {success}
+              </Text>
+            ) : null}
+
+            <View className="form-item">
+              <Text className="input-label">验证码</Text>
               <Input
                 className="auth-input"
                 value={code}
@@ -135,6 +152,9 @@ export default function ForgotPassword() {
                 type="number"
                 focus
               />
+            </View>
+            <View className="form-item">
+              <Text className="input-label">新密码</Text>
               <Input
                 className="auth-input"
                 value={password}
@@ -143,6 +163,9 @@ export default function ForgotPassword() {
                 placeholderClass="text-hint"
                 password
               />
+            </View>
+            <View className="form-item">
+              <Text className="input-label">确认新密码</Text>
               <Input
                 className="auth-input"
                 value={confirmPassword}
@@ -151,30 +174,35 @@ export default function ForgotPassword() {
                 placeholderClass="text-hint"
                 password
               />
-              {error ? (
-                <Text className="text-sm text-danger px-1">{error}</Text>
-              ) : null}
+            </View>
+
+            {error ? (
+              <Text className="form-error text-sm text-danger">{error}</Text>
+            ) : null}
+
+            <View className="forgot-form-submit">
               <View
-                className={`btn-primary ${resetting ? "opacity-60" : ""}`}
+                className={`forgot-btn ${resetting ? "opacity-60" : ""}`}
                 onClick={() => !resetting && handleReset()}
               >
                 <Text>{resetting ? "重置中..." : "重置密码"}</Text>
               </View>
-              {countdown > 0 ? (
-                <Text className="text-sm text-secondary text-center">
-                  {countdown}s 后可重新发送
-                </Text>
-              ) : (
-                <Text
-                  className="text-sm text-primary text-center"
-                  onClick={handleSendCode}
-                >
-                  重新发送验证码
-                </Text>
-              )}
             </View>
-          )}
-        </View>
+
+            {countdown > 0 ? (
+              <Text className="form-link text-secondary text-center">
+                {countdown}s 后可重新发送
+              </Text>
+            ) : (
+              <Text
+                className="form-link text-primary text-center"
+                onClick={handleSendCode}
+              >
+                重新发送验证码
+              </Text>
+            )}
+          </View>
+        )}
       </View>
     </View>
   );

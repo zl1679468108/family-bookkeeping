@@ -31,6 +31,7 @@ export default defineConfig({
   },
   cache: { enable: false },
   mini: {
+    miniCssExtractPluginOption: { ignoreOrder: true },
     postcss: {
       pxtransform: { enable: true, config: {} },
       cssModules: { enable: false },

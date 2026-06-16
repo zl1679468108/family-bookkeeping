@@ -43,88 +43,92 @@ export default function Register() {
   };
 
   return (
-    <View className="register-page min-h-screen bg-bg">
-      {/* Form card */}
-      <View className="px-4 pt-4">
-        <View className="register-card card-padded">
-          <Text className="text-sm text-secondary text-center block mb-3">
-            开始你的记账之旅
-          </Text>
-          <View className="flex flex-col" style={{ gap: "24rpx" }}>
-            <View>
-              <Text className="input-label">用户名</Text>
-              <Input
-                className="auth-input"
-                value={username}
-                onInput={(e) => setUsername(e.detail.value)}
-                placeholder="输入用户名"
-                placeholderClass="text-hint"
-                confirmType="next"
-              />
-            </View>
-            <View>
-              <Text className="input-label">邮箱</Text>
-              <Input
-                className="auth-input"
-                value={email}
-                onInput={(e) => setEmail(e.detail.value)}
-                placeholder="输入邮箱地址"
-                placeholderClass="text-hint"
-                confirmType="next"
-              />
-            </View>
-            <View>
-              <Text className="input-label">密码</Text>
-              <Input
-                className="auth-input"
-                value={password}
-                onInput={(e) => setPassword(e.detail.value)}
-                placeholder="密码（至少6位）"
-                placeholderClass="text-hint"
-                password
-                confirmType="next"
-              />
-            </View>
-            <View>
-              <Text className="input-label">确认密码</Text>
-              <Input
-                className="auth-input"
-                value={confirmPassword}
-                onInput={(e) => setConfirmPassword(e.detail.value)}
-                placeholder="再次输入密码"
-                placeholderClass="text-hint"
-                password
-                confirmType="done"
-                onConfirm={handleSubmit}
-              />
-            </View>
-          </View>
+    <View className="register-page min-h-screen bg-white flex flex-col">
+      {/* Brand area */}
+      <View className="brand-section flex flex-col items-center">
+        <View className="app-icon flex items-center justify-center">
+          <Text className="app-icon-text">静</Text>
+        </View>
+        <Text className="app-name text-2xl font-bold mt-3">静记</Text>
+        <Text className="app-slogan text-base text-secondary mt-2">
+          开始你的记账之旅
+        </Text>
+      </View>
 
-          {error ? (
-            <Text className="form-error text-sm text-danger block mt-3">
-              {error}
-            </Text>
-          ) : null}
+      {/* Form */}
+      <View className="register-form flex flex-col px-4">
+        <View className="form-item">
+          <Text className="input-label">用户名</Text>
+          <Input
+            className="auth-input"
+            value={username}
+            onInput={(e) => setUsername(e.detail.value)}
+            placeholder="输入用户名"
+            placeholderClass="text-hint"
+            confirmType="next"
+          />
+        </View>
+        <View className="form-item">
+          <Text className="input-label">邮箱</Text>
+          <Input
+            className="auth-input"
+            value={email}
+            onInput={(e) => setEmail(e.detail.value)}
+            placeholder="输入邮箱地址"
+            placeholderClass="text-hint"
+            confirmType="next"
+          />
+        </View>
+        <View className="form-item">
+          <Text className="input-label">密码</Text>
+          <Input
+            className="auth-input"
+            value={password}
+            onInput={(e) => setPassword(e.detail.value)}
+            placeholder="密码（至少6位）"
+            placeholderClass="text-hint"
+            password
+            confirmType="next"
+          />
+        </View>
+        <View className="form-item">
+          <Text className="input-label">确认密码</Text>
+          <Input
+            className="auth-input"
+            value={confirmPassword}
+            onInput={(e) => setConfirmPassword(e.detail.value)}
+            placeholder="再次输入密码"
+            placeholderClass="text-hint"
+            password
+            confirmType="done"
+            onConfirm={handleSubmit}
+          />
+        </View>
 
-          <View className="mt-4">
-            <View
-              className={`btn-primary ${submitting ? "opacity-60" : ""}`}
-              onClick={() => !submitting && handleSubmit()}
-            >
-              <Text>{submitting ? "注册中..." : "注册"}</Text>
-            </View>
+        {error ? (
+          <Text className="form-error text-sm text-danger">{error}</Text>
+        ) : null}
+
+        <View className="register-form-submit">
+          <View
+            className={`register-btn ${submitting ? "opacity-60" : ""}`}
+            onClick={() => !submitting && handleSubmit()}
+          >
+            <Text>{submitting ? "注册中..." : "注册"}</Text>
           </View>
         </View>
 
-        <Text className="form-footer-text text-center text-md text-secondary mt-4">
-          已有账号？
-          <Text
-            className="text-primary font-semibold"
-            onClick={() => Taro.redirectTo({ url: "/pages/User/Login/index" })}
-          >
-            去登录
+        <View className="form-footer text-center mt-4">
+          <Text className="text-secondary text-md">
+            已有账号？
+            <Text
+              className="text-primary font-semibold"
+              onClick={() => Taro.redirectTo({ url: "/pages/User/Login/index" })}
+            >
+              去登录
+            </Text>
           </Text>
-        </Text>
+        </View>
       </View>
     </View>
   );

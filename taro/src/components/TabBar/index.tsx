@@ -1,6 +1,11 @@
-import { View, Text } from "@tarojs/components";
+/**
+ * TabBar（1:1 严格按设计稿）
+ * 使用 Image 组件渲染 SVG 图标（微信小程序不支持 inline SVG）
+ * 选中态：彩色（home.svg / transactions.svg / statistics.svg / profile.svg）
+ * 未选中态：灰色（*-gray.svg）
+ */
+import { View, Text, Image } from "@tarojs/components";
 import Taro from "@tarojs/taro";
-import Icon from "../Icon";
 import "./index.scss";
 
 export default function TabBar() {
@@ -15,60 +20,52 @@ export default function TabBar() {
     Taro.switchTab({ url: path });
   };
 
-  const homeActive = isActive("/pages/Home/index");
-  const txActive = isActive("/pages/Transactions/index");
-  const statsActive = isActive("/pages/Statistics/index");
-  const profileActive = isActive("/pages/Profile/index");
+  const items = [
+    {
+      path: "/pages/Home/index",
+      label: "首页",
+      active: require("../../assets/icons/home.svg"),
+      inactive: require("../../assets/icons/home-gray.svg"),
+    },
+    {
+      path: "/pages/Transactions/index",
+      label: "流水",
+      active: require("../../assets/icons/transactions.svg"),
+      inactive: require("../../assets/icons/transactions-gray.svg"),
+    },
+    {
+      path: "/pages/Statistics/index",
+      label: "报表",
+      active: require("../../assets/icons/statistics.svg"),
+      inactive: require("../../assets/icons/statistics-gray.svg"),
+    },
+    {
+      path: "/pages/Profile/index",
+      label: "我的",
+      active: require("../../assets/icons/profile.svg"),
+      inactive: require("../../assets/icons/profile-gray.svg"),
+    },
+  ];
 
   return (
     <View className="tab-bar-container">
-      <View
-        className="tab-bar-item"
-        onClick={() => handleClick("/pages/Home/index")}
-      >
-        <Icon name={homeActive ? "home" : "home-gray"} size={44} />
-        <Text
-          className={`tab-bar-label ${homeActive ? "tab-bar-label--active" : ""}`}
-        >
-          首页
-        </Text>
-      </View>
-
-      <View
-        className="tab-bar-item"
-        onClick={() => handleClick("/pages/Transactions/index")}
-      >
-        <Icon name={txActive ? "transactions" : "transactions-gray"} size={44} />
-        <Text
-          className={`tab-bar-label ${txActive ? "tab-bar-label--active" : ""}`}
-        >
-          流水
-        </Text>
-      </View>
-
-      <View
-        className="tab-bar-item"
-        onClick={() => handleClick("/pages/Statistics/index")}
-      >
-        <Icon name={statsActive ? "statistics" : "statistics-gray"} size={44} />
-        <Text
-          className={`tab-bar-label ${statsActive ? "tab-bar-label--active" : ""}`}
-        >
-          报表
-        </Text>
-      </View>
-
-      <View
-        className="tab-bar-item"
-        onClick={() => handleClick("/pages/Profile/index")}
-      >
-        <Icon name={profileActive ? "profile" : "profile-gray"} size={44} />
-        <Text
-          className={`tab-bar-label ${profileActive ? "tab-bar-label--active" : ""}`}
-        >
-          我的
-        </Text>
-      </View>
+      {items.map((it) => {
+        const active = isActive(it.path);
+        return (
+          <View
+            key={it.path}
+            className={`tab-bar-item ${active ? "tab-bar-item--active" : ""}`}
+            onClick={() => handleClick(it.path)}
+          >
+            <Image
+              className="tab-bar-icon"
+              src={active ? it.active : it.inactive}
+              mode="aspectFit"
+            />
+            <Text className="tab-bar-label">{it.label}</Text>
+          </View>
+        );
+      })}
     </View>
   );
 }

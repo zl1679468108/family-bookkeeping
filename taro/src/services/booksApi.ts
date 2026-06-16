@@ -40,6 +40,14 @@ export const inviteMember = async (
   return apiPost<any>(`${BOOKS_PATH}/${bookId}/members`, { email });
 };
 
+/** Create an invitation (returns invitation code / invite data) */
+export const createInvitation = async (
+  bookId: string,
+  email: string,
+): Promise<any> => {
+  return apiPost<any>(`${BOOKS_PATH}/${bookId}/invitations`, { email });
+};
+
 /** Leave a book */
 export const leaveBook = async (bookId: string): Promise<void> => {
   return apiDelete<void>(`${BOOKS_PATH}/${bookId}/members/me`);

@@ -1,0 +1,291 @@
+/* =========================================================
+ * EditProfile — 编辑资料页样式
+ *
+ * 设计语言与全局 app.scss / profile.scss 保持一致：
+ *   - 背景色      var(--bg)
+ *   - 卡片/表面   var(--surface)
+ *   - 主色        var(--primary) / var(--primary-grad)
+ *   - 圆角        var(--radius-lg) / var(--radius-md) / var(--radius-sm)
+ *   - 文本色      var(--fg) / var(--fg-2) / var(--fg-3)
+ *   - 边框        var(--border) / var(--border-light)
+ * ========================================================= */
+
+.edit-profile-page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: var(--bg);
+  padding-bottom: calc(80rpx + env(safe-area-inset-bottom, 0));
+}
+
+/* =========================================================
+ * 头像区
+ * ========================================================= */
+.edit-avatar-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 48rpx 32rpx 32rpx;
+}
+
+.edit-avatar-wrap:active .edit-avatar-img,
+.edit-avatar-wrap:active .edit-avatar-placeholder {
+  opacity: 0.85;
+}
+
+.edit-avatar-img {
+  width: 180rpx;
+  height: 180rpx;
+  border-radius: 50%;
+  background-color: var(--primary-bg);
+  overflow: hidden;
+  transition: opacity 0.15s ease;
+  box-shadow: 0 4rpx 24rpx rgba(45, 157, 138, 0.12);
+}
+
+.edit-avatar-placeholder {
+  width: 180rpx;
+  height: 180rpx;
+  border-radius: 50%;
+  background: var(--primary-grad);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.15s ease;
+  box-shadow: 0 4rpx 24rpx rgba(45, 157, 138, 0.25);
+}
+
+.edit-avatar-placeholder-text {
+  color: #ffffff;
+  font-size: 72rpx;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.edit-avatar-tip {
+  margin-top: 16rpx;
+  font-size: 24rpx;
+  color: var(--fg-3);
+}
+
+/* =========================================================
+ * 表单卡片
+ * ========================================================= */
+.edit-form {
+  margin: 16rpx 32rpx 0;
+  background-color: var(--surface);
+  border-radius: var(--radius-lg);
+  border: 2rpx solid var(--border);
+  overflow: hidden;
+}
+
+.edit-row {
+  display: flex;
+  align-items: center;
+  padding: 28rpx 32rpx;
+  border-bottom: 2rpx solid var(--border-light);
+  min-height: 96rpx;
+}
+
+.edit-row:last-child {
+  border-bottom: none;
+}
+
+.edit-label {
+  flex-shrink: 0;
+  width: 140rpx;
+  font-size: 28rpx;
+  font-weight: 500;
+  color: var(--fg);
+}
+
+.edit-input {
+  flex: 1;
+  font-size: 28rpx;
+  color: var(--fg);
+  text-align: right;
+  font-family: inherit;
+  line-height: 1.4;
+}
+
+.edit-input-placeholder {
+  color: var(--fg-3);
+}
+
+/* =========================================================
+ * 修改密码入口区
+ * ========================================================= */
+.edit-section {
+  margin: 24rpx 32rpx 0;
+}
+
+.edit-pwd-entry {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 28rpx 32rpx;
+  background-color: var(--surface);
+  border-radius: var(--radius-lg);
+  border: 2rpx solid var(--border);
+  min-height: 96rpx;
+}
+
+.edit-pwd-entry:active {
+  background-color: #f5f6f3;
+}
+
+.edit-pwd-text {
+  font-size: 28rpx;
+  font-weight: 500;
+  color: var(--fg);
+}
+
+.edit-pwd-arrow {
+  font-size: 36rpx;
+  font-weight: 300;
+  color: var(--fg-3);
+}
+
+/* =========================================================
+ * 保存按钮
+ * ========================================================= */
+.edit-save-wrap {
+  padding: 48rpx 32rpx 0;
+}
+
+.edit-save-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 96rpx;
+  border-radius: var(--radius-md);
+  background-color: var(--primary);
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.edit-save-btn:active {
+  opacity: 0.85;
+  transform: scale(0.99);
+}
+
+.edit-save-btn.disabled {
+  background-color: var(--primary-bg);
+  pointer-events: none;
+}
+
+.edit-save-btn.disabled .edit-save-text {
+  color: var(--primary);
+}
+
+.edit-save-text {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+/* =========================================================
+ * 修改密码弹窗
+ * 样式语言与 profile.scss 中 .logout-* 保持一致
+ * ========================================================= */
+.pwd-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 0 48rpx;
+}
+
+.pwd-dialog {
+  width: 100%;
+  max-width: 640rpx;
+  background-color: var(--surface);
+  border-radius: var(--radius-lg);
+  padding: 40rpx 36rpx 24rpx;
+  display: flex;
+  flex-direction: column;
+}
+
+.pwd-title {
+  font-size: 34rpx;
+  font-weight: 700;
+  color: var(--fg);
+  text-align: center;
+  margin-bottom: 28rpx;
+}
+
+.pwd-row {
+  display: flex;
+  align-items: center;
+  padding: 20rpx 0;
+  border-bottom: 2rpx solid var(--border-light);
+}
+
+.pwd-row:last-of-type {
+  border-bottom: none;
+}
+
+.pwd-label {
+  flex-shrink: 0;
+  width: 180rpx;
+  font-size: 26rpx;
+  font-weight: 500;
+  color: var(--fg-2);
+}
+
+.pwd-input {
+  flex: 1;
+  font-size: 28rpx;
+  color: var(--fg);
+  font-family: inherit;
+  line-height: 1.4;
+}
+
+.pwd-input-placeholder {
+  color: var(--fg-3);
+  font-size: 24rpx;
+}
+
+.pwd-actions {
+  display: flex;
+  gap: 20rpx;
+  margin-top: 32rpx;
+  padding-top: 20rpx;
+  border-top: 2rpx solid var(--border-light);
+}
+
+.pwd-btn {
+  flex: 1;
+  height: 84rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  font-size: 28rpx;
+  font-weight: 600;
+  transition: opacity 0.15s ease;
+}
+
+.pwd-btn:active {
+  opacity: 0.7;
+}
+
+.pwd-btn.disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.pwd-cancel {
+  background-color: var(--bg);
+  color: var(--fg);
+}
+
+.pwd-ok {
+  background-color: var(--primary);
+  color: #ffffff;
+}

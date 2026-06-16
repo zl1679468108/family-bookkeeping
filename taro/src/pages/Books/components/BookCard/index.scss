@@ -1,83 +1,259 @@
 /**
  * BookCard v4 — 严格对齐设计稿
- * 设计稿：.book-card / .book-cover / .book-check
+ * 设计稿：book-card / BEM book-card__* 结构
  */
+
+/* ========== 卡片容器 ========== */
 .book-card {
-  background-color: var(--color-card);
-  border-radius: var(--radius-lg);
-  border: 0.5px solid var(--color-border);
-  padding: 28rpx var(--spacing-md);
+  background-color: #ffffff;
+  border-radius: var(--radius-lg, 32rpx);
+  border: 1rpx solid var(--border, #e0e2dd);
+  padding: 24rpx 28rpx;
   display: flex;
-  align-items: center;
-  gap: 24rpx;
-  transition: background-color 0.15s ease;
-  margin-bottom: 16rpx;
-
-  &:active {
-    background-color: var(--color-subtle);
-  }
+  flex-direction: column;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
 
   &--active {
-    border-color: var(--color-primary);
-    background-color: var(--color-primary-bg);
+    border-color: #2d9d8a;
+    background-color: rgba(45, 157, 138, 0.08);
   }
 }
 
-.book-card-badge {
-  padding: 4rpx 16rpx;
-  border-radius: var(--radius-full);
-  background-color: var(--color-bg);
+/* ========== 卡片主体（顶部行 + 操作按钮行） ========== */
+.book-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+.book-card__row {
+  display: flex;
+  align-items: flex-start;
+  gap: 16rpx;
+}
+
+.book-card__icon {
+  font-size: 52rpx;
+  line-height: 1;
+  flex-shrink: 0;
+  margin-top: 2rpx;
+}
+
+/* ========== 标题区 ========== */
+.book-card__header {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6rpx;
+  min-width: 0;
+}
+
+.book-card__title-row {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  flex-wrap: wrap;
+}
+
+.book-card__title {
+  font-size: 30rpx;
+  font-weight: 700;
+  color: var(--fg, #1a1c19);
+}
+
+.book-card__date {
+  font-size: 22rpx;
+  color: var(--fg-3, #8b8e89);
+}
+
+/* ========== 徽章 ========== */
+.book-card__badge {
+  padding: 6rpx 16rpx;
+  border-radius: 999rpx;
+  flex-shrink: 0;
+
+  &-text {
+    font-size: 22rpx;
+    font-weight: 600;
+    line-height: 1.2;
+  }
+
   &--current {
-    background-color: var(--color-primary-bg);
+    background-color: #2d9d8a;
+
+    .book-card__badge-text {
+      color: #ffffff;
+    }
   }
-  &--owner {
-    background-color: var(--color-primary-bg);
+
+  &--default {
+    background-color: #f0f1ee;
+
+    .book-card__badge-text {
+      color: #8b8e89;
+    }
   }
 }
 
-.book-card-action {
-  padding: 8rpx 16rpx;
-  border-radius: var(--radius-sm);
-  border: 0.5px solid var(--color-border);
-  color: var(--color-text-secondary);
-  font-size: var(--font-xs);
+/* ========== 操作按钮行 ========== */
+.book-card__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.book-card__action {
+  padding: 10rpx 20rpx;
+  border-radius: 999rpx;
+  background-color: #f5f6f3;
+  transition: background-color 0.15s ease, transform 0.15s ease;
+
+  &-text {
+    font-size: 22rpx;
+    color: #5a5d58;
+    line-height: 1.2;
+
+    &--danger {
+      color: #d9534f;
+    }
+  }
+
   &:active {
-    background-color: var(--color-bg);
+    background-color: #e7e9e4;
   }
+
   &--active {
-    border-color: var(--color-primary);
-    color: var(--color-primary);
+    background-color: rgba(45, 157, 138, 0.12);
+
+    .book-card__action-text {
+      color: #2d9d8a;
+    }
   }
 }
 
-.book-card-input {
-  height: 64rpx;
-  border-radius: var(--radius-sm);
-  background-color: var(--color-bg);
-  border: 1px solid var(--color-border);
-  font-size: var(--font-sm);
-  color: var(--color-text);
-  &--small {
-    height: 52rpx;
-    font-size: var(--font-xs);
-  }
-}
-
-.book-card-members {
-  border-top: 0.5px solid var(--color-divider);
-  padding: var(--spacing-sm) var(--spacing-md);
-}
-
-.book-card-invite {
-  border-top: 0.5px solid var(--color-divider);
-  padding-top: var(--spacing-sm);
-}
-
-.book-card-invite-btn {
-  padding: 0 18rpx;
+/* ========== 重命名态 ========== */
+.book-card__rename-row {
+  flex: 1;
   display: flex;
   align-items: center;
-  justify-content: center;
-  border-radius: var(--radius-sm);
-  background-color: var(--color-primary);
+  gap: 12rpx;
+  min-width: 0;
+}
+
+.book-card__rename-input {
+  flex: 1;
+  height: 60rpx;
+  padding: 0 20rpx;
+  border-radius: 12rpx;
+  background-color: #ffffff;
+  border: 1rpx solid var(--border, #e0e2dd);
+  font-size: 28rpx;
+  color: var(--fg, #1a1c19);
+  outline: none;
+  box-sizing: border-box;
+  min-width: 0;
+}
+
+.book-card__rename-save {
+  font-size: 24rpx;
+  font-weight: 600;
+  color: #2d9d8a;
+  padding: 8rpx 12rpx;
+}
+
+.book-card__rename-cancel {
+  font-size: 24rpx;
+  color: var(--fg-3, #8b8e89);
+  padding: 8rpx 12rpx;
+}
+
+/* ========== 成员面板 ========== */
+.book-card__members {
+  margin-top: 24rpx;
+  padding-top: 24rpx;
+  border-top: 1rpx solid var(--border, #e0e2dd);
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+.book-card__members-empty {
+  font-size: 24rpx;
+  color: var(--fg-3, #8b8e89);
+}
+
+.book-card__member {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10rpx 0;
+  gap: 16rpx;
+
+  &-name {
+    font-size: 26rpx;
+    color: var(--fg, #1a1c19);
+  }
+}
+
+/* ========== 邀请区 ========== */
+.book-card__invite {
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+
+  &-row {
+    display: flex;
+    align-items: center;
+    gap: 12rpx;
+  }
+
+  &-input {
+    flex: 1;
+    height: 60rpx;
+    padding: 0 20rpx;
+    border-radius: 12rpx;
+    background-color: #ffffff;
+    border: 1rpx solid var(--border, #e0e2dd);
+    font-size: 24rpx;
+    color: var(--fg, #1a1c19);
+    outline: none;
+    box-sizing: border-box;
+    min-width: 0;
+
+    &-placeholder {
+      color: var(--fg-3, #8b8e89);
+    }
+  }
+
+  &-btn {
+    padding: 0 22rpx;
+    height: 60rpx;
+    border-radius: 12rpx;
+    background-color: #2d9d8a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: transform 0.15s ease, opacity 0.15s ease;
+
+    &:active {
+      transform: scale(0.96);
+      opacity: 0.9;
+    }
+
+    &-text {
+      font-size: 24rpx;
+      font-weight: 600;
+      color: #ffffff;
+    }
+  }
+}
+
+/* ========== 退出账本 ========== */
+.book-card__leave {
+  font-size: 24rpx;
+  color: #d9534f;
+  padding: 8rpx 4rpx;
+  margin-top: 4rpx;
 }

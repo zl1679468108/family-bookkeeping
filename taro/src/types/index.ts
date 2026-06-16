@@ -9,6 +9,7 @@ export interface UserProfile {
   id: string;
   email: string;
   username: string;
+  avatar_url?: string;
   created_at: string;
 }
 
@@ -36,10 +37,12 @@ export interface Transaction {
   type: "income" | "expense";
   date: string; // ISO date string
   description?: string;
+  brand?: string;
+  image_urls?: string;
+  image_url_list?: string[];
   location_name?: string;
   location_lat?: number;
   location_lng?: number;
-  image_url?: string;
   created_at: string;
 }
 

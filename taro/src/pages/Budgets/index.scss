@@ -1,72 +1,220 @@
 /**
- * Budgets v4 — 预算管理
- * 设计稿对齐：月度总预算、分类预算列表、进度条
+ * Budgets v6 — 预算管理（精简版）
+ * 命名空间：bdg-*
  */
-.budgets-content {
-  padding: var(--spacing-sm) var(--spacing-md);
-  padding-bottom: 200rpx;
+
+/* ========== 主内容区 ========== */
+.bdg-content {
+  padding: 24rpx 32rpx;
+  padding-bottom: calc(32rpx + env(safe-area-inset-bottom, 0));
   display: flex;
   flex-direction: column;
   gap: 20rpx;
+  background-color: #f6f7f4;
+  box-sizing: border-box;
 }
 
-/* Budget Row */
-.budgets-row {
-  padding: 24rpx var(--spacing-md);
+/* ========== 顶部工具栏：月份选择 ========== */
+.bdg-toolbar {
+  display: flex;
+  align-items: center;
+  background-color: #ffffff;
+  border-radius: 24rpx;
+  border: 1rpx solid #e9ecef;
+  padding: 20rpx 28rpx;
+  box-shadow: 0 4rpx 20rpx rgba(26, 28, 25, 0.04);
 }
 
-/* Budget Amount Input */
-.budgets-amount-input {
-  width: 160rpx;
-  text-align: right;
-  font-size: var(--font-sm);
-  font-weight: 600;
-  color: var(--color-text);
-  background: transparent;
-  border: none;
-  outline: none;
+.bdg-toolbar__month {
+  flex: 1;
+  min-width: 0;
 }
 
-/* Budget List Item */
-.budget-list-item {
-  padding: 24rpx var(--spacing-md);
-  border-bottom: 0.5px solid var(--color-divider);
+/* ========== Loading 态 spinner ========== */
+.bdg-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 60rpx 0;
 }
 
-.budget-list-item:last-child {
+.bdg-spin {
+  width: 56rpx;
+  height: 56rpx;
+  border: 5rpx solid #e9ecef;
+  border-top-color: #2d9d8a;
+  border-radius: 50%;
+  animation: bdg-spin-rotate 0.9s linear infinite;
+}
+
+@keyframes bdg-spin-rotate {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* ========== Section：分组卡片 ========== */
+.bdg-section {
+  background-color: #ffffff;
+  border-radius: 24rpx;
+  border: 1rpx solid #e9ecef;
+  overflow: hidden;
+  box-shadow: 0 4rpx 20rpx rgba(26, 28, 25, 0.04);
+}
+
+.bdg-section__title {
+  padding: 24rpx 32rpx;
+  font-size: 28rpx;
+  font-weight: 800;
+  color: #1a1c19;
+  border-bottom: 1rpx solid #e9ecef;
+  background-color: #ffffff;
+}
+
+.bdg-section__body {
+  padding: 24rpx 32rpx;
+}
+
+/* ========== 单条分类行 ========== */
+.bdg-row {
+  padding: 24rpx 32rpx;
+  border-bottom: 1rpx solid #e9ecef;
+  display: flex;
+  flex-direction: column;
+  gap: 14rpx;
+}
+
+.bdg-row--last {
   border-bottom: none;
 }
 
-.budget-list-header {
+/* 主行：icon + name + amount */
+.bdg-row__main {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 12rpx;
+  gap: 16rpx;
 }
 
-.budget-list-name {
-  font-size: var(--font-base);
-  font-weight: 500;
-  color: var(--color-text);
+.bdg-row__icon {
+  font-size: 40rpx;
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 16rpx;
+  background-color: #f6f7f4;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: 1rpx solid #e9ecef;
 }
 
-.budget-list-amount {
-  font-size: var(--font-sm);
-  color: var(--color-text-secondary);
+.bdg-row__name {
+  flex: 1;
+  font-size: 28rpx;
+  font-weight: 700;
+  color: #1a1c19;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.budget-list-detail {
-  font-size: var(--font-xs);
-  color: var(--color-text-hint);
-  margin-top: 8rpx;
-}
-
-/* Income Chip */
-.budgets-income-chip {
+.bdg-row__amount {
   display: inline-flex;
   align-items: center;
   gap: 4rpx;
-  padding: 6rpx 16rpx;
-  border-radius: var(--radius-full);
-  background-color: var(--color-bg);
+  background-color: #f6f7f4;
+  border-radius: 16rpx;
+  padding: 0 16rpx;
+  height: 64rpx;
+  border: 1rpx solid #e9ecef;
+  flex-shrink: 0;
+}
+
+.bdg-row__currency {
+  font-size: 24rpx;
+  color: #8b8e89;
+  font-weight: 600;
+}
+
+.bdg-amount-input {
+  width: 140rpx;
+  text-align: right;
+  font-size: 30rpx;
+  font-weight: 800;
+  color: #1a1c19;
+  background: transparent;
+  border: none;
+  outline: none;
+  box-sizing: border-box;
+  padding: 0;
+}
+
+.bdg-amount-placeholder {
+  color: #8b8e89;
+  font-weight: 500;
+}
+
+/* 进度条 + 已花费 */
+.bdg-row__progress {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  padding-left: 80rpx;
+}
+
+.bdg-progress-track {
+  flex: 1;
+  height: 10rpx;
+  background-color: #f6f7f4;
+  border-radius: 100rpx;
+  overflow: hidden;
+}
+
+.bdg-progress-bar {
+  height: 100%;
+  border-radius: 100rpx;
+  transition: width 0.3s ease;
+}
+
+.bdg-progress-text {
+  font-size: 22rpx;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+/* ========== 保存按钮 ========== */
+.bdg-save {
+  width: 100%;
+  height: 88rpx;
+  border-radius: 16rpx;
+  background-color: #2d9d8a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8rpx 20rpx rgba(45, 157, 138, 0.28);
+  transition: transform 0.15s ease, opacity 0.15s ease;
+}
+
+.bdg-save:active {
+  transform: scale(0.98);
+  opacity: 0.9;
+}
+
+.bdg-save__text {
+  font-size: 30rpx;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.bdg-save--disabled {
+  background-color: #e9ecef;
+  box-shadow: none;
+}
+
+.bdg-save--disabled .bdg-save__text {
+  color: #8b8e89;
 }

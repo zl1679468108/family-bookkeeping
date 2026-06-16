@@ -1,0 +1,41 @@
+.ft-section {
+  margin: 0 32rpx 24rpx;
+  background: #ffffff;
+  border-radius: 24rpx;
+  padding: 30rpx 32rpx;
+  box-shadow: 0 2rpx 16rpx rgba(0, 0, 0, 0.03);
+}
+
+.ft-note {
+  padding: 30rpx 32rpx;
+}
+
+.ft-note-head {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20rpx;
+}
+
+.ft-note-label {
+  font-size: 28rpx;
+  color: #1f2421;
+  font-weight: 600;
+  flex: 1;
+}
+
+.ft-note-counter {
+  font-size: 22rpx;
+  color: #a8adaa;
+}
+
+.ft-note-area {
+  width: 100%;
+  min-height: 180rpx;
+  font-size: 28rpx;
+  color: #1f2421;
+  line-height: 1.6;
+  padding: 20rpx;
+  background: #f6f7f4;
+  border-radius: 16rpx;
+  box-sizing: border-box;
+}

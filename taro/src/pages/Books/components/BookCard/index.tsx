@@ -44,19 +44,28 @@ export default function BookCard({
 
   const inviteMut = useMutation({
     mutationFn: ({ email }: { email: string }) => inviteMember(book.id, email),
-    onSuccess: () => setInviteEmail(""),
+    onSuccess: () => {
+      setInviteEmail("");
+      Taro.showToast({ title: "邀请已发送", icon: "success" });
+    },
+    onError: (err: any) => {
+      Taro.showToast({
+        title: err?.message || "邀请失败",
+        icon: "error",
+      });
+    },
   });
 
   return (
     <View className={`book-card ${isActive ? "book-card--active" : ""}`}>
-      <View className="p-3">
-        <View className="flex items-center gap-2">
-          <Text style={{ fontSize: "40rpx" }}>📒</Text>
+      <View className="book-card__body">
+        <View className="book-card__row">
+          <Text className="book-card__icon">📒</Text>
 
           {renaming ? (
-            <View className="flex-1 flex gap-1 items-center">
+            <View className="book-card__rename-row">
               <Input
-                className="flex-1 px-2 book-card-input"
+                className="book-card__rename-input"
                 value={renameVal}
                 onInput={(e: any) => setRenameVal(e.detail.value)}
                 focus
@@ -68,7 +77,7 @@ export default function BookCard({
                 }}
               />
               <Text
-                className="text-xs text-primary font-semibold"
+                className="book-card__rename-save"
                 onClick={() => {
                   if (renameVal.trim()) {
                     onRename(book.id, renameVal.trim());
@@ -79,7 +88,7 @@ export default function BookCard({
                 保存
               </Text>
               <Text
-                className="text-xs text-secondary"
+                className="book-card__rename-cancel"
                 onClick={() => {
                   setRenaming(false);
                   setRenameVal(book.name);
@@ -89,21 +98,21 @@ export default function BookCard({
               </Text>
             </View>
           ) : (
-            <View className="flex-1">
-              <View className="flex items-center gap-1">
-                <Text className="text-sm font-semibold">{book.name}</Text>
+            <View className="book-card__header">
+              <View className="book-card__title-row">
+                <Text className="book-card__title">{book.name}</Text>
                 {isActive && (
-                  <View className="book-card-badge book-card-badge--current">
-                    <Text className="text-xs text-primary">当前</Text>
+                  <View className="book-card__badge book-card__badge--current">
+                    <Text className="book-card__badge-text">当前</Text>
                   </View>
                 )}
                 {isDefault && (
-                  <View className="book-card-badge">
-                    <Text className="text-xs text-hint">默认</Text>
+                  <View className="book-card__badge book-card__badge--default">
+                    <Text className="book-card__badge-text">默认</Text>
                   </View>
                 )}
               </View>
-              <Text className="text-xs text-hint mt-1">
+              <Text className="book-card__date">
                 {new Date(book.created_at).toLocaleDateString("zh-CN")}
               </Text>
             </View>
@@ -111,40 +120,42 @@ export default function BookCard({
         </View>
 
         {!renaming && (
-          <View className="flex gap-1 mt-2">
+          <View className="book-card__actions">
             {!isActive && (
-              <View className="book-card-action" onClick={() => onSwitch(book)}>
-                <Text className="text-xs">切换</Text>
+              <View className="book-card__action" onClick={() => onSwitch(book)}>
+                <Text className="book-card__action-text">切换</Text>
               </View>
             )}
             <View
-              className="book-card-action"
+              className="book-card__action"
               onClick={() => {
                 setRenaming(true);
                 setRenameVal(book.name);
               }}
             >
-              <Text className="text-xs">重命名</Text>
+              <Text className="book-card__action-text">重命名</Text>
             </View>
             <View
-              className={`book-card-action ${showMembers ? "book-card-action--active" : ""}`}
+              className={`book-card__action ${showMembers ? "book-card__action--active" : ""}`}
               onClick={() => setShowMembers((v) => !v)}
             >
-              <Text className="text-xs">成员</Text>
+              <Text className="book-card__action-text">成员</Text>
             </View>
             <View
-              className="book-card-action"
+              className="book-card__action"
               onClick={() =>
                 Taro.navigateTo({
                   url: `/pages/BookSettings/index?id=${book.id}`,
                 })
               }
             >
-              <Text className="text-xs">设置</Text>
+              <Text className="book-card__action-text">设置</Text>
             </View>
             {!isDefault && (
-              <View className="book-card-action" onClick={() => onDelete(book)}>
-                <Text className="text-xs text-danger">删除</Text>
+              <View className="book-card__action" onClick={() => onDelete(book)}>
+                <Text className="book-card__action-text book-card__action-text--danger">
+                  删除
+                </Text>
               </View>
             )}
           </View>
@@ -153,72 +164,68 @@ export default function BookCard({
 
       {/* Members Panel */}
       {showMembers && (
-        <View className="book-card-members">
+        <View className="book-card__members">
           {members.length === 0 ? (
-            <Text className="text-xs text-hint">暂无成员</Text>
+            <Text className="book-card__members-empty">暂无成员</Text>
           ) : (
             members.map((m: any) => (
-              <View
-                key={m.id}
-                className="flex justify-between items-center py-1"
-              >
-                <Text className="text-sm">{m.username || m.email}</Text>
+              <View key={m.id} className="book-card__member">
+                <Text className="book-card__member-name">
+                  {m.username || m.email}
+                </Text>
                 {m.role === "owner" && (
-                  <View className="book-card-badge book-card-badge--owner">
-                    <Text className="text-xs text-primary">所有者</Text>
+                  <View className="book-card__badge book-card__badge--current">
+                    <Text className="book-card__badge-text">所有者</Text>
                   </View>
                 )}
               </View>
             ))
           )}
 
-          <View className="book-card-invite mt-2">
+          <View className="book-card__invite">
             {showInvite ? (
-              <View className="flex gap-1">
+              <View className="book-card__invite-row">
                 <Input
-                  className="flex-1 px-2 book-card-input book-card-input--small"
+                  className="book-card__invite-input"
                   value={inviteEmail}
                   onInput={(e: any) => setInviteEmail(e.detail.value)}
                   placeholder="输入用户邮箱"
-                  placeholderClass="text-hint"
+                  placeholderClass="book-card__invite-input-placeholder"
                   focus
                 />
                 <View
-                  className="book-card-invite-btn"
+                  className="book-card__invite-btn"
                   onClick={() => {
                     if (inviteEmail.trim())
                       inviteMut.mutate({ email: inviteEmail.trim() });
                   }}
                 >
-                  <Text className="text-xs text-white">
+                  <Text className="book-card__invite-btn-text">
                     {inviteMut.isPending ? "..." : "添加"}
                   </Text>
                 </View>
                 <View
-                  className="book-card-action"
+                  className="book-card__action"
                   onClick={() => {
                     setShowInvite(false);
                     setInviteEmail("");
                   }}
                 >
-                  <Text className="text-xs">取消</Text>
+                  <Text className="book-card__action-text">取消</Text>
                 </View>
               </View>
             ) : (
               <View
-                className="book-card-action"
+                className="book-card__action"
                 onClick={() => setShowInvite(true)}
               >
-                <Text className="text-xs">+ 邀请成员</Text>
+                <Text className="book-card__action-text">+ 邀请成员</Text>
               </View>
             )}
           </View>
 
           {!isDefault && (
-            <Text
-              className="text-xs text-danger mt-2"
-              onClick={() => onLeave(book)}
-            >
+            <Text className="book-card__leave" onClick={() => onLeave(book)}>
               退出账本
             </Text>
           )}

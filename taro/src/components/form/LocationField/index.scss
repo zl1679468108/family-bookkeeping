@@ -1,0 +1,57 @@
+.ft-section {
+  margin: 0 32rpx 24rpx;
+  background: #ffffff;
+  border-radius: 24rpx;
+  padding: 0 32rpx;
+  box-shadow: 0 2rpx 16rpx rgba(0, 0, 0, 0.03);
+}
+
+.ft-loc {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 28rpx 32rpx;
+}
+
+.ft-loc-info {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  flex: 1;
+  min-width: 0;
+}
+
+.ft-loc-label {
+  font-size: 28rpx;
+  color: #1f2421;
+  font-weight: 600;
+}
+
+.ft-loc-texts {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+}
+
+.ft-loc-name {
+  font-size: 28rpx;
+  color: #1f2421;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ft-loc-coords {
+  font-size: 22rpx;
+  color: #7a7f7a;
+}
+
+.ft-loc-clear {
+  font-size: 26rpx;
+  color: #e85d5d;
+  padding: 8rpx 16rpx;
+  font-weight: 500;
+}

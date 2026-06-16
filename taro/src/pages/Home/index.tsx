@@ -1,295 +1,169 @@
 /**
- * Home — 静记首页 v5
- * 导航栏 · 结余卡片 · 预算进度 · 近期流水 · 悬浮记账按钮
+ * Home — 首页（1:1 严格按设计稿）
+ * 结构:
+ *   .stat-card.hero — 本月结余
+ *   .stat-split — 收入 / 支出
+ *   .section-card — 最近交易（全部 →）
+ *   .section-card — 快捷记账（4列 .cat-grid）
+ *   .fab — 右下角 +
  */
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { View, Text } from "@tarojs/components";
 import Taro from "@tarojs/taro";
-import MonthPicker from "../../components/MonthPicker";
-import TransactionItem from "../../components/TransactionItem";
-import EmptyState from "../../components/EmptyState";
-import ProgressBar from "../../components/ProgressBar";
 import PageLayout from "../../components/PageLayout";
 import { getTransactions } from "../../services/transactionsApi";
-import { fetchBudgetStatus } from "../../services/budgetsApi";
 import { fetchSummary } from "../../services/statisticsApi";
 import { useCategoryLookup } from "../../hooks/useCategories";
-import { useMonthSelector } from "../../hooks/useMonthSelector";
-import { useAuth } from "../../context/AuthContext";
 import { fmtAmount } from "../../utils/format";
-import type {
-  StatisticsSummary,
-  BudgetStatus,
-  PaginatedResponse,
-  Transaction,
-} from "../../types";
 import "./index.scss";
 
 export default function Home() {
-  const { user, loading: authLoading } = useAuth();
-  const { year, month, setYear, setMonth, dateRange, monthKey } =
-    useMonthSelector();
-  const { getCategoryName, getCategoryIcon } = useCategoryLookup();
+  const { categories, getCategoryName, getCategoryIcon } = useCategoryLookup();
+  const [txn, setTxn] = useState<any[]>([]);
+  const [summary, setSummary] = useState<any>(null);
+  const [refreshing, setRefreshing] = useState(false);
 
-  // 手动管理数据状态，避免 React Query 在 Taro 中的兼容性问题
-  const [summary, setSummary] = useState<StatisticsSummary | null>(null);
-  const [bs, setBs] = useState<BudgetStatus | null>(null);
-  const [tx, setTx] = useState<PaginatedResponse<Transaction> | null>(null);
-  const [sLoad, setSLoad] = useState(true);
+  const loadData = () => {
+    const now = new Date();
+    const pad = (n: number) => String(n).padStart(2, "0");
+    const startDate = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-01`;
+    const endDate = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+    return Promise.all([
+      fetchSummary({ startDate, endDate }).then((s: any) => setSummary(s)),
+      getTransactions({ page: 1, pageSize: 5 })
+        .then((r: any) => setTxn(r.data || []))
+        .catch(() => setTxn([])),
+    ]);
+  };
 
-  const fetchAllData = useCallback(async () => {
-    setSLoad(true);
-    try {
-      const [summaryRes, bsRes, txRes] = await Promise.all([
-        fetchSummary({ startDate: dateRange.start, endDate: dateRange.end }),
-        fetchBudgetStatus(monthKey),
-        getTransactions({
-          startDate: dateRange.start,
-          endDate: dateRange.end,
-          page: 1,
-          pageSize: 5,
-          sortBy: "date",
-          sortOrder: "desc",
-        }),
-      ]);
-      setSummary(summaryRes);
-      setBs(bsRes);
-      setTx(txRes);
-    } catch (err) {
-      console.error("首页数据加载失败:", err);
-    } finally {
-      setSLoad(false);
-    }
-  }, [dateRange.start, dateRange.end, monthKey]);
-
-  // 认证完成后加载数据
   useEffect(() => {
-    if (!authLoading && !user) {
-      Taro.reLaunch({ url: "/pages/User/Login/index" });
-      return;
-    }
-    if (user) {
-      fetchAllData();
-    }
-  }, [authLoading, user, fetchAllData]);
+    loadData().catch(() => {});
+  }, []);
+
+  const handleRefresh = () => {
+    return new Promise<void>((resolve) => {
+      setRefreshing(true);
+      loadData()
+        .catch(() => {})
+        .finally(() => {
+          setRefreshing(false);
+          resolve();
+        });
+    });
+  };
 
   const expense = summary?.totalExpense ?? 0;
   const income = summary?.totalIncome ?? 0;
   const balance = income - expense;
-  const loading = sLoad || authLoading;
 
-  const loadingSkeleton = (
-    <View className="flex flex-col gap-2 home-content">
-      <View
-        className="skeleton"
-        style={{ height: "200rpx", borderRadius: "var(--radius-lg)" }}
-      />
-      <View
-        className="skeleton"
-        style={{ height: "120rpx", borderRadius: "var(--radius-lg)" }}
-      />
-      <View
-        className="skeleton"
-        style={{ height: "80rpx", borderRadius: "var(--radius-lg)" }}
-      />
-    </View>
+  // 快捷记账分类（支出类 8 个）
+  const quickCats = useMemo(
+    () =>
+      (categories || [])
+        .filter((c: any) => c.type === "expense")
+        .slice(0, 8),
+    [categories],
   );
 
   return (
+    <>
     <PageLayout
-      title="静记"
-      tabBar
-      loading={loading}
-      loadingText="拉取账本数据…"
-      loadingFallback={loadingSkeleton}
       contentClassName="home-content"
+      onRefresh={handleRefresh}
+      refreshing={refreshing}
     >
-      <>
-        {/* Month Picker — below nav, compact */}
-        <View className="home-month-picker">
-          <MonthPicker
-            year={year}
-            month={month}
-            onChange={(y, m) => {
-              setYear(y);
-              setMonth(m);
-            }}
-          />
-        </View>
+      {/* ===== Hero 结余卡片 ===== */}
+      <View className="stat-card hero">
+        <Text className="stat-label">本月结余</Text>
+        <Text className="stat-value">¥ {fmtAmount(balance)}</Text>
+        <Text className="stat-meta">{txn.length} 笔交易</Text>
+      </View>
 
-        {/* Balance Card */}
-        <View className="home-balance-card">
-          <Text className="home-balance-label">本月结余</Text>
-          <Text
-            className={`home-balance-value ${balance < 0 ? "negative" : ""}`}
-          >
-            ¥&nbsp;{fmtAmount(balance)}
+      {/* ===== 收入 / 支出 双卡片 ===== */}
+      <View className="stat-split">
+        <View className="stat-card">
+          <Text className="stat-label">收入</Text>
+          <Text className="stat-value income-value">¥{fmtAmount(income)}</Text>
+        </View>
+        <View className="stat-card">
+          <Text className="stat-label">支出</Text>
+          <Text className="stat-value expense-value">¥{fmtAmount(expense)}</Text>
+        </View>
+      </View>
+
+      {/* ===== 最近交易 ===== */}
+      <View className="section-card">
+        <View className="section-header">
+          <Text className="section-title">最近交易</Text>
+          <Text className="section-action" onClick={() => Taro.switchTab({ url: "/pages/Transactions/index" })}>
+            全部 ›
           </Text>
-          <View className="home-balance-row">
-            <View className="home-balance-item">
-              <Text className="home-balance-item-label">
-                <View className="home-dot home-dot--expense" /> 支出
-              </Text>
-              <Text className="home-balance-item-value text-expense">
-                ¥{fmtAmount(expense)}
-              </Text>
-            </View>
-            <View className="home-balance-item">
-              <Text className="home-balance-item-label">
-                <View className="home-dot home-dot--income" /> 收入
-              </Text>
-              <Text className="home-balance-item-value text-income">
-                ¥{fmtAmount(income)}
-              </Text>
-            </View>
-          </View>
         </View>
 
-        {/* Budget Progress */}
-        {bs && bs.totalBudget > 0 && (
-          <View
-            className="home-budget-card"
-            onClick={() => Taro.navigateTo({ url: "/pages/Budgets/index" })}
-          >
-            <View className="home-budget-header">
-              <Text className="home-budget-title">月度预算</Text>
-              <Text className="home-budget-pct">
-                {Math.round((bs.totalSpent / bs.totalBudget) * 100)}%
-              </Text>
-            </View>
-            <ProgressBar
-              label=""
-              current={bs.totalSpent}
-              max={bs.totalBudget}
-              danger={bs.totalSpent > bs.totalBudget}
-              showLabel={false}
-            />
-            <Text className="home-budget-numbers">
-              已花 ¥{bs.totalSpent.toLocaleString()} / ¥
-              {bs.totalBudget.toLocaleString()}
-            </Text>
+        {txn.length === 0 ? (
+          <View className="empty-state">
+            <Text className="empty-text">暂无交易记录</Text>
           </View>
-        )}
-
-        {/* Budget Alerts — 预算预警 严格按设计稿 */}
-        {bs && bs.alerts && bs.alerts.length > 0 && (
-          <View className="home-alerts-card">
-            <View className="home-alerts-header">
-              <Text className="home-alerts-title">
-                {bs.alerts.some((a: any) => a.progress >= 100)
-                  ? "预算超支"
-                  : "预算预警"}
-              </Text>
-              <Text
-                className="home-alerts-link"
-                onClick={(e: any) => {
-                  e.stopPropagation();
-                  Taro.navigateTo({ url: "/pages/Budgets/index" });
-                }}
-              >
-                调整预算 →
-              </Text>
-            </View>
-            {bs.alerts.slice(0, 3).map((a: any) => {
-              const over = a.progress >= 100;
-              const barColor = over
-                ? "var(--color-expense)"
-                : a.progress >= 80
-                  ? "var(--color-warning)"
-                  : "var(--color-primary)";
+        ) : (
+          <View>
+            {txn.map((t: any) => {
+              const catName = getCategoryName(t.category) || "其他";
+              const catIcon = getCategoryIcon(t.category) || "📌";
+              const amt = t.amount;
               return (
                 <View
-                  key={a.category_id}
-                  className="home-alert-row"
-                  onClick={() =>
-                    Taro.navigateTo({
-                      url: `/pages/Budgets/index?focus=${a.category_id}`,
-                    })
-                  }
+                  key={t.id}
+                  className="txn-row"
+                  onClick={() => {
+                    Taro.setStorageSync("edit_tx_id", t.id);
+                    Taro.navigateTo({ url: "/pages/AddTransaction/index" });
+                  }}
                 >
-                  <View className="home-alert-icon">
-                    <Text style={{ fontSize: "24rpx" }}>
-                      {getCategoryIcon(a.category_id)}
-                    </Text>
+                  <View className="txn-icon">
+                    <Text>{catIcon}</Text>
                   </View>
-                  <Text className="home-alert-name">
-                    {getCategoryName(a.category_id)}
-                  </Text>
-                  <View className="home-alert-mini-bar">
-                    <View
-                      className="home-alert-fill"
-                      style={{
-                        width: `${Math.min(a.progress, 100)}%`,
-                        backgroundColor: barColor,
-                      }}
-                    />
+                  <View className="txn-info">
+                    <Text className="txn-title">{t.description || catName}</Text>
+                    <Text className="txn-meta">{catName} · {(t.date || "").slice(5)}</Text>
                   </View>
-                  <Text
-                    className="home-alert-pct"
-                    style={{ color: barColor }}
-                  >
-                    {Math.round(a.progress)}%
+                  <Text className={`txn-amount ${t.type === "expense" ? "debit" : "credit"}`}>
+                    {t.type === "expense" ? "-" : "+"}¥{fmtAmount(amt)}
                   </Text>
                 </View>
               );
             })}
           </View>
         )}
+      </View>
 
-        {/* Recent Transactions */}
+      {/* ===== 快捷记账 ===== */}
+      <View className="section-card">
         <View className="section-header">
-          <Text className="section-title">近期流水</Text>
-          <Text
-            className="section-link"
-            onClick={() => Taro.switchTab({ url: "/pages/Transactions/index" })}
-          >
-            查看全部 →
-          </Text>
+          <Text className="section-title">快捷记账</Text>
         </View>
-
-        {!tx?.data?.length ? (
-          <View className="card">
-            <EmptyState
-              title="暂无交易记录"
-              description="点击下方 + 开始记账"
-              actionText="记一笔"
-              onAction={() =>
-                Taro.navigateTo({ url: "/pages/AddTransaction/index" })
+        <View className="cat-grid">
+          {quickCats.map((c: any) => (
+            <View
+              key={c.id}
+              className="cat-item"
+              onClick={() =>
+                Taro.navigateTo({
+                  url: `/pages/AddTransaction/index?category=${c.id}&type=expense`,
+                })
               }
-            />
-          </View>
-        ) : (
-          <View className="card">
-            {tx.data.map((t) => {
-              const catIcon = getCategoryIcon(t.category);
-              const catName = getCategoryName(t.category);
-              return (
-                <TransactionItem
-                  key={t.id}
-                  icon={catIcon}
-                  categoryName={catName}
-                  description={t.description}
-                  amount={t.amount}
-                  type={t.type}
-                  date={t.date?.slice(5)}
-                  onClick={() => {
-                    Taro.setStorageSync("edit_tx_id", t.id);
-                    Taro.navigateTo({ url: "/pages/AddTransaction/index" });
-                  }}
-                />
-              );
-            })}
-          </View>
-        )}
-      </>
-
-      {/* Floating Action Button — 右下角悬浮记账 */}
-      <View
-        className="home-fab"
-        onClick={() => Taro.navigateTo({ url: "/pages/AddTransaction/index" })}
-      >
-        <Text className="home-fab-icon">+</Text>
+            >
+              <Text className="ci-emoji">{c.icon || "📌"}</Text>
+              <Text className="ci-name">{c.name}</Text>
+            </View>
+          ))}
+        </View>
       </View>
     </PageLayout>
+
+    {/* FAB - 屏幕固定定位的右下角 + 按钮 */}
+    <View className="fab" onClick={() => Taro.navigateTo({ url: "/pages/AddTransaction/index" })}>
+      <Text>+</Text>
+    </View>
+    </>
   );
 }

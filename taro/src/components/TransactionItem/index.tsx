@@ -10,6 +10,7 @@ export interface TransactionItemProps {
   icon: string;
   categoryName: string;
   description?: string;
+  brand?: string;
   amount: number;
   type: "income" | "expense";
   date?: string;
@@ -24,6 +25,7 @@ export default function TransactionItem({
   icon,
   categoryName,
   description,
+  brand,
   amount,
   type,
   date,
@@ -108,7 +110,9 @@ export default function TransactionItem({
           <Text className="txi-name">{categoryName}</Text>
           <Text className="txi-meta">
             {description || ""}
-            {(description && date) ? " · " : ""}
+            {description && brand ? " · " : ""}
+            {brand || ""}
+            {(description || brand) && date ? " · " : ""}
             {date || ""}
           </Text>
         </View>

@@ -11,8 +11,8 @@ import {
   inviteMember,
   checkOwner,
 } from "../../services/booksApi";
-import NavHeader from "../../components/NavHeader";
 import ConfirmDialog from "../../components/ConfirmDialog";
+import PageLayout from "../../components/PageLayout";
 
 export default function BookMembers() {
   const router = getCurrentInstance().router;
@@ -64,24 +64,9 @@ export default function BookMembers() {
     },
   });
 
-  const handleBack = () => {
-    Taro.navigateBack();
-  };
-
   return (
-    <View className="min-h-screen bg-bg flex flex-col">
-      <NavHeader
-        title="成员管理"
-        leftContent={
-          <View onClick={handleBack}>
-            <Text style={{ fontSize: "32rpx", color: "var(--color-text)" }}>
-              ←
-            </Text>
-          </View>
-        }
-      />
-
-      <View style={{ padding: "24rpx" }}>
+    <PageLayout contentClassName="bm-content">
+      <View style={{ padding: "24rpx 32rpx" }}>
         {/* Invite section */}
         {isOwner && (
           <View
@@ -319,6 +304,6 @@ export default function BookMembers() {
         onCancel={() => setRemoveTarget(null)}
         onConfirm={() => removeTarget && removeMut.mutate(removeTarget.userId)}
       />
-    </View>
+    </PageLayout>
   );
 }

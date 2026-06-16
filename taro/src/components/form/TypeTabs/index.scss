@@ -1,0 +1,36 @@
+.ft-tabs {
+  display: flex;
+  background: #e9ece6;
+  border-radius: 20rpx;
+  padding: 8rpx;
+  margin: 0 32rpx 24rpx;
+}
+
+.ft-tab {
+  flex: 1;
+  padding: 20rpx 0;
+  border-radius: 16rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.ft-tab--active {
+  background: #ffffff;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.06);
+}
+
+.ft-tab-text {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #7a7f7a;
+}
+
+.ft-tab--active.ft-tab--expense .ft-tab-text {
+  color: #e85d5d;
+}
+
+.ft-tab--active.ft-tab--income .ft-tab-text {
+  color: #2d9d8a;
+}

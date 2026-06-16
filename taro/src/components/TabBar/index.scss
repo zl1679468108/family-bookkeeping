@@ -1,44 +1,55 @@
 /**
- * TabBar v5 — 4 Tab 布局（首页 | 流水 | 报表 | 我的）
- * 对齐 PC 端设计语言，移除中间 FAB
+ * TabBar（1:1 严格按设计稿）
+ * 白色背景、分隔线 0.5px，SVG 图标 24rpx/48rpx，主色 #2D9D8A
  */
+
 .tab-bar-container {
   position: fixed;
   left: 0;
   right: 0;
   bottom: 0;
   z-index: 50;
-  background-color: var(--color-card);
-  border-top: 0.5px solid var(--color-border);
+  background-color: #FFFFFF;
+  border-top: 0.5px solid #E0E2DD;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-around;
-  height: 104rpx;
+  height: 120rpx;
+  padding-top: 8rpx;
   padding-bottom: calc(8rpx + env(safe-area-inset-bottom));
 }
 
 /* ===== Tab Item ===== */
 .tab-bar-item {
+  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 4rpx;
-  padding: 8rpx 24rpx;
   position: relative;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  color: #8B8E89;
+  font-size: 20rpx;
+  font-weight: 500;
+  transition: color 0.15s ease;
+}
+
+.tab-bar-item--active {
+  color: #2D9D8A;
+  font-weight: 600;
+}
+
+/* ===== Image 图标（微信小程序不支持 inline SVG） ===== */
+.tab-bar-icon {
+  width: 48rpx;
+  height: 48rpx;
+  display: block;
 }
 
 /* ===== Label ===== */
 .tab-bar-label {
   font-size: 20rpx;
-  color: var(--color-text-hint);
-  font-weight: 400;
-  transition: color 0.2s ease;
+  color: inherit;
+  font-weight: inherit;
   line-height: 1;
-}
-
-.tab-bar-label--active {
-  color: var(--color-primary);
-  font-weight: 600;
 }

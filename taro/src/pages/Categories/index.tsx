@@ -1,313 +1,405 @@
 /**
- * Categories — v3.0 分类管理
- * 白色导航 · 分段控件 · 分类网格 · 拖拽排序 · 底部弹出编辑
+ * Categories — 分类管理
+ * 对齐 PC：支出/收入切换、分类列表、新增、编辑、删除、排序
+ * 样式：参考 TemplateManager — 白色圆角卡片 + 悬浮 FAB + Sheet 底部弹窗
+ * 排序模式：点击顶部"编辑排序"进入，每个卡片显示上移/下移箭头，点击"完成"提交保存
  */
-import { useState, useCallback, useMemo } from "react";
-import Taro from "@tarojs/taro";
+import { useState, useMemo } from "react";
 import { View, Text, Input } from "@tarojs/components";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import SegmentedControl from "../../components/SegmentedControl";
+import Taro from "@tarojs/taro";
+import { useQueryClient, useMutation } from "@tanstack/react-query";
+import PageLayout from "../../components/PageLayout";
 import EmptyState from "../../components/EmptyState";
 import ConfirmDialog from "../../components/ConfirmDialog";
-import {
-  fetchCategories,
-  createCategory,
-  updateCategory,
-  deleteCategory,
-} from "../../services/categoriesApi";
+import { apiGet, apiPost, apiPut, apiDelete } from "../../services/api";
 import { useManualQuery } from "../../hooks/useManualQuery";
-import type { Category } from "../../types";
 import "./index.scss";
 
+interface Category {
+  id: string;
+  name: string;
+  icon: string;
+  type: "expense" | "income";
+  sort_order: number;
+  is_default?: boolean;
+}
+
+// 与 PC 端一致的 emoji 预设
 const EMOJI_PRESETS = [
-  "🍜",
-  "🚇",
-  "🛒",
-  "🎬",
-  "🏠",
-  "💊",
-  "📚",
-  "✈️",
-  "🎁",
-  "💼",
-  "💰",
-  "🏦",
-  "📈",
-  "🎵",
-  "🐱",
-  "🎮",
-  "☕",
-  "🍰",
-  "🏥",
-  "👕",
-  "💄",
-  "📱",
-  "🏸",
+  "🍜", "🍔", "🍕", "🍣", "☕", "🍺", "🧋",
+  "🚗", "🚌", "🚇", "✈️", "🚲", "⛽",
+  "🛍️", "👗", "👟", "💄", "📱", "💻",
+  "🏠", "🏨", "💡", "🔧",
+  "🎮", "🎬", "🎵", "⚽", "🏀", "🎤",
+  "💊", "🏥", "🩺",
+  "📚", "✏️", "🎓",
+  "💼", "💰", "🎁", "📈", "🏦",
+  "📌", "🎯", "⭐",
 ];
+
+type CatType = "expense" | "income";
 
 export default function CategoriesPage() {
   const qc = useQueryClient();
-  const [tabIndex, setTabIndex] = useState(0); // 0=支出, 1=收入
-  const catType = (tabIndex === 0 ? "expense" : "income") as
-    | "expense"
-    | "income";
 
+  // Tab: 支出/收入
+  const [tabIndex, setTabIndex] = useState<number>(0);
+  const catType: CatType = tabIndex === 0 ? "expense" : "income";
+
+  // 弹窗
+  const [showSheet, setShowSheet] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [form, setForm] = useState({ name: "", icon: "📌" });
+
+  // 删除确认
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+
+  // 排序模式
   const [sortMode, setSortMode] = useState(false);
-  const [showModal, setShowModal] = useState(false);
-  const [editMode, setEditMode] = useState<"add" | "edit">("add");
-  const [editCat, setEditCat] = useState<Category | null>(null);
-  const [deleteTarget, setDeleteTarget] = useState<Category | null>(null);
-  const [name, setName] = useState("");
-  const [icon, setIcon] = useState("📌");
+  const [sortOrder, setSortOrder] = useState<Category[]>([]);
 
-  const { data: allCats = [], isLoading } = useManualQuery<Category[]>({
+  // --- 数据请求 ---
+  const { data: categories, isLoading, refetch } = useManualQuery<Category[]>({
     key: "categories",
-    queryFn: () => fetchCategories(),
+    queryFn: () => apiGet<Category[]>("/categories"),
   });
 
-  const filtered = useMemo(
-    () => allCats.filter((c) => c.type === catType),
-    [allCats, catType],
-  );
+  // 过滤并排序
+  const filtered = useMemo(() => {
+    return (categories || [])
+      .filter((c) => c.type === catType)
+      .sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
+  }, [categories, catType]);
 
+  // 排序模式下用的列表（用户可以在内存里调整）
+  const displayList = sortMode && sortOrder.length > 0 ? sortOrder : filtered;
+
+  // 进入排序模式：拷贝一份当前列表
+  const handleEnterSortMode = () => {
+    setSortOrder([...filtered]);
+    setSortMode(true);
+  };
+
+  // 退出排序模式（不保存）
+  const handleCancelSortMode = () => {
+    setSortMode(false);
+    setSortOrder([]);
+  };
+
+  // 上移
+  const handleMoveUp = (index: number) => {
+    if (index <= 0) return;
+    const newList = [...sortOrder];
+    [newList[index - 1], newList[index]] = [newList[index], newList[index - 1]];
+    setSortOrder(newList);
+  };
+
+  // 下移
+  const handleMoveDown = (index: number) => {
+    if (index >= sortOrder.length - 1) return;
+    const newList = [...sortOrder];
+    [newList[index], newList[index + 1]] = [newList[index + 1], newList[index]];
+    setSortOrder(newList);
+  };
+
+  // --- Mutations ---
   const createMut = useMutation({
-    mutationFn: (dto: {
-      name: string;
-      icon: string;
-      type: "expense" | "income";
-    }) => createCategory(dto),
+    mutationFn: (data: { name: string; icon: string; type: CatType }) =>
+      apiPost<Category>("/categories", data),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["categories"] });
-      Taro.showToast({ title: "添加成功", icon: "success" });
-      closeModal();
+      Taro.showToast({ title: "已添加", icon: "success" });
+      handleClose();
+      refetch();
     },
   });
+
   const updateMut = useMutation({
-    mutationFn: ({
-      id,
-      name: nm,
-      icon: ic,
-    }: {
-      id: string;
-      name: string;
-      icon: string;
-    }) => updateCategory(id, { name: nm, icon: ic }),
+    mutationFn: ({ id, data }: { id: string; data: { name: string; icon: string } }) =>
+      apiPut<Category>(`/categories/${id}`, data),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["categories"] });
-      Taro.showToast({ title: "修改成功", icon: "success" });
-      closeModal();
+      Taro.showToast({ title: "已更新", icon: "success" });
+      handleClose();
+      refetch();
     },
   });
+
   const deleteMut = useMutation({
-    mutationFn: (id: string) => deleteCategory(id),
+    mutationFn: (id: string) => apiDelete(`/categories/${id}`),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["categories"] });
       Taro.showToast({ title: "已删除", icon: "success" });
-      setDeleteTarget(null);
+      setDeleteId(null);
+      refetch();
     },
   });
 
-  const openAdd = useCallback(() => {
-    setEditMode("add");
-    setEditCat(null);
-    setName("");
-    setIcon("📌");
-    setShowModal(true);
-  }, []);
-  const openEdit = useCallback((cat: Category) => {
-    setEditMode("edit");
-    setEditCat(cat);
-    setName(cat.name);
-    setIcon(cat.icon);
-    setShowModal(true);
-  }, []);
-  const closeModal = useCallback(() => {
-    setShowModal(false);
-    setEditCat(null);
-  }, []);
+  // 排序保存 Mutation
+  const reorderMut = useMutation({
+    mutationFn: (orders: { id: string; sort_order: number }[]) =>
+      apiPost<null>("/categories/reorder", orders),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["categories"] });
+      Taro.showToast({ title: "排序已保存", icon: "success" });
+      setSortMode(false);
+      setSortOrder([]);
+      refetch();
+    },
+  });
 
-  const handleConfirm = useCallback(() => {
-    if (!name.trim()) return;
-    if (editMode === "add")
-      createMut.mutate({ name: name.trim(), icon, type: catType });
-    else if (editCat)
-      updateMut.mutate({ id: editCat.id, name: name.trim(), icon });
-  }, [editMode, name, icon, catType, editCat, createMut, updateMut]);
+  // 提交排序
+  const handleSaveSort = () => {
+    if (sortOrder.length === 0) return;
+    const orders = sortOrder.map((c, index) => ({
+      id: c.id,
+      sort_order: index,
+    }));
+    reorderMut.mutate(orders);
+  };
+
+  const handleAdd = () => {
+    setForm({ name: "", icon: "📌" });
+    setEditingId(null);
+    setShowSheet(true);
+  };
+
+  const handleEdit = (cat: Category) => {
+    setForm({ name: cat.name, icon: cat.icon });
+    setEditingId(cat.id);
+    setShowSheet(true);
+  };
+
+  const handleClose = () => {
+    setShowSheet(false);
+    setEditingId(null);
+    setForm({ name: "", icon: "📌" });
+  };
+
+  const handleSave = () => {
+    if (!form.name.trim()) {
+      Taro.showToast({ title: "请输入名称", icon: "none" });
+      return;
+    }
+    if (editingId) {
+      updateMut.mutate({
+        id: editingId,
+        data: { name: form.name.trim(), icon: form.icon },
+      });
+    } else {
+      createMut.mutate({
+        name: form.name.trim(),
+        icon: form.icon,
+        type: catType,
+      });
+    }
+  };
+
+  const saving = createMut.isPending || updateMut.isPending;
 
   return (
-    <View className="min-h-screen bg-bg flex flex-col">
-      {/* Tabs + Sort Toggle */}
-      <View className="cats-tabs-wrap">
-        <View className="flex items-center justify-between mb-2">
-          <SegmentedControl
-            options={["支出分类", "收入分类"]}
-            value={tabIndex}
-            onChange={(i) => {
-              setTabIndex(i);
-              setSortMode(false);
-            }}
-          />
-          <Text
-            className="text-sm font-semibold text-primary tappable ml-3"
-            onClick={() => setSortMode((v) => !v)}
-          >
-            {sortMode ? "完成" : "排序"}
-          </Text>
-        </View>
-      </View>
-
-      {/* Category List */}
-      <View className="flex-1 overflow-y-auto">
-        <View className="cats-content">
-          {isLoading ? (
-            <View className="flex justify-center py-8">
-              <View
-                className="animate-spin"
-                style={{
-                  width: "44rpx",
-                  height: "44rpx",
-                  border: "4rpx solid var(--color-primary)",
-                  borderTopColor: "transparent",
-                  borderRadius: "50%",
-                }}
-              />
-            </View>
-          ) : filtered.length === 0 ? (
-            <EmptyState title="暂无分类" description="点击下方按钮添加分类" />
-          ) : (
-            <View className="cats-grid">
-              {filtered.map((cat) => {
-                const isDefault = cat.is_default === true;
-                return (
-                  <View key={cat.id} className="cats-card">
-                    {isDefault && (
-                      <View className="cats-default-badge">
-                        <Text className="text-xs text-hint">默认</Text>
-                      </View>
-                    )}
-                    <Text style={{ fontSize: "48rpx" }}>{cat.icon}</Text>
-                    <Text
-                      className="text-xs truncate mt-1 mb-2"
-                      style={{ maxWidth: "100%" }}
-                    >
-                      {cat.name}
-                    </Text>
-                    {!sortMode && !isDefault && (
-                      <View className="flex gap-1">
-                        <View
-                          className="cats-action"
-                          onClick={() => openEdit(cat)}
-                        >
-                          <Text className="text-xs text-secondary">编辑</Text>
-                        </View>
-                        <View
-                          className="cats-action"
-                          onClick={() => setDeleteTarget(cat)}
-                        >
-                          <Text className="text-xs text-danger">删除</Text>
-                        </View>
-                      </View>
-                    )}
-                    {sortMode && (
-                      <Text className="text-xs text-hint">拖动排序</Text>
-                    )}
-                  </View>
-                );
-              })}
-            </View>
-          )}
-
-          {/* Add Button */}
-          {!sortMode && (
-            <View
-              className="cats-add-btn"
-              onClick={openAdd}
-              hoverClass="tappable"
-            >
-              <Text className="text-sm text-secondary">＋ 新增分类</Text>
-            </View>
-          )}
-        </View>
-      </View>
-
-      {/* Add/Edit Bottom Sheet */}
-      {showModal && (
-        <View
-          className="fixed inset-0 z-50 flex items-end"
-          style={{ backgroundColor: "rgba(0,0,0,0.4)" }}
-          onClick={closeModal}
-        >
+    <PageLayout contentClassName="cats-content">
+      {/* Tab 切换：支出 / 收入 + 排序按钮 */}
+      <View className="cats-tabs-card">
+        <View className="cats-pill-tabs">
           <View
-            className="cats-modal animate-slide-up"
-            onClick={(e: any) => e.stopPropagation()}
+            className={`cats-pill-tab ${tabIndex === 0 ? "cats-pill-tab--active" : ""}`}
+            onClick={() => {
+              if (sortMode) handleCancelSortMode();
+              setTabIndex(0);
+            }}
           >
-            <Text className="text-base font-semibold mb-4">
-              {editMode === "add"
-                ? `新增${catType === "expense" ? "支出" : "收入"}分类`
-                : "编辑分类"}
-            </Text>
+            <Text className="cats-pill-tab__text">支出分类</Text>
+          </View>
+          <View
+            className={`cats-pill-tab ${tabIndex === 1 ? "cats-pill-tab--active" : ""}`}
+            onClick={() => {
+              if (sortMode) handleCancelSortMode();
+              setTabIndex(1);
+            }}
+          >
+            <Text className="cats-pill-tab__text">收入分类</Text>
+          </View>
+        </View>
+        {!isLoading && filtered.length > 1 && (
+          <View
+            className={`cats-sort-btn ${sortMode ? "cats-sort-btn--active" : ""}`}
+            onClick={sortMode ? handleCancelSortMode : handleEnterSortMode}
+          >
+            <Text>{sortMode ? "取消" : "排序"}</Text>
+          </View>
+        )}
+      </View>
 
-            {/* Name Input */}
-            <View className="mb-3">
-              <Text className="text-xs text-secondary mb-1">名称</Text>
-              <Input
-                className="auth-input"
-                value={name}
-                onInput={(e: any) => setName(e.detail.value)}
-                placeholder="输入分类名称"
-                placeholderClass="text-hint"
-                maxlength={10}
-                focus
-              />
-              <Text className="text-xs text-hint mt-1">{name.length}/10</Text>
+      {/* 排序模式下的"完成"提示 */}
+      {sortMode && (
+        <View className="cats-sort-hint">
+          <Text>点击 ↑ / ↓ 调整顺序，完成后点击「保存排序」</Text>
+          <View
+            className={`cats-sort-save ${reorderMut.isPending ? "cats-sort-save--pending" : ""}`}
+            onClick={handleSaveSort}
+          >
+            <Text>{reorderMut.isPending ? "保存中..." : "保存排序"}</Text>
+          </View>
+        </View>
+      )}
+
+      {/* 列表 */}
+      {isLoading ? (
+        <View className="cats-list">
+          <View className="cats-loading-row" />
+          <View className="cats-loading-row" />
+          <View className="cats-loading-row" />
+        </View>
+      ) : filtered.length === 0 ? (
+        <View className="cats-empty">
+          <EmptyState
+            icon="📌"
+            title={`暂无${catType === "expense" ? "支出" : "收入"}分类`}
+            description="点击右下角 ＋ 新建分类"
+          />
+        </View>
+      ) : (
+        <View className="cats-list">
+          {displayList.map((cat, idx) => (
+            <View
+              key={cat.id}
+              className={`cats-card ${sortMode ? "cats-card--sort" : ""}`}
+              onClick={() => {
+                if (sortMode) return;
+                handleEdit(cat);
+              }}
+            >
+              <View className="cats-card__head">
+                <Text className="cats-card__emoji">{cat.icon}</Text>
+                <Text className="cats-card__name">{cat.name}</Text>
+                {cat.is_default && (
+                  <Text className="cats-tag cats-tag--default">默认</Text>
+                )}
+              </View>
+              <Text className="cats-card__meta-line">排序：第 {idx + 1} 位</Text>
+              <View className="cats-card__actions">
+                {sortMode ? (
+                  <>
+                    <View
+                      className={`cats-pill cats-pill--sort ${idx === 0 ? "cats-pill--disabled" : ""}`}
+                      onClick={(e: any) => {
+                        e.stopPropagation();
+                        handleMoveUp(idx);
+                      }}
+                    >
+                      <Text>↑ 上移</Text>
+                    </View>
+                    <View
+                      className={`cats-pill cats-pill--sort ${idx === sortOrder.length - 1 ? "cats-pill--disabled" : ""}`}
+                      onClick={(e: any) => {
+                        e.stopPropagation();
+                        handleMoveDown(idx);
+                      }}
+                    >
+                      <Text>↓ 下移</Text>
+                    </View>
+                  </>
+                ) : !cat.is_default ? (
+                  <>
+                    <View
+                      className="cats-pill cats-pill--edit"
+                      onClick={(e: any) => {
+                        e.stopPropagation();
+                        handleEdit(cat);
+                      }}
+                    >
+                      <Text>编辑</Text>
+                    </View>
+                    <View
+                      className="cats-pill cats-pill--delete"
+                      onClick={(e: any) => {
+                        e.stopPropagation();
+                        setDeleteId(cat.id);
+                      }}
+                    >
+                      <Text>删除</Text>
+                    </View>
+                  </>
+                ) : null}
+              </View>
+            </View>
+          ))}
+        </View>
+      )}
+
+      {/* 悬浮新建按钮（非排序模式） */}
+      {!sortMode && (
+        <View className="cats-fab" onClick={handleAdd}>
+          <Text className="cats-fab__icon">＋</Text>
+        </View>
+      )}
+
+      {/* Sheet 弹窗：新增/编辑 */}
+      {showSheet && (
+        <View className="cats-mask" onClick={handleClose}>
+          <View className="cats-sheet" onClick={(e: any) => e.stopPropagation()}>
+            <View className="cats-sheet__header">
+              <Text className="cats-sheet__cancel" onClick={handleClose}>取消</Text>
+              <Text className="cats-sheet__title">
+                {editingId ? "编辑分类" : `新增${catType === "expense" ? "支出" : "收入"}分类`}
+              </Text>
+              <Text
+                className={`cats-sheet__confirm ${saving ? "cats-sheet__confirm--disabled" : ""}`}
+                onClick={handleSave}
+              >
+                {saving ? "保存中…" : "保存"}
+              </Text>
             </View>
 
-            {/* Emoji Grid */}
-            <View className="mb-4">
-              <Text className="text-xs text-secondary mb-1">图标</Text>
-              <View className="grid grid-cols-8 gap-2">
+            <View className="cats-sheet__body">
+              <View className="cats-form-row">
+                <Text className="cats-form-label">名称</Text>
+                <Input
+                  className="cats-form-input"
+                  placeholder="如：餐饮"
+                  maxlength={10}
+                  value={form.name}
+                  onInput={(e: any) =>
+                    setForm((p) => ({ ...p, name: e.detail.value }))
+                  }
+                />
+              </View>
+
+              <View className="cats-form-row cats-form-row--icon">
+                <Text className="cats-form-label">图标</Text>
+                <Text className="cats-form-emoji-current">{form.icon}</Text>
+              </View>
+
+              {/* emoji 选择网格 */}
+              <View className="cats-emoji-grid">
                 {EMOJI_PRESETS.map((e) => (
                   <View
                     key={e}
-                    className={`cats-emoji ${icon === e ? "cats-emoji-selected" : ""}`}
-                    onClick={() => setIcon(e)}
+                    className={`cats-emoji-item ${form.icon === e ? "cats-emoji-item--selected" : ""}`}
+                    onClick={() => setForm((p) => ({ ...p, icon: e }))}
                   >
-                    <Text style={{ fontSize: "36rpx" }}>{e}</Text>
+                    <Text className="cats-emoji-item__text">{e}</Text>
                   </View>
                 ))}
               </View>
             </View>
 
-            {/* Action Buttons */}
-            <View className="flex gap-2">
-              <View className="btn-secondary flex-1" onClick={closeModal}>
-                <Text className="text-sm">取消</Text>
-              </View>
-              <View
-                className={`btn-primary flex-1 ${!name.trim() ? "opacity-50" : ""}`}
-                onClick={handleConfirm}
-              >
-                <Text className="text-sm text-white">
-                  {createMut.isPending || updateMut.isPending
-                    ? "保存中..."
-                    : "确认"}
-                </Text>
-              </View>
-            </View>
+            <View className="cats-sheet__safe" />
           </View>
         </View>
       )}
 
-      {/* Delete Dialog */}
+      {/* 删除确认弹窗 */}
       <ConfirmDialog
-        visible={!!deleteTarget}
+        visible={!!deleteId}
         title="确认删除"
-        message={`确定删除自定义分类「${deleteTarget?.name}」吗？`}
+        message="确定要删除这个分类吗？"
         confirmText="确认删除"
         confirmLoading={deleteMut.isPending}
-        onCancel={() => setDeleteTarget(null)}
-        onConfirm={() => deleteTarget && deleteMut.mutate(deleteTarget.id)}
+        onCancel={() => setDeleteId(null)}
+        onConfirm={() => deleteId && deleteMut.mutate(deleteId)}
       />
-    </View>
+    </PageLayout>
   );
 }

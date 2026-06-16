@@ -1,0 +1,381 @@
+/**
+ * Map — 账单地图样式
+ */
+
+.map-content {
+  padding: 24rpx 32rpx;
+  padding-bottom: calc(32rpx + env(safe-area-inset-bottom, 0));
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+  background-color: #f6f7f4;
+  box-sizing: border-box;
+}
+
+/* 地图概览卡片 */
+.map-overview {
+  background-color: #ffffff;
+  border-radius: 24rpx;
+  padding: 28rpx;
+  box-shadow: 0 2rpx 12rpx rgba(26, 28, 25, 0.04);
+  border: 1rpx solid #edeee9;
+}
+
+.map-overview__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20rpx;
+}
+
+.map-overview__title {
+  font-size: 30rpx;
+  font-weight: 700;
+  color: #1a1c19;
+}
+
+.map-overview__count {
+  font-size: 22rpx;
+  color: #8b8e89;
+  font-weight: 500;
+}
+
+.map-overview__stats {
+  display: flex;
+  gap: 40rpx;
+  padding: 16rpx 0;
+  border-top: 1rpx solid #edeee9;
+  border-bottom: 1rpx solid #edeee9;
+  margin-bottom: 16rpx;
+}
+
+.map-overview__stat {
+  display: flex;
+  flex-direction: column;
+  gap: 6rpx;
+}
+
+.map-overview__stat-label {
+  font-size: 22rpx;
+  color: #8b8e89;
+  font-weight: 500;
+}
+
+.map-overview__stat-value {
+  font-size: 32rpx;
+  font-weight: 800;
+  color: #1a1c19;
+}
+
+.map-overview__stat-value--expense {
+  color: #ef5350;
+}
+
+.map-overview__hint {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 4rpx;
+}
+
+.map-overview__hint-text {
+  font-size: 24rpx;
+  color: #2d9d8a;
+  font-weight: 600;
+}
+
+.map-overview__hint-arrow {
+  font-size: 28rpx;
+  color: #2d9d8a;
+  font-weight: 700;
+}
+
+/* 加载状态 */
+.map-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60rpx 0;
+  gap: 16rpx;
+}
+
+.map-loading__spinner {
+  width: 48rpx;
+  height: 48rpx;
+  border: 5rpx solid #edeee9;
+  border-top-color: #2d9d8a;
+  border-radius: 50%;
+  animation: map-spin 0.9s linear infinite;
+}
+
+@keyframes map-spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.map-loading__text {
+  font-size: 24rpx;
+  color: #8b8e89;
+  font-weight: 500;
+}
+
+/* 地点分组 section */
+.map-section {
+  background-color: #ffffff;
+  border-radius: 24rpx;
+  padding: 24rpx 28rpx;
+  box-shadow: 0 2rpx 12rpx rgba(26, 28, 25, 0.04);
+  border: 1rpx solid #edeee9;
+}
+
+.map-section__title {
+  font-size: 28rpx;
+  font-weight: 700;
+  color: #1a1c19;
+  margin-bottom: 16rpx;
+  display: block;
+}
+
+.map-list {
+  max-height: 800rpx;
+}
+
+/* 单个地点分组 */
+.map-group {
+  margin-bottom: 20rpx;
+}
+
+.map-group:last-child {
+  margin-bottom: 0;
+}
+
+.map-group__header {
+  display: flex;
+  align-items: center;
+  padding: 16rpx 0;
+  gap: 16rpx;
+}
+
+.map-group__icon {
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: 16rpx;
+  background-color: rgba(45, 157, 138, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28rpx;
+  flex-shrink: 0;
+}
+
+.map-group__info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+}
+
+.map-group__name {
+  font-size: 26rpx;
+  font-weight: 700;
+  color: #1a1c19;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.map-group__meta {
+  font-size: 22rpx;
+  color: #8b8e89;
+  font-weight: 500;
+}
+
+.map-group__arrow {
+  font-size: 28rpx;
+  color: #8b8e89;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+.map-group__items {
+  margin-left: 72rpx;
+  border-left: 2rpx solid #edeee9;
+  padding-left: 20rpx;
+}
+
+.map-group__more {
+  display: block;
+  font-size: 22rpx;
+  color: #8b8e89;
+  text-align: center;
+  padding: 12rpx 0;
+  font-weight: 500;
+}
+
+/* 单个账单条目 */
+.map-item {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  padding: 14rpx 0;
+  border-bottom: 1rpx solid #f6f7f4;
+}
+
+.map-item:last-child {
+  border-bottom: none;
+}
+
+.map-item__indicator {
+  width: 12rpx;
+  height: 12rpx;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.map-item__indicator--expense {
+  background-color: #ef5350;
+}
+
+.map-item__indicator--income {
+  background-color: #66bb6a;
+}
+
+.map-item__main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+}
+
+.map-item__desc {
+  font-size: 24rpx;
+  color: #1a1c19;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.map-item__date {
+  font-size: 20rpx;
+  color: #8b8e89;
+  font-weight: 500;
+}
+
+.map-item__amount {
+  font-size: 26rpx;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.map-item__amount--expense {
+  color: #ef5350;
+}
+
+.map-item__amount--income {
+  color: #66bb6a;
+}
+
+/* 详情弹窗 */
+.map-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: flex-end;
+  z-index: 1000;
+}
+
+.map-modal__sheet {
+  width: 100%;
+  background-color: #ffffff;
+  border-top-left-radius: 28rpx;
+  border-top-right-radius: 28rpx;
+  padding: 32rpx;
+  padding-bottom: calc(32rpx + env(safe-area-inset-bottom, 0));
+}
+
+.map-modal__title {
+  font-size: 30rpx;
+  font-weight: 800;
+  color: #1a1c19;
+  margin-bottom: 24rpx;
+  display: block;
+}
+
+.map-modal__field {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 16rpx 0;
+  border-bottom: 1rpx solid #f6f7f4;
+  gap: 20rpx;
+}
+
+.map-modal__field:last-of-type {
+  border-bottom: none;
+}
+
+.map-modal__label {
+  font-size: 26rpx;
+  color: #8b8e89;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+.map-modal__value {
+  font-size: 26rpx;
+  color: #1a1c19;
+  font-weight: 600;
+  text-align: right;
+  flex: 1;
+}
+
+.map-modal__value--expense {
+  color: #ef5350;
+  font-size: 30rpx;
+  font-weight: 800;
+}
+
+.map-modal__value--income {
+  color: #66bb6a;
+  font-size: 30rpx;
+  font-weight: 800;
+}
+
+.map-modal__actions {
+  display: flex;
+  gap: 16rpx;
+  margin-top: 24rpx;
+}
+
+.map-modal__btn {
+  flex: 1;
+  height: 80rpx;
+  border-radius: 16rpx;
+  background-color: #f6f7f4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26rpx;
+  color: #1a1c19;
+  font-weight: 700;
+  border: 1rpx solid #edeee9;
+}
+
+.map-modal__btn--primary {
+  background-color: #2d9d8a;
+  color: #ffffff;
+  border-color: #2d9d8a;
+  box-shadow: 0 4rpx 12rpx rgba(45, 157, 138, 0.2);
+}

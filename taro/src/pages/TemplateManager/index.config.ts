@@ -1,3 +1,3 @@
 export default definePageConfig({
-  navigationBarTitleText: "模板管理",
+  navigationBarTitleText: "模版",
 });

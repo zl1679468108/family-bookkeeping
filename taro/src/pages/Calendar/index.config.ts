@@ -1,3 +1,3 @@
 export default definePageConfig({
-  navigationBarTitleText: "现金流日历",
+  navigationBarTitleText: "日历",
 });

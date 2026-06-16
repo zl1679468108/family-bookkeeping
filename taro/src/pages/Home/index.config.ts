@@ -1,4 +1,5 @@
 export default definePageConfig({
-  navigationStyle: "custom",
-  usingComponents: {},
+  navigationBarTitleText: "静记",
+  navigationBarBackgroundColor: "#FFFFFF",
+  navigationBarTextStyle: "black",
 });

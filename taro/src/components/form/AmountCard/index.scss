@@ -1,0 +1,38 @@
+.ft-amt-card {
+  margin: 0 32rpx 24rpx;
+  background: #ffffff;
+  border-radius: 28rpx;
+  padding: 36rpx 40rpx;
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.04);
+}
+
+.ft-amt-label {
+  font-size: 24rpx;
+  color: #7a7f7a;
+  display: block;
+  margin-bottom: 12rpx;
+  font-weight: 500;
+}
+
+.ft-amt-row {
+  display: flex;
+  align-items: baseline;
+}
+
+.ft-amt-symbol {
+  font-size: 48rpx;
+  font-weight: 700;
+  color: #1f2421;
+  margin-right: 12rpx;
+  line-height: 1;
+}
+
+.ft-amt-input {
+  flex: 1;
+  font-size: 64rpx;
+  font-weight: 700;
+  color: #1f2421;
+  line-height: 1;
+  font-family: "SF Mono", Menlo, monospace;
+  letter-spacing: -1rpx;
+}

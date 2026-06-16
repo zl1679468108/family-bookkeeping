@@ -1,78 +1,169 @@
 /**
- * Calendar v4 — 严格对齐设计稿
- * 设计稿：.calendar-month / .calendar-weekdays / .calendar-days / .cal-day
+ * Calendar v6 — 统一设计语言
+ * 主色 #2d9d8a · 表面白 #ffffff · 背景 #f6f7f4
  */
-.cal-body {
-  padding: var(--spacing-md);
-  padding-bottom: var(--spacing-xl);
+
+/* ========== 主内容区 ========== */
+.cal-content {
+  padding: 24rpx 32rpx;
+  padding-bottom: calc(32rpx + env(safe-area-inset-bottom, 0));
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
 }
 
-/* Month Picker Toolbar — 设计稿 .month-picker */
-.cal-toolbar {
+/* ========== 顶部：月份选择器 + 今天按钮 ========== */
+.cal-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: var(--spacing-sm);
-  padding: 16rpx 0;
+  padding: 24rpx 28rpx;
+  background-color: #ffffff;
+  border-radius: 24rpx;
+  border: 1rpx solid #e9ecef;
+  box-shadow: 0 2rpx 12rpx rgba(26, 28, 25, 0.03);
 }
 
-.cal-toolbar-picker {
+.cal-month-picker {
   display: flex;
   align-items: center;
-  padding: 8rpx 16rpx;
+  padding: 8rpx 20rpx;
+  border-radius: 16rpx;
+  background-color: #f6f7f4;
+}
+
+.cal-month-picker:active {
+  background-color: rgba(45, 157, 138, 0.08);
+}
+
+.cal-month-picker__text {
+  font-size: 30rpx;
+  font-weight: 700;
+  color: #1a1c19;
+}
+
+.cal-month-picker__caret {
+  font-size: 22rpx;
+  color: #2d9d8a;
+  margin-left: 8rpx;
+}
+
+.cal-today-btn {
+  font-size: 26rpx;
+  color: #2d9d8a;
   font-weight: 600;
-  font-size: var(--font-md);
-  color: var(--color-text);
-  transition: color 0.15s ease;
+  padding: 12rpx 28rpx;
+  border-radius: 16rpx;
+  background-color: rgba(45, 157, 138, 0.1);
 }
 
-.cal-toolbar-picker:active {
-  color: var(--color-primary);
+.cal-today-btn:active {
+  background-color: rgba(45, 157, 138, 0.2);
 }
 
-/* Weekday header — 设计稿 .calendar-weekdays */
+/* ========== 月度总览卡片（2x2）========== */
+.cal-summary-card {
+  background-color: #ffffff;
+  border-radius: 24rpx;
+  border: 1rpx solid #e9ecef;
+  padding: 24rpx 28rpx;
+  box-shadow: 0 2rpx 12rpx rgba(26, 28, 25, 0.03);
+}
+
+.cal-summary-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 24rpx;
+}
+
+.cal-summary-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+}
+
+.cal-summary-item__label {
+  font-size: 22rpx;
+  color: #8b8e89;
+  font-weight: 500;
+}
+
+.cal-summary-item__value {
+  font-size: 32rpx;
+  font-weight: 800;
+  color: #1a1c19;
+  letter-spacing: -0.01em;
+}
+
+.cal-summary-item__value--income {
+  color: #2d9d8a;
+}
+
+.cal-summary-item__value--expense {
+  color: #ef5350;
+}
+
+.cal-summary-divider {
+  height: 1rpx;
+  background-color: #edeee9;
+  margin: 20rpx 0;
+}
+
+/* ========== 周几标题 ========== */
 .cal-weekdays {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   text-align: center;
-  font-size: var(--font-xs);
-  color: var(--color-text-hint);
-  padding-bottom: 12rpx;
-  border-bottom: 0.5px solid var(--color-divider);
-  margin-bottom: var(--spacing-xs);
+  padding: 20rpx 8rpx 12rpx;
+  background-color: #ffffff;
+  border-radius: 24rpx 24rpx 0 0;
+  border: 1rpx solid #e9ecef;
+  border-bottom: 1rpx solid #edeee9;
 }
 
 .cal-weekday {
-  font-size: var(--font-xs);
-  color: var(--color-text-hint);
-  padding: 8rpx 0;
+  font-size: 24rpx;
+  color: #6c7072;
+  padding: 4rpx 0;
+  font-weight: 600;
 }
 
-/* Grid — 设计稿 .calendar-days */
+.cal-weekday--weekend {
+  color: #ef5350;
+}
+
+/* ========== 日历网格 ========== */
 .cal-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 4rpx;
-  padding-top: 8rpx;
+  padding: 8rpx 8rpx 20rpx;
+  background-color: #ffffff;
+  border-radius: 0 0 24rpx 24rpx;
+  border: 1rpx solid #e9ecef;
+  border-top: none;
+  gap: 2rpx;
 }
 
-/* Day cell — 设计稿 .cal-day */
+/* ========== 单元格 ========== */
 .cal-cell {
   aspect-ratio: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  border-radius: var(--radius-sm);
-  font-size: var(--font-xs);
-  color: var(--color-text);
-  padding: 4rpx;
+  border-radius: 16rpx;
+  font-size: 22rpx;
+  color: #1a1c19;
+  padding: 8rpx 2rpx;
   position: relative;
   transition: all 0.15s ease;
+  min-height: 88rpx;
+  gap: 4rpx;
 }
 
 .cal-cell:active {
-  background-color: var(--color-subtle);
+  background-color: #f6f7f4;
 }
 
 .cal-cell--empty {
@@ -80,64 +171,168 @@
 }
 
 .cal-day {
-  font-size: var(--font-xs);
-  font-weight: 500;
-  color: var(--color-text);
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #1a1c19;
   line-height: 1.2;
+}
+
+.cal-cell--today {
+  border: 2rpx solid #2d9d8a;
+  background-color: transparent;
 }
 
 .cal-cell--today .cal-day {
-  color: var(--color-primary);
+  color: #2d9d8a;
+  font-weight: 800;
+}
+
+.cal-cell--selected {
+  background-color: rgba(45, 157, 138, 0.18);
+  border: 2rpx solid #2d9d8a;
+}
+
+.cal-cell--selected .cal-day {
+  color: #2d9d8a;
+  font-weight: 800;
+}
+
+/* ========== 单元格中的收支金额 ========== */
+.cal-amount {
+  font-size: 18rpx;
   font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.1;
 }
 
-.cal-cell--today::after {
-  content: "";
-  position: absolute;
-  bottom: 4rpx;
-  width: 8rpx;
-  height: 8rpx;
-  border-radius: 50%;
-  background-color: var(--color-primary);
+.cal-amount--expense {
+  color: #ef5350;
 }
 
-.cal-cell--active {
-  background-color: var(--color-primary-bg);
-  border: 1px solid var(--color-primary);
+.cal-amount--income {
+  color: #2d9d8a;
 }
 
-/* Amount labels — 设计稿 .cal-day .cal-amount */
-.cal-amounts {
+.cal-amount--small {
+  font-size: 16rpx;
+}
+
+/* ========== 选中日期的交易明细 ========== */
+.cal-detail {
+  margin-top: 4rpx;
+  background-color: #ffffff;
+  border-radius: 24rpx;
+  border: 1rpx solid #e9ecef;
+  overflow: hidden;
+  box-shadow: 0 2rpx 12rpx rgba(26, 28, 25, 0.03);
+}
+
+.cal-detail__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24rpx 28rpx;
+  border-bottom: 1rpx solid #edeee9;
+}
+
+.cal-detail__date-info {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  margin-top: 2rpx;
-  gap: 0;
+  gap: 8rpx;
 }
 
-.cal-expense {
-  font-size: 16rpx;
-  color: var(--color-expense);
-  font-weight: 500;
-  line-height: 1.2;
+.cal-detail__date {
+  font-size: 30rpx;
+  font-weight: 800;
+  color: #1a1c19;
 }
 
-.cal-income {
-  font-size: 16rpx;
-  color: var(--color-income);
-  font-weight: 500;
-  line-height: 1.2;
-}
-
-/* Stats — 设计稿 .stat-box 风格 */
-.cal-stats {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
+.cal-detail__mini-stats {
+  display: flex;
   gap: 16rpx;
-  margin-top: var(--spacing-md);
+  flex-wrap: wrap;
 }
 
-/* Detail */
-.cal-detail {
-  margin-top: var(--spacing-md);
+.cal-detail__mini {
+  font-size: 22rpx;
+  font-weight: 600;
+}
+
+.cal-detail__mini--income {
+  color: #2d9d8a;
+}
+
+.cal-detail__mini--expense {
+  color: #ef5350;
+}
+
+.cal-detail__close {
+  font-size: 26rpx;
+  color: #2d9d8a;
+  font-weight: 600;
+  padding: 8rpx 16rpx;
+  border-radius: 12rpx;
+}
+
+.cal-detail__close:active {
+  background-color: rgba(45, 157, 138, 0.1);
+}
+
+.cal-detail__loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40rpx 28rpx;
+  gap: 16rpx;
+}
+
+.cal-detail__spin {
+  width: 36rpx;
+  height: 36rpx;
+  border: 4rpx solid #e9ecef;
+  border-top-color: #2d9d8a;
+  border-radius: 50%;
+  animation: cal-spin 0.9s linear infinite;
+}
+
+.cal-detail__loading-text {
+  font-size: 24rpx;
+  color: #8b8e89;
+  font-weight: 500;
+}
+
+@keyframes cal-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.cal-detail__body {
+  padding: 8rpx 0;
+}
+
+/* ========== 初次加载占位 ========== */
+.cal-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 60rpx 28rpx;
+  gap: 16rpx;
+  background-color: #ffffff;
+  border-radius: 24rpx;
+  border: 1rpx solid #e9ecef;
+}
+
+.cal-loading__spin {
+  width: 40rpx;
+  height: 40rpx;
+  border: 4rpx solid #e9ecef;
+  border-top-color: #2d9d8a;
+  border-radius: 50%;
+  animation: cal-spin 0.9s linear infinite;
+}
+
+.cal-loading__text {
+  font-size: 26rpx;
+  color: #8b8e89;
+  font-weight: 500;
 }

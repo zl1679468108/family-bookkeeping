@@ -76,9 +76,9 @@ export default function Login() {
           <Text className="login-error text-sm text-danger mt-2">{error}</Text>
         ) : null}
 
-        <View className="mt-4">
+        <View className="login-form-submit">
           <View
-            className={`btn-primary ${submitting ? "opacity-60" : ""}`}
+            className={`login-btn ${submitting ? "opacity-60" : ""}`}
             onClick={() => !submitting && handleSubmit()}
           >
             <Text>{submitting ? "登录中..." : "登录"}</Text>

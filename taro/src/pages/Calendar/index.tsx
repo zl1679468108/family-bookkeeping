@@ -1,18 +1,18 @@
 /**
  * Calendar — v3.0 现金流日历
- * 月份 Picker 导航 · 日期格子(支出/收入标记) · 点击展开交易明细 · 月度统计
+ * 对齐 PC：月度总览 · 日历网格（日期+收支）· 点击展开当日明细
  */
 import { useState, useMemo } from "react";
-import { View, Text, ScrollView, Picker } from "@tarojs/components";
+import { View, Text, Picker } from "@tarojs/components";
 import Taro from "@tarojs/taro";
 import TransactionItem from "../../components/TransactionItem";
 import EmptyState from "../../components/EmptyState";
+import PageLayout from "../../components/PageLayout";
 import { getTransactions } from "../../services/transactionsApi";
 import { fetchDailySummary } from "../../services/statisticsApi";
 import { useCategories } from "../../hooks/useCategories";
 import { useMonthSelector } from "../../hooks/useMonthSelector";
 import { useManualQuery } from "../../hooks/useManualQuery";
-import type { Category, Transaction } from "../../types";
 import "./index.scss";
 
 export default function Calendar() {
@@ -22,11 +22,13 @@ export default function Calendar() {
 
   const pickerMonth = `${year}-${String(month).padStart(2, "0")}`;
 
-  const { data: dailyData } = useManualQuery({
+  // 当月每日汇总（含 total_expense / total_income / transaction_count）
+  const { data: dailyData, isLoading: dailyLoading } = useManualQuery({
     key: `cal-daily-${pickerMonth}`,
     queryFn: () => fetchDailySummary(pickerMonth),
   });
 
+  // 选中日期的交易明细
   const { data: dayTx, isLoading: detailLoading } = useManualQuery({
     key: `cal-day-${selectedDate || "none"}`,
     queryFn: () =>
@@ -39,15 +41,15 @@ export default function Calendar() {
   });
 
   const { data: cats } = useCategories();
-  const cmap = useMemo(() => {
-    const m: Record<string, Category> = {};
-    cats?.forEach((c: Category) => {
-      m[c.id] = c;
+  const catMap = useMemo(() => {
+    const m: Record<string, { icon: string; name: string }> = {};
+    cats?.forEach((c: any) => {
+      m[c.id] = { icon: c.icon, name: c.name };
     });
     return m;
   }, [cats]);
 
-  // Build calendar grid
+  // ===== 日历网格构建 =====
   const calendar = useMemo(() => {
     const daysInMonth = new Date(year, month, 0).getDate();
     const firstDay = new Date(year, month - 1, 1).getDay(); // 0=Sun
@@ -58,9 +60,12 @@ export default function Calendar() {
       const ds = `${year}-${String(month).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
       cells.push({ date: ds, day: d });
     }
+    // 补齐到6行（42格），让日历高度稳定
+    while (cells.length < 42) cells.push({ date: null, day: null });
     return cells;
   }, [year, month]);
 
+  // ===== 每日数据映射 =====
   const dayMap = useMemo(() => {
     const m: Record<
       string,
@@ -76,205 +81,232 @@ export default function Calendar() {
     return m;
   }, [dailyData]);
 
-  const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
-
-  // Monthly stats
-  const stats = useMemo(() => {
+  // ===== 本月统计总览 =====
+  const monthStats = useMemo(() => {
     const entries = Object.values(dayMap);
-    const totalExpense = entries.reduce((s, d) => s + d.expense, 0);
-    const expenseDays = entries.filter((d) => d.expense > 0).length;
+    let totalExpense = 0;
+    let totalIncome = 0;
+    let maxExpenseDay: { date: string; amount: number } | null = null;
+    let txDays = 0;
+
+    for (const [date, data] of Object.entries(dayMap)) {
+      totalExpense += data.expense;
+      totalIncome += data.income;
+      if (data.count > 0) txDays++;
+      if (!maxExpenseDay || data.expense > maxExpenseDay.amount) {
+        maxExpenseDay = { date, amount: data.expense };
+      }
+    }
+
     const daysInMonth = new Date(year, month, 0).getDate();
-    const maxDay = entries.reduce(
-      (max, d) => (d.expense > (max?.expense || 0) ? { ...d, date: "" } : max),
-      { expense: 0, income: 0, count: 0 } as any,
-    );
-    const minDays = entries.filter((d) => d.expense > 0);
-    const minDay = minDays.reduce(
-      (min, d) =>
-        d.expense < (min?.expense || Infinity) ? { ...d, date: "" } : min,
-      { expense: Infinity, income: 0, count: 0 } as any,
-    );
+    const netFlow = totalIncome - totalExpense;
+
     return {
-      avgExpense: daysInMonth > 0 ? totalExpense / daysInMonth : 0,
-      maxExpenseDay: maxDay.expense > 0 ? maxDay : null,
-      minExpenseDay: minDay.expense < Infinity ? minDay : null,
-      expenseDayRatio: daysInMonth > 0 ? (expenseDays / daysInMonth) * 100 : 0,
+      totalExpense,
+      totalIncome,
+      netFlow,
+      avgExpense: txDays > 0 ? totalExpense / txDays : 0,
+      maxExpenseDay,
+      txDays,
+      daysInMonth,
     };
   }, [dayMap, year, month]);
 
-  // Find which day has max/min by date
-  const findDayNum = (targetDay: { expense: number } | null): number | null => {
-    if (!targetDay) return null;
-    for (const [date, data] of Object.entries(dayMap)) {
-      if (data.expense === targetDay.expense) return parseInt(date.slice(-2));
-    }
-    return null;
-  };
+  const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
 
   return (
-    <View className="min-h-screen bg-bg flex flex-col">
-      <ScrollView className="flex-1" scrollY>
-        <View className="cal-body">
-          {/* Month Picker Toolbar */}
-          <View className="cal-toolbar">
-            <Picker
-              mode="date"
-              fields="month"
-              value={pickerMonth}
-              onChange={(e: any) => {
-                const [y, m] = e.detail.value.split("-").map(Number);
-                setYear(y);
-                setMonth(m);
-                setSelectedDate(null);
-              }}
-            >
-              <View className="cal-toolbar-picker">
-                <Text className="text-md font-semibold">
-                  {year}年{month}月
-                </Text>
-                <Text className="text-xs text-hint ml-1">▾</Text>
-              </View>
-            </Picker>
-            <Text
-              className="text-sm text-primary font-semibold"
-              onClick={() => {
-                setYear(now.getFullYear());
-                setMonth(now.getMonth() + 1);
-                setSelectedDate(null);
-              }}
-            >
-              今天
+    <PageLayout contentClassName="cal-content">
+      {/* ===== 顶部：月份切换 ===== */}
+      <View className="cal-header">
+        <Picker
+          mode="date"
+          fields="month"
+          value={pickerMonth}
+          onChange={(e: any) => {
+            const [y, m] = e.detail.value.split("-").map(Number);
+            setYear(y);
+            setMonth(m);
+            setSelectedDate(null);
+          }}
+        >
+          <View className="cal-month-picker">
+            <Text className="cal-month-picker__text">
+              {year}年{month}月
+            </Text>
+            <Text className="cal-month-picker__caret">▾</Text>
+          </View>
+        </Picker>
+      </View>
+
+      {/* ===== 本月总览卡片 ===== */}
+      <View className="cal-summary-card">
+        <View className="cal-summary-row">
+          <View className="cal-summary-item">
+            <Text className="cal-summary-item__label">本月收入</Text>
+            <Text className="cal-summary-item__value cal-summary-item__value--income">
+              ¥{monthStats.totalIncome.toFixed(2)}
             </Text>
           </View>
-
-          {/* Weekday header */}
-          <View className="cal-weekdays">
-            {["日", "一", "二", "三", "四", "五", "六"].map((w) => (
-              <Text key={w} className="cal-weekday">
-                {w}
-              </Text>
-            ))}
+          <View className="cal-summary-item">
+            <Text className="cal-summary-item__label">本月支出</Text>
+            <Text className="cal-summary-item__value cal-summary-item__value--expense">
+              ¥{monthStats.totalExpense.toFixed(2)}
+            </Text>
           </View>
-
-          {/* Calendar grid */}
-          <View className="cal-grid">
-            {calendar.map((cell, i) => (
-              <View
-                key={i}
-                className={`cal-cell ${!cell.date ? "cal-cell--empty" : ""} ${cell.date === selectedDate ? "cal-cell--active" : ""} ${cell.date === todayStr ? "cal-cell--today" : ""}`}
-                onClick={() =>
-                  cell.date &&
-                  setSelectedDate(selectedDate === cell.date ? null : cell.date)
-                }
-              >
-                {cell.day && (
-                  <>
-                    <Text className="cal-day">{cell.day}</Text>
-                    {dayMap[cell.date!] && (
-                      <View className="cal-amounts">
-                        {dayMap[cell.date!].expense > 0 && (
-                          <Text className="cal-expense">
-                            -{dayMap[cell.date!].expense.toFixed(0)}
-                          </Text>
-                        )}
-                        {dayMap[cell.date!].income > 0 && (
-                          <Text className="cal-income">
-                            +{dayMap[cell.date!].income.toFixed(0)}
-                          </Text>
-                        )}
-                      </View>
-                    )}
-                  </>
-                )}
-              </View>
-            ))}
+        </View>
+        <View className="cal-summary-divider" />
+        <View className="cal-summary-row">
+          <View className="cal-summary-item">
+            <Text className="cal-summary-item__label">本月结余</Text>
+            <Text
+              className={`cal-summary-item__value ${
+                monthStats.netFlow >= 0
+                  ? "cal-summary-item__value--income"
+                  : "cal-summary-item__value--expense"
+              }`}
+            >
+              {monthStats.netFlow >= 0 ? "+" : "-"}¥
+              {Math.abs(monthStats.netFlow).toFixed(2)}
+            </Text>
           </View>
-
-          {/* Monthly Stats */}
-          <View className="cal-stats">
-            <View className="card-padded">
-              <Text className="text-xs text-hint">本月日均支出</Text>
-              <Text className="text-md font-semibold mt-1">
-                ¥{stats.avgExpense.toFixed(2)}
-              </Text>
-            </View>
-            <View className="card-padded">
-              <Text className="text-xs text-hint">最高消费日</Text>
-              <Text className="text-md font-semibold text-expense mt-1">
-                {findDayNum(stats.maxExpenseDay)
-                  ? `${findDayNum(stats.maxExpenseDay)}日`
-                  : "暂无"}
-              </Text>
-            </View>
-            <View className="card-padded">
-              <Text className="text-xs text-hint">最低消费日</Text>
-              <Text className="text-md font-semibold text-income mt-1">
-                {findDayNum(stats.minExpenseDay)
-                  ? `${findDayNum(stats.minExpenseDay)}日`
-                  : "暂无"}
-              </Text>
-            </View>
-            <View className="card-padded">
-              <Text className="text-xs text-hint">支出天数</Text>
-              <Text className="text-md font-semibold mt-1">
-                {stats.expenseDayRatio.toFixed(0)}%
-              </Text>
-            </View>
+          <View className="cal-summary-item">
+            <Text className="cal-summary-item__label">日均支出</Text>
+            <Text className="cal-summary-item__value">
+              ¥{monthStats.avgExpense.toFixed(2)}
+            </Text>
           </View>
+        </View>
+      </View>
 
-          {/* Transaction Detail for selected date */}
-          {selectedDate && (
-            <View className="cal-detail">
-              <View className="flex justify-between items-center mb-2">
-                <Text className="text-md font-semibold">
-                  {selectedDate} 交易明细
+      {/* ===== 周几标题 ===== */}
+      <View className="cal-weekdays">
+        {["日", "一", "二", "三", "四", "五", "六"].map((w, i) => (
+          <Text
+            key={w}
+            className={`cal-weekday ${i === 0 || i === 6 ? "cal-weekday--weekend" : ""}`}
+          >
+            {w}
+          </Text>
+        ))}
+      </View>
+
+      {/* ===== 日历网格 ===== */}
+      <View className="cal-grid">
+        {calendar.map((cell, i) => {
+          if (!cell.date) {
+            return <View key={i} className="cal-cell cal-cell--empty" />;
+          }
+          const dayData = dayMap[cell.date];
+          const hasExpense = dayData && dayData.expense > 0;
+          const hasIncome = dayData && dayData.income > 0;
+          const isToday = cell.date === todayStr;
+          const isSelected = cell.date === selectedDate;
+
+          return (
+            <View
+              key={i}
+              className={`cal-cell ${isToday ? "cal-cell--today" : ""} ${
+                isSelected ? "cal-cell--selected" : ""
+              }`}
+              onClick={() =>
+                setSelectedDate(selectedDate === cell.date ? null : cell.date)
+              }
+            >
+              <Text className="cal-day">{cell.day}</Text>
+              {hasExpense && (
+                <Text className="cal-amount cal-amount--expense">
+                  -{dayData!.expense.toFixed(0)}
                 </Text>
-                <Text
-                  className="text-sm text-hint"
-                  onClick={() => setSelectedDate(null)}
-                >
-                  收起
+              )}
+              {hasIncome && !hasExpense && (
+                <Text className="cal-amount cal-amount--income">
+                  +{dayData!.income.toFixed(0)}
                 </Text>
-              </View>
-              {detailLoading ? (
-                <View className="flex flex-col gap-1">
-                  <View
-                    className="skeleton"
-                    style={{ height: "70rpx", borderRadius: "10rpx" }}
-                  />
-                  <View
-                    className="skeleton"
-                    style={{ height: "70rpx", borderRadius: "10rpx" }}
-                  />
-                </View>
-              ) : !dayTx?.data?.length ? (
-                <EmptyState icon="📋" title="暂无交易记录" />
-              ) : (
-                <View className="card">
-                  {dayTx.data.map((t: Transaction) => {
-                    const cat = cmap[t.category];
-                    return (
-                      <TransactionItem
-                        key={t.id}
-                        icon={cat?.icon || "📌"}
-                        categoryName={cat?.name || "未知"}
-                        description={t.description}
-                        amount={t.amount}
-                        type={t.type}
-                        date={t.date?.split("T")[1]?.slice(0, 5)}
-                        onClick={() => {
-                          Taro.setStorageSync("edit_tx_id", t.id);
-                          Taro.switchTab({ url: "/pages/AddTransaction/index" });
-                        }}
-                      />
-                    );
-                  })}
+              )}
+              {hasExpense && hasIncome && (
+                <Text className="cal-amount cal-amount--income cal-amount--small">
+                  +{dayData!.income.toFixed(0)}
+                </Text>
+              )}
+            </View>
+          );
+        })}
+      </View>
+
+      {/* ===== 选中日期的明细卡片 ===== */}
+      {selectedDate && (
+        <View className="cal-detail">
+          <View className="cal-detail__header">
+            <View className="cal-detail__date-info">
+              <Text className="cal-detail__date">{selectedDate}</Text>
+              {dayMap[selectedDate] && (
+                <View className="cal-detail__mini-stats">
+                  {dayMap[selectedDate].income > 0 && (
+                    <Text className="cal-detail__mini cal-detail__mini--income">
+                      收入 ¥{dayMap[selectedDate].income.toFixed(2)}
+                    </Text>
+                  )}
+                  {dayMap[selectedDate].expense > 0 && (
+                    <Text className="cal-detail__mini cal-detail__mini--expense">
+                      支出 ¥{dayMap[selectedDate].expense.toFixed(2)}
+                    </Text>
+                  )}
                 </View>
               )}
             </View>
+            <Text
+              className="cal-detail__close"
+              onClick={() => setSelectedDate(null)}
+            >
+              收起
+            </Text>
+          </View>
+
+          {detailLoading ? (
+            <View className="cal-detail__loading">
+              <View className="cal-detail__spin" />
+              <Text className="cal-detail__loading-text">加载中...</Text>
+            </View>
+          ) : !dayTx?.data || dayTx.data.length === 0 ? (
+            <EmptyState icon="📋" title="当日无记录" />
+          ) : (
+            <View className="cal-detail__body">
+              {dayTx.data.map((t: any) => {
+                const cat = catMap[t.category] || { icon: "📌", name: "其他" };
+                return (
+                  <TransactionItem
+                    key={t.id}
+                    icon={cat.icon}
+                    categoryName={cat.name}
+                    description={t.description || t.note || ""}
+                    amount={t.amount}
+                    type={t.type}
+                    date={
+                      t.created_at
+                        ? new Date(t.created_at)
+                            .toTimeString()
+                            .slice(0, 5)
+                        : ""
+                    }
+                    onClick={() => {
+                      Taro.setStorageSync("edit_tx_id", t.id);
+                      Taro.switchTab({ url: "/pages/AddTransaction/index" });
+                    }}
+                  />
+                );
+              })}
+            </View>
           )}
         </View>
-      </ScrollView>
-    </View>
+      )}
+
+      {/* 加载中占位（仅初次加载） */}
+      {dailyLoading && !dailyData && (
+        <View className="cal-loading">
+          <View className="cal-loading__spin" />
+          <Text className="cal-loading__text">加载中...</Text>
+        </View>
+      )}
+    </PageLayout>
   );
 }

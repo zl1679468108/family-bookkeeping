@@ -1,101 +1,150 @@
 /**
- * PageLayout — 统一页面容器
+ * PageLayout — 统一页面容器（使用系统默认导航栏）
  *
- * 自动处理 NavHeader + 内容区 + TabBar + 骨架屏 loading。
+ * 不再渲染自定义 NavHeader，由微信系统导航栏承担标题显示。
+ * 负责：下拉刷新、上拉加载、骨架屏 loading、内容容器，支持 header（吸顶插槽）。
  *
  * Usage:
- *   <PageLayout title="首页" tabBar>
+ *   <PageLayout>{content}</PageLayout>
+ *   <PageLayout onRefresh={handleRefresh} refreshing={refreshing}>
  *     {content}
  *   </PageLayout>
- *
- *   <PageLayout title="流水" tabBar rightContent={<搜索/>} loading={loading}>
+ *   <PageLayout onLoadMore={handleLoadMore} hasMore={hasMore} loading={loading}>
  *     {content}
  *   </PageLayout>
+ *   <PageLayout header={<FilterBar/>}>{content}</PageLayout>
  */
-import { ReactNode } from "react";
-import { View, ScrollView } from "@tarojs/components";
-import NavHeader from "../NavHeader";
+import { ReactNode, useCallback } from "react";
+import { View, Text, ScrollView } from "@tarojs/components";
+import Taro, { useDidShow } from "@tarojs/taro";
 import PullRefresh from "../PullRefresh";
-import TabBar from "../TabBar";
 import "./index.scss";
 
 interface PageLayoutProps {
-  title: string;
   children: ReactNode;
-  /** 是否显示 TabBar（一级页面） */
-  tabBar?: boolean;
-  /** 导航栏右侧内容 */
-  rightContent?: ReactNode;
-  /** 导航栏左侧内容 */
-  leftContent?: ReactNode;
+  /** 吸顶头部（渲染在滚动容器外部，会在下拉刷新外） */
+  header?: ReactNode;
   /** 是否加载中，显示骨架屏 Fallback */
   loading?: boolean;
   /** 加载中提示文字 */
   loadingText?: string;
-  /** 加载中的骨架屏内容，不传则用 PullRefresh */
-  loadingFallback?: ReactNode;
-  /** 外层容器 className（如 page-scoping class） */
+  /** 外层容器 className */
   className?: string;
-  /** 内容区 className（应用到滚动容器上） */
+  /** 内容区 className */
   contentClassName?: string;
-  /** 是否使用 flex-1 + overflow 的滚动布局 */
+  /** 是否使用 flex-1 + overflow 的滚动布局（默认 true） */
   scrollable?: boolean;
-  /** 滚动到底部回调（分页加载） */
-  onScrollToLower?: () => void;
-  /** 滚动阈值，默认 100 */
+  /** 下拉刷新回调；传入时开启下拉刷新能力 */
+  onRefresh?: () => Promise<void> | void;
+  /** 是否处于下拉刷新中（受控） */
+  refreshing?: boolean;
+  /** 上拉加载更多回调；传入时开启上拉加载能力 */
+  onLoadMore?: () => Promise<void> | void;
+  /** 是否还有更多（无更多则不再触发 onLoadMore） */
+  hasMore?: boolean;
+  /** 正在加载更多时（受控） */
+  loadingMore?: boolean;
+  /** 上拉加载阈值（距底部多少 rpx 触发） */
   lowerThreshold?: number;
 }
 
 export default function PageLayout({
-  title,
   children,
-  tabBar = false,
-  rightContent,
-  leftContent,
+  header,
   loading = false,
   loadingText,
-  loadingFallback,
   className = "",
   contentClassName = "",
   scrollable = true,
-  onScrollToLower,
+  onRefresh,
+  refreshing = false,
+  onLoadMore,
+  hasMore = true,
+  loadingMore: loadingMoreProp,
   lowerThreshold = 100,
 }: PageLayoutProps) {
-  const LoadingFallback = () => (
-    <View>
-      <PullRefresh loading text={loadingText || "加载中…"} />
-      {loadingFallback}
-    </View>
-  );
+  const handleScrollToLower = useCallback(() => {
+    if (!onLoadMore || !hasMore || loadingMoreProp) return;
+    onLoadMore();
+  }, [onLoadMore, hasMore, loadingMoreProp]);
 
-  return (
-    <View className={`min-h-screen bg-bg flex flex-col ${className}`}>
-      <NavHeader
-        title={title}
-        leftContent={leftContent}
-        rightContent={rightContent}
-      />
+  useDidShow(() => {
+    // 页面显示时钩子预留
+  });
 
-      {loading ? (
-        <LoadingFallback />
-      ) : onScrollToLower ? (
+  const enableRefresh = Boolean(onRefresh);
+
+  // Loading 态
+  if (loading) {
+    return (
+      <View className={`min-h-screen bg-bg flex flex-col page-layout page-layout--loading ${className}`}>
+        {header}
+        <View className={`page-layout-content ${contentClassName}`}>
+          <PullRefresh loading text={loadingText || "加载中…"} />
+        </View>
+      </View>
+    );
+  }
+
+  // 下拉刷新 + 上拉加载
+  if (enableRefresh || onLoadMore) {
+    return (
+      <View className={`min-h-screen bg-bg flex flex-col page-layout ${className}`}>
+        {header}
         <ScrollView
-          className={`flex-1 overflow-y-auto ${contentClassName}`}
+          className={`flex-1 overflow-y-auto page-layout-scroll ${contentClassName}`}
           scrollY
-          onScrollToLower={onScrollToLower}
+          refresherEnabled={enableRefresh}
+          refresherTriggered={refreshing}
+          onRefresherRefresh={() => {
+            if (onRefresh) {
+              const r = onRefresh();
+              if (r && typeof (r as Promise<any>).finally === "function") {
+                (r as Promise<any>).finally(() => {
+                  if (Taro.stopPullDownRefresh) Taro.stopPullDownRefresh();
+                });
+              }
+            }
+          }}
+          onScrollToLower={onLoadMore ? handleScrollToLower : undefined}
           lowerThreshold={lowerThreshold}
         >
           {children}
+          {onLoadMore && (
+            <View className="page-loadmore">
+              {loadingMoreProp ? (
+                <View className="page-loadmore-inner">
+                  <View className="page-loadmore-spinner" />
+                  <Text className="page-loadmore-text">加载中…</Text>
+                </View>
+              ) : hasMore ? (
+                <Text className="page-loadmore-text page-loadmore-text--hint">上拉加载更多</Text>
+              ) : (
+                <Text className="page-loadmore-text page-loadmore-text--end">— 已经到底了 —</Text>
+              )}
+            </View>
+          )}
         </ScrollView>
-      ) : scrollable ? (
-        <View className={`flex-1 overflow-y-auto ${contentClassName}`}>
+      </View>
+    );
+  }
+
+  // 普通滚动容器
+  if (scrollable) {
+    return (
+      <View className={`min-h-screen bg-bg flex flex-col page-layout ${className}`}>
+        {header}
+        <View className={`flex-1 overflow-y-auto page-layout-content ${contentClassName}`}>
           {children}
         </View>
-      ) : (
-        <View className={contentClassName}>{children}</View>
-      )}
+      </View>
+    );
+  }
 
-      {tabBar && <TabBar />}
+  return (
+    <View className={`min-h-screen bg-bg flex flex-col page-layout ${className}`}>
+      {header}
+      <View className={`page-layout-content ${contentClassName}`}>{children}</View>
     </View>
   );
 }

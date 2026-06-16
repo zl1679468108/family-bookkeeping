@@ -26,6 +26,7 @@
     "@tarojs/runtime": "4.0.9",
     "@tarojs/shared": "4.0.9",
     "@tarojs/taro": "4.0.9",
+    "amap-wx": "^0.0.2",
     "autoprefixer": "^10.5.0",
     "echarts": "5.5.0",
     "echarts-for-weixin": "^1.0.1",

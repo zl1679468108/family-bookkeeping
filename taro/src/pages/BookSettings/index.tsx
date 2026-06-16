@@ -11,8 +11,8 @@ import {
   deleteBook,
   checkOwner,
 } from "../../services/booksApi";
-import NavHeader from "../../components/NavHeader";
 import ConfirmDialog from "../../components/ConfirmDialog";
+import PageLayout from "../../components/PageLayout";
 
 export default function BookSettings() {
   const router = getCurrentInstance().router;
@@ -63,23 +63,9 @@ export default function BookSettings() {
     },
   });
 
-  const handleBack = () => {
-    Taro.navigateBack();
-  };
-
   if (!currentBook) {
     return (
-      <View className="min-h-screen bg-bg flex flex-col">
-        <NavHeader
-          title="账本设置"
-          leftContent={
-            <View onClick={handleBack}>
-              <Text style={{ fontSize: "32rpx", color: "var(--color-text)" }}>
-                ←
-              </Text>
-            </View>
-          }
-        />
+      <PageLayout contentClassName="bs-content">
         <View
           style={{
             textAlign: "center",
@@ -89,7 +75,7 @@ export default function BookSettings() {
         >
           <Text>账本不存在</Text>
         </View>
-      </View>
+      </PageLayout>
     );
   }
 
@@ -129,19 +115,8 @@ export default function BookSettings() {
   };
 
   return (
-    <View className="min-h-screen bg-bg flex flex-col">
-      <NavHeader
-        title="账本设置"
-        leftContent={
-          <View onClick={handleBack}>
-            <Text style={{ fontSize: "32rpx", color: "var(--color-text)" }}>
-              ←
-            </Text>
-          </View>
-        }
-      />
-
-      <View style={{ padding: "24rpx" }}>
+    <PageLayout contentClassName="bs-content">
+      <View style={{ padding: "24rpx 32rpx" }}>
         {/* 账本信息 */}
         <View style={cardStyle}>
           <Text style={sectionTitleStyle}>账本信息</Text>
@@ -317,6 +292,6 @@ export default function BookSettings() {
         onCancel={() => setShowDelete(false)}
         onConfirm={() => deleteMut.mutate()}
       />
-    </View>
+    </PageLayout>
   );
 }
