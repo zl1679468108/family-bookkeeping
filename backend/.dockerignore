@@ -7,9 +7,8 @@ coverage
 .env.local
 .env.*.local
 .env.development
-.env.production
-.env.*
-!.env.example
+# 保留 .env.production 以被打进 Docker 镜像
+# .env.production 仍在 .gitignore 中，不会提交到 Git
 *.log
 npm-debug.log*
 yarn-debug.log*
