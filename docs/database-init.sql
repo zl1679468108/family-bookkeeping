@@ -333,6 +333,10 @@ COMMENT ON COLUMN member_locations.longitude IS '经度，范围 -180 ~ 180，�
 COMMENT ON COLUMN member_locations.is_sharing IS '是否正在共享位置，关闭时保留最后位置但不可见';
 COMMENT ON COLUMN member_locations.updated_at IS '位置最后更新时间';
 
+DROP TRIGGER IF EXISTS trigger_member_locations_updated_at ON member_locations;
+CREATE TRIGGER trigger_member_locations_updated_at BEFORE UPDATE ON member_locations
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
 -- ==============================================
 -- 11. 账本邀请码表
 -- ==============================================

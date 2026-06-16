@@ -132,7 +132,15 @@ export class AuthService {
       ? await this.reuseOrCreateSession(user.id, token)
       : await this.createSessionInternal(user.id);
 
-    const { password_hash, ...userWithoutPassword } = user;
+    // 登录成功后更新 users 表的 updated_at，并取最新记录返回
+    const { data: updatedUser } = await supabase
+      .from('users')
+      .update({ updated_at: new Date().toISOString() })
+      .eq('id', user.id)
+      .select('*')
+      .single();
+
+    const { password_hash, ...userWithoutPassword } = updatedUser || user;
     return { user: userWithoutPassword, token: newToken };
   }
 

@@ -4,15 +4,55 @@ import {
   ExceptionFilter,
   HttpException,
   HttpStatus,
+  Logger,
 } from '@nestjs/common';
+import {
+  SupabaseNetworkError,
+  SupabaseUnavailableError,
+  TimeoutError,
+} from '../supabase/supabase.service';
 
 @Catch()
 export class HttpExceptionFilter implements ExceptionFilter {
+  private readonly logger = new Logger(HttpExceptionFilter.name);
+
   catch(exception: unknown, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse();
+    const request = ctx.getRequest();
 
     if (response.headersSent) {
+      return;
+    }
+
+    if (
+      exception instanceof SupabaseUnavailableError ||
+      exception instanceof SupabaseNetworkError ||
+      exception instanceof TimeoutError
+    ) {
+      const status =
+        exception instanceof SupabaseUnavailableError
+          ? HttpStatus.SERVICE_UNAVAILABLE
+          : exception instanceof TimeoutError
+          ? HttpStatus.GATEWAY_TIMEOUT
+          : HttpStatus.BAD_GATEWAY;
+      const code =
+        exception instanceof SupabaseUnavailableError
+          ? 'SUPABASE_UNAVAILABLE'
+          : exception instanceof TimeoutError
+          ? 'SUPABASE_TIMEOUT'
+          : 'SUPABASE_NETWORK_ERROR';
+
+      this.logger.warn(
+        `[${request?.method} ${request?.url}] ${exception.name}: ${exception.message}`,
+      );
+
+      response.status(status).json({
+        success: false,
+        message: exception.message || '数据库暂时不可用，请稍后重试',
+        statusCode: status,
+        code,
+      });
       return;
     }
 

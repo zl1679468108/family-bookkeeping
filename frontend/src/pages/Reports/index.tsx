@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query'
 import { startOfMonth, endOfMonth, format, subMonths, parseISO } from 'date-fns'
 import { fetchMonthlyTrend, fetchCategoryBreakdown, fetchDailySummary, fetchYearOverYear } from '../../services/statisticsApi'
 import { useBook } from '../../hooks/useBook'
+import { useMemberColors } from '../../hooks/useMemberColors'
 import { formatAmount } from '../../utils/common'
 import { Card, CardHeader } from '../../components/ui/Card'
 import { SegControl } from '../../components/ui/SegControl'
@@ -27,6 +28,7 @@ enum PeriodType {
 
 const Reports: React.FC = () => {
   const { currentBook } = useBook()
+  const { isMultiMember } = useMemberColors(currentBook?.id)
   const [tab, setTab] = useState<'analysis' | 'members'>('analysis')
 
   const [period, setPeriod] = useState<PeriodType>(PeriodType.Month)
@@ -859,35 +861,47 @@ const Reports: React.FC = () => {
 
       {tab === 'members' && (
         <>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '14px' }}>
-            <span style={{ fontSize: '13px', color: 'var(--fg2)' }}>时间范围</span>
-            <DropdownSelect
-              options={monthOptions}
-              value={memberStartMonth}
-              onChange={(key) => key && setMemberStartMonth(key)}
-              showSearch
-              searchPlaceholder="搜索月份..."
-            />
-            <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--fg3)' }}>至</span>
-            <DropdownSelect
-              options={monthOptions}
-              value={memberEndMonth}
-              onChange={(key) => key && setMemberEndMonth(key)}
-              showSearch
-              searchPlaceholder="搜索月份..."
-            />
-          </div>
-
-          {currentBook?.id ? (
-            <MemberComparison bookId={currentBook.id} monthFrom={memberStartMonth} monthTo={memberEndMonth} />
-          ) : (
+          {!isMultiMember ? (
             <Card>
               <EmptyState
-                icon="📒"
-                title="请先选择一个账本"
-                description="在左侧账本列表中选择要查看的账本"
+                icon="👥"
+                title="单成员账本"
+                description="成员对比功能仅在多成员账本中可用，请切换至其他账本或邀请家人加入"
               />
             </Card>
+          ) : (
+            <>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '14px' }}>
+                <span style={{ fontSize: '13px', color: 'var(--fg2)' }}>时间范围</span>
+                <DropdownSelect
+                  options={monthOptions}
+                  value={memberStartMonth}
+                  onChange={(key) => key && setMemberStartMonth(key)}
+                  showSearch
+                  searchPlaceholder="搜索月份..."
+                />
+                <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--fg3)' }}>至</span>
+                <DropdownSelect
+                  options={monthOptions}
+                  value={memberEndMonth}
+                  onChange={(key) => key && setMemberEndMonth(key)}
+                  showSearch
+                  searchPlaceholder="搜索月份..."
+                />
+              </div>
+
+              {currentBook?.id ? (
+                <MemberComparison bookId={currentBook.id} monthFrom={memberStartMonth} monthTo={memberEndMonth} />
+              ) : (
+                <Card>
+                  <EmptyState
+                    icon="📒"
+                    title="请先选择一个账本"
+                    description="在左侧账本列表中选择要查看的账本"
+                  />
+                </Card>
+              )}
+            </>
           )}
         </>
       )}

@@ -1,0 +1,67 @@
+# =====================================================
+# 通用
+# =====================================================
+node_modules/
+.DS_Store
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+pnpm-debug.log*
+
+# 编辑器 / IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# 环境变量
+.env
+.env.local
+.env.*.local
+
+# 锁文件(如需提交请删除对应行)
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml
+
+# 其他临时文件
+*.local
+.cache/
+.temp/
+.tmp/
+
+# 测试覆盖率
+coverage/
+*.lcov
+
+# =====================================================
+# PC 前端 (frontend) - React / react-scripts
+# =====================================================
+frontend/build/
+frontend/dist/
+frontend/.vercel/
+frontend/.eslintcache
+frontend/.stylelintcache
+
+# =====================================================
+# 后端 (backend) - NestJS
+# =====================================================
+backend/dist/
+backend/build/
+backend/.eslintcache
+backend/.tsbuildinfo
+backend/.runtimeconfig.json
+
+# =====================================================
+# 小程序 (taro) - Taro 多端
+# =====================================================
+taro/dist/
+taro/dist-*/
+taro/build/
+taro/.temp/
+taro/.swc/
+taro/.vercel/
+taro/.eslintcache
+taro/project.private.config.json

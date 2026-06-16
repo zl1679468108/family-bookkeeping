@@ -185,7 +185,6 @@ export const request = async <T>(path: string, options: RequestOptions = {}): Pr
   if (requiresAuth) {
     const token = getToken()
     if (!token) {
-      // token 不存在
       if (shouldShowProgress) {
         trackRequest(requestId, 'end')
       }
@@ -198,21 +197,37 @@ export const request = async <T>(path: string, options: RequestOptions = {}): Pr
     requestHeaders.Authorization = `Bearer ${trimmedToken}`
   }
 
+  // 全局超时：读操作 30s，写操作 60s（上传图片等可能比较慢）
+  const timeoutMs = isWrite ? 60000 : 30000
+  const abortController = new AbortController()
+  const timeoutTimer = setTimeout(() => abortController.abort(), timeoutMs)
+
   try {
     const response = await fetch(`${API_BASE}${path}`, {
       ...rest,
       method: effectiveMethod,
       headers: requestHeaders,
       body: body === undefined ? undefined : isFormData ? (body as FormData) : JSON.stringify(body),
+      signal: abortController.signal,
     })
+
+    clearTimeout(timeoutTimer)
 
     if (!response.ok) {
       const errorPayload = await parseErrorPayload(response)
-      const error = new ApiError(
-        errorPayload.message || '请求失败',
-        errorPayload.statusCode || response.status,
-        errorPayload.code,
-      )
+      let message = errorPayload.message || '请求失败'
+      const status = errorPayload.statusCode || response.status
+
+      // 服务端返回 503/504 时，统一为友好提示
+      if (status === 503) {
+        message = '服务暂不可用，请稍后重试'
+      } else if (status === 504) {
+        message = '请求超时，请稍后重试'
+      } else if (status >= 500) {
+        message = '服务器异常，请稍后重试'
+      }
+
+      const error = new ApiError(message, status, errorPayload.code)
 
       if (requiresAuth && response.status === 401) {
         if (!silent) {
@@ -232,11 +247,14 @@ export const request = async <T>(path: string, options: RequestOptions = {}): Pr
     const payload = await response.json() as ApiEnvelope<T>
     return payload.data
   } catch (err) {
-    // 网络层错误（如断网、DNS 失败）也通知用户
+    clearTimeout(timeoutTimer)
+
     if (effectiveNotify && !(err instanceof ApiError)) {
       let message = err instanceof Error ? err.message : '请求失败'
-      // 将常见的英文错误消息转换为中文
-      if (message === 'Failed to fetch') {
+      // AbortController 触发的 abort 错误
+      if (err instanceof Error && (err.name === 'AbortError' || /aborted|timeout/i.test(message))) {
+        message = '请求超时，请稍后重试'
+      } else if (message === 'Failed to fetch') {
         message = '网络请求失败，请检查网络连接'
       } else if (message.includes('NetworkError')) {
         message = '网络错误，请检查网络连接'
@@ -247,6 +265,7 @@ export const request = async <T>(path: string, options: RequestOptions = {}): Pr
     }
     throw err
   } finally {
+    clearTimeout(timeoutTimer)
     if (shouldShowProgress) {
       trackRequest(requestId, 'end')
     }

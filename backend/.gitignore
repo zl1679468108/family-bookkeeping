@@ -1,13 +1,40 @@
-node_modules
-dist
-build
-coverage
-.env
-.env.local
-.env.*
+# 依赖
+node_modules/
+
+# 构建产物 (NestJS)
+dist/
+build/
+
+# 日志
 *.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
+pnpm-debug.log*
+
+# 系统
 .DS_Store
+
+# 环境变量 (注意: .env.development / .env.production 为项目模板，这里不排除)
+.env
+.env.local
+.env.*.local
+
+# 编辑器
+.idea/
+.vscode/
+
+# 缓存
+.cache/
+.eslintcache
+
+# TypeScript 构建信息
+.tsbuildinfo
+
+# 云开发
+.runtimeconfig.json
+
+# 测试覆盖率
+coverage/
+*.lcov
