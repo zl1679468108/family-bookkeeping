@@ -23,7 +23,10 @@ pnpm-debug.log*
 *.local
 .env
 .env.local
-.env.*.local
+.env.development
+.env.production
+.env.*
+!.env.example
 
 # 小程序私有配置
 project.private.config.json

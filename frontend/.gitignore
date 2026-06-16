@@ -22,7 +22,10 @@ pnpm-debug.log*
 *.local
 .env
 .env.local
-.env.*.local
+.env.development
+.env.production
+.env.*
+!.env.example
 
 # 编辑器
 .idea/
