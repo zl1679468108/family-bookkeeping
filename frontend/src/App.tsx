@@ -79,7 +79,7 @@ const AppLayout: React.FC = () => {
   return (
     <div className="app">
       {!hideSidebar && <Sidebar />}
-      <main className="main" style={hideSidebar ? { marginLeft: 0, maxWidth: '100%', padding: 0 } : undefined}>
+      <main className="main" style={hideSidebar ? { marginLeft: 0, maxWidth: '100%', padding: 0, height: '100vh', overflow: 'hidden' } : undefined}>
         <Suspense fallback={null}>
           <Routes>
             {routes.map((route) => (

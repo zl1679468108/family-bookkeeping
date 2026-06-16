@@ -1,7 +1,5 @@
 {
-  "version": "2.0",
   "envId": "family-bookkeeping-d7c9caa78340e",
-  "$schema": "https://framework-1258016615.tcloudbaseapp.com/schema/latest.json",
   "cloudrun": {
     "name": "family-bookkeeping-api-prod"
   }

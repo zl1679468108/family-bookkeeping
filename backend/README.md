@@ -137,33 +137,41 @@ GET /api/export/pdf                 # 导出 PDF
 
 ## 腾讯云 CloudBase 部署
 
-### 1. 构建 Docker 镜像
+### 环境信息
+
+- **EnvId**: `family-bookkeeping-d7c9caa78340e`
+- **CloudRun 服务名**: `family-bookkeeping-api-prod`
+- **后端 API 地址**: https://family-bookkeeping-api-prod-259958-6-1305761531.sh.run.tcloudbase.com
+- **前端访问地址**: https://family-bookkeeping-d7c9caa78340e-1305761531.tcloudbaseapp.com/
+- **CloudBase 控制台**: https://tcb.cloud.tencent.com/dev?envId=family-bookkeeping-d7c9caa78340e#/platform-run/service/detail?serverName=family-bookkeeping-api-prod&tabId=overview&envId=family-bookkeeping-d7c9caa78340e
+
+### 通过 MCP 部署
 
 ```bash
-docker build -t family-bookkeeping-api .
+# 配置 mcporter
+mkdir -p config && cat > config/mcporter.json << 'EOF'
+{
+  "mcpServers": {
+    "cloudbase": {
+      "command": "npx",
+      "args": ["@cloudbase/cloudbase-mcp@latest"],
+      "description": "CloudBase MCP",
+      "lifecycle": "keep-alive"
+    }
+  }
+}
+EOF
+
+# 登录
+npx mcporter call cloudbase.auth 'action=start_auth'
+
+# 部署后端（从项目根目录）
+npx mcporter call --stdio 'npx' --stdio-arg '@cloudbase/cloudbase-mcp@latest' --cwd . manageCloudRun --args '{"action":"deploy","serverName":"family-bookkeeping-api-prod","targetPath":"backend"}'
+
+# 构建并部署前端
+cd frontend && npm run build:prod && cd ..
+npx mcporter call --stdio 'npx' --stdio-arg '@cloudbase/cloudbase-mcp@latest' --cwd . manageHosting --args '{"action":"upload","localPath":"frontend/build","cloudPath":"/"}'
 ```
-
-### 2. 推送镜像到 TCR
-
-```bash
-# 登录腾讯云镜像仓库
-docker login ccr.ccs.tencentyun.com
-
-# 标记镜像
-docker tag family-bookkeeping-api ccr.ccs.tencentyun.com/你的命名空间/family-bookkeeping-api:latest
-
-# 推送
-docker push ccr.ccs.tencentyun.com/你的命名空间/family-bookkeeping-api:latest
-```
-
-### 3. 配置 CloudBase 云托管
-
-1. 登录 CloudBase 控制台
-2. 创建云托管服务
-3. 创建服务版本，选择 TCR 镜像
-4. 配置环境变量（SUPABASE_URL, SUPABASE_ANON_KEY）
-5. 设置端口为 3000
-6. 启动服务
 
 ## 测试 API
 

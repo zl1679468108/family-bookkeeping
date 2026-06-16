@@ -63,20 +63,22 @@ const OnboardingPage: React.FC = () => {
             <span className="onboarding-btn-arrow">→</span>
           </button>
         </div>
-      </div>
 
-      <button
-        type="button"
-        className="onboarding-logout-btn"
-        onClick={handleLogout}
-      >
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-          <polyline points="16 17 21 12 16 7" />
-          <line x1="21" y1="12" x2="9" y2="12" />
-        </svg>
-        退出登录
-      </button>
+        <div className="onboarding-footer">
+          <button
+            type="button"
+            className="onboarding-logout-btn"
+            onClick={handleLogout}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+              <polyline points="16 17 21 12 16 7" />
+              <line x1="21" y1="12" x2="9" y2="12" />
+            </svg>
+            退出登录
+          </button>
+        </div>
+      </div>
 
       {/* 复用 BookCreateModal 组件创建账本 */}
       <BookCreateModal
