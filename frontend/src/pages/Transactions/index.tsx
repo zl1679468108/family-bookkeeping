@@ -42,7 +42,7 @@ const Transactions: React.FC = () => {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const queryClient = useQueryClient()
-  const { getCategoryName, getCategoryIcon } = useCategoryLookup()
+  const { getCategoryName, getCategoryIconNode } = useCategoryLookup()
 
   // 高亮聚焦项
   useFocusItem()
@@ -244,7 +244,7 @@ const Transactions: React.FC = () => {
                       style={{ cursor: 'pointer' }}
                     >
                       <td>{format(new Date(t.date), 'yyyy-MM-dd')}</td>
-                      <td><span className="cell-cat">{getCategoryIcon(t.category)} {getCategoryName(t.category)}</span></td>
+                      <td><span className="cell-cat">{getCategoryIconNode(t.category, 16)} {getCategoryName(t.category)}</span></td>
                       <td>
                         {(t as any).brand ? (
                           <span className="brand-tag">{(t as any).brand}</span>
@@ -299,7 +299,7 @@ const Transactions: React.FC = () => {
           }
         >
           <div className="detail-content-wrapper">
-            <div className="detail-icon">{getCategoryIcon(selectedTransaction.category)}</div>
+            <div className="detail-icon">{getCategoryIconNode(selectedTransaction.category, 40)}</div>
             <div className="detail-content">
               <div className="detail-title">{getCategoryName(selectedTransaction.category)}</div>
               <div className="detail-subtitle">

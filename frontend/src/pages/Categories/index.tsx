@@ -2,7 +2,10 @@ import React, { useState, useCallback } from 'react'
 import { format } from 'date-fns'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { fetchCategories, createCategory, updateCategory, deleteCategory, reorderCategories } from '../../services/categoriesApi'
+import { fetchCustomIcons, uploadIcon, deleteIcon } from '../../services/iconsApi'
 import { EMOJI_PRESETS } from '../../utils/emojiPresets'
+import { SHOPPING_PLATFORM_ICONS, getPlatformIconByKey } from '../../utils/shoppingPlatformIcons'
+import { renderCategoryIcon } from '../../utils/renderCategoryIcon'
 import { notify } from '../../utils/notifications'
 import { Skeleton } from '../../components/ui/Skeleton'
 import { GlobalModal, DetailItem, Space } from '../../components/ui'
@@ -10,8 +13,10 @@ import { Card, CardHeader } from '../../components/ui/Card'
 import { Button } from '../../components/ui/Button'
 import { Input } from '../../components/ui/Input'
 import { IconGrid } from '../../components/ui/IconGrid'
+import type { CustomIconItem } from '../../components/ui/IconGrid'
 import { SegControl } from '../../components/ui/SegControl'
 import { useSort } from '../../hooks/useSort'
+import { useCategories } from '../../hooks/useCategories'
 import type { Category, CreateCategoryInput } from '../../types/category'
 import './index.scss'
 
@@ -37,14 +42,17 @@ const Categories: React.FC = () => {
 
   // ── 查询 ──────────────────────────────────────────────────────────────────
 
-  const { data: customCategories = [], isLoading } = useQuery<Category[]>({
-    queryKey: ['categories'],
-    queryFn: () => fetchCategories(),
+  const { data: customCategories = [], isLoading } = useCategories() as any
+
+  // 获取分类自定义图标
+  const { data: customIcons = [], refetch: refetchIcons } = useQuery({
+    queryKey: ['customIcons', 'category'],
+    queryFn: () => fetchCustomIcons('category'),
     staleTime: 5 * 60 * 1000,
   })
 
   const filteredCategories = React.useMemo(
-    () => (customCategories || []).filter((c) => c.type === activeTab).sort((a, b) => a.sort_order - b.sort_order),
+    () => (customCategories || []).filter((c: Category) => c.type === activeTab).sort((a: Category, b: Category) => a.sort_order - b.sort_order),
     [customCategories, activeTab],
   )
 
@@ -61,7 +69,19 @@ const Categories: React.FC = () => {
     handleDrop,
     handleDragEnd,
     isSaving,
-  } = useSort(['categories'], filteredCategories, reorderCategories)
+  } = useSort<Category>(['categories'], filteredCategories, reorderCategories) as {
+    sortingMode: boolean
+    dragIndex: number | null
+    orderedList: Category[]
+    handleEnterSortMode: () => void
+    handleSaveSort: () => void
+    handleCancelSort: () => void
+    handleDragStart: (index: number) => void
+    handleDragOver: (e: React.DragEvent, index: number) => void
+    handleDrop: (e: React.DragEvent) => void
+    handleDragEnd: () => void
+    isSaving: boolean
+  }
 
   // ─ 变更 ───────────────────────────────────────────────────────────────────
 
@@ -75,8 +95,8 @@ const Categories: React.FC = () => {
   })
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, name, icon }: { id: string; name: string; icon: string }) =>
-      updateCategory(id, { name, icon }),
+    mutationFn: ({ id, name, icon, icon_id }: { id: string; name: string; icon?: string; icon_id?: string }) =>
+      updateCategory(id, { name, icon, icon_id }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['categories'] })
       notify({ type: 'success', message: '分类已更新' })
@@ -120,10 +140,21 @@ const Categories: React.FC = () => {
     const trimmedName = modalName.trim()
     if (!trimmedName || !modalIcon) return
 
+    // 判断是否是自定义图标（通过长度判断，UUID 是 36 位）
+    const isCustomIcon = modalIcon.length === 36 && modalIcon.includes('-')
+
     if (modalMode === 'add') {
-      createMutation.mutate({ name: trimmedName, icon: modalIcon, type: activeTab })
+      if (isCustomIcon) {
+        createMutation.mutate({ name: trimmedName, icon_id: modalIcon, type: activeTab })
+      } else {
+        createMutation.mutate({ name: trimmedName, icon: modalIcon, type: activeTab })
+      }
     } else if (modalMode === 'edit' && editingCategory) {
-      updateMutation.mutate({ id: editingCategory.id, name: trimmedName, icon: modalIcon })
+      if (isCustomIcon) {
+        updateMutation.mutate({ id: editingCategory.id, name: trimmedName, icon_id: modalIcon })
+      } else {
+        updateMutation.mutate({ id: editingCategory.id, name: trimmedName, icon: modalIcon })
+      }
     }
   }, [modalMode, modalName, modalIcon, editingCategory, activeTab, createMutation, updateMutation])
 
@@ -137,9 +168,42 @@ const Categories: React.FC = () => {
   const modalTitle = modalMode === 'add' ? `新增${typeLabel}分类` : `编辑${typeLabel}分类`
 
   const iconOptions = React.useMemo(
-    () => EMOJI_PRESETS.map((emoji) => ({ value: emoji, icon: emoji })),
+    () => [
+      // emoji 预设
+      ...EMOJI_PRESETS.map((emoji) => ({ value: emoji, icon: emoji as React.ReactNode })),
+      // 购物平台 SVG 预设
+      ...SHOPPING_PLATFORM_ICONS.map((item) => ({
+        value: `platform_${item.key}`,
+        icon: getPlatformIconByKey(item.key) as React.ReactNode,
+        label: item.label,
+      })),
+    ],
     [],
   )
+
+  // 自定义图标列表（转换为 CustomIconItem 格式）
+  const customIconItems: CustomIconItem[] = React.useMemo(
+    () => (customIcons || []).map((ci) => ({
+      id: ci.id,
+      icon_url: ci.icon_url,
+      icon_type: ci.icon_type,
+    })),
+    [customIcons],
+  )
+
+  // 上传图标处理
+  const handleIconUpload = useCallback(async (file: File, iconType: 'category' | 'book') => {
+    await uploadIcon(file, iconType)
+    refetchIcons()
+    notify({ type: 'success', message: '图标上传成功' })
+  }, [refetchIcons])
+
+  // 删除图标处理
+  const handleIconDelete = useCallback(async (iconId: string) => {
+    await deleteIcon(iconId)
+    refetchIcons()
+    notify({ type: 'success', message: '图标已删除' })
+  }, [refetchIcons])
 
   // ── 渲染 ───────────────────────────────────────────────────────────────────
 
@@ -245,7 +309,7 @@ const Categories: React.FC = () => {
                   >
                     <span className="cat-handle">⋮⋮</span>
                     <div className="cat-header">
-                      <span className="cat-e">{cat.icon}</span>
+                      <span className="cat-e">{renderCategoryIcon(cat.icon, { size: 18 })}</span>
                       <div className="cat-content">
                         <div className="cat-n">{cat.name}</div>
                       </div>
@@ -307,6 +371,10 @@ const Categories: React.FC = () => {
               options={iconOptions}
               value={modalIcon}
               onChange={setModalIcon}
+              customIcons={customIconItems}
+              onUpload={handleIconUpload}
+              onDelete={handleIconDelete}
+              iconType="category"
             />
           </div>
         </div>
@@ -357,7 +425,7 @@ const Categories: React.FC = () => {
           }
         >
           <div className="detail-content-wrapper">
-            <div className="detail-icon">{selectedCategory.icon}</div>
+            <div className="detail-icon">{renderCategoryIcon(selectedCategory.icon, { size: 40 })}</div>
             <div className="detail-content">
               <div className="detail-title">{selectedCategory.name}</div>
               <div className="detail-tags">

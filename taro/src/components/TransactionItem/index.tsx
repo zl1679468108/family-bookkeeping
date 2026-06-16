@@ -3,7 +3,7 @@
  * v3.0: updated colors (expense=terracotta, income=sage green), flat style.
  */
 import { useRef, useState, useCallback } from "react";
-import { View, Text } from "@tarojs/components";
+import { View, Text, Image } from "@tarojs/components";
 import "./index.scss";
 
 export interface TransactionItemProps {
@@ -103,7 +103,11 @@ export default function TransactionItem({
         <View
           className={`txi-icon ${isExpense ? "txi-icon--expense" : "txi-icon--income"}`}
         >
-          <Text className="txi-icon-text">{icon}</Text>
+          {icon && (icon.startsWith("http://") || icon.startsWith("https://")) ? (
+            <Image className="txi-icon-img" src={icon} mode="aspectFit" />
+          ) : (
+            <Text className="txi-icon-text">{icon}</Text>
+          )}
         </View>
 
         <View className="txi-body">

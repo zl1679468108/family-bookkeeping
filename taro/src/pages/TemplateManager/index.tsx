@@ -11,6 +11,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import EmptyState from "../../components/EmptyState";
 import ConfirmDialog from "../../components/ConfirmDialog";
 import PageLayout from "../../components/PageLayout";
+import CategoryIcon from "../../components/CategoryIcon";
 import LocationPicker, { LocationResult } from "../../components/LocationPicker";
 import { apiGet, apiPost, apiPut, apiDelete } from "../../services/api";
 import { useCategories } from "../../hooks/useCategories";
@@ -334,15 +335,13 @@ export default function TemplateManager() {
                 }}
               >
                 <View className="tpl-card__head">
-                  <Text className="tpl-card__emoji">
-                    {cat?.icon || "📋"}
-                  </Text>
+                  <CategoryIcon icon={cat?.icon} className="tpl-card__icon" />
                   <Text className="tpl-card__name">{t.name}</Text>
                 </View>
                 <View className="tpl-card__meta">
                   {cat && (
                     <Text className="tpl-card__meta-line">
-                      分类：{cat.icon} {cat.name}
+                      分类：{cat.name}
                     </Text>
                   )}
                   {t.amount != null && t.amount > 0 && (
@@ -491,7 +490,12 @@ export default function TemplateManager() {
                   mode="selector"
                   range={
                     catOpts.length > 0
-                      ? catOpts.map((c) => `${c.icon} ${c.name}`)
+                      ? catOpts.map((c) => {
+                          const ic = c.icon || "";
+                          const displayIcon =
+                            ic.startsWith("http://") || ic.startsWith("https://") ? "📌" : ic;
+                          return `${displayIcon} ${c.name}`;
+                        })
                       : ["暂无分类"]
                   }
                   value={
@@ -512,11 +516,7 @@ export default function TemplateManager() {
                   <View className="tpl-picker-item">
                     <Text className="tpl-picker-value">
                       {form.category_id && catOpts.find((c) => c.id === form.category_id)
-                        ? `${
-                            catOpts.find((c) => c.id === form.category_id)?.icon || ""
-                          } ${
-                            catOpts.find((c) => c.id === form.category_id)?.name || ""
-                          }`
+                        ? catOpts.find((c) => c.id === form.category_id)?.name || ""
                         : "选择分类"}
                     </Text>
                     <Text className="tpl-picker-arrow">▸</Text>

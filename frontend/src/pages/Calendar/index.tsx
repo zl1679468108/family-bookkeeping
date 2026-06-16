@@ -1,11 +1,12 @@
-import React, { useState, useMemo, useCallback, useEffect, useRef } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { fetchDailySummary } from '../../services/statisticsApi';
 import { getTransactions, type Transaction } from '../../services/api';
 import { useCategoryLookup } from '../../hooks/useCategories';
 import { formatAmountWithType } from '../../utils/common';
 import type { DailySummaryItem } from '../../types/statistics';
-import { Skeleton } from '../../components/ui/Skeleton';
+import { Skeleton, DropdownSelect, GlobalModal } from '../../components/ui';
+import { Solar, HolidayUtil } from 'lunar-javascript';
 
 /** 获取某年某月的天数 */
 const daysInMonth = (year: number, month: number): number =>
@@ -23,11 +24,99 @@ const toMonthKey = (year: number, month: number): string =>
 
 /** 格式化金额（不加货币符号） */
 const formatAmount = (amount: number): string => {
-  if (amount === 0) return '';
+  if (amount === 0) return '0';
   return amount.toLocaleString('zh-CN', {
     minimumFractionDigits: 0,
     maximumFractionDigits: 2,
   });
+};
+
+/** 生成月份选项（前5年到后5年） */
+const generateMonthOptions = (): { key: string; label: string }[] => {
+  const options: { key: string; label: string }[] = [];
+  const today = new Date();
+  const startYear = today.getFullYear() - 5;
+  const endYear = today.getFullYear() + 5;
+  for (let y = startYear; y <= endYear; y++) {
+    for (let m = 1; m <= 12; m++) {
+      const key = `${y}-${String(m).padStart(2, '0')}`;
+      options.push({ key, label: `${y}年${m}月` });
+    }
+  }
+  return options;
+};
+
+interface LunarInfo {
+  lunarMonth: string;
+  lunarDay: string;
+  lunarFull: string;
+  /** 格子里第二行显示的文本：节日名/调休名/农历日 */
+  subText: string;
+  /** 弹窗中展示的调休/上班标签文本，如 "端午节休"、"春节班"，无则空 */
+  holidayInfo: string;
+  /** 是否是法定节假日相关（含调休） */
+  isLegalHoliday: boolean;
+  /** 法定节假日(带调休)：true=需上班(调休工作日)，false=休息，null=非法定节假日 */
+  isWork: boolean | null;
+  /** 农历月份是否是闰月 */
+  isLeapMonth: boolean;
+  /** 原始农历日文本 */
+  lunarDayText: string;
+}
+
+/** 获取日期对应的农历和节假日信息 */
+const getLunarInfo = (dateStr: string): LunarInfo => {
+  const parts = dateStr.split('-');
+  const year = parseInt(parts[0]);
+  const month = parseInt(parts[1]);
+  const day = parseInt(parts[2]);
+  const solar = Solar.fromYmd(year, month, day);
+  const lunar = solar.getLunar();
+
+  // 农历月份和日
+  const lunarDayStr = lunar.getDayInChinese();
+  const lunarMonthStr = lunar.getMonthInChinese();
+  const isLeapMonth = lunar.getMonth() < 0;
+
+  // 阳历节日（如劳动节、儿童节）
+  const solarFestivals: string[] = solar.getFestivals() || [];
+  // 农历节日（如春节、端午节）
+  const lunarFestivals: string[] = lunar.getFestivals() || [];
+
+  // 法定节假日信息（含调休）
+  const holiday = HolidayUtil.getHoliday(year, month, day);
+
+  // 是否是节日当天：lunarFestivals 或 solarFestivals 中存在节日名
+  const isFestivalDay = lunarFestivals.length > 0 || solarFestivals.length > 0;
+
+  // 格子第二行文本优先级：
+  // 1. 节日当天 → 显示节日名
+  // 2. 法定节假日调休 → 显示"X节休/班"
+  // 3. 否则 → 农历日
+  let subText = lunarDayStr;
+  if (isFestivalDay) {
+    subText = (lunarFestivals[0] || solarFestivals[0]);
+  } else if (holiday) {
+    subText = holiday.getName() + (holiday.isWork() ? '（班）' : '（休）');
+  }
+
+  // 弹窗中的调休标签
+  let holidayInfo = '';
+  if (holiday) {
+    holidayInfo = holiday.getName() + (holiday.isWork() ? '（班）' : '（休）');
+  }
+
+  return {
+    lunarMonth: lunarMonthStr,
+    lunarDay: lunarDayStr,
+    lunarFull: `${lunarMonthStr}月${lunarDayStr}`,
+    subText,
+    holidayInfo,
+    isLegalHoliday: !!holiday,
+    isWork: holiday ? holiday.isWork() : null,
+    isLeapMonth,
+    lunarDayText: lunarDayStr,
+  };
 };
 
 const Calendar: React.FC = () => {
@@ -37,11 +126,13 @@ const Calendar: React.FC = () => {
   const [viewYear, setViewYear] = useState(now.getFullYear());
   const [viewMonth, setViewMonth] = useState(now.getMonth() + 1);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
-  const [showPicker, setShowPicker] = useState(false);
-  const pickerRef = useRef<HTMLDivElement>(null);
+  const [showDetailModal, setShowDetailModal] = useState(false);
 
   const monthKey = toMonthKey(viewYear, viewMonth);
   const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+
+  const monthOptions = useMemo(() => generateMonthOptions(), []);
+  const currentMonthKey = useMemo(() => toMonthKey(viewYear, viewMonth), [viewYear, viewMonth]);
 
   // ---- 每日汇总数据 ----
   const { data: dailyData = [], isLoading: summaryLoading } = useQuery({
@@ -130,88 +221,50 @@ const Calendar: React.FC = () => {
     setSelectedDate(null);
   }, [viewMonth, viewYear]);
 
-  // ---- 点击日期 ----
+  // ---- 月份选择器 ----
+  const handleMonthChange = useCallback((key: string) => {
+    if (!key) return;
+    const [y, m] = key.split('-').map(Number);
+    setViewYear(y);
+    setViewMonth(m);
+    setSelectedDate(null);
+  }, []);
+
+  // ---- 点击日期：弹出弹窗 ----
   const handleDateClick = useCallback((dateStr: string) => {
-    setSelectedDate((prev) => (prev === dateStr ? null : dateStr));
+    setSelectedDate(dateStr);
+    setShowDetailModal(true);
   }, []);
-
-  // ---- 点击年月 ----
-  const handleHeaderClick = useCallback(() => {
-    setShowPicker((prev) => !prev);
-  }, []);
-
-  // ---- 年月选择器 ----
-  const handleYearChange = useCallback((year: number) => {
-    setViewYear(year);
-    setShowPicker(false);
-    setSelectedDate(null);
-  }, []);
-
-  const handleMonthChange = useCallback((month: number) => {
-    setViewMonth(month);
-    setShowPicker(false);
-    setSelectedDate(null);
-  }, []);
-
-  // ---- 点击外部关闭选择器 ----
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (pickerRef.current && !pickerRef.current.contains(e.target as Node)) {
-        const target = e.target as HTMLElement;
-        if (!target.closest('.cal-header-row')) {
-          setShowPicker(false);
-        }
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
-  // ---- 年份选项 ----
-  const yearOptions = [2022, 2023, 2024, 2025, 2026, 2027];
 
   // ---- 渲染 ----
   return (
     <div className="page-container">
       <div className="dash-card">
         {/* 顶部标题与月份切换 */}
-        <div className="cal-header-row" onClick={handleHeaderClick}>
-          <h3>{viewYear}年{viewMonth}月 ▼</h3>
-          <button className="cal-nav-btn cal-nav-btn--prev" onClick={(e) => { e.stopPropagation(); goPrevMonth(); }} title="上一月">
+        <div className="cal-header-row">
+          <button className="cal-nav-btn cal-nav-btn--prev" onClick={goPrevMonth} title="上一月">
             <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
               <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
             </svg>
           </button>
-          <button className="cal-nav-btn cal-nav-btn--next" onClick={(e) => { e.stopPropagation(); goNextMonth(); }} title="下一月">
+          <button className="cal-nav-btn cal-nav-btn--next" onClick={goNextMonth} title="下一月">
             <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
               <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
             </svg>
           </button>
-          {/* 年月选择器下拉 */}
-          <div
-            ref={pickerRef}
-            className={`cal-picker-drop ${showPicker ? 'active' : ''}`}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="cal-ym-row">
-              <select
-                value={viewYear}
-                onChange={(e) => handleYearChange(parseInt(e.target.value))}
-              >
-                {yearOptions.map((y) => (
-                  <option key={y} value={y}>{y}年</option>
-                ))}
-              </select>
-              <select
-                value={viewMonth}
-                onChange={(e) => handleMonthChange(parseInt(e.target.value))}
-              >
-                {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
-                  <option key={m} value={m}>{m}月</option>
-                ))}
-              </select>
-            </div>
-          </div>
+          {summaryLoading ? (
+            <Skeleton width="120px" height="28px" borderRadius="var(--rs)" />
+          ) : (
+            <DropdownSelect
+              options={monthOptions}
+              value={currentMonthKey}
+              onChange={handleMonthChange}
+              allowClear={false}
+              width="auto"
+              showSearch
+              searchPlaceholder="搜索月份..."
+            />
+          )}
         </div>
 
         {/* 日历网格 */}
@@ -227,14 +280,13 @@ const Calendar: React.FC = () => {
           {summaryLoading ? (
             Array.from({ length: 35 }).map((_, idx) => (
               <div key={idx} className="cal-cell" style={{ pointerEvents: 'none' }}>
-                <div className="cd-date">
-                  <Skeleton width="20px" height="12px" borderRadius="3px" />
+                <div className="cd-top">
+                  <div className="cd-date-wrap">
+                    <Skeleton width="24px" height="28px" borderRadius="3px" />
+                  </div>
                 </div>
-                <div className="cd-stats" style={{ opacity: 0.7 }}>
-                  <Skeleton width="30px" height="9px" borderRadius="2px" />
-                  <Skeleton width="30px" height="9px" borderRadius="2px" />
-                  <Skeleton width="20px" height="9px" borderRadius="2px" />
-                </div>
+                <Skeleton width="36px" height="12px" borderRadius="2px" style={{ marginTop: '4px' }} />
+                <Skeleton width="40px" height="12px" borderRadius="2px" style={{ marginTop: '4px' }} />
               </div>
             ))
           ) : (
@@ -246,22 +298,41 @@ const Calendar: React.FC = () => {
               const dayNum = parseInt(cell.date.slice(8, 10), 10);
               const isToday = cell.date === todayStr;
               const hasTransactions = cell.transaction_count > 0;
+              const lunarInfo = getLunarInfo(cell.date);
+
+              // 格子第二行显示文本已在 getLunarInfo 中计算好
+              const subText = lunarInfo.subText;
+              // 是否是节日相关（用于给灰色节日/调休名保持一致的灰色样式）
+              const isFestivalDay = lunarInfo.isLegalHoliday || lunarInfo.subText !== lunarInfo.lunarDayText;
 
               return (
                 <div
                   key={cell.date}
-                  className={`cal-cell${isToday ? ' today' : ''}${selectedDate === cell.date ? ' active' : ''}`}
+                  className={`cal-cell${isToday ? ' today' : ''}`}
                   onClick={() => handleDateClick(cell.date)}
                 >
-                  <div className="cd-date">{dayNum}</div>
-                  {hasTransactions && <div className="cal-dot" />}
-                  {hasTransactions && (
-                    <div className="cd-stats">
-                      <div>{cell.total_expense > 0 && `支${formatAmount(cell.total_expense)}`}</div>
-                      <div>{cell.total_income > 0 && `收${formatAmount(cell.total_income)}`}</div>
-                      <div>{cell.transaction_count}笔</div>
+                  <div className="cd-left">
+                    <div className="cd-date">{dayNum}</div>
+                    <div className={`cd-sub${isFestivalDay ? ' festival' : ''}`}>
+                      {subText}
                     </div>
-                  )}
+                  </div>
+                  <div className="cd-mid">
+                    <div className="cd-stats">
+                      <div className="cd-stat-row">
+                        <span className="cd-stat-k">支</span>
+                        <span className="cd-stat-v exp">{formatAmount(cell.total_expense)}</span>
+                      </div>
+                      <div className="cd-stat-row">
+                        <span className="cd-stat-k">收</span>
+                        <span className="cd-stat-v inc">{formatAmount(cell.total_income)}</span>
+                      </div>
+                      <div className="cd-stat-row">
+                        <span className="cd-stat-v neutral">{cell.transaction_count}笔</span>
+                      </div>
+                    </div>
+                  </div>
+                  {hasTransactions && <div className="cd-dot" />}
                 </div>
               );
             })
@@ -312,66 +383,117 @@ const Calendar: React.FC = () => {
             </>
           )}
         </div>
-
-        {/* 选中日期的交易明细 */}
-        {selectedDate && (
-          <div id="calDayDetail" style={{ marginTop: 14 }}>
-            <div className="card-header">
-              {txsLoading ? (
-                <Skeleton width="40%" height="14px" />
-              ) : (
-                <h3>
-                  {selectedDate} · {dayTransactions.length}笔
-                </h3>
-              )}
-              <span className="card-action" onClick={() => setSelectedDate(null)}>收起</span>
-            </div>
-            {txsLoading ? (
-              <div className="txn-list" style={{ pointerEvents: 'none' }}>
-                {[0, 1, 2].map((i) => (
-                  <div key={i} className="txn-row">
-                    <div className="txn-icon">
-                      <Skeleton width="100%" height="100%" borderRadius="8px" />
-                    </div>
-                    <div className="txn-info">
-                      <Skeleton width="50%" height="13px" marginBottom="4px" />
-                      <Skeleton width="35%" height="11px" />
-                    </div>
-                    <Skeleton width="64px" height="14px" />
-                  </div>
-                ))}
-              </div>
-            ) : dayTransactions.length === 0 ? (
-              <div className="calendar-empty">当天暂无交易记录</div>
-            ) : (
-              <div className="txn-list">
-                {dayTransactions.map((item) => {
-                  const isIncome = item.type === 'income';
-                  const categoryName = getCategoryName(item.category);
-                  const icon = getCategoryIcon(item.category);
-                  const name = item.description || categoryName;
-
-                  return (
-                    <div key={item.id} className="txn-row">
-                      <div className="txn-icon">{icon}</div>
-                      <div className="txn-info">
-                        <div className="txn-title">{name}</div>
-                        <div className="txn-meta">
-                          <span>{categoryName}</span>
-                          <span>{item.created_at ? item.created_at.slice(11, 16) : ''}</span>
-                        </div>
-                      </div>
-                      <div className={`txn-amount ${isIncome ? 'credit' : 'debit'}`}>
-                        {formatAmountWithType(parseFloat(String(item.amount)), isIncome)}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </div>
-        )}
       </div>
+
+      {/* 日期详情弹窗 */}
+      <GlobalModal
+        type="detail"
+        open={showDetailModal}
+        onClose={() => {
+          setShowDetailModal(false);
+          setSelectedDate(null);
+        }}
+        title={selectedDate || ''}
+      >
+        {selectedDate && (() => {
+          const lunarInfo = getLunarInfo(selectedDate);
+          const cellData = dateMap[selectedDate];
+          const dayNum = parseInt(selectedDate.slice(8, 10), 10);
+
+          return (
+            <div className="cal-detail-modal">
+              {/* 日期头部信息 */}
+              <div className="cal-detail-header">
+                <div className="cal-detail-day-wrap">
+                  <div className="cal-detail-day">{dayNum}</div>
+                  <div className="cal-detail-lunar-info">
+                    <div className="cal-detail-lunar-text">{lunarInfo.lunarFull}</div>
+                    {lunarInfo.holidayInfo && (
+                      <div
+                        className={`cal-detail-holiday${lunarInfo.isWork === true
+                            ? ' work'
+                            : lunarInfo.isWork === false
+                              ? ' rest'
+                              : ' normal'
+                          }`}
+                      >
+                        {lunarInfo.holidayInfo}
+                      </div>
+                    )}
+                  </div>
+                </div>
+                <div className="cal-detail-stats">
+                  <div className="cal-detail-stat-row">
+                    <span className="cal-detail-stat-label">总支出</span>
+                    <span className="cal-detail-stat-value exp">
+                      ¥{cellData ? formatAmount(cellData.total_expense) : '0'}
+                    </span>
+                  </div>
+                  <div className="cal-detail-stat-row">
+                    <span className="cal-detail-stat-label">总收入</span>
+                    <span className="cal-detail-stat-value inc">
+                      ¥{cellData ? formatAmount(cellData.total_income) : '0'}
+                    </span>
+                  </div>
+                  <div className="cal-detail-stat-row">
+                    <span className="cal-detail-stat-label">总笔数</span>
+                    <span className="cal-detail-stat-value neutral">
+                      {cellData ? cellData.transaction_count : 0}笔
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* 交易明细列表 */}
+              <div className="cal-detail-txn-section">
+                {txsLoading ? (
+                  <div className="cal-detail-txn-list" style={{ pointerEvents: 'none' }}>
+                    {[0, 1, 2].map((i) => (
+                      <div key={i} className="txn-row">
+                        <div className="txn-icon">
+                          <Skeleton width="100%" height="100%" borderRadius="8px" />
+                        </div>
+                        <div className="txn-info">
+                          <Skeleton width="50%" height="13px" marginBottom="4px" />
+                          <Skeleton width="35%" height="11px" />
+                        </div>
+                        <Skeleton width="64px" height="14px" />
+                      </div>
+                    ))}
+                  </div>
+                ) : dayTransactions.length === 0 ? (
+                  <div className="calendar-empty">当天暂无交易记录</div>
+                ) : (
+                  <div className="cal-detail-txn-list txn-list">
+                    {dayTransactions.map((item) => {
+                      const isIncome = item.type === 'income';
+                      const categoryName = getCategoryName(item.category);
+                      const icon = getCategoryIcon(item.category);
+                      const name = item.description || categoryName;
+
+                      return (
+                        <div key={item.id} className="txn-row">
+                          <div className="txn-icon">{icon}</div>
+                          <div className="txn-info">
+                            <div className="txn-title">{name}</div>
+                            <div className="txn-meta">
+                              <span>{categoryName}</span>
+                              <span>{item.created_at ? item.created_at.slice(11, 16) : ''}</span>
+                            </div>
+                          </div>
+                          <div className={`txn-amount ${isIncome ? 'credit' : 'debit'}`}>
+                            {formatAmountWithType(parseFloat(String(item.amount)), isIncome)}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            </div>
+          );
+        })()}
+      </GlobalModal>
     </div>
   );
 };

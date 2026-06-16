@@ -51,6 +51,8 @@ export interface MerchantSummary {
   last_expense_date: string | null;
   last_income_date: string | null;
   memberBreakdown?: MemberBreakdownItem[]; // P1 新增：成员消费分布
+  latitude?: number; // P2 新增：商户定位坐标
+  longitude?: number;
 }
 
 /** P1 新增：账本成员（含颜色分配） */
@@ -220,6 +222,9 @@ export class MapService {
           income_total: isIncome ? amount : 0,
           last_expense_date: isIncome ? null : tx.date,
           last_income_date: isIncome ? tx.date : null,
+          // P2: 记录商户所在的经纬度，用于前端定位
+          latitude: tx.latitude,
+          longitude: tx.longitude,
         });
       }
 

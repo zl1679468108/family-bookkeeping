@@ -5,12 +5,13 @@
  * 排序模式：点击顶部"编辑排序"进入，每个卡片显示上移/下移箭头，点击"完成"提交保存
  */
 import { useState, useMemo } from "react";
-import { View, Text, Input } from "@tarojs/components";
+import { View, Text, Input, Image } from "@tarojs/components";
 import Taro from "@tarojs/taro";
 import { useQueryClient, useMutation } from "@tanstack/react-query";
 import PageLayout from "../../components/PageLayout";
 import EmptyState from "../../components/EmptyState";
 import ConfirmDialog from "../../components/ConfirmDialog";
+import CategoryIcon from "../../components/CategoryIcon";
 import { apiGet, apiPost, apiPut, apiDelete } from "../../services/api";
 import { useManualQuery } from "../../hooks/useManualQuery";
 import "./index.scss";
@@ -271,7 +272,7 @@ export default function CategoriesPage() {
               }}
             >
               <View className="cats-card__head">
-                <Text className="cats-card__emoji">{cat.icon}</Text>
+                <CategoryIcon icon={cat.icon} className="cats-card__icon" />
                 <Text className="cats-card__name">{cat.name}</Text>
                 {cat.is_default && (
                   <Text className="cats-tag cats-tag--default">默认</Text>
@@ -368,7 +369,13 @@ export default function CategoriesPage() {
 
               <View className="cats-form-row cats-form-row--icon">
                 <Text className="cats-form-label">图标</Text>
-                <Text className="cats-form-emoji-current">{form.icon}</Text>
+                <View className="cats-form-emoji-current">
+                  {form.icon && (form.icon.startsWith("http://") || form.icon.startsWith("https://")) ? (
+                    <Image className="cats-form-emoji-current__img" src={form.icon} mode="aspectFit" />
+                  ) : (
+                    <Text>{form.icon || "📌"}</Text>
+                  )}
+                </View>
               </View>
 
               {/* emoji 选择网格 */}

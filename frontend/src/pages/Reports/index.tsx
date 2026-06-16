@@ -8,7 +8,6 @@ import { formatAmount } from '../../utils/common'
 import { Card, CardHeader } from '../../components/ui/Card'
 import { SegControl } from '../../components/ui/SegControl'
 import { DropdownSelect } from '../../components/ui/Dropdown'
-import { ReportRankList } from '../../components/ui/RankList'
 
 import { Skeleton } from '../../components/ui/Skeleton'
 import { EmptyState } from '../../components/ui/EmptyState'
@@ -16,17 +15,31 @@ import { Button } from '../../components/ui/Button'
 import MemberComparison from './MemberComparison'
 import type { CategoryBreakdownItem } from '../../types/statistics'
 
+// 日期范围枚举
+enum PeriodType {
+  Month = 'month',
+  ThreeMonth = '3month',
+  SixMonth = '6month',
+  Year = 'year',
+  MonthCompare = 'monthCompare',
+  YearCompare = 'yearCompare',
+}
+
 const Reports: React.FC = () => {
   const { currentBook } = useBook()
   const [tab, setTab] = useState<'analysis' | 'members'>('analysis')
 
-  const [period, setPeriod] = useState<'month' | '3month' | '6month' | 'year' | 'monthCompare' | 'yearCompare'>('month')
+  const [period, setPeriod] = useState<PeriodType>(PeriodType.Month)
 
   // 月对比：当前月份（固定）和对比月份（可选）
   const [monthCompareTarget, setMonthCompareTarget] = useState(format(subMonths(new Date(), 1), 'yyyy-MM'))
 
   // 年对比：当前年份（固定）和对比年份（可选）
   const [yearCompareTarget, setYearCompareTarget] = useState(new Date().getFullYear() - 1)
+
+  // 成员对比的独立月份范围
+  const [memberStartMonth, setMemberStartMonth] = useState(format(subMonths(new Date(), 11), 'yyyy-MM'))
+  const [memberEndMonth, setMemberEndMonth] = useState(format(new Date(), 'yyyy-MM'))
 
   const now = new Date()
   const currentMonth = format(now, 'yyyy-MM')
@@ -35,34 +48,40 @@ const Reports: React.FC = () => {
   // 图表引用
   const mainChartRef = useRef<HTMLDivElement>(null)
   const mainChartInstance = useRef<echarts.ECharts | null>(null)
+  const pieChartRef = useRef<HTMLDivElement>(null)
+  const pieChartInstance = useRef<echarts.ECharts | null>(null)
+  const pieChart2Ref = useRef<HTMLDivElement>(null)
+  const pieChart2Instance = useRef<echarts.ECharts | null>(null)
 
-  // 生成 10 年内的年份选项
+  // 生成 ±5 年的年份选项
   const yearOptions = useMemo(() => {
     const years: { key: string; label: string }[] = []
-    for (let i = 0; i <= 10; i++) {
-      const y = currentYear - i
+    for (let i = -5; i <= 5; i++) {
+      const y = currentYear + i
       years.push({ key: String(y), label: `${y}年` })
     }
     return years
   }, [currentYear])
 
-  // 生成 12 个月选项
+  // 生成 ±5 年范围的月份选项（key 为 yyyy-MM 格式）
   const monthOptions = useMemo(() => {
     const months: { key: string; label: string }[] = []
-    for (let i = 0; i < 12; i++) {
-      const date = new Date(now.getFullYear(), i, 1)
-      months.push({
-        key: format(date, 'yyyy-MM'),
-        label: format(date, 'yyyy 年 MM 月'),
-      })
+    for (let y = currentYear - 5; y <= currentYear + 5; y++) {
+      for (let i = 0; i < 12; i++) {
+        const date = new Date(y, i, 1)
+        months.push({
+          key: format(date, 'yyyy-MM'),
+          label: format(date, 'yyyy 年 MM 月'),
+        })
+      }
     }
     return months
-  }, [now])
+  }, [currentYear])
 
   // 根据周期计算日期范围和参数
   const { startDate, endDate, months, dailyDataMonths, yearCompare } = useMemo(() => {
     switch (period) {
-      case 'month':
+      case PeriodType.Month:
         return {
           startDate: format(startOfMonth(now), 'yyyy-MM-dd'),
           endDate: format(endOfMonth(now), 'yyyy-MM-dd'),
@@ -70,7 +89,7 @@ const Reports: React.FC = () => {
           dailyDataMonths: [currentMonth],
           yearCompare: null,
         }
-      case '3month':
+      case PeriodType.ThreeMonth:
         return {
           startDate: format(startOfMonth(subMonths(now, 2)), 'yyyy-MM-dd'),
           endDate: format(endOfMonth(now), 'yyyy-MM-dd'),
@@ -78,7 +97,7 @@ const Reports: React.FC = () => {
           dailyDataMonths: [],
           yearCompare: null,
         }
-      case '6month':
+      case PeriodType.SixMonth:
         return {
           startDate: format(startOfMonth(subMonths(now, 5)), 'yyyy-MM-dd'),
           endDate: format(endOfMonth(now), 'yyyy-MM-dd'),
@@ -86,7 +105,7 @@ const Reports: React.FC = () => {
           dailyDataMonths: [],
           yearCompare: null,
         }
-      case 'year':
+      case PeriodType.Year:
         return {
           startDate: format(startOfMonth(subMonths(now, 11)), 'yyyy-MM-dd'),
           endDate: format(endOfMonth(now), 'yyyy-MM-dd'),
@@ -94,7 +113,7 @@ const Reports: React.FC = () => {
           dailyDataMonths: [],
           yearCompare: null,
         }
-      case 'monthCompare':
+      case PeriodType.MonthCompare:
         return {
           startDate: format(startOfMonth(parseISO(monthCompareTarget)), 'yyyy-MM-dd'),
           endDate: format(endOfMonth(now), 'yyyy-MM-dd'),
@@ -102,7 +121,7 @@ const Reports: React.FC = () => {
           dailyDataMonths: [monthCompareTarget, currentMonth],
           yearCompare: null,
         }
-      case 'yearCompare':
+      case PeriodType.YearCompare:
         return {
           startDate: format(startOfMonth(subMonths(now, 11)), 'yyyy-MM-dd'),
           endDate: format(endOfMonth(now), 'yyyy-MM-dd'),
@@ -121,10 +140,10 @@ const Reports: React.FC = () => {
     }
   }, [period, now, currentMonth, currentYear, monthCompareTarget, yearCompareTarget])
 
-  const isDailyView = period === 'month'
-  const isMonthCompare = period === 'monthCompare'
-  const isYearCompare = period === 'yearCompare'
-  const isMonthlyView = ['3month', '6month', 'year'].includes(period)
+  const isDailyView = period === PeriodType.Month
+  const isMonthCompare = period === PeriodType.MonthCompare
+  const isYearCompare = period === PeriodType.YearCompare
+  const isMonthlyView = [PeriodType.ThreeMonth, PeriodType.SixMonth, PeriodType.Year].includes(period)
 
   // 获取月度趋势数据
   const { data: trendData = [], isLoading: trendLoading } = useQuery({
@@ -310,16 +329,6 @@ const Reports: React.FC = () => {
     return merged.sort((a, b) => Number(b.amount) - Number(a.amount))
   }
 
-  const toRankItems = (items: MergedBreakdownItem[]) =>
-    items.map((item) => ({
-      id: `${item.type}-${item.category_id}`,
-      icon: item.category_icon || (item.type === 'expense' ? '💸' : '💰'),
-      label: item.category_name,
-      amount: Number(item.amount),
-      type: item.type,
-      tag: item.type === 'expense' ? '支出' : '收入',
-    }))
-
   const mergedDefaultBreakdown = useMemo(
     () => mergeSorted(expenseBreakdown, incomeBreakdown),
     [expenseBreakdown, incomeBreakdown],
@@ -361,11 +370,10 @@ const Reports: React.FC = () => {
   // 图表加载状态
   const mainLoading = trendLoading || dailySummaryQueries.isLoading || yoyExpenseLoading || yoyIncomeLoading
 
-  // 初始化图表 - 当 DOM 元素已挂载且有数据时，初始化并渲染 echarts
+  // 初始化主图表
   useEffect(() => {
     if (!mainChartRef.current) return
 
-    // 每次 mainLoading 从 true 变 false 时，DOM 是新挂载的，需要重新初始化
     if (mainChartInstance.current) {
       mainChartInstance.current.dispose()
       mainChartInstance.current = null
@@ -384,9 +392,9 @@ const Reports: React.FC = () => {
           trigger: 'axis',
           axisPointer: { type: 'shadow' },
           formatter: (params: any) => {
-            const expense = params.find((p: any) => p.seriesName === '支出')?.value || 0
-            const income = params.find((p: any) => p.seriesName === '收入')?.value || 0
-            return `${params[0].name}<br/>支出：${formatAmount(expense)}<br/>收入：${formatAmount(income)}`
+            const expense = params.find((p: any) => p.seriesName === '总支出')?.value || 0
+            const income = params.find((p: any) => p.seriesName === '总收入')?.value || 0
+            return `${params[0].name}<br/>总支出：${formatAmount(expense)}<br/>总收入：${formatAmount(income)}`
           },
         },
         grid: { left: '3%', right: '4%', bottom: '3%', top: '15%', containLabel: true },
@@ -395,10 +403,10 @@ const Reports: React.FC = () => {
           type: 'value',
           axisLabel: { formatter: (value: number) => formatAmount(value) },
         },
-        legend: { data: ['支出', '收入'], top: 5 },
+        legend: { data: ['总支出', '总收入'], top: 5 },
         series: [
-          { name: '支出', type: 'bar', data: expenses, itemStyle: { color: '#e74c3c' } },
-          { name: '收入', type: 'bar', data: incomes, itemStyle: { color: '#27ae60' } },
+          { name: '总支出', type: 'bar', data: expenses, itemStyle: { color: '#e74c3c' } },
+          { name: '总收入', type: 'bar', data: incomes, itemStyle: { color: '#27ae60' } },
         ],
       }
     } else if (isMonthCompare) {
@@ -415,15 +423,15 @@ const Reports: React.FC = () => {
           trigger: 'axis',
           axisPointer: { type: 'shadow' },
           formatter: (params: any) => {
-            const currExp = params.find((p: any) => p.seriesName === `${format(now, 'yyyy 年 MM 月')} 支出`)?.value || 0
-            const currInc = params.find((p: any) => p.seriesName === `${format(now, 'yyyy 年 MM 月')} 收入`)?.value || 0
-            const targetExp = params.find((p: any) => p.seriesName === `${format(parseISO(monthCompareTarget), 'yyyy 年 MM 月')} 支出`)?.value || 0
-            const targetInc = params.find((p: any) => p.seriesName === `${format(parseISO(monthCompareTarget), 'yyyy 年 MM 月')} 收入`)?.value || 0
+            const currExp = params.find((p: any) => p.seriesName === `${format(now, 'yyyy 年 MM 月')} 总支出`)?.value || 0
+            const currInc = params.find((p: any) => p.seriesName === `${format(now, 'yyyy 年 MM 月')} 总收入`)?.value || 0
+            const targetExp = params.find((p: any) => p.seriesName === `${format(parseISO(monthCompareTarget), 'yyyy 年 MM 月')} 总支出`)?.value || 0
+            const targetInc = params.find((p: any) => p.seriesName === `${format(parseISO(monthCompareTarget), 'yyyy 年 MM 月')} 总收入`)?.value || 0
             return `${params[0].name}<br/>
-              ${format(now, 'yyyy 年 MM 月')} 支出：${formatAmount(currExp)}<br/>
-              ${format(now, 'yyyy 年 MM 月')} 收入：${formatAmount(currInc)}<br/>
-              ${format(parseISO(monthCompareTarget), 'yyyy 年 MM 月')} 支出：${formatAmount(targetExp)}<br/>
-              ${format(parseISO(monthCompareTarget), 'yyyy 年 MM 月')} 收入：${formatAmount(targetInc)}`
+              ${format(now, 'yyyy 年 MM 月')} 总支出：${formatAmount(currExp)}<br/>
+              ${format(now, 'yyyy 年 MM 月')} 总收入：${formatAmount(currInc)}<br/>
+              ${format(parseISO(monthCompareTarget), 'yyyy 年 MM 月')} 总支出：${formatAmount(targetExp)}<br/>
+              ${format(parseISO(monthCompareTarget), 'yyyy 年 MM 月')} 总收入：${formatAmount(targetInc)}`
           },
         },
         grid: { left: '3%', right: '4%', bottom: '3%', top: '15%', containLabel: true },
@@ -434,10 +442,10 @@ const Reports: React.FC = () => {
         },
         legend: { top: 5 },
         series: [
-          { name: `${format(now, 'yyyy 年 MM 月')} 支出`, type: 'bar', data: currExpenses, itemStyle: { color: '#c0392b' }, barGap: '20%' },
-          { name: `${format(now, 'yyyy 年 MM 月')} 收入`, type: 'bar', data: currIncomes, itemStyle: { color: '#1e8449' } },
-          { name: `${format(parseISO(monthCompareTarget), 'yyyy 年 MM 月')} 支出`, type: 'bar', data: targetExpenses, itemStyle: { color: '#e74c3c' } },
-          { name: `${format(parseISO(monthCompareTarget), 'yyyy 年 MM 月')} 收入`, type: 'bar', data: targetIncomes, itemStyle: { color: '#27ae60' } },
+          { name: `${format(now, 'yyyy 年 MM 月')} 总支出`, type: 'bar', data: currExpenses, itemStyle: { color: '#c0392b' }, barGap: '20%' },
+          { name: `${format(now, 'yyyy 年 MM 月')} 总收入`, type: 'bar', data: currIncomes, itemStyle: { color: '#1e8449' } },
+          { name: `${format(parseISO(monthCompareTarget), 'yyyy 年 MM 月')} 总支出`, type: 'bar', data: targetExpenses, itemStyle: { color: '#e74c3c' } },
+          { name: `${format(parseISO(monthCompareTarget), 'yyyy 年 MM 月')} 总收入`, type: 'bar', data: targetIncomes, itemStyle: { color: '#27ae60' } },
         ],
       }
     } else if (isYearCompare && yoyExpenseData.length > 0 && yoyIncomeData.length > 0) {
@@ -452,15 +460,15 @@ const Reports: React.FC = () => {
           trigger: 'axis',
           axisPointer: { type: 'shadow' },
           formatter: (params: any) => {
-            const currExp = params.find((p: any) => p.seriesName === `${currentYear}年 支出`)?.value || 0
-            const currInc = params.find((p: any) => p.seriesName === `${currentYear}年 收入`)?.value || 0
-            const targetExp = params.find((p: any) => p.seriesName === `${yearCompareTarget}年 支出`)?.value || 0
-            const targetInc = params.find((p: any) => p.seriesName === `${yearCompareTarget}年 收入`)?.value || 0
+            const currExp = params.find((p: any) => p.seriesName === `${currentYear}年 总支出`)?.value || 0
+            const currInc = params.find((p: any) => p.seriesName === `${currentYear}年 总收入`)?.value || 0
+            const targetExp = params.find((p: any) => p.seriesName === `${yearCompareTarget}年 总支出`)?.value || 0
+            const targetInc = params.find((p: any) => p.seriesName === `${yearCompareTarget}年 总收入`)?.value || 0
             return `${params[0].name}<br/>
-              ${currentYear}年 支出：${formatAmount(currExp)}<br/>
-              ${currentYear}年 收入：${formatAmount(currInc)}<br/>
-              ${yearCompareTarget}年 支出：${formatAmount(targetExp)}<br/>
-              ${yearCompareTarget}年 收入：${formatAmount(targetInc)}`
+              ${currentYear}年 总支出：${formatAmount(currExp)}<br/>
+              ${currentYear}年 总收入：${formatAmount(currInc)}<br/>
+              ${yearCompareTarget}年 总支出：${formatAmount(targetExp)}<br/>
+              ${yearCompareTarget}年 总收入：${formatAmount(targetInc)}`
           },
         },
         grid: { left: '3%', right: '4%', bottom: '3%', top: '15%', containLabel: true },
@@ -471,10 +479,10 @@ const Reports: React.FC = () => {
         },
         legend: { top: 5 },
         series: [
-          { name: `${currentYear}年 支出`, type: 'bar', data: currentYearExpenses, itemStyle: { color: '#c0392b' }, barGap: '20%' },
-          { name: `${currentYear}年 收入`, type: 'bar', data: currentYearIncomes, itemStyle: { color: '#1e8449' } },
-          { name: `${yearCompareTarget}年 支出`, type: 'bar', data: targetYearExpenses, itemStyle: { color: '#e74c3c' } },
-          { name: `${yearCompareTarget}年 收入`, type: 'bar', data: targetYearIncomes, itemStyle: { color: '#27ae60' } },
+          { name: `${currentYear}年 总支出`, type: 'bar', data: currentYearExpenses, itemStyle: { color: '#c0392b' }, barGap: '20%' },
+          { name: `${currentYear}年 总收入`, type: 'bar', data: currentYearIncomes, itemStyle: { color: '#1e8449' } },
+          { name: `${yearCompareTarget}年 总支出`, type: 'bar', data: targetYearExpenses, itemStyle: { color: '#e74c3c' } },
+          { name: `${yearCompareTarget}年 总收入`, type: 'bar', data: targetYearIncomes, itemStyle: { color: '#27ae60' } },
         ],
       }
     } else if (isMonthlyView && trendData.length > 0) {
@@ -487,9 +495,9 @@ const Reports: React.FC = () => {
           trigger: 'axis',
           axisPointer: { type: 'shadow' },
           formatter: (params: any) => {
-            const expense = params.find((p: any) => p.seriesName === '支出')?.value || 0
-            const income = params.find((p: any) => p.seriesName === '收入')?.value || 0
-            return `${params[0].name}<br/>支出：${formatAmount(expense)}<br/>收入：${formatAmount(income)}`
+            const expense = params.find((p: any) => p.seriesName === '总支出')?.value || 0
+            const income = params.find((p: any) => p.seriesName === '总收入')?.value || 0
+            return `${params[0].name}<br/>总支出：${formatAmount(expense)}<br/>总收入：${formatAmount(income)}`
           },
         },
         grid: { left: '3%', right: '4%', bottom: '3%', top: '15%', containLabel: true },
@@ -498,10 +506,10 @@ const Reports: React.FC = () => {
           type: 'value',
           axisLabel: { formatter: (value: number) => formatAmount(value) },
         },
-        legend: { data: ['支出', '收入'], top: 5 },
+        legend: { data: ['总支出', '总收入'], top: 5 },
         series: [
-          { name: '支出', type: 'bar', data: expenses, itemStyle: { color: '#e74c3c' } },
-          { name: '收入', type: 'bar', data: incomes, itemStyle: { color: '#27ae60' } },
+          { name: '总支出', type: 'bar', data: expenses, itemStyle: { color: '#e74c3c' } },
+          { name: '总收入', type: 'bar', data: incomes, itemStyle: { color: '#27ae60' } },
         ],
       }
     }
@@ -521,19 +529,137 @@ const Reports: React.FC = () => {
     }
   }, [period, dailyData, monthCompareData, yoyExpenseData, yoyIncomeData, trendData, currentMonth, currentYear, monthCompareTarget, yearCompareTarget, now, mainLoading])
 
+  // 分类排行加载状态
   const categoryLoading = isMonthCompare
     ? currentMonthExpenseLoading || currentMonthIncomeLoading || targetMonthExpenseLoading || targetMonthIncomeLoading
     : isYearCompare
       ? currentYearExpenseLoading || currentYearIncomeLoading || targetYearExpenseLoading || targetYearIncomeLoading
       : expenseBreakdownLoading || incomeBreakdownLoading
 
+  // 初始化扇形图 - 分类排行
+  const renderPieChart = (
+    elRef: React.RefObject<HTMLDivElement>,
+    instRef: React.MutableRefObject<echarts.ECharts | null>,
+    data: MergedBreakdownItem[],
+  ) => {
+    if (!elRef.current) return
+
+    if (instRef.current) {
+      instRef.current.dispose()
+      instRef.current = null
+    }
+    instRef.current = echarts.init(elRef.current)
+
+    const pieData = data.map((d) => ({
+      name: d.category_name,
+      value: Number(d.amount),
+    }))
+
+    const option: echarts.EChartsOption = {
+      tooltip: {
+        trigger: 'item',
+        formatter: (params: any) => {
+          const v = params.value || 0
+          return `${params.name}<br/>金额：${formatAmount(v)}<br/>占比：${params.percent}%`
+        },
+      },
+      legend: {
+        orient: 'vertical',
+        right: '5%',
+        top: 'center',
+        textStyle: { fontSize: 12, color: 'var(--fg)' },
+      },
+      series: [
+        {
+          name: '分类占比',
+          type: 'pie',
+          radius: ['40%', '70%'],
+          center: ['35%', '50%'],
+          avoidLabelOverlap: true,
+          itemStyle: {
+            borderRadius: 6,
+            borderColor: 'var(--bg-card)',
+            borderWidth: 2,
+          },
+          label: {
+            show: true,
+            formatter: '{b}: {d}%',
+            fontSize: 11,
+          },
+          emphasis: {
+            label: {
+              show: true,
+              fontSize: 14,
+              fontWeight: 'bold',
+            },
+          },
+          data: pieData,
+        },
+      ],
+    }
+
+    instRef.current.setOption(option as any)
+    instRef.current.resize()
+  }
+
+  // 渲染默认分类扇形图
+  useEffect(() => {
+    if (categoryLoading || mergedDefaultBreakdown.length === 0) return
+    if (isMonthCompare || isYearCompare) return
+    if (!pieChartRef.current) return
+
+    // 延迟一点等 DOM 挂载完成
+    const timer = setTimeout(() => {
+      renderPieChart(pieChartRef, pieChartInstance, mergedDefaultBreakdown)
+    }, 50)
+
+    const handleResize = () => pieChartInstance.current?.resize()
+    window.addEventListener('resize', handleResize)
+
+    return () => {
+      clearTimeout(timer)
+      window.removeEventListener('resize', handleResize)
+    }
+  }, [mergedDefaultBreakdown, categoryLoading, isMonthCompare, isYearCompare, period])
+
+  // 渲染对比模式的两个扇形图
+  useEffect(() => {
+    if (categoryLoading) return
+    if (!isMonthCompare && !isYearCompare) return
+
+    const data1 = isMonthCompare ? currentMonthMerged : currentYearMerged
+    const data2 = isMonthCompare ? targetMonthMerged : targetYearMerged
+
+    if (data1.length === 0 && data2.length === 0) return
+
+    const timer = setTimeout(() => {
+      if (data1.length > 0 && pieChartRef.current) {
+        renderPieChart(pieChartRef, pieChartInstance, data1)
+      }
+      if (data2.length > 0 && pieChart2Ref.current) {
+        renderPieChart(pieChart2Ref, pieChart2Instance, data2)
+      }
+    }, 50)
+
+    const handleResize = () => {
+      pieChartInstance.current?.resize()
+      pieChart2Instance.current?.resize()
+    }
+    window.addEventListener('resize', handleResize)
+
+    return () => {
+      clearTimeout(timer)
+      window.removeEventListener('resize', handleResize)
+    }
+  }, [currentMonthMerged, targetMonthMerged, currentYearMerged, targetYearMerged, categoryLoading, isMonthCompare, isYearCompare, period])
+
   const periodOptions = [
-    { value: 'month', label: '本月' },
-    { value: '3month', label: '近 3 月' },
-    { value: '6month', label: '近 6 月' },
-    { value: 'year', label: '近 1 年' },
-    { value: 'monthCompare', label: '月对比' },
-    { value: 'yearCompare', label: '年对比' },
+    { value: PeriodType.Month, label: '本月' },
+    { value: PeriodType.ThreeMonth, label: '近 3 月' },
+    { value: PeriodType.SixMonth, label: '近 6 月' },
+    { value: PeriodType.Year, label: '近 1 年' },
+    { value: PeriodType.MonthCompare, label: '月对比' },
+    { value: PeriodType.YearCompare, label: '年对比' },
   ] as const
 
   const chartHasData = (() => {
@@ -545,8 +671,8 @@ const Reports: React.FC = () => {
   })()
 
   const chartTitle = (() => {
-    if (isDailyView) return '本月每日支出/收入'
-    if (isMonthlyView) return '月度支出/收入汇总'
+    if (isDailyView) return '本月每日总支出/总收入'
+    if (isMonthlyView) return '月度总支出/总收入汇总'
     if (isMonthCompare) return '月对比'
     if (isYearCompare) return '年对比'
     return ''
@@ -564,6 +690,8 @@ const Reports: React.FC = () => {
             options={monthOptions}
             value={monthCompareTarget}
             onChange={(key) => key && setMonthCompareTarget(key)}
+            showSearch
+            searchPlaceholder="搜索月份..."
           />
         </div>
       )
@@ -579,6 +707,8 @@ const Reports: React.FC = () => {
             options={yearOptions}
             value={String(yearCompareTarget)}
             onChange={(key) => key && setYearCompareTarget(Number(key))}
+            showSearch
+            searchPlaceholder="搜索年份..."
           />
         </div>
       )
@@ -633,13 +763,13 @@ const Reports: React.FC = () => {
               <SegControl
                 options={periodOptions as unknown as { value: string; label: React.ReactNode }[]}
                 value={period}
-                onChange={(v) => setPeriod(v as typeof period)}
+                onChange={(v) => setPeriod(v as PeriodType)}
               />
             )}
           </div>
 
-          {/* 支出/收入趋势图表 */}
-          <Card>
+          {/* 上方：趋势图表 */}
+          <Card style={{ marginTop: '14px' }}>
             {mainLoading ? (
               <>
                 <CardHeader
@@ -683,77 +813,12 @@ const Reports: React.FC = () => {
             )}
           </Card>
 
-          {/* 分类排行 */}
+          {/* 下方：分类排行 - 扇形图 */}
           <Card style={{ marginTop: '14px' }}>
             {categoryLoading ? (
               <>
                 <CardHeader title={<Skeleton width="35%" height="16px" />} />
-                {isMonthCompare || isYearCompare ? (
-                  <div style={{ display: 'flex', gap: '24px' }}>
-                    <div style={{ flex: 1 }}>
-                      <div style={{ fontSize: '13px', fontWeight: 700, marginBottom: '10px' }}>
-                        <Skeleton width="100px" height="14px" />
-                      </div>
-                      <div className="report-rank-list" style={{ pointerEvents: 'none' }}>
-                        {[0, 1, 2, 3, 4].map((i) => (
-                          <div key={i} className="report-rank-item">
-                            <div className="report-rank-item__top">
-                              <span className="report-rank-item__name">
-                                <Skeleton width="130px" height="13px" />
-                              </span>
-                              <span className="report-rank-item__amount" style={{ color: 'var(--fg3)' }}>
-                                <Skeleton width="130px" height="13px" />
-                              </span>
-                            </div>
-                            <div className="report-rank-item__bar">
-                              <Skeleton width={[60, 85, 45, 70, 30][i] + '%'} height="100%" borderRadius="2px" />
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                    <div style={{ flex: 1 }}>
-                      <div style={{ fontSize: '13px', fontWeight: 700, marginBottom: '10px' }}>
-                        <Skeleton width="100px" height="14px" />
-                      </div>
-                      <div className="report-rank-list" style={{ pointerEvents: 'none' }}>
-                        {[0, 1, 2, 3, 4].map((i) => (
-                          <div key={i} className="report-rank-item">
-                            <div className="report-rank-item__top">
-                              <span className="report-rank-item__name">
-                                <Skeleton width="130px" height="13px" />
-                              </span>
-                              <span className="report-rank-item__amount" style={{ color: 'var(--fg3)' }}>
-                                <Skeleton width="130px" height="13px" />
-                              </span>
-                            </div>
-                            <div className="report-rank-item__bar">
-                              <Skeleton width={[70, 50, 80, 40, 60][i] + '%'} height="100%" borderRadius="2px" />
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="report-rank-list" style={{ pointerEvents: 'none' }}>
-                    {[0, 1, 2, 3, 4].map((i) => (
-                      <div key={i} className="report-rank-item">
-                        <div className="report-rank-item__top">
-                          <span className="report-rank-item__name">
-                            <Skeleton width="130px" height="13px" />
-                          </span>
-                          <span className="report-rank-item__amount" style={{ color: 'var(--fg3)' }}>
-                            <Skeleton width="130px" height="13px" />
-                          </span>
-                        </div>
-                        <div className="report-rank-item__bar">
-                          <Skeleton width={[60, 85, 45, 70, 30][i] + '%'} height="100%" borderRadius="2px" />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
+                <Skeleton width="100%" height="300px" borderRadius="var(--rs)" />
               </>
             ) : (
               <>
@@ -764,29 +829,25 @@ const Reports: React.FC = () => {
                       <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--fg)', marginBottom: '10px' }}>
                         {isMonthCompare ? format(now, 'yyyy 年 MM 月') : `${currentYear}年`}
                       </div>
-                      {isMonthCompare
-                        ? currentMonthMerged.length > 0
-                          ? <ReportRankList items={toRankItems(currentMonthMerged)} />
-                          : <EmptyState variant="compact" icon="📭" title="暂无数据" />
-                        : currentYearMerged.length > 0
-                          ? <ReportRankList items={toRankItems(currentYearMerged)} />
-                          : <EmptyState variant="compact" icon="📭" title="暂无数据" />}
+                      {(isMonthCompare ? currentMonthMerged : currentYearMerged).length > 0 ? (
+                        <div ref={pieChartRef} style={{ width: '100%', height: '300px' }} />
+                      ) : (
+                        <EmptyState variant="compact" icon="📭" title="暂无数据" />
+                      )}
                     </div>
                     <div style={{ flex: 1 }}>
                       <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--fg)', marginBottom: '10px' }}>
                         {isMonthCompare ? format(parseISO(monthCompareTarget), 'yyyy 年 MM 月') : `${yearCompareTarget}年`}
                       </div>
-                      {isMonthCompare
-                        ? targetMonthMerged.length > 0
-                          ? <ReportRankList items={toRankItems(targetMonthMerged)} />
-                          : <EmptyState variant="compact" icon="📭" title="暂无数据" />
-                        : targetYearMerged.length > 0
-                          ? <ReportRankList items={toRankItems(targetYearMerged)} />
-                          : <EmptyState variant="compact" icon="📭" title="暂无数据" />}
+                      {(isMonthCompare ? targetMonthMerged : targetYearMerged).length > 0 ? (
+                        <div ref={pieChart2Ref} style={{ width: '100%', height: '300px' }} />
+                      ) : (
+                        <EmptyState variant="compact" icon="📭" title="暂无数据" />
+                      )}
                     </div>
                   </div>
                 ) : mergedDefaultBreakdown.length > 0 ? (
-                  <ReportRankList items={toRankItems(mergedDefaultBreakdown)} emptyText={rankEmptyText} />
+                  <div ref={pieChartRef} style={{ width: '100%', height: '300px' }} />
                 ) : (
                   <EmptyState variant="compact" icon="📭" title={rankEmptyText} description="请等待数据加载或切换其他时间段" />
                 )}
@@ -798,29 +859,27 @@ const Reports: React.FC = () => {
 
       {tab === 'members' && (
         <>
-          <Card style={{ marginBottom: '14px' }}>
-            <CardHeader title="时间范围" />
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 20px' }}>
-              <span style={{ fontSize: '13px', color: 'var(--fg2)' }}>从</span>
-              <DropdownSelect
-                options={monthOptions}
-                value={
-                  // 成员对比的月份范围
-                  monthOptions[0]?.key || currentMonth
-                }
-                onChange={(key) => key && setMonthCompareTarget(key)}
-              />
-              <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--fg3)' }}>至</span>
-              <DropdownSelect
-                options={monthOptions}
-                value={currentMonth}
-                onChange={() => { }}
-              />
-            </div>
-          </Card>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '14px' }}>
+            <span style={{ fontSize: '13px', color: 'var(--fg2)' }}>时间范围</span>
+            <DropdownSelect
+              options={monthOptions}
+              value={memberStartMonth}
+              onChange={(key) => key && setMemberStartMonth(key)}
+              showSearch
+              searchPlaceholder="搜索月份..."
+            />
+            <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--fg3)' }}>至</span>
+            <DropdownSelect
+              options={monthOptions}
+              value={memberEndMonth}
+              onChange={(key) => key && setMemberEndMonth(key)}
+              showSearch
+              searchPlaceholder="搜索月份..."
+            />
+          </div>
 
           {currentBook?.id ? (
-            <MemberComparison bookId={currentBook.id} monthFrom={currentMonth} monthTo={currentMonth} />
+            <MemberComparison bookId={currentBook.id} monthFrom={memberStartMonth} monthTo={memberEndMonth} />
           ) : (
             <Card>
               <EmptyState

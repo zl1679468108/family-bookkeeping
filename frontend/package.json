@@ -5,8 +5,8 @@
   "scripts": {
     "start": "HOST=127.0.0.1 PORT=3001 REACT_APP_ENV=development sh -c 'lsof -ti:3001 | xargs kill -9 2>/dev/null; react-scripts start'",
     "start:prod": "HOST=127.0.0.1 PORT=3002 REACT_APP_ENV=production sh -c 'lsof -ti:3002 | xargs kill -9 2>/dev/null; react-scripts start'",
-    "build": "REACT_APP_ENV=development react-scripts build",
-    "build:prod": "REACT_APP_ENV=production react-scripts build",
+    "build": "CI=false REACT_APP_ENV=development react-scripts build",
+    "build:prod": "CI=false REACT_APP_ENV=production react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "lint": "eslint src --ext .js,.jsx,.ts,.tsx",
@@ -31,6 +31,7 @@
     "echarts-for-react": "^3.0.6",
     "html-to-image": "^1.11.13",
     "lucide-react": "^0.382.0",
+    "lunar-javascript": "^1.7.7",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
     "react-router-dom": "^6.22.3",

@@ -250,3 +250,250 @@
   background-color: var(--expense, #e06055);
   color: #ffffff;
 }
+
+/* ========== 切换账号弹窗 ========== */
+.switch-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: logoutFadeIn 0.2s ease;
+}
+
+.switch-dialog {
+  width: 620rpx;
+  max-height: 80vh;
+  background-color: var(--surface, #ffffff);
+  border-radius: var(--radius-lg, 32rpx);
+  padding: 40rpx 32rpx 24rpx;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20rpx 60rpx rgba(0, 0, 0, 0.2);
+  animation: logoutScale 0.2s cubic-bezier(0.25, 0, 0.2, 1);
+  overflow-y: auto;
+}
+
+.switch-title {
+  font-size: 32rpx;
+  font-weight: 700;
+  color: var(--fg, #1a1c19);
+  text-align: center;
+  margin-bottom: 28rpx;
+}
+
+/* 账号列表 */
+.switch-account-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+}
+
+.switch-account-item {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+  padding: 20rpx 16rpx;
+  border-radius: var(--radius-md, 24rpx);
+  background-color: var(--bg, #f6f7f4);
+  transition: background-color 0.15s ease;
+
+  &:active {
+    background-color: var(--border-light, #edeee9);
+  }
+
+  &.current {
+    background-color: rgba(45, 157, 138, 0.08);
+  }
+
+  &.switching {
+    opacity: 0.7;
+  }
+}
+
+.switch-account-avatar {
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: 50%;
+  background: var(--primary-grad, linear-gradient(135deg, #2d9d8a 0%, #45b7a7 100%));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.switch-account-avatar-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+}
+
+.switch-account-avatar-text {
+  color: #ffffff;
+  font-size: 28rpx;
+  font-weight: 700;
+}
+
+.switch-account-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+}
+
+.switch-account-name {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: var(--fg, #1a1c19);
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.switch-current-badge {
+  font-size: 20rpx;
+  font-weight: 500;
+  color: #2d9d8a;
+  background: rgba(45, 157, 138, 0.12);
+  padding: 2rpx 12rpx;
+  border-radius: 8rpx;
+}
+
+.switch-account-email {
+  font-size: 24rpx;
+  color: var(--fg-3, #8b8e89);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.switch-account-remove {
+  width: 48rpx;
+  height: 48rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.switch-account-remove-text {
+  font-size: 24rpx;
+  color: var(--fg-3, #8b8e89);
+}
+
+.switch-account-loading {
+  flex-shrink: 0;
+}
+
+.switch-account-loading-text {
+  font-size: 22rpx;
+  color: #2d9d8a;
+}
+
+/* 添加账号按钮 */
+.switch-add-btn {
+  margin-top: 20rpx;
+  padding: 20rpx;
+  border: 2rpx dashed var(--border, #e0e2dd);
+  border-radius: var(--radius-md, 24rpx);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.15s ease;
+
+  &:active {
+    background-color: rgba(45, 157, 138, 0.06);
+  }
+}
+
+.switch-add-btn-text {
+  font-size: 28rpx;
+  font-weight: 500;
+  color: #2d9d8a;
+}
+
+/* 登录表单 */
+.switch-login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.switch-login-hint {
+  font-size: 24rpx;
+  color: var(--fg-3, #8b8e89);
+  text-align: center;
+}
+
+.switch-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+}
+
+.switch-form-label {
+  font-size: 24rpx;
+  font-weight: 500;
+  color: var(--fg-2, #4b5563);
+}
+
+.switch-form-input {
+  width: 100%;
+  height: 76rpx;
+  padding: 0 20rpx;
+  border: 2rpx solid var(--border, #e0e2dd);
+  border-radius: var(--radius-sm, 16rpx);
+  font-size: 28rpx;
+  color: var(--fg, #1a1c19);
+  background-color: var(--surface, #ffffff);
+  box-sizing: border-box;
+}
+
+.switch-login-error {
+  font-size: 24rpx;
+  color: var(--expense, #e06055);
+}
+
+.switch-login-actions {
+  display: flex;
+  gap: 16rpx;
+  margin-top: 12rpx;
+}
+
+.switch-login-btn {
+  flex: 1;
+  height: 80rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm, 16rpx);
+  font-size: 28rpx;
+  font-weight: 600;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+
+  &:active {
+    opacity: 0.85;
+    transform: scale(0.98);
+  }
+
+  &.loading {
+    opacity: 0.6;
+  }
+}
+
+.switch-login-cancel {
+  background-color: var(--bg, #f6f7f4);
+  color: var(--fg, #1a1c19);
+}
+
+.switch-login-ok {
+  background-color: #2d9d8a;
+  color: #ffffff;
+}

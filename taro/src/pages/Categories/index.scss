@@ -137,6 +137,11 @@
   border: 1rpx solid rgba(45, 157, 138, 0.15);
 }
 
+.cats-card__icon {
+  width: 60rpx;
+  height: 60rpx;
+}
+
 .cats-card__name {
   flex: 1;
   font-size: 30rpx;
@@ -358,6 +363,20 @@
 .cats-form-emoji-current {
   font-size: 36rpx;
   line-height: 1;
+  width: 80rpx;
+  height: 80rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f6f7f4;
+  border-radius: 16rpx;
+  border: 1rpx solid #e9ecef;
+}
+
+.cats-form-emoji-current__img {
+  width: 70rpx;
+  height: 70rpx;
+  display: block;
 }
 
 /* emoji 选择网格 */

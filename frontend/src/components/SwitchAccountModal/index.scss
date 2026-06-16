@@ -1,0 +1,339 @@
+/* ═══ 切换账号弹窗 ═══ */
+
+.switch-account-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: var(--z-modal, 1000);
+  animation: saFadeIn 0.2s ease;
+}
+
+.switch-account-modal {
+  background: var(--srf, #fff);
+  border-radius: 12px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  width: 400px;
+  max-width: calc(100vw - 40px);
+  max-height: calc(100vh - 80px);
+  display: flex;
+  flex-direction: column;
+  animation: saSlideIn 0.25s ease;
+}
+
+/* ── 头部 ── */
+.switch-account-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 20px 14px;
+  border-bottom: 1px solid var(--bd, #e5e7eb);
+
+  h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--fg, #1f2937);
+  }
+}
+
+.switch-account-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  color: var(--fg3, #9ca3af);
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  &:hover {
+    color: var(--fg, #1f2937);
+    background: var(--srfH, #f3f4f6);
+  }
+}
+
+/* ── 内容区 ── */
+.switch-account-body {
+  padding: 16px 20px 20px;
+  overflow-y: auto;
+}
+
+/* ── 账号列表 ── */
+.account-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.account-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+  position: relative;
+
+  &:hover {
+    background: var(--srfH, #f3f4f6);
+  }
+
+  &.current {
+    background: rgba(45, 157, 138, 0.08);
+    cursor: default;
+  }
+}
+
+.account-item-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--prGr, #2d9d8a);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 600;
+  flex-shrink: 0;
+  overflow: hidden;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+  }
+}
+
+.account-item-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.account-item-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--fg, #1f2937);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.current-badge {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--pr, #2d9d8a);
+  background: rgba(45, 157, 138, 0.12);
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+.account-item-email {
+  font-size: 12px;
+  color: var(--fg3, #9ca3af);
+  margin-top: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.account-item-remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  color: var(--fg3, #9ca3af);
+  cursor: pointer;
+  opacity: 0;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+
+  .account-item:hover & {
+    opacity: 1;
+  }
+
+  &:hover {
+    color: var(--exp, #e06055);
+    background: rgba(224, 96, 85, 0.1);
+  }
+}
+
+.account-item-loading {
+  flex-shrink: 0;
+  color: var(--pr, #2d9d8a);
+}
+
+/* ── 添加账号按钮 ── */
+.account-add-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 10px;
+  margin-top: 12px;
+  border: 1px dashed var(--bd, #e5e7eb);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--pr, #2d9d8a);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  &:hover {
+    background: rgba(45, 157, 138, 0.06);
+    border-color: var(--pr, #2d9d8a);
+  }
+}
+
+/* ── 登录表单 ── */
+.account-add-form {
+  .account-form-hint {
+    font-size: 13px;
+    color: var(--fg3, #9ca3af);
+    margin-bottom: 14px;
+    text-align: center;
+  }
+
+  .form-group {
+    margin-bottom: 14px;
+
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--fg2, #4b5563);
+      margin-bottom: 6px;
+    }
+
+    input {
+      width: 100%;
+      height: 38px;
+      padding: 0 12px;
+      border: 1px solid var(--bd, #e5e7eb);
+      border-radius: 8px;
+      font-size: 14px;
+      color: var(--fg, #1f2937);
+      background: var(--bg, #fff);
+      outline: none;
+      transition: border-color 0.15s ease;
+      box-sizing: border-box;
+
+      &::placeholder {
+        color: var(--fg3, #9ca3af);
+      }
+
+      &:focus {
+        border-color: var(--pr, #2d9d8a);
+      }
+    }
+  }
+
+  .captcha-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+
+    input {
+      flex: 1;
+    }
+
+    .captcha-img {
+      width: 160px;
+      height: 56px;
+      cursor: pointer;
+      overflow: hidden;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #ffffff;
+      border: 1px solid var(--bd);
+      border-radius: 8px;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+      transition: opacity 0.15s;
+
+      &:hover {
+        opacity: 0.8;
+      }
+
+      svg {
+        width: 100%;
+        height: 100%;
+      }
+    }
+  }
+}
+
+.account-add-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 16px;
+
+  button {
+    flex: 1;
+    height: 38px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    border: none;
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+
+  .btn-cancel {
+    background: var(--srf, #f3f4f6);
+    color: var(--fg2, #4b5563);
+    border: 1px solid var(--bd, #e5e7eb);
+
+    &:hover:not(:disabled) {
+      background: var(--srfH, #e5e7eb);
+    }
+  }
+
+  .btn-login {
+    background: var(--pr, #2d9d8a);
+    color: #fff;
+
+    &:hover:not(:disabled) {
+      background: var(--prH, #268a79);
+    }
+  }
+}
+
+/* ── 动画 ── */
+@keyframes saFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes saSlideIn {
+  from { opacity: 0; transform: translateY(-10px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.spinning {
+  animation: saSpin 0.8s linear infinite;
+}
+
+@keyframes saSpin {
+  to { transform: rotate(360deg); }
+}

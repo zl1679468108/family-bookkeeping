@@ -146,6 +146,10 @@ function buildInfoWindowElement(
 
 export interface MapCanvasHandle {
   getMap: () => any;
+  /** 平移地图到指定坐标 */
+  setCenter: (longitude: number, latitude: number) => void;
+  /** 根据一组坐标调整地图视野 */
+  setBounds: (points: [number, number][]) => void;
 }
 
 /* ------------------------------------------------------------------ */
@@ -194,6 +198,32 @@ const _MapCanvas: React.ForwardRefRenderFunction<MapCanvasHandle, MapCanvasProps
   // ---- Expose map instance ----
   useImperativeHandle(ref, () => ({
     getMap: () => mapRef.current ?? null,
+    setCenter: (longitude: number, latitude: number) => {
+      const m = mapRef.current;
+      const AMap = AmapManager.getInstance().AMap;
+      if (!m || !AMap?.LngLat) return;
+      try {
+        m.setCenter(new AMap.LngLat(longitude, latitude));
+        m.setZoom && m.setZoom(Math.max(m.getZoom?.() || 15, 15));
+      } catch {}
+    },
+    setBounds: (points: [number, number][]) => {
+      const m = mapRef.current;
+      const AMap = AmapManager.getInstance().AMap;
+      if (!m || !AMap?.LngLat || !points || points.length === 0) return;
+      try {
+        if (points.length >= 2) {
+          const lngs = points.map((p) => p[0]);
+          const lats = points.map((p) => p[1]);
+          const sw = new AMap.LngLat(Math.min(...lngs), Math.min(...lats));
+          const ne = new AMap.LngLat(Math.max(...lngs), Math.max(...lats));
+          m.setBounds(new AMap.Bounds(sw, ne), false, [80, 60, 80, 60]);
+        } else {
+          m.setCenter(new AMap.LngLat(points[0][0], points[0][1]));
+          m.setZoom(15);
+        }
+      } catch {}
+    },
   }));
 
   // ---- onMapReady callback ----
@@ -217,7 +247,8 @@ const _MapCanvas: React.ForwardRefRenderFunction<MapCanvasHandle, MapCanvasProps
     (merchant: MerchantSummary) => {
       const tx = dataRef.current.find((t) => t.location_name === merchant.location_name);
       if (!tx) return;
-      setActiveInfo({ merchant, pos: [tx.longitude, tx.latitude] });
+      // 直接打开交易历史弹窗，不再显示信息窗口
+      setHistoryMerchant(merchant);
       // 点击点位后，地图平滑移动到该点位，保证其在视口中央
       if (map && typeof map.panTo === 'function') {
         map.panTo([tx.longitude, tx.latitude]);
@@ -225,11 +256,6 @@ const _MapCanvas: React.ForwardRefRenderFunction<MapCanvasHandle, MapCanvasProps
     },
     [map],
   );
-
-  const handleShowHistory = useCallback((merchant: MerchantSummary) => {
-    setActiveInfo(null);
-    setHistoryMerchant(merchant);
-  }, []);
 
   // 筛选/视图切换时关闭已打开的信息窗
   useEffect(() => {
@@ -469,22 +495,7 @@ const _MapCanvas: React.ForwardRefRenderFunction<MapCanvasHandle, MapCanvasProps
     };
   }, [map]);
 
-  useEffect(() => {
-    const iw = infoWindowRef.current;
-    if (!iw || !map) return;
 
-    if (activeInfo) {
-      const contentEl = buildInfoWindowElement(
-        activeInfo.merchant,
-        colorMap,
-        () => handleShowHistory(activeInfo.merchant),
-      );
-      iw.setContent(contentEl);
-      iw.open(map, activeInfo.pos);
-    } else {
-      try { iw.close(); } catch {}
-    }
-  }, [activeInfo, map, colorMap]);
 
   /* ====== Render ====== */
 

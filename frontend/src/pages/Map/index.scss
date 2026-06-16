@@ -65,6 +65,16 @@
   margin: 0 2px;
 }
 
+.map-stat-chip--clickable {
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.map-stat-chip--clickable:hover {
+  border-color: var(--pr, #2d9d8a);
+  box-shadow: 0 2px 8px rgba(45, 157, 138, 0.15);
+}
+
 /* ── 地图 / 列表 容器 ── */
 .map-content {
   display: flex;

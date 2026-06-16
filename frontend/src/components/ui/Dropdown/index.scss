@@ -105,6 +105,35 @@
   animation: ddFadeIn var(--df) ease;
 }
 
+/* 搜索框 */
+.dd-select__search {
+  padding: 4px 4px 8px;
+  border-bottom: 1px solid var(--bd);
+  margin-bottom: 4px;
+}
+
+.dd-select__search-input {
+  width: 100%;
+  height: 32px;
+  padding: 0 10px;
+  background: var(--bg);
+  border: 1px solid var(--bd);
+  border-radius: 6px;
+  font-size: 13px;
+  color: var(--fg);
+  outline: none;
+  transition: border-color var(--df) ease, box-shadow var(--df) ease;
+}
+
+.dd-select__search-input:focus {
+  border-color: var(--pr);
+  box-shadow: 0 0 0 3px rgba(45, 157, 138, 0.1);
+}
+
+.dd-select__search-input::placeholder {
+  color: var(--fg3);
+}
+
 .dd-select__panel--left {
   left: 0;
 }

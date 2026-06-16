@@ -4,7 +4,9 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { fetchBudgets, fetchBudgetStatus, upsertBudgets } from '../../services/budgetsApi'
 import { useDebouncedAction } from '../../hooks/useDebouncedAction'
 import { useCategoryLookup } from '../../hooks/useCategories'
+import { renderCategoryIcon } from '../../utils/renderCategoryIcon'
 import { useFocusItem } from '../../hooks/useFocusItem'
+import { useMonthRangeOptions } from '../../hooks/useMonthRangeOptions'
 import type { BudgetRecord, UpsertBudgetInput } from '../../types/budget'
 import { notify } from '../../utils/notifications'
 import { Skeleton } from '../../components/ui/Skeleton'
@@ -15,12 +17,6 @@ import { NumberInput } from '../../components/ui/Input'
 import { RankRow } from '../../components/ui/RankList'
 import { EmptyState } from '../../components/ui/EmptyState'
 import { DropdownSelect } from '../../components/ui/Dropdown'
-
-const getCurrentMonthStr = (): string => {
-  const today = new Date()
-  const firstOfMonth = new Date(today.getFullYear(), today.getMonth(), 1)
-  return format(firstOfMonth, 'yyyy-MM-dd')
-}
 
 const formatMonthToDisplay = (monthStr: string): string => {
   const date = new Date(monthStr)
@@ -33,7 +29,10 @@ const Budgets: React.FC = () => {
 
   const { focusId, hasFocus } = useFocusItem()
 
-  const [selectedMonth, setSelectedMonth] = useState<string>(getCurrentMonthStr())
+  // 使用月份范围 hook，前后5年
+  const { monthOptions, currentMonthKey } = useMonthRangeOptions()
+
+  const [selectedMonth, setSelectedMonth] = useState<string>(currentMonthKey)
 
   const expenseCategories = categories.filter((c) => c.type === 'expense')
 
@@ -168,20 +167,6 @@ const Budgets: React.FC = () => {
     setShowDetail(false)
   }
 
-  const generateMonthOptions = (): { key: string; label: string }[] => {
-    const options: { key: string; label: string }[] = []
-    const today = new Date()
-    for (let i = 0; i < 12; i++) {
-      const date = new Date(today.getFullYear(), today.getMonth() - i, 1)
-      const value = format(date, 'yyyy-MM-dd')
-      const label = formatMonthToDisplay(value)
-      options.push({ key: value, label })
-    }
-    return options
-  }
-
-  const monthOptions = generateMonthOptions()
-
   return (
     <div className="page-container">
       <Card>
@@ -197,6 +182,8 @@ const Budgets: React.FC = () => {
                 onChange={(key) => key && setSelectedMonth(key)}
                 allowClear={false}
                 width="auto"
+                showSearch
+                searchPlaceholder="搜索月份..."
               />
             )
           }
@@ -266,7 +253,7 @@ const Budgets: React.FC = () => {
                 >
                   <RankRow
                     id={cat.id}
-                    icon={cat.icon}
+                    icon={renderCategoryIcon(cat.icon, { size: 18 }) as any}
                     label={cat.name}
                     amount={spent}
                     totalAmount={budget > 0 ? budget : undefined}
@@ -305,7 +292,7 @@ const Budgets: React.FC = () => {
           }
         >
           <div className="detail-content-wrapper">
-            <div className="detail-icon">{selectedBudget.category.icon}</div>
+            <div className="detail-icon">{renderCategoryIcon(selectedBudget.category.icon, { size: 40 })}</div>
             <div className="detail-content">
               <div className="detail-title">{selectedBudget.category.name}</div>
             </div>

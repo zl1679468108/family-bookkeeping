@@ -85,9 +85,25 @@ export class CategoriesService {
       throw new ConflictException(`"${dto.name}" 分类已存在`);
     }
 
+    // 处理 icon_id：如果传的是 icon_id（自定义图标），需要转换为 URL
+    let iconUrl = dto.icon || '📌';
+    if (dto.icon_id) {
+      const { data: customIcon, error: iconError } = await supabase
+        .from('custom_icons')
+        .select('icon_url')
+        .eq('id', dto.icon_id)
+        .eq('user_id', userId)
+        .single();
+
+      if (iconError || !customIcon) {
+        throw new BadRequestException('自定义图标不存在或无权访问');
+      }
+      iconUrl = customIcon.icon_url;
+    }
+
     const { data, error } = await supabase
       .from('categories')
-      .insert([{ user_id: userId, name: dto.name, icon: dto.icon, type: dto.type, is_default: false }])
+      .insert([{ user_id: userId, name: dto.name, icon: iconUrl, type: dto.type, is_default: false }])
       .select()
       .single();
 
@@ -103,14 +119,31 @@ export class CategoriesService {
       throw new BadRequestException('默认分类不可修改');
     }
 
+    const supabase = this.supabaseService.getClient();
+    let iconUrl = dto.icon;
+
+    // 如果传的是 icon_id（自定义图标），需要转换为图标 URL
+    if (dto.icon_id) {
+      const { data: customIcon, error: iconError } = await supabase
+        .from('custom_icons')
+        .select('icon_url')
+        .eq('id', dto.icon_id)
+        .eq('user_id', userId)
+        .single();
+
+      if (iconError || !customIcon) {
+        throw new BadRequestException('自定义图标不存在或无权访问');
+      }
+      iconUrl = customIcon.icon_url;
+    }
+
     const updateData: Record<string, unknown> = {};
     if (dto.name !== undefined) updateData.name = dto.name;
-    if (dto.icon !== undefined) updateData.icon = dto.icon;
+    if (iconUrl !== undefined) updateData.icon = iconUrl;
     if (dto.sort_order !== undefined) updateData.sort_order = dto.sort_order;
 
     if (Object.keys(updateData).length === 0) return existing;
 
-    const supabase = this.supabaseService.getClient();
     const { data, error } = await supabase
       .from('categories')
       .update(updateData)

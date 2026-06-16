@@ -1,5 +1,6 @@
-import React from 'react'
+import * as React from 'react'
 import { formatAmount } from '../../../utils/common'
+import { renderCategoryIcon } from '../../../utils/renderCategoryIcon'
 import './index.scss'
 
 /**
@@ -110,7 +111,7 @@ export const ReportRankList: React.FC<{
           <div key={item.id} className="report-rank-item" onClick={item.onClick} style={item.onClick ? { cursor: 'pointer' } : undefined}>
             <div className="report-rank-item__top">
               <span className="report-rank-item__name">
-                {item.icon} {item.label}
+                {typeof item.icon === 'string' ? renderCategoryIcon(item.icon, { size: 16 }) : item.icon} {item.label}
                 {item.tag && (
                   <span className="report-rank-item__tag" style={{ color: colorVar }}>
                     {item.tag}

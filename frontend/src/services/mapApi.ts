@@ -32,6 +32,7 @@ export const fetchMerchantSummary = (filters: MapFilters): Promise<MerchantSumma
   if (filters.startDate) params.append('startDate', filters.startDate);
   if (filters.endDate) params.append('endDate', filters.endDate);
   if (filters.type) params.append('type', filters.type);
+  if (filters.categories?.length) params.append('categories', filters.categories.join(','));
   if (filters.memberIds?.length) params.append('memberIds', filters.memberIds.join(','));
 
   return request<MerchantSummary[]>(`/map/merchants?${params}`, { requiresAuth: true });

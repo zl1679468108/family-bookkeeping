@@ -2,54 +2,81 @@ import React, { useState, useMemo, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { MapCanvas } from './components/MapCanvas';
 import type { MapCanvasHandle } from './components/MapCanvas';
-import { MerchantList } from './components/MerchantList';
-import { MemberLocationToggle } from './components/MemberLocationToggle';
+import { MerchantDrawer } from './components/MerchantDrawer';
 import { MemberLocationLayer } from './components/MemberLocationLayer';
 import { DropdownSelect } from '../../components/ui/Dropdown';
 import type { DropdownOption } from '../../components/ui/Dropdown';
-import { fetchMapTransactions, fetchMerchantSummary } from '../../services/mapApi';
+import { Drawer } from '../../components/ui/Drawer';
 import { useCategories } from '../../hooks/useCategories';
-import { useLocationSharing } from '../../hooks/useLocationSharing';
 import { useMemberColors } from '../../hooks/useMemberColors';
+import { useMonthRangeOptions } from '../../hooks/useMonthRangeOptions';
 import { useBook } from '../../hooks/useBook';
-import type { MapFilters } from '../../types/map';
-import { startOfMonth, endOfMonth, subMonths, format } from 'date-fns';
+import { renderCategoryIcon } from '../../utils/renderCategoryIcon';
+import { fetchMapTransactions, fetchMerchantSummary } from '../../services/mapApi';
+import type { MapFilters, MerchantSummary } from '../../types/map';
+import { format, startOfMonth, endOfMonth } from 'date-fns';
 import './index.scss';
 
-type ViewMode = 'footprints' | 'heatmap' | 'list';
+type ViewMode = 'footprints' | 'heatmap';
 
 const MapPage: React.FC = () => {
-  const today = new Date();
-
   // ---- 账本与成员 ----
   const { currentBook } = useBook();
   const bookId = currentBook?.id;
   const { members, colorMap, isMultiMember } = useMemberColors(bookId);
 
-  // ---- 位置共享 ----
-  const { isSharing, setIsSharing, locationError } = useLocationSharing(bookId);
+
 
   // ---- 地图实例引用 ----
   const mapCanvasRef = useRef<MapCanvasHandle>(null);
-  const [mapInstance, setMapInstance] = useState<any>(null);
 
   // ---- 筛选状态 ----
-  const [filters, setFilters] = useState<MapFilters>({
-    startDate: format(startOfMonth(today), 'yyyy-MM-dd'),
-    endDate: format(today, 'yyyy-MM-dd'),
-  });
-  const [viewMode, setViewMode] = useState<ViewMode>('footprints');
-  const [selectedMemberId, setSelectedMemberId] = useState<string | null>(null);
+  // 年月选择器（复用预算模块的 hook）
+  const { monthOptions, currentMonthKey } = useMonthRangeOptions();
+  const [selectedMonth, setSelectedMonth] = useState<string>(currentMonthKey);
 
-  // 成员 ID 计算
+  // 类型筛选
+  const [selectedType, setSelectedType] = useState<'income' | 'expense' | ''>('');
+
+  // 分类筛选
+  const { data: allCategories = [] }: any = useCategories();
+
+  const [selectedCategory, setSelectedCategory] = useState<string>('');
+
+  // 成员筛选
+  const [selectedMemberId, setSelectedMemberId] = useState<string>('');
+
+  // 视图
+  const [viewMode, setViewMode] = useState<ViewMode>('footprints');
+
+  // 商户抽屉开关
+  const [drawerOpen, setDrawerOpen] = useState(false);
+
+  // ---- 根据年月计算起止日期 ----
+  const { startDate, endDate } = useMemo(() => {
+    const date = new Date(selectedMonth);
+    return {
+      startDate: format(startOfMonth(date), 'yyyy-MM-dd'),
+      endDate: format(endOfMonth(date), 'yyyy-MM-dd'),
+    };
+  }, [selectedMonth]);
+
+  // ---- 构建 filters 传给 API ----
+  const filters: MapFilters = useMemo(() => {
+    return {
+      startDate,
+      endDate,
+      type: selectedType || undefined,
+      categories: selectedCategory ? [selectedCategory] : undefined,
+    };
+  }, [startDate, endDate, selectedType, selectedCategory]);
+
+  // 成员 ID
   const memberIds = useMemo(() => {
     if (!isMultiMember) return undefined;
     if (selectedMemberId) return [selectedMemberId];
     return members.map((m) => m.userId);
   }, [isMultiMember, selectedMemberId, members]);
-
-  // 分类筛选数据
-  const { data: allCategories = [] }: any = useCategories();
 
   // ---- 查询参数 ----
   const transactionsQueryKey = useMemo(
@@ -78,7 +105,7 @@ const MapPage: React.FC = () => {
     [filters.startDate, filters.endDate, filters.type, filters.categories, memberIds],
   );
 
-  // 获取交易数据（热力图需要原始交易数据
+  // 获取交易数据（热力图需要原始交易数据）
   const { data: transactions = [], isLoading: isTxLoading } = useQuery({
     queryKey: transactionsQueryKey,
     queryFn: () => fetchMapTransactions({ ...filters, memberIds }),
@@ -90,99 +117,33 @@ const MapPage: React.FC = () => {
     queryFn: () => fetchMerchantSummary({ ...filters, memberIds }),
   });
 
-  // 合并加载状态：任一查询在途即视为加载中
+  // 合并加载状态
   const mapLoading = isTxLoading || isMerchantLoading;
 
-  // ---- 日期范围下拉：全部 / 本月 / 近 6 月 / 近 1 年 ----
-  const dateRangeOptions: DropdownOption[] = [
-    { key: 'all', label: '全部', icon: '📅' },
-    { key: 'this-month', label: '本月', icon: '📅' },
-    { key: 'last-6', label: '近 6 月', icon: '📅' },
-    { key: 'last-1', label: '近 1 年', icon: '📅' },
-  ];
+  // ---- 下拉选项 ----
 
-  const activeDateKey = useMemo(() => {
-    const presets: Record<string, { start: string; end: string }> = {
-      'this-month': {
-        start: format(startOfMonth(today), 'yyyy-MM-dd'),
-        end: format(endOfMonth(today), 'yyyy-MM-dd'),
-      },
-      'last-6': {
-        start: format(startOfMonth(subMonths(today, 5)), 'yyyy-MM-dd'),
-        end: format(endOfMonth(today), 'yyyy-MM-dd'),
-      },
-      'last-1': {
-        start: format(startOfMonth(subMonths(today, 11)), 'yyyy-MM-dd'),
-        end: format(endOfMonth(today), 'yyyy-MM-dd'),
-      },
-    };
-    if (!filters.startDate && !filters.endDate) return 'all';
-    for (const [k, r] of Object.entries(presets)) {
-      if (r.start === filters.startDate && r.end === filters.endDate) return k;
-    }
-    return 'this-month';
-  }, [filters.startDate, filters.endDate, today]);
-
-  const handleDateSelect = (key: string) => {
-    if (key === 'all') {
-      setFilters((prev) => ({ ...prev, startDate: undefined, endDate: undefined }));
-      return;
-    }
-    let start: Date;
-    let end: Date;
-    switch (key) {
-      case 'this-month':
-        start = startOfMonth(today); end = endOfMonth(today); break;
-      case 'last-6':
-        start = startOfMonth(subMonths(today, 5)); end = endOfMonth(today); break;
-      case 'last-1':
-        start = startOfMonth(subMonths(today, 11)); end = endOfMonth(today); break;
-      default:
-        return;
-    }
-    setFilters((prev) => ({
-      ...prev,
-      startDate: format(start, 'yyyy-MM-dd'),
-      endDate: format(end, 'yyyy-MM-dd'),
-    }));
-  };
-
-  // ---- 类型筛选 ----
+  // 类型选项
   const typeOptions: DropdownOption[] = [
     { key: 'expense', label: '支出', icon: '📤' },
     { key: 'income', label: '收入', icon: '📥' },
   ];
-  const activeTypeKey = filters.type ?? null;
-  const handleTypeSelect = (key: string) => {
-    const type = (key === 'expense' || key === 'income') ? key : undefined;
-    setFilters((prev) => ({ ...prev, type, categories: undefined }));
-  };
 
-  // ---- 分类筛选下拉 ----
+  // 分类选项：使用 renderCategoryIcon 渲染自定义分类图标
   const categoryOptions: DropdownOption[] = useMemo(() => {
-    const filtered = filters.type
-      ? allCategories.filter((c: any) => c.type === filters.type)
+    const filtered = selectedType
+      ? allCategories.filter((c: any) => c.type === selectedType)
       : allCategories;
     return filtered
       .slice()
       .sort((a: any, b: any) => (a.sort_order ?? 0) - (b.sort_order ?? 0))
-      .map((c: any) => ({ key: c.id, label: c.name, icon: c.icon || '' }));
-  }, [allCategories, filters.type]);
+      .map((c: any) => ({
+        key: c.id,
+        label: c.name,
+        icon: renderCategoryIcon(c.icon, { size: 16 }) as React.ReactNode,
+      }));
+  }, [allCategories, selectedType]);
 
-  // 当前分类下拉选中 key
-  const selectedCategoryKey = useMemo(
-    () => (filters.categories && filters.categories.length > 0 ? filters.categories[0] : null),
-    [filters.categories],
-  );
-
-  const handleCategorySelect = (key: string) => {
-    setFilters((prev) => ({
-      ...prev,
-      categories: key ? [key] : undefined,
-    }));
-  };
-
-  // ---- 成员筛选 ----
+  // 成员选项
   const memberOptions: DropdownOption[] = useMemo(() => {
     return members.map((m) => ({
       key: m.userId,
@@ -191,16 +152,56 @@ const MapPage: React.FC = () => {
     }));
   }, [members, colorMap]);
 
-  // ---- 视图切换 ----
+  // 视图选项
   const viewOptions: DropdownOption[] = [
     { key: 'footprints', label: '足迹', icon: '👣' },
     { key: 'heatmap', label: '热力图', icon: '🔥' },
-    { key: 'list', label: '列表', icon: '📋' },
   ];
-  const handleViewSelect = (key: string) => {
-    if (key === 'heatmap' && transactions.length < 5) return;
-    if (key === 'footprints' || key === 'heatmap' || key === 'list') {
-      setViewMode(key);
+
+  // ---- 汇总统计 ----
+  const totalAmount = useMemo(
+    () => merchants.reduce((sum: number, m: MerchantSummary) => sum + m.total_amount, 0),
+    [merchants],
+  );
+
+  // ---- 点击单个商户 → 地图定位 ----
+  const handleLocateMerchant = (merchant: MerchantSummary) => {
+    const handle = mapCanvasRef.current;
+    if (!handle) return;
+    if (merchant.longitude != null && merchant.latitude != null) {
+      handle.setCenter(merchant.longitude, merchant.latitude);
+    } else {
+      // 兜底：尝试从 transactions 中找到对应商户的坐标
+      const tx = (transactions as any[]).find((t) => t.location_name === merchant.location_name);
+      if (tx?.longitude != null && tx?.latitude != null) {
+        handle.setCenter(tx.longitude, tx.latitude);
+      }
+    }
+  };
+
+  // ---- 多选商户 → 地图视野框住 ----
+  const handleMultiSelect = (selected: MerchantSummary[]) => {
+    const handle = mapCanvasRef.current;
+    if (!handle) return;
+    const validPoints: [number, number][] = [];
+    selected.forEach((m) => {
+      if (m.longitude != null && m.latitude != null) {
+        validPoints.push([m.longitude, m.latitude]);
+      }
+    });
+    // 兜底：如果商户对象没有经纬度，尝试从 transactions 中查
+    if (validPoints.length === 0 && selected.length > 0) {
+      selected.forEach((m) => {
+        const tx = (transactions as any[]).find((t) => t.location_name === m.location_name);
+        if (tx?.longitude != null && tx?.latitude != null) {
+          validPoints.push([tx.longitude, tx.latitude]);
+        }
+      });
+    }
+    if (validPoints.length >= 2) {
+      handle.setBounds(validPoints);
+    } else if (validPoints.length === 1) {
+      handle.setCenter(validPoints[0][0], validPoints[0][1]);
     }
   };
 
@@ -214,19 +215,14 @@ const MapPage: React.FC = () => {
             label="视图"
             options={viewOptions}
             value={viewMode}
-            onChange={handleViewSelect}
+            onChange={(key) => {
+              if (key === 'footprints' || key === 'heatmap') {
+                setViewMode(key);
+              }
+            }}
             placeholder="视图"
             allowClear={false}
           />
-
-          {/* 位置共享按钮 */}
-          {isMultiMember && (
-            <MemberLocationToggle
-              isSharing={isSharing}
-              onToggle={() => setIsSharing(!isSharing)}
-              locationError={locationError}
-            />
-          )}
 
           {/* 成员筛选 */}
           {isMultiMember && (
@@ -234,82 +230,106 @@ const MapPage: React.FC = () => {
               label="成员"
               options={memberOptions}
               value={selectedMemberId}
-              onChange={(key) => setSelectedMemberId(key || null)}
+              onChange={(key) => setSelectedMemberId(key)}
               placeholder="全部成员"
             />
           )}
 
-          {/* 日期 */}
+          {/* 年月选择器（与预算模块一致） */}
           <DropdownSelect
-            label="日期"
-            options={dateRangeOptions}
-            value={activeDateKey}
-            onChange={handleDateSelect}
-            placeholder="全部"
+            label="月份"
+            options={monthOptions.map((o) => ({ key: o.key, label: o.label, icon: '📅' as any }))}
+            value={selectedMonth}
+            onChange={(key) => key && setSelectedMonth(key)}
+            placeholder="选择月份"
             allowClear={false}
+            showSearch
+            searchPlaceholder="搜索月份..."
           />
 
           {/* 类型 */}
           <DropdownSelect
             label="类型"
             options={typeOptions}
-            value={activeTypeKey}
-            onChange={handleTypeSelect}
+            value={selectedType}
+            onChange={(key) => {
+              setSelectedType(key as '' | 'income' | 'expense');
+              setSelectedCategory(''); // 类型切换时清空分类
+            }}
             placeholder="全部"
           />
 
-          {/* 分类 */}
+          {/* 分类（使用 renderCategoryIcon 渲染自定义图标） */}
           <DropdownSelect
             label="分类"
             options={categoryOptions}
-            value={selectedCategoryKey}
-            onChange={handleCategorySelect}
+            value={selectedCategory}
+            onChange={(key) => setSelectedCategory(key)}
             placeholder="全部分类"
           />
 
           <div className="map-toolbar-spacer" />
 
+          {/* 右侧统计 chips */}
           <div className="map-stats-inline">
+            <button
+              type="button"
+              className="map-stat-chip map-stat-chip--clickable"
+              onClick={() => setDrawerOpen(true)}
+              title="点击查看商户列表"
+            >
+              📌 <strong>{merchants.length}</strong> 个商户
+            </button>
             <span className="map-stat-chip">
-              📌 <strong>{viewMode === 'heatmap' ? transactions.length : merchants.length}</strong> 个{viewMode === 'heatmap' ? '消费点' : '商户'}
-            </span>
-            <span className="map-stat-chip">
-              💰 <strong>¥ {(viewMode === 'heatmap'
-                ? transactions.reduce((sum, t) => sum + Number(t.amount), 0)
-                : merchants.reduce((sum, m) => sum + m.total_amount, 0)
-              ).toLocaleString('zh-CN', { minimumFractionDigits: 2 })}</strong>
+              💰{' '}
+              <strong>
+                ¥{totalAmount.toLocaleString('zh-CN', { minimumFractionDigits: 2 })}
+              </strong>
             </span>
           </div>
         </div>
       </div>
 
-      {/* ==== 主体内容 — 地图 / 列表 ==== */}
+      {/* ==== 主体内容：地图 ==== */}
       <div className="map-content">
-        <div className={`map-panel ${viewMode === 'footprints' || viewMode === 'heatmap' ? 'active' : ''}`}>
+        <div className="map-panel active">
           <MapCanvas
             ref={mapCanvasRef}
             data={transactions}
             merchants={merchants}
-            viewMode={viewMode === 'list' ? 'footprints' : viewMode}
+            viewMode={viewMode}
             members={members}
             colorMap={colorMap}
-            selectedMemberId={selectedMemberId}
-            onMapReady={setMapInstance}
+            selectedMemberId={selectedMemberId || null}
           />
-          <MemberLocationLayer bookId={bookId} mapInstance={mapInstance} />
-          {/* 加载进度条：仅在地图视图下显示 */}
-          {(viewMode === 'footprints' || viewMode === 'heatmap') && mapLoading && (
+          <MemberLocationLayer bookId={bookId} mapInstance={mapCanvasRef.current?.getMap?.() || null} />
+          {/* 加载进度条 */}
+          {mapLoading && (
             <div className="map-loading-overlay" role="status" aria-label="加载中">
               <div className="map-loading-spinner" />
               <div className="map-loading-text">正在加载数据…</div>
-              <div className="map-loading-bar"><div className="map-loading-bar-inner" /></div>
+              <div className="map-loading-bar">
+                <div className="map-loading-bar-inner" />
+              </div>
             </div>
           )}
         </div>
-        <div className={`map-panel ${viewMode === 'list' ? 'active' : ''}`}>
-          <MerchantList merchants={merchants} loading={mapLoading} />
-        </div>
       </div>
+
+      {/* ==== 右侧商户抽屉 ==== */}
+      <Drawer
+        open={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+        title="商户足迹"
+        width={440}
+      >
+        <MerchantDrawer
+          merchants={merchants}
+          loading={mapLoading}
+          onLocateMerchant={handleLocateMerchant}
+          onMultiSelect={handleMultiSelect}
+        />
+      </Drawer>
     </div>
   );
 };

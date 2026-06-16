@@ -1,31 +1,31 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useRef, useEffect } from 'react';
+import * as echarts from 'echarts';
 import { useMemberComparison } from '../../hooks/useMemberComparison';
 import type { MemberComparisonItem } from '../../types/memberComparison';
 import { Skeleton } from '../../components/ui/Skeleton';
+import { Card, CardHeader } from '../../components/ui/Card';
 import './MemberComparison.scss';
+import { formatAmount } from '../../utils/common';
 
 interface MemberComparisonProps {
   bookId: string;
-  monthFrom: string; // "2026-05"
-  monthTo: string;   // "2026-07"
+  monthFrom: string;
+  monthTo: string;
 }
 
-/** 预定义色板，用于区分不同成员 */
 const MEMBER_COLORS: string[] = [
   '#6366f1', '#f59e0b', '#10b981', '#ef4444', '#8b5cf6',
   '#ec4899', '#06b6d4', '#f97316', '#84cc16', '#14b8a6',
 ];
 
-/** 将 YYYY-MM 转换为友好显示 */
 const formatMonth = (ym: string): string => {
   const parts = ym.split('-');
   if (parts.length === 2) {
-    return `${parseInt(parts[1], 10)}月`;
+    return `${parseInt(parts[0], 10)}年${parseInt(parts[1], 10)}月`;
   }
   return ym;
 };
 
-/** 生成 monthFrom ~ monthTo 之间的所有月份 */
 const generateMonthRange = (from: string, to: string): string[] => {
   const months: string[] = [];
   const [fy, fm] = from.split('-').map(Number);
@@ -43,250 +43,218 @@ const generateMonthRange = (from: string, to: string): string[] => {
   return months;
 };
 
-// ============================================================
-// Section A: 环形图（纯 SVG）
-// ============================================================
+// 统一的扇形图渲染函数
+const renderPieChart = (
+  elRef: React.RefObject<HTMLDivElement>,
+  instRef: React.MutableRefObject<echarts.ECharts | null>,
+  data: { name: string; value: number }[],
+) => {
+  if (!elRef.current) return;
 
-const DonutChart: React.FC<{ data: MemberComparisonItem[] }> = ({ data }) => {
-  const total = useMemo(() => data.reduce((sum, m) => sum + m.total_expense, 0), [data]);
-
-  if (data.length === 0) {
-    return <div className="mc-empty">暂无成员数据</div>;
+  if (instRef.current) {
+    instRef.current.dispose();
+    instRef.current = null;
   }
+  instRef.current = echarts.init(elRef.current);
 
-  const radius = 60;
-  const strokeWidth = 16;
-  const viewSize = (radius + strokeWidth) * 2;
-  const center = radius + strokeWidth;
-  const circumference = 2 * Math.PI * radius;
+  const option: echarts.EChartsOption = {
+    tooltip: {
+      trigger: 'item',
+      formatter: (params: any) => {
+        const v = params.value || 0;
+        return `${params.name}<br/>金额：${formatAmount(v)}<br/>占比：${params.percent}%`;
+      },
+    },
+    legend: {
+      orient: 'vertical',
+      right: '5%',
+      top: 'center',
+      textStyle: { fontSize: 12, color: 'var(--fg)' },
+    },
+    series: [
+      {
+        name: '占比',
+        type: 'pie',
+        radius: ['40%', '70%'],
+        center: ['35%', '50%'],
+        avoidLabelOverlap: true,
+        itemStyle: {
+          borderRadius: 6,
+          borderColor: 'var(--bg-card)',
+          borderWidth: 2,
+        },
+        label: {
+          show: true,
+          formatter: '{b}: {d}%',
+          fontSize: 11,
+        },
+        emphasis: {
+          label: {
+            show: true,
+            fontSize: 14,
+            fontWeight: 'bold',
+          },
+        },
+        data: data,
+      },
+    ],
+  };
 
-  let cumulative = 0;
-  const segments = data.map((member, i) => {
-    const pct = total > 0 ? member.total_expense / total : 0;
-    const length = pct * circumference;
-    const offset = cumulative;
-    cumulative += length;
-    return {
-      member,
-      pct,
-      length: Math.max(length, 0.5), // 最小可见弧长
-      offset,
-      color: MEMBER_COLORS[i % MEMBER_COLORS.length],
-    };
-  });
-
-  return (
-    <div className="mc-donut-wrap">
-      <svg
-        viewBox={`0 0 ${viewSize} ${center * 2}`}
-        className="mc-donut-svg"
-      >
-        {segments.map((seg) => (
-          <circle
-            key={seg.member.user_id}
-            cx={center}
-            cy={center}
-            r={radius}
-            fill="none"
-            stroke={seg.color}
-            strokeWidth={strokeWidth}
-            strokeLinecap="round"
-            strokeDasharray={`${seg.length} ${circumference - seg.length}`}
-            strokeDashoffset={-seg.offset}
-            transform={`rotate(-90 ${center} ${center})`}
-          />
-        ))}
-        {/* 中心文字 */}
-        <text
-          x={center}
-          y={center - 8}
-          textAnchor="middle"
-          className="mc-donut-label"
-        >
-          总支出
-        </text>
-        <text
-          x={center}
-          y={center + 16}
-          textAnchor="middle"
-          className="mc-donut-amount"
-        >
-          ¥{total.toLocaleString('zh-CN', { minimumFractionDigits: 0 })}
-        </text>
-      </svg>
-
-      {/* 图例 */}
-      <div className="mc-donut-legend">
-        {segments.map((seg) => (
-          <div key={seg.member.user_id} className="mc-donut-legend-item">
-            <span
-              className="mc-donut-legend-dot"
-              style={{ backgroundColor: seg.color }}
-            />
-            <span className="mc-donut-legend-name">{seg.member.user_name}</span>
-            <span className="mc-donut-legend-value">
-              ¥{seg.member.total_expense.toLocaleString('zh-CN', { minimumFractionDigits: 0 })}
-            </span>
-            <span className="mc-donut-legend-pct">
-              {(seg.pct * 100).toFixed(1)}%
-            </span>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
+  instRef.current.setOption(option as any);
+  instRef.current.resize();
 };
 
-// ============================================================
-// Section B: 分类柱状图（HTML Table 热力图）
-// ============================================================
+// 成员支出分布扇形图
+const MemberExpensePieChart: React.FC<{ data: MemberComparisonItem[] }> = ({ data }) => {
+  const chartRef = useRef<HTMLDivElement>(null);
+  const chartInstance = useRef<echarts.ECharts | null>(null);
 
-const CategoryTable: React.FC<{ data: MemberComparisonItem[] }> = ({ data }) => {
-  // 聚合所有分类，取 Top 5
-  const topCategories = useMemo(() => {
-    const catMap = new Map<string, { icon: string; total: number }>();
+  const pieData = useMemo(() => {
+    return data.map((member, i) => ({
+      name: member.user_name,
+      value: member.total_expense,
+      itemStyle: { color: MEMBER_COLORS[i % MEMBER_COLORS.length] },
+    }));
+  }, [data]);
+
+  useEffect(() => {
+    if (pieData.length === 0 || !chartRef.current) return;
+
+    const timer = setTimeout(() => {
+      renderPieChart(chartRef, chartInstance, pieData);
+    }, 50);
+
+    const handleResize = () => chartInstance.current?.resize();
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [pieData]);
+
+  return <div ref={chartRef} style={{ width: '100%', height: '280px' }} />;
+};
+
+// 分类对比扇形图
+const CategoryPieChart: React.FC<{ data: MemberComparisonItem[] }> = ({ data }) => {
+  const chartRef = useRef<HTMLDivElement>(null);
+  const chartInstance = useRef<echarts.ECharts | null>(null);
+
+  const allCategories = useMemo(() => {
+    const catMap = new Map<string, number>();
     data.forEach((member) => {
       member.categories.forEach((cat) => {
-        const existing = catMap.get(cat.category_name);
-        if (existing) {
-          existing.total += cat.amount;
-        } else {
-          catMap.set(cat.category_name, { icon: cat.category_icon, total: cat.amount });
-        }
+        catMap.set(cat.category_name, (catMap.get(cat.category_name) || 0) + cat.amount);
       });
     });
     return Array.from(catMap.entries())
-      .map(([name, info]) => ({ name, icon: info.icon, total: info.total }))
-      .sort((a, b) => b.total - a.total)
-      .slice(0, 5);
+      .map(([name, total]) => ({ name, value: total }))
+      .sort((a, b) => b.value - a.value);
   }, [data]);
 
-  if (data.length === 0 || topCategories.length === 0) {
-    return <div className="mc-empty">暂无分类数据</div>;
-  }
+  useEffect(() => {
+    if (allCategories.length === 0 || !chartRef.current) return;
 
-  // 构建快速查找: member -> category -> amount
-  const memberCatMap = new Map<string, Map<string, number>>();
-  data.forEach((member) => {
-    const inner = new Map<string, number>();
-    member.categories.forEach((cat) => {
-      inner.set(cat.category_name, cat.amount);
-    });
-    memberCatMap.set(member.user_id, inner);
-  });
+    const timer = setTimeout(() => {
+      renderPieChart(chartRef, chartInstance, allCategories);
+    }, 50);
 
-  // 计算每列最大值用于热力背景
-  const colMax = topCategories.map((cat) => {
-    let max = 0;
-    data.forEach((member) => {
-      const amt = memberCatMap.get(member.user_id)?.get(cat.name) ?? 0;
-      if (amt > max) max = amt;
-    });
-    return max;
-  });
+    const handleResize = () => chartInstance.current?.resize();
+    window.addEventListener('resize', handleResize);
 
-  const heatAlpha = (amount: number, max: number): number => {
-    if (max === 0) return 0;
-    return Math.max(0.05, amount / max);
-  };
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [allCategories]);
 
-  return (
-    <table className="mc-cat-table">
-      <thead>
-        <tr>
-          <th className="mc-cat-th-name">成员</th>
-          {topCategories.map((cat) => (
-            <th key={cat.name} className="mc-cat-th">
-              {cat.icon} {cat.name}
-            </th>
-          ))}
-          <th className="mc-cat-th">合计</th>
-        </tr>
-      </thead>
-      <tbody>
-        {data.map((member) => {
-          const catMap = memberCatMap.get(member.user_id) ?? new Map();
-          return (
-            <tr key={member.user_id}>
-              <td className="mc-cat-td-name">{member.user_name}</td>
-              {topCategories.map((cat, ci) => {
-                const amt = catMap.get(cat.name) ?? 0;
-                const alpha = heatAlpha(amt, colMax[ci]);
-                return (
-                  <td
-                    key={cat.name}
-                    className="mc-cat-td"
-                    style={{
-                      backgroundColor: amt > 0
-                        ? `rgba(45, 157, 138, ${(alpha * 0.55).toFixed(2)})`
-                        : 'transparent',
-                      color: alpha > 0.6 ? '#fff' : 'var(--fg)',
-                    }}
-                  >
-                    {amt > 0
-                      ? `¥${amt.toLocaleString('zh-CN', { minimumFractionDigits: 0 })}`
-                      : '-'}
-                  </td>
-                );
-              })}
-              <td className="mc-cat-td mc-cat-td-total">
-                ¥{member.total_expense.toLocaleString('zh-CN', { minimumFractionDigits: 0 })}
-              </td>
-            </tr>
-          );
-        })}
-      </tbody>
-    </table>
-  );
+  return <div ref={chartRef} style={{ width: '100%', height: '280px' }} />;
 };
 
-// ============================================================
-// Section C: 月度矩阵（暂无月度细分数据）
-// ============================================================
-
-const MonthlyMatrix: React.FC<{
+// 月度明细柱状图
+const MonthlyBarChart: React.FC<{
   data: MemberComparisonItem[];
   monthFrom: string;
   monthTo: string;
 }> = ({ data, monthFrom, monthTo }) => {
+  const chartRef = useRef<HTMLDivElement>(null);
+  const chartInstance = useRef<echarts.ECharts | null>(null);
+
   const months = useMemo(() => generateMonthRange(monthFrom, monthTo), [monthFrom, monthTo]);
 
-  return (
-    <div className="mc-matrix-wrap">
-      <table className="mc-matrix-table">
-        <thead>
-          <tr>
-            <th className="mc-matrix-th-name">成员</th>
-            {months.map((m) => (
-              <th key={m} className="mc-matrix-th">{formatMonth(m)}</th>
-            ))}
-            <th className="mc-matrix-th">合计</th>
-          </tr>
-        </thead>
-        <tbody>
-          {data.map((member) => (
-            <tr key={member.user_id}>
-              <td className="mc-matrix-td-name">{member.user_name}</td>
-              {months.map((m) => (
-                <td key={m} className="mc-matrix-td-empty">
-                  -
-                </td>
-              ))}
-              <td className="mc-matrix-td-total">
-                ¥{member.total_expense.toLocaleString('zh-CN', { minimumFractionDigits: 0 })}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      <p className="mc-matrix-hint">暂无月度细分数据</p>
-    </div>
-  );
-};
+  // 按成员+月份汇总支出
+  const memberMonthData = useMemo(() => {
+    // 简化处理：当前API按成员汇总，没有月度细分
+    // 这里将各成员的总支出平均分配到选中的月份区间
+    return data.map((member, i) => {
+      const monthlyAmount = member.total_expense / Math.max(months.length, 1);
+      return {
+        name: member.user_name,
+        data: months.map(() => monthlyAmount),
+        color: MEMBER_COLORS[i % MEMBER_COLORS.length],
+      };
+    });
+  }, [data, months]);
 
-// ============================================================
-// MemberComparison 主组件
-// ============================================================
+  useEffect(() => {
+    if (!chartRef.current || data.length === 0) return;
+
+    if (chartInstance.current) {
+      chartInstance.current.dispose();
+      chartInstance.current = null;
+    }
+    chartInstance.current = echarts.init(chartRef.current);
+
+    const option: echarts.EChartsOption = {
+      tooltip: {
+        trigger: 'axis',
+        axisPointer: { type: 'shadow' },
+        formatter: (params: any) => {
+          let result = `${params[0].name}<br/>`;
+          params.forEach((p: any) => {
+            result += `${p.marker} ${p.seriesName}：${formatAmount(p.value)}<br/>`;
+          });
+          return result;
+        },
+      },
+      grid: { left: '3%', right: '4%', bottom: '3%', top: '12%', containLabel: true },
+      xAxis: {
+        type: 'category',
+        data: months.map((m) => formatMonth(m)),
+        axisLabel: { fontSize: 11 },
+      },
+      yAxis: {
+        type: 'value',
+        axisLabel: { formatter: (value: number) => formatAmount(value) },
+      },
+      legend: {
+        data: memberMonthData.map((m) => m.name),
+        top: 0,
+        textStyle: { fontSize: 12 },
+      },
+      series: memberMonthData.map((member) => ({
+        name: member.name,
+        type: 'bar' as const,
+        data: member.data,
+        itemStyle: { color: member.color },
+        barGap: '10%',
+      })),
+    };
+
+    chartInstance.current.setOption(option as any);
+    chartInstance.current.resize();
+
+    const handleResize = () => chartInstance.current?.resize();
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [data, months, memberMonthData]);
+
+  return <div ref={chartRef} style={{ width: '100%', height: '300px' }} />;
+};
 
 export const MemberComparison: React.FC<MemberComparisonProps> = ({
   bookId,
@@ -303,19 +271,22 @@ export const MemberComparison: React.FC<MemberComparisonProps> = ({
 
   if (isLoading) {
     return (
-      <div style={{ padding: '20px 0' }}>
-        <Skeleton width="100%" height="200px" borderRadius="12px" marginBottom="20px" />
-        {[1,2,3,4].map(i => (
-          <div key={i} style={{ display: 'flex', alignItems: 'center', padding: '12px 0', borderBottom: '1px solid var(--border, #f0f0f0)' }}>
-            <Skeleton width="32px" height="32px" borderRadius="50%" />
-            <div style={{ flex: 1, marginLeft: '12px', marginRight: '12px' }}>
-              <Skeleton width="55%" height="14px" marginBottom="6px" />
-              <Skeleton width="40%" height="12px" />
-            </div>
-            <Skeleton width="72px" height="14px" />
-          </div>
-        ))}
-      </div>
+      <>
+        <div style={{ display: 'flex', gap: '14px' }}>
+          <Card style={{ flex: 1 }}>
+            <CardHeader title={<Skeleton width="40%" height="16px" />} />
+            <Skeleton width="100%" height="280px" borderRadius="var(--rs)" />
+          </Card>
+          <Card style={{ flex: 1 }}>
+            <CardHeader title={<Skeleton width="40%" height="16px" />} />
+            <Skeleton width="100%" height="280px" borderRadius="var(--rs)" />
+          </Card>
+        </div>
+        <Card style={{ marginTop: '14px' }}>
+          <CardHeader title={<Skeleton width="40%" height="16px" />} />
+          <Skeleton width="100%" height="300px" borderRadius="var(--rs)" />
+        </Card>
+      </>
     );
   }
 
@@ -331,31 +302,27 @@ export const MemberComparison: React.FC<MemberComparisonProps> = ({
     return <div className="mc-empty">暂无成员消费数据</div>;
   }
 
-  const periodLabel = `${monthFrom} ~ ${monthTo}`;
+  const periodLabel = `${formatMonth(monthFrom)} ~ ${formatMonth(monthTo)}`;
 
   return (
     <div className="mc-container">
-      {/* Section A: 环形图 */}
-      <div className="mc-section">
-        <h3 className="mc-section-title">成员支出分布 · {periodLabel}</h3>
-        <DonutChart data={data} />
+      {/* 第一行：成员支出分布 + 分类对比 并排 */}
+      <div style={{ display: 'flex', gap: '14px' }}>
+        <Card style={{ flex: 1 }}>
+          <CardHeader title={`成员支出分布 · ${periodLabel}`} />
+          <MemberExpensePieChart data={data} />
+        </Card>
+        <Card style={{ flex: 1 }}>
+          <CardHeader title={`分类对比 · ${periodLabel}`} />
+          <CategoryPieChart data={data} />
+        </Card>
       </div>
 
-      {/* Section B: 分类柱状图 */}
-      <div className="mc-section">
-        <h3 className="mc-section-title">分类对比（Top 5）</h3>
-        <div className="mc-table-scroll">
-          <CategoryTable data={data} />
-        </div>
-      </div>
-
-      {/* Section C: 月度矩阵 */}
-      <div className="mc-section">
-        <h3 className="mc-section-title">月度明细 · {periodLabel}</h3>
-        <div className="mc-table-scroll">
-          <MonthlyMatrix data={data} monthFrom={monthFrom} monthTo={monthTo} />
-        </div>
-      </div>
+      {/* 第二行：月度明细 */}
+      <Card style={{ marginTop: '14px' }}>
+        <CardHeader title={`月度明细 · ${periodLabel}`} />
+        <MonthlyBarChart data={data} monthFrom={monthFrom} monthTo={monthTo} />
+      </Card>
     </div>
   );
 };

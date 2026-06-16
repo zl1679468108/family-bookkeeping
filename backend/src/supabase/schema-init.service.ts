@@ -244,4 +244,15 @@ const CREATE_TABLE_STATEMENTS: string[] = [
   `CREATE INDEX IF NOT EXISTS idx_book_invitations_code     ON book_invitations(code);`,
   `CREATE INDEX IF NOT EXISTS idx_book_invitations_book_id  ON book_invitations(book_id);`,
   `CREATE INDEX IF NOT EXISTS idx_book_invitations_active   ON book_invitations(code, expires_at, used_at);`,
+
+  // 自定义图标表（用户上传的分类/账本图标）
+  `CREATE TABLE IF NOT EXISTS custom_icons (
+    id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id     UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    icon_url    TEXT NOT NULL,
+    icon_type   VARCHAR(20) NOT NULL CHECK (icon_type IN ('category', 'book')),
+    created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
+  );`,
+  `CREATE INDEX IF NOT EXISTS idx_custom_icons_user_id ON custom_icons(user_id);`,
+  `CREATE INDEX IF NOT EXISTS idx_custom_icons_type ON custom_icons(icon_type);`,
 ];

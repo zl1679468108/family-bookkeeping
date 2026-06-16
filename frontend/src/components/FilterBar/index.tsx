@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { useCategories } from '../../hooks/useCategories'
 import { FilterChip } from '../FilterChip'
 import './index.scss'
+import { renderCategoryIcon } from '../../utils/renderCategoryIcon'
 
 interface ActiveChip {
   label: string
@@ -168,7 +169,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
             onClick={() => activeType !== 'expense' && handleCategoryClick(item.id)}
             disabled={activeType === 'expense'}
           >
-            {item.icon} {item.name}
+            {renderCategoryIcon(item.icon, { size: 16 })} {item.name}
           </button>
         ))}
       </div>
@@ -181,7 +182,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
             onClick={() => activeType !== 'income' && handleCategoryClick(item.id)}
             disabled={activeType === 'income'}
           >
-            {item.icon} {item.name}
+            {renderCategoryIcon(item.icon, { size: 16 })} {item.name}
           </button>
         ))}
       </div>

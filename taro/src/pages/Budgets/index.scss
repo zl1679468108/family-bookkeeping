@@ -111,6 +111,15 @@
   border: 1rpx solid #e9ecef;
 }
 
+.bdg-row__icon-img {
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 16rpx;
+  background-color: #f6f7f4;
+  flex-shrink: 0;
+  border: 1rpx solid #e9ecef;
+}
+
 .bdg-row__name {
   flex: 1;
   font-size: 28rpx;

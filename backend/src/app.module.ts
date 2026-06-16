@@ -12,6 +12,7 @@ import { MapModule } from './map/map.module';
 import { TemplatesModule } from './templates/templates.module';
 import { ReportsModule } from './reports/reports.module';
 import { AdminModule } from './admin/admin.module';
+import { IconsModule } from './icons/icons.module';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { AdminModule } from './admin/admin.module';
     TemplatesModule,
     ReportsModule,
     AdminModule,
+    IconsModule,
   ],
 })
 export class AppModule {}

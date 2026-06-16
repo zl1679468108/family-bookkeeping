@@ -12,8 +12,8 @@ export const createBook = async (data: { name: string; description?: string; ico
 };
 
 /** 更新账本 */
-export const updateBook = async (data: { id: string; name: string; description?: string; icon?: string }): Promise<Book> => {
-  return request<Book>(`/books/${data.id}`, { method: 'PUT', requiresAuth: true, body: { name: data.name, description: data.description, icon: data.icon } });
+export const updateBook = async (data: { id: string; name: string; description?: string; icon?: string; icon_id?: string }): Promise<Book> => {
+  return request<Book>(`/books/${data.id}`, { method: 'PUT', requiresAuth: true, body: { name: data.name, description: data.description, icon: data.icon, icon_id: data.icon_id } });
 };
 
 /** 删除账本 */

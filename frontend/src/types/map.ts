@@ -33,6 +33,9 @@ export interface MerchantSummary {
   last_income_date: string | null;
   // P1 新增：成员消费分布
   memberBreakdown?: MemberBreakdown[];
+  // P2 新增：地图定位所需的经纬度
+  latitude?: number;
+  longitude?: number;
 }
 
 /** 地图筛选条件 */

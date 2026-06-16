@@ -3,6 +3,7 @@ import {
   NotFoundException,
   ConflictException,
   ForbiddenException,
+  BadRequestException,
 } from '@nestjs/common';
 import { SupabaseService } from '../supabase/supabase.service';
 
@@ -44,12 +45,28 @@ export class BooksService {
   }
 
   /** 创建账本 */
-  async create(userId: string, name: string, description?: string, icon?: string): Promise<Book> {
+  async create(userId: string, name: string, description?: string, icon?: string, iconId?: string): Promise<Book> {
     const supabase = this.getClient();
+
+    // 处理 icon_id：如果传的是 iconId（自定义图标），需要转换为 URL
+    let iconUrl = icon || 'default';
+    if (iconId) {
+      const { data: customIcon, error: iconError } = await supabase
+        .from('custom_icons')
+        .select('icon_url')
+        .eq('id', iconId)
+        .eq('user_id', userId)
+        .single();
+
+      if (iconError || !customIcon) {
+        throw new BadRequestException('自定义图标不存在或无权访问');
+      }
+      iconUrl = customIcon.icon_url;
+    }
 
     const { data: book, error } = await supabase
       .from('books')
-      .insert({ name, owner_id: userId, description, icon })
+      .insert({ name, owner_id: userId, description, icon: iconUrl })
       .select()
       .single();
 
@@ -141,16 +158,33 @@ export class BooksService {
   }
 
   /** 更新账本 */
-  async update(bookId: string, userId: string, name: string, description?: string, icon?: string): Promise<Book> {
+  async update(bookId: string, userId: string, name: string, description?: string, icon?: string, iconId?: string): Promise<Book> {
     const book = await this.getById(bookId);
     if (book.owner_id !== userId) {
       throw new ForbiddenException('只有账主可以修改账本信息');
     }
 
     const supabase = this.getClient();
+    let iconUrl = icon;
+
+    // 如果传的是 iconId（自定义图标），需要转换为图标 URL
+    if (iconId) {
+      const { data: customIcon, error: iconError } = await supabase
+        .from('custom_icons')
+        .select('icon_url')
+        .eq('id', iconId)
+        .eq('user_id', userId)
+        .single();
+
+      if (iconError || !customIcon) {
+        throw new BadRequestException('自定义图标不存在或无权访问');
+      }
+      iconUrl = customIcon.icon_url;
+    }
+
     const { data, error } = await supabase
       .from('books')
-      .update({ name, description, icon, updated_at: new Date().toISOString() })
+      .update({ name, description, icon: iconUrl, updated_at: new Date().toISOString() })
       .eq('id', bookId)
       .select()
       .single();

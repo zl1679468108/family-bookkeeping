@@ -23,7 +23,7 @@ export const TransactionHistoryModal: React.FC<TransactionHistoryModalProps> = (
     ),
   });
 
-  const { getCategoryName, getCategoryIcon } = useCategoryLookup();
+  const { getCategoryName, getCategoryIconNode } = useCategoryLookup();
 
   const filtered = useMemo(() => {
     if (filterType === 'all') return transactions;
@@ -38,10 +38,10 @@ export const TransactionHistoryModal: React.FC<TransactionHistoryModalProps> = (
             <h3>🏪 {merchant.location_name}</h3>
             <div className="merchant-history-summary">
               {merchant.expense_count > 0 && (
-                <span className="history-tag expense">支出 ¥{merchant.expense_total.toLocaleString('zh-CN', { minimumFractionDigits: 2 })} · {merchant.expense_count}次</span>
+                <span className="history-tag expense">总支出 ¥{merchant.expense_total.toLocaleString('zh-CN', { minimumFractionDigits: 2 })} · {merchant.expense_count}次</span>
               )}
               {merchant.income_count > 0 && (
-                <span className="history-tag income">收入 ¥{merchant.income_total.toLocaleString('zh-CN', { minimumFractionDigits: 2 })} · {merchant.income_count}次</span>
+                <span className="history-tag income">总收入 ¥{merchant.income_total.toLocaleString('zh-CN', { minimumFractionDigits: 2 })} · {merchant.income_count}次</span>
               )}
             </div>
           </div>
@@ -65,7 +65,7 @@ export const TransactionHistoryModal: React.FC<TransactionHistoryModalProps> = (
         <div className="merchant-history-list">
           {isLoading ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', padding: '12px 0' }}>
-              {[1,2,3,4,5].map(i => (
+              {[1, 2, 3, 4, 5].map(i => (
                 <div key={i} style={{ display: 'flex', alignItems: 'center', padding: '10px 12px' }}>
                   <Skeleton width="32px" height="32px" borderRadius="6px" />
                   <div style={{ flex: 1, marginLeft: '12px', marginRight: '12px' }}>
@@ -87,7 +87,7 @@ export const TransactionHistoryModal: React.FC<TransactionHistoryModalProps> = (
                   </span>
                   <div className="history-item-info">
                     <span className="history-item-category">
-                      {getCategoryIcon(tx.category)} {getCategoryName(tx.category)}
+                      {getCategoryIconNode(tx.category, 16)} {getCategoryName(tx.category)}
                     </span>
                     {tx.description && (
                       <span className="history-item-desc">{tx.description}</span>

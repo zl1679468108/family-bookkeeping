@@ -26,7 +26,7 @@ export const TransactionsList: React.FC<TransactionsListProps> = ({
   onToggleSelect,
   onToggleSelectAll,
 }) => {
-  const { getCategoryName, getCategoryIcon } = useCategoryLookup()
+  const { getCategoryName, getCategoryIconNode } = useCategoryLookup()
   const showActions = Boolean(onEdit) || Boolean(onDelete)
   const pageIds = transactions.map(t => t.id)
   const allSelected = selectable && pageIds.length > 0 && pageIds.every(id => selectedIds?.has(id))
@@ -52,7 +52,7 @@ export const TransactionsList: React.FC<TransactionsListProps> = ({
       {transactions.map((item) => {
         const isIncome = item.type === 'income'
         const categoryName = getCategoryName(item.category)
-        const icon = getCategoryIcon(item.category)
+        const icon = getCategoryIconNode(item.category, 16)
         const isSelected = selectable && selectedIds?.has(item.id)
 
         const name = item.description || categoryName

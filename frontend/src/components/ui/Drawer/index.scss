@@ -1,0 +1,112 @@
+/* ═══════════════════════════════════════════
+   通用抽屉组件 · Drawer
+   ═══════════════════════════════════════════ */
+
+.ui-drawer-root {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 1000;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.ui-drawer-root.is-open {
+  pointer-events: auto;
+  opacity: 1;
+}
+
+/* 遮罩层 */
+.ui-drawer-mask {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: rgba(17, 24, 39, 0.45);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+}
+
+/* 抽屉面板 */
+.ui-drawer-panel {
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: 100%;
+  max-width: 90vw;
+  background: var(--srf, #ffffff);
+  box-shadow: -8px 0 24px rgba(0, 0, 0, 0.12);
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.ui-drawer--left .ui-drawer-panel {
+  right: auto;
+  left: 0;
+  box-shadow: 8px 0 24px rgba(0, 0, 0, 0.12);
+  transform: translateX(-100%);
+}
+
+.ui-drawer-root.is-open .ui-drawer-panel {
+  transform: translateX(0);
+}
+
+/* 头部 */
+.ui-drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--bd, #e5e7eb);
+  flex-shrink: 0;
+}
+
+.ui-drawer-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--fg, #1f2937);
+}
+
+.ui-drawer-close {
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  color: var(--fg2, #4b5563);
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.ui-drawer-close:hover {
+  background: var(--bg, #f9fafb);
+  color: var(--fg, #1f2937);
+}
+
+/* 内容区 */
+.ui-drawer-body {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+}
+
+/* 深色模式 */
+[data-theme='dark'] .ui-drawer-mask {
+  background: rgba(0, 0, 0, 0.6);
+}
+
+/* 响应式 */
+@media (max-width: 768px) {
+  .ui-drawer-panel {
+    width: 85vw !important;
+  }
+}

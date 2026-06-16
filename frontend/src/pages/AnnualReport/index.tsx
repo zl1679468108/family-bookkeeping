@@ -5,6 +5,7 @@ import { useAuth } from '../../utils/auth';
 import { captureLongImage } from '../../utils/exportImage';
 import { notify } from '../../utils/notifications';
 import { Skeleton } from '../../components/ui/Skeleton';
+import { DropdownSelect } from '../../components/ui/Dropdown';
 import ReportCover from './ReportCover';
 import ReportOverview from './ReportOverview';
 import ReportMonthlyTrend from './ReportMonthlyTrend';
@@ -26,11 +27,11 @@ const AnnualReport: React.FC = () => {
   const bookId = currentBook?.id;
   const { data, isLoading, error } = useAnnualReport(year, bookId);
 
-  // 生成年份选项（近 5 年）
+  // 生成年份选项（前后各 5 年）
   const yearOptions = useMemo(() => {
-    const options: number[] = [];
-    for (let y = CURRENT_YEAR; y >= CURRENT_YEAR - 4; y--) {
-      options.push(y);
+    const options: { key: string; label: string }[] = [];
+    for (let y = CURRENT_YEAR + 5; y >= CURRENT_YEAR - 5; y--) {
+      options.push({ key: String(y), label: `${y} 年` });
     }
     return options;
   }, []);
@@ -84,31 +85,15 @@ const AnnualReport: React.FC = () => {
         </div>
 
         {/* 年份选择器 */}
-        <select
-          value={year}
-          onChange={(e) => setYear(Number(e.target.value))}
-          style={{
-            padding: '8px 32px 8px 14px',
-            borderRadius: '8px',
-            border: '1px solid var(--border)',
-            background: 'var(--surface)',
-            color: 'var(--fg)',
-            fontSize: '14px',
-            fontWeight: 500,
-            cursor: 'pointer',
-            appearance: 'none',
-            backgroundImage: `url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23999' viewBox='0 0 16 16'><path d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/></svg>")`,
-            backgroundRepeat: 'no-repeat',
-            backgroundPosition: 'right 10px center',
-            backgroundSize: '14px',
-          }}
-        >
-          {yearOptions.map((y) => (
-            <option key={y} value={y}>
-              {y} 年
-            </option>
-          ))}
-        </select>
+        <DropdownSelect
+          options={yearOptions}
+          value={String(year)}
+          onChange={(key) => setYear(Number(key))}
+          allowClear={false}
+          width="auto"
+          showSearch
+          searchPlaceholder="搜索年份..."
+        />
       </div>
 
       {/* Loading 状态 */}

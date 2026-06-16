@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { useNavigate, Link, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../../../utils/auth'
 import { useDebouncedAction } from '../../../hooks/useDebouncedAction'
+import { useOnceEffect } from '../../../hooks/useOnceEffect'
 import AuthLayout from '../../../components/AuthLayout'
 import { LoginIllustration } from '../../../components/AuthLayout/AuthIllustrations'
 import { getCaptcha } from '../../../services/api'
@@ -28,10 +29,10 @@ const LoginPage: React.FC = () => {
     }
   }
 
-  // 页面加载时获取验证码
-  useEffect(() => {
+  // 页面加载时获取验证码（仅执行一次，避免 React 18 严格模式下重复请求）
+  useOnceEffect(() => {
     refreshCaptcha()
-  }, [])
+  })
 
   const { run: handleSubmit, isRunning: loading } = useDebouncedAction(async () => {
     if (!email || !password || !captchaCode) return

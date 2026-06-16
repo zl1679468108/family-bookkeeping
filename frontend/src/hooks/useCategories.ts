@@ -1,17 +1,18 @@
 import { useQuery } from '@tanstack/react-query'
 import { fetchCategories } from '../services/categoriesApi'
 import type { Category } from '../types/category'
+import { renderCategoryIcon } from '../utils/renderCategoryIcon'
 
 /**
  * 全局分类数据 hook
  * 数据来源：后端 /api/categories（用户自定义 + 默认分类）
- * staleTime 5 分钟，减少重复请求
+ * staleTime 30 秒，保持数据新鲜的同时减少重复请求
  */
 export function useCategories(type?: 'expense' | 'income') {
   return useQuery({
     queryKey: ['categories'],
     queryFn: () => fetchCategories(),
-    staleTime: 5 * 60 * 1000,
+    staleTime: 30 * 1000,
     select: (data) => {
       if (type) {
         return data.filter(c => c.type === type);
@@ -44,6 +45,11 @@ export function useCategoryLookup() {
     return lookupMap[categoryId]?.icon || '📌'
   }
 
+  const getCategoryIconNode = (categoryId: string, size: number = 18) => {
+    const icon = lookupMap[categoryId]?.icon
+    return renderCategoryIcon(icon, { size })
+  }
+
   /** 根据分类中文名反查 ID（用于 OCR 等场景） */
   const getCategoryId = (name: string): string | null => {
     return nameToIdMap[name] || null
@@ -55,6 +61,7 @@ export function useCategoryLookup() {
     nameToIdMap,
     getCategoryName,
     getCategoryIcon,
+    getCategoryIconNode,
     getCategoryId,
   }
 }

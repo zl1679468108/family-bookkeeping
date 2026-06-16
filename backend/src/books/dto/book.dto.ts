@@ -12,8 +12,12 @@ export class CreateBookDto {
 
   @IsOptional()
   @IsString()
-  @MaxLength(50)
+  @MaxLength(500)
   icon?: string;
+
+  @IsOptional()
+  @IsString()
+  icon_id?: string;
 }
 
 export class InviteMemberDto {
@@ -34,8 +38,12 @@ export class UpdateBookDto {
 
   @IsOptional()
   @IsString()
-  @MaxLength(50)
+  @MaxLength(500)
   icon?: string;
+
+  @IsOptional()
+  @IsString()
+  icon_id?: string;
 }
 
 export class RenameBookDto {

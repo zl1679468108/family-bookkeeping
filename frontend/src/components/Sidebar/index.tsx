@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../../utils/auth'
 import { ThemeToggle } from '../../utils/theme'
 import { Skeleton } from '../ui/Skeleton'
+import SwitchAccountModal from '../SwitchAccountModal'
 import { useQuery } from '@tanstack/react-query'
 import { fetchBudgetStatus } from '../../services/budgetsApi'
 import { useBook } from '../../hooks/useBook'
@@ -119,6 +120,7 @@ export const Sidebar: React.FC = () => {
   })
   const [collapsed, setCollapsed] = useState(() => localStorage.getItem(COLLAPSED_KEY) === 'true')
   const [menuOpen, setMenuOpen] = useState(false)
+  const [showSwitchModal, setShowSwitchModal] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -311,6 +313,15 @@ export const Sidebar: React.FC = () => {
               </svg>
               个人信息
             </button>
+            <button className="user-menu-item" onClick={() => { setMenuOpen(false); setShowSwitchModal(true) }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                <circle cx="9" cy="7" r="4" />
+                <line x1="19" y1="8" x2="19" y2="14" />
+                <line x1="22" y1="11" x2="16" y2="11" />
+              </svg>
+              切换账号
+            </button>
             <div className="user-menu-divider" />
             <button className="user-menu-item user-menu-item--danger" onClick={handleLogout} disabled={logoutLoading}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
@@ -323,6 +334,12 @@ export const Sidebar: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* 切换账号弹窗 */}
+      <SwitchAccountModal
+        visible={showSwitchModal}
+        onClose={() => setShowSwitchModal(false)}
+      />
     </aside>
   )
 }

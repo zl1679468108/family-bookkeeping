@@ -1,18 +1,33 @@
 /**
  * Profile — 我的
- * 菜单顺序：年报 / 日历 / 地图 / 账本 / 分类 / 模版 / 预算 / 退出登录
+ * 菜单顺序：年报 / 日历 / 地图 / 账本 / 分类 / 模版 / 预算 / 切换账号 / 退出登录
  */
 import { useState } from "react";
-import { View, Text, Image } from "@tarojs/components";
+import { View, Text, Image, Input } from "@tarojs/components";
 import Taro from "@tarojs/taro";
 import { useAuth } from "../../context/AuthContext";
 import PageLayout from "../../components/PageLayout";
 import Icon from "../../components/Icon";
+import {
+  getSavedAccounts,
+  removeAccount,
+  decodePassword,
+  SavedAccount,
+} from "../../utils/savedAccounts";
 import "./index.scss";
 
 export default function Profile() {
-  const { user, signOut } = useAuth();
+  const { user, signOut, signIn, switchByToken } = useAuth();
   const [logoutConfirm, setLogoutConfirm] = useState(false);
+  const [switchModal, setSwitchModal] = useState(false);
+  const [accounts, setAccounts] = useState<SavedAccount[]>([]);
+  const [showLoginForm, setShowLoginForm] = useState(false);
+  const [loginEmail, setLoginEmail] = useState("");
+  const [loginPassword, setLoginPassword] = useState("");
+  const [loginError, setLoginError] = useState("");
+  const [loginLoading, setLoginLoading] = useState(false);
+  const [switchingEmail, setSwitchingEmail] = useState<string | null>(null);
+  const [tokenExpiredEmail, setTokenExpiredEmail] = useState<string | null>(null);
 
   const initial = (user?.username || "U").charAt(0).toUpperCase();
   const hasAvatar = user?.avatar_url && user.avatar_url.startsWith('data:') || user?.avatar_url?.startsWith('http');
@@ -30,26 +45,92 @@ export default function Profile() {
     { icon: "budgets" as const, label: "预算", url: "/pages/Budgets/index" },
   ];
 
-  const renderItem = (
-    icon: string,
-    label: string,
-    onClick: () => void,
-  ) => (
-    <View className="menu-item" onClick={onClick}>
-      <View className="mi-icon-wrap">
-        <Icon name={icon as any} size={44} color="#2D9D8A" />
-      </View>
-      <Text className="mi-text">{label}</Text>
-      <Text className="mi-arrow">›</Text>
-    </View>
-  );
-
   const handleLogout = async () => {
     try {
       await signOut();
       Taro.navigateTo({ url: "/pages/User/Login/index" });
     } catch {
       // ignore
+    }
+  };
+
+  // 打开切换账号弹窗
+  const handleOpenSwitch = () => {
+    setAccounts(getSavedAccounts());
+    setSwitchModal(true);
+    setShowLoginForm(false);
+    setLoginEmail("");
+    setLoginPassword("");
+    setLoginError("");
+    setSwitchingEmail(null);
+    setTokenExpiredEmail(null);
+  };
+
+  // 切换到已有账号：优先用 token，失效则显示密码输入框
+  const handleSwitchAccount = async (account: SavedAccount) => {
+    if (account.email === user?.email) {
+      Taro.showToast({ title: "当前已是该账号", icon: "none" });
+      return;
+    }
+    // 有 token，先尝试 token 登录
+    if (account.token) {
+      setSwitchingEmail(account.email);
+      try {
+        await switchByToken(account.email, account.token);
+        Taro.showToast({ title: "账号切换成功", icon: "success" });
+        setAccounts(getSavedAccounts());
+        setSwitchModal(false);
+        return;
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : '';
+        if (msg === 'token_invalid') {
+          // token 失效，显示密码输入框
+          setTokenExpiredEmail(account.email);
+          setLoginEmail(account.email);
+          setLoginPassword('');
+          setShowLoginForm(true);
+          setSwitchingEmail(null);
+          return;
+        }
+        // 其他错误，继续走密码登录
+      }
+      setSwitchingEmail(null);
+    }
+    // 无 token 或 token 失效，显示密码输入框
+    setTokenExpiredEmail(account.email);
+    setLoginEmail(account.email);
+    setLoginPassword(decodePassword(account.password));
+    setShowLoginForm(true);
+  };
+
+  // 删除已保存账号
+  const handleRemoveAccount = (email: string) => {
+    removeAccount(email);
+    setAccounts(getSavedAccounts());
+  };
+
+  // 使用邮箱密码登录
+  const handleLogin = async () => {
+    if (!loginEmail.trim() || !loginPassword.trim()) {
+      setLoginError("请输入邮箱和密码");
+      return;
+    }
+    setLoginError("");
+    setLoginLoading(true);
+    try {
+      await signIn(loginEmail.trim(), loginPassword);
+      Taro.showToast({ title: "切换成功", icon: "success" });
+      setAccounts(getSavedAccounts());
+      setSwitchModal(false);
+      setShowLoginForm(false);
+      setLoginEmail("");
+      setLoginPassword("");
+      setLoginError("");
+      setTokenExpiredEmail(null);
+    } catch (err) {
+      setLoginError("登录失败，请检查账号密码");
+    } finally {
+      setLoginLoading(false);
     }
   };
 
@@ -112,6 +193,17 @@ export default function Profile() {
         })}
       </View>
 
+      {/* ===== 切换账号 ===== */}
+      <View className="menu-section">
+        <View className="menu-item" onClick={handleOpenSwitch}>
+          <View className="mi-icon-wrap">
+            <Icon name="profile" size={44} color="#2D9D8A" />
+          </View>
+          <Text className="mi-text">切换账号</Text>
+          <Text className="mi-arrow">›</Text>
+        </View>
+      </View>
+
       {/* ===== 退出登录 ===== */}
       <View className="menu-section">
         <View
@@ -143,6 +235,117 @@ export default function Profile() {
                 <Text>退出</Text>
               </View>
             </View>
+          </View>
+        </View>
+      )}
+
+      {/* ===== 切换账号弹窗 ===== */}
+      {switchModal && (
+        <View className="switch-mask" onClick={() => setSwitchModal(false)}>
+          <View className="switch-dialog" onClick={(e) => e.stopPropagation()}>
+            <Text className="switch-title">切换账号</Text>
+
+            {!showLoginForm ? (
+              <>
+                {/* 已保存账号列表 */}
+                {accounts.length > 0 && (
+                  <View className="switch-account-list">
+                    {accounts.map((account) => {
+                      const isCurrent = account.email === user?.email;
+                      const accInitial = (account.username || account.email).charAt(0).toUpperCase();
+                      return (
+                        <View
+                          key={account.email}
+                          className={`switch-account-item${isCurrent ? " current" : ""}${switchingEmail === account.email ? " switching" : ""}`}
+                          onClick={() => !isCurrent && !switchingEmail && handleSwitchAccount(account)}
+                        >
+                          <View className="switch-account-avatar">
+                            {account.avatar_url ? (
+                              <Image className="switch-account-avatar-img" src={account.avatar_url} mode="aspectFill" />
+                            ) : (
+                              <Text className="switch-account-avatar-text">{accInitial}</Text>
+                            )}
+                          </View>
+                          <View className="switch-account-info">
+                            <Text className="switch-account-name">
+                              {account.username || account.email}
+                              {isCurrent && <Text className="switch-current-badge">当前</Text>}
+                            </Text>
+                            <Text className="switch-account-email">{account.email}</Text>
+                          </View>
+                          {!isCurrent && switchingEmail === account.email && (
+                            <View className="switch-account-loading">
+                              <Text className="switch-account-loading-text">切换中...</Text>
+                            </View>
+                          )}
+                          {!isCurrent && switchingEmail !== account.email && (
+                            <View
+                              className="switch-account-remove"
+                              onClick={(e) => { e.stopPropagation(); handleRemoveAccount(account.email); }}
+                            >
+                              <Text className="switch-account-remove-text">✕</Text>
+                            </View>
+                          )}
+                        </View>
+                      );
+                    })}
+                  </View>
+                )}
+
+                {/* 添加账号按钮 */}
+                <View
+                  className="switch-add-btn"
+                  onClick={() => { setShowLoginForm(true); setLoginEmail(""); setLoginPassword(""); setLoginError(""); }}
+                >
+                  <Text className="switch-add-btn-text">+ 添加账号</Text>
+                </View>
+              </>
+            ) : (
+              <>
+                {/* 登录表单 */}
+                <View className="switch-login-form">
+                  <Text className="switch-login-hint">
+                    {tokenExpiredEmail ? "登录已过期，请重新输入密码" : "添加新账号登录"}
+                  </Text>
+                  <View className="switch-form-group">
+                    <Text className="switch-form-label">邮箱</Text>
+                    <Input
+                      className="switch-form-input"
+                      value={loginEmail}
+                      onInput={(e) => setLoginEmail(e.detail.value)}
+                      placeholder="输入邮箱地址"
+                    />
+                  </View>
+                  <View className="switch-form-group">
+                    <Text className="switch-form-label">密码</Text>
+                    <Input
+                      className="switch-form-input"
+                      value={loginPassword}
+                      onInput={(e) => setLoginPassword(e.detail.value)}
+                      placeholder="输入密码"
+                      password
+                    />
+                  </View>
+                  {loginError ? (
+                    <Text className="switch-login-error">{loginError}</Text>
+                  ) : null}
+                  <View className="switch-login-actions">
+                    <View
+                      className="switch-login-btn switch-login-cancel"
+                      onClick={() => { setShowLoginForm(false); setLoginError(""); setTokenExpiredEmail(null); }}
+                    >
+                      <Text>返回</Text>
+                    </View>
+                    <View
+                      className={`switch-login-btn switch-login-ok${loginLoading ? " loading" : ""}`}
+                      onClick={() => !loginLoading && handleLogin()}
+                    >
+                      <Text>{loginLoading ? "登录中..." : "登录"}</Text>
+                    </View>
+                  </View>
+                </View>
+              </>
+            )}
           </View>
         </View>
       )}

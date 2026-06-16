@@ -9,6 +9,7 @@ import * as bcrypt from 'bcryptjs';
 import { SupabaseService } from '../supabase/supabase.service';
 import { MailService } from '../mail/mail.service';
 import { LoginDto } from './dto/login.dto';
+import { SwitchAccountDto } from './dto/switch-account.dto';
 import { RegisterDto } from './dto/register.dto';
 import { TokenService } from './token.service';
 import { ChangePasswordDto } from './dto/change-password.dto';
@@ -92,30 +93,47 @@ export class AuthService {
       throw new BadRequestException('验证码错误');
     }
 
+    return this.authenticateInternal(dto.email, dto.password, dto.token);
+  }
+
+  /**
+   * 切换账号登录（免于验证码校验）
+   * 仅使用已保存的账号密码（+ token）进行身份验证；密码错误或 token 过期均返回
+   * 统一的 "邮箱或密码错误" 错误，由前端回退到带验证码的正常登录流程
+   */
+  async switchAccount(dto: SwitchAccountDto): Promise<{ user: SafeUser; token: string }> {
+    return this.authenticateInternal(dto.email, dto.password, dto.token);
+  }
+
+  private async authenticateInternal(
+    email: string,
+    password: string,
+    token?: string,
+  ): Promise<{ user: SafeUser; token: string }> {
     const supabase = this.supabaseService.getClient();
 
     const { data: user, error } = await supabase
       .from('users')
       .select('*')
-      .eq('email', dto.email)
+      .eq('email', email)
       .single();
 
     if (error || !user) {
       throw new UnauthorizedException('邮箱或密码错误');
     }
 
-    const isPasswordValid = await bcrypt.compare(dto.password, user.password_hash);
+    const isPasswordValid = await bcrypt.compare(password, user.password_hash);
     if (!isPasswordValid) {
       throw new UnauthorizedException('邮箱或密码错误');
     }
 
     // 如果客户端传递了 token，检查是否未过期，如果未过期则复用
-    const token = dto.token 
-      ? await this.reuseOrCreateSession(user.id, dto.token)
+    const newToken = token
+      ? await this.reuseOrCreateSession(user.id, token)
       : await this.createSessionInternal(user.id);
-    
+
     const { password_hash, ...userWithoutPassword } = user;
-    return { user: userWithoutPassword, token };
+    return { user: userWithoutPassword, token: newToken };
   }
 
   async getUserById(id: string): Promise<SafeUser & { current_book_id?: string } | null> {

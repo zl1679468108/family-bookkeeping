@@ -105,7 +105,7 @@ CREATE TABLE IF NOT EXISTS categories (
   id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id     UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   name        VARCHAR(50) NOT NULL,
-  icon        VARCHAR(50) NOT NULL DEFAULT '📌',
+  icon        VARCHAR(500) NOT NULL DEFAULT '📌',
   type        VARCHAR(10) NOT NULL CHECK (type IN ('expense', 'income')),
   is_default  BOOLEAN NOT NULL DEFAULT false,
   sort_order  INTEGER NOT NULL DEFAULT 0,
@@ -140,7 +140,7 @@ CREATE TABLE IF NOT EXISTS books (
   owner_id    UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   is_archived BOOLEAN NOT NULL DEFAULT FALSE,
   description TEXT,
-  icon        VARCHAR(50),
+  icon        VARCHAR(500),
   created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
@@ -360,3 +360,47 @@ COMMENT ON COLUMN book_invitations.used_by IS '使用邀请码加入的用户 ID
 COMMENT ON COLUMN book_invitations.expires_at IS '邀请码过期时间';
 COMMENT ON COLUMN book_invitations.used_at IS '邀请码使用时间，NULL 表示未使用';
 COMMENT ON COLUMN book_invitations.created_at IS '邀请码创建时间';
+
+-- ==============================================
+-- 12. 自定义图标表
+-- ==============================================
+CREATE TABLE IF NOT EXISTS custom_icons (
+  id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id     UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  icon_url    TEXT NOT NULL,
+  icon_type   VARCHAR(20) NOT NULL CHECK (icon_type IN ('category', 'book')),
+  created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_custom_icons_user_id ON custom_icons(user_id);
+CREATE INDEX IF NOT EXISTS idx_custom_icons_type ON custom_icons(icon_type);
+
+COMMENT ON TABLE custom_icons IS '自定义图标表 - 存储用户上传的自定义图标，支持分类和账本使用';
+COMMENT ON COLUMN custom_icons.id IS '图标记录唯一标识符，UUID 类型';
+COMMENT ON COLUMN custom_icons.user_id IS '图标所属用户 ID，外键引用 users 表，删除用户时级联删除';
+COMMENT ON COLUMN custom_icons.icon_url IS '图标文件的 URL 地址，存储在 Supabase Storage 中';
+COMMENT ON COLUMN custom_icons.icon_type IS '图标类型：category(分类图标) / book(账本图标)，用于区分用途';
+COMMENT ON COLUMN custom_icons.created_at IS '图标上传时间';
+
+-- 启用 RLS
+ALTER TABLE custom_icons ENABLE ROW LEVEL SECURITY;
+
+-- RLS 策略：用户只能访问自己的图标
+CREATE POLICY "Users can view their own icons" ON custom_icons
+  FOR SELECT USING (auth.uid() = user_id);
+
+-- RLS 策略：用户只能插入自己的图标
+CREATE POLICY "Users can insert their own icons" ON custom_icons
+  FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+-- RLS 策略：用户只能删除自己的图标
+CREATE POLICY "Users can delete their own icons" ON custom_icons
+  FOR DELETE USING (auth.uid() = user_id);
+
+-- ==============================================
+-- 字段长度调整（用于已存在表的结构更新）
+-- ==============================================
+-- 将 categories 和 books 表的 icon 字段从 VARCHAR(50) 扩展到 VARCHAR(500)
+-- 以支持自定义图标 URL 的存储
+ALTER TABLE IF EXISTS categories ALTER COLUMN icon TYPE VARCHAR(500);
+ALTER TABLE IF EXISTS books ALTER COLUMN icon TYPE VARCHAR(500);

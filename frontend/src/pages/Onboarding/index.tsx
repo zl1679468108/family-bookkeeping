@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../utils/auth';
 import { BookCreateModal } from '../Books/BookCreateModal';
 import { BookInviteModal } from '../Books/BookInviteModal';
 import './index.scss';
 
 const OnboardingPage: React.FC = () => {
   const navigate = useNavigate();
+  const { signOut } = useAuth();
 
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showJoinModal, setShowJoinModal] = useState(false);
@@ -18,6 +20,11 @@ const OnboardingPage: React.FC = () => {
   const handleJoinSuccess = () => {
     setShowJoinModal(false);
     navigate('/', { replace: true });
+  };
+
+  const handleLogout = async () => {
+    await signOut();
+    navigate('/login', { replace: true });
   };
 
   return (
@@ -57,6 +64,19 @@ const OnboardingPage: React.FC = () => {
           </button>
         </div>
       </div>
+
+      <button
+        type="button"
+        className="onboarding-logout-btn"
+        onClick={handleLogout}
+      >
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+          <polyline points="16 17 21 12 16 7" />
+          <line x1="21" y1="12" x2="9" y2="12" />
+        </svg>
+        退出登录
+      </button>
 
       {/* 复用 BookCreateModal 组件创建账本 */}
       <BookCreateModal

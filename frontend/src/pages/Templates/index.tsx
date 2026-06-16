@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { fetchTemplates, createTemplate, updateTemplate, deleteTemplate, reorderTemplates } from '../../services/templatesApi'
 import { useCategories } from '../../hooks/useCategories'
 import { formatAmount } from '../../utils/common'
+import { renderCategoryIcon } from '../../utils/renderCategoryIcon'
 import { notify } from '../../utils/notifications'
 import { Skeleton } from '../../components/ui/Skeleton'
 import { GlobalModal, DetailItem, Space } from '../../components/ui'
@@ -253,7 +254,7 @@ const Templates: React.FC = () => {
                   {/* 拖拽手柄 */}
                   <span className="tpl-handle">⋮⋮</span>
                   <div className="tpl-header">
-                    <div className="tpl-e">{cat.icon}</div>
+                    <div className="tpl-e">{renderCategoryIcon(cat.icon, { size: 18 })}</div>
                     <div className="tpl-n">{t.name}</div>
                   </div>
                   <div className="tpl-content">
@@ -299,7 +300,7 @@ const Templates: React.FC = () => {
           }
         >
           <div className="detail-content-wrapper">
-            <div className="detail-icon">{getCategoryInfo(selectedTemplate.category_id).icon}</div>
+            <div className="detail-icon">{renderCategoryIcon(getCategoryInfo(selectedTemplate.category_id).icon, { size: 40 })}</div>
             <div className="detail-content">
               <div className="detail-title">{selectedTemplate.name}</div>
               <div className="detail-subtitle">

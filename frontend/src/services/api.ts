@@ -96,6 +96,8 @@ interface RequestOptions extends Omit<RequestInit, 'body'> {
   requiresAuth?: boolean
   responseType?: 'json' | 'blob'
   notifyOnError?: boolean
+  /** 是否静默：不显示错误通知，不跳转登录页，错误直接抛出 */
+  silent?: boolean
   /**
    * 是否显示顶部进度条。
    * 未显式指定时：POST/PUT/DELETE/PATCH 写操作默认显示（按钮点击等显式交互），
@@ -151,11 +153,15 @@ export const request = async <T>(path: string, options: RequestOptions = {}): Pr
     requiresAuth = false,
     responseType = 'json',
     notifyOnError = true,
+    silent = false,
     showProgress,
     headers,
     method,
     ...rest
   } = options
+
+  // silent 模式下：不显示通知，不跳转登录，错误直接抛出
+  const effectiveNotify = silent ? false : notifyOnError
 
   // 写操作（POST/PUT/DELETE/PATCH）默认显示进度条，读操作默认不显示
   const effectiveMethod = (method ?? 'GET').toUpperCase()
@@ -179,11 +185,13 @@ export const request = async <T>(path: string, options: RequestOptions = {}): Pr
   if (requiresAuth) {
     const token = getToken()
     if (!token) {
-      // token 不存在，直接跳转登录
+      // token 不存在
       if (shouldShowProgress) {
         trackRequest(requestId, 'end')
       }
-      handleUnauthorized(notifyOnError)
+      if (!silent) {
+        handleUnauthorized(effectiveNotify)
+      }
       throw new ApiError('登录状态已失效，请重新登录', 401)
     }
     const trimmedToken = token.trim()
@@ -207,8 +215,10 @@ export const request = async <T>(path: string, options: RequestOptions = {}): Pr
       )
 
       if (requiresAuth && response.status === 401) {
-        handleUnauthorized(notifyOnError)
-      } else if (notifyOnError) {
+        if (!silent) {
+          handleUnauthorized(effectiveNotify)
+        }
+      } else if (effectiveNotify) {
         notify({ type: 'error', message: error.message })
       }
 
@@ -223,8 +233,16 @@ export const request = async <T>(path: string, options: RequestOptions = {}): Pr
     return payload.data
   } catch (err) {
     // 网络层错误（如断网、DNS 失败）也通知用户
-    if (notifyOnError && !(err instanceof ApiError)) {
-      const message = err instanceof Error ? err.message : '请求失败'
+    if (effectiveNotify && !(err instanceof ApiError)) {
+      let message = err instanceof Error ? err.message : '请求失败'
+      // 将常见的英文错误消息转换为中文
+      if (message === 'Failed to fetch') {
+        message = '网络请求失败，请检查网络连接'
+      } else if (message.includes('NetworkError')) {
+        message = '网络错误，请检查网络连接'
+      } else if (message.includes('timeout') || message.includes('Timeout')) {
+        message = '请求超时，请稍后重试'
+      }
       notify({ type: 'error', message })
     }
     throw err
@@ -392,6 +410,18 @@ export const login = async (
   return request<{ user: UserProfile; token: string }>('/auth/login', {
     method: 'POST',
     body: { email, password, token: currentToken || undefined, captchaId, captchaCode },
+  })
+}
+
+// 切换账号（免验证码，使用已保存的账号密码+token）
+export const switchAccount = async (
+  email: string,
+  password: string,
+  token?: string,
+): Promise<{ user: UserProfile; token: string }> => {
+  return request<{ user: UserProfile; token: string }>('/auth/switch-account', {
+    method: 'POST',
+    body: { email, password, token: token || undefined },
   })
 }
 

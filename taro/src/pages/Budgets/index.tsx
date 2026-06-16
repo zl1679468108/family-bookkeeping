@@ -9,6 +9,7 @@ import { useMutation } from "@tanstack/react-query";
 import MonthPicker from "../../components/MonthPicker";
 import EmptyState from "../../components/EmptyState";
 import PageLayout from "../../components/PageLayout";
+import CategoryIcon from "../../components/CategoryIcon";
 import { useMonthSelector } from "../../hooks/useMonthSelector";
 import { useManualQuery } from "../../hooks/useManualQuery";
 import { fetchBudgets, fetchBudgetStatus, upsertBudgets } from "../../services/budgetsApi";
@@ -139,7 +140,7 @@ export default function BudgetsPage() {
                     className={`bdg-row ${isLast ? "bdg-row--last" : ""}`}
                   >
                     <View className="bdg-row__main">
-                      <Text className="bdg-row__icon">{cat.icon}</Text>
+                    <CategoryIcon icon={cat.icon} />
                       <Text className="bdg-row__name">{cat.name}</Text>
                       <View className="bdg-row__amount">
                         <Text className="bdg-row__currency">¥</Text>

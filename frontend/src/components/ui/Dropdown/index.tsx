@@ -29,6 +29,10 @@ interface DropdownSelectProps {
   width?: string | number
   align?: 'left' | 'right'
   required?: boolean
+  /** 是否显示搜索框 */
+  showSearch?: boolean
+  /** 搜索框占位符 */
+  searchPlaceholder?: string
 }
 
 export const DropdownSelect: React.FC<DropdownSelectProps> = ({
@@ -42,11 +46,15 @@ export const DropdownSelect: React.FC<DropdownSelectProps> = ({
   width,
   align = 'left',
   required,
+  showSearch = false,
+  searchPlaceholder = '搜索...',
 }) => {
   const [open, setOpen] = useState(false)
   const [internalValue, setInternalValue] = useState<string | null>(value ?? null)
+  const [searchKeyword, setSearchKeyword] = useState('')
   const containerRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLButtonElement>(null)
+  const searchInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     if (value !== undefined) setInternalValue(value)
@@ -63,8 +71,22 @@ export const DropdownSelect: React.FC<DropdownSelectProps> = ({
     return () => document.removeEventListener('mousedown', handler)
   }, [open])
 
+  // 打开时自动聚焦搜索框
+  useEffect(() => {
+    if (open && showSearch) {
+      setTimeout(() => searchInputRef.current?.focus(), 0)
+    } else if (!open) {
+      setSearchKeyword('')
+    }
+  }, [open, showSearch])
+
   const currentOption = options.find((o) => o.key === internalValue)
   const hasValue = internalValue !== null && internalValue !== ''
+
+  // 根据搜索关键词过滤选项
+  const filteredOptions = showSearch && searchKeyword
+    ? options.filter((o) => o.label.toLowerCase().includes(searchKeyword.toLowerCase()))
+    : options
 
   const handleSelect = (key: string) => {
     setInternalValue(key)
@@ -107,6 +129,19 @@ export const DropdownSelect: React.FC<DropdownSelectProps> = ({
 
       {open && (
         <div className={`dd-select__panel dd-select__panel--${align}`} role="listbox">
+          {showSearch && (
+            <div className="dd-select__search">
+              <input
+                ref={searchInputRef}
+                type="text"
+                className="dd-select__search-input"
+                placeholder={searchPlaceholder}
+                value={searchKeyword}
+                onChange={(e) => setSearchKeyword(e.target.value)}
+                onClick={(e) => e.stopPropagation()}
+              />
+            </div>
+          )}
           {allowClear && (
             <div
               className={`dd-select__item ${!hasValue ? 'is-active' : ''}`}
@@ -118,7 +153,7 @@ export const DropdownSelect: React.FC<DropdownSelectProps> = ({
               <span className="dd-select__item-label">{placeholder}</span>
             </div>
           )}
-          {options.map((opt) => {
+          {filteredOptions.map((opt) => {
             const active = opt.key === internalValue
             return (
               <div

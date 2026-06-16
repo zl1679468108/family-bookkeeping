@@ -47,11 +47,43 @@ export const setStoredBookId = (id: string | null): void => {
 };
 
 // ---- API Client (Taro.request wrapper) ----
+interface RequestOptions {
+  data?: unknown;
+  /** 是否静默：401 不清理 token，不跳转登录页 */
+  silent?: boolean;
+  /** 是否需要认证（默认 true，token 不存在时静默返回 401） */
+  requiresAuth?: boolean;
+}
+
 async function request<T>(
   method: "GET" | "POST" | "PUT" | "DELETE",
   url: string,
-  data?: unknown,
+  arg2?: RequestOptions | unknown,
 ): Promise<T> {
+  // 兼容两种调用方式：
+  //   request("POST", url, data)           - 旧方式：第二参数是请求体
+  //   request("POST", url, { data, silent }) - 新方式：第二参数是 options
+  let data: unknown = undefined;
+  let silent = false;
+  let requiresAuth = true;
+
+  if (arg2 !== undefined) {
+    if (
+      typeof arg2 === "object" &&
+      arg2 !== null &&
+      ("data" in arg2 || "silent" in arg2 || "requiresAuth" in (arg2 as object))
+    ) {
+      // options 对象
+      const opts = arg2 as RequestOptions;
+      data = opts.data;
+      silent = opts.silent ?? false;
+      requiresAuth = opts.requiresAuth ?? true;
+    } else {
+      // 直接作为请求体 data
+      data = arg2;
+    }
+  }
+
   const fullUrl = `${API_BASE_URL}${url}`;
   const token = getToken();
   const bookId = getStoredBookId();
@@ -61,6 +93,11 @@ async function request<T>(
   };
   if (token) header["Authorization"] = `Bearer ${token}`;
   if (bookId) header["x-book-id"] = bookId;
+
+  // 需要认证但没有 token：静默模式下直接抛 401
+  if (requiresAuth && !token && silent) {
+    throw new ApiError("未登录", 401);
+  }
 
   try {
     const res = await Taro.request({
@@ -90,21 +127,23 @@ async function request<T>(
     const apiError = new ApiError(message, res.statusCode, errorData?.code);
 
     if (res.statusCode === 401) {
-      clearStoredToken();
-      // Don't redirect if we're already on an auth page (login/register/forgot-password)
-      const pages = Taro.getCurrentPages();
-      const currentPath =
-        pages.length > 0 ? pages[pages.length - 1].route || "" : "";
-      if (
-        ![
-          "pages/User/Login/index",
-          "pages/User/Register/index",
-          "pages/User/ForgotPassword/index",
-        ].includes(currentPath)
-      ) {
-        setTimeout(() => {
-          Taro.navigateTo({ url: "/pages/User/Login/index" });
-        }, 100);
+      if (!silent) {
+        clearStoredToken();
+        // Don't redirect if we're already on an auth page (login/register/forgot-password)
+        const pages = Taro.getCurrentPages();
+        const currentPath =
+          pages.length > 0 ? pages[pages.length - 1].route || "" : "";
+        if (
+          ![
+            "pages/User/Login/index",
+            "pages/User/Register/index",
+            "pages/User/ForgotPassword/index",
+          ].includes(currentPath)
+        ) {
+          setTimeout(() => {
+            Taro.navigateTo({ url: "/pages/User/Login/index" });
+          }, 100);
+        }
       }
     }
 
@@ -120,13 +159,15 @@ async function request<T>(
   }
 }
 
-// Convenience methods
-export const apiGet = <T>(url: string) => request<T>("GET", url);
-export const apiPost = <T>(url: string, data?: unknown) =>
-  request<T>("POST", url, data);
-export const apiPut = <T>(url: string, data?: unknown) =>
-  request<T>("PUT", url, data);
-export const apiDelete = <T>(url: string) => request<T>("DELETE", url);
+// Convenience methods - 签名保持兼容：apiPost(url, data) 或 apiPost(url, { data, silent })
+export const apiGet = <T>(url: string, options?: RequestOptions) =>
+  request<T>("GET", url, options);
+export const apiPost = <T>(url: string, arg2?: unknown) =>
+  request<T>("POST", url, arg2);
+export const apiPut = <T>(url: string, arg2?: unknown) =>
+  request<T>("PUT", url, arg2);
+export const apiDelete = <T>(url: string, options?: RequestOptions) =>
+  request<T>("DELETE", url, options);
 
 export const redirectToLogin = (): void => {
   Taro.navigateTo({ url: "/pages/User/Login/index" });

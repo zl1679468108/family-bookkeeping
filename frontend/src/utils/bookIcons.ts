@@ -7,28 +7,24 @@ export interface BookIconItem {
   label: string;
 }
 
-// 账本图标列表（只含 key/label 数据，不含 JSX）
+// 账本图标列表（日常生活大类）
 export const BOOK_ICONS: BookIconItem[] = [
   { key: 'default', label: '账本' },
-  { key: 'money', label: '财富' },
-  { key: 'home', label: '家庭' },
-  { key: 'family', label: '家人' },
-  { key: 'car', label: '交通' },
-  { key: 'travel', label: '旅行' },
-  { key: 'food', label: '美食' },
-  { key: 'shopping', label: '购物' },
+  { key: 'home', label: '居家' },
+  { key: 'work', label: '工作' },
+  { key: 'study', label: '学习' },
+  { key: 'entertainment', label: '娱乐' },
   { key: 'health', label: '健康' },
-  { key: 'movie', label: '电影' },
-  { key: 'game', label: '游戏' },
-  { key: 'phone', label: '数码' },
-  { key: 'computer', label: '电脑' },
-  { key: 'camera', label: '摄影' },
-  { key: 'music', label: '音乐' },
-  { key: 'soccer', label: '足球' },
-  { key: 'basketball', label: '篮球' },
-  { key: 'target', label: '目标' },
-  { key: 'art', label: '艺术' },
-  { key: 'note', label: '笔记' },
+  { key: 'travel', label: '旅行' },
+  { key: 'food', label: '餐饮' },
+  { key: 'shopping', label: '购物' },
+  { key: 'sports', label: '运动' },
+  { key: 'social', label: '社交' },
+  { key: 'family', label: '家庭' },
+  { key: 'pet', label: '宠物' },
+  { key: 'car', label: '交通' },
+  { key: 'investment', label: '投资' },
+  { key: 'gift', label: '礼物' },
 ];
 
 // SVG 路径数据，供 JSX 渲染层使用
@@ -52,15 +48,6 @@ export const BOOK_ICON_SVG_MAP: Record<string, BookIconSvgSpec> = {
       { tag: 'path', attrs: { d: 'M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z' } },
     ],
   },
-  money: {
-    width: 20,
-    height: 20,
-    viewBox: '0 0 24 24',
-    children: [
-      { tag: 'line', attrs: { x1: 12, y1: 1, x2: 12, y2: 23 } },
-      { tag: 'path', attrs: { d: 'M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6' } },
-    ],
-  },
   home: {
     width: 20,
     height: 20,
@@ -70,28 +57,42 @@ export const BOOK_ICON_SVG_MAP: Record<string, BookIconSvgSpec> = {
       { tag: 'polyline', attrs: { points: '9 22 9 12 15 12 15 22' } },
     ],
   },
-  family: {
+  work: {
     width: 20,
     height: 20,
     viewBox: '0 0 24 24',
     children: [
-      { tag: 'circle', attrs: { cx: 12, cy: 7, r: 4 } },
-      { tag: 'path', attrs: { d: 'M12 17v7' } },
-      { tag: 'path', attrs: { d: 'M8 21h8' } },
-      { tag: 'circle', attrs: { cx: 6, cy: 17, r: 2 } },
-      { tag: 'circle', attrs: { cx: 18, cy: 17, r: 2 } },
+      { tag: 'rect', attrs: { x: 2, y: 7, width: 20, height: 14, rx: 2 } },
+      { tag: 'path', attrs: { d: 'M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16' } },
     ],
   },
-  car: {
+  study: {
     width: 20,
     height: 20,
     viewBox: '0 0 24 24',
     children: [
-      { tag: 'rect', attrs: { x: 1, y: 17, width: 15, height: 6, rx: 2 } },
-      { tag: 'circle', attrs: { cx: 5, cy: 20, r: 1.5 } },
-      { tag: 'circle', attrs: { cx: 12, cy: 20, r: 1.5 } },
-      { tag: 'path', attrs: { d: 'M17 8h4v8h-2' } },
-      { tag: 'path', attrs: { d: 'M17 16.5c-1.3 0-3.5-.5-4-1.5' } },
+      { tag: 'path', attrs: { d: 'M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z' } },
+      { tag: 'path', attrs: { d: 'M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z' } },
+    ],
+  },
+  entertainment: {
+    width: 20,
+    height: 20,
+    viewBox: '0 0 24 24',
+    children: [
+      { tag: 'circle', attrs: { cx: 12, cy: 12, r: 10 } },
+      { tag: 'path', attrs: { d: 'M8 14s1.5 2 4 2 4-2 4-2' } },
+      { tag: 'line', attrs: { x1: 9, y1: 9, x2: 9.01, y2: 9 } },
+      { tag: 'line', attrs: { x1: 15, y1: 9, x2: 15.01, y2: 9 } },
+    ],
+  },
+  health: {
+    width: 20,
+    height: 20,
+    viewBox: '0 0 24 24',
+    children: [
+      { tag: 'path', attrs: { d: 'M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z' } },
+      { tag: 'path', attrs: { d: 'M9 12l2 2 4-4' } },
     ],
   },
   travel: {
@@ -121,127 +122,82 @@ export const BOOK_ICON_SVG_MAP: Record<string, BookIconSvgSpec> = {
       { tag: 'path', attrs: { d: 'M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 1.99-1.61L23 6H6' } },
     ],
   },
-  health: {
-    width: 20,
-    height: 20,
-    viewBox: '0 0 24 24',
-    children: [
-      { tag: 'path', attrs: { d: 'M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z' } },
-      { tag: 'path', attrs: { d: 'M9 12l2 2 4-4' } },
-    ],
-  },
-  movie: {
-    width: 20,
-    height: 20,
-    viewBox: '0 0 24 24',
-    children: [
-      { tag: 'rect', attrs: { x: 2, y: 3, width: 20, height: 14, rx: 2 } },
-      { tag: 'path', attrs: { d: 'M8 21h8M12 17v4' } },
-      { tag: 'path', attrs: { d: 'M4 10l4-3 4 3 4-3 4 3' } },
-    ],
-  },
-  game: {
-    width: 20,
-    height: 20,
-    viewBox: '0 0 24 24',
-    children: [
-      { tag: 'rect', attrs: { x: 6, y: 11, width: 12, height: 11, rx: 2 } },
-      { tag: 'circle', attrs: { cx: 9, cy: 14, r: 1.5 } },
-      { tag: 'circle', attrs: { cx: 15, cy: 14, r: 1.5 } },
-      { tag: 'path', attrs: { d: 'M9 18h6' } },
-      { tag: 'circle', attrs: { cx: 8, cy: 6, r: 4 } },
-      { tag: 'circle', attrs: { cx: 16, cy: 6, r: 4 } },
-    ],
-  },
-  phone: {
-    width: 20,
-    height: 20,
-    viewBox: '0 0 24 24',
-    children: [
-      { tag: 'rect', attrs: { x: 5, y: 2, width: 14, height: 20, rx: 2 } },
-      { tag: 'path', attrs: { d: 'M12 18h.01' } },
-    ],
-  },
-  computer: {
-    width: 20,
-    height: 20,
-    viewBox: '0 0 24 24',
-    children: [
-      { tag: 'rect', attrs: { x: 4, y: 4, width: 16, height: 14, rx: 2 } },
-      { tag: 'line', attrs: { x1: 20, y1: 12, x2: 24, y2: 12 } },
-      { tag: 'line', attrs: { x1: 16, y1: 22, x2: 8, y2: 22 } },
-      { tag: 'line', attrs: { x1: 4, y1: 12, x2: 0, y2: 12 } },
-    ],
-  },
-  camera: {
-    width: 20,
-    height: 20,
-    viewBox: '0 0 24 24',
-    children: [
-      { tag: 'path', attrs: { d: 'M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z' } },
-      { tag: 'circle', attrs: { cx: 12, cy: 13, r: 4 } },
-    ],
-  },
-  music: {
-    width: 20,
-    height: 20,
-    viewBox: '0 0 24 24',
-    children: [
-      { tag: 'path', attrs: { d: 'M9 18V5l12-2v13' } },
-      { tag: 'circle', attrs: { cx: 6, cy: 18, r: 3 } },
-      { tag: 'circle', attrs: { cx: 18, cy: 16, r: 3 } },
-    ],
-  },
-  soccer: {
-    width: 20,
-    height: 20,
-    viewBox: '0 0 24 24',
-    children: [
-      { tag: 'circle', attrs: { cx: 12, cy: 12, r: 10 } },
-      { tag: 'path', attrs: { d: 'M12 2a10 10 0 0 0 0 20 10 10 0 0 0 0-20' } },
-      { tag: 'path', attrs: { d: 'M12 2a10 10 0 0 1 0 20 10 10 0 0 1 0-20' } },
-      { tag: 'circle', attrs: { cx: 12, cy: 12, r: 4 } },
-    ],
-  },
-  basketball: {
+  sports: {
     width: 20,
     height: 20,
     viewBox: '0 0 24 24',
     children: [
       { tag: 'circle', attrs: { cx: 12, cy: 12, r: 10 } },
       { tag: 'path', attrs: { d: 'M12 2v20M2 12h20' } },
-      { tag: 'path', attrs: { d: 'M17 5l-5 5-5-5M17 19l-5-5-5 5' } },
     ],
   },
-  target: {
+  social: {
     width: 20,
     height: 20,
     viewBox: '0 0 24 24',
     children: [
-      { tag: 'circle', attrs: { cx: 12, cy: 12, r: 10 } },
-      { tag: 'circle', attrs: { cx: 12, cy: 12, r: 6 } },
-      { tag: 'circle', attrs: { cx: 12, cy: 12, r: 2 } },
-      { tag: 'path', attrs: { d: 'M22 12l-4 4-4-4-4-4-4 4' } },
+      { tag: 'circle', attrs: { cx: 12, cy: 5, r: 3 } },
+      { tag: 'circle', attrs: { cx: 5, cy: 19, r: 3 } },
+      { tag: 'circle', attrs: { cx: 19, cy: 19, r: 3 } },
+      { tag: 'line', attrs: { x1: 12, y1: 8, x2: 12, y2: 16 } },
+      { tag: 'line', attrs: { x1: 7, y1: 17, x2: 10, y2: 15 } },
+      { tag: 'line', attrs: { x1: 14, y1: 15, x2: 17, y2: 17 } },
     ],
   },
-  art: {
+  family: {
     width: 20,
     height: 20,
     viewBox: '0 0 24 24',
     children: [
-      { tag: 'path', attrs: { d: 'M12 20h9' } },
-      { tag: 'path', attrs: { d: 'M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z' } },
+      { tag: 'circle', attrs: { cx: 12, cy: 7, r: 4 } },
+      { tag: 'path', attrs: { d: 'M12 17v7' } },
+      { tag: 'path', attrs: { d: 'M8 21h8' } },
+      { tag: 'circle', attrs: { cx: 6, cy: 17, r: 2 } },
+      { tag: 'circle', attrs: { cx: 18, cy: 17, r: 2 } },
     ],
   },
-  note: {
+  pet: {
     width: 20,
     height: 20,
     viewBox: '0 0 24 24',
     children: [
-      { tag: 'path', attrs: { d: 'M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z' } },
-      { tag: 'polyline', attrs: { points: '14 2 14 8 20 8' } },
-      { tag: 'line', attrs: { x1: 16, y1: 13, x2: 8, y2: 13 } },
-      { tag: 'line', attrs: { x1: 16, y1: 17, x2: 8, y2: 17 } },
+      { tag: 'circle', attrs: { cx: 12, cy: 12, r: 3 } },
+      { tag: 'circle', attrs: { cx: 7, cy: 7, r: 2 } },
+      { tag: 'circle', attrs: { cx: 17, cy: 7, r: 2 } },
+      { tag: 'circle', attrs: { cx: 7, cy: 17, r: 2 } },
+      { tag: 'circle', attrs: { cx: 17, cy: 17, r: 2 } },
+    ],
+  },
+  car: {
+    width: 20,
+    height: 20,
+    viewBox: '0 0 24 24',
+    children: [
+      { tag: 'rect', attrs: { x: 1, y: 17, width: 15, height: 6, rx: 2 } },
+      { tag: 'circle', attrs: { cx: 5, cy: 20, r: 1.5 } },
+      { tag: 'circle', attrs: { cx: 12, cy: 20, r: 1.5 } },
+      { tag: 'path', attrs: { d: 'M17 8h4v8h-2' } },
+    ],
+  },
+  investment: {
+    width: 20,
+    height: 20,
+    viewBox: '0 0 24 24',
+    children: [
+      { tag: 'polyline', attrs: { points: '23 6 13.5 15.5 8.5 10.5 1 18' } },
+      { tag: 'polyline', attrs: { points: '17 6 23 6 23 12' } },
+    ],
+  },
+  gift: {
+    width: 20,
+    height: 20,
+    viewBox: '0 0 24 24',
+    children: [
+      { tag: 'polyline', attrs: { points: '20 12 20 22 4 22 4 12' } },
+      { tag: 'rect', attrs: { x: 2, y: 7, width: 20, height: 5 } },
+      { tag: 'line', attrs: { x1: 12, y1: 22, x2: 12, y2: 7 } },
+      { tag: 'path', attrs: { d: 'M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z' } },
+      { tag: 'path', attrs: { d: 'M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z' } },
     ],
   },
 };
@@ -260,25 +216,21 @@ export const getBookIconSpecByKey = (iconKey?: string): BookIconSvgSpec => {
 export const getBookEmojiByKey = (iconKey?: string): string => {
   const emojiMap: Record<string, string> = {
     default: '📚',
-    money: '💰',
     home: '🏠',
-    family: '👨‍👩‍👧',
-    car: '🚗',
+    work: '💼',
+    study: '📖',
+    entertainment: '🎮',
+    health: '💊',
     travel: '✈️',
     food: '🍔',
     shopping: '🛒',
-    health: '💊',
-    movie: '🎬',
-    game: '🎮',
-    phone: '📱',
-    computer: '💻',
-    camera: '📷',
-    music: '🎵',
-    soccer: '⚽',
-    basketball: '🏀',
-    target: '🎯',
-    art: '🎨',
-    note: '📝',
+    sports: '⚽',
+    social: '🤝',
+    family: '👨‍👩‍👧',
+    pet: '🐾',
+    car: '🚗',
+    investment: '📈',
+    gift: '🎁',
   };
   return emojiMap[iconKey || 'default'] || '📚';
 };
@@ -323,6 +275,20 @@ const renderSvgChildren = (spec: BookIconSvgSpec): React.ReactNode =>
   );
 
 export const renderBookIcon = (iconKey?: string): React.ReactNode => {
+  // 处理自定义图标 URL
+  if (iconKey && (iconKey.startsWith('http://') || iconKey.startsWith('https://'))) {
+    return React.createElement('img', {
+      src: iconKey,
+      alt: '',
+      style: {
+        width: 24,
+        height: 24,
+        objectFit: 'contain',
+        display: 'inline-block',
+        verticalAlign: 'middle',
+      },
+    });
+  }
   const spec = getBookIconSpecByKey(iconKey);
   return React.createElement(
     'svg',

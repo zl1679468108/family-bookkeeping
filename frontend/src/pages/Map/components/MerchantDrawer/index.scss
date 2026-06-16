@@ -1,0 +1,389 @@
+/* ═══════════════════════════════════════════
+   地图 · 商户抽屉列表样式
+   ═══════════════════════════════════════════ */
+
+.merchant-drawer {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+
+/* ---- 工具栏（搜索 + 汇总） ---- */
+.merchant-drawer__toolbar {
+  padding: 16px 20px 12px;
+  border-bottom: 1px solid var(--bd, #e5e7eb);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.merchant-drawer__summary {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 13px;
+  color: var(--fg2, #4b5563);
+  flex-wrap: wrap;
+}
+
+.merchant-drawer__summary-item strong {
+  color: var(--fg, #1f2937);
+  font-weight: 700;
+}
+
+.merchant-drawer__summary-item.expense strong {
+  color: var(--exp, #e06055);
+}
+
+.merchant-drawer__summary-item.income strong {
+  color: var(--inc, #3ba272);
+}
+
+/* ---- 多选工具栏 ---- */
+.merchant-drawer__multiselect {
+  padding: 10px 20px;
+  background: var(--bg, #f9fafb);
+  border-bottom: 1px solid var(--bd, #e5e7eb);
+  flex-shrink: 0;
+}
+
+.merchant-drawer__checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: var(--fg2, #4b5563);
+  cursor: pointer;
+  user-select: none;
+}
+
+/* ---- 自定义 checkbox 样式（大号） ---- */
+.merchant-drawer__checkbox,
+.merchant-drawer__item-checkbox {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.merchant-drawer__checkbox input,
+.merchant-drawer__item-checkbox input {
+  position: absolute;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
+
+.merchant-drawer__checkbox-custom {
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--bd, #d1d5db);
+  border-radius: 4px;
+  background: var(--srf, #ffffff);
+  transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.merchant-drawer__checkbox-custom--sm {
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--bd, #d1d5db);
+  border-radius: 4px;
+  background: var(--srf, #ffffff);
+  transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.merchant-drawer__checkbox input:checked ~ .merchant-drawer__checkbox-custom,
+.merchant-drawer__item-checkbox input:checked ~ .merchant-drawer__checkbox-custom--sm {
+  background: var(--pr, #2d9d8a);
+  border-color: var(--pr, #2d9d8a);
+}
+
+.merchant-drawer__checkbox input:checked ~ .merchant-drawer__checkbox-custom::after,
+.merchant-drawer__item-checkbox input:checked ~ .merchant-drawer__checkbox-custom--sm::after {
+  content: '';
+  width: 5px;
+  height: 9px;
+  border-right: 2px solid white;
+  border-bottom: 2px solid white;
+  transform: rotate(45deg) translate(-1px, -1px);
+}
+
+.merchant-drawer__checkbox-text {
+  flex: 1;
+}
+
+.merchant-drawer__checkbox-count {
+  margin-left: 6px;
+  padding: 2px 8px;
+  background: var(--pr, #2d9d8a);
+  color: white;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.merchant-drawer__clear-btn {
+  background: transparent;
+  border: 1px solid var(--bd, #d1d5db);
+  color: var(--fg2, #4b5563);
+  padding: 4px 10px;
+  font-size: 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-family: var(--fn, system-ui);
+}
+
+.merchant-drawer__clear-btn:hover {
+  border-color: var(--exp, #e06055);
+  color: var(--exp, #e06055);
+}
+
+/* ---- 列表主体 ---- */
+.merchant-drawer__list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 0;
+}
+
+/* 骨架屏 */
+.merchant-drawer__skeleton-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.merchant-drawer__skeleton-item {
+  padding: 12px;
+  background: var(--bg, #f9fafb);
+  border: 1px solid var(--bd, #e5e7eb);
+  border-radius: 8px;
+}
+
+/* 空状态 */
+.merchant-drawer__empty {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 16px;
+  gap: 8px;
+  text-align: center;
+}
+
+.merchant-drawer__empty-icon {
+  font-size: 48px;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.merchant-drawer__empty-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--fg, #1f2937);
+}
+
+.merchant-drawer__empty-desc {
+  font-size: 12px;
+  color: var(--fg3, #9ca3af);
+  max-width: 260px;
+}
+
+/* 列表项（参考图1：足迹排行样式 + 图2：收支标签） */
+.merchant-drawer__item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 14px;
+  background: var(--bg, #f9fafb);
+  border: 1px solid var(--bd, #e5e7eb);
+  border-radius: var(--rs, 10px);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.merchant-drawer__item:hover {
+  border-color: var(--pr, #2d9d8a);
+  box-shadow: 0 2px 8px rgba(45, 157, 138, 0.08);
+  transform: translateY(-1px);
+}
+
+.merchant-drawer__item.is-selected {
+  background: rgba(45, 157, 138, 0.08);
+  border-color: var(--pr, #2d9d8a);
+}
+
+.merchant-drawer__item-checkbox {
+  padding-top: 2px;
+}
+
+.merchant-drawer__rank {
+  flex-shrink: 0;
+  min-width: 36px;
+  height: 24px;
+  padding: 0 8px;
+  border-radius: var(--rs, 6px);
+  background: var(--pr, #2d9d8a);
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.merchant-drawer__item-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.merchant-drawer__item-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--fg, #1f2937);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 收支块（参考图3：支出/收入去掉，换成图2的列表项样式） */
+.merchant-drawer__item-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.merchant-drawer__stat-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 10px;
+  border-radius: var(--rs, 6px);
+  background: var(--srf, #ffffff);
+  border-left: 3px solid var(--bd, #d1d5db);
+}
+
+.merchant-drawer__stat-item.expense {
+  border-left-color: var(--exp, #e06055);
+}
+
+.merchant-drawer__stat-item.income {
+  border-left-color: var(--inc, #3ba272);
+}
+
+.merchant-drawer__stat-label {
+  font-size: 11px;
+  color: var(--fg3, #9ca3af);
+  font-weight: 500;
+  min-width: 28px;
+}
+
+.merchant-drawer__stat-amount {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--fg, #1f2937);
+  flex: 1;
+}
+
+.merchant-drawer__stat-item.expense .merchant-drawer__stat-amount {
+  color: var(--exp, #e06055);
+}
+
+.merchant-drawer__stat-item.income .merchant-drawer__stat-amount {
+  color: var(--inc, #3ba272);
+}
+
+.merchant-drawer__stat-count {
+  font-size: 11px;
+  color: var(--fg2, #4b5563);
+  background: var(--bg, #f9fafb);
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-weight: 500;
+}
+
+.merchant-drawer__item-date {
+  font-size: 11px;
+  color: var(--fg3, #9ca3af);
+}
+
+/* ---- 分页 ---- */
+.merchant-drawer__pagination {
+  padding: 12px 20px;
+  border-top: 1px solid var(--bd, #e5e7eb);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  flex-shrink: 0;
+  background: var(--srf, #ffffff);
+}
+
+.merchant-drawer__page-btn {
+  padding: 6px 14px;
+  font-size: 12px;
+  background: var(--srf, #ffffff);
+  border: 1px solid var(--bd, #d1d5db);
+  color: var(--fg2, #4b5563);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-family: var(--fn, system-ui);
+}
+
+.merchant-drawer__page-btn:hover:not(:disabled) {
+  border-color: var(--pr, #2d9d8a);
+  color: var(--pr, #2d9d8a);
+}
+
+.merchant-drawer__page-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.merchant-drawer__page-info {
+  font-size: 12px;
+  color: var(--fg3, #9ca3af);
+}
+
+.merchant-drawer__page-info strong {
+  color: var(--fg, #1f2937);
+  font-weight: 600;
+}
+
+/* ---- 深色模式 ---- */
+[data-theme='dark'] .merchant-drawer__item:hover {
+  box-shadow: 0 2px 8px rgba(45, 157, 138, 0.2);
+}
+
+/* ---- 响应式 ---- */
+@media (max-width: 768px) {
+  .merchant-drawer__toolbar {
+    padding: 12px 14px 10px;
+  }
+  .merchant-drawer__multiselect {
+    padding: 8px 14px;
+  }
+  .merchant-drawer__list {
+    padding: 10px 14px;
+  }
+}

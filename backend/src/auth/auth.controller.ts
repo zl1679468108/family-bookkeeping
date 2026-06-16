@@ -13,6 +13,7 @@ import {
 import { Request } from 'express';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
+import { SwitchAccountDto } from './dto/switch-account.dto';
 import { RegisterDto } from './dto/register.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
@@ -57,6 +58,13 @@ export class AuthController {
   async login(@Body() dto: LoginDto) {
     const data = await this.authService.login(dto);
     return { message: '登录成功', data };
+  }
+
+  @Post('switch-account')
+  @HttpCode(HttpStatus.OK)
+  async switchAccount(@Body() dto: SwitchAccountDto) {
+    const data = await this.authService.switchAccount(dto);
+    return { message: '账号切换成功', data };
   }
 
   @Post('forgot-password')

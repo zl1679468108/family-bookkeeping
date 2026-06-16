@@ -19,6 +19,7 @@ import { Pagination } from '../../../components/ui/Pagination'
 import { EmptyState } from '../../../components/ui/EmptyState'
 import { TableRowsSkeleton } from '../../../components/ui/Skeleton'
 import { GlobalModal } from '../../../components/ui';
+import { renderCategoryIcon } from '../../../utils/renderCategoryIcon';
 
 const AdminTransactions: React.FC = () => {
   const [page, setPage] = useState(1);
@@ -175,7 +176,7 @@ const AdminTransactions: React.FC = () => {
                       <td>
                         {t.categories ? (
                           <span className="category-cell">
-                            <span className="category-icon">{t.categories.icon}</span>
+                            <span className="category-icon">{renderCategoryIcon(t.categories.icon, { size: 16 })}</span>
                             <span>{t.categories.name}</span>
                           </span>
                         ) : (

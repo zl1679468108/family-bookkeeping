@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { useMutation } from '@tanstack/react-query';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createBook, updateBook } from '../../../services/booksApi';
+import { fetchCustomIcons, uploadIcon, deleteIcon } from '../../../services/iconsApi';
 import { BOOK_ICONS, getBookIconByKey } from '../../../utils/bookIcons';
 import { notify } from '../../../utils/notifications';
 import { GlobalModal } from '../../../components/ui';
@@ -8,6 +9,7 @@ import { Button } from '../../../components/ui/Button';
 import { Input } from '../../../components/ui/Input';
 import { Textarea } from '../../../components/ui/Textarea';
 import { IconGrid } from '../../../components/ui/IconGrid';
+import type { CustomIconItem } from '../../../components/ui/IconGrid';
 import './index.scss';
 
 interface BookCreateModalProps {
@@ -18,6 +20,7 @@ interface BookCreateModalProps {
 }
 
 export const BookCreateModal: React.FC<BookCreateModalProps> = ({ open, onClose, editTarget, onSuccess }) => {
+  const queryClient = useQueryClient();
   const [bookName, setBookName] = useState('');
   const [bookDesc, setBookDesc] = useState('');
   const [bookIconKey, setBookIconKey] = useState('default');
@@ -32,12 +35,21 @@ export const BookCreateModal: React.FC<BookCreateModalProps> = ({ open, onClose,
     }
   }, [open, editTarget]);
 
+  // 获取账本自定义图标
+  const { data: customIcons = [], refetch: refetchIcons } = useQuery({
+    queryKey: ['customIcons', 'book'],
+    queryFn: () => fetchCustomIcons('book'),
+    staleTime: 5 * 60 * 1000,
+    enabled: open, // 仅弹窗打开时请求
+  });
+
   const mutation = useMutation({
     mutationFn: () => {
+      const isCustomIcon = bookIconKey.length === 36 && bookIconKey.includes('-');
       const payload = {
         name: bookName.trim(),
         description: bookDesc.trim(),
-        icon: bookIconKey,
+        ...(isCustomIcon ? { icon_id: bookIconKey } : { icon: bookIconKey }),
       };
       return isEdit && editTarget ? updateBook({ ...payload, id: editTarget.id }) : createBook(payload);
     },
@@ -61,6 +73,27 @@ export const BookCreateModal: React.FC<BookCreateModalProps> = ({ open, onClose,
     icon: getBookIconByKey(item.key),
     label: item.label,
   }));
+
+  // 自定义图标列表
+  const customIconItems: CustomIconItem[] = (customIcons || []).map((ci) => ({
+    id: ci.id,
+    icon_url: ci.icon_url,
+    icon_type: ci.icon_type,
+  }));
+
+  // 上传图标处理
+  const handleIconUpload = useCallback(async (file: File, iconType: 'category' | 'book') => {
+    await uploadIcon(file, iconType);
+    refetchIcons();
+    notify({ type: 'success', message: '图标上传成功' });
+  }, [refetchIcons]);
+
+  // 删除图标处理
+  const handleIconDelete = useCallback(async (iconId: string) => {
+    await deleteIcon(iconId);
+    refetchIcons();
+    notify({ type: 'success', message: '图标已删除' });
+  }, [refetchIcons]);
 
   return (
     <GlobalModal
@@ -104,7 +137,16 @@ export const BookCreateModal: React.FC<BookCreateModalProps> = ({ open, onClose,
 
         <div>
           <label className="ui-input-label" style={{ display: 'block', marginBottom: '6px' }}>图标</label>
-          <IconGrid options={iconOptions} value={bookIconKey} onChange={setBookIconKey} columns={5} />
+          <IconGrid
+            options={iconOptions}
+            value={bookIconKey}
+            onChange={setBookIconKey}
+            customIcons={customIconItems}
+            onUpload={handleIconUpload}
+            onDelete={handleIconDelete}
+            iconType="book"
+            columns={5}
+          />
         </div>
       </div>
     </GlobalModal>

@@ -53,7 +53,7 @@ export class BooksController {
     @CurrentUser('id') userId: string,
     @Body() dto: CreateBookDto,
   ) {
-    const data = await this.booksService.create(userId, dto.name, dto.description, dto.icon);
+    const data = await this.booksService.create(userId, dto.name, dto.description, dto.icon, dto.icon_id);
     return { message: '创建账本成功', data };
   }
 
@@ -64,7 +64,7 @@ export class BooksController {
     @Param('id') bookId: string,
     @Body() dto: UpdateBookDto,
   ) {
-    const data = await this.booksService.update(bookId, userId, dto.name!, dto.description, dto.icon);
+    const data = await this.booksService.update(bookId, userId, dto.name!, dto.description, dto.icon, dto.icon_id);
     return { message: '更新成功', data };
   }
 

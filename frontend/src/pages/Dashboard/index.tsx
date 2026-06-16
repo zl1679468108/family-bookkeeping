@@ -8,6 +8,7 @@ import { fetchSummary } from '../../services/statisticsApi'
 import { fetchBudgetStatus } from '../../services/budgetsApi'
 import { useBook } from '../../hooks/useBook'
 import { useCategoryLookup } from '../../hooks/useCategories'
+import { renderCategoryIcon } from '../../utils/renderCategoryIcon'
 import { Skeleton } from '../../components/ui/Skeleton'
 import { Card, CardHeader } from '../../components/ui/Card'
 import { EmptyState } from '../../components/ui/EmptyState'
@@ -17,7 +18,7 @@ import { Button } from '../../components/ui/Button'
 const Dashboard: React.FC = () => {
   const navigate = useNavigate()
   const { hasBooks } = useBook()
-  const { getCategoryIcon } = useCategoryLookup()
+  const { getCategoryIconNode } = useCategoryLookup()
 
   const monthStart = format(startOfMonth(new Date()), 'yyyy-MM-dd')
   const monthEnd = format(new Date(), 'yyyy-MM-dd')
@@ -161,7 +162,7 @@ const Dashboard: React.FC = () => {
                   className="txn-row"
                   onClick={() => navigate(`/transactions?focus=${txn.id}`)}
                 >
-                  <div className="txn-icon">{getCategoryIcon(txn.category)}</div>
+                  <div className="txn-icon">{getCategoryIconNode(txn.category, 24)}</div>
                   <div className="txn-info">
                     <div className="txn-title">{txn.description || '交易'}</div>
                     <div className="txn-meta">
@@ -220,7 +221,10 @@ const Dashboard: React.FC = () => {
               >
                 <div className="budget-info">
                   <span className="budget-name">
-                    {cat.category_icon} {cat.category_name}
+                    <span style={{ marginRight: '6px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '18px', height: '18px' }}>
+                      {renderCategoryIcon(cat.category_icon, { size: 18 })}
+                    </span>
+                    {cat.category_name}
                   </span>
                   <span className="budget-amount">
                     ¥{cat.spent.toLocaleString('zh-CN')} / ¥{cat.budget.toLocaleString('zh-CN')}

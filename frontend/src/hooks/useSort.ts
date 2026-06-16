@@ -49,13 +49,15 @@ export function useSort<T extends SortableItem>(
   // 本地排序列表
   const [orderedList, setOrderedList] = useState<T[]>(list)
 
-  // 同步列表数据（仅在内容变化时更新，避免引用变化导致无限循环）
+  // 同步列表数据：非排序模式时始终同步最新数据（包括属性变化）
+  // 使用 JSON.stringify 做浅比较，避免仅 ID 相同但属性（如 icon、name）不同时不更新
   useEffect(() => {
     if (!sortingMode) {
       setOrderedList(prev => {
-        if (prev.length === list.length && prev.every((item, i) => item.id === list[i].id)) {
-          return prev
-        }
+        // 检查每个项目的 JSON 表示是否相同（捕获 icon/name/sort_order 等属性变化）
+        const isIdentical = prev.length === list.length &&
+          prev.every((item, i) => JSON.stringify(item) === JSON.stringify(list[i]))
+        if (isIdentical) return prev
         return list
       })
     }

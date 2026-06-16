@@ -36,13 +36,14 @@ export class CaptchaService {
   generate(): { captchaId: string; svg: string } {
     const captcha = svgCaptcha.create({
       size: 4, // 验证码字符数
-      noise: 2, // 干扰线数量
+      noise: 1, // 干扰线数量（减少干扰，更清晰）
       color: true, // 彩色字符
-      background: '#f0f0f0', // 背景色
-      width: 120,
-      height: 40,
-      fontSize: 40,
-      charPreset: 'abcdefhkmnprstuvwxyz23456789', // 去除易混淆字符
+      background: '#ffffff', // 白色背景
+      width: 160,
+      height: 56,
+      fontSize: 56,
+      ignoreChars: '0o1ilI', // 去除易混淆字符
+      charPreset: 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789', // 大写+数字，更易辨识
     });
 
     const captchaId = this.generateId();

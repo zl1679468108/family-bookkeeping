@@ -15,12 +15,14 @@ export interface Category {
 
 export interface CreateCategoryInput {
   name: string;
-  icon: string;
+  icon?: string;
+  icon_id?: string;
   type: 'expense' | 'income';
 }
 
 export interface UpdateCategoryInput {
   name?: string;
   icon?: string;
+  icon_id?: string;
   sort_order?: number;
 }

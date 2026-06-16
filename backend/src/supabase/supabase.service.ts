@@ -10,16 +10,20 @@ export class SupabaseService implements OnModuleInit {
 
   onModuleInit() {
     const supabaseUrl = this.configService.get<string>('SUPABASE_URL');
-    const supabaseAnonKey = this.configService.get<string>('SUPABASE_ANON_KEY');
+    const supabaseServiceRoleKey = this.configService.get<string>('SUPABASE_SERVICE_ROLE_KEY');
 
-    if (!supabaseUrl || !supabaseAnonKey) {
-      throw new Error('Supabase 配置缺失，请检查环境变量 SUPABASE_URL 和 SUPABASE_ANON_KEY');
+    if (!supabaseUrl || !supabaseServiceRoleKey) {
+      throw new Error('Supabase 配置缺失，请检查环境变量 SUPABASE_URL 和 SUPABASE_SERVICE_ROLE_KEY');
     }
 
     const ws = require('ws');
-    this.supabase = createClient(supabaseUrl, supabaseAnonKey, {
+    this.supabase = createClient(supabaseUrl, supabaseServiceRoleKey, {
       realtime: {
         transport: ws,
+      },
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false,
       },
     });
   }

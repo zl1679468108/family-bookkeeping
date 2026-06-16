@@ -1,8 +1,10 @@
 import React from 'react';
+import { renderCategoryIcon } from '../../utils/renderCategoryIcon';
 
 interface CategoryItem {
   category_name: string;
   category_icon: string;
+  category_type: string;
   amount: number;
   percentage: number;
 }
@@ -48,7 +50,7 @@ export const ReportCategoryRank: React.FC<ReportCategoryRankProps> = ({ data }) 
                 className="w-8 h-8 rounded-lg flex items-center justify-center text-sm"
                 style={{ backgroundColor: colors[index % colors.length] + '20' }}
               >
-                <span>{item.category_icon || '📦'}</span>
+                {renderCategoryIcon(item.category_icon, { size: 18 })}
               </div>
               <div className="flex-1">
                 <div className="flex items-center justify-between mb-2">
