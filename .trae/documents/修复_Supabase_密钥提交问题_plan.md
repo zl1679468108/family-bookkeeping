@@ -18,16 +18,16 @@ remote: -- Supabase Secret Key ---
 
 经检查仓库内涉及敏感信息的文件：
 
-- [backend/.env.development](file:///Users/zhaolong/前端/family-bookkeeping/backend/.env.development)
-  - `SUPABASE_SERVICE_ROLE_KEY=sb_secret_********`
-  - `JWT_SECRET=********`
-  - `MAIL_PASSWORD=********`
-  - `MAIL_USER=1679468108@qq.com`
-- [backend/.env.production](file:///Users/zhaolong/前端/family-bookkeeping/backend/.env.production) 同样包含上述密钥
-- [frontend/.env.development](file:///Users/zhaolong/前端/family-bookkeeping/frontend/.env.development)
-  - `REACT_APP_AMAP_KEY=********`
-  - `REACT_APP_AMAP_SECRET=********`
-- [frontend/.env.production](file:///Users/zhaolong/前端/family-bookkeeping/frontend/.env.production) 同上
+- backend/.env.development
+  - `SUPABASE_SERVICE_ROLE_KEY=sb_secret_********`（真实密钥，此处已替换为占位符）
+  - `JWT_SECRET=********`（真实密钥，此处已替换为占位符）
+  - `MAIL_PASSWORD=********`（真实密码，此处已替换为占位符）
+  - `MAIL_USER=********@qq.com`（真实邮箱，此处已替换为占位符）
+- backend/.env.production 同样包含上述密钥
+- frontend/.env.development
+  - `REACT_APP_AMAP_KEY=********`（真实 key，此处已替换为占位符）
+  - `REACT_APP_AMAP_SECRET=********`（真实 secret，此处已替换为占位符）
+- frontend/.env.production 同上
 
 这些文件被 Git 追踪并已出现在本地 commit 中（被 push 保护拦截的那批提交）。
 

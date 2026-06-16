@@ -31,13 +31,10 @@ RUN npm install --production
 # 从构建阶段复制编译后的代码
 COPY --from=builder /app/dist ./dist
 
-# 复制环境配置文件
-COPY .env.development ./.env.development
-COPY .env.production ./.env.production
-
 # 暴露端口
 EXPOSE 3000
 
-# 根据 NODE_ENV 环境变量选择对应的配置文件并启动应用
-# 使用方式：docker run -e NODE_ENV=production <image>
-CMD ["sh", "-c", "cp .env.$NODE_ENV .env && node dist/main.js"]
+# 启动应用（依赖 CloudBase Run / Docker 环境变量注入，
+# 不再从 .env 文件读取密钥，避免密钥被打进镜像）
+# 使用方式：docker run -e NODE_ENV=production -e SUPABASE_URL=... -e SUPABASE_SERVICE_ROLE_KEY=... <image>
+CMD ["node", "dist/main.js"]

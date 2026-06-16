@@ -24,6 +24,9 @@ pnpm-debug.log*
 .env.*
 !.env.example
 
+# 本地临时备份（由安全修复脚本生成，禁止提交）
+_local_env_backup/
+
 # 锁文件(如需提交请删除对应行)
 # package-lock.json
 # yarn.lock
