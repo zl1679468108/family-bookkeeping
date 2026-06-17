@@ -2,10 +2,11 @@
  * Profile — 我的
  * 菜单顺序：年报 / 日历 / 地图 / 账本 / 分类 / 模版 / 预算 / 切换账号 / 退出登录
  */
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { View, Text, Image, Input } from "@tarojs/components";
 import Taro from "@tarojs/taro";
 import { useAuth } from "../../context/AuthContext";
+import { getCaptcha } from "../../services/authApi";
 import PageLayout from "../../components/PageLayout";
 import Icon from "../../components/Icon";
 import {
@@ -28,6 +29,9 @@ export default function Profile() {
   const [loginLoading, setLoginLoading] = useState(false);
   const [switchingEmail, setSwitchingEmail] = useState<string | null>(null);
   const [tokenExpiredEmail, setTokenExpiredEmail] = useState<string | null>(null);
+  const [captchaId, setCaptchaId] = useState("");
+  const [captchaCode, setCaptchaCode] = useState("");
+  const [captchaSrc, setCaptchaSrc] = useState("");
 
   const initial = (user?.username || "U").charAt(0).toUpperCase();
   const hasAvatar = user?.avatar_url && user.avatar_url.startsWith('data:') || user?.avatar_url?.startsWith('http');
@@ -109,16 +113,39 @@ export default function Profile() {
     setAccounts(getSavedAccounts());
   };
 
+  const refreshCaptcha = async () => {
+    try {
+      const { captchaId: id, svg } = await getCaptcha();
+      setCaptchaId(id);
+      // 小程序Image组件支持data URL，将SVG编码为URL-safe格式
+      const encodedSvg = encodeURIComponent(svg);
+      setCaptchaSrc(`data:image/svg+xml,${encodedSvg}`);
+      setCaptchaCode("");
+    } catch {
+      setLoginError("获取验证码失败");
+    }
+  };
+
+  useEffect(() => {
+    if (showLoginForm) {
+      refreshCaptcha();
+    }
+  }, [showLoginForm]);
+
   // 使用邮箱密码登录
   const handleLogin = async () => {
     if (!loginEmail.trim() || !loginPassword.trim()) {
       setLoginError("请输入邮箱和密码");
       return;
     }
+    if (!captchaCode.trim()) {
+      setLoginError("请输入验证码");
+      return;
+    }
     setLoginError("");
     setLoginLoading(true);
     try {
-      await signIn(loginEmail.trim(), loginPassword);
+      await signIn(loginEmail.trim(), loginPassword, captchaId, captchaCode);
       Taro.showToast({ title: "切换成功", icon: "success" });
       setAccounts(getSavedAccounts());
       setSwitchModal(false);
@@ -127,8 +154,10 @@ export default function Profile() {
       setLoginPassword("");
       setLoginError("");
       setTokenExpiredEmail(null);
+      setCaptchaCode("");
     } catch (err) {
-      setLoginError("登录失败，请检查账号密码");
+      setLoginError("登录失败，请检查账号密码和验证码");
+      refreshCaptcha();
     } finally {
       setLoginLoading(false);
     }
@@ -325,6 +354,24 @@ export default function Profile() {
                       placeholder="输入密码"
                       password
                     />
+                  </View>
+                  <View className="switch-form-group">
+                    <Text className="switch-form-label">验证码</Text>
+                    <View className="switch-captcha-row">
+                      <Input
+                        className="switch-form-input switch-captcha-input"
+                        value={captchaCode}
+                        onInput={(e) => setCaptchaCode(e.detail.value)}
+                        placeholder="输入验证码"
+                        maxlength={4}
+                      />
+                      <Image
+                        className="switch-captcha-img"
+                        src={captchaSrc}
+                        mode="widthFix"
+                        onClick={refreshCaptcha}
+                      />
+                    </View>
                   </View>
                   {loginError ? (
                     <Text className="switch-login-error">{loginError}</Text>

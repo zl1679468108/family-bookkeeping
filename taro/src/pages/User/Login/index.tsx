@@ -1,32 +1,67 @@
 /**
  * Login — V3.0 安静登录页
  */
-import { useState } from "react";
-import { View, Text, Input } from "@tarojs/components";
+import { useState, useEffect, useRef } from "react";
+import { View, Text, Input, Image } from "@tarojs/components";
 import Taro from "@tarojs/taro";
 import { useAuth } from "../../../context/AuthContext";
+import { getCaptcha } from "../../../services/authApi";
 import { ApiError } from "../../../services/api";
 import "./index.scss";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [captchaCode, setCaptchaCode] = useState("");
+  const [captchaId, setCaptchaId] = useState("");
+  const [captchaSrc, setCaptchaSrc] = useState("");
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const { signIn } = useAuth();
+  const captchaLoaded = useRef(false);
+
+  const refreshCaptcha = async () => {
+    try {
+      const { captchaId: id, svg } = await getCaptcha();
+      setCaptchaId(id);
+      // 小程序Image组件支持data URL，将SVG编码为URL-safe格式
+      const encodedSvg = encodeURIComponent(svg);
+      setCaptchaSrc(`data:image/svg+xml,${encodedSvg}`);
+      setCaptchaCode("");
+    } catch {
+      setError("获取验证码失败");
+    }
+  };
+
+  useEffect(() => {
+    // 防止 React 18 严格模式或多次渲染时重复请求
+    if (captchaLoaded.current) return;
+    captchaLoaded.current = true;
+    refreshCaptcha();
+  }, []);
 
   const handleSubmit = async () => {
     if (!email.trim() || !password.trim()) {
       setError("请输入邮箱和密码");
       return;
     }
+    if (!captchaCode.trim()) {
+      setError("请输入验证码");
+      return;
+    }
     setError("");
     setSubmitting(true);
     try {
-      await signIn(email.trim(), password);
-      Taro.reLaunch({ url: "/pages/Home/index" });
+      await signIn(email.trim(), password, captchaId, captchaCode);
+      const pages = Taro.getCurrentPages();
+      if (pages.length > 1) {
+        Taro.navigateBack();
+      } else {
+        Taro.reLaunch({ url: "/pages/Home/index" });
+      }
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "登录失败，请稍后重试");
+      refreshCaptcha();
     } finally {
       setSubmitting(false);
     }
@@ -67,9 +102,30 @@ export default function Login() {
             placeholder="输入密码"
             placeholderClass="text-hint"
             password
-            confirmType="done"
-            onConfirm={handleSubmit}
+            confirmType="next"
           />
+        </View>
+
+        <View className="mb-3">
+          <Text className="input-label">验证码</Text>
+          <View className="captcha-row">
+            <Input
+              className="auth-input captcha-input"
+              value={captchaCode}
+              onInput={(e) => setCaptchaCode(e.detail.value)}
+              placeholder="请输入验证码"
+              placeholderClass="text-hint"
+              confirmType="done"
+              maxlength={4}
+              onConfirm={handleSubmit}
+            />
+            <Image
+              className="captcha-img"
+              src={captchaSrc}
+              mode="widthFix"
+              onClick={refreshCaptcha}
+            />
+          </View>
         </View>
 
         {error ? (

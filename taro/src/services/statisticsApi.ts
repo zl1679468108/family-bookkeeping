@@ -23,7 +23,7 @@ export const fetchSummary = async (
     `endDate=${encodeURIComponent(params.endDate)}`,
   ];
   const query = parts.join("&");
-  return apiGet<StatisticsSummary>(`${STATISTICS_PATH}/summary?${query}`);
+  return apiGet<StatisticsSummary>(`${STATISTICS_PATH}/summary?${query}`, { requiresAuth: true });
 };
 
 /** Get monthly trend data */
@@ -39,6 +39,7 @@ export const fetchMonthlyTrend = async (
   const query = parts.join("&");
   return apiGet<MonthlyTrendItem[]>(
     `${STATISTICS_PATH}/monthly-trend${query ? "?" + query : ""}`,
+    { requiresAuth: true },
   );
 };
 
@@ -55,6 +56,7 @@ export const fetchDailySummary = async (
 > => {
   return apiGet(
     `${STATISTICS_PATH}/daily-summary?month=${encodeURIComponent(month)}`,
+    { requiresAuth: true },
   );
 };
 
@@ -70,7 +72,39 @@ export const fetchCategoryBreakdown = async (
   const query = parts.join("&");
   return apiGet<CategoryBreakdownItem[]>(
     `${STATISTICS_PATH}/category-breakdown?${query}`,
+    { requiresAuth: true },
   );
+};
+
+/** Get year-over-year comparison data */
+export const fetchYearOverYear = async (params: {
+  year: number;
+  compareYear: number;
+  type: "income" | "expense";
+}): Promise<Array<{ month: string; amount: number; compare_amount: number }>> => {
+  const parts = [
+    `year=${encodeURIComponent(String(params.year))}`,
+    `compareYear=${encodeURIComponent(String(params.compareYear))}`,
+    `type=${encodeURIComponent(params.type)}`,
+  ];
+  const query = parts.join("&");
+  return apiGet(`${STATISTICS_PATH}/yoy-comparison?${query}`, { requiresAuth: true });
+};
+
+/** Get budget status for a month */
+export const fetchBudgetStatus = async (params: {
+  month: string;
+}): Promise<Array<{
+  category_id: string;
+  category_name: string;
+  budget_amount: number;
+  spent_amount: number;
+  percentage: number;
+  is_over_budget: boolean;
+}>> => {
+  const parts = [`month=${encodeURIComponent(params.month)}`];
+  const query = parts.join("&");
+  return apiGet(`${STATISTICS_PATH}/budget-status?${query}`, { requiresAuth: true });
 };
 
 // ---- Annual Report ----
@@ -126,5 +160,5 @@ export const fetchAnnualReport = async (
 ): Promise<AnnualReportData> => {
   const params = [`year=${encodeURIComponent(String(year))}`];
   const query = params.join("&");
-  return apiGet<AnnualReportData>(`/reports/annual?${query}`);
+  return apiGet<AnnualReportData>(`/reports/annual?${query}`, { requiresAuth: true });
 };

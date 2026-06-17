@@ -8,7 +8,7 @@ import { sendResetCode, resetPasswordByCode } from "../../../services/authApi";
 import { ApiError } from "../../../services/api";
 import "./index.scss";
 
-type Step = "email" | "code";
+type Step = "email" | "code" | "success";
 
 export default function ForgotPassword() {
   const [step, setStep] = useState<Step>("email");
@@ -80,14 +80,41 @@ export default function ForgotPassword() {
     setResetting(true);
     try {
       await resetPasswordByCode(email.trim(), code.trim(), password);
-      setSuccess("密码重置成功");
-      setTimeout(() => Taro.navigateBack(), 1500);
+      setStep("success");
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "重置失败，请稍后重试");
     } finally {
       setResetting(false);
     }
   }, [email, code, password, confirmPassword]);
+
+  const handleResendCode = useCallback(async () => {
+    if (!email.trim()) {
+      setError("请输入邮箱地址");
+      return;
+    }
+    setError("");
+    try {
+      await sendResetCode(email.trim());
+      setSuccess("验证码已重新发送");
+      startCountdown();
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "发送失败，请稍后重试");
+    }
+  }, [email]);
+
+  const handleGoBack = () => {
+    if (step === "email") {
+      Taro.navigateBack();
+    } else {
+      setStep("email");
+      setCode("");
+      setPassword("");
+      setConfirmPassword("");
+      setError("");
+      setSuccess("");
+    }
+  };
 
   return (
     <View className="forgot-password-page min-h-screen bg-white flex flex-col">
@@ -98,13 +125,22 @@ export default function ForgotPassword() {
         </View>
         <Text className="app-name text-2xl font-bold">静记</Text>
         <Text className="app-slogan text-base text-secondary mt-2">
-          {step === "email" ? "输入邮箱获取验证码" : "输入验证码设置新密码"}
+          {step === "email" ? "输入邮箱获取验证码" : step === "code" ? "输入验证码设置新密码" : "密码重置成功"}
         </Text>
+      </View>
+
+      {/* Step Indicator */}
+      <View className="step-indicator">
+        <View className={`step-dot ${step === "email" ? "active" : "done"}`} />
+        <View className={`step-line ${step >= "code" ? "done" : ""}`} />
+        <View className={`step-dot ${step >= "code" ? (step === "success" ? "done" : "active") : ""}`} />
+        <View className={`step-line ${step === "success" ? "done" : ""}`} />
+        <View className={`step-dot ${step === "success" ? "active" : ""}`} />
       </View>
 
       {/* Form */}
       <View className="forgot-form flex flex-col px-4">
-        {step === "email" ? (
+        {step === "email" && (
           <View className="form-content">
             <View className="form-item">
               <Text className="input-label">邮箱</Text>
@@ -131,8 +167,16 @@ export default function ForgotPassword() {
                 <Text>{sending ? "发送中..." : "获取验证码"}</Text>
               </View>
             </View>
+
+            <View className="form-footer">
+              <Text className="text-secondary text-md" onClick={handleGoBack}>
+                ← 返回登录
+              </Text>
+            </View>
           </View>
-        ) : (
+        )}
+
+        {step === "code" && (
           <View className="form-content">
             {success ? (
               <Text className="form-success text-sm text-primary text-center">
@@ -141,18 +185,36 @@ export default function ForgotPassword() {
             ) : null}
 
             <View className="form-item">
-              <Text className="input-label">验证码</Text>
+              <Text className="input-label">邮箱地址</Text>
               <Input
                 className="auth-input"
-                value={code}
-                onInput={(e) => setCode(e.detail.value)}
-                placeholder="输入6位验证码"
+                value={email}
+                disabled
                 placeholderClass="text-hint"
-                maxlength={6}
-                type="number"
-                focus
               />
             </View>
+
+            <View className="form-item">
+              <Text className="input-label">验证码</Text>
+              <View className="captcha-row">
+                <Input
+                  className="auth-input captcha-input"
+                  value={code}
+                  onInput={(e) => setCode(e.detail.value)}
+                  placeholder="输入6位验证码"
+                  placeholderClass="text-hint"
+                  maxlength={6}
+                  type="number"
+                />
+                <View
+                  className={`captcha-btn ${countdown > 0 ? "disabled" : ""}`}
+                  onClick={() => countdown === 0 && handleResendCode()}
+                >
+                  <Text>{countdown > 0 ? `${countdown}s` : "重新发送"}</Text>
+                </View>
+              </View>
+            </View>
+
             <View className="form-item">
               <Text className="input-label">新密码</Text>
               <Input
@@ -164,6 +226,7 @@ export default function ForgotPassword() {
                 password
               />
             </View>
+
             <View className="form-item">
               <Text className="input-label">确认新密码</Text>
               <Input
@@ -173,6 +236,7 @@ export default function ForgotPassword() {
                 placeholder="确认新密码"
                 placeholderClass="text-hint"
                 password
+                onConfirm={handleReset}
               />
             </View>
 
@@ -189,18 +253,26 @@ export default function ForgotPassword() {
               </View>
             </View>
 
-            {countdown > 0 ? (
-              <Text className="form-link text-secondary text-center">
-                {countdown}s 后可重新发送
+            <View className="form-footer">
+              <Text className="text-secondary text-md" onClick={handleGoBack}>
+                ← 返回
               </Text>
-            ) : (
-              <Text
-                className="form-link text-primary text-center"
-                onClick={handleSendCode}
-              >
-                重新发送验证码
-              </Text>
-            )}
+            </View>
+          </View>
+        )}
+
+        {step === "success" && (
+          <View className="form-content success-content">
+            <View className="success-card">
+              <View className="success-icon">✅</View>
+              <Text className="success-title">密码重置成功</Text>
+              <Text className="success-desc">请使用新密码登录账户</Text>
+            </View>
+            <View className="forgot-form-submit">
+              <View className="forgot-btn" onClick={() => Taro.navigateTo({ url: "/pages/User/Login/index" })}>
+                <Text>返回登录</Text>
+              </View>
+            </View>
           </View>
         )}
       </View>

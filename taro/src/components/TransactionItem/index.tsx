@@ -17,6 +17,7 @@ export interface TransactionItemProps {
   onClick?: () => void;
   onDelete?: () => void;
   onLongPress?: () => void;
+  hasImage?: boolean;
 }
 
 const SWIPE_THRESHOLD = 60;
@@ -32,6 +33,7 @@ export default function TransactionItem({
   onClick,
   onDelete,
   onLongPress,
+  hasImage,
 }: TransactionItemProps) {
   const [swiped, setSwiped] = useState(false);
   const touchStartX = useRef(0);
@@ -121,11 +123,14 @@ export default function TransactionItem({
           </Text>
         </View>
 
-        <Text
-          className={`txi-amount ${isExpense ? "txi-amount--expense" : "txi-amount--income"}`}
-        >
-          {amountStr}
-        </Text>
+        <View className="txi-right">
+          <Text
+            className={`txi-amount ${isExpense ? "txi-amount--expense" : "txi-amount--income"}`}
+          >
+            {amountStr}
+          </Text>
+          {hasImage && <Text className="txi-image-badge">📎</Text>}
+        </View>
       </View>
     </View>
   );

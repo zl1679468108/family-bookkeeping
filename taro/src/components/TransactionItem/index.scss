@@ -73,6 +73,17 @@
   margin-right: 16rpx;
 }
 
+.txi-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6rpx;
+}
+
+.txi-image-badge {
+  font-size: 20rpx;
+}
+
 .txi-name {
   font-size: 28rpx;
   font-weight: 600;

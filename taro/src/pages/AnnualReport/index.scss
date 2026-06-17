@@ -1,6 +1,7 @@
 .annual-report {
   min-height: 100vh;
   background: #f5f5f5;
+  padding-top: env(safe-area-inset-top, 0);
 }
 
 .report-header {
@@ -58,7 +59,58 @@
 }
 
 .report-scroll {
-  height: calc(100vh - 88rpx);
+  height: calc(100vh - 88rpx - 140rpx);
+}
+
+/* 底部操作按钮 */
+.report-actions {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  gap: 20rpx;
+  padding: 24rpx 32rpx calc(24rpx + env(safe-area-inset-bottom, 0));
+  background: #ffffff;
+  box-shadow: 0 -2rpx 12rpx rgba(0, 0, 0, 0.08);
+}
+
+.report-action-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12rpx;
+  height: 88rpx;
+  border-radius: 44rpx;
+  font-size: 30rpx;
+  font-weight: 600;
+
+  &.save {
+    background: var(--primary);
+    color: #ffffff;
+  }
+
+  &.share {
+    background: #ffffff;
+    color: var(--primary);
+    border: 2rpx solid var(--primary);
+  }
+}
+
+.report-action-icon {
+  font-size: 32rpx;
+}
+
+.report-action-text {
+  font-size: 30rpx;
+}
+
+/* 隐藏的 Canvas */
+.report-canvas {
+  position: fixed;
+  left: -9999px;
+  top: -9999px;
 }
 
 .report-loading {

@@ -55,6 +55,35 @@
   line-height: 1;
 }
 
+.ft-images-pending-hint {
+  font-size: 22rpx;
+  color: #f5a623;
+  margin-left: 16rpx;
+  font-weight: 500;
+}
+
+.ft-images-item--pending {
+  position: relative;
+}
+
+.ft-images-pending-tag {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  padding: 4rpx 8rpx;
+  background: rgba(245, 166, 35, 0.85);
+  border-radius: 16rpx 16rpx 0 0;
+  display: flex;
+  justify-content: center;
+}
+
+.ft-images-pending-tag-text {
+  font-size: 20rpx;
+  color: #ffffff;
+  font-weight: 600;
+}
+
 .ft-images-add {
   width: 100%;
   height: 200rpx;

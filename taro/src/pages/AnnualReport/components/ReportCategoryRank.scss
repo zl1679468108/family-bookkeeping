@@ -42,9 +42,15 @@
   color: #d97706;
 }
 
+.cat-rank__icon-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 16rpx;
+}
+
 .cat-rank__icon {
   font-size: 40rpx;
-  margin-right: 16rpx;
 }
 
 .cat-rank__info {

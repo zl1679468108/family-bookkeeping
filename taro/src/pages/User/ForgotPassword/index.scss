@@ -40,6 +40,43 @@
     margin-top: 0;
   }
 
+  /* Step Indicator */
+  .step-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 24rpx;
+    padding: 20rpx 0 40rpx;
+  }
+
+  .step-dot {
+    width: 20rpx;
+    height: 20rpx;
+    border-radius: 50%;
+    background-color: var(--border);
+    transition: all 0.3s ease;
+
+    &.active {
+      background-color: var(--primary);
+      box-shadow: 0 0 0 6rpx rgba(45, 157, 138, 0.2);
+    }
+
+    &.done {
+      background-color: var(--primary);
+    }
+  }
+
+  .step-line {
+    width: 80rpx;
+    height: 4rpx;
+    background-color: var(--border);
+    transition: all 0.3s ease;
+
+    &.done {
+      background-color: var(--primary);
+    }
+  }
+
   /* Form */
   .forgot-form {
     flex: 1;
@@ -102,5 +139,71 @@
   .form-link {
     margin-top: 24rpx;
     display: block;
+  }
+
+  .form-footer {
+    margin-top: 32rpx;
+    text-align: center;
+  }
+
+  /* Captcha */
+  .captcha-row {
+    display: flex;
+    gap: 16rpx;
+    align-items: center;
+  }
+
+  .auth-input.captcha-input {
+    flex: 1;
+  }
+
+  .captcha-btn {
+    width: 160rpx;
+    height: 88rpx;
+    border-radius: var(--radius-sm);
+    background-color: var(--surface);
+    border: 2rpx solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24rpx;
+    color: var(--primary);
+    font-weight: 500;
+
+    &.disabled {
+      color: var(--fg-3);
+      border-color: var(--border-light);
+      background-color: var(--bg);
+    }
+  }
+
+  /* Success */
+  .success-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 60rpx;
+  }
+
+  .success-card {
+    text-align: center;
+    padding: 60rpx 40rpx;
+  }
+
+  .success-icon {
+    font-size: 100rpx;
+    margin-bottom: 24rpx;
+  }
+
+  .success-title {
+    font-size: 36rpx;
+    font-weight: 600;
+    color: var(--fg);
+    margin-bottom: 12rpx;
+  }
+
+  .success-desc {
+    font-size: 28rpx;
+    color: var(--fg-2);
   }
 }

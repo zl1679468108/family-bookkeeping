@@ -65,7 +65,7 @@ async function request<T>(
   //   request("POST", url, { data, silent }) - 新方式：第二参数是 options
   let data: unknown = undefined;
   let silent = false;
-  let requiresAuth = true;
+  let requiresAuth = false; // 默认不需要认证（与PC端保持一致），需要认证的接口显式指定
 
   if (arg2 !== undefined) {
     if (
@@ -77,7 +77,7 @@ async function request<T>(
       const opts = arg2 as RequestOptions;
       data = opts.data;
       silent = opts.silent ?? false;
-      requiresAuth = opts.requiresAuth ?? true;
+      requiresAuth = opts.requiresAuth ?? requiresAuth; // 使用已有默认值，不是硬编码true
     } else {
       // 直接作为请求体 data
       data = arg2;

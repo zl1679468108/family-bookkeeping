@@ -16,6 +16,7 @@ const BUDGETS_PATH = "/budgets";
 export const fetchBudgets = async (month: string): Promise<BudgetRecord[]> => {
   return apiGet<BudgetRecord[]>(
     `${BUDGETS_PATH}?month=${encodeURIComponent(month)}`,
+    { requiresAuth: true },
   );
 };
 
@@ -25,6 +26,7 @@ export const fetchBudgetStatus = async (
 ): Promise<BudgetStatus> => {
   return apiGet<BudgetStatus>(
     `${BUDGETS_PATH}/status?month=${encodeURIComponent(month)}`,
+    { requiresAuth: true },
   );
 };
 
@@ -32,12 +34,15 @@ export const fetchBudgetStatus = async (
 export const upsertBudgets = async (
   input: UpsertBudgetInput,
 ): Promise<BudgetRecord[]> => {
-  return apiPut<BudgetRecord[]>(BUDGETS_PATH, input);
+  return apiPut<BudgetRecord[]>(BUDGETS_PATH, { data: input, requiresAuth: true });
 };
 
 /** Copy previous month budgets */
 export const copyBudgets = async (
   input: CopyBudgetInput,
 ): Promise<BudgetRecord[]> => {
-  return apiPost<BudgetRecord[]>(`${BUDGETS_PATH}/copy`, input);
+  return apiPost<BudgetRecord[]>(`${BUDGETS_PATH}/copy`, {
+    data: input,
+    requiresAuth: true,
+  });
 };

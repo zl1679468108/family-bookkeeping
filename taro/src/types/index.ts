@@ -64,6 +64,8 @@ export interface CreateTransactionInput {
   type: "income" | "expense";
   date: string;
   description?: string;
+  brand?: string;
+  image_urls?: string;
   location_name?: string;
   location_lat?: number;
   location_lng?: number;

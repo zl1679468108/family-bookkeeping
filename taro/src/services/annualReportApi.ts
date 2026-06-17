@@ -35,5 +35,5 @@ export interface AnnualReportData {
 export const fetchAnnualReport = async (
   year: number
 ): Promise<AnnualReportData> => {
-  return apiGet<AnnualReportData>(`/annual-report?year=${year}`);
+  return apiGet<AnnualReportData>(`/annual-report?year=${year}`, { requiresAuth: true });
 };

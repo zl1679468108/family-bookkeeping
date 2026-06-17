@@ -1,13 +1,17 @@
 /**
- * AddTransaction — 记一笔
- * 参考 PC 端结构：类型 / 金额 / 分类 / 日期 / 品牌 / 备注 / 位置 / 图片
+ * AddTransaction — 记一笔（增强版）
+ * 参考 PC 端结构：类型 / 金额 / 分类 / 日期 / 品牌 / 备注 / 位置 / 图片 / 模板
  * 必填字段：金额(*) / 分类(*) / 日期(*)
  */
 import { useState, useEffect } from "react";
-import { View, ScrollView, Picker } from "@tarojs/components";
+import { View, ScrollView, Picker, Text } from "@tarojs/components";
 import Taro from "@tarojs/taro";
-import { getTransaction } from "../../services/transactionsApi";
-import { useCategories } from "../../hooks/useCategories";
+import {
+  getTransaction,
+  uploadReceipt,
+} from "../../services/transactionsApi";
+import { getTemplates } from "../../services/templatesApi";
+import { useCategoryList } from "../../hooks/useCategories";
 import {
   useCreateTransaction,
   useUpdateTransaction,
@@ -23,6 +27,17 @@ import LocationField, {
 import ImageUpload from "../../components/form/ImageUpload";
 import ActionButtons from "../../components/form/ActionButtons";
 import "./index.scss";
+
+interface Template {
+  id: string;
+  name: string;
+  category_id: string;
+  category_name: string;
+  amount: number;
+  brand?: string;
+  description?: string;
+  type: "expense" | "income";
+}
 
 const MAX_NOTE_LENGTH = 500;
 const MAX_IMAGES = 5;
@@ -68,9 +83,13 @@ export default function AddTransaction() {
   const [brand, setBrand] = useState("");
   const [note, setNote] = useState("");
   const [savedImages, setSavedImages] = useState<string[]>([]);
+  const [pendingImages, setPendingImages] = useState<string[]>([]);
   const [location, setLocation] = useState<LocationResult | null>(null);
+  const [templates, setTemplates] = useState<Template[]>([]);
+  const [showTemplates, setShowTemplates] = useState(false);
+  const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
 
-  const { categories = [] } = useCategories(type, true);
+  const { categories = [] } = useCategoryList(type);
   const currentCategory: any = categories.find(
     (c: any) => String(c.id) === String(categoryId),
   );
@@ -102,6 +121,13 @@ export default function AddTransaction() {
     }
   }, [isEdit, editId]);
 
+  // 加载模板列表
+  useEffect(() => {
+    getTemplates().then((data: any) => {
+      setTemplates(data?.data || []);
+    }).catch(() => {});
+  }, []);
+
   // 类型切换时，如果当前分类不属于新类型，清空
   useEffect(() => {
     if (categoryId) {
@@ -112,7 +138,7 @@ export default function AddTransaction() {
     }
   }, [type, categories]); // eslint-disable-line
 
-  const isSubmitting = createMut.isLoading || updateMut.isLoading;
+  const isSubmitting = createMut.isPending || updateMut.isPending;
 
   // 分类选择
   const handlePickCategory = () => {
@@ -128,8 +154,20 @@ export default function AddTransaction() {
       .catch(() => {});
   };
 
+  // 应用模板
+  const applyTemplate = (template: Template) => {
+    setType(template.type);
+    setAmount(String(template.amount));
+    setCategoryId(template.category_id);
+    setBrand(template.brand || "");
+    setNote(template.description || "");
+    setSelectedTemplate(template);
+    setShowTemplates(false);
+    Taro.showToast({ title: `已应用模板: ${template.name}`, icon: "success" });
+  };
+
   // 提交
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!amount || parseFloat(amount) <= 0) {
       Taro.showToast({ title: "请输入有效金额", icon: "none" });
       return;
@@ -151,34 +189,108 @@ export default function AddTransaction() {
       location_name: location?.name || undefined,
     };
 
-    const submit = isEdit
-      ? updateMut.mutateAsync({ id: Number(editId), payload })
-      : createMut.mutateAsync(payload);
+    // 编辑模式下先保存已有的图片 URL
+    if (isEdit && savedImages.length > 0) {
+      payload.image_urls = JSON.stringify(savedImages);
+    }
 
     Taro.showLoading({ title: "保存中..." });
-    submit
-      .then(() => {
+
+    try {
+      // 1. 创建/更新交易
+      let transactionId: number;
+      if (isEdit) {
+        await updateMut.mutateAsync({ id: Number(editId), input: payload });
+        transactionId = Number(editId);
+      } else {
+        const result = await createMut.mutateAsync(payload);
+        transactionId = (result as any)?.id ?? 0;
+      }
+
+      // 2. 上传新图片
+      let uploadedUrls: string[] = [];
+      let failedCount = 0;
+      if (pendingImages.length > 0 && transactionId) {
+        Taro.showLoading({ title: `上传图片 0/${pendingImages.length}...` });
+        for (let i = 0; i < pendingImages.length; i++) {
+          const filePath = pendingImages[i];
+          try {
+            const res = await uploadReceipt(transactionId, filePath);
+            if (res?.image_url) {
+              uploadedUrls.push(res.image_url);
+            } else {
+              failedCount++;
+              console.error("图片上传无返回 URL:", filePath);
+            }
+            Taro.showLoading({ title: `上传图片 ${i + 1}/${pendingImages.length}...` });
+          } catch (err: any) {
+            failedCount++;
+            console.error("图片上传失败:", filePath, err);
+          }
+        }
         Taro.hideLoading();
-        Taro.showToast({
-          title: isEdit ? "修改成功" : "添加成功",
-          icon: "success",
+
+        // 如果有图片上传失败，提示用户
+        if (failedCount > 0) {
+          Taro.showToast({
+            title: `${failedCount} 张图片上传失败，其余已保存`,
+            icon: "none",
+          });
+        }
+      }
+
+      // 3. 合并图片 URL 并更新交易
+      if (uploadedUrls.length > 0) {
+        const mergedUrls = [...savedImages, ...uploadedUrls];
+        await updateMut.mutateAsync({
+          id: transactionId,
+          input: { image_urls: JSON.stringify(mergedUrls) },
         });
-        setTimeout(() => Taro.navigateBack(), 600);
-      })
-      .catch((err: any) => {
-        Taro.hideLoading();
+        setSavedImages(mergedUrls);
+        setPendingImages([]);
+      } else if (pendingImages.length > 0 && failedCount === pendingImages.length) {
+        // 所有图片都上传失败了，保留 pendingImages 让用户重试
         Taro.showToast({
-          title: err?.message || "保存失败",
+          title: "图片上传失败，请检查网络后重试",
           icon: "none",
         });
+      } else if (pendingImages.length > 0) {
+        // 部分成功或不需要更新，清空 pending
+        setPendingImages([]);
+      }
+
+      Taro.hideLoading();
+      Taro.showToast({
+        title: isEdit ? "修改成功" : "添加成功",
+        icon: "success",
       });
+      setTimeout(() => Taro.navigateBack(), 600);
+    } catch (err: any) {
+      Taro.hideLoading();
+      Taro.showToast({
+        title: err?.message || "保存失败",
+        icon: "none",
+      });
+    }
   };
 
   return (
+    <>
     <ScrollView className="addtx" scrollY>
       <TypeTabs value={type} onChange={setType} />
 
       <AmountCard value={amount} onChange={setAmount} />
+
+      {/* 模板选择 */}
+      <SectionCard>
+        <FieldRow
+          label="模板"
+          variant="row"
+          value={selectedTemplate?.name || ""}
+          placeholder="选择模板快速记账"
+          onClick={() => setShowTemplates(true)}
+        />
+      </SectionCard>
 
       <SectionCard>
         {/* 分类：点击 ActionSheet 选择 */}
@@ -214,8 +326,10 @@ export default function AddTransaction() {
       <LocationField value={location} onChange={setLocation} />
 
       <ImageUpload
-        images={savedImages}
-        onChange={setSavedImages}
+        savedImages={savedImages}
+        pendingImages={pendingImages}
+        onSavedChange={setSavedImages}
+        onPendingChange={setPendingImages}
         maxImages={MAX_IMAGES}
       />
 
@@ -229,5 +343,43 @@ export default function AddTransaction() {
 
       <View className="addtx-safe" style="height: 60rpx;" />
     </ScrollView>
+
+    {/* 模板选择弹窗 */}
+    {showTemplates && (
+      <View className="template-mask" onClick={() => setShowTemplates(false)}>
+        <View className="template-dialog" onClick={(e) => e.stopPropagation()}>
+          <View className="template-header">
+            <Text className="template-title">选择记账模板</Text>
+            <Text className="template-close" onClick={() => setShowTemplates(false)}>✕</Text>
+          </View>
+          <ScrollView className="template-list" scrollY>
+            {templates.length === 0 ? (
+              <View className="template-empty">
+                <Text>暂无模板</Text>
+              </View>
+            ) : (
+              templates.map((template) => (
+                <View
+                  key={template.id}
+                  className={`template-item ${selectedTemplate?.id === template.id ? "selected" : ""}`}
+                  onClick={() => applyTemplate(template)}
+                >
+                  <View className="template-info">
+                    <Text className="template-name">{template.name}</Text>
+                    <Text className="template-category">{template.category_name}</Text>
+                  </View>
+                  <View className="template-amount">
+                    <Text className={template.type === "income" ? "income" : "expense"}>
+                      {template.type === "income" ? "+" : "-"}¥{template.amount.toFixed(2)}
+                    </Text>
+                  </View>
+                </View>
+              ))
+            )}
+          </ScrollView>
+        </View>
+      </View>
+    )}
+    </>
   );
 }

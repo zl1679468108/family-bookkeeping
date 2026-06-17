@@ -2,6 +2,7 @@
  * ReportCategoryRank — 分类排行
  */
 import { View, Text } from "@tarojs/components";
+import { renderCategoryIcon } from "../../../utils/renderCategoryIcon";
 import "./ReportCategoryRank.scss";
 
 interface CategoryData {
@@ -39,7 +40,7 @@ export default function ReportCategoryRank({
             <View className="cat-rank__rank cat-rank__rank--top">
               {idx + 1}
             </View>
-            <Text className="cat-rank__icon">{cat.icon}</Text>
+            <View className="cat-rank__icon-wrap">{renderCategoryIcon(cat.icon, { size: 40, className: "cat-rank__icon" })}</View>
             <View className="cat-rank__info">
               <Text className="cat-rank__name">{cat.name}</Text>
               <View className="cat-rank__bar">

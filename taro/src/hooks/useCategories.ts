@@ -14,7 +14,10 @@ export function useCategories(type?: "expense" | "income") {
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    if (!user) return;
+    if (!user) {
+      setData([]);
+      return;
+    }
     setIsLoading(true);
     fetchCategories(type)
       .then(setData)
@@ -23,6 +26,13 @@ export function useCategories(type?: "expense" | "income") {
   }, [user, type]);
 
   return { data, isLoading };
+}
+
+/** Alias for useCategories — returns categories as a flat array */
+export function useCategoryList(type?: "expense" | "income") {
+  const { user } = useAuth();
+  const { data, isLoading } = useCategories(type);
+  return { categories: user ? (data || []) : [], isLoading };
 }
 
 /** Category lookup helpers */

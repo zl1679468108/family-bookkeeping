@@ -28,7 +28,7 @@ import type { UserProfile } from "../types";
 interface AuthContextType {
   user: UserProfile | null;
   loading: boolean;
-  signIn: (email: string, password: string) => Promise<void>;
+  signIn: (email: string, password: string, captchaId: string, captchaCode: string) => Promise<void>;
   signUp: (email: string, password: string, username: string) => Promise<void>;
   signOut: () => Promise<void>;
   refreshUser: () => Promise<void>;
@@ -102,8 +102,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   }, []);
 
-  const signIn = useCallback(async (email: string, password: string) => {
-    const { user: userData, token } = await apiLogin(email, password);
+  const signIn = useCallback(async (email: string, password: string, captchaId: string, captchaCode: string) => {
+    const { user: userData, token } = await apiLogin(email, password, captchaId, captchaCode);
     storeToken(token);
     // 登录成功后保存账号信息（token 优先，密码备用）
     saveAccount({ email, password, token, username: userData.username, avatar_url: userData.avatar_url });

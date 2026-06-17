@@ -5,8 +5,7 @@
  * ============================================ */
 
 .bk-content {
-  padding: 24rpx 32rpx !important;
-  padding-bottom: calc(32rpx + env(safe-area-inset-bottom, 0)) !important;
+  padding: calc(24rpx + env(safe-area-inset-top, 0)) 32rpx calc(32rpx + env(safe-area-inset-bottom, 0)) !important;
   display: flex;
   flex-direction: column;
   gap: 20rpx;

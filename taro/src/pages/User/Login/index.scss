@@ -73,6 +73,29 @@
     color: var(--fg);
     margin-bottom: 24rpx;
     height: 88rpx;
+
+    &.captcha-input {
+      margin-bottom: 0;
+      flex: 1;
+    }
+  }
+
+  .captcha-row {
+    display: flex;
+    gap: 16rpx;
+    align-items: center;
+  }
+
+  .captcha-img {
+    width: 260rpx;
+    height: 120rpx;
+    border-radius: var(--radius-sm);
+    background-color: var(--surface);
+    border: 2rpx solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
   }
 
   .login-form-submit {

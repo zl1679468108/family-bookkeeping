@@ -1,4 +1,309 @@
-/* Statistics — 所有组件样式已统一在 app.scss 全局设计稿样式中 */
+/* Statistics — 报表页样式 */
 .stats-content {
-  padding: 24rpx 32rpx calc(220rpx + env(safe-area-inset-bottom, 0));
+  padding: calc(24rpx + env(safe-area-inset-top, 0)) 32rpx calc(220rpx + env(safe-area-inset-bottom, 0));
+}
+
+/* 时间范围选择器 */
+.period-selector {
+  margin-bottom: 24rpx;
+}
+
+.period-scroll {
+  white-space: nowrap;
+}
+
+.period-tabs {
+  display: inline-flex;
+  gap: 16rpx;
+  padding: 8rpx 0;
+}
+
+.period-tab {
+  padding: 16rpx 32rpx;
+  border-radius: 40rpx;
+  background-color: var(--surface);
+  border: 2rpx solid var(--border);
+  font-size: 28rpx;
+  color: var(--fg-2);
+  transition: all 0.2s ease;
+
+  &.active {
+    background-color: var(--primary);
+    border-color: var(--primary);
+    color: #ffffff;
+  }
+}
+
+/* 对比选择器 */
+.compare-selector {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20rpx;
+  padding: 20rpx;
+  background-color: var(--surface);
+  border-radius: var(--radius-md);
+  margin-bottom: 24rpx;
+}
+
+.compare-label {
+  font-size: 28rpx;
+  color: var(--fg-2);
+}
+
+.compare-picker {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  padding: 16rpx 24rpx;
+  background-color: #ffffff;
+  border-radius: var(--radius-sm);
+  border: 2rpx solid var(--border);
+  font-size: 28rpx;
+  color: var(--fg);
+}
+
+.picker-arrow {
+  font-size: 20rpx;
+  color: var(--fg-3);
+}
+
+/* 导出按钮 */
+.export-row {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 16rpx;
+}
+
+.export-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8rpx;
+  padding: 16rpx 28rpx;
+  font-size: 26rpx;
+  color: var(--primary);
+  font-weight: 500;
+  background-color: var(--primary-bg, rgba(45, 157, 138, 0.08));
+  border-radius: 32rpx;
+}
+
+/* 卡片 */
+.section-card {
+  background-color: var(--surface);
+  border-radius: var(--radius-md);
+  padding: 24rpx;
+  margin-bottom: 24rpx;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24rpx;
+}
+
+.section-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: var(--fg);
+}
+
+.section-total {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: var(--primary);
+}
+
+/* 图表区域 */
+.chart-area {
+  padding-top: 20rpx;
+}
+
+.chart-bars {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  height: 320rpx;
+  padding: 0 8rpx;
+}
+
+.chart-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+}
+
+.chart-pair {
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: center;
+  gap: 6rpx;
+  height: 280rpx;
+  justify-content: flex-end;
+}
+
+.chart-bar {
+  width: 24rpx;
+  border-radius: 12rpx 12rpx 0 0;
+  transition: height 0.3s ease;
+
+  &.out {
+    background-color: var(--expense);
+  }
+
+  &.in {
+    background-color: var(--income);
+  }
+}
+
+.chart-lbl {
+  font-size: 22rpx;
+  color: var(--fg-3);
+  margin-top: 12rpx;
+}
+
+.chart-legend {
+  display: flex;
+  justify-content: center;
+  gap: 32rpx;
+  margin-top: 20rpx;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  font-size: 24rpx;
+  color: var(--fg-2);
+}
+
+.dot {
+  width: 16rpx;
+  height: 16rpx;
+  border-radius: 50%;
+
+  &.out {
+    background-color: var(--expense);
+  }
+
+  &.in {
+    background-color: var(--income);
+  }
+}
+
+/* 统计卡片 */
+.stat-split {
+  display: flex;
+  gap: 20rpx;
+  margin-bottom: 24rpx;
+}
+
+.stat-card {
+  flex: 1;
+  background-color: var(--surface);
+  border-radius: var(--radius-md);
+  padding: 24rpx;
+  text-align: center;
+}
+
+.stat-label {
+  font-size: 24rpx;
+  color: var(--fg-3);
+  margin-bottom: 8rpx;
+}
+
+.stat-value {
+  font-size: 40rpx;
+  font-weight: 700;
+
+  &.income-value {
+    color: var(--income);
+  }
+
+  &.expense-value {
+    color: var(--expense);
+  }
+}
+
+/* 饼图区域 */
+.pie-chart-area {
+  display: flex;
+  gap: 24rpx;
+}
+
+.pie-chart {
+  width: 200rpx;
+  height: 200rpx;
+  flex-shrink: 0;
+}
+
+.pie-circle {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  position: relative;
+  overflow: hidden;
+}
+
+.pie-slice {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
+
+.pie-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 60%;
+  height: 60%;
+  transform: translate(-50%, -50%);
+  background-color: var(--surface);
+  border-radius: 50%;
+}
+
+.pie-legend {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.pie-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.pie-dot {
+  width: 16rpx;
+  height: 16rpx;
+  border-radius: 4rpx;
+}
+
+.pie-name {
+  flex: 1;
+  font-size: 26rpx;
+  color: var(--fg);
+}
+
+.pie-value {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: var(--fg-2);
+}
+
+.pie-percentage {
+  font-size: 24rpx;
+  color: var(--fg-3);
+  margin-left: 8rpx;
+}
+
+/* 年度对比图表 */
+.yoy-chart {
+  background-color: var(--surface);
+  border-radius: var(--radius-md);
+  padding: 24rpx;
+  margin-bottom: 24rpx;
 }

@@ -356,6 +356,17 @@ view, text, image, input, button, scroll-view { box-sizing: border-box; }
   justify-content: center;
   font-size: 40rpx;
   flex-shrink: 0;
+  overflow: hidden;
+}
+
+/* 交易列表图标（支持图片和 emoji） */
+.txn-icon image,
+.txn-icon .ci-emoji {
+  width: 48rpx;
+  height: 48rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .txn-info { flex: 1; min-width: 0; overflow: hidden; }
@@ -572,24 +583,34 @@ view, text, image, input, button, scroll-view { box-sizing: border-box; }
 
 .cat-item {
   padding: 36rpx 20rpx;
-  background-color: var(--bg);
+  background-color: var(--surface);
   border-radius: 24rpx;
   text-align: center;
   transition: all 0.12s ease;
-  border: 2rpx solid transparent;
+  border: 2rpx solid var(--border-light);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  min-height: 180rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.02);
 }
 
 .cat-item:active,
 .cat-item.selected {
   background-color: var(--primary-bg);
   border-color: var(--primary);
+  box-shadow: 0 4rpx 16rpx rgba(45, 157, 138, 0.1);
 }
 
-.cat-item .ci-emoji { font-size: 72rpx; line-height: 1; margin-bottom: 16rpx; }
+.cat-item .ci-emoji { 
+  font-size: 72rpx; 
+  line-height: 1; 
+  margin-bottom: 16rpx; 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
 .cat-item .ci-name {
   font-size: 26rpx;

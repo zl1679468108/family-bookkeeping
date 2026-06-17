@@ -10,8 +10,7 @@
 
 /* ========== 主内容区 ========== */
 .profile-content {
-  padding: 24rpx 32rpx;
-  padding-bottom: calc(32rpx + env(safe-area-inset-bottom, 0));
+  padding: calc(24rpx + env(safe-area-inset-top, 0)) 32rpx calc(32rpx + env(safe-area-inset-bottom, 0));
   display: flex;
   flex-direction: column;
   gap: 20rpx;
@@ -454,6 +453,28 @@
   color: var(--fg, #1a1c19);
   background-color: var(--surface, #ffffff);
   box-sizing: border-box;
+
+  &.switch-captcha-input {
+    flex: 1;
+  }
+}
+
+.switch-captcha-row {
+  display: flex;
+  gap: 16rpx;
+  align-items: center;
+}
+
+.switch-captcha-img {
+  width: 260rpx;
+  height: 120rpx;
+  border-radius: var(--radius-sm, 16rpx);
+  background-color: var(--surface, #ffffff);
+  border: 2rpx solid var(--border, #e0e2dd);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
 }
 
 .switch-login-error {

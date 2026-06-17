@@ -16,6 +16,7 @@ import LocationPicker, { LocationResult } from "../../components/LocationPicker"
 import { apiGet, apiPost, apiPut, apiDelete } from "../../services/api";
 import { useCategories } from "../../hooks/useCategories";
 import { useManualQuery } from "../../hooks/useManualQuery";
+import { isIconUrl } from "../../utils/renderCategoryIcon";
 import "./index.scss";
 
 interface Template {
@@ -492,8 +493,8 @@ export default function TemplateManager() {
                     catOpts.length > 0
                       ? catOpts.map((c) => {
                           const ic = c.icon || "";
-                          const displayIcon =
-                            ic.startsWith("http://") || ic.startsWith("https://") ? "📌" : ic;
+                          // Picker 只能渲染文本，自定义 URL 图标降级为 📌
+                          const displayIcon = isIconUrl(ic) ? "📌" : ic;
                           return `${displayIcon} ${c.name}`;
                         })
                       : ["暂无分类"]

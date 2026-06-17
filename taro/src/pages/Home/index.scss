@@ -1,4 +1,67 @@
-/* Home — 所有组件样式已统一在 app.scss 全局设计稿样式中 */
+/* Home — 首页样式 */
 .home-content {
-  padding: 24rpx 32rpx calc(220rpx + env(safe-area-inset-bottom, 0));
+  padding: calc(24rpx + env(safe-area-inset-top, 0)) 32rpx calc(220rpx + env(safe-area-inset-bottom, 0));
+}
+
+/* 预算进度 */
+.budget-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+.budget-item {
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+}
+
+.budget-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.budget-name {
+  font-size: 28rpx;
+  color: var(--fg);
+  font-weight: 500;
+}
+
+.budget-amount {
+  font-size: 26rpx;
+  color: var(--fg-2);
+
+  &.over {
+    color: var(--expense);
+    font-weight: 600;
+  }
+}
+
+.budget-bar-wrap {
+  height: 12rpx;
+  background-color: var(--border-light);
+  border-radius: 6rpx;
+  overflow: hidden;
+}
+
+.budget-bar {
+  height: 100%;
+  background-color: var(--primary);
+  border-radius: 6rpx;
+  transition: width 0.3s ease;
+
+  &.over {
+    background-color: var(--expense);
+  }
+}
+
+.budget-percentage {
+  text-align: right;
+  font-size: 24rpx;
+  color: var(--fg-3);
+
+  &.over {
+    color: var(--expense);
+  }
 }
