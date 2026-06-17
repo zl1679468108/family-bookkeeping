@@ -9,8 +9,10 @@ import React, {
   useEffect,
   useCallback,
   useRef,
+  useMemo,
 } from "react";
 import { fetchBooks } from "../services/booksApi";
+import { setCurrentBook as setCurrentBookApi } from "../services/authApi";
 import { getStoredBookId, setStoredBookId } from "../services/api";
 import { useAuth } from "./AuthContext";
 import type { Book } from "../types";
@@ -40,6 +42,13 @@ export const BookProvider: React.FC<{ children: React.ReactNode }> = ({
   const [loading, setLoading] = useState(false);
   const initialized = useRef(false);
 
+  // 用户切换时重置账本状态，防止旧账本残留
+  useEffect(() => {
+    setCurrentBook(null);
+    setBooks([]);
+    initialized.current = false;
+  }, [user?.id]);
+
   // 等认证完成后拉取账本列表
   useEffect(() => {
     if (!user) return;
@@ -52,11 +61,23 @@ export const BookProvider: React.FC<{ children: React.ReactNode }> = ({
       .finally(() => setLoading(false));
   }, [user]);
 
-  // 初始化：从 storage 恢复或自动选中默认账本
+  // 初始化：优先使用服务端 current_book_id，其次本地 storage，最后默认账本
   useEffect(() => {
     if (initialized.current || books.length === 0) return;
     initialized.current = true;
 
+    // 1. 服务端持久化的当前账本
+    const serverBookId = user?.current_book_id;
+    if (serverBookId) {
+      const found = books.find((b) => b.id === serverBookId);
+      if (found) {
+        setCurrentBook(found);
+        setStoredBookId(found.id);
+        return;
+      }
+    }
+
+    // 2. 本地存储
     const storedId = getStoredBookId();
     if (storedId) {
       const found = books.find((b) => b.id === storedId);
@@ -65,12 +86,14 @@ export const BookProvider: React.FC<{ children: React.ReactNode }> = ({
         return;
       }
     }
+
+    // 3. 默认账本
     const defaultBook = books.find((b) => b.name === "默认账本") || books[0];
     if (defaultBook) {
       setCurrentBook(defaultBook);
       setStoredBookId(defaultBook.id);
     }
-  }, [books]);
+  }, [books, user]);
 
   // 当 books 更新但 currentBook 失效时自动回退
   useEffect(() => {
@@ -87,10 +110,21 @@ export const BookProvider: React.FC<{ children: React.ReactNode }> = ({
   const switchBook = useCallback((book: Book | null) => {
     setCurrentBook(book);
     setStoredBookId(book?.id ?? null);
+    if (book?.id) {
+      setCurrentBookApi(book.id).catch((err) =>
+        console.error("[BookContext] 设置当前账本失败", err),
+      );
+    }
   }, []);
 
+  // 关键：缓存 Provider value 避免每次渲染生成新对象导致全量重渲染
+  const contextValue = useMemo<BookContextType>(
+    () => ({ currentBook, books, switchBook, loading }),
+    [currentBook, books, switchBook, loading],
+  );
+
   return (
-    <BookContext.Provider value={{ currentBook, books, switchBook, loading }}>
+    <BookContext.Provider value={contextValue}>
       {children}
     </BookContext.Provider>
   );

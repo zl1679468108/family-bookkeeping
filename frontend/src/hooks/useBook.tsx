@@ -63,9 +63,7 @@ export const BookProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // 用户切换时必须重置 currentBook（避免显示旧账号选中的账本）
   useEffect(() => {
-    if (!user) {
-      setCurrentBook(null);
-    }
+    setCurrentBook(null);
   }, [user?.id]);
 
   // 账本列表加载完成后：按后端的 current_book_id 选中默认账本
