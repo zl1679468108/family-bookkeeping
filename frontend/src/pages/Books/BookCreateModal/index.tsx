@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { createBook, updateBook } from '../../../services/booksApi';
 import { fetchCustomIcons, uploadIcon, deleteIcon } from '../../../services/iconsApi';
 import { BOOK_ICONS, getBookIconByKey } from '../../../utils/bookIcons';
@@ -20,7 +20,6 @@ interface BookCreateModalProps {
 }
 
 export const BookCreateModal: React.FC<BookCreateModalProps> = ({ open, onClose, editTarget, onSuccess }) => {
-  const queryClient = useQueryClient();
   const [bookName, setBookName] = useState('');
   const [bookDesc, setBookDesc] = useState('');
   const [bookIconKey, setBookIconKey] = useState('default');

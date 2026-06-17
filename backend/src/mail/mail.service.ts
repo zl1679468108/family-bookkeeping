@@ -27,8 +27,6 @@ export class MailService {
 
   async sendPasswordResetEmail(email: string, resetToken: string): Promise<void> {
     if (!this.isEnabled) {
-      console.log('邮件服务未启用，密码重置链接:', resetToken);
-      console.log('完整链接: http://localhost:3001/reset-password?token=' + resetToken);
       return;
     }
 
@@ -76,7 +74,6 @@ export class MailService {
 
   async sendVerificationCodeEmail(email: string, code: string): Promise<void> {
     if (!this.isEnabled) {
-      console.log('邮件服务未启用，验证码:', code);
       return;
     }
 

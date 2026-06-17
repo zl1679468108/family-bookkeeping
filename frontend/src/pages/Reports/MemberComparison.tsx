@@ -1,5 +1,6 @@
 import React, { useMemo, useRef, useEffect } from 'react';
-import * as echarts from 'echarts';
+import { echarts } from '../../utils/echarts';
+import type { ECharts, EChartsOption } from '../../utils/echarts';
 import { useMemberComparison } from '../../hooks/useMemberComparison';
 import type { MemberComparisonItem } from '../../types/memberComparison';
 import { Skeleton } from '../../components/ui/Skeleton';
@@ -46,7 +47,7 @@ const generateMonthRange = (from: string, to: string): string[] => {
 // 统一的扇形图渲染函数
 const renderPieChart = (
   elRef: React.RefObject<HTMLDivElement>,
-  instRef: React.MutableRefObject<echarts.ECharts | null>,
+  instRef: React.MutableRefObject<ECharts | null>,
   data: { name: string; value: number }[],
 ) => {
   if (!elRef.current) return;
@@ -57,7 +58,7 @@ const renderPieChart = (
   }
   instRef.current = echarts.init(elRef.current);
 
-  const option: echarts.EChartsOption = {
+  const option: EChartsOption = {
     tooltip: {
       trigger: 'item',
       formatter: (params: any) => {
@@ -107,7 +108,7 @@ const renderPieChart = (
 // 成员支出分布扇形图
 const MemberExpensePieChart: React.FC<{ data: MemberComparisonItem[] }> = ({ data }) => {
   const chartRef = useRef<HTMLDivElement>(null);
-  const chartInstance = useRef<echarts.ECharts | null>(null);
+  const chartInstance = useRef<ECharts | null>(null);
 
   const pieData = useMemo(() => {
     return data.map((member, i) => ({
@@ -139,7 +140,7 @@ const MemberExpensePieChart: React.FC<{ data: MemberComparisonItem[] }> = ({ dat
 // 分类对比扇形图
 const CategoryPieChart: React.FC<{ data: MemberComparisonItem[] }> = ({ data }) => {
   const chartRef = useRef<HTMLDivElement>(null);
-  const chartInstance = useRef<echarts.ECharts | null>(null);
+  const chartInstance = useRef<ECharts | null>(null);
 
   const allCategories = useMemo(() => {
     const catMap = new Map<string, number>();
@@ -179,7 +180,7 @@ const MonthlyBarChart: React.FC<{
   monthTo: string;
 }> = ({ data, monthFrom, monthTo }) => {
   const chartRef = useRef<HTMLDivElement>(null);
-  const chartInstance = useRef<echarts.ECharts | null>(null);
+  const chartInstance = useRef<ECharts | null>(null);
 
   const months = useMemo(() => generateMonthRange(monthFrom, monthTo), [monthFrom, monthTo]);
 
@@ -206,7 +207,7 @@ const MonthlyBarChart: React.FC<{
     }
     chartInstance.current = echarts.init(chartRef.current);
 
-    const option: echarts.EChartsOption = {
+  const option: EChartsOption = {
       tooltip: {
         trigger: 'axis',
         axisPointer: { type: 'shadow' },

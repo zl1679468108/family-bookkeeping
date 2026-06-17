@@ -20,6 +20,8 @@ const EMOJI_RE = /(\p{Emoji_Presentation}|\p{Emoji}\uFE0F)/gu;
 @Injectable()
 export class ExportService {
   private categoryCache: Map<string, { name: string; icon: string }> | null = null;
+  private categoryCacheExpiry = 0;
+  private readonly CATEGORY_CACHE_TTL = 5 * 60 * 1000; // 5 minutes
   private readonly logger = new Logger(ExportService.name);
 
   constructor(private supabaseService: SupabaseService) {}
@@ -28,7 +30,9 @@ export class ExportService {
    * 从数据库加载所有分类，构建 id→{name,icon} 映射
    */
   private async loadCategoryMap(): Promise<Map<string, { name: string; icon: string }>> {
-    if (this.categoryCache) return this.categoryCache;
+    if (this.categoryCache && Date.now() < this.categoryCacheExpiry) {
+      return this.categoryCache;
+    }
 
     const supabase = this.supabaseService.getClient();
     const { data } = await supabase.from('categories').select('id,name,icon');
@@ -39,6 +43,7 @@ export class ExportService {
     });
 
     this.categoryCache = map;
+    this.categoryCacheExpiry = Date.now() + this.CATEGORY_CACHE_TTL;
     return map;
   }
 
@@ -53,11 +58,21 @@ export class ExportService {
   }
 
   /**
+   * 同步版本的分类展示函数（使用预加载的 categoryMap）
+   */
+  private getCategoryDisplaySync(categoryId: string, categoryMap: Map<string, { name: string; icon: string }>): string {
+    const info = categoryMap.get(categoryId);
+    if (info) return `${info.icon} ${info.name}`;
+    return `📌 未知`;
+  }
+
+  /**
    * 导出为 Excel 文件
    */
   async exportToExcel(filters?: TransactionFilters): Promise<Buffer> {
-    // 获取交易数据
+    // 获取交易数据和分类映射
     const transactions = await this.getTransactionData(filters);
+    const categoryMap = await this.loadCategoryMap();
 
     // 创建工作簿
     const workbook = new ExcelJS.Workbook();
@@ -88,8 +103,8 @@ export class ExportService {
     worksheet.getRow(1).alignment = { vertical: 'middle', horizontal: 'center' };
 
     // 填充数据
-    for (const item of transactions) {
-      const categoryDisplay = await this.getCategoryDisplay(item.category);
+    transactions.forEach((item, index) => {
+      const categoryDisplay = this.getCategoryDisplaySync(item.category, categoryMap);
       const row = worksheet.addRow({
         date: item.date,
         type: item.type === 'income' ? '收入' : '支出',
@@ -103,15 +118,14 @@ export class ExportService {
       row.getCell('amount').alignment = { horizontal: 'right' };
 
       // 交替行颜色
-      const rowIndex = transactions.indexOf(item);
-      if (rowIndex % 2 === 0) {
+      if (index % 2 === 0) {
         row.fill = {
           type: 'pattern',
           pattern: 'solid',
           fgColor: { argb: 'FFF9F9F9' },
         };
       }
-    }
+    });
 
     // 生成缓冲区
     const buffer = await workbook.xlsx.writeBuffer();

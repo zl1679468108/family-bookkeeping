@@ -172,7 +172,7 @@ const MapPage: React.FC = () => {
       handle.setCenter(merchant.longitude, merchant.latitude);
     } else {
       // 兜底：尝试从 transactions 中找到对应商户的坐标
-      const tx = (transactions as any[]).find((t) => t.location_name === merchant.location_name);
+      const tx = transactions.find((t) => t.location_name === merchant.location_name);
       if (tx?.longitude != null && tx?.latitude != null) {
         handle.setCenter(tx.longitude, tx.latitude);
       }
@@ -192,7 +192,7 @@ const MapPage: React.FC = () => {
     // 兜底：如果商户对象没有经纬度，尝试从 transactions 中查
     if (validPoints.length === 0 && selected.length > 0) {
       selected.forEach((m) => {
-        const tx = (transactions as any[]).find((t) => t.location_name === m.location_name);
+        const tx = transactions.find((t) => t.location_name === m.location_name);
         if (tx?.longitude != null && tx?.latitude != null) {
           validPoints.push([tx.longitude, tx.latitude]);
         }
@@ -238,7 +238,7 @@ const MapPage: React.FC = () => {
           {/* 年月选择器（与预算模块一致） */}
           <DropdownSelect
             label="月份"
-            options={monthOptions.map((o) => ({ key: o.key, label: o.label, icon: '📅' as any }))}
+            options={monthOptions.map((o) => ({ key: o.key, label: o.label, icon: '📅' }))}
             value={selectedMonth}
             onChange={(key) => key && setSelectedMonth(key)}
             placeholder="选择月份"

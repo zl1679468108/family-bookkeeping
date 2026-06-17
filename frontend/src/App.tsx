@@ -1,6 +1,7 @@
 import React, { Suspense, useEffect } from 'react'
 import { HashRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { Sidebar } from './components/Sidebar'
+import { ErrorBoundary } from './components/ErrorBoundary'
 import { routes } from './routes'
 import { AuthProvider, useAuth } from './utils/auth'
 import { ThemeProvider } from './utils/theme'
@@ -11,7 +12,7 @@ import { PageProgressBar } from './components/PageProgressBar'
 const PROJECT_NAME = '静记'
 
 // 当用户已登录但没有账本时允许访问的路由（引导性页面）
-const NO_BOOK_ALLOWED = ['/onboarding', '/books', '/profile'] as const
+const NO_BOOK_ALLOWED: string[] = ['/onboarding', '/books', '/profile']
 
 const PrivateRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, loading } = useAuth()
@@ -28,7 +29,7 @@ const PrivateRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => 
   return <>{children}</>
 }
 
-const AUTH_ROUTES = ['/login', '/register', '/forgot-password'] as const
+const AUTH_ROUTES: string[] = ['/login', '/register', '/forgot-password']
 
 const AppLayout: React.FC = () => {
   const { user, loading: authLoading } = useAuth()
@@ -39,7 +40,7 @@ const AppLayout: React.FC = () => {
     document.title = PROJECT_NAME
   }, [location.pathname])
 
-  const isAuthPage = AUTH_ROUTES.includes(location.pathname as any)
+  const isAuthPage = AUTH_ROUTES.includes(location.pathname)
 
   // 公开路由（登录/注册/忘记密码）→ 不渲染侧边栏
   if (isAuthPage) {
@@ -60,7 +61,7 @@ const AppLayout: React.FC = () => {
     return <Navigate to="/login" replace />
   }
 
-  const isAllowedWithoutBooks = NO_BOOK_ALLOWED.includes(location.pathname as any)
+  const isAllowedWithoutBooks = NO_BOOK_ALLOWED.includes(location.pathname)
 
   // 已登录且账本列表已加载，但没有任何账本 → 引导到 onboarding
   if (user && !booksLoading && !hasBooks && !isAllowedWithoutBooks) {
@@ -116,7 +117,9 @@ const App: React.FC<AppProps> = () => {
       <AuthProvider>
         <BookProvider>
           <Router>
-            <AppLayout />
+            <ErrorBoundary>
+              <AppLayout />
+            </ErrorBoundary>
           </Router>
         </BookProvider>
       </AuthProvider>

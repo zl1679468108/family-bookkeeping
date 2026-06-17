@@ -9,10 +9,8 @@ interface Transaction {
   category: string;
   type: 'income' | 'expense';
   date: string;
-  description: string;
-  image_urls?: string;
-  created_at: string;
   user_id?: string;
+  book_id?: string;
 }
 
 /** Return type for GET /api/statistics/summary. */
@@ -102,7 +100,7 @@ export class StatisticsService {
     const supabase = this.supabaseService.getClient();
     let query = supabase
       .from('transactions')
-      .select('*')
+      .select('id, amount, date, type, category, user_id, book_id')
       .eq('user_id', userId)
       .gte('date', startDate)
       .lte('date', endDate);
@@ -116,16 +114,6 @@ export class StatisticsService {
     }
 
     const { data, error } = await query;
-
-    // DEBUG: 日志输出以排查计数差异
-    console.log('[queryTransactions] Filters:', JSON.stringify({
-      userId,
-      startDate,
-      endDate,
-      type,
-      bookId,
-    }));
-    console.log('[queryTransactions] Returned rows:', data?.length);
 
     if (error) {
       throw new InternalServerErrorException(

@@ -22,6 +22,7 @@ import { UpdateProfileDto } from './auth.service';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { TokenAuthGuard } from './token-auth.guard';
 import { CaptchaService } from './captcha.service';
+import { RateLimitGuard } from './rate-limit.guard';
 
 class SendResetCodeDto {
   email: string;
@@ -41,6 +42,7 @@ export class AuthController {
     private readonly captchaService: CaptchaService,
   ) {}
 
+  @UseGuards(new RateLimitGuard(60_000, 10))
   @Post('register')
   async register(@Body() dto: RegisterDto) {
     const data = await this.authService.register(dto);
@@ -53,6 +55,7 @@ export class AuthController {
     return { data: { captchaId, svg } };
   }
 
+  @UseGuards(new RateLimitGuard(60_000, 10))
   @Post('login')
   @HttpCode(HttpStatus.OK)
   async login(@Body() dto: LoginDto) {
@@ -60,6 +63,7 @@ export class AuthController {
     return { message: '登录成功', data };
   }
 
+  @UseGuards(new RateLimitGuard(60_000, 10))
   @Post('switch-account')
   @HttpCode(HttpStatus.OK)
   async switchAccount(@Body() dto: SwitchAccountDto) {
@@ -67,6 +71,7 @@ export class AuthController {
     return { message: '账号切换成功', data };
   }
 
+  @UseGuards(new RateLimitGuard(60_000, 5))
   @Post('forgot-password')
   @HttpCode(HttpStatus.OK)
   async forgotPassword(@Body() dto: ForgotPasswordDto) {
@@ -74,6 +79,7 @@ export class AuthController {
     return { message: '如果该邮箱已注册，重置密码链接已发送', data: null };
   }
 
+  @UseGuards(new RateLimitGuard(60_000, 5))
   @Post('send-reset-code')
   @HttpCode(HttpStatus.OK)
   async sendResetCode(@Body() dto: SendResetCodeDto) {
@@ -81,6 +87,7 @@ export class AuthController {
     return { message: '如果该邮箱已注册，验证码已发送', data: null };
   }
 
+  @UseGuards(new RateLimitGuard(60_000, 5))
   @Post('reset-password-by-code')
   @HttpCode(HttpStatus.OK)
   async resetPasswordByCode(@Body() dto: ResetPasswordByCodeDto) {
@@ -91,6 +98,7 @@ export class AuthController {
     return { message: '密码重置成功', data: null };
   }
 
+  @UseGuards(new RateLimitGuard(60_000, 5))
   @Post('reset-password')
   @HttpCode(HttpStatus.OK)
   async resetPassword(@Body() dto: ResetPasswordDto) {

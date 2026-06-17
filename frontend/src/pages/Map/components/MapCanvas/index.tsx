@@ -58,89 +58,6 @@ function createFootprintContent(
 }
 
 /* ------------------------------------------------------------------ */
-/*  InfoWindow content builder                                         */
-/* ------------------------------------------------------------------ */
-
-function buildMemberBreakdownHtml(
-  breakdown: MerchantSummary['memberBreakdown'],
-  colorMap?: Map<string, string>,
-): string {
-  if (!breakdown || breakdown.length === 0) return '';
-  const totalExpense = breakdown.reduce((sum, b) => sum + b.expenseTotal, 0) || 1;
-  const rows = breakdown
-    .map((b) => {
-      const pct = Math.round((b.expenseTotal / totalExpense) * 100);
-      const memberColor = colorMap?.get(b.userId) ?? '#999';
-      return `
-        <div class="member-breakdown-row">
-          <span class="member-breakdown-color-bar" style="background:${memberColor}"></span>
-          <span class="member-breakdown-name">${b.username}</span>
-          <span class="member-breakdown-amount">
-            ¥ ${b.expenseTotal.toLocaleString('zh-CN', { minimumFractionDigits: 2 })}
-          </span>
-          <span class="member-breakdown-pct">(${pct}%)</span>
-          <div class="member-breakdown-bar-track">
-            <div class="member-breakdown-bar-fill" style="width:${pct}%;background:${memberColor}"></div>
-          </div>
-        </div>
-      `;
-    })
-    .join('');
-  return `<div class="member-breakdown-section"><div class="member-breakdown-divider"></div>${rows}</div>`;
-}
-
-function buildInfoWindowHtml(
-  merchant: MerchantSummary,
-  colorMap?: Map<string, string>,
-): string {
-  const expenseHtml = merchant.expense_count > 0
-    ? `
-      <div class="footprint-info-row expense clickable" data-action="show-history">
-        <span class="footprint-info-label">支出</span>
-        <span class="footprint-info-amount expense">
-          ¥ ${merchant.expense_total.toLocaleString('zh-CN', { minimumFractionDigits: 2 })}
-        </span>
-        <span class="footprint-info-count">${merchant.expense_count} 次</span>
-      </div>`
-    : '';
-  const incomeHtml = merchant.income_count > 0
-    ? `
-      <div class="footprint-info-row income clickable" data-action="show-history">
-        <span class="footprint-info-label">收入</span>
-        <span class="footprint-info-amount income">
-          ¥ ${merchant.income_total.toLocaleString('zh-CN', { minimumFractionDigits: 2 })}
-        </span>
-        <span class="footprint-info-count">${merchant.income_count} 次</span>
-      </div>`
-    : '';
-  return `
-    <div class="marker-info-window footprint-info">
-      <div class="marker-info-header">
-        <span class="marker-info-icon">🏪</span>
-        <span class="marker-info-category">${merchant.location_name}</span>
-      </div>
-      ${expenseHtml}
-      ${incomeHtml}
-      ${buildMemberBreakdownHtml(merchant.memberBreakdown, colorMap)}
-      <div class="marker-info-date">最近交易: ${merchant.last_transaction_date}</div>
-    </div>
-  `;
-}
-
-function buildInfoWindowElement(
-  merchant: MerchantSummary,
-  colorMap: Map<string, string> | undefined,
-  onShowHistory: () => void,
-): HTMLElement {
-  const wrapper = document.createElement('div');
-  wrapper.innerHTML = buildInfoWindowHtml(merchant, colorMap);
-  wrapper.querySelectorAll('[data-action="show-history"]').forEach((el) => {
-    el.addEventListener('click', onShowHistory);
-  });
-  return wrapper;
-}
-
-/* ------------------------------------------------------------------ */
 /*  Exposed handle                                                     */
 /* ------------------------------------------------------------------ */
 
@@ -176,7 +93,7 @@ const _MapCanvas: React.ForwardRefRenderFunction<MapCanvasHandle, MapCanvasProps
   { data, merchants, viewMode, members = [], colorMap, selectedMemberId = null, onMapReady },
   ref,
 ) => {
-  const [activeInfo, setActiveInfo] = useState<{ merchant: MerchantSummary; pos: [number, number] } | null>(null);
+  const [, setActiveInfo] = useState<{ merchant: MerchantSummary; pos: [number, number] } | null>(null);
   const [historyMerchant, setHistoryMerchant] = useState<MerchantSummary | null>(null);
   const [locateError, setLocateError] = useState('');
 

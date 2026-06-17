@@ -6,6 +6,7 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { SupabaseService } from '../supabase/supabase.service';
+import { randomInt } from 'crypto';
 
 export interface Book {
   id: string;
@@ -39,7 +40,7 @@ export class BooksService {
     const alphabet = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
     let result = '';
     for (let i = 0; i < 6; i++) {
-      result += alphabet.charAt(Math.floor(Math.random() * alphabet.length));
+      result += alphabet.charAt(randomInt(alphabet.length));
     }
     return result;
   }
@@ -114,14 +115,20 @@ export class BooksService {
       throw new Error(`查询账本失败：${error.message}`);
     }
 
-    // 统计每个账本的交易笔数
+    // 批量统计所有账本的交易笔数（单次查询）
+    const { data: txnCounts, error: txnError } = await supabase
+      .from('transactions')
+      .select('book_id')
+      .in('book_id', bookIds);
+
     const txnCountMap = new Map<string, number>();
     for (const bookId of bookIds) {
-      const { count } = await supabase
-        .from('transactions')
-        .select('*', { count: 'exact', head: true })
-        .eq('book_id', bookId);
-      txnCountMap.set(bookId, count || 0);
+      txnCountMap.set(bookId, 0);
+    }
+    if (!txnError && txnCounts) {
+      for (const row of txnCounts) {
+        txnCountMap.set(row.book_id, (txnCountMap.get(row.book_id) || 0) + 1);
+      }
     }
 
     // 将 role 和 txn_count 信息合并到账本数据中

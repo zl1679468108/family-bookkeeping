@@ -1,7 +1,7 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
-import { startOfMonth, format } from 'date-fns'
+import { startOfMonth, endOfMonth, format } from 'date-fns'
 import { formatAmount } from '../../utils/common'
 import { getTransactions } from '../../services/api'
 import { fetchSummary } from '../../services/statisticsApi'
@@ -20,9 +20,16 @@ const Dashboard: React.FC = () => {
   const { hasBooks } = useBook()
   const { getCategoryIconNode } = useCategoryLookup()
 
-  const monthStart = format(startOfMonth(new Date()), 'yyyy-MM-dd')
-  const monthEnd = format(new Date(), 'yyyy-MM-dd')
-  const monthStr = format(startOfMonth(new Date()), 'yyyy-MM-dd')
+  // 关键：缓存本月日期范围字符串。若每次渲染都重新 format，
+  // 依赖这些值的 useQuery queryKey 会每次不同，触发重复请求
+  const { monthStart, monthEnd, monthStr } = useMemo(() => {
+    const now = new Date()
+    return {
+      monthStart: format(startOfMonth(now), 'yyyy-MM-dd'),
+      monthEnd: format(endOfMonth(now), 'yyyy-MM-dd'),
+      monthStr: format(startOfMonth(now), 'yyyy-MM-dd'),
+    }
+  }, [])
 
   const { data: summary, isLoading: summaryLoading } = useQuery({
     queryKey: ['statistics', 'summary', monthStart, monthEnd],

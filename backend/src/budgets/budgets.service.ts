@@ -50,15 +50,27 @@ export class BudgetsService {
   constructor(private readonly supabaseService: SupabaseService) {}
 
   /**
+   * 归一化月份字符串，统一转为 "YYYY-MM-01" 格式
+   * 兼容前端传入的 "YYYY-MM"、"YYYY-MM-DD"、"YYYY-MM-01" 等格式
+   */
+  private normalizeMonth(month: string): string {
+    const parts = month.split('-');
+    const y = parts[0];
+    const m = (parts[1] || '01').padStart(2, '0');
+    return `${y}-${m}-01`;
+  }
+
+  /**
    * 获取用户某月所有预算记录
    */
   async getBudgets(userId: string, month: string, bookId?: string): Promise<BudgetRecord[]> {
     const supabase = this.supabaseService.getClient();
+    const normalizedMonth = this.normalizeMonth(month);
     let query = supabase
       .from('budgets')
       .select('*')
       .eq('user_id', userId)
-      .eq('month', month);
+      .eq('month', normalizedMonth);
 
     if (bookId) query = query.eq('book_id', bookId);
 
@@ -76,35 +88,26 @@ export class BudgetsService {
    */
   async upsertBudgets(userId: string, bookId: string | undefined, dto: UpsertBudgetDto): Promise<BudgetRecord[]> {
     const supabase = this.supabaseService.getClient();
-    const results: BudgetRecord[] = [];
 
-    for (const entry of dto.budgets) {
-      const record: any = {
-        user_id: userId,
-        category: entry.category,
-        amount: entry.amount,
-        month: dto.month,
-        updated_at: new Date().toISOString(),
-      };
-      record.book_id = bookId || null;
+    const records = dto.budgets.map((entry) => ({
+      user_id: userId,
+      book_id: bookId || null,
+      category: entry.category,
+      amount: entry.amount,
+      month: dto.month,
+      updated_at: new Date().toISOString(),
+    }));
 
-      const { data, error } = await supabase
-        .from('budgets')
-        .upsert(record, {
-          onConflict: 'user_id,book_id,category,month',
-        })
-        .select()
-        .single();
+    const { data, error } = await supabase
+      .from('budgets')
+      .upsert(records, { onConflict: 'user_id,book_id,category,month' })
+      .select();
 
-      if (error) {
-        throw new InternalServerErrorException(`保存预算失败: ${error.message}`);
-      }
-      if (data) {
-        results.push(data as BudgetRecord);
-      }
+    if (error) {
+      throw new InternalServerErrorException(`保存预算失败: ${error.message}`);
     }
 
-    return results;
+    return (data || []) as BudgetRecord[];
   }
 
   /**
@@ -214,11 +217,12 @@ export class BudgetsService {
 
   /**
    * 按分类 + 自然月汇总已花费金额
-   * month 格式 "YYYY-MM-01"
+   * 兼容 "YYYY-MM" / "YYYY-MM-DD" / "YYYY-MM-01" 等格式
    */
   private async calculateSpent(userId: string, month: string, bookId?: string): Promise<Map<string, number>> {
     const supabase = this.supabaseService.getClient();
-    const [y, m] = month.split('-').map(Number);
+    const normalized = this.normalizeMonth(month);
+    const [y, m] = normalized.split('-').map(Number);
 
     const startDate = `${y}-${String(m).padStart(2, '0')}-01`;
     const lastDay = new Date(y, m, 0).getDate();

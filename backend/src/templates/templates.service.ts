@@ -245,19 +245,18 @@ export class TemplatesService {
   async reorder(userId: string, ids: string[]): Promise<void> {
     const supabase = this.supabaseService.getClient();
 
-    // 遍历 ids，逐个更新 sort_order
-    for (let i = 0; i < ids.length; i++) {
-      const { error } = await supabase
+    const updates = ids.map((id, i) =>
+      supabase
         .from('transaction_templates')
         .update({ sort_order: i })
-        .eq('id', ids[i])
-        .eq('user_id', userId);
+        .eq('id', id)
+        .eq('user_id', userId),
+    );
 
-      if (error) {
-        throw new InternalServerErrorException(
-          `重排模板失败: ${error.message}`,
-        );
-      }
+    const results = await Promise.all(updates);
+    const errors = results.filter((r) => r.error);
+    if (errors.length > 0) {
+      throw new InternalServerErrorException(`重排模板失败: ${errors[0].error?.message}`);
     }
   }
 

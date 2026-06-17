@@ -1,5 +1,4 @@
-import React, { useState, useRef } from 'react'
-import { createWorker } from 'tesseract.js'
+import React, { useState, useRef, useEffect } from 'react'
 import './index.scss'
 
 interface ImageUploaderProps {
@@ -76,7 +75,6 @@ const extractAmount = (text: string): string => {
         // 允许负金额
         if (Math.abs(num) >= 0.01 && Math.abs(num) <= 999999.99) {
           const absAmount = Math.abs(num).toFixed(2)
-          console.log('【P1匹配】pattern:', pattern, '→', absAmount)
           return absAmount
         }
       }
@@ -101,7 +99,6 @@ const extractAmount = (text: string): string => {
       const raw = match[1].replace(/[^\d.]/g, '')
       const num = parseFloat(raw)
       if (num >= 0.01 && num <= 999999.99) {
-        console.log('【P2匹配】pattern:', pattern, '→', num.toFixed(2))
         return num.toFixed(2)
       }
     }
@@ -137,8 +134,6 @@ const extractAmount = (text: string): string => {
     candidates.push({ raw, num: absNum, hasPoint: raw.includes('.'), isNegative, context: ctx })
   }
 
-  console.log('【P3候选】', candidates.map(c => `${c.raw}(${c.hasPoint?'dot':'int'},${c.isNegative?'neg':'pos'})`).join(', '))
-
   if (candidates.length === 0) return ''
 
   // 排序策略
@@ -162,7 +157,6 @@ const extractAmount = (text: string): string => {
   })
 
   const result = candidates[0].num.toFixed(2)
-  console.log('【P3结果】', result)
   return result
 }
 
@@ -219,6 +213,16 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({ onOcrComplete }) =
   const [isScanning, setIsScanning] = useState(false)
   const [scanProgress, setScanProgress] = useState(0)
   const [showPreview, setShowPreview] = useState(false)
+  const progressIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+
+  // 清理 interval on unmount
+  useEffect(() => {
+    return () => {
+      if (progressIntervalRef.current) {
+        clearInterval(progressIntervalRef.current)
+      }
+    }
+  }, [])
 
   const simulateProgress = () => {
     let progress = 0
@@ -229,6 +233,7 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({ onOcrComplete }) =
       }
       setScanProgress(Math.round(progress))
     }, 200)
+    progressIntervalRef.current = interval
     return interval
   }
   
@@ -247,18 +252,18 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({ onOcrComplete }) =
         const progressInterval = simulateProgress()
 
         try {
+          const { createWorker } = await import('tesseract.js')
           const worker = await createWorker('chi_sim+eng')
 
-          const { data: { text } } = await worker.recognize(imageDataUrl)
-
-          // DEBUG: 打印 OCR 原始识别结果
-          console.log('【OCR原始文本】', text)
-          console.log('【OCR文本长度】', text.length)
-
-          await worker.terminate()
+          let text = ''
+          try {
+            const result = await worker.recognize(imageDataUrl)
+            text = result.data.text
+          } finally {
+            await worker.terminate()
+          }
 
           const amount = extractAmount(text)
-          console.log('【提取金额】', amount)
 
           const detectedCategory = detectCategory(text, amount)
           const note = generateNote(text)
@@ -274,6 +279,7 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({ onOcrComplete }) =
           console.error('OCR识别失败:', error)
         } finally {
           clearInterval(progressInterval)
+          progressIntervalRef.current = null
           setScanProgress(100)
           setTimeout(() => {
             setIsScanning(false)

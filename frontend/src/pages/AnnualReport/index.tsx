@@ -16,6 +16,16 @@ import ReportMemberRanking from './ReportMemberRanking';
 import ReportFunFact from './ReportFunFact';
 import ReportFooter from './ReportFooter';
 
+interface AnnualReportData {
+  overview: any;
+  monthly: any[];
+  top_categories: any[];
+  records: any;
+  book_breakdown: any[];
+  member_ranking: any[];
+  fun_fact: any;
+}
+
 const CURRENT_YEAR = new Date().getFullYear();
 
 const AnnualReport: React.FC = () => {
@@ -50,7 +60,7 @@ const AnnualReport: React.FC = () => {
     }
   };
 
-  const reportData = data as any;
+  const reportData = data as AnnualReportData | undefined;
 
   return (
     <div className="page-container">
@@ -140,7 +150,7 @@ const AnnualReport: React.FC = () => {
             fontSize: '14px',
           }}
         >
-          {(error as any)?.message || '数据加载失败，请稍后重试'}
+          {error?.message || '数据加载失败，请稍后重试'}
         </div>
       )}
 

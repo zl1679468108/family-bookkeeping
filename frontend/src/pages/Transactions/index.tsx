@@ -18,25 +18,9 @@ import { FilterBar } from '../../components/ui/FilterBar'
 import { SearchInput } from '../../components/ui/Input'
 import { notify } from '../../utils/notifications'
 import { useQueryClient } from '@tanstack/react-query'
+import { parseImageList } from '../../utils/parseImageList'
 
 const PAGE_SIZE = 20
-
-const parseImageList = (tx: any): string[] => {
-  if (tx?.image_url_list && Array.isArray(tx.image_url_list) && tx.image_url_list.length > 0) {
-    return tx.image_url_list
-  }
-  if (tx?.image_urls) {
-    try {
-      const parsed = JSON.parse(tx.image_urls)
-      if (Array.isArray(parsed) && parsed.length > 0) return parsed
-    } catch {
-      if (typeof tx.image_urls === 'string' && tx.image_urls.includes(',')) {
-        return tx.image_urls.split(',').map((s: string) => s.trim()).filter(Boolean)
-      }
-    }
-  }
-  return []
-}
 
 const Transactions: React.FC = () => {
   const navigate = useNavigate()
@@ -246,8 +230,8 @@ const Transactions: React.FC = () => {
                       <td>{format(new Date(t.date), 'yyyy-MM-dd')}</td>
                       <td><span className="cell-cat">{getCategoryIconNode(t.category, 16)} {getCategoryName(t.category)}</span></td>
                       <td>
-                        {(t as any).brand ? (
-                          <span className="brand-tag">{(t as any).brand}</span>
+                        {t.brand ? (
+                          <span className="brand-tag">{t.brand}</span>
                         ) : (
                           <span style={{ color: 'var(--fg3)' }}>—</span>
                         )}
@@ -314,7 +298,7 @@ const Transactions: React.FC = () => {
           </div>
           <div className="detail-divider" />
           <div className="detail-grid">
-            {(selectedTransaction as any).brand && <DetailItem label="品牌" value={(selectedTransaction as any).brand} />}
+            {selectedTransaction.brand && <DetailItem label="品牌" value={selectedTransaction.brand} />}
             {selectedTransaction.description && (
               <DetailItem
                 label="描述"

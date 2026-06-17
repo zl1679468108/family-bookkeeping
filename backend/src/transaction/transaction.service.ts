@@ -188,15 +188,6 @@ export class TransactionService {
       throw new InternalServerErrorException(`获取交易记录计数失败: ${countError.message}`);
     }
 
-    // DEBUG
-    console.log('[findAll] Filters:', JSON.stringify({
-      userId: filters.userId?.slice(0, 8),
-      bookId: filters.bookId?.slice(0, 8),
-      startDate: filters.startDate,
-      endDate: filters.endDate,
-    }));
-    console.log('[findAll] Count:', count);
-
     // 再查数据（带 range 分页）
     const { data, error } = await baseQuery
       .order(sortBy, { ascending: sortOrder === 'asc' })
@@ -259,24 +250,25 @@ export class TransactionService {
       throw new ForbiddenException('需要登录才能创建交易记录');
     }
 
-    const transactionData: any = {
-      ...transaction,
+    const transactionData: Record<string, unknown> = {
+      amount: transaction.amount,
+      category: transaction.category,
+      type: transaction.type,
+      date: transaction.date,
+      description: transaction.description,
+      brand: transaction.brand,
+      image_urls: transaction.image_urls,
+      image_url_list: transaction.image_url_list,
+      location_name: transaction.location_name,
+      latitude: transaction.latitude,
+      longitude: transaction.longitude,
+      poi_id: transaction.poi_id,
       user_id: userId,
     };
 
     // 绑定账本
     if (bookId) {
       transactionData.book_id = bookId;
-    }
-
-    // 映射前端驼峰字段到数据库下划线字段
-    if (transactionData.locationName !== undefined) {
-      transactionData.location_name = transactionData.locationName;
-      delete transactionData.locationName;
-    }
-    if (transactionData.poiId !== undefined) {
-      transactionData.poi_id = transactionData.poiId;
-      delete transactionData.poiId;
     }
 
     const { data, error } = await supabase
@@ -309,16 +301,20 @@ export class TransactionService {
       throw new ForbiddenException('无权修改此交易记录');
     }
 
-    // 映射前端驼峰字段到数据库下划线字段
-    const updateData: any = { ...transaction };
-    if ('locationName' in updateData) {
-      updateData.location_name = updateData.locationName;
-      delete updateData.locationName;
-    }
-    if ('poiId' in updateData) {
-      updateData.poi_id = updateData.poiId;
-      delete updateData.poiId;
-    }
+    // 白名单字段，防止批量赋值
+    const updateData: Record<string, unknown> = {};
+    if (transaction.amount !== undefined) updateData.amount = transaction.amount;
+    if (transaction.category !== undefined) updateData.category = transaction.category;
+    if (transaction.type !== undefined) updateData.type = transaction.type;
+    if (transaction.date !== undefined) updateData.date = transaction.date;
+    if (transaction.description !== undefined) updateData.description = transaction.description;
+    if (transaction.brand !== undefined) updateData.brand = transaction.brand;
+    if (transaction.image_urls !== undefined) updateData.image_urls = transaction.image_urls;
+    if (transaction.image_url_list !== undefined) updateData.image_url_list = transaction.image_url_list;
+    if (transaction.location_name !== undefined) updateData.location_name = transaction.location_name;
+    if (transaction.latitude !== undefined) updateData.latitude = transaction.latitude;
+    if (transaction.longitude !== undefined) updateData.longitude = transaction.longitude;
+    if (transaction.poi_id !== undefined) updateData.poi_id = transaction.poi_id;
 
     // 检查是否是 Owner
     const isOwner = bookId ? await this.isBookOwner(userId, bookId) : false;

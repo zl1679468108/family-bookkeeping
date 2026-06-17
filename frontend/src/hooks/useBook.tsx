@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect, useMemo } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../utils/auth';
 import { setCurrentBook as setCurrentBookApi } from '../services/api';
@@ -74,7 +74,7 @@ export const BookProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // 如果当前已有选中的账本且仍在列表中，不做处理
     if (currentBook && books.some((b: Book) => b.id === currentBook.id)) return;
 
-    const serverBookId = (user as any)?.current_book_id;
+    const serverBookId = user?.current_book_id;
     if (serverBookId) {
       const found = books.find((b: Book) => b.id === serverBookId);
       if (found) {
@@ -108,19 +108,24 @@ export const BookProvider: React.FC<{ children: React.ReactNode }> = ({ children
     [books, switchBook],
   );
 
+  // 关键：Provider value 必须缓存，否则每次渲染会生成新对象，
+  // 导致所有 useBook() 消费者重新渲染，进而触发大量 useEffect/useQuery 重新执行
+  const contextValue = useMemo<BookContextType>(
+    () => ({
+      currentBook,
+      books,
+      switchBook,
+      loading: booksLoading,
+      isOwner,
+      setCurrentBookId,
+      hasBooks,
+      refetchBooks,
+    }),
+    [currentBook, books, switchBook, booksLoading, isOwner, setCurrentBookId, hasBooks, refetchBooks],
+  );
+
   return (
-    <BookContext.Provider
-      value={{
-        currentBook,
-        books,
-        switchBook,
-        loading: booksLoading,
-        isOwner,
-        setCurrentBookId,
-        hasBooks,
-        refetchBooks,
-      }}
-    >
+    <BookContext.Provider value={contextValue}>
       {children}
     </BookContext.Provider>
   );

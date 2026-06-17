@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
-import * as echarts from 'echarts';
+import { echarts } from '../../utils/echarts';
+import type { ECharts } from '../../utils/echarts';
 
 interface MonthlyItem {
   month: number;
@@ -13,7 +14,7 @@ interface ReportMonthlyTrendProps {
 
 export const ReportMonthlyTrend: React.FC<ReportMonthlyTrendProps> = ({ data }) => {
   const chartRef = useRef<HTMLDivElement>(null);
-  const instanceRef = useRef<echarts.ECharts | null>(null);
+  const instanceRef = useRef<ECharts | null>(null);
 
   useEffect(() => {
     if (!chartRef.current) return;

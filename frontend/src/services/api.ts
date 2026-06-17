@@ -63,6 +63,7 @@ export interface UserProfile {
   avatar_url?: string
   role?: 'user' | 'admin'
   status?: 'active' | 'suspended' | 'deleted'
+  current_book_id?: string
   created_at: string
 }
 

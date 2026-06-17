@@ -253,7 +253,7 @@ const Budgets: React.FC = () => {
                 >
                   <RankRow
                     id={cat.id}
-                    icon={renderCategoryIcon(cat.icon, { size: 18 }) as any}
+                    icon={renderCategoryIcon(cat.icon, { size: 18 })}
                     label={cat.name}
                     amount={spent}
                     totalAmount={budget > 0 ? budget : undefined}

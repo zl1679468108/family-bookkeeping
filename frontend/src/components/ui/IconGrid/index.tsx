@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { notify } from '../../../utils/notifications'
 import './index.scss'
 
 /**
@@ -74,13 +75,13 @@ export const IconGrid: React.FC<IconGridProps> = ({
 
       // 验证文件类型
       if (!['image/png', 'image/jpeg', 'image/webp'].includes(file.type)) {
-        alert('仅支持 PNG/JPG/WebP 格式')
+        notify({ type: 'error', message: '仅支持 PNG/JPG/WebP 格式' })
         return
       }
 
       // 验证文件大小 (5MB)
       if (file.size > 5 * 1024 * 1024) {
-        alert('文件大小不能超过 5MB')
+        notify({ type: 'error', message: '文件大小不能超过 5MB' })
         return
       }
 
@@ -88,8 +89,7 @@ export const IconGrid: React.FC<IconGridProps> = ({
       try {
         await onUpload(file, iconType)
       } catch (error) {
-        console.error('上传失败:', error)
-        alert('上传失败，请重试')
+        notify({ type: 'error', message: '上传失败，请重试' })
       } finally {
         setUploading(false)
       }
@@ -99,17 +99,14 @@ export const IconGrid: React.FC<IconGridProps> = ({
 
   // 删除处理
   const handleDelete = async (e: React.MouseEvent, iconId: string) => {
-    e.stopPropagation() // 阻止触发选择
+    e.stopPropagation()
     if (!onDelete) return
-
-    if (!window.confirm('确定删除该图标吗？')) return
 
     setDeletingId(iconId)
     try {
       await onDelete(iconId)
     } catch (error) {
-      console.error('删除失败:', error)
-      alert('删除失败，请重试')
+      notify({ type: 'error', message: '删除失败，请重试' })
     } finally {
       setDeletingId(null)
     }

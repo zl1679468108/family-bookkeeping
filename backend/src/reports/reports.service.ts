@@ -116,11 +116,9 @@ export class ReportsService {
     const startDate = `${yearNum}-01-01`;
     const endDate = `${yearNum}-12-31`;
 
-    console.log(`查询年份: ${year}, 开始日期: ${startDate}, 结束日期: ${endDate}`);
-
     let query = supabase
       .from('transactions')
-      .select('*')
+      .select('id, amount, date, type, category, user_id, book_id, description, brand, location_name')
       .gte('date', startDate)
       .lte('date', endDate)
       .eq('user_id', userId);
@@ -131,15 +129,11 @@ export class ReportsService {
 
     const { data: transactions, error } = await query;
 
-    console.log(`查询结果: ${transactions?.length || 0} 条交易记录`);
-
     if (error) {
       throw new InternalServerErrorException('获取交易数据失败: ' + error.message);
     }
 
     const txns = (transactions || []) as Transaction[];
-
-    console.log(`处理后的交易记录数: ${txns.length}`);
 
     // 计算所有聚合指标
     const overview = this.computeOverview(txns);
@@ -394,11 +388,11 @@ export class ReportsService {
     const userIds = Array.from(memberMap.keys());
     const { data: users } = await supabase
       .from('users')
-      .select('id, nickname')
+      .select('id, username')
       .in('id', userIds);
 
     const nickMap = new Map<string, string>();
-    (users || []).forEach((u: any) => nickMap.set(u.id, u.nickname || '用户'));
+    (users || []).forEach((u: any) => nickMap.set(u.id, u.username || '用户'));
 
     const ranking: MemberRank[] = [];
     memberMap.forEach((expense, userId) => {

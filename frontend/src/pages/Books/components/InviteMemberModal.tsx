@@ -1,0 +1,68 @@
+import React from 'react';
+import { GlobalModal } from '../../../components/ui';
+import { Button } from '../../../components/ui/Button';
+import { Input } from '../../../components/ui/Input';
+import { notify } from '../../../utils/notifications';
+
+interface InviteMemberModalProps {
+  open: boolean;
+  selectedBook: any;
+  inviteEmail: string;
+  onEmailChange: (email: string) => void;
+  onClose: () => void;
+  onInvite: (bookId: string, email: string) => void;
+  isPending: boolean;
+}
+
+export const InviteMemberModal: React.FC<InviteMemberModalProps> = ({
+  open,
+  selectedBook,
+  inviteEmail,
+  onEmailChange,
+  onClose,
+  onInvite,
+  isPending,
+}) => {
+  const handleInvite = () => {
+    if (!inviteEmail.trim()) {
+      notify({ type: 'error', message: '请输入邮箱地址' });
+      return;
+    }
+    if (selectedBook) {
+      onInvite(selectedBook.id, inviteEmail.trim());
+    }
+  };
+
+  return (
+    <GlobalModal
+      open={open}
+      onClose={onClose}
+      title="邀请成员"
+      width={400}
+      footer={
+        <div className="global-modal-dialog__footer-inner">
+          <Button variant="secondary" onClick={onClose}>取消</Button>
+          <Button
+            variant="primary"
+            onClick={handleInvite}
+            disabled={isPending}
+          >
+            {isPending ? '发送中...' : '发送邀请'}
+          </Button>
+        </div>
+      }
+    >
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+        <Input
+          label="邮箱地址"
+          type="email"
+          placeholder="请输入对方的邮箱"
+          value={inviteEmail}
+          onChange={(e) => onEmailChange(e.target.value)}
+          autoFocus
+          required
+        />
+      </div>
+    </GlobalModal>
+  );
+};

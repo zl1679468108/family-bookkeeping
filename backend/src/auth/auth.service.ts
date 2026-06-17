@@ -6,6 +6,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import * as bcrypt from 'bcryptjs';
+import { randomInt } from 'crypto';
 import { SupabaseService } from '../supabase/supabase.service';
 import { MailService } from '../mail/mail.service';
 import { LoginDto } from './dto/login.dto';
@@ -114,7 +115,7 @@ export class AuthService {
 
     const { data: user, error } = await supabase
       .from('users')
-      .select('*')
+      .select('id, email, username, password_hash, avatar_url, current_book_id, role, status, created_at, updated_at')
       .eq('email', email)
       .single();
 
@@ -194,7 +195,6 @@ export class AuthService {
   async resetPassword(token: string, newPassword: string): Promise<void> {
     const supabase = this.supabaseService.getClient();
     const tokenHash = this.tokenService.hashToken(token);
-    console.log('[AuthService] Token hash:', tokenHash);
     const { data: resetRecords } = await supabase
       .from('password_resets')
       .select('id, user_id, expires_at, used_at')
@@ -246,22 +246,20 @@ export class AuthService {
       }
     }
 
-    // 清理 payload：如果 avatar_url 太长（base64），截断日志输出
-    const logDto = { ...dto };
-    if (logDto.avatar_url && logDto.avatar_url.length > 100) {
-      logDto.avatar_url = logDto.avatar_url.substring(0, 100) + '... (base64, length: ' + dto.avatar_url!.length + ')';
-    }
-    console.log('updateProfile payload:', logDto);
+    // 白名单字段，防止批量赋值
+    const updatePayload: Record<string, string> = {};
+    if (dto.username !== undefined) updatePayload.username = dto.username;
+    if (dto.email !== undefined) updatePayload.email = dto.email;
+    if (dto.avatar_url !== undefined) updatePayload.avatar_url = dto.avatar_url;
 
     const { data: updatedUser, error } = await supabase
       .from('users')
-      .update(dto)
+      .update(updatePayload)
       .eq('id', userId)
       .select('id, email, username, avatar_url, created_at, updated_at')
       .single();
 
     if (error || !updatedUser) {
-      console.error('Supabase update error:', error);
       throw new InternalServerErrorException(error?.message || '更新用户信息失败');
     }
 
@@ -392,7 +390,8 @@ export class AuthService {
   }
 
   private generateVerificationCode(): string {
-    return Math.floor(100000 + Math.random() * 900000).toString();
+    const code = randomInt(100000, 1000000);
+    return code.toString();
   }
 
   /**
@@ -428,9 +427,7 @@ export class AuthService {
         .eq('id', existingSession.id);
       
       if (updateError) {
-        console.error('[AuthService] 更新 token 过期时间失败:', updateError.message);
-      } else {
-        console.log('[AuthService] 复用未过期的 token for user:', userId);
+        // 更新 token 过期时间失败不应阻断流程
       }
       
       return clientToken; // 返回原 token
@@ -445,8 +442,6 @@ export class AuthService {
     const token = this.tokenService.generateSessionToken();
     const tokenHash = this.tokenService.hashToken(token);
     const now = new Date();
-    console.log('[AuthService] Token hash:', tokenHash);
-    console.log('[AuthService] Current server time:', now.toISOString());
     const { error } = await supabase.from('user_sessions').insert({
       user_id: userId,
       token_hash: tokenHash,
@@ -473,7 +468,6 @@ export class AuthService {
 
     if (error) {
       // 默认账本创建失败不应阻塞注册流程
-      console.error(`创建默认账本失败 (user ${userId}):`, error.message);
       return;
     }
 

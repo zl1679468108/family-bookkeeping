@@ -1,3 +1,4 @@
+import { useMemo, useCallback } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { fetchCategories } from '../services/categoriesApi'
 import type { Category } from '../types/category'
@@ -30,30 +31,38 @@ export function useCategories(type?: 'expense' | 'income') {
 export function useCategoryLookup() {
   const { data: categories } = useCategories()
 
-  const lookupMap: Record<string, { name: string; icon: string }> = {}
-  const nameToIdMap: Record<string, string> = {}
-  categories?.forEach((c: Category) => {
-    lookupMap[c.id] = { name: c.name, icon: c.icon }
-    nameToIdMap[c.name] = c.id
-  })
+  const lookupMap = useMemo(() => {
+    const map: Record<string, { name: string; icon: string }> = {}
+    categories?.forEach((c: Category) => {
+      map[c.id] = { name: c.name, icon: c.icon }
+    })
+    return map
+  }, [categories])
 
-  const getCategoryName = (categoryId: string): string => {
+  const nameToIdMap = useMemo(() => {
+    const map: Record<string, string> = {}
+    categories?.forEach((c: Category) => {
+      map[c.name] = c.id
+    })
+    return map
+  }, [categories])
+
+  const getCategoryName = useCallback((categoryId: string): string => {
     return lookupMap[categoryId]?.name || '未知'
-  }
+  }, [lookupMap])
 
-  const getCategoryIcon = (categoryId: string): string => {
+  const getCategoryIcon = useCallback((categoryId: string): string => {
     return lookupMap[categoryId]?.icon || '📌'
-  }
+  }, [lookupMap])
 
-  const getCategoryIconNode = (categoryId: string, size: number = 18) => {
+  const getCategoryIconNode = useCallback((categoryId: string, size: number = 18) => {
     const icon = lookupMap[categoryId]?.icon
     return renderCategoryIcon(icon, { size })
-  }
+  }, [lookupMap])
 
-  /** 根据分类中文名反查 ID（用于 OCR 等场景） */
-  const getCategoryId = (name: string): string | null => {
+  const getCategoryId = useCallback((name: string): string | null => {
     return nameToIdMap[name] || null
-  }
+  }, [nameToIdMap])
 
   return {
     categories: categories || [],

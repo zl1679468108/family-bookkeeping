@@ -183,16 +183,18 @@ export class CategoriesService {
 
     const supabase = this.supabaseService.getClient();
 
-    for (const item of orders) {
-      const { error } = await supabase
+    const updates = orders.map((item) =>
+      supabase
         .from('categories')
         .update({ sort_order: item.sort_order })
         .eq('id', item.id)
-        .eq('user_id', userId);
+        .eq('user_id', userId),
+    );
 
-      if (error) {
-        throw new InternalServerErrorException(`更新排序失败: ${error.message}`);
-      }
+    const results = await Promise.all(updates);
+    const errors = results.filter((r) => r.error);
+    if (errors.length > 0) {
+      throw new InternalServerErrorException(`更新排序失败: ${errors[0].error?.message}`);
     }
   }
 

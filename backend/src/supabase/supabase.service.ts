@@ -11,7 +11,8 @@ import { createClient, SupabaseClient } from '@supabase/supabase-js';
  * 1. 缺少 SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY 时只降级为 "未配置" 状态，
  *    不再 throw 导致整个 NestJS 进程起不来。
  * 2. 客户端懒初始化：被标记异常后自动重建，JWT 轮换 / 长时间闲置更健壮。
- * 3. withRetry<T>() 封装统一错误处理：最多 3 次重试、指数退避、15s 单次超时。
+ * 3. withRetry<T>() 封装统一错误处理：最多 3 次重试、指数退避、10s 单次超时。
+ * 4. 全局 fetch 设置 12s AbortSignal，防止 HTTP 连接挂起导致 socket 池耗尽。
  */
 @Injectable()
 export class SupabaseService implements OnModuleInit {
@@ -88,7 +89,7 @@ export class SupabaseService implements OnModuleInit {
     options?: { maxRetries?: number; timeoutMs?: number },
   ): Promise<T> {
     const maxRetries = options?.maxRetries ?? 3;
-    const timeoutMs = options?.timeoutMs ?? 15000;
+    const timeoutMs = options?.timeoutMs ?? 10000;
 
     let lastErr: unknown;
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
@@ -181,6 +182,13 @@ export class SupabaseService implements OnModuleInit {
     }
 
     return createClient(this.supabaseUrl!, this.supabaseServiceRoleKey!, {
+      global: {
+        fetch: (url, options = {}) =>
+          fetch(url, {
+            ...options,
+            signal: AbortSignal.timeout(12_000),
+          }),
+      },
       realtime: wsModule ? { transport: wsModule } : undefined,
       auth: {
         autoRefreshToken: false,
