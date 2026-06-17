@@ -46,7 +46,7 @@ const SwitchAccountModal: React.FC<SwitchAccountModalProps> = ({ visible, onClos
     }
   }
 
-  // 切换到已有账号：先用已保存的账号密码+token免验证码切换，失败则显示验证码登录
+  // 切换到已有账号：先用已保存的账号密码+token免验证码切换，失败则跳转到登录页
   const { run: handleSwitch, isRunning: switchLoading } = useDebouncedAction(
     async (account: SavedAccount) => {
       if (account.email === accounts.find(a => a.email === user?.email)?.email) {
@@ -67,8 +67,16 @@ const SwitchAccountModal: React.FC<SwitchAccountModalProps> = ({ visible, onClos
         onClose()
         navigate('/')
         return
-      } catch {
-        // 切换失败，显示验证码登录表单
+      } catch (err: unknown) {
+        // 检查是否是登录过期错误
+        const errorMessage = err instanceof Error ? err.message : ''
+        if (errorMessage.includes('登录状态已过期')) {
+          // 登录已过期：关闭弹窗，直接跳转到登录页（不带重定向参数）
+          onClose()
+          navigate('/login', { replace: true })
+          return
+        }
+        // 其他错误，显示验证码登录表单
         setSwitchFailed(true)
         setLoginEmail(account.email)
         setLoginPassword(decodePassword(account.password))

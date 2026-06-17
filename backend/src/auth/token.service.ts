@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import * as crypto from 'crypto';
 
-const TOKEN_TTL_MS = 30 * 24 * 60 * 60 * 1000;
+const TOKEN_TTL_MS = 3 * 24 * 60 * 60 * 1000; // 3 天
 const RESET_TOKEN_TTL_MS = 60 * 60 * 1000;
 const RESET_CODE_TTL_MS = 5 * 60 * 1000;
 

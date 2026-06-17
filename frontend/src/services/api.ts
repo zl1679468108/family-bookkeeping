@@ -424,11 +424,10 @@ export const login = async (
   captchaId: string,
   captchaCode: string,
 ): Promise<{ user: UserProfile; token: string }> => {
-  // 获取当前存储的 token（如果有），传递给后端用于复用
-  const currentToken = getToken()
+  // 登录时不传递 token，直接创建新会话（带验证码的登录是新会话）
   return request<{ user: UserProfile; token: string }>('/auth/login', {
     method: 'POST',
-    body: { email, password, token: currentToken || undefined, captchaId, captchaCode },
+    body: { email, password, captchaId, captchaCode },
   })
 }
 
@@ -441,6 +440,7 @@ export const switchAccount = async (
   return request<{ user: UserProfile; token: string }>('/auth/switch-account', {
     method: 'POST',
     body: { email, password, token: token || undefined },
+    notifyOnError: false,
   })
 }
 

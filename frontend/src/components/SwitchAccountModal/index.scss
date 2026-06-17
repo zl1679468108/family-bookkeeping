@@ -337,3 +337,86 @@
 @keyframes saSpin {
   to { transform: rotate(360deg); }
 }
+
+/* ── 登录过期提示modal ── */
+.expired-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: calc(var(--z-modal, 1000) + 10);
+  animation: saFadeIn 0.2s ease;
+}
+
+.expired-modal {
+  background: var(--srf, #fff);
+  border-radius: 16px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+  width: 340px;
+  max-width: calc(100vw - 40px);
+  padding: 32px;
+  text-align: center;
+  animation: saSlideIn 0.25s ease;
+}
+
+.expired-modal-icon {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(251, 191, 36, 0.1);
+  border-radius: 50%;
+  color: #f59e0b;
+}
+
+.expired-modal-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--fg, #1f2937);
+  margin-bottom: 8px;
+}
+
+.expired-modal-desc {
+  font-size: 14px;
+  color: var(--fg3, #9ca3af);
+  margin-bottom: 24px;
+}
+
+.expired-modal-actions {
+  display: flex;
+  gap: 12px;
+
+  .expired-modal-btn {
+    flex: 1;
+    height: 40px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    border: none;
+  }
+
+  .expired-modal-btn-cancel {
+    background: var(--srf, #f3f4f6);
+    color: var(--fg2, #4b5563);
+    border: 1px solid var(--bd, #e5e7eb);
+
+    &:hover {
+      background: var(--srfH, #e5e7eb);
+    }
+  }
+
+  .expired-modal-btn-login {
+    background: var(--pr, #2d9d8a);
+    color: #fff;
+
+    &:hover {
+      background: var(--prH, #268a79);
+    }
+  }
+}

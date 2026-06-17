@@ -398,9 +398,15 @@ export class AuthService {
   /**
    * 复用或创建会话
    * 如果客户端传递的 token 未过期，则更新过期时间并返回原 token
-   * 否则创建新 token
+   * 如果 token 已过期或不存在，抛出错误提示登录过期
    */
-  private async reuseOrCreateSession(userId: string, clientToken: string): Promise<string> {
+  private async reuseOrCreateSession(userId: string, clientToken?: string): Promise<string> {
+    if (!clientToken) {
+      // 没有传递 token（正常登录场景），直接创建新会话
+      return this.createSessionInternal(userId);
+    }
+
+    // 有 token 的情况（切换账号场景）：验证并复用
     const supabase = this.supabaseService.getClient();
     const tokenHash = this.tokenService.hashToken(clientToken);
     
@@ -430,19 +436,21 @@ export class AuthService {
       return clientToken; // 返回原 token
     }
 
-    // token 已过期或不存在，创建新 token
-    console.log('[AuthService] token 已过期，创建新 token for user:', userId);
-    return this.createSessionInternal(userId);
+    // token 已过期或不存在，抛出错误提示登录过期
+    throw new UnauthorizedException('登录状态已过期，请重新登录');
   }
 
   private async createSessionInternal(userId: string): Promise<string> {
     const supabase = this.supabaseService.getClient();
     const token = this.tokenService.generateSessionToken();
     const tokenHash = this.tokenService.hashToken(token);
+    const now = new Date();
     console.log('[AuthService] Token hash:', tokenHash);
+    console.log('[AuthService] Current server time:', now.toISOString());
     const { error } = await supabase.from('user_sessions').insert({
       user_id: userId,
       token_hash: tokenHash,
+      created_at: now.toISOString(),
       expires_at: this.tokenService.getSessionExpiresAt(),
     });
 

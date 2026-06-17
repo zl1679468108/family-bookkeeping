@@ -96,7 +96,7 @@ export default function ForgotPassword() {
         <View className="app-icon flex items-center justify-center">
           <Text className="app-icon-text">静</Text>
         </View>
-        <Text className="app-name text-2xl font-bold mt-3">静记</Text>
+        <Text className="app-name text-2xl font-bold">静记</Text>
         <Text className="app-slogan text-base text-secondary mt-2">
           {step === "email" ? "输入邮箱获取验证码" : "输入验证码设置新密码"}
         </Text>
