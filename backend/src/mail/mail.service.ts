@@ -1,10 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as nodemailer from 'nodemailer';
 import { Transporter } from 'nodemailer';
 
 @Injectable()
 export class MailService {
+  private readonly logger = new Logger(MailService.name);
   private transporter: Transporter;
   private isEnabled: boolean;
 
@@ -65,9 +66,9 @@ export class MailService {
 
     try {
       await this.transporter.sendMail(mailOptions);
-      console.log('密码重置邮件已发送到:', email);
+      this.logger.log(`密码重置邮件已发送到: ${email}`);
     } catch (error) {
-      console.error('发送邮件失败:', error);
+      this.logger.error('发送邮件失败:', error);
       throw new Error('发送邮件失败，请稍后重试');
     }
   }
@@ -109,9 +110,9 @@ export class MailService {
 
     try {
       await this.transporter.sendMail(mailOptions);
-      console.log('验证码邮件已发送到:', email);
+      this.logger.log(`验证码邮件已发送到: ${email}`);
     } catch (error) {
-      console.error('发送邮件失败:', error);
+      this.logger.error('发送邮件失败:', error);
       throw new Error('发送邮件失败，请稍后重试');
     }
   }

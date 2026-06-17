@@ -22,11 +22,6 @@ export function formatAmountWithType(amount: number | string, isIncome: boolean)
   return formatAmount(amount, true, sign as '+' | '-')
 }
 
-export function parseAmount(str: string): number {
-  const cleaned = str.replace(/[^0-9.]/g, '')
-  return parseFloat(cleaned) || 0
-}
-
 export function formatDate(dateStr: string, mode: 'full' | 'dashboard' = 'full'): string {
   const date = new Date(dateStr.replace(' ', 'T'))
 

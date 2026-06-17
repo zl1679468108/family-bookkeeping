@@ -18,7 +18,6 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand"
   },
   "dependencies": {
-    "@fontsource/noto-sans-sc": "^5.2.9",
     "@nestjs/common": "^10.3.0",
     "@nestjs/config": "^3.3.0",
     "@nestjs/core": "^10.3.0",
@@ -29,10 +28,7 @@
     "class-validator": "^0.14.0",
     "exceljs": "^4.4.0",
     "nodemailer": "^8.0.7",
-    "noto-sans-sc": "^37.0.0",
     "pdfkit": "^0.18.0",
-    "pdfkit-table": "^0.2.11",
-    "pg": "^8.21.0",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.1",
     "svg-captcha": "^1.4.0",
@@ -48,7 +44,6 @@
     "@types/multer": "^2.1.0",
     "@types/node": "^20.10.6",
     "@types/pdfkit": "^0.13.3",
-    "@types/pg": "^8.20.0",
     "@typescript-eslint/eslint-plugin": "^6.17.0",
     "@typescript-eslint/parser": "^6.17.0",
     "eslint": "^8.56.0",

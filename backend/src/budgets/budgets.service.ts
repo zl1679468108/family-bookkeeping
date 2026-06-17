@@ -130,7 +130,7 @@ export class BudgetsService {
     const categoryIds = [...new Set([...categoryIdsFromBudgets, ...categoryIdsFromSpent])];
 
     // 4. 获取所有涉及的分类信息
-    const categoryInfoMap = await this.loadCategoryInfo(categoryIds);
+    const categoryInfoMap = await this.supabaseService.loadCategoryInfo(categoryIds);
 
     // 5. 构造 budget 查找表（category -> amount）
     const budgetAmountMap = new Map<string, number>();
@@ -196,23 +196,6 @@ export class BudgetsService {
       budgets: prevBudgets.map((b) => ({ category: b.category, amount: b.amount })),
     };
     return this.upsertBudgets(userId, bookId, dto);
-  }
-
-  /**
-   * 获取分类信息（name + icon）by ID 列表
-   */
-  private async loadCategoryInfo(categoryIds: string[]): Promise<Map<string, { name: string; icon: string }>> {
-    const supabase = this.supabaseService.getClient();
-    const { data } = await supabase
-      .from('categories')
-      .select('id, name, icon')
-      .in('id', categoryIds);
-
-    const map = new Map<string, { name: string; icon: string }>();
-    (data || []).forEach((c: any) => {
-      map.set(c.id, { name: c.name, icon: c.icon });
-    });
-    return map;
   }
 
   /**

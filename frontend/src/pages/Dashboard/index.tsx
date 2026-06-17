@@ -119,19 +119,6 @@ const Dashboard: React.FC = () => {
         <Card>
           <CardHeader
             title={recentLoading ? <Skeleton width="70px" height="14px" /> : "最近交易"}
-            action={
-              recentLoading ? (
-                <Skeleton width="60px" height="12px" />
-              ) : (
-                <span
-                  className="card-action"
-                  onClick={() => navigate('/transactions')}
-                  style={{ cursor: 'pointer' }}
-                >
-                  查看全部→
-                </span>
-              )
-            }
           />
           {recentLoading ? (
             <div className="txn-list">
@@ -191,7 +178,6 @@ const Dashboard: React.FC = () => {
           <Card>
             <CardHeader
               title={<Skeleton width="70px" height="14px" />}
-              action={<Skeleton width="50px" height="12px" />}
             />
             {[0, 1, 2].map((i) => (
               <div key={i} className="budget-item" style={{ pointerEvents: 'none' }}>
@@ -210,15 +196,6 @@ const Dashboard: React.FC = () => {
           <Card>
             <CardHeader
               title="预算进度"
-              action={
-                <span
-                  className="card-action"
-                  onClick={() => navigate('/budgets')}
-                  style={{ cursor: 'pointer' }}
-                >
-                  管理→
-                </span>
-              }
             />
             {budgetStatus.categories.slice(0, 4).map((cat) => (
               <div

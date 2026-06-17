@@ -45,9 +45,3 @@ export class UpdateBookDto {
   @IsString()
   icon_id?: string;
 }
-
-export class RenameBookDto {
-  @IsString()
-  @MaxLength(100)
-  name: string;
-}

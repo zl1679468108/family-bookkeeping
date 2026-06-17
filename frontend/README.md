@@ -1,193 +1,156 @@
 # 静记
 
-一个基于 React 的现代化记账应用，支持图片识别、数据分析和响应式设计。
-
-## 功能特性
-
-- 📱 **响应式设计** - 适配手机、平板和桌面设备
-- 📊 **数据可视化** - 收支趋势、分类统计
-- 📸 **图片识别** - 上传收据图片自动识别金额和分类
-- 🔐 **用户认证** - 基于 Supabase 的安全认证
-- 📱 **现代界面** - 现代极简设计风格
+一个基于 React 的家庭记账应用，支持多人协作、图片识别、数据分析、地图定位和响应式设计。
 
 ## 技术栈
 
-- **前端**: React 18 + TypeScript + Tailwind CSS
-- **后端**: Vercel Serverless Functions
-- **数据库**: Supabase (PostgreSQL)
-- **部署**: Vercel
-- **图片存储**: Supabase Storage
+- **前端**: React 18 + TypeScript + Tailwind CSS + SCSS
+- **后端**: NestJS（部署在腾讯云开发 CloudBase CloudRun）
+- **数据库访问**: 通过 NestJS REST API（非直连数据库）
+- **数据管理**: React Query（@tanstack/react-query）
+- **图表**: ECharts
+- **地图**: 高德地图 JS API 2.0
+- **图片识别**: Tesseract.js
+- **构建工具**: Create React App
 
 ## 项目结构
 
 ```
-family-bookkeeping/
-├── public/                 # 静态文件
-│   └── index.html          # 主入口文件
-├── src/                    # 源代码
-│   ├── components/         # React 组件
-│   │   ├── Button/         # 按钮组件
-│   │   ├── ChartCard/      # 图表卡片组件
-│   │   ├── FilterBar/      # 筛选栏组件
-│   │   ├── Form/           # 表单组件
-│   │   ├── Header/         # 头部组件
-│   │   ├── ImageUploader/  # 图片上传组件
-│   │   ├── Layout/         # 布局组件
-│   │   ├── Sidebar/        # 侧边栏组件
-│   │   ├── StatCard/       # 统计卡片组件
-│   │   ├── TransactionsList/# 交易列表组件
-│   │   └── ui/             # UI 基础组件
-│   ├── pages/              # 页面组件
-│   │   ├── Dashboard.tsx   # 仪表板页面
-│   │   ├── Transactions.tsx # 交易记录页面
-│   │   ├── Reports.tsx     # 统计报表页面
-│   │   └── AddTransaction.tsx # 添加交易页面
-│   ├── services/           # 服务层
-│   │   └── supabase.ts     # Supabase 客户端
-│   ├── utils/              # 工具函数
-│   │   ├── auth.tsx        # 认证工具
-│   │   ├── common.ts       # 通用工具函数（金额格式化、日期格式化）
-│   │   └── commonDic.ts    # 字典配置（分类、类型、图标映射）
-│   └── styles/             # 样式文件
-│       └── globals.css     # 全局样式
-├── api/                    # Vercel Serverless Functions
-│   └── transactions.js     # 交易 API
-├── package.json            # 项目配置
-├── tsconfig.json           # TypeScript 配置
-├── tailwind.config.js      # Tailwind 配置
-└── vercel.json             # Vercel 配置
+frontend/
+├── public/                          # 静态文件
+├── src/
+│   ├── components/                  # 通用组件（17 个目录）
+│   │   ├── AuthLayout/              # 认证布局
+│   │   ├── FilterBar/               # 筛选栏
+│   │   ├── FilterChip/              # 筛选标签
+│   │   ├── GlobalModal/             # 全局弹窗
+│   │   ├── NoBooksRequiredModal/    # 无需账本提示弹窗
+│   │   ├── PageProgressBar/         # 页面进度条
+│   │   ├── Sidebar/                 # 侧边栏导航
+│   │   ├── SwitchAccountModal/      # 切换账号弹窗
+│   │   └── ui/                      # 基础 UI 组件
+│   │       ├── Button/              # 按钮
+│   │       ├── Card/                # 卡片
+│   │       ├── DetailItem/          # 详情项
+│   │       ├── Dropdown/            # 下拉菜单
+│   │       ├── Drawer/              # 抽屉
+│   │       ├── EmptyState/          # 空状态
+│   │       ├── IconGrid/            # 图标网格
+│   │       ├── Input/               # 输入框
+│   │       ├── LocationDisplay/     # 位置展示
+│   │       ├── Pagination/          # 分页
+│   │       ├── RankList/            # 排行榜
+│   │       ├── SegControl/          # 分段控制
+│   │       ├── Skeleton/            # 骨架屏
+│   │       ├── Space/               # 间距
+│   │       ├── StatCard/            # 统计卡片
+│   │       └── Textarea/            # 文本域
+│   ├── pages/                       # 页面组件（19 个路由）
+│   │   ├── Dashboard/               # 仪表盘
+│   │   ├── Transactions/            # 交易记录
+│   │   ├── AddTransaction/          # 添加交易（含图片识别、位置选择）
+│   │   ├── Reports/                 # 统计报表
+│   │   ├── AnnualReport/            # 年度报告
+│   │   ├── Calendar/                # 日历视图
+│   │   ├── Categories/              # 分类管理
+│   │   ├── Books/                   # 账本管理
+│   │   ├── Templates/               # 模板管理
+│   │   ├── Budgets/                 # 预算管理
+│   │   ├── Map/                     # 地图视图
+│   │   ├── Admin/                   # 管理后台
+│   │   │   ├── AdminDashboard/      # 管理仪表盘
+│   │   │   ├── AdminUsers/          # 用户管理
+│   │   │   ├── AdminTransactions/   # 交易管理
+│   │   │   └── AdminLayout/         # 管理后台布局
+│   │   └── User/                    # 用户模块
+│   │       ├── Login/               # 登录
+│   │       ├── Register/            # 注册
+│   │       ├── ForgotPassword/      # 忘记密码
+│   │       └── Profile/             # 个人资料
+│   ├── services/                    # API 服务层（11 个文件）
+│   │   ├── api.ts                   # 基础 API 封装
+│   │   ├── booksApi.ts              # 账本相关 API
+│   │   ├── categoriesApi.ts         # 分类相关 API
+│   │   ├── transactionsApi.ts       # 交易相关 API
+│   │   ├── reportsApi.ts            # 报表相关 API
+│   │   ├── statisticsApi.ts         # 统计相关 API
+│   │   ├── budgetsApi.ts            # 预算相关 API
+│   │   ├── templatesApi.ts          # 模板相关 API
+│   │   ├── iconsApi.ts              # 图标相关 API
+│   │   ├── adminApi.ts              # 管理后台 API
+│   │   ├── mapApi.ts                # 地图相关 API
+│   │   └── amapManager.ts           # 高德地图管理
+│   ├── utils/                       # 工具函数
+│   ├── styles/                      # 全局样式
+│   └── App.tsx                      # 应用入口
+├── .env.development                 # 开发环境变量
+├── .env.production                  # 生产环境变量
+├── .env.example                     # 环境变量示例
+├── package.json
+├── tsconfig.json
+└── tailwind.config.js
 ```
 
-## 核心数据结构
+## 功能特性
 
-### 数据库存储格式
+- 多人协作记账（支持多账本、成员邀请）
+- 图片识别（Tesseract.js OCR）
+- 数据可视化（ECharts 图表）
+- 地图视图（高德地图）
+- 日历视图（含农历）
+- 年度报告生成
+- 预算管理
+- 模板快速记账
+- 管理后台
+- 响应式设计
 
-**重要**: 数据库只存储字典键值，不存储图标！图标通过字典动态获取。
+## 本地开发
 
-```sql
--- transactions 表结构
-CREATE TABLE transactions (
-  id SERIAL PRIMARY KEY,
-  amount DECIMAL(10, 2) NOT NULL,    -- 金额（数字）
-  category VARCHAR(50) NOT NULL,     -- 分类键（如 'food', 'transport'）
-  type VARCHAR(10) NOT NULL,         -- 类型键（'income' 或 'expense'）
-  date DATE NOT NULL,                -- 日期
-  description TEXT,                  -- 备注
-  image_url TEXT,                    -- 图片URL
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
-```
+### 环境要求
 
-## 部署指南
+- Node.js >= 20.0.0
 
-### 1. 创建 Supabase 账户
-
-1. 访问 [Supabase](https://supabase.com/) 并创建免费账户
-2. 创建新项目（例如命名为 `family-bookkeeping`）
-3. 在项目设置中获取以下信息：
-   - `SUPABASE_URL` - 项目 URL
-   - `SUPABASE_ANON_KEY` - 匿名 API 密钥
-
-### 2. 创建数据库表
-
-在 Supabase 的 SQL 编辑器中执行以下 SQL：
-
-```sql
--- 创建 transactions 表
-CREATE TABLE transactions (
-  id SERIAL PRIMARY KEY,
-  amount DECIMAL(10, 2) NOT NULL,
-  category VARCHAR(50) NOT NULL,
-  type VARCHAR(10) CHECK (type IN ('income', 'expense')) NOT NULL,
-  date DATE NOT NULL,
-  description TEXT,
-  image_url TEXT,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
-
--- 创建索引优化查询
-CREATE INDEX idx_transactions_date ON transactions(date);
-CREATE INDEX idx_transactions_category ON transactions(category);
-CREATE INDEX idx_transactions_type ON transactions(type);
-```
-
-### 3. 配置环境变量
-
-#### 开发环境
-
-在项目根目录创建 `.env.local` 文件：
+### 安装依赖
 
 ```bash
-SUPABASE_URL=your_supabase_url
-SUPABASE_ANON_KEY=your_supabase_anon_key
-```
-
-#### 生产环境（Vercel）
-
-在 Vercel 项目设置中添加环境变量：
-- `SUPABASE_URL`
-- `SUPABASE_ANON_KEY`
-
-### 4. 本地开发
-
-```bash
-# 克隆项目
-git clone your-repo-url
-cd family-bookkeeping
-
-# 安装依赖
 npm install
+```
 
-# 启动开发服务器
+### 配置环境变量
+
+复制 `.env.example` 为 `.env.development`，并填写：
+
+```bash
+# 后端 API 地址（NestJS 服务）
+REACT_APP_API_BASE_URL=http://localhost:3000/api
+
+# 高德地图 API Key
+REACT_APP_AMAP_KEY=your-amap-key
+REACT_APP_AMAP_SECRET=your-amap-secret
+```
+
+### 启动开发服务器
+
+```bash
 npm start
 ```
 
-访问 `http://localhost:3000` 查看应用。
+开发服务器运行在 `http://127.0.0.1:3001`。
 
-### 5. 部署到 Vercel
-
-#### 方式一：使用 Vercel CLI
+### 构建生产版本
 
 ```bash
-# 安装 Vercel CLI（如果未安装）
-npm install -g vercel
-
-# 登录 Vercel
-vercel login
-
-# 部署到生产环境
-vercel --prod
-```
-
-#### 方式二：使用 GitHub 自动部署
-
-1. 将代码推送到 GitHub 仓库
-2. 访问 [Vercel Dashboard](https://vercel.com/dashboard)
-3. 点击 "Add New Project"
-4. 选择你的 GitHub 仓库
-5. 配置项目设置（环境变量在 Settings -> Environment Variables 中添加）
-6. 点击 "Deploy"
-
-### 6. 配置图片存储（可选）
-
-如果需要使用图片识别功能：
-
-1. 在 Supabase 中创建存储桶（如 `receipts`）
-2. 设置存储桶权限为公开可读
-3. 在 API 中配置上传逻辑
-
-## 开发指南
-
-```bash
-# 启动开发服务器
-npm start
-
-# 构建生产版本
 npm run build
-
-# 运行类型检查
-npm run typecheck
-
-# 格式化代码
-npm run format
 ```
+
+### 其他命令
+
+```bash
+npm run lint          # 代码检查
+npm run lint:fix      # 自动修复
+npm run test          # 运行测试
+```
+
+## 部署
+
+项目前端构建后部署到 CloudBase CloudRun，后端 NestJS 服务同样部署在 CloudBase 平台。

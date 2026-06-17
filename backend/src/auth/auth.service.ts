@@ -3,6 +3,7 @@ import {
   ConflictException,
   Injectable,
   InternalServerErrorException,
+  Logger,
   UnauthorizedException,
 } from '@nestjs/common';
 import * as bcrypt from 'bcryptjs';
@@ -39,6 +40,8 @@ type SafeUser = Omit<User, 'password_hash'>;
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
+
   constructor(
     private readonly supabaseService: SupabaseService,
     private readonly mailService: MailService,
@@ -456,28 +459,6 @@ export class AuthService {
     return token;
   }
 
-  /** 为新注册用户自动创建默认账本 */
-  private async ensureDefaultBook(userId: string): Promise<void> {
-    const supabase = this.supabaseService.getClient();
-
-    const { data: book, error } = await supabase
-      .from('books')
-      .insert({ name: '默认账本', owner_id: userId })
-      .select('id')
-      .single();
-
-    if (error) {
-      // 默认账本创建失败不应阻塞注册流程
-      return;
-    }
-
-    await supabase.from('book_members').insert({
-      book_id: book.id,
-      user_id: userId,
-      role: 'owner',
-    });
-  }
-
   /** 为新注册用户自动创建 2 个默认分类 */
   private async ensureDefaultCategories(userId: string): Promise<void> {
     const supabase = this.supabaseService.getClient();
@@ -490,7 +471,7 @@ export class AuthService {
     const { error } = await supabase.from('categories').insert(defaults);
 
     if (error) {
-      console.error(`创建默认分类失败 (user ${userId}):`, error.message);
+      this.logger.error(`创建默认分类失败 (user ${userId}): ${error.message}`);
     }
   }
 

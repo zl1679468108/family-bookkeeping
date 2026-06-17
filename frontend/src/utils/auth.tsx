@@ -79,11 +79,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         silent: true,
       });
 
-      // 移除所有缓存查询（不触发自动重取，避免 clear() 导致的竞态问题）
-      // 下次渲染时，mounted 的 useQuery 会自动重建并用新 token 获取数据
-      queryClient.removeQueries();
-
-      // 设置新用户的 profile 数据（创建新查询，后续 useQuery 同步时使用）
+      // 与 signIn 保持一致：先清空所有缓存，再设置 profile 并 refetch
+      // 避免 removeQueries 触发级联 refetch 时旧 token 残留导致 token 被清
+      queryClient.clear();
       queryClient.setQueryData(['auth', 'profile'], profile);
 
       // 切换成功：同步更新 savedAccounts 中该账号的 token、用户名、头像
@@ -92,6 +90,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         username: profile.username,
         avatar_url: profile.avatar_url,
       });
+
+      // 强制刷新 profile query，确保各组件拿到最新 user 数据
+      await refetch();
     } catch {
       // token 失效，清除并抛错
       clearStoredToken();

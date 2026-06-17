@@ -1,4 +1,4 @@
-import { IsOptional, IsString, IsIn, IsNumberString, IsBooleanString } from 'class-validator';
+import { IsOptional, IsString, IsIn, IsNumberString } from 'class-validator';
 import { Transform } from 'class-transformer';
 
 /** 将空字符串、纯空白字符串转为 undefined，避免误作为筛选条件 */

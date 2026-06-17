@@ -134,6 +134,21 @@ export class SupabaseService implements OnModuleInit {
     throw this.normalizeError(lastErr);
   }
 
+  /** 批量获取分类信息（name + icon）by ID 列表 */
+  async loadCategoryInfo(categoryIds: string[]): Promise<Map<string, { name: string; icon: string }>> {
+    const client = this.getClient();
+    const { data } = await client
+      .from('categories')
+      .select('id, name, icon')
+      .in('id', categoryIds);
+
+    const map = new Map<string, { name: string; icon: string }>();
+    (data || []).forEach((c: any) => {
+      map.set(c.id, { name: c.name, icon: c.icon });
+    });
+    return map;
+  }
+
   /** 轻量查询检测连通性，用于健康检查 */
   async ping(): Promise<{ ok: boolean; message?: string; latencyMs?: number }> {
     if (!this.isConfigured()) {

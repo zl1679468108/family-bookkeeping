@@ -2,6 +2,7 @@ import {
   ForbiddenException,
   Injectable,
   InternalServerErrorException,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { SupabaseService } from '../supabase/supabase.service';
@@ -56,7 +57,25 @@ export interface PaginatedResponse<T> {
 
 @Injectable()
 export class TransactionService {
+  private readonly logger = new Logger(TransactionService.name);
+
   constructor(private supabaseService: SupabaseService) {}
+
+  /** 解析 image_urls 字段（支持 JSON 数组和逗号分隔字符串） */
+  private parseImageUrls(imageUrls: string | null | undefined): string[] {
+    if (!imageUrls) return [];
+    try {
+      const parsed = JSON.parse(imageUrls);
+      if (Array.isArray(parsed)) {
+        return parsed.map((p: any) => String(p));
+      }
+    } catch {
+      if (imageUrls.includes(',')) {
+        return imageUrls.split(',').map((s) => s.trim());
+      }
+    }
+    return [];
+  }
 
   /**
    * 检查指定用户是否是指定账本的 Owner
@@ -522,19 +541,7 @@ export class TransactionService {
     const publicUrl = urlData.publicUrl;
 
     // 更新数据库 image_urls 字段：追加新图到数组（存储相对路径）
-    let existingPaths: string[] = [];
-    if (transaction.image_urls) {
-      try {
-        const parsed = JSON.parse(transaction.image_urls);
-        if (Array.isArray(parsed)) {
-          existingPaths = parsed.map((p: any) => String(p));
-        }
-      } catch {
-        if (typeof transaction.image_urls === 'string' && transaction.image_urls.includes(',')) {
-          existingPaths = transaction.image_urls.split(',').map((s) => s.trim());
-        }
-      }
-    }
+    const existingPaths = this.parseImageUrls(transaction.image_urls);
     const mergedPaths = [...existingPaths, path];
 
     const { error: updateErr } = await supabase
@@ -557,19 +564,7 @@ export class TransactionService {
   async deleteReceipt(id: number, userId: string): Promise<void> {
     const transaction = await this.findOne(id, userId);
 
-    let existingPaths: string[] = [];
-    if (transaction.image_urls) {
-      try {
-        const parsed = JSON.parse(transaction.image_urls);
-        if (Array.isArray(parsed)) {
-          existingPaths = parsed.map((p: any) => String(p));
-        }
-      } catch {
-        if (typeof transaction.image_urls === 'string' && transaction.image_urls.includes(',')) {
-          existingPaths = transaction.image_urls.split(',').map((s) => s.trim());
-        }
-      }
-    }
+    const existingPaths = this.parseImageUrls(transaction.image_urls);
 
     if (existingPaths.length === 0) {
       throw new NotFoundException('该交易记录没有收据');
@@ -584,7 +579,7 @@ export class TransactionService {
 
     if (removeErr) {
       // 文件可能已被删除，日志记录但不阻断流程
-      console.warn('删除收据存储文件失败:', removeErr.message);
+      this.logger.warn(`删除收据存储文件失败: ${removeErr.message}`);
     }
 
     // 清空 image_urls 字段
@@ -609,23 +604,8 @@ export class TransactionService {
       return data?.publicUrl || url;
     };
 
-    let resolved: string[] = [];
-    if (transaction?.image_urls) {
-      try {
-        const parsed = JSON.parse(transaction.image_urls);
-        if (Array.isArray(parsed)) {
-          resolved = parsed.map((p: any) => resolveOne(String(p))).filter(Boolean);
-        }
-      } catch {
-        // 解析失败，可能是未转义的逗号分隔字符串，尝试兜底
-        if (typeof transaction.image_urls === 'string') {
-          resolved = transaction.image_urls
-            .split(',')
-            .map((p: string) => resolveOne(p.trim()))
-            .filter(Boolean);
-        }
-      }
-    }
+    const paths = this.parseImageUrls(transaction?.image_urls);
+    const resolved = paths.map(resolveOne).filter(Boolean);
 
     return {
       ...transaction,

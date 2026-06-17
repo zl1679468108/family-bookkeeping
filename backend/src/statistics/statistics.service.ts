@@ -342,7 +342,7 @@ export class StatisticsService {
 
     // Fetch category names/icons for the involved category IDs
     const categoryIds = entries.map((e) => e.categoryId);
-    const categoryInfoMap = await this.loadCategoryInfo(categoryIds);
+    const categoryInfoMap = await this.supabaseService.loadCategoryInfo(categoryIds);
 
     const totalAmount = entries.reduce((sum, e) => sum + e.amount, 0);
 
@@ -441,7 +441,7 @@ export class StatisticsService {
     const userNames = await this.loadUserNames(allUserIds);
 
     // 5. 批量查询 categories 表获取 category_name / icon
-    const categoryInfoMap = await this.loadCategoryInfo([...allCategoryIds]);
+    const categoryInfoMap = await this.supabaseService.loadCategoryInfo([...allCategoryIds]);
 
     // 6. 组装返回格式
     const result: MemberComparisonItem[] = [];
@@ -477,21 +477,6 @@ export class StatisticsService {
     result.sort((a, b) => b.total_expense - a.total_expense);
 
     return result;
-  }
-
-  /** Load category name + icon for a list of category UUIDs */
-  private async loadCategoryInfo(categoryIds: string[]): Promise<Map<string, { name: string; icon: string }>> {
-    const supabase = this.supabaseService.getClient();
-    const { data } = await supabase
-      .from('categories')
-      .select('id, name, icon')
-      .in('id', categoryIds);
-
-    const map = new Map<string, { name: string; icon: string }>();
-    (data || []).forEach((c: any) => {
-      map.set(c.id, { name: c.name, icon: c.icon });
-    });
-    return map;
   }
 
   /** Load user names for a list of user UUIDs */

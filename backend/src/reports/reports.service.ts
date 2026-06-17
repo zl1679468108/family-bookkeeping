@@ -142,7 +142,7 @@ export class ReportsService {
     const records = this.computeRecords(txns);
     const bookBreakdown = await this.computeBookBreakdown(supabase, txns, bookIds);
     const memberRanking = await this.computeMemberRanking(supabase, txns, bookId);
-    const funFact = this.computeFunFact(txns, year);
+    const funFact = await this.computeFunFact(supabase, txns, userId, year);
 
     return {
       overview,
@@ -409,13 +409,28 @@ export class ReportsService {
     return ranking.sort((a, b) => b.expense - a.expense);
   }
 
-  private computeFunFact(transactions: Transaction[], year: number): FunFactData {
+  private async computeFunFact(
+    supabase: any,
+    transactions: Transaction[],
+    userId: string,
+    year: number,
+  ): Promise<FunFactData> {
     const expenses = transactions.filter((t) => t.type === 'expense');
     const totalExpense = expenses.reduce((sum, t) => sum + Number(t.amount), 0);
 
-    // 餐饮总额
+    // 查询分类表，找到"餐饮"类别的 UUID
+    const { data: categories } = await supabase
+      .from('categories')
+      .select('id, name')
+      .eq('user_id', userId);
+
+    const diningCategoryIds = (categories || [])
+      .filter((c: any) => c.name.includes('餐饮'))
+      .map((c: any) => c.id);
+
+    // 餐饮总额（按 UUID 匹配）
     const diningTotal = expenses
-      .filter((t) => (t.category || '').includes('餐饮'))
+      .filter((t) => t.category && diningCategoryIds.includes(t.category))
       .reduce((sum, t) => sum + Number(t.amount), 0);
 
     // 日均支出
