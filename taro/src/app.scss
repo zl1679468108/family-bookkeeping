@@ -5,42 +5,66 @@
    1px ≈ 2rpx
    ========================================================= */
 
-/* === Design Tokens === */
+/* === Design Tokens（对齐 PC 端 frontend/src/styles/design-tokens.css） ===
+   命名规则：极简缩写（--pr=primary, --srf=surface, --fg=foreground, --bd=border, --rs=radius small）
+   单位：PC 用 px，小程序用 rpx（1px ≈ 2rpx）
+   === */
 page {
-  --bg: #f5f6f1;
-  --surface: #ffffff;
-  --surface-soft: #fafaf7;
-  --fg: #24312d;
-  --fg-2: #5a5d58;
-  --fg-3: #8b8e89;
-  --border: #e0e2dd;
-  --border-light: #edeee9;
-  --accent: #c78f43;
+  /* ═══ 主色（绿色） ═══ */
+  --pr:    #2D9D8A;
+  --prH:   #248B78;
+  --prD:   #1A7A6A;
+  --prBg:  #E7F5F2;
+  --prBd:  #C4E5DE;
+  --prGr:  linear-gradient(135deg, #2D9D8A 0%, #45B7A7 100%);
 
-  /* Primary */
-  --primary: #2d9d8a;
-  --primary-dark: #248b78;
-  --primary-bg: #e7f5f2;
-  --primary-grad: linear-gradient(135deg, #24312d 0%, #2d9d8a 100%);
+  /* ═══ 中性色 ═══ */
+  --bg:      #F6F7F4;
+  --srf:     #FFFFFF;
+  --srfH:    #F9FAF8;
+  --srfSoft: #FAFAF7;
+  --fg:      #1A1C19;
+  --fg2:     #5A5D58;
+  --fg3:     #8B8E89;
+  --bd:      #E0E2DD;
+  --bdL:     #EDEEE9;
+  --bdH:     #D0D2CD;
 
-  /* Income */
-  --income: #3ba272;
-  --income-bg: #eaf7f0;
+  /* ═══ 语义色 ═══ */
+  --inc:    #3BA272;   --incBg:  #EAF7F0;
+  --exp:    #E06055;   --expBg:  #FCEEED;
+  --warn:   #E8A838;   --warnBg: #FDF6E8;
+  --info:   #4A90D9;   --infoBg: #ECF3FB;
 
-  /* Expense */
-  --expense: #e06055;
-  --expense-bg: #fceeed;
+  /* ═══ 遮罩 ═══ */
+  --ov: rgba(0, 0, 0, 0.35);
 
-  /* Warning */
-  --warn: #e8a838;
-  --warn-bg: #fdf6e8;
-  --font-base: 28rpx;
+  /* ═══ 圆角 ═══ */
+  --rs: 16rpx;
+  --rm: 24rpx;
+  --rl: 36rpx;
+  --rx: 48rpx;
 
-  /* Radii (px → rpx, 2×) */
-  --radius-sm: 16rpx;   /* 8px */
-  --radius-md: 24rpx;   /* 12px */
-  --radius-lg: 32rpx;   /* 16px */
-  --radius-xl: 40rpx;   /* 20px */
+  /* ═══ 阴影 ═══ */
+  --sh1: 0 2rpx 4rpx rgba(0, 0, 0, 0.04);
+  --sh2: 0 4rpx 16rpx rgba(0, 0, 0, 0.06);
+  --sh3: 0 16rpx 48rpx rgba(0, 0, 0, 0.08);
+  --sh4: 0 32rpx 96rpx rgba(0, 0, 0, 0.12);
+
+  /* ═══ Z-Index ═══ */
+  --z-baseline: 0; --z-1: 1; --z-5: 5; --z-10: 10;
+  --z-30: 30; --z-50: 50; --z-100: 100; --z-200: 200; --z-400: 400;
+  --z-detail: 1000; --z-modal: 1500; --z-critical: 2500; --z-toast: 3000;
+
+  /* ═══ 缓动 ═══ */
+  --ease: cubic-bezier(0.25, 0, 0, 1);
+  --sp:   cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* ═══ 过渡时长 ═══ */
+  --df: 0.15s; --dn: 0.25s; --ds: 0.35s;
+
+  /* ═══ 等宽字体 ═══ */
+  --fm: ui-monospace, "SF Mono", Menlo, monospace;
 
   font-family: -apple-system, BlinkMacSystemFont, "PingFang SC",
     "Helvetica Neue", "Microsoft YaHei", sans-serif;
@@ -49,11 +73,34 @@ page {
   background-color: var(--bg);
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
+
+  /* ═══ 旧命名兼容 ═══ */
+  --primary:      var(--pr);
+  --primary-dark: var(--prH);
+  --primary-bg:   var(--prBg);
+  --primary-grad: var(--prGr);
+  --surface:      var(--srf);
+  --surface-soft: var(--srfSoft);
+  --fg-2:         var(--fg2);
+  --fg-3:         var(--fg3);
+  --border:       var(--bd);
+  --border-light: var(--bdL);
+  --accent:       var(--pr);
+  --income:       var(--inc);
+  --income-bg:    var(--incBg);
+  --expense:      var(--exp);
+  --expense-bg:    var(--expBg);
+  --radius-sm:    var(--rs);
+  --radius-md:    var(--rm);
+  --radius-lg:    var(--rl);
+  --radius-xl:    var(--rx);
+  --font-base:    28rpx;
 }
 
 /* === 全局工具类：登录/注册/忘记密码等通用页面使用 === */
 /* 背景色工具类 */
 .bg-bg { background-color: var(--bg); }
+.bg-srf { background-color: var(--srf); }
 
 /* 卡片容器（带 padding） */
 .card-padded {
@@ -73,10 +120,10 @@ view, text, image, input, button, scroll-view { box-sizing: border-box; }
    ========================================================= */
 .bg-white { background-color: #ffffff; }
 .bg-black { background-color: #000000; }
-.text-primary { color: var(--primary); }
-.text-secondary { color: var(--fg-2); }
-.text-danger { color: var(--expense); }
-.text-hint { color: var(--fg-3); }
+.text-primary { color: var(--pr); }
+.text-secondary { color: var(--fg2); }
+.text-danger { color: var(--exp); }
+.text-hint { color: var(--fg3); }
 .text-xs { font-size: 20rpx; }
 .text-sm { font-size: 24rpx; }
 .text-base { font-size: 28rpx; }
@@ -963,20 +1010,7 @@ view, text, image, input, button, scroll-view { box-sizing: border-box; }
 
 .empty-text { font-size: 28rpx; color: var(--fg-3); }
 
-/* =========================================================
-   动画
-   ========================================================= */
-@keyframes sheetSlideUp {
-  from { transform: translateY(100%); }
-  to { transform: translateY(0); }
-}
 
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-.animate-fade-in { animation: fadeIn 0.25s ease; }
 
 /* =========================================================
    Auth 样式 (登录/注册/忘记密码)
@@ -1298,4 +1332,40 @@ view, text, image, input, button, scroll-view { box-sizing: border-box; }
 /* sheet 底部安全区 */
 .sheet {
   padding-bottom: env(safe-area-inset-bottom, 0);
+}
+
+/* === 全局动画 keyframes（对齐 PC） === */
+@keyframes fadeIn    { from { opacity: 0; } to { opacity: 1; } }
+@keyframes fadeInUp  { from { opacity: 0; transform: translateY(20rpx); } to { opacity: 1; transform: translateY(0); } }
+@keyframes scaleIn   { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+@keyframes slideUp   { from { transform: translateY(60rpx); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+@keyframes slideDown { from { transform: translateY(0); opacity: 1; } to { transform: translateY(60rpx); opacity: 0; } }
+@keyframes spin      { to { transform: rotate(360deg); } }
+@keyframes skeletonShimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+@keyframes spotlightPulse {
+  0%, 100% { box-shadow: 0 0 0 2rpx rgba(45, 157, 138, 0.45), 0 0 28rpx rgba(45, 157, 138, 0.18); }
+  50%      { box-shadow: 0 0 0 4rpx rgba(45, 157, 138, 0.7),  0 0 48rpx rgba(45, 157, 138, 0.32); }
+}
+.spotlight--focused { animation: spotlightPulse 1.6s var(--ease) 2; }
+
+/* === 深色模式 === */
+page.theme-dark {
+  --bg:    #1A1C19; --srf: #252825; --srfH: #2C2F2C; --srfSoft: #2C2F2C;
+  --fg:    #E8EAE5; --fg2: #A5A8A3; --fg3: #6E716C;
+  --bd:    #3A3D39; --bdL: #303330; --bdH: #454845;
+  --pr:    #45B7A7; --prH: #52C4B4; --prD: #2D9D8A;
+  --prBg:  #1A3A35; --prBd: #2A5A52;
+  --inc:   #52C494; --incBg: #1A3528;
+  --exp:   #F08075; --expBg: #3A2020;
+  --warn:  #F0C040; --warnBg: #3A3020;
+  --info:  #60A5FA; --infoBg: #1A2A40;
+  --ov: rgba(0, 0, 0, 0.55);
+  --sh1: 0 2rpx 4rpx rgba(0, 0, 0, 0.2);
+  --sh2: 0 4rpx 16rpx rgba(0, 0, 0, 0.3);
+  --sh3: 0 16rpx 48rpx rgba(0, 0, 0, 0.4);
+  --sh4: 0 32rpx 96rpx rgba(0, 0, 0, 0.5);
 }
