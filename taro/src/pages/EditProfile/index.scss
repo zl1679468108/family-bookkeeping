@@ -1,90 +1,110 @@
 /* =========================================================
  * EditProfile — 编辑资料页样式
- *
- * 设计语言与全局 app.scss / profile.scss 保持一致：
- *   - 背景色      var(--bg)
- *   - 卡片/表面   var(--surface)
- *   - 主色        var(--primary) / var(--primary-grad)
- *   - 圆角        var(--radius-lg) / var(--radius-md) / var(--radius-sm)
- *   - 文本色      var(--fg) / var(--fg-2) / var(--fg-3)
- *   - 边框        var(--border) / var(--border-light)
+ * 视觉风格：
+ *   · 头像：圆形渐变背景 + 白色首字母 / 图片 + 阴影
+ *   · 表单：白色圆角卡片 + 左侧标签 + 右侧输入框
+ *   · 修改密码入口：白色卡片 + 左侧图标徽章 + 右侧箭头
+ *   · 保存按钮：大号绿色渐变 + 白色文字 + 阴影
  * ========================================================= */
 
 .edit-profile-page {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background-color: var(--bg);
-  padding-bottom: calc(80rpx + env(safe-area-inset-bottom, 0));
+  background-color: var(--bg, #f6f7f4);
+  padding: calc(16rpx + env(safe-area-inset-top, 0)) 32rpx calc(48rpx + env(safe-area-inset-bottom, 0));
+  gap: 24rpx;
 }
 
-/* =========================================================
- * 头像区
- * ========================================================= */
+/* ========== 头像区 ========== */
 .edit-avatar-wrap {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 48rpx 32rpx 32rpx;
+  padding: 32rpx 0 16rpx;
 }
 
 .edit-avatar-wrap:active .edit-avatar-img,
 .edit-avatar-wrap:active .edit-avatar-placeholder {
-  opacity: 0.85;
+  transform: scale(0.97);
+  opacity: 0.9;
+}
+
+.edit-avatar-container {
+  position: relative;
+  width: 200rpx;
+  height: 200rpx;
 }
 
 .edit-avatar-img {
-  width: 180rpx;
-  height: 180rpx;
+  width: 200rpx;
+  height: 200rpx;
   border-radius: 50%;
-  background-color: var(--primary-bg);
+  background-color: var(--primary-bg, #e7f5f2);
   overflow: hidden;
-  transition: opacity 0.15s ease;
-  box-shadow: 0 4rpx 24rpx rgba(45, 157, 138, 0.12);
+  transition: all 0.2s ease;
+  box-shadow: 0 8rpx 32rpx rgba(45, 157, 138, 0.2);
+  border: 4rpx solid #ffffff;
 }
 
 .edit-avatar-placeholder {
-  width: 180rpx;
-  height: 180rpx;
+  width: 200rpx;
+  height: 200rpx;
   border-radius: 50%;
-  background: var(--primary-grad);
+  background: var(--primary-grad, linear-gradient(135deg, #2d9d8a 0%, #45b7a7 100%));
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: opacity 0.15s ease;
-  box-shadow: 0 4rpx 24rpx rgba(45, 157, 138, 0.25);
+  transition: all 0.2s ease;
+  box-shadow: 0 8rpx 32rpx rgba(45, 157, 138, 0.25);
+  border: 4rpx solid #ffffff;
 }
 
 .edit-avatar-placeholder-text {
   color: #ffffff;
-  font-size: 72rpx;
+  font-size: 80rpx;
   font-weight: 700;
   line-height: 1;
 }
 
-.edit-avatar-tip {
-  margin-top: 16rpx;
-  font-size: 24rpx;
-  color: var(--fg-3);
+.edit-avatar-loading {
+  position: absolute;
+  inset: 0;
+  background-color: rgba(255, 255, 255, 0.82);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-/* =========================================================
- * 表单卡片
- * ========================================================= */
+.edit-avatar-loading-text {
+  font-size: 24rpx;
+  color: var(--primary, #2d9d8a);
+  font-weight: 600;
+}
+
+.edit-avatar-tip {
+  margin-top: 20rpx;
+  font-size: 26rpx;
+  color: var(--fg-3, #8b8e89);
+  font-weight: 500;
+}
+
+/* ========== 表单卡片 ========== */
 .edit-form {
-  margin: 16rpx 32rpx 0;
-  background-color: var(--surface);
-  border-radius: var(--radius-lg);
-  border: 2rpx solid var(--border);
+  background-color: var(--surface, #ffffff);
+  border-radius: var(--radius-lg, 32rpx);
+  border: 1rpx solid var(--border, #e0e2dd);
   overflow: hidden;
+  box-shadow: 0 4rpx 20rpx rgba(26, 28, 25, 0.04);
 }
 
 .edit-row {
   display: flex;
   align-items: center;
-  padding: 28rpx 32rpx;
-  border-bottom: 2rpx solid var(--border-light);
-  min-height: 96rpx;
+  padding: 32rpx 28rpx;
+  border-bottom: 1rpx solid var(--border-light, #edeee9);
+  min-height: 100rpx;
 }
 
 .edit-row:last-child {
@@ -95,62 +115,59 @@
   flex-shrink: 0;
   width: 140rpx;
   font-size: 28rpx;
-  font-weight: 500;
-  color: var(--fg);
+  font-weight: 600;
+  color: var(--fg, #1a1c19);
 }
 
 .edit-input {
   flex: 1;
   font-size: 28rpx;
-  color: var(--fg);
+  color: var(--fg, #1a1c19);
   text-align: right;
   font-family: inherit;
   line-height: 1.4;
 }
 
 .edit-input-placeholder {
-  color: var(--fg-3);
+  color: var(--fg-3, #8b8e89);
 }
 
-/* =========================================================
- * 修改密码入口区
- * ========================================================= */
+/* ========== 修改密码入口 ========== */
 .edit-section {
-  margin: 24rpx 32rpx 0;
+  margin: 0;
 }
 
 .edit-pwd-entry {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 28rpx 32rpx;
-  background-color: var(--surface);
-  border-radius: var(--radius-lg);
-  border: 2rpx solid var(--border);
-  min-height: 96rpx;
+  padding: 32rpx 28rpx;
+  background-color: var(--surface, #ffffff);
+  border-radius: var(--radius-lg, 32rpx);
+  border: 1rpx solid var(--border, #e0e2dd);
+  box-shadow: 0 4rpx 20rpx rgba(26, 28, 25, 0.04);
+  transition: background-color 0.15s ease;
 }
 
 .edit-pwd-entry:active {
-  background-color: #f5f6f3;
+  background-color: var(--bg, #f6f7f4);
 }
 
 .edit-pwd-text {
   font-size: 28rpx;
-  font-weight: 500;
-  color: var(--fg);
+  font-weight: 600;
+  color: var(--fg, #1a1c19);
 }
 
 .edit-pwd-arrow {
   font-size: 36rpx;
   font-weight: 300;
-  color: var(--fg-3);
+  color: var(--fg-3, #8b8e89);
 }
 
-/* =========================================================
- * 保存按钮
- * ========================================================= */
+/* ========== 保存按钮 ========== */
 .edit-save-wrap {
-  padding: 48rpx 32rpx 0;
+  padding: 24rpx 0 0;
 }
 
 .edit-save-btn {
@@ -158,35 +175,36 @@
   align-items: center;
   justify-content: center;
   height: 96rpx;
-  border-radius: var(--radius-md);
-  background-color: var(--primary);
+  border-radius: var(--radius-md, 24rpx);
+  background: var(--primary-grad, linear-gradient(135deg, #2d9d8a 0%, #45b7a7 100%));
+  box-shadow: 0 8rpx 24rpx rgba(45, 157, 138, 0.25);
   transition: opacity 0.15s ease, transform 0.15s ease;
 }
 
 .edit-save-btn:active {
-  opacity: 0.85;
-  transform: scale(0.99);
+  opacity: 0.9;
+  transform: scale(0.98);
 }
 
 .edit-save-btn.disabled {
-  background-color: var(--primary-bg);
+  background-color: var(--primary-bg, #e7f5f2);
+  background-image: none;
+  opacity: 0.6;
   pointer-events: none;
 }
 
 .edit-save-btn.disabled .edit-save-text {
-  color: var(--primary);
+  color: var(--primary, #2d9d8a);
 }
 
 .edit-save-text {
   font-size: 32rpx;
-  font-weight: 600;
+  font-weight: 700;
   color: #ffffff;
+  letter-spacing: 2rpx;
 }
 
-/* =========================================================
- * 修改密码弹窗
- * 样式语言与 profile.scss 中 .logout-* 保持一致
- * ========================================================= */
+/* ========== 修改密码弹窗 ========== */
 .pwd-mask {
   position: fixed;
   top: 0;
@@ -199,31 +217,44 @@
   justify-content: center;
   z-index: 1000;
   padding: 0 48rpx;
+  animation: pwdFadeIn 0.2s ease;
+}
+
+@keyframes pwdFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 .pwd-dialog {
   width: 100%;
   max-width: 640rpx;
-  background-color: var(--surface);
-  border-radius: var(--radius-lg);
-  padding: 40rpx 36rpx 24rpx;
+  background-color: var(--surface, #ffffff);
+  border-radius: var(--radius-lg, 32rpx);
+  padding: 40rpx 32rpx 28rpx;
   display: flex;
   flex-direction: column;
+  box-shadow: 0 20rpx 60rpx rgba(0, 0, 0, 0.2);
+  animation: pwdScale 0.2s cubic-bezier(0.25, 0, 0.2, 1);
+}
+
+@keyframes pwdScale {
+  from { transform: scale(0.9); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
 }
 
 .pwd-title {
   font-size: 34rpx;
   font-weight: 700;
-  color: var(--fg);
+  color: var(--fg, #1a1c19);
   text-align: center;
-  margin-bottom: 28rpx;
+  margin-bottom: 24rpx;
 }
 
 .pwd-row {
   display: flex;
   align-items: center;
-  padding: 20rpx 0;
-  border-bottom: 2rpx solid var(--border-light);
+  padding: 24rpx 0;
+  border-bottom: 1rpx solid var(--border-light, #edeee9);
 }
 
 .pwd-row:last-of-type {
@@ -234,20 +265,20 @@
   flex-shrink: 0;
   width: 180rpx;
   font-size: 26rpx;
-  font-weight: 500;
-  color: var(--fg-2);
+  font-weight: 600;
+  color: var(--fg-2, #5a5d58);
 }
 
 .pwd-input {
   flex: 1;
   font-size: 28rpx;
-  color: var(--fg);
+  color: var(--fg, #1a1c19);
   font-family: inherit;
   line-height: 1.4;
 }
 
 .pwd-input-placeholder {
-  color: var(--fg-3);
+  color: var(--fg-3, #8b8e89);
   font-size: 24rpx;
 }
 
@@ -255,24 +286,25 @@
   display: flex;
   gap: 20rpx;
   margin-top: 32rpx;
-  padding-top: 20rpx;
-  border-top: 2rpx solid var(--border-light);
+  padding-top: 24rpx;
+  border-top: 1rpx solid var(--border-light, #edeee9);
 }
 
 .pwd-btn {
   flex: 1;
-  height: 84rpx;
+  height: 88rpx;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-md, 24rpx);
   font-size: 28rpx;
-  font-weight: 600;
-  transition: opacity 0.15s ease;
+  font-weight: 700;
+  transition: opacity 0.15s ease, transform 0.15s ease;
 }
 
 .pwd-btn:active {
-  opacity: 0.7;
+  opacity: 0.85;
+  transform: scale(0.98);
 }
 
 .pwd-btn.disabled {
@@ -281,11 +313,12 @@
 }
 
 .pwd-cancel {
-  background-color: var(--bg);
-  color: var(--fg);
+  background-color: var(--bg, #f6f7f4);
+  color: var(--fg, #1a1c19);
 }
 
 .pwd-ok {
-  background-color: var(--primary);
+  background: var(--primary-grad, linear-gradient(135deg, #2d9d8a 0%, #45b7a7 100%));
   color: #ffffff;
+  box-shadow: 0 4rpx 16rpx rgba(45, 157, 138, 0.25);
 }

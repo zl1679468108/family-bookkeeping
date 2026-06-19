@@ -2,7 +2,7 @@
  * useYearSelector — 年报年份选择器
  * 基于本地存储记住用户上次选择的年份
  */
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Taro from "@tarojs/taro";
 
 const STORAGE_KEY = "selected_report_year";

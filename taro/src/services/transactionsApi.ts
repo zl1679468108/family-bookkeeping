@@ -13,6 +13,8 @@ import type {
   TransactionFilters,
   CreateTransactionInput,
   PaginatedResponse,
+  BatchRequest,
+  BatchResponse,
 } from "../types";
 
 export const getTransactions = (
@@ -94,4 +96,23 @@ export const deleteReceipt = (transactionId: number): Promise<void> => {
   return apiDelete<void>(`/transactions/${transactionId}/receipt`, {
     requiresAuth: true,
   });
+};
+
+// ---- Batch Operations ----
+
+/** 通用批量操作（update_category / update_type / update_date / move_book / delete） */
+export const batchTransactions = (
+  data: BatchRequest,
+): Promise<BatchResponse> => {
+  return apiPost<BatchResponse>("/transactions/batch", {
+    data,
+    requiresAuth: true,
+  });
+};
+
+/** Batch delete transactions (convenience wrapper) */
+export const batchDeleteTransactions = (
+  ids: number[],
+): Promise<BatchResponse> => {
+  return batchTransactions({ ids, operation: "delete" });
 };

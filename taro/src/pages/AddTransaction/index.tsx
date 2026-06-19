@@ -80,6 +80,7 @@ export default function AddTransaction() {
   const [date, setDate] = useState(
     new Date().toISOString().slice(0, 10),
   );
+  const [time, setTime] = useState(new Date().toTimeString().slice(0, 5));
   const [brand, setBrand] = useState("");
   const [note, setNote] = useState("");
   const [savedImages, setSavedImages] = useState<string[]>([]);
@@ -106,7 +107,9 @@ export default function AddTransaction() {
             : data.category_id,
         );
         setType(data.type ?? "expense");
-        setDate((data.date || "").slice(0, 10));
+        const dateStr = data.date || "";
+        setDate(dateStr.slice(0, 10));
+        setTime(dateStr.slice(11, 16) || new Date().toTimeString().slice(0, 5));
         setBrand(data.brand || "");
         setNote(data.description || "");
         if (data.location_name || data.latitude) {
@@ -120,6 +123,20 @@ export default function AddTransaction() {
       });
     }
   }, [isEdit, editId]);
+
+  // 加载模板执行结果（从 TemplateManager 执行模板跳转过来）
+  useEffect(() => {
+    const templateResult = Taro.getStorageSync("templateExecuteResult");
+    if (templateResult && !isEdit) {
+      setType(templateResult.type || "expense");
+      setAmount(String(templateResult.amount || ""));
+      setCategoryId(templateResult.category_id || "");
+      setBrand(templateResult.brand || "");
+      setNote(templateResult.description || "");
+      // 清除模板执行结果，避免下次进入时重复填充
+      Taro.removeStorageSync("templateExecuteResult");
+    }
+  }, [isEdit]);
 
   // 加载模板列表
   useEffect(() => {
@@ -181,7 +198,7 @@ export default function AddTransaction() {
       type,
       amount: parseFloat(amount),
       category: categoryId,
-      date,
+      date: `${date} ${time}`,
       brand: brand || undefined,
       description: note || undefined,
       latitude: location?.latitude,
@@ -281,8 +298,7 @@ export default function AddTransaction() {
 
       <AmountCard value={amount} onChange={setAmount} />
 
-      {/* 模板选择 */}
-      <SectionCard>
+      <SectionCard title="快捷方式">
         <FieldRow
           label="模板"
           variant="row"
@@ -292,8 +308,7 @@ export default function AddTransaction() {
         />
       </SectionCard>
 
-      <SectionCard>
-        {/* 分类：点击 ActionSheet 选择 */}
+      <SectionCard title="账单信息">
         <FieldRow
           label="分类"
           required
@@ -302,7 +317,6 @@ export default function AddTransaction() {
           placeholder="选择分类"
           onClick={handlePickCategory}
         />
-        {/* 日期：Picker */}
         <Picker
           mode="date"
           value={date}
@@ -310,7 +324,13 @@ export default function AddTransaction() {
         >
           <FieldRow label="日期" required variant="row" value={date} />
         </Picker>
-        {/* 品牌：输入框 */}
+        <Picker
+          mode="time"
+          value={time}
+          onChange={(e: any) => setTime(e.detail.value)}
+        >
+          <FieldRow label="时间" required variant="row" value={time} />
+        </Picker>
         <FieldRow
           label="品牌"
           variant="input"

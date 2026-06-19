@@ -2,7 +2,7 @@
  * Categories API service.
  */
 
-import { apiGet, apiPost, apiPut, apiDelete } from "./api";
+import { apiGet, apiPost, apiPut, apiDelete, apiPatch } from "./api";
 import type {
   Category,
   CreateCategoryInput,
@@ -37,4 +37,11 @@ export const updateCategory = async (
 /** Delete custom category */
 export const deleteCategory = async (id: string): Promise<void> => {
   return apiDelete<void>(`${CATEGORIES_PATH}/${id}`, { requiresAuth: true });
+};
+
+/** Reorder categories (PATCH /categories/reorder) */
+export const reorderCategories = async (
+  orders: { id: string; sort_order: number }[],
+): Promise<void> => {
+  return apiPatch<void>(`${CATEGORIES_PATH}/reorder`, orders);
 };

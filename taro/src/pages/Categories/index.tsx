@@ -12,8 +12,16 @@ import PageLayout from "../../components/PageLayout";
 import EmptyState from "../../components/EmptyState";
 import ConfirmDialog from "../../components/ConfirmDialog";
 import CategoryIcon from "../../components/CategoryIcon";
-import { apiGet, apiPost, apiPut, apiDelete } from "../../services/api";
+import { AppSection, PageHero } from "../../components/ui";
+import { fetchCategories, createCategory, updateCategory, deleteCategory, reorderCategories } from "../../services/categoriesApi";
+import { uploadIcon, fetchCustomIcons, deleteIcon } from "../../services/iconsApi";
 import { useManualQuery } from "../../hooks/useManualQuery";
+import { EMOJI_PRESETS } from "../../utils/emojiPresets";
+import {
+  SHOPPING_PLATFORM_ICONS,
+  renderPlatformIconSvg,
+} from "../../utils/platformIcons";
+
 import "./index.scss";
 
 interface Category {
@@ -25,18 +33,12 @@ interface Category {
   is_default?: boolean;
 }
 
-// 与 PC 端一致的 emoji 预设
-const EMOJI_PRESETS = [
-  "🍜", "🍔", "🍕", "🍣", "☕", "🍺", "🧋",
-  "🚗", "🚌", "🚇", "✈️", "🚲", "⛽",
-  "🛍️", "👗", "👟", "💄", "📱", "💻",
-  "🏠", "🏨", "💡", "🔧",
-  "🎮", "🎬", "🎵", "⚽", "🏀", "🎤",
-  "💊", "🏥", "🩺",
-  "📚", "✏️", "🎓",
-  "💼", "💰", "🎁", "📈", "🏦",
-  "📌", "🎯", "⭐",
-];
+interface CustomIconItem {
+  id: string;
+  icon_url: string;
+  icon_type: string;
+  created_at?: string;
+}
 
 type CatType = "expense" | "income";
 
@@ -52,6 +54,10 @@ export default function CategoriesPage() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState({ name: "", icon: "📌" });
 
+  // 自定义图标
+  const [customIcons, setCustomIcons] = useState<CustomIconItem[]>([]);
+  const [uploadingIcon, setUploadingIcon] = useState(false);
+
   // 删除确认
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
@@ -62,7 +68,7 @@ export default function CategoriesPage() {
   // --- 数据请求 ---
   const { data: categories, isLoading, refetch } = useManualQuery<Category[]>({
     key: "categories",
-    queryFn: () => apiGet<Category[]>("/categories"),
+    queryFn: () => fetchCategories(),
   });
 
   // 过滤并排序
@@ -74,6 +80,58 @@ export default function CategoriesPage() {
 
   // 排序模式下用的列表（用户可以在内存里调整）
   const displayList = sortMode && sortOrder.length > 0 ? sortOrder : filtered;
+
+  // --- 自定义图标操作 ---
+  const refreshCustomIcons = () => {
+    fetchCustomIcons("category")
+      .then((list: CustomIconItem[]) => {
+        setCustomIcons(list || []);
+      })
+      .catch(() => setCustomIcons([]));
+  };
+
+  // 上传自定义图标
+  const handleUploadCustomIcon = () => {
+    Taro.chooseImage({
+      count: 1,
+      sizeType: ["compressed"],
+      sourceType: ["album", "camera"],
+    })
+      .then((res) => {
+        const path = res.tempFilePaths && res.tempFilePaths[0];
+        if (!path) return;
+        setUploadingIcon(true);
+        uploadIcon(path, "category")
+          .then((result: any) => {
+            const iconUrl = result?.icon_url || result?.url || "";
+            if (iconUrl) {
+              setForm({ ...form, icon: iconUrl });
+              refreshCustomIcons();
+              Taro.showToast({ title: "已添加到自定义", icon: "success" });
+            } else {
+              Taro.showToast({ title: "上传失败", icon: "none" });
+            }
+          })
+          .catch(() => {
+            Taro.showToast({ title: "上传失败", icon: "none" });
+          })
+          .finally(() => setUploadingIcon(false));
+      })
+      .catch(() => {});
+  };
+
+  // 删除自定义图标
+  const handleDeleteCustomIcon = (iconId: string, e?: any) => {
+    if (e && e.stopPropagation) e.stopPropagation();
+    deleteIcon(iconId)
+      .then(() => {
+        refreshCustomIcons();
+        Taro.showToast({ title: "已删除", icon: "success" });
+      })
+      .catch(() => {
+        Taro.showToast({ title: "删除失败", icon: "none" });
+      });
+  };
 
   // 进入排序模式：拷贝一份当前列表
   const handleEnterSortMode = () => {
@@ -106,7 +164,7 @@ export default function CategoriesPage() {
   // --- Mutations ---
   const createMut = useMutation({
     mutationFn: (data: { name: string; icon: string; type: CatType }) =>
-      apiPost<Category>("/categories", data),
+      createCategory(data),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["categories"] });
       Taro.showToast({ title: "已添加", icon: "success" });
@@ -117,7 +175,7 @@ export default function CategoriesPage() {
 
   const updateMut = useMutation({
     mutationFn: ({ id, data }: { id: string; data: { name: string; icon: string } }) =>
-      apiPut<Category>(`/categories/${id}`, data),
+      updateCategory(id, data),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["categories"] });
       Taro.showToast({ title: "已更新", icon: "success" });
@@ -127,7 +185,7 @@ export default function CategoriesPage() {
   });
 
   const deleteMut = useMutation({
-    mutationFn: (id: string) => apiDelete(`/categories/${id}`),
+    mutationFn: (id: string) => deleteCategory(id),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["categories"] });
       Taro.showToast({ title: "已删除", icon: "success" });
@@ -139,7 +197,7 @@ export default function CategoriesPage() {
   // 排序保存 Mutation
   const reorderMut = useMutation({
     mutationFn: (orders: { id: string; sort_order: number }[]) =>
-      apiPost<null>("/categories/reorder", orders),
+      reorderCategories(orders),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["categories"] });
       Taro.showToast({ title: "排序已保存", icon: "success" });
@@ -162,12 +220,14 @@ export default function CategoriesPage() {
   const handleAdd = () => {
     setForm({ name: "", icon: "📌" });
     setEditingId(null);
+    refreshCustomIcons();
     setShowSheet(true);
   };
 
   const handleEdit = (cat: Category) => {
     setForm({ name: cat.name, icon: cat.icon });
     setEditingId(cat.id);
+    refreshCustomIcons();
     setShowSheet(true);
   };
 
@@ -200,6 +260,13 @@ export default function CategoriesPage() {
 
   return (
     <PageLayout contentClassName="cats-content">
+      <PageHero
+        eyebrow="分类管理"
+        title={catType === "expense" ? "支出分类" : "收入分类"}
+        meta={`${filtered.length} 个分类 · ${sortMode ? "排序模式" : "点击卡片可编辑"}`}
+        tone="surface"
+      />
+
       {/* Tab 切换：支出 / 收入 + 排序按钮 */}
       <View className="cats-tabs-card">
         <View className="cats-pill-tabs">
@@ -246,6 +313,7 @@ export default function CategoriesPage() {
       )}
 
       {/* 列表 */}
+      <AppSection title="分类列表" compact flush>
       {isLoading ? (
         <View className="cats-list">
           <View className="cats-loading-row" />
@@ -255,7 +323,7 @@ export default function CategoriesPage() {
       ) : filtered.length === 0 ? (
         <View className="cats-empty">
           <EmptyState
-            icon="📌"
+            icon="category"
             title={`暂无${catType === "expense" ? "支出" : "收入"}分类`}
             description="点击右下角 ＋ 新建分类"
           />
@@ -328,6 +396,7 @@ export default function CategoriesPage() {
           ))}
         </View>
       )}
+      </AppSection>
 
       {/* 悬浮新建按钮（非排序模式） */}
       {!sortMode && (
@@ -370,15 +439,11 @@ export default function CategoriesPage() {
               <View className="cats-form-row cats-form-row--icon">
                 <Text className="cats-form-label">图标</Text>
                 <View className="cats-form-emoji-current">
-                  {form.icon && (form.icon.startsWith("http://") || form.icon.startsWith("https://")) ? (
-                    <Image className="cats-form-emoji-current__img" src={form.icon} mode="aspectFit" />
-                  ) : (
-                    <Text>{form.icon || "📌"}</Text>
-                  )}
+                  <CategoryIcon icon={form.icon} className="cats-form-emoji-current__icon" />
                 </View>
               </View>
 
-              {/* emoji 选择网格 */}
+              {/* 1. emoji 选择网格（62 个 — 与 PC 端一致） */}
               <View className="cats-emoji-grid">
                 {EMOJI_PRESETS.map((e) => (
                   <View
@@ -389,6 +454,76 @@ export default function CategoriesPage() {
                     <Text className="cats-emoji-item__text">{e}</Text>
                   </View>
                 ))}
+              </View>
+
+              {/* 2. 购物平台 SVG 线条图标网格（与 PC 端一致） */}
+              <View className="cats-form-row cats-form-row--stack">
+                <Text className="cats-form-label cats-form-label--sub">购物与生活服务</Text>
+              </View>
+              <View className="cats-emoji-grid cats-emoji-grid--platform">
+                {SHOPPING_PLATFORM_ICONS.map((item) => {
+                  const val = `platform_${item.key}`;
+                  const selected = form.icon === val;
+                  return (
+                    <View
+                      key={val}
+                      className={`cats-platform-item ${selected ? "cats-platform-item--selected" : ""}`}
+                      onClick={() => setForm((p) => ({ ...p, icon: val }))}
+                    >
+                      <View className="cats-platform-item__icon">
+                        <Image
+                          src={renderPlatformIconSvg(item.key, 22, selected ? "#2d9d8a" : "#1a1c19")}
+                          mode="aspectFit"
+                          style={{ width: "22px", height: "22px", display: "block" }}
+                        />
+                      </View>
+                      <Text
+                        className={`cats-platform-item__label ${
+                          selected ? "cats-platform-item__label--selected" : ""
+                        }`}
+                      >
+                        {item.label}
+                      </Text>
+                    </View>
+                  );
+                })}
+              </View>
+
+              {/* 自定义图标：上传入口 + 已上传图标网格 */}
+              <View className="cats-form-row cats-form-row--custom">
+                <Text className="cats-form-label">自定义图标</Text>
+                <View className="cats-custom-icons">
+                  {/* 上传按钮 */}
+                  <View
+                    className={`cats-custom-icon-upload ${uploadingIcon ? "cats-custom-icon-upload--loading" : ""}`}
+                    onClick={handleUploadCustomIcon}
+                  >
+                    <Text>{uploadingIcon ? "上传中…" : "＋ 上传图标"}</Text>
+                  </View>
+
+                  {/* 已上传的自定义图标 */}
+                  {customIcons.map((item) => (
+                    <View
+                      key={item.id}
+                      className={`cats-custom-icon-item ${form.icon === item.icon_url ? "cats-custom-icon-item--selected" : ""}`}
+                      onClick={() => setForm((p) => ({ ...p, icon: item.icon_url }))}
+                    >
+                      <Image className="cats-custom-icon-item__img" src={item.icon_url} mode="aspectFit" />
+                      <View
+                        className="cats-custom-icon-item__del"
+                        onClick={(e: any) => handleDeleteCustomIcon(item.id, e)}
+                      >
+                        <Text>×</Text>
+                      </View>
+                    </View>
+                  ))}
+
+                  {customIcons.length === 0 && !uploadingIcon && (
+                    <View className="cats-custom-empty">
+                      <Text>还没有自定义图标，点击「＋ 上传图标」添加</Text>
+                    </View>
+                  )}
+                </View>
               </View>
             </View>
 

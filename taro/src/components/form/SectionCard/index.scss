@@ -1,7 +1,16 @@
 .ft-section {
   margin: 0 32rpx 24rpx;
-  background: #ffffff;
-  border-radius: 24rpx;
-  padding: 0 32rpx;
-  box-shadow: 0 2rpx 16rpx rgba(0, 0, 0, 0.03);
+  background: var(--surface-soft, #fafaf7);
+  border: 1rpx solid var(--border, #e0e2dd);
+  border-radius: 28rpx;
+  padding: 0 28rpx;
+  box-shadow: 0 10rpx 28rpx rgba(36, 49, 45, 0.04);
+}
+
+.ft-section-title {
+  padding-top: 24rpx;
+  padding-bottom: 4rpx;
+  color: var(--fg, #24312d);
+  font-size: 28rpx;
+  font-weight: 800;
 }

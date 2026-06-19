@@ -8,8 +8,19 @@ import "./index.scss";
 
 export interface SectionCardProps {
   children: ReactNode;
+  title?: string;
+  className?: string;
 }
 
-export default function SectionCard({ children }: SectionCardProps) {
-  return <View className="ft-section">{children}</View>;
+export default function SectionCard({
+  children,
+  title,
+  className = "",
+}: SectionCardProps) {
+  return (
+    <View className={`ft-section ${className}`}>
+      {title ? <View className="ft-section-title">{title}</View> : null}
+      {children}
+    </View>
+  );
 }

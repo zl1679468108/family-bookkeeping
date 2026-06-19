@@ -28,7 +28,7 @@
  * 小程序数据量小，这些限制不影响使用。
  * ============================================================
  */
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { useAuth } from "../context/AuthContext";
 
 interface UseManualQueryOptions<T> {
@@ -83,7 +83,15 @@ export function useManualQuery<T>({
       setData(undefined);
     }
     fetch();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [key, user, enabled]);
 
-  return { data, isLoading, isFetching, refetch: fetch };
+  // 关键：缓存返回值，避免每次渲染都生成新对象触发子组件重渲染
+  const result = useMemo<UseManualQueryResult<T>>(
+    () => ({ data, isLoading, isFetching, refetch: fetch }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [data, isLoading, isFetching],
+  );
+
+  return result;
 }

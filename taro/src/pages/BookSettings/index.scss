@@ -1,0 +1,240 @@
+/* =========================================================
+ * BookSettings — 账本设置页样式 v2
+ * 设计令牌同 Settings：统一卡片/边框/阴影/圆角规范
+ * ========================================================= */
+
+.book-settings-page {
+  min-height: 100vh;
+  background-color: var(--bg, #f6f7f4);
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+/* ========== 顶部导航栏 ========== */
+.book-settings-header {
+  background-color: var(--surface, #ffffff);
+  padding-top: calc(16rpx + env(safe-area-inset-top, 0));
+  padding-bottom: 16rpx;
+  padding-left: 32rpx;
+  padding-right: 32rpx;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1rpx solid var(--border-light, #edeee9);
+}
+
+.book-settings-header-left {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+}
+
+.book-settings-header-title {
+  font-size: 32rpx;
+  font-weight: 700;
+  color: var(--fg, #1a1c19);
+}
+
+.book-settings-header-spacer {
+  width: 80rpx;
+}
+
+.book-settings-header-right {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  width: auto;
+  min-width: 80rpx;
+}
+
+/* ========== 内容区 ========== */
+.book-settings-content {
+  flex: 1;
+  padding: 24rpx 32rpx;
+  padding-bottom: calc(40rpx + env(safe-area-inset-bottom, 0));
+  display: flex;
+  flex-direction: column;
+  gap: 24rpx;
+}
+
+.bs-content {
+  padding-top: calc(18rpx + env(safe-area-inset-top, 0));
+}
+
+.bs-hero-icon {
+  width: 92rpx;
+  height: 92rpx;
+  border-radius: 28rpx;
+  border: 1rpx solid var(--border, #e0e2dd);
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bs-inner-menu {
+  margin-bottom: 0;
+  box-shadow: none;
+}
+
+.bs-info-row__value {
+  color: var(--fg-3, #8b8e89);
+  font-size: 26rpx;
+  font-weight: 700;
+}
+
+/* ========== 账本信息头部卡 ========== */
+.book-info-card {
+  background-color: var(--surface, #ffffff);
+  border-radius: var(--radius-lg, 32rpx);
+  border: 1rpx solid var(--border, #e0e2dd);
+  padding: 24rpx 28rpx;
+  box-shadow: 0 4rpx 20rpx rgba(26, 28, 25, 0.04);
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+}
+
+.book-info-icon {
+  font-size: 36rpx;
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: 20rpx;
+  background-color: rgba(45, 157, 138, 0.12);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.book-info-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6rpx;
+  min-width: 0;
+}
+
+.book-info-name {
+  font-size: 30rpx;
+  color: var(--fg, #1a1c19);
+  font-weight: 700;
+}
+
+.book-info-sub {
+  font-size: 22rpx;
+  color: var(--fg-3, #8b8e89);
+}
+
+/* ========== 分组卡片（与 Settings 统一） ========== */
+.book-settings-group {
+  background-color: var(--surface, #ffffff);
+  border-radius: var(--radius-lg, 32rpx);
+  border: 1rpx solid var(--border, #e0e2dd);
+  padding: 8rpx 0;
+  box-shadow: 0 4rpx 20rpx rgba(26, 28, 25, 0.04);
+  overflow: hidden;
+}
+
+.book-settings-group-title {
+  font-size: 24rpx;
+  font-weight: 700;
+  color: var(--fg-2, #5a5d58);
+  padding: 16rpx 28rpx 8rpx;
+  letter-spacing: 1rpx;
+}
+
+/* ========== 设置项 ========== */
+.book-settings-item {
+  display: flex;
+  align-items: center;
+  padding: 24rpx 28rpx;
+  gap: 20rpx;
+  transition: background-color 0.15s ease;
+}
+
+.book-settings-item:active {
+  background-color: var(--bg, #f6f7f4);
+}
+
+.book-settings-item-icon {
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: 16rpx;
+  background-color: rgba(45, 157, 138, 0.12);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28rpx;
+  color: var(--primary, #2d9d8a);
+  flex-shrink: 0;
+}
+
+.book-settings-item-icon--expense {
+  background-color: rgba(224, 96, 85, 0.12);
+  color: var(--expense, #e06055);
+}
+
+.book-settings-item-icon--neutral {
+  background-color: rgba(139, 142, 137, 0.15);
+  color: var(--fg-2, #5a5d58);
+}
+
+.book-settings-item-icon--income {
+  background-color: rgba(59, 162, 114, 0.12);
+  color: var(--income, #3ba272);
+}
+
+.book-settings-item-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+  min-width: 0;
+}
+
+.book-settings-item-title {
+  font-size: 28rpx;
+  color: var(--fg, #1a1c19);
+  font-weight: 700;
+}
+
+.book-settings-item-desc {
+  font-size: 22rpx;
+  color: var(--fg-3, #8b8e89);
+}
+
+.book-settings-item-right {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  flex-shrink: 0;
+}
+
+.book-settings-item-value {
+  font-size: 24rpx;
+  color: var(--fg-3, #8b8e89);
+}
+
+.book-settings-item-arrow {
+  font-size: 28rpx;
+  color: var(--fg-3, #8b8e89);
+  font-weight: 300;
+  line-height: 1;
+}
+
+.book-settings-item-switch {
+  padding: 8rpx 12rpx;
+  font-size: 24rpx;
+  font-weight: 700;
+  color: var(--fg-3, #8b8e89);
+}
+
+.book-settings-item--danger .book-settings-item-title {
+  color: var(--expense, #e06055);
+}
+
+.book-settings-safe {
+  height: env(safe-area-inset-bottom, 0);
+}

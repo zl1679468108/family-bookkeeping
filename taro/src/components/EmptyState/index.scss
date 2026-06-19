@@ -1,9 +1,21 @@
 .empty-state {
   min-height: 400rpx;
+  border-radius: 28rpx;
 }
 
 .empty-state-icon {
-  opacity: 0.5;
+  width: 88rpx;
+  height: 88rpx;
+  border-radius: 28rpx;
+  background: rgba(45, 157, 138, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.empty-state-icon-text {
+  font-size: 44rpx;
+  line-height: 1;
 }
 
 .empty-state-desc {

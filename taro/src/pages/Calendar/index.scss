@@ -1,337 +1,306 @@
-/**
- * Calendar v6 — 统一设计语言
- * 主色 #2d9d8a · 表面白 #ffffff · 背景 #f6f7f4
- */
+/* =========================================================
+ * Calendar — 日历页样式 v2
+ * ========================================================= */
 
-/* ========== 主内容区 ========== */
-.cal-content {
-  padding: calc(24rpx + env(safe-area-inset-top, 0)) 32rpx calc(32rpx + env(safe-area-inset-bottom, 0));
+.calendar-page {
+  min-height: 100vh;
+  background-color: var(--bg, #f6f7f4);
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+.calendar-header {
+  background-color: var(--surface, #ffffff);
+  padding-top: calc(16rpx + env(safe-area-inset-top, 0));
+  padding-bottom: 16rpx;
+  padding-left: 32rpx;
+  padding-right: 32rpx;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1rpx solid var(--border-light, #edeee9);
+}
+
+.calendar-header-left {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+}
+
+.calendar-header-title {
+  font-size: 32rpx;
+  font-weight: 700;
+  color: var(--fg, #1a1c19);
+}
+
+.calendar-header-spacer {
+  width: 80rpx;
+}
+
+.calendar-header-right {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  width: auto;
+  min-width: 80rpx;
+}
+
+/* 月份切换条 */
+.calendar-month-bar {
+  background-color: var(--surface, #ffffff);
+  padding: 16rpx 32rpx 20rpx;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20rpx;
+}
+
+.calendar-month-btn {
+  width: 60rpx;
+  height: 60rpx;
+  border-radius: 20rpx;
+  background-color: var(--bg, #f6f7f4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28rpx;
+  color: var(--fg-2, #5a5d58);
+  transition: transform 0.15s ease, background-color 0.15s ease;
+}
+
+.calendar-month-btn:active {
+  transform: scale(0.92);
+  background-color: rgba(45, 157, 138, 0.15);
+}
+
+.calendar-month-text {
+  font-size: 30rpx;
+  font-weight: 700;
+  color: var(--fg, #1a1c19);
+}
+
+/* 内容区 */
+.calendar-content {
+  flex: 1;
+  padding: 20rpx 32rpx;
+  padding-bottom: calc(40rpx + env(safe-area-inset-bottom, 0));
   display: flex;
   flex-direction: column;
   gap: 20rpx;
 }
 
-/* ========== 顶部：月份选择器 + 今天按钮 ========== */
-.cal-header {
+/* 日历主体卡 */
+.calendar-calendar-card {
+  background-color: var(--surface, #ffffff);
+  border-radius: var(--radius-lg, 32rpx);
+  border: 1rpx solid var(--border, #e0e2dd);
+  padding: 24rpx 20rpx;
+  box-shadow: 0 4rpx 20rpx rgba(26, 28, 25, 0.04);
+}
+
+/* 星期表头 */
+.calendar-weekdays {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 24rpx 28rpx;
-  background-color: #ffffff;
-  border-radius: 24rpx;
-  border: 1rpx solid #e9ecef;
-  box-shadow: 0 2rpx 12rpx rgba(26, 28, 25, 0.03);
+  justify-content: space-around;
+  padding: 12rpx 0 20rpx;
+  border-bottom: 1rpx solid var(--border-light, #edeee9);
+  margin-bottom: 8rpx;
 }
 
-.cal-month-picker {
-  display: flex;
-  align-items: center;
-  padding: 8rpx 20rpx;
-  border-radius: 16rpx;
-  background-color: #f6f7f4;
-}
-
-.cal-month-picker:active {
-  background-color: rgba(45, 157, 138, 0.08);
-}
-
-.cal-month-picker__text {
-  font-size: 30rpx;
+.calendar-weekday-text {
+  font-size: 24rpx;
+  color: var(--fg-2, #5a5d58);
   font-weight: 700;
-  color: #1a1c19;
-}
-
-.cal-month-picker__caret {
-  font-size: 22rpx;
-  color: #2d9d8a;
-  margin-left: 8rpx;
-}
-
-.cal-today-btn {
-  font-size: 26rpx;
-  color: #2d9d8a;
-  font-weight: 600;
-  padding: 12rpx 28rpx;
-  border-radius: 16rpx;
-  background-color: rgba(45, 157, 138, 0.1);
-}
-
-.cal-today-btn:active {
-  background-color: rgba(45, 157, 138, 0.2);
-}
-
-/* ========== 月度总览卡片（2x2）========== */
-.cal-summary-card {
-  background-color: #ffffff;
-  border-radius: 24rpx;
-  border: 1rpx solid #e9ecef;
-  padding: 24rpx 28rpx;
-  box-shadow: 0 2rpx 12rpx rgba(26, 28, 25, 0.03);
-}
-
-.cal-summary-row {
-  display: flex;
-  justify-content: space-between;
-  gap: 24rpx;
-}
-
-.cal-summary-item {
   flex: 1;
+  text-align: center;
+}
+
+/* 日期网格 */
+.calendar-days {
   display: flex;
   flex-direction: column;
   gap: 8rpx;
 }
 
-.cal-summary-item__label {
-  font-size: 22rpx;
-  color: #8b8e89;
-  font-weight: 500;
+.calendar-week {
+  display: flex;
+  justify-content: space-around;
 }
 
-.cal-summary-item__value {
-  font-size: 32rpx;
-  font-weight: 800;
-  color: #1a1c19;
-  letter-spacing: -0.01em;
-}
-
-.cal-summary-item__value--income {
-  color: #2d9d8a;
-}
-
-.cal-summary-item__value--expense {
-  color: #ef5350;
-}
-
-.cal-summary-divider {
-  height: 1rpx;
-  background-color: #edeee9;
-  margin: 20rpx 0;
-}
-
-/* ========== 周几标题 ========== */
-.cal-weekdays {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  text-align: center;
-  padding: 20rpx 8rpx 12rpx;
-  background-color: #ffffff;
-  border-radius: 24rpx 24rpx 0 0;
-  border: 1rpx solid #e9ecef;
-  border-bottom: 1rpx solid #edeee9;
-}
-
-.cal-weekday {
-  font-size: 24rpx;
-  color: #6c7072;
-  padding: 4rpx 0;
-  font-weight: 600;
-}
-
-.cal-weekday--weekend {
-  color: #ef5350;
-}
-
-/* ========== 日历网格 ========== */
-.cal-grid {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  padding: 8rpx 8rpx 20rpx;
-  background-color: #ffffff;
-  border-radius: 0 0 24rpx 24rpx;
-  border: 1rpx solid #e9ecef;
-  border-top: none;
-  gap: 2rpx;
-}
-
-/* ========== 单元格 ========== */
-.cal-cell {
+.calendar-day {
+  flex: 1;
   aspect-ratio: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  border-radius: 16rpx;
-  font-size: 22rpx;
-  color: #1a1c19;
-  padding: 8rpx 2rpx;
-  position: relative;
-  transition: all 0.15s ease;
-  min-height: 88rpx;
   gap: 4rpx;
+  border-radius: 20rpx;
+  transition: background-color 0.15s ease, transform 0.15s ease;
 }
 
-.cal-cell:active {
-  background-color: #f6f7f4;
+.calendar-day:active {
+  background-color: var(--bg, #f6f7f4);
 }
 
-.cal-cell--empty {
-  background: transparent;
+.calendar-day--out {
+  opacity: 0.3;
 }
 
-.cal-day {
+.calendar-day--today {
+  background-color: rgba(45, 157, 138, 0.12);
+}
+
+.calendar-day--selected {
+  background: var(--primary-grad, linear-gradient(135deg, #2d9d8a 0%, #45b7a7 100%));
+  box-shadow: 0 4rpx 12rpx rgba(45, 157, 138, 0.25);
+}
+
+.calendar-day-number {
   font-size: 26rpx;
+  color: var(--fg, #1a1c19);
   font-weight: 600;
-  color: #1a1c19;
-  line-height: 1.2;
+  line-height: 1;
 }
 
-.cal-cell--today {
-  border: 2rpx solid #2d9d8a;
-  background-color: transparent;
-}
-
-.cal-cell--today .cal-day {
-  color: #2d9d8a;
-  font-weight: 800;
-}
-
-.cal-cell--selected {
-  background-color: rgba(45, 157, 138, 0.18);
-  border: 2rpx solid #2d9d8a;
-}
-
-.cal-cell--selected .cal-day {
-  color: #2d9d8a;
-  font-weight: 800;
-}
-
-/* ========== 单元格中的收支金额 ========== */
-.cal-amount {
-  font-size: 18rpx;
+.calendar-day--selected .calendar-day-number {
+  color: #ffffff;
   font-weight: 700;
-  letter-spacing: -0.01em;
-  line-height: 1.1;
 }
 
-.cal-amount--expense {
-  color: #ef5350;
+.calendar-day-dots {
+  display: flex;
+  gap: 6rpx;
+  height: 10rpx;
+  align-items: center;
 }
 
-.cal-amount--income {
-  color: #2d9d8a;
+.calendar-day-dot {
+  width: 8rpx;
+  height: 8rpx;
+  border-radius: 4rpx;
 }
 
-.cal-amount--small {
-  font-size: 16rpx;
+.calendar-day-dot--expense {
+  background-color: var(--expense, #e06055);
 }
 
-/* ========== 选中日期的交易明细 ========== */
-.cal-detail {
-  margin-top: 4rpx;
+.calendar-day-dot--income {
+  background-color: var(--income, #3ba272);
+}
+
+.calendar-day--selected .calendar-day-dot {
   background-color: #ffffff;
-  border-radius: 24rpx;
-  border: 1rpx solid #e9ecef;
-  overflow: hidden;
-  box-shadow: 0 2rpx 12rpx rgba(26, 28, 25, 0.03);
 }
 
-.cal-detail__header {
+/* 当日记录卡 */
+.calendar-day-card {
+  background-color: var(--surface, #ffffff);
+  border-radius: var(--radius-lg, 32rpx);
+  border: 1rpx solid var(--border, #e0e2dd);
+  padding: 24rpx 28rpx;
+  box-shadow: 0 4rpx 20rpx rgba(26, 28, 25, 0.04);
+}
+
+.calendar-day-card-title {
+  font-size: 28rpx;
+  font-weight: 700;
+  color: var(--fg, #1a1c19);
+  margin-bottom: 16rpx;
+}
+
+.calendar-day-card-summary {
+  display: flex;
+  gap: 40rpx;
+  padding-bottom: 16rpx;
+  margin-bottom: 16rpx;
+  border-bottom: 1rpx solid var(--border-light, #edeee9);
+}
+
+.calendar-day-card-amount {
+  font-size: 26rpx;
+  font-weight: 700;
+}
+
+.calendar-day-card-amount--expense {
+  color: var(--expense, #e06055);
+}
+
+.calendar-day-card-amount--income {
+  color: var(--income, #3ba272);
+}
+
+.calendar-empty,
+.calendar-loading {
+  padding: 60rpx 32rpx;
+  text-align: center;
+}
+
+.calendar-empty-text,
+.calendar-loading-text {
+  font-size: 26rpx;
+  color: var(--fg-3, #8b8e89);
+}
+
+/* 单条记录 */
+.calendar-record {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 24rpx 28rpx;
-  border-bottom: 1rpx solid #edeee9;
+  padding: 16rpx 0;
+  gap: 16rpx;
+  transition: background-color 0.15s ease;
 }
 
-.cal-detail__date-info {
+.calendar-record:active {
+  background-color: var(--bg, #f6f7f4);
+  margin: 0 -8rpx;
+  padding-left: 8rpx;
+  padding-right: 8rpx;
+  border-radius: var(--radius-md, 24rpx);
+}
+
+.calendar-record-icon {
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: 16rpx;
+  background-color: rgba(45, 157, 138, 0.12);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28rpx;
+  flex-shrink: 0;
+}
+
+.calendar-record-icon--expense {
+  background-color: rgba(224, 96, 85, 0.12);
+}
+
+.calendar-record-body {
+  flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 8rpx;
+  gap: 4rpx;
+  min-width: 0;
 }
 
-.cal-detail__date {
-  font-size: 30rpx;
-  font-weight: 800;
-  color: #1a1c19;
+.calendar-record-name {
+  font-size: 26rpx;
+  font-weight: 700;
+  color: var(--fg, #1a1c19);
 }
 
-.cal-detail__mini-stats {
-  display: flex;
-  gap: 16rpx;
-  flex-wrap: wrap;
-}
-
-.cal-detail__mini {
+.calendar-record-note {
   font-size: 22rpx;
-  font-weight: 600;
+  color: var(--fg-3, #8b8e89);
 }
 
-.cal-detail__mini--income {
-  color: #2d9d8a;
-}
-
-.cal-detail__mini--expense {
-  color: #ef5350;
-}
-
-.cal-detail__close {
+.calendar-record-amount {
   font-size: 26rpx;
-  color: #2d9d8a;
-  font-weight: 600;
-  padding: 8rpx 16rpx;
-  border-radius: 12rpx;
+  font-weight: 700;
+  color: var(--expense, #e06055);
 }
 
-.cal-detail__close:active {
-  background-color: rgba(45, 157, 138, 0.1);
-}
-
-.cal-detail__loading {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 40rpx 28rpx;
-  gap: 16rpx;
-}
-
-.cal-detail__spin {
-  width: 36rpx;
-  height: 36rpx;
-  border: 4rpx solid #e9ecef;
-  border-top-color: #2d9d8a;
-  border-radius: 50%;
-  animation: cal-spin 0.9s linear infinite;
-}
-
-.cal-detail__loading-text {
-  font-size: 24rpx;
-  color: #8b8e89;
-  font-weight: 500;
-}
-
-@keyframes cal-spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-.cal-detail__body {
-  padding: 8rpx 0;
-}
-
-/* ========== 初次加载占位 ========== */
-.cal-loading {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 60rpx 28rpx;
-  gap: 16rpx;
-  background-color: #ffffff;
-  border-radius: 24rpx;
-  border: 1rpx solid #e9ecef;
-}
-
-.cal-loading__spin {
-  width: 40rpx;
-  height: 40rpx;
-  border: 4rpx solid #e9ecef;
-  border-top-color: #2d9d8a;
-  border-radius: 50%;
-  animation: cal-spin 0.9s linear infinite;
-}
-
-.cal-loading__text {
-  font-size: 26rpx;
-  color: #8b8e89;
-  font-weight: 500;
+.calendar-record-amount--income {
+  color: var(--income, #3ba272);
 }

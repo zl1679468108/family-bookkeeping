@@ -53,17 +53,26 @@ export default function Login() {
     setSubmitting(true);
     try {
       await signIn(email.trim(), password, captchaId, captchaCode);
+    } catch (err) {
+      // 仅 API 层错误才显示登录失败提示
+      console.error("[Login] signIn failed:", err);
+      setError(err instanceof ApiError ? err.message : "登录失败，请稍后重试");
+      refreshCaptcha();
+      setSubmitting(false);
+      return;
+    }
+    // 登录成功，执行导航（独立于登录 try-catch，避免导航异常被误判为登录失败）
+    setSubmitting(false);
+    try {
       const pages = Taro.getCurrentPages();
       if (pages.length > 1) {
         Taro.navigateBack();
       } else {
         Taro.reLaunch({ url: "/pages/Home/index" });
       }
-    } catch (err) {
-      setError(err instanceof ApiError ? err.message : "登录失败，请稍后重试");
-      refreshCaptcha();
-    } finally {
-      setSubmitting(false);
+    } catch (navErr) {
+      console.warn("[Login] navigation failed, retrying reLaunch:", navErr);
+      Taro.reLaunch({ url: "/pages/Home/index" });
     }
   };
 

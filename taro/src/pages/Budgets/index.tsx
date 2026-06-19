@@ -10,9 +10,10 @@ import MonthPicker from "../../components/MonthPicker";
 import EmptyState from "../../components/EmptyState";
 import PageLayout from "../../components/PageLayout";
 import CategoryIcon from "../../components/CategoryIcon";
+import { AppSection, MetricGrid } from "../../components/ui";
 import { useMonthSelector } from "../../hooks/useMonthSelector";
 import { useManualQuery } from "../../hooks/useManualQuery";
-import { fetchBudgets, fetchBudgetStatus, upsertBudgets } from "../../services/budgetsApi";
+import { fetchBudgets, fetchBudgetStatus, upsertBudgets, copyBudgets } from "../../services/budgetsApi";
 import { fetchCategories } from "../../services/categoriesApi";
 import "./index.scss";
 
@@ -79,6 +80,25 @@ export default function BudgetsPage() {
     },
   });
 
+  const copyMut = useMutation({
+    mutationFn: () => copyBudgets({ targetMonth: monthKey }),
+    onSuccess: (data) => {
+      Taro.showToast({ title: "上月预算已复制", icon: "success" });
+      // 刷新预算数据
+      if (data && Array.isArray(data)) {
+        const s: Record<string, number> = {};
+        expenseCats.forEach((c) => {
+          const found = data.find((b: any) => (b.category_id || b.category) === c.id);
+          s[c.id] = found ? found.amount : 0;
+        });
+        setEditValues(s);
+      }
+    },
+    onError: () => {
+      Taro.showToast({ title: "复制失败，请检查上月是否有预算", icon: "none" });
+    },
+  });
+
   const handleSave = () => {
     const items = expenseCats
       .filter((c) => (editValues[c.id] || 0) > 0)
@@ -93,22 +113,56 @@ export default function BudgetsPage() {
       : status === "warning"
         ? "#f9a825"
         : "#2d9d8a";
+  const totalBudget = Object.values(editValues).reduce((sum, value) => sum + (value || 0), 0);
+  const totalSpent = Array.from(sm.values()).reduce((sum, item) => sum + (item.spent || 0), 0);
+  const remaining = totalBudget - totalSpent;
 
   return (
     <PageLayout contentClassName="bdg-content">
-      {/* Month Picker */}
-      <View className="bdg-toolbar">
-        <View className="bdg-toolbar__month">
-          <MonthPicker
-            year={year}
-            month={month}
-            onChange={(y, m) => {
-              setYear(y);
-              setMonth(m);
+      <AppSection title="预算月份" compact>
+        <View className="bdg-toolbar">
+          <View className="bdg-toolbar__month">
+            <MonthPicker
+              year={year}
+              month={month}
+              onChange={(y, m) => {
+                setYear(y);
+                setMonth(m);
+              }}
+            />
+          </View>
+          <View
+            className={`bdg-toolbar__copy ${copyMut.isPending ? "bdg-toolbar__copy--pending" : ""}`}
+            onClick={() => {
+              if (copyMut.isPending) return;
+              Taro.showModal({
+                title: "复制上月预算",
+                content: `将上月预算金额复制到 ${monthKey}？`,
+                success: (res) => {
+                  if (res.confirm) copyMut.mutate();
+                },
+              });
             }}
-          />
+          >
+            <Text className="bdg-toolbar__copy-text">
+              {copyMut.isPending ? "复制中..." : "复制上月"}
+            </Text>
+          </View>
         </View>
-      </View>
+      </AppSection>
+
+      <MetricGrid
+        columns={3}
+        items={[
+          { label: "总预算", value: `¥${totalBudget.toFixed(0)}`, tone: "accent" },
+          { label: "已花费", value: `¥${totalSpent.toFixed(0)}`, tone: "expense" },
+          {
+            label: "剩余额度",
+            value: `¥${remaining.toFixed(0)}`,
+            tone: remaining >= 0 ? "income" : "expense",
+          },
+        ]}
+      />
 
       {isLoading ? (
         <View className="bdg-loading">
@@ -116,14 +170,10 @@ export default function BudgetsPage() {
         </View>
       ) : (
         <>
-          {/* Expense Budgets */}
-          <View className="bdg-section">
-            <View className="bdg-section__title">
-              <Text>预算明细</Text>
-            </View>
+          <AppSection title="预算明细" flush>
             {expenseCats.length === 0 ? (
               <View className="bdg-section__body">
-                <EmptyState icon="💰" title="暂无支出分类" />
+                <EmptyState icon="budget" title="暂无支出分类" />
               </View>
             ) : (
               expenseCats.map((cat, idx) => {
@@ -187,7 +237,7 @@ export default function BudgetsPage() {
                 );
               })
             )}
-          </View>
+          </AppSection>
 
           {/* Save Button */}
           <View

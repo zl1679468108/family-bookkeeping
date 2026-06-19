@@ -1,0 +1,62 @@
+.menu-list {
+  border-radius: 28rpx;
+  border: 1rpx solid var(--border, #e0e2dd);
+  background: var(--surface-soft, #fafaf7);
+  overflow: hidden;
+  margin-bottom: 18rpx;
+  box-shadow: 0 10rpx 28rpx rgba(36, 49, 45, 0.035);
+}
+
+.menu-list__item {
+  min-height: 96rpx;
+  display: flex;
+  align-items: center;
+  gap: 18rpx;
+  padding: 20rpx 26rpx;
+  border-bottom: 1rpx solid var(--border-light, #edeee9);
+}
+
+.menu-list__item:last-child {
+  border-bottom: none;
+}
+
+.menu-list__item:active {
+  background: rgba(45, 157, 138, 0.06);
+}
+
+.menu-list__icon {
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 20rpx;
+  background: #f0f3ee;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.menu-list__label {
+  flex: 1;
+  min-width: 0;
+  color: var(--fg, #1a1c19);
+  font-size: 28rpx;
+  font-weight: 650;
+}
+
+.menu-list__right {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  flex-shrink: 0;
+  margin-left: 8rpx;
+}
+
+.menu-list__arrow {
+  color: var(--fg-3, #8b8e89);
+  font-size: 34rpx;
+  font-weight: 300;
+}
+
+.menu-list__item--danger .menu-list__label {
+  color: var(--expense, #e06055);
+}

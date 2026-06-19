@@ -8,12 +8,14 @@
  *   .section-card — 快捷记账（4列 .cat-grid）
  *   .fab — 右下角 +
  */
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import { View, Text } from "@tarojs/components";
 import Taro from "@tarojs/taro";
 import PageLayout from "../../components/PageLayout";
+import { AppSection, PageHero, MetricGrid, FloatingAction } from "../../components/ui";
 import { getTransactions } from "../../services/transactionsApi";
-import { fetchSummary, fetchBudgetStatus } from "../../services/statisticsApi";
+import { fetchSummary } from "../../services/statisticsApi";
+import { fetchBudgetStatus } from "../../services/budgetsApi";
 import { useCategoryLookup } from "../../hooks/useCategories";
 import { useAuth } from "../../context/AuthContext";
 import { fmtAmount } from "../../utils/format";
@@ -37,7 +39,7 @@ export default function Home() {
   const [budgets, setBudgets] = useState<BudgetStatus[]>([]);
   const [refreshing, setRefreshing] = useState(false);
 
-  const loadData = () => {
+  const loadData = useCallback(() => {
     // 未登录不请求接口，由 AuthGuard 跳转登录页
     if (!user) {
       return Promise.resolve();
@@ -46,24 +48,34 @@ export default function Home() {
     const pad = (n: number) => String(n).padStart(2, "0");
     const startDate = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-01`;
     const endDate = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
-    const monthStr = `${now.getFullYear()}-${pad(now.getMonth() + 1)}`;
+    const monthStr = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-01`;
     return Promise.all([
       fetchSummary({ startDate, endDate }).then((s: any) => setSummary(s)),
       getTransactions({ page: 1, pageSize: 5 })
         .then((r: any) => setTxn(r.data || []))
         .catch(() => setTxn([])),
-      fetchBudgetStatus({ month: monthStr }).then((b: any) => setBudgets(b || [])).catch(() => setBudgets([])),
+      fetchBudgetStatus(monthStr).then((b: any) => {
+        const cats = (b?.categories || []).map((c: any) => ({
+          category_id: c.category_id,
+          category_name: c.category_name,
+          budget_amount: c.budget,
+          spent_amount: c.spent,
+          percentage: c.progress ?? 0,
+          is_over_budget: c.status === "over",
+        }));
+        setBudgets(cats);
+      }).catch(() => setBudgets([])),
     ]);
-  };
+  }, [user]);
 
   useEffect(() => {
     // 等待认证状态初始化完成，且已登录才请求
     if (loading) return;
     if (!user) return;
     loadData().catch(() => {});
-  }, [loading, user]);
+  }, [loading, user, loadData]);
 
-  const handleRefresh = () => {
+  const handleRefresh = useCallback(() => {
     return new Promise<void>((resolve) => {
       setRefreshing(true);
       loadData()
@@ -73,11 +85,15 @@ export default function Home() {
           resolve();
         });
     });
-  };
+  }, [loadData]);
 
   const expense = summary?.totalExpense ?? 0;
   const income = summary?.totalIncome ?? 0;
   const balance = income - expense;
+  const metricItems = [
+    { label: "收入", value: `¥${fmtAmount(income)}`, tone: "income" as const, meta: `${txn.length} 笔交易` },
+    { label: "支出", value: `¥${fmtAmount(expense)}`, tone: "expense" as const, meta: "本月累计" },
+  ];
 
   // 快捷记账分类（支出类 8 个）
   const quickCats = useMemo(
@@ -95,34 +111,21 @@ export default function Home() {
       onRefresh={handleRefresh}
       refreshing={refreshing}
     >
-      {/* ===== Hero 结余卡片 ===== */}
-      <View className="stat-card hero">
-        <Text className="stat-label">本月结余</Text>
-        <Text className="stat-value">¥ {fmtAmount(balance)}</Text>
-        <Text className="stat-meta">{txn.length} 笔交易</Text>
-      </View>
+      <PageHero
+        eyebrow="家庭记账"
+        title="本月结余"
+        value={`¥ ${fmtAmount(balance)}`}
+        meta={`${txn.length} 笔交易 · ${income >= expense ? "保持顺差" : "需要控制支出"}`}
+      />
 
-      {/* ===== 收入 / 支出 双卡片 ===== */}
-      <View className="stat-split">
-        <View className="stat-card">
-          <Text className="stat-label">收入</Text>
-          <Text className="stat-value income-value">¥{fmtAmount(income)}</Text>
-        </View>
-        <View className="stat-card">
-          <Text className="stat-label">支出</Text>
-          <Text className="stat-value expense-value">¥{fmtAmount(expense)}</Text>
-        </View>
-      </View>
+      <MetricGrid items={metricItems} className="home-metrics" />
 
-      {/* ===== 预算进度 ===== */}
       {budgets.length > 0 && (
-        <View className="section-card">
-          <View className="section-header">
-            <Text className="section-title">预算进度</Text>
-            <Text className="section-action" onClick={() => Taro.navigateTo({ url: "/pages/Budgets/index" })}>
-              管理 ›
-            </Text>
-          </View>
+        <AppSection
+          title="预算进度"
+          actionText="管理 ›"
+          onAction={() => Taro.navigateTo({ url: "/pages/Budgets/index" })}
+        >
           <View className="budget-list">
             {budgets.slice(0, 4).map((budget) => (
               <View key={budget.category_id} className="budget-item">
@@ -139,23 +142,20 @@ export default function Home() {
                   />
                 </View>
                 <Text className={`budget-percentage ${budget.is_over_budget ? "over" : ""}`}>
-                  {budget.percentage.toFixed(0)}%
+                  {(budget.percentage ?? 0).toFixed(0)}%
                 </Text>
               </View>
             ))}
           </View>
-        </View>
+        </AppSection>
       )}
 
-      {/* ===== 最近交易 ===== */}
-      <View className="section-card">
-        <View className="section-header">
-          <Text className="section-title">最近交易</Text>
-          <Text className="section-action" onClick={() => Taro.switchTab({ url: "/pages/Transactions/index" })}>
-            全部 ›
-          </Text>
-        </View>
-
+      <AppSection
+        title="最近交易"
+        actionText="全部 ›"
+        onAction={() => Taro.switchTab({ url: "/pages/Transactions/index" })}
+        flush
+      >
         {txn.length === 0 ? (
           <View className="empty-state">
             <Text className="empty-text">暂无交易记录</Text>
@@ -190,13 +190,9 @@ export default function Home() {
             })}
           </View>
         )}
-      </View>
+      </AppSection>
 
-      {/* ===== 快捷记账 ===== */}
-      <View className="section-card">
-        <View className="section-header">
-          <Text className="section-title">快捷记账</Text>
-        </View>
+      <AppSection title="快捷记账" compact>
         <View className="cat-grid">
           {quickCats.map((c: any) => (
             <View
@@ -213,13 +209,10 @@ export default function Home() {
               </View>
           ))}
         </View>
-      </View>
+      </AppSection>
     </PageLayout>
 
-    {/* FAB - 屏幕固定定位的右下角 + 按钮 */}
-    <View className="fab" onClick={() => Taro.navigateTo({ url: "/pages/AddTransaction/index" })}>
-      <Text>+</Text>
-    </View>
+    <FloatingAction onClick={() => Taro.navigateTo({ url: "/pages/AddTransaction/index" })} />
     </>
   );
 }

@@ -8,7 +8,7 @@ import Taro from "@tarojs/taro";
 import { useAuth } from "../../context/AuthContext";
 import { getCaptcha } from "../../services/authApi";
 import PageLayout from "../../components/PageLayout";
-import Icon from "../../components/Icon";
+import { MenuList } from "../../components/ui";
 import {
   getSavedAccounts,
   removeAccount,
@@ -184,68 +184,39 @@ export default function Profile() {
         <Text className="profile-header__arrow">›</Text>
       </View>
 
-      {/* ===== 第一分组：年报 / 日历 / 地图 ===== */}
-      <View className="menu-section">
-        {menuSection1.map((item) => {
-          return (
-            <View
-              key={item.label}
-              className="menu-item"
-              onClick={() => Taro.navigateTo({ url: item.url })}
-            >
-              <View className="mi-icon-wrap">
-                <Icon name={item.icon} size={44} color="#2D9D8A" />
-              </View>
-              <Text className="mi-text">{item.label}</Text>
-              <Text className="mi-arrow">›</Text>
-            </View>
-          );
-        })}
-      </View>
+      <MenuList
+        items={menuSection1.map((item) => ({
+          key: item.label,
+          label: item.label,
+          icon: item.icon,
+          onClick: () => Taro.navigateTo({ url: item.url }),
+        }))}
+      />
 
-      {/* ===== 第二分组：账本 / 分类 / 模版 / 预算 ===== */}
-      <View className="menu-section">
-        {menuSection2.map((item) => {
-          return (
-            <View
-              key={item.label}
-              className="menu-item"
-              onClick={() => Taro.navigateTo({ url: item.url })}
-            >
-              <View className="mi-icon-wrap">
-                <Icon name={item.icon} size={44} color="#2D9D8A" />
-              </View>
-              <Text className="mi-text">{item.label}</Text>
-              <Text className="mi-arrow">›</Text>
-            </View>
-          );
-        })}
-      </View>
+      <MenuList
+        items={menuSection2.map((item) => ({
+          key: item.label,
+          label: item.label,
+          icon: item.icon,
+          onClick: () => Taro.navigateTo({ url: item.url }),
+        }))}
+      />
 
-      {/* ===== 切换账号 ===== */}
-      <View className="menu-section">
-        <View className="menu-item" onClick={handleOpenSwitch}>
-          <View className="mi-icon-wrap">
-            <Icon name="profile" size={44} color="#2D9D8A" />
-          </View>
-          <Text className="mi-text">切换账号</Text>
-          <Text className="mi-arrow">›</Text>
-        </View>
-      </View>
-
-      {/* ===== 退出登录 ===== */}
-      <View className="menu-section">
-        <View
-          className="menu-item danger"
-          onClick={() => setLogoutConfirm(true)}
-        >
-          <View className="mi-icon-wrap">
-            <Icon name="logout" size={44} color="#E06055" />
-          </View>
-          <Text className="mi-text">退出登录</Text>
-          <Text className="mi-arrow">›</Text>
-        </View>
-      </View>
+      <MenuList
+        items={[
+          {
+            label: "切换账号",
+            icon: "profile",
+            onClick: handleOpenSwitch,
+          },
+          {
+            label: "退出登录",
+            icon: "logout",
+            danger: true,
+            onClick: () => setLogoutConfirm(true),
+          },
+        ]}
+      />
 
       {/* ===== 退出确认弹窗 ===== */}
       {logoutConfirm && (

@@ -1,141 +1,219 @@
-.annual-report {
+/* =========================================================
+ * AnnualReport — 年报页样式 v2
+ * ========================================================= */
+
+.annual-page {
   min-height: 100vh;
-  background: #f5f5f5;
-  padding-top: env(safe-area-inset-top, 0);
-}
-
-.report-header {
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  background: #ffffff;
-  padding: 24rpx 32rpx;
-  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.06);
-}
-
-.report-year-picker {
-  display: inline-flex;
-  align-items: center;
-  gap: 8rpx;
-  background: #f5f5f5;
-  padding: 12rpx 24rpx;
-  border-radius: 24rpx;
-}
-
-.report-year-picker__text {
-  font-size: 30rpx;
-  font-weight: 600;
-  color: #1a1c19;
-}
-
-.report-year-picker__arrow {
-  font-size: 20rpx;
-  color: #6b7280;
-}
-
-.report-year-select {
-  position: absolute;
-  top: 100%;
-  left: 32rpx;
-  background: #ffffff;
-  border-radius: 16rpx;
-  box-shadow: 0 8rpx 32rpx rgba(0, 0, 0, 0.15);
-  padding: 8rpx;
-  z-index: 101;
-}
-
-.report-year-option {
-  padding: 16rpx 32rpx;
-  border-radius: 8rpx;
-}
-
-.report-year-option--active {
-  background: rgba(45, 157, 138, 0.1);
-}
-
-.report-year-option__text {
-  font-size: 28rpx;
-  color: #1a1c19;
-}
-
-.report-scroll {
-  height: calc(100vh - 88rpx - 140rpx);
-}
-
-/* 底部操作按钮 */
-.report-actions {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  display: flex;
-  gap: 20rpx;
-  padding: 24rpx 32rpx calc(24rpx + env(safe-area-inset-bottom, 0));
-  background: #ffffff;
-  box-shadow: 0 -2rpx 12rpx rgba(0, 0, 0, 0.08);
-}
-
-.report-action-btn {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12rpx;
-  height: 88rpx;
-  border-radius: 44rpx;
-  font-size: 30rpx;
-  font-weight: 600;
-
-  &.save {
-    background: var(--primary);
-    color: #ffffff;
-  }
-
-  &.share {
-    background: #ffffff;
-    color: var(--primary);
-    border: 2rpx solid var(--primary);
-  }
-}
-
-.report-action-icon {
-  font-size: 32rpx;
-}
-
-.report-action-text {
-  font-size: 30rpx;
-}
-
-/* 隐藏的 Canvas */
-.report-canvas {
-  position: fixed;
-  left: -9999px;
-  top: -9999px;
-}
-
-.report-loading {
+  background-color: var(--bg, #f6f7f4);
   display: flex;
   flex-direction: column;
+  box-sizing: border-box;
+}
+
+.annual-header {
+  background-color: var(--surface, #ffffff);
+  padding-top: calc(16rpx + env(safe-area-inset-top, 0));
+  padding-bottom: 16rpx;
+  padding-left: 32rpx;
+  padding-right: 32rpx;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1rpx solid var(--border-light, #edeee9);
+}
+
+.annual-header-left {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+}
+
+.annual-header-title {
+  font-size: 32rpx;
+  font-weight: 700;
+  color: var(--fg, #1a1c19);
+}
+
+.annual-header-spacer {
+  width: 80rpx;
+}
+
+.annual-header-right {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  width: auto;
+  min-width: 80rpx;
+}
+
+/* 年份切换 */
+.annual-year-bar {
+  background-color: var(--surface, #ffffff);
+  padding: 16rpx 32rpx 20rpx;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20rpx;
+}
+
+.annual-year-btn {
+  width: 60rpx;
+  height: 60rpx;
+  border-radius: 20rpx;
+  background-color: var(--bg, #f6f7f4);
+  display: flex;
   align-items: center;
   justify-content: center;
-  padding: 120rpx 0;
-}
-
-.report-spinner {
-  width: 64rpx;
-  height: 64rpx;
-  border: 4rpx solid #e5e7eb;
-  border-top-color: #2d9d8a;
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-.report-loading-text {
-  margin-top: 24rpx;
   font-size: 28rpx;
-  color: #6b7280;
+  color: var(--fg-2, #5a5d58);
+  transition: transform 0.15s ease, background-color 0.15s ease;
+}
+
+.annual-year-btn:active {
+  transform: scale(0.92);
+  background-color: rgba(45, 157, 138, 0.15);
+}
+
+.annual-year-text {
+  font-size: 32rpx;
+  font-weight: 700;
+  color: var(--fg, #1a1c19);
+}
+
+/* 内容区 */
+.annual-content {
+  flex: 1;
+  padding: 20rpx 32rpx;
+  padding-bottom: calc(40rpx + env(safe-area-inset-bottom, 0));
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+/* 年度总览卡（渐变主色） */
+.annual-hero {
+  background: var(--primary-grad, linear-gradient(135deg, #2d9d8a 0%, #45b7a7 100%));
+  border-radius: var(--radius-lg, 32rpx);
+  padding: 32rpx;
+  box-shadow: 0 8rpx 32rpx rgba(45, 157, 138, 0.25);
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+  color: #ffffff;
+}
+
+.annual-hero-title {
+  font-size: 26rpx;
+  opacity: 0.9;
+  font-weight: 600;
+}
+
+.annual-hero-net {
+  font-size: 52rpx;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: 2rpx;
+}
+
+.annual-hero-numbers {
+  display: flex;
+  gap: 32rpx;
+  padding-top: 16rpx;
+  border-top: 1rpx solid rgba(255, 255, 255, 0.25);
+}
+
+.annual-hero-num {
+  display: flex;
+  flex-direction: column;
+  gap: 6rpx;
+}
+
+.annual-hero-num-label {
+  font-size: 22rpx;
+  opacity: 0.85;
+}
+
+.annual-hero-num-val {
+  font-size: 28rpx;
+  font-weight: 700;
+}
+
+/* 月度趋势卡 */
+.annual-card {
+  background-color: var(--surface, #ffffff);
+  border-radius: var(--radius-lg, 32rpx);
+  border: 1rpx solid var(--border, #e0e2dd);
+  padding: 24rpx 28rpx;
+  box-shadow: 0 4rpx 20rpx rgba(26, 28, 25, 0.04);
+}
+
+.annual-card-title {
+  font-size: 28rpx;
+  font-weight: 700;
+  color: var(--fg, #1a1c19);
+  margin-bottom: 20rpx;
+}
+
+/* 月度条形 */
+.annual-month-row {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  padding: 12rpx 0;
+}
+
+.annual-month-label {
+  font-size: 24rpx;
+  color: var(--fg-2, #5a5d58);
+  font-weight: 600;
+  width: 60rpx;
+  flex-shrink: 0;
+}
+
+.annual-month-bar {
+  flex: 1;
+  height: 24rpx;
+  background-color: var(--bg, #f6f7f4);
+  border-radius: 100rpx;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  align-items: stretch;
+}
+
+.annual-month-bar-income {
+  background: linear-gradient(90deg, #3ba272 0%, #5ec49a 100%);
+  height: 100%;
+  border-radius: 100rpx;
+  transition: width 0.3s ease;
+}
+
+.annual-month-bar-expense {
+  background: linear-gradient(90deg, #e06055 0%, #f5a6a0 100%);
+  height: 100%;
+  border-radius: 100rpx;
+  transition: width 0.3s ease;
+  margin-left: -16rpx;
+  mix-blend-mode: multiply;
+}
+
+.annual-month-val {
+  font-size: 24rpx;
+  color: var(--fg, #1a1c19);
+  font-weight: 700;
+  width: 120rpx;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.annual-empty,
+.annual-loading {
+  padding: 80rpx 32rpx;
+  text-align: center;
+}
+
+.annual-empty-text,
+.annual-loading-text {
+  font-size: 26rpx;
+  color: var(--fg-3, #8b8e89);
 }

@@ -14,21 +14,119 @@ export interface SavedAccount {
 }
 
 const SAVED_ACCOUNTS_KEY = 'saved_accounts';
+const BASE64_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
 
 const encode = (text: string): string => {
-  try {
-    return btoa(unescape(encodeURIComponent(text)));
-  } catch {
-    return btoa(text);
+  const bytes = encodeUtf8(text);
+  let result = '';
+
+  for (let i = 0; i < bytes.length; i += 3) {
+    const byte1 = bytes[i];
+    const byte2 = i + 1 < bytes.length ? bytes[i + 1] : 0;
+    const byte3 = i + 2 < bytes.length ? bytes[i + 2] : 0;
+    const combined = (byte1 << 16) | (byte2 << 8) | byte3;
+
+    result += BASE64_CHARS[(combined >> 18) & 63];
+    result += BASE64_CHARS[(combined >> 12) & 63];
+    result += i + 1 < bytes.length ? BASE64_CHARS[(combined >> 6) & 63] : '=';
+    result += i + 2 < bytes.length ? BASE64_CHARS[combined & 63] : '=';
   }
+
+  return result;
 };
 
 const decode = (encoded: string): string => {
   try {
-    return decodeURIComponent(escape(atob(encoded)));
+    const clean = encoded.replace(/[^A-Za-z0-9+/=]/g, '');
+    const bytes: number[] = [];
+
+    for (let i = 0; i < clean.length; i += 4) {
+      const chunk =
+        (BASE64_CHARS.indexOf(clean[i]) << 18) |
+        (BASE64_CHARS.indexOf(clean[i + 1]) << 12) |
+        ((clean[i + 2] === '=' ? 0 : BASE64_CHARS.indexOf(clean[i + 2])) << 6) |
+        (clean[i + 3] === '=' ? 0 : BASE64_CHARS.indexOf(clean[i + 3]));
+
+      bytes.push((chunk >> 16) & 255);
+      if (clean[i + 2] !== '=') bytes.push((chunk >> 8) & 255);
+      if (clean[i + 3] !== '=') bytes.push(chunk & 255);
+    }
+
+    return decodeUtf8(bytes);
   } catch {
-    try { return atob(encoded); } catch { return ''; }
+    return '';
   }
+};
+
+const encodeUtf8 = (text: string): number[] => {
+  const bytes: number[] = [];
+
+  for (let i = 0; i < text.length; i += 1) {
+    let codePoint = text.charCodeAt(i);
+
+    if (codePoint >= 0xd800 && codePoint <= 0xdbff && i + 1 < text.length) {
+      const next = text.charCodeAt(i + 1);
+      if (next >= 0xdc00 && next <= 0xdfff) {
+        codePoint = 0x10000 + ((codePoint - 0xd800) << 10) + (next - 0xdc00);
+        i += 1;
+      }
+    }
+
+    if (codePoint < 0x80) {
+      bytes.push(codePoint);
+    } else if (codePoint < 0x800) {
+      bytes.push(0xc0 | (codePoint >> 6), 0x80 | (codePoint & 0x3f));
+    } else if (codePoint < 0x10000) {
+      bytes.push(
+        0xe0 | (codePoint >> 12),
+        0x80 | ((codePoint >> 6) & 0x3f),
+        0x80 | (codePoint & 0x3f),
+      );
+    } else {
+      bytes.push(
+        0xf0 | (codePoint >> 18),
+        0x80 | ((codePoint >> 12) & 0x3f),
+        0x80 | ((codePoint >> 6) & 0x3f),
+        0x80 | (codePoint & 0x3f),
+      );
+    }
+  }
+
+  return bytes;
+};
+
+const decodeUtf8 = (bytes: number[]): string => {
+  let result = '';
+
+  for (let i = 0; i < bytes.length; i += 1) {
+    const byte = bytes[i];
+
+    if (byte < 0x80) {
+      result += String.fromCharCode(byte);
+    } else if (byte >= 0xc0 && byte < 0xe0) {
+      const codePoint = ((byte & 0x1f) << 6) | (bytes[++i] & 0x3f);
+      result += String.fromCharCode(codePoint);
+    } else if (byte >= 0xe0 && byte < 0xf0) {
+      const codePoint =
+        ((byte & 0x0f) << 12) |
+        ((bytes[++i] & 0x3f) << 6) |
+        (bytes[++i] & 0x3f);
+      result += String.fromCharCode(codePoint);
+    } else {
+      const codePoint =
+        ((byte & 0x07) << 18) |
+        ((bytes[++i] & 0x3f) << 12) |
+        ((bytes[++i] & 0x3f) << 6) |
+        (bytes[++i] & 0x3f);
+      const adjusted = codePoint - 0x10000;
+      result += String.fromCharCode(
+        0xd800 + (adjusted >> 10),
+        0xdc00 + (adjusted & 0x3ff),
+      );
+    }
+  }
+
+  return result;
 };
 
 export const getSavedAccounts = (): SavedAccount[] => {

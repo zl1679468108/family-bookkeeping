@@ -2,29 +2,20 @@
  * Map — 账单地图页
  * 显示账单发生的地理位置标记，点击查看详情
  */
-import { useState, useMemo } from "react";
-import { View, Text, ScrollView } from "@tarojs/components";
+import { useState, useMemo, useEffect } from "react";
+import { View, Text, ScrollView, Picker } from "@tarojs/components";
 import Taro from "@tarojs/taro";
 import PageLayout from "../../components/PageLayout";
 import EmptyState from "../../components/EmptyState";
-import { getTransactions } from "../../services/transactionsApi";
+import CategoryIcon from "../../components/CategoryIcon";
+import { AppSection, PageHero } from "../../components/ui";
+import { fetchMapTransactions, fetchBookMembers } from "../../services/mapApi";
+import type { MapTransaction, MapFilters, MapMember } from "../../types";
 import { useManualQuery } from "../../hooks/useManualQuery";
 import "./index.scss";
 
-interface Transaction {
-  id: string;
-  amount: number;
-  type: "expense" | "income";
-  description?: string;
-  category?: string;
-  latitude?: number;
-  longitude?: number;
-  location_name?: string;
-  date?: string;
-}
-
 interface MapMarker {
-  id: string;
+  id: number;
   latitude: number;
   longitude: number;
   title: string;
@@ -33,16 +24,25 @@ interface MapMarker {
 }
 
 export default function MapPage() {
-  const [selectedTx, setSelectedTx] = useState<Transaction | null>(null);
+  const [selectedTx, setSelectedTx] = useState<MapTransaction | null>(null);
+  const [filters, setFilters] = useState<MapFilters>({});
+  const [members, setMembers] = useState<MapMember[]>([]);
 
-  const { data, isLoading } = useManualQuery<{ data: Transaction[]; total: number }>({
-    key: "map-transactions",
-    queryFn: () => getTransactions({ pageSize: 200 }),
+  // 加载账本成员
+  useEffect(() => {
+    fetchBookMembers()
+      .then(setMembers)
+      .catch(() => {});
+  }, []);
+
+  const { data, isLoading } = useManualQuery<MapTransaction[]>({
+    key: `map-transactions-${JSON.stringify(filters)}`,
+    queryFn: () => fetchMapTransactions(filters),
   });
 
   // 过滤有位置信息的账单
   const transactionsWithLocation = useMemo(() => {
-    const txs = data?.data || [];
+    const txs = data || [];
     return txs.filter(
       (t) =>
         t.latitude &&
@@ -70,8 +70,8 @@ export default function MapPage() {
   const markers = useMemo<MapMarker[]>(() => {
     return transactionsWithLocation.map((t) => ({
       id: t.id,
-      latitude: t.latitude!,
-      longitude: t.longitude!,
+      latitude: t.latitude,
+      longitude: t.longitude,
       title: t.location_name || t.description || "消费地点",
       amount: t.amount,
       type: t.type,
@@ -91,10 +91,10 @@ export default function MapPage() {
   };
 
   // 查看单个账单位置
-  const handleViewLocation = (tx: Transaction) => {
+  const handleViewLocation = (tx: MapTransaction) => {
     Taro.openLocation({
-      latitude: tx.latitude!,
-      longitude: tx.longitude!,
+      latitude: tx.latitude,
+      longitude: tx.longitude,
       name: tx.location_name || "消费地点",
       address: tx.description || "",
       scale: 16,
@@ -102,8 +102,8 @@ export default function MapPage() {
   };
 
   // 查看账单详情
-  const handleViewTransaction = (tx: Transaction) => {
-    Taro.setStorageSync("edit_tx_id", tx.id);
+  const handleViewTransaction = (tx: MapTransaction) => {
+    Taro.setStorageSync("edit_tx_id", String(tx.id));
     Taro.switchTab({ url: "/pages/AddTransaction/index" });
   };
 
@@ -111,7 +111,7 @@ export default function MapPage() {
   const groupedByLocation = useMemo(() => {
     const map = new Map<
       string,
-      { name: string; items: Transaction[]; total: number }
+      { name: string; items: MapTransaction[]; total: number }
     >();
     transactionsWithLocation.forEach((t) => {
       const key = t.location_name || `${t.latitude},${t.longitude}`;
@@ -127,12 +127,24 @@ export default function MapPage() {
       .sort((a, b) => b.items.length - a.items.length);
   }, [transactionsWithLocation]);
 
+  // 清除所有筛选条件
+  const handleClearFilters = () => {
+    setFilters({});
+  };
+
   return (
     <PageLayout contentClassName="map-content">
-      {/* 地图概览卡片 */}
+      <PageHero
+        eyebrow="位置分析"
+        title="消费地图"
+        meta={`${transactionsWithLocation.length} 条带位置记录 · ${groupedByLocation.length} 个地点`}
+        tone="surface"
+      />
+
+      <AppSection title="地图概览" compact onAction={handleOpenMap} actionText="打开地图 ›">
       <View className="map-overview" onClick={handleOpenMap}>
         <View className="map-overview__header">
-          <Text className="map-overview__title">📍 消费地图</Text>
+          <Text className="map-overview__title">消费地图</Text>
           <Text className="map-overview__count">
             {transactionsWithLocation.length} 条带位置记录
           </Text>
@@ -160,6 +172,102 @@ export default function MapPage() {
           <Text className="map-overview__hint-arrow">›</Text>
         </View>
       </View>
+      </AppSection>
+
+      {/* 筛选栏 */}
+      <View className="map-filter-bar">
+        {/* 类型切换 */}
+        <View className="map-filter-segment">
+          {(["all", "expense", "income"] as const).map((val) => (
+            <View
+              key={val}
+              className={`map-filter-segment__item ${
+                (val === "all" ? !filters.type : filters.type === val)
+                  ? "map-filter-segment__item--active"
+                  : ""
+              }`}
+              onClick={() =>
+                setFilters((f) => ({
+                  ...f,
+                  type: val === "all" ? undefined : val,
+                }))
+              }
+            >
+              <Text className="map-filter-segment__text">
+                {val === "all" ? "全部" : val === "expense" ? "支出" : "收入"}
+              </Text>
+            </View>
+          ))}
+        </View>
+
+        {/* 成员筛选 */}
+        {members.length > 1 && (
+          <View
+            className="map-filter-chip"
+            onClick={() => {
+              const currentId = filters.memberIds?.[0];
+              if (!currentId) {
+                setFilters((f) => ({ ...f, memberIds: [members[0].userId] }));
+              } else {
+                const idx = members.findIndex((m) => m.userId === currentId);
+                if (idx === members.length - 1) {
+                  setFilters((f) => ({ ...f, memberIds: undefined }));
+                } else {
+                  setFilters((f) => ({
+                    ...f,
+                    memberIds: [members[idx + 1].userId],
+                  }));
+                }
+              }
+            }}
+          >
+            <Text className="map-filter-chip__text">
+              {filters.memberIds?.[0]
+                ? members.find((m) => m.userId === filters.memberIds![0])
+                    ?.username || "成员"
+                : "全部成员"}
+            </Text>
+          </View>
+        )}
+
+        {/* 日期筛选 */}
+        <Picker
+          mode="date"
+          value={filters.startDate || ""}
+          onChange={(e) =>
+            setFilters((f) => ({ ...f, startDate: e.detail.value }))
+          }
+        >
+          <View className="map-filter-chip">
+            <Text className="map-filter-chip__text">
+              {filters.startDate
+                ? filters.startDate.slice(5)
+                : "开始"}
+            </Text>
+          </View>
+        </Picker>
+
+        <Picker
+          mode="date"
+          value={filters.endDate || ""}
+          onChange={(e) =>
+            setFilters((f) => ({ ...f, endDate: e.detail.value }))
+          }
+        >
+          <View className="map-filter-chip">
+            <Text className="map-filter-chip__text">
+              {filters.endDate ? filters.endDate.slice(5) : "结束"}
+            </Text>
+          </View>
+        </Picker>
+
+        {/* 清除按钮 */}
+        {(filters.type || filters.memberIds || filters.startDate || filters.endDate) && (
+          <View className="map-filter-clear" onClick={handleClearFilters}>
+            <Text className="map-filter-clear__text">清除</Text>
+          </View>
+        )}
+      </View>
 
       {/* 加载状态 */}
       {isLoading ? (
@@ -169,15 +277,14 @@ export default function MapPage() {
         </View>
       ) : transactionsWithLocation.length === 0 ? (
         <EmptyState
-          icon="🗺️"
+          icon="map"
           title="暂无带位置的账单"
           description="记账时选择地点，这里会显示你的消费地图"
         />
       ) : (
         <>
           {/* 按地点分组列表 */}
-          <View className="map-section">
-            <Text className="map-section__title">按地点分组</Text>
+          <AppSection title="按地点分组" flush>
             <ScrollView scrollY className="map-list">
               {groupedByLocation.map((group) => (
                 <View key={group.key} className="map-group">
@@ -187,7 +294,7 @@ export default function MapPage() {
                       group.items[0] && handleViewLocation(group.items[0])
                     }
                   >
-                    <View className="map-group__icon">📍</View>
+                    <View className="map-group__icon">点</View>
                     <View className="map-group__info">
                       <Text className="map-group__name">{group.name}</Text>
                       <Text className="map-group__meta">
@@ -207,12 +314,20 @@ export default function MapPage() {
                         className="map-item"
                         onClick={() => handleViewTransaction(tx)}
                       >
-                        <View
-                          className={`map-item__indicator ${
+                        {/* 统一使用 CategoryIcon 组件渲染分类图标 */}
+                        <CategoryIcon
+                          icon={tx.category}
+                          size={72}
+                          background={
                             tx.type === "expense"
-                              ? "map-item__indicator--expense"
-                              : "map-item__indicator--income"
-                          }`}
+                              ? "rgba(239, 71, 111, 0.06)"
+                              : "rgba(45, 157, 138, 0.06)"
+                          }
+                          border={
+                            tx.type === "expense"
+                              ? "1rpx solid rgba(239, 71, 111, 0.15)"
+                              : "1rpx solid rgba(45, 157, 138, 0.15)"
+                          }
                         />
                         <View className="map-item__main">
                           <Text className="map-item__desc">
@@ -245,7 +360,7 @@ export default function MapPage() {
                 </View>
               ))}
             </ScrollView>
-          </View>
+          </AppSection>
         </>
       )}
 

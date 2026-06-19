@@ -5,7 +5,7 @@
  * z-index: 2000，确保高于其他 sheet/modal
  */
 import { useState, useCallback, useEffect } from "react";
-import { View, Text, Map, Input, ScrollView } from "@tarojs/components";
+import { View, Text, Input, Map } from "@tarojs/components";
 import Taro from "@tarojs/taro";
 import { apiGet } from "../../services/api";
 import { useManualQuery } from "../../hooks/useManualQuery";
@@ -202,10 +202,10 @@ export default function LocationPicker({
             onInput={(e: any) => setSearchText(e.detail.value)}
           />
           <Text className="lp-locate" onClick={handleLocate}>
-            {locating ? "···" : "📍"}
+            {locating ? "···" : "定位"}
           </Text>
           <Text className="lp-choose" onClick={handleChooseLocation}>
-            📌
+            选择
           </Text>
         </View>
 
@@ -266,7 +266,7 @@ export default function LocationPicker({
 
         {/* Selected Address */}
         <View className="lp-address">
-          <Text className="lp-addr-icon">📍</Text>
+          <Text className="lp-addr-icon">位置</Text>
           <Text className="lp-addr-text">
             {address || "点击地图或搜索选择位置"}
           </Text>

@@ -1,6 +1,7 @@
 /**
  * Taro app — TypeScript type definitions
  * Shared interfaces for the family bookkeeping Taro app.
+ * Kept in sync with frontend/src/types/* (PC端) and backend DTOs.
  */
 
 // ---- User / Auth ----
@@ -11,6 +12,9 @@ export interface UserProfile {
   username: string;
   avatar_url?: string;
   created_at: string;
+  role?: "user" | "admin";
+  status?: "active" | "suspended" | "deleted";
+  current_book_id?: string;
 }
 
 export interface AuthResponse {
@@ -26,6 +30,9 @@ export interface Book {
   owner_id: string;
   created_at: string;
   updated_at: string;
+  role?: string;
+  icon?: string;
+  description?: string;
 }
 
 // ---- Transaction ----
@@ -36,6 +43,7 @@ export interface Transaction {
   category: string; // category ID (UUID)
   type: "income" | "expense";
   date: string; // ISO date string
+  time?: string;
   description?: string;
   brand?: string;
   image_urls?: string;
@@ -43,6 +51,7 @@ export interface Transaction {
   location_name?: string;
   location_lat?: number;
   location_lng?: number;
+  poi_id?: string | null;
   created_at: string;
 }
 
@@ -56,6 +65,13 @@ export interface TransactionFilters {
   sortBy?: "amount" | "date";
   sortOrder?: "asc" | "desc";
   search?: string;
+  view?: "own" | "all";
+  keyword?: string;
+  min_amount?: number;
+  max_amount?: number;
+  date_from?: string;
+  date_to?: string;
+  bookId?: string;
 }
 
 export interface CreateTransactionInput {
@@ -78,6 +94,32 @@ export interface PaginatedResponse<T> {
   pageSize: number;
 }
 
+// ---- Batch Operations ----
+
+export type BatchOperation =
+  | "update_category"
+  | "update_type"
+  | "update_date"
+  | "move_book"
+  | "delete";
+
+export interface BatchPayload {
+  category_id?: string;
+  type?: "income" | "expense";
+  date?: string;
+  book_id?: string;
+}
+
+export interface BatchRequest {
+  ids: number[];
+  operation: BatchOperation;
+  payload?: BatchPayload;
+}
+
+export interface BatchResponse {
+  affected: number;
+}
+
 // ---- Category ----
 
 export interface Category {
@@ -87,18 +129,24 @@ export interface Category {
   type: "expense" | "income";
   sort_order: number;
   is_default?: boolean;
+  user_id?: string;
+  icon_id?: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface CreateCategoryInput {
   name: string;
-  icon: string;
+  icon?: string;
   type: "expense" | "income";
+  icon_id?: string;
 }
 
 export interface UpdateCategoryInput {
   name?: string;
   icon?: string;
   sort_order?: number;
+  icon_id?: string;
 }
 
 // ---- Statistics ----
@@ -113,11 +161,15 @@ export interface StatisticsSummary {
   expenseChangePercent: number | null;
   balanceChange: number;
   balanceChangePercent: number | null;
+  incomeCount?: number;
+  expenseCount?: number;
 }
 
 export interface MonthlyTrendItem {
   month: string; // "2025-01"
   amount: number;
+  income?: number;
+  expense?: number;
 }
 
 export interface CategoryBreakdownItem {
@@ -126,6 +178,30 @@ export interface CategoryBreakdownItem {
   category_icon: string;
   amount: number;
   percentage: number;
+}
+
+export interface YoYComparisonItem {
+  month: string; // "01"-"12"
+  monthLabel: string; // "1月"-"12月"
+  currentYear: number;
+  lastYear: number;
+}
+
+export interface YoYComparisonParams {
+  year?: number;
+  compareYear?: number;
+  type?: "income" | "expense";
+}
+
+export interface DailySummaryItem {
+  date: string; // "YYYY-MM-DD"
+  total_income: number;
+  total_expense: number;
+  transaction_count: number;
+}
+
+export interface DailySummaryParams {
+  month: string; // "YYYY-MM"
 }
 
 export interface SummaryParams {
@@ -143,6 +219,28 @@ export interface CategoryBreakdownParams {
   startDate: string;
   endDate: string;
   type: "income" | "expense";
+}
+
+// ---- Member Comparison ----
+
+export interface MemberCategoryBreakdown {
+  category_name: string;
+  category_icon: string;
+  amount: number;
+  percentage: number;
+}
+
+export interface MemberComparisonItem {
+  user_id: string;
+  user_name: string;
+  total_expense: number;
+  categories: MemberCategoryBreakdown[];
+}
+
+export interface MemberComparisonParams {
+  book_id: string;
+  month_from: string; // "YYYY-MM"
+  month_to: string; // "YYYY-MM"
 }
 
 // ---- Budget ----
@@ -192,6 +290,136 @@ export interface UpsertBudgetInput {
 
 export interface CopyBudgetInput {
   targetMonth: string;
+}
+
+// ---- Template ----
+
+export interface Template {
+  id: string;
+  user_id?: string;
+  name: string;
+  type: "expense" | "income";
+  amount?: number;
+  category_id?: string;
+  category_name?: string;
+  note?: string;
+  description?: string;
+  brand?: string;
+  merchant_name?: string;
+  latitude?: number;
+  longitude?: number;
+  location_name?: string;
+  poi_id?: string;
+  book_id?: string;
+  sort_order?: number;
+  icon?: string;
+  created_at?: string;
+}
+
+export interface CreateTemplateInput {
+  name: string;
+  type: "expense" | "income";
+  amount?: number;
+  category_id?: string;
+  note?: string;
+  merchant_name?: string;
+  latitude?: number;
+  longitude?: number;
+  location_name?: string;
+  poi_id?: string;
+  book_id?: string;
+  sort_order?: number;
+}
+
+export interface ExecuteTemplateInput {
+  amount?: number;
+}
+
+export interface ReorderInput {
+  ids: string[];
+}
+
+// ---- Map ----
+
+export interface MapTransaction {
+  id: number;
+  type: "income" | "expense";
+  category: string;
+  amount: number;
+  date: string;
+  description: string | null;
+  latitude: number;
+  longitude: number;
+  location_name: string;
+  poi_id: string | null;
+  userId?: string;
+  username?: string;
+}
+
+export interface MerchantSummary {
+  poi_id: string | null;
+  location_name: string;
+  total_amount: number;
+  transaction_count: number;
+  last_transaction_date: string;
+  expense_count: number;
+  income_count: number;
+  expense_total: number;
+  income_total: number;
+  last_expense_date: string | null;
+  last_income_date: string | null;
+  memberBreakdown?: MemberBreakdown[];
+  latitude?: number;
+  longitude?: number;
+}
+
+export interface MapFilters {
+  startDate?: string;
+  endDate?: string;
+  type?: "income" | "expense";
+  categories?: string[];
+  minAmount?: number;
+  maxAmount?: number;
+  memberIds?: string[];
+}
+
+export interface MapMember {
+  userId: string;
+  username: string;
+  role: "owner" | "member";
+  color: string;
+}
+
+export interface MemberLocation {
+  userId: string;
+  username: string;
+  email: string;
+  latitude: number;
+  longitude: number;
+  updatedAt: string;
+}
+
+export interface LocationUpdateRequest {
+  latitude: number;
+  longitude: number;
+  isSharing: boolean;
+}
+
+export interface MemberBreakdown {
+  userId: string;
+  username: string;
+  expenseTotal: number;
+  expenseCount: number;
+}
+
+// ---- Custom Icons ----
+
+export interface CustomIcon {
+  id: string;
+  user_id: string;
+  icon_url: string;
+  icon_type: "category" | "book";
+  created_at: string;
 }
 
 // ---- API Envelope ----

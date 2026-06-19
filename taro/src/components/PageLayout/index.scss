@@ -2,7 +2,9 @@
 .page-layout {
   width: 100%;
   min-height: 100vh;
-  background-color: #f5f6f3;
+  background:
+    radial-gradient(circle at 0 0, rgba(199, 143, 67, 0.08), transparent 34%),
+    linear-gradient(180deg, #fbfbf7 0%, var(--bg, #f5f6f1) 42%);
   display: flex;
   flex-direction: column;
 }

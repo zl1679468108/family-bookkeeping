@@ -129,7 +129,7 @@ export default function TransactionItem({
           >
             {amountStr}
           </Text>
-          {hasImage && <Text className="txi-image-badge">📎</Text>}
+          {hasImage ? <Text className="txi-image-badge">附件</Text> : null}
         </View>
       </View>
     </View>

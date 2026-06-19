@@ -2,7 +2,7 @@
  * Hook: fetch and lookup categories.
  * 使用手动 fetch 避免 React Query 在 Taro 中的兼容性问题。
  */
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { fetchCategories } from "../services/categoriesApi";
 import { useAuth } from "../context/AuthContext";
 import type { Category } from "../types";
@@ -39,12 +39,22 @@ export function useCategoryList(type?: "expense" | "income") {
 export function useCategoryLookup() {
   const { data: categories } = useCategories();
 
-  const lookupMap: Record<string, { name: string; icon: string }> = {};
-  const nameToIdMap: Record<string, string> = {};
-  categories?.forEach((c: Category) => {
-    lookupMap[c.id] = { name: c.name, icon: c.icon };
-    nameToIdMap[c.name] = c.id;
-  });
+  // 缓存 lookup 表，避免每次渲染重建
+  const lookupMap = useMemo(() => {
+    const map: Record<string, { name: string; icon: string }> = {};
+    categories?.forEach((c: Category) => {
+      map[c.id] = { name: c.name, icon: c.icon };
+    });
+    return map;
+  }, [categories]);
+
+  const nameToIdMap = useMemo(() => {
+    const map: Record<string, string> = {};
+    categories?.forEach((c: Category) => {
+      map[c.name] = c.id;
+    });
+    return map;
+  }, [categories]);
 
   const getCategoryName = (categoryId: string): string =>
     lookupMap[categoryId]?.name || "未知";

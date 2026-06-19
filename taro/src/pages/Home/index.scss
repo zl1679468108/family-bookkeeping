@@ -1,13 +1,12 @@
-/* Home — 首页样式 */
-.home-content {
-  padding: calc(24rpx + env(safe-area-inset-top, 0)) 32rpx calc(220rpx + env(safe-area-inset-bottom, 0));
-}
-
 /* 预算进度 */
 .budget-list {
   display: flex;
   flex-direction: column;
   gap: 20rpx;
+}
+
+.home-content {
+  padding: calc(18rpx + env(safe-area-inset-top, 0)) 32rpx calc(200rpx + env(safe-area-inset-bottom, 0));
 }
 
 .budget-item {

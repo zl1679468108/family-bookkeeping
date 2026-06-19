@@ -1,12 +1,18 @@
 /**
  * Statistics API service.
+ * 对齐 PC 端 frontend/src/services/statisticsApi.ts
  */
-
 import { apiGet } from "./api";
 import type {
   StatisticsSummary,
   MonthlyTrendItem,
   CategoryBreakdownItem,
+  YoYComparisonItem,
+  YoYComparisonParams,
+  DailySummaryItem,
+  DailySummaryParams,
+  MemberComparisonItem,
+  MemberComparisonParams,
   SummaryParams,
   MonthlyTrendParams,
   CategoryBreakdownParams,
@@ -45,17 +51,10 @@ export const fetchMonthlyTrend = async (
 
 /** Get daily summary for calendar view */
 export const fetchDailySummary = async (
-  month: string,
-): Promise<
-  Array<{
-    date: string;
-    total_expense: number;
-    total_income: number;
-    transaction_count: number;
-  }>
-> => {
-  return apiGet(
-    `${STATISTICS_PATH}/daily-summary?month=${encodeURIComponent(month)}`,
+  params: DailySummaryParams,
+): Promise<DailySummaryItem[]> => {
+  return apiGet<DailySummaryItem[]>(
+    `${STATISTICS_PATH}/daily-summary?month=${encodeURIComponent(params.month)}`,
     { requiresAuth: true },
   );
 };
@@ -77,88 +76,35 @@ export const fetchCategoryBreakdown = async (
 };
 
 /** Get year-over-year comparison data */
-export const fetchYearOverYear = async (params: {
-  year: number;
-  compareYear: number;
-  type: "income" | "expense";
-}): Promise<Array<{ month: string; amount: number; compare_amount: number }>> => {
+export const fetchYearOverYear = async (
+  params: YoYComparisonParams = {},
+): Promise<YoYComparisonItem[]> => {
+  const parts: string[] = [];
+  if (params.year !== undefined)
+    parts.push(`year=${encodeURIComponent(String(params.year))}`);
+  if (params.compareYear !== undefined)
+    parts.push(`compareYear=${encodeURIComponent(String(params.compareYear))}`);
+  if (params.type)
+    parts.push(`type=${encodeURIComponent(params.type)}`);
+  const query = parts.join("&");
+  return apiGet<YoYComparisonItem[]>(
+    `${STATISTICS_PATH}/yoy-comparison${query ? "?" + query : ""}`,
+    { requiresAuth: true },
+  );
+};
+
+/** Get member comparison data for multi-member books */
+export const fetchMemberComparison = async (
+  params: MemberComparisonParams,
+): Promise<MemberComparisonItem[]> => {
   const parts = [
-    `year=${encodeURIComponent(String(params.year))}`,
-    `compareYear=${encodeURIComponent(String(params.compareYear))}`,
-    `type=${encodeURIComponent(params.type)}`,
+    `book_id=${encodeURIComponent(params.book_id)}`,
+    `month_from=${encodeURIComponent(params.month_from)}`,
+    `month_to=${encodeURIComponent(params.month_to)}`,
   ];
   const query = parts.join("&");
-  return apiGet(`${STATISTICS_PATH}/yoy-comparison?${query}`, { requiresAuth: true });
-};
-
-/** Get budget status for a month */
-export const fetchBudgetStatus = async (params: {
-  month: string;
-}): Promise<Array<{
-  category_id: string;
-  category_name: string;
-  budget_amount: number;
-  spent_amount: number;
-  percentage: number;
-  is_over_budget: boolean;
-}>> => {
-  const parts = [`month=${encodeURIComponent(params.month)}`];
-  const query = parts.join("&");
-  return apiGet(`${STATISTICS_PATH}/budget-status?${query}`, { requiresAuth: true });
-};
-
-// ---- Annual Report ----
-
-export interface AnnualReportOverview {
-  total_income: number;
-  total_expense: number;
-  balance: number;
-  balance_rate: number;
-}
-
-export interface MonthlyTrendRecord {
-  month: number;
-  income: number;
-  expense: number;
-}
-
-export interface CategoryRankItem {
-  category_name: string;
-  category_icon: string;
-  amount: number;
-  percentage: number;
-}
-
-export interface RecordItem {
-  amount?: number;
-  description?: string;
-  counterparty?: string;
-  date?: string;
-  count?: number;
-}
-
-export interface ReportRecords {
-  max_expense: RecordItem | null;
-  max_expense_day: RecordItem | null;
-  max_expense_merchant: RecordItem | null;
-}
-
-export interface AnnualReportData {
-  overview: AnnualReportOverview;
-  monthly: MonthlyTrendRecord[];
-  top_categories: CategoryRankItem[];
-  records: ReportRecords;
-  record_count?: number;
-}
-
-/**
- * 获取年度报告数据
- * GET /reports/annual?year=YYYY
- */
-export const fetchAnnualReport = async (
-  year: number,
-): Promise<AnnualReportData> => {
-  const params = [`year=${encodeURIComponent(String(year))}`];
-  const query = params.join("&");
-  return apiGet<AnnualReportData>(`/reports/annual?${query}`, { requiresAuth: true });
+  return apiGet<MemberComparisonItem[]>(
+    `${STATISTICS_PATH}/member-comparison?${query}`,
+    { requiresAuth: true },
+  );
 };

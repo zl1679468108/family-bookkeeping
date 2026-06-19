@@ -3,6 +3,7 @@
  * Supports 'empty' and 'error' modes.
  */
 import { View, Text } from "@tarojs/components";
+import Icon, { IconName } from "../Icon";
 
 export interface EmptyStateProps {
   icon?: string;
@@ -13,9 +14,6 @@ export interface EmptyStateProps {
   mode?: "empty" | "error";
 }
 
-const DEFAULT_ICON_EMPTY = "\uD83D\uDCDD";
-const DEFAULT_ICON_ERROR = "\u26A0\uFE0F";
-
 export default function EmptyState({
   icon,
   title,
@@ -25,12 +23,18 @@ export default function EmptyState({
   mode = "empty",
 }: EmptyStateProps) {
   const isError = mode === "error";
-  const displayIcon =
-    icon ?? (isError ? DEFAULT_ICON_ERROR : DEFAULT_ICON_EMPTY);
+  const displayIcon = icon ?? (isError ? "close" : "note");
+  const isIconName = ["note", "close", "book", "budget", "calendar", "map", "transactions", "statistics", "profile", "home"].includes(displayIcon);
 
   return (
     <View className="empty-state flex flex-col items-center justify-center py-6 px-4">
-      <Text className="empty-state-icon text-3xl mb-4">{displayIcon}</Text>
+      <View className="empty-state-icon mb-4">
+        {isIconName ? (
+          <Icon name={displayIcon as IconName} size={48} />
+        ) : (
+          <Text className="empty-state-icon-text">{displayIcon}</Text>
+        )}
+      </View>
       <Text
         className={`empty-state-title text-base font-semibold mb-2 text-center ${isError ? "text-danger" : "text-secondary"}`}
       >

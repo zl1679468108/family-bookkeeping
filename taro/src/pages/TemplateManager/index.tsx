@@ -13,7 +13,8 @@ import ConfirmDialog from "../../components/ConfirmDialog";
 import PageLayout from "../../components/PageLayout";
 import CategoryIcon from "../../components/CategoryIcon";
 import LocationPicker, { LocationResult } from "../../components/LocationPicker";
-import { apiGet, apiPost, apiPut, apiDelete } from "../../services/api";
+import { AppSection, PageHero } from "../../components/ui";
+import { getTemplates, createTemplate, updateTemplate, deleteTemplate, reorderTemplates, executeTemplate } from "../../services/templatesApi";
 import { useCategories } from "../../hooks/useCategories";
 import { useManualQuery } from "../../hooks/useManualQuery";
 import { isIconUrl } from "../../utils/renderCategoryIcon";
@@ -26,6 +27,9 @@ interface Template {
   category_id?: string;
   amount?: number;
   note?: string;
+  description?: string;
+  brand?: string;
+  merchant_name?: string;
   latitude?: number;
   longitude?: number;
   location_name?: string;
@@ -58,6 +62,7 @@ export default function TemplateManager() {
     category_id: "",
     amount: "",
     note: "",
+    merchant_name: "",
     latitude: "",
     longitude: "",
     location_name: "",
@@ -67,7 +72,7 @@ export default function TemplateManager() {
 
   const { data: templates, isLoading, refetch } = useManualQuery<Template[]>({
     key: "templates",
-    queryFn: () => apiGet<Template[]>("/templates"),
+    queryFn: () => getTemplates(),
   });
 
   // 过滤并排序（当前类型）
@@ -82,7 +87,7 @@ export default function TemplateManager() {
 
   // --- Mutations ---
   const createMut = useMutation({
-    mutationFn: (data: any) => apiPost("/templates", data),
+    mutationFn: (data: any) => createTemplate(data),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["templates"] });
       Taro.showToast({ title: "模板创建成功", icon: "success" });
@@ -91,7 +96,7 @@ export default function TemplateManager() {
   });
 
   const updateMut = useMutation({
-    mutationFn: ({ id, data }: any) => apiPut(`/templates/${id}`, data),
+    mutationFn: ({ id, data }: any) => updateTemplate(id, data),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["templates"] });
       Taro.showToast({ title: "模板更新成功", icon: "success" });
@@ -100,7 +105,7 @@ export default function TemplateManager() {
   });
 
   const deleteMut = useMutation({
-    mutationFn: (id: string) => apiDelete(`/templates/${id}`),
+    mutationFn: (id: string) => deleteTemplate(id),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["templates"] });
       Taro.showToast({ title: "模板已删除", icon: "success" });
@@ -109,8 +114,7 @@ export default function TemplateManager() {
   });
 
   const reorderMut = useMutation({
-    mutationFn: (orders: { id: string; sort_order: number }[]) =>
-      apiPost<null>("/templates/reorder", orders),
+    mutationFn: (ids: string[]) => reorderTemplates({ ids }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["templates"] });
       Taro.showToast({ title: "排序已保存", icon: "success" });
@@ -130,6 +134,7 @@ export default function TemplateManager() {
       category_id: "",
       amount: "",
       note: "",
+      merchant_name: "",
       latitude: "",
       longitude: "",
       location_name: "",
@@ -171,11 +176,8 @@ export default function TemplateManager() {
   // 提交排序
   const handleSaveSort = () => {
     if (sortOrder.length === 0) return;
-    const orders = sortOrder.map((t, index) => ({
-      id: t.id,
-      sort_order: index,
-    }));
-    reorderMut.mutate(orders);
+    const ids = sortOrder.map((t) => t.id);
+    reorderMut.mutate(ids);
   };
 
   // 点击列表项 → 打开 Picker 编辑弹窗
@@ -186,6 +188,7 @@ export default function TemplateManager() {
       category_id: t.category_id || "",
       amount: t.amount ? String(t.amount) : "",
       note: t.note || "",
+      merchant_name: t.merchant_name || "",
       latitude: t.latitude ? String(t.latitude) : "",
       longitude: t.longitude ? String(t.longitude) : "",
       location_name: t.location_name || "",
@@ -206,6 +209,28 @@ export default function TemplateManager() {
     }));
     setEditingId(null);
     setShowPicker(true);
+  };
+
+  // 执行模板 → 跳转到记一笔页面
+  const handleExecute = async (t: Template) => {
+    try {
+      Taro.showLoading({ title: "加载中..." });
+      const result = await executeTemplate(t.id);
+      Taro.hideLoading();
+      // 存储模板执行结果到 storage，供 AddTransaction 页面读取
+      Taro.setStorageSync("templateExecuteResult", {
+        category_id: result.category_id,
+        amount: result.amount,
+        description: result.description || result.note || "",
+        brand: result.brand || "",
+        merchant_name: result.merchant_name || "",
+        type: result.type,
+      });
+      Taro.navigateTo({ url: "/pages/AddTransaction/index" });
+    } catch (err: any) {
+      Taro.hideLoading();
+      Taro.showToast({ title: err?.message || "执行模板失败", icon: "none" });
+    }
   };
 
   // 位置选择确认
@@ -233,6 +258,7 @@ export default function TemplateManager() {
     if (form.category_id) data.category_id = form.category_id;
     if (form.amount) data.amount = parseFloat(form.amount);
     if (form.note.trim()) data.note = form.note.trim();
+    if (form.merchant_name.trim()) data.merchant_name = form.merchant_name.trim();
     if (form.location_name.trim()) data.location_name = form.location_name.trim();
     if (form.poi_id) data.poi_id = form.poi_id;
     if (form.latitude) data.latitude = parseFloat(form.latitude);
@@ -262,6 +288,13 @@ export default function TemplateManager() {
 
   return (
     <PageLayout contentClassName="tpl-content">
+      <PageHero
+        eyebrow="模板管理"
+        title={curType === "expense" ? "支出模板" : "收入模板"}
+        meta={`${filtered.length} 个模板 · ${sortMode ? "排序模式" : "点击模板可编辑或执行"}`}
+        tone="surface"
+      />
+
       {/* Tab 切换：支出 / 收入 + 排序按钮 */}
       <View className="tpl-tabs-card">
         <View className="tpl-pill-tabs">
@@ -308,6 +341,7 @@ export default function TemplateManager() {
       )}
 
       {/* Template List */}
+      <AppSection title="模板列表" compact flush>
       {isLoading ? (
         <View className="tpl-list">
           <View className="tpl-loading-row" />
@@ -317,7 +351,7 @@ export default function TemplateManager() {
       ) : filtered.length === 0 ? (
         <View className="tpl-empty">
           <EmptyState
-            icon="📋"
+            icon="template"
             title={`暂无${curType === "expense" ? "支出" : "收入"}模板`}
             description="点击右下角 ＋ 新建模板"
           />
@@ -353,9 +387,14 @@ export default function TemplateManager() {
                   {t.note && (
                     <Text className="tpl-card__meta-line">备注：{t.note}</Text>
                   )}
+                  {t.merchant_name && (
+                    <Text className="tpl-card__meta-line">
+                      商户：{t.merchant_name}
+                    </Text>
+                  )}
                   {t.location_name && (
                     <Text className="tpl-card__meta-line">
-                      📍 {t.location_name}
+                      位置：{t.location_name}
                     </Text>
                   )}
                   <Text className="tpl-card__meta-line">排序：第 {idx + 1} 位</Text>
@@ -385,6 +424,15 @@ export default function TemplateManager() {
                   ) : (
                     <>
                       <View
+                        className="tpl-pill tpl-pill--execute"
+                        onClick={(e: any) => {
+                          e.stopPropagation();
+                          handleExecute(t);
+                        }}
+                      >
+                        <Text>执行</Text>
+                      </View>
+                      <View
                         className="tpl-pill tpl-pill--edit"
                         onClick={(e: any) => {
                           e.stopPropagation();
@@ -410,6 +458,7 @@ export default function TemplateManager() {
           })}
         </View>
       )}
+      </AppSection>
 
       {/* 悬浮新建按钮（非排序模式） */}
       {!sortMode && (
@@ -550,6 +599,18 @@ export default function TemplateManager() {
                 />
               </View>
 
+              <View className="tpl-form-row">
+                <Text className="tpl-form-label">商户</Text>
+                <Input
+                  className="tpl-form-input"
+                  placeholder="如：星巴克、 Walmart（可选）"
+                  value={form.merchant_name}
+                  onInput={(e: any) =>
+                    setForm((p) => ({ ...p, merchant_name: e.detail.value }))
+                  }
+                />
+              </View>
+
               {/* 位置选择：使用高德坐标的 LocationPicker（与后端一致） */}
               <View className="tpl-form-row tpl-form-row--location">
                 <Text className="tpl-form-label">位置</Text>
@@ -567,7 +628,7 @@ export default function TemplateManager() {
               {form.location_name && (
                 <View className="tpl-location-coords">
                   <Text>
-                    📍 {form.latitude}, {form.longitude}
+                    坐标：{form.latitude}, {form.longitude}
                   </Text>
                   <Text
                     className="tpl-location-clear"

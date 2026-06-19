@@ -8,11 +8,13 @@ import Taro from "@tarojs/taro";
 import TransactionItem from "../../components/TransactionItem";
 import EmptyState from "../../components/EmptyState";
 import PageLayout from "../../components/PageLayout";
+import { AppSection, MetricGrid, PageHero } from "../../components/ui";
 import { getTransactions } from "../../services/transactionsApi";
 import { fetchDailySummary } from "../../services/statisticsApi";
 import { useCategories } from "../../hooks/useCategories";
 import { useMonthSelector } from "../../hooks/useMonthSelector";
 import { useManualQuery } from "../../hooks/useManualQuery";
+import { getLunarInfo } from "../../utils/lunarUtils";
 import "./index.scss";
 
 export default function Calendar() {
@@ -25,7 +27,7 @@ export default function Calendar() {
   // 当月每日汇总（含 total_expense / total_income / transaction_count）
   const { data: dailyData, isLoading: dailyLoading } = useManualQuery({
     key: `cal-daily-${pickerMonth}`,
-    queryFn: () => fetchDailySummary(pickerMonth),
+    queryFn: () => fetchDailySummary({ month: pickerMonth }),
   });
 
   // 选中日期的交易明细
@@ -83,7 +85,6 @@ export default function Calendar() {
 
   // ===== 本月统计总览 =====
   const monthStats = useMemo(() => {
-    const entries = Object.values(dayMap);
     let totalExpense = 0;
     let totalIncome = 0;
     let maxExpenseDay: { date: string; amount: number } | null = null;
@@ -116,8 +117,22 @@ export default function Calendar() {
 
   return (
     <PageLayout contentClassName="cal-content">
-      {/* ===== 顶部：月份切换 ===== */}
+      <PageHero
+        eyebrow="现金流日历"
+        title={`${year}年${month}月`}
+        meta={`${monthStats.txDays} 个记账日 · ${Object.values(dayMap).reduce((sum, d) => sum + d.count, 0)} 笔记录`}
+        tone="surface"
+      />
+
+      {/* ===== 顶部：月份切换 + 左右箭头 ===== */}
       <View className="cal-header">
+        <View className="cal-nav-btn" onClick={() => {
+          if (month === 1) { setYear(year - 1); setMonth(12); }
+          else setMonth(month - 1);
+          setSelectedDate(null);
+        }}>
+          <Text className="cal-nav-btn__text">‹</Text>
+        </View>
         <Picker
           mode="date"
           fields="month"
@@ -136,47 +151,28 @@ export default function Calendar() {
             <Text className="cal-month-picker__caret">▾</Text>
           </View>
         </Picker>
+        <View className="cal-nav-btn" onClick={() => {
+          if (month === 12) { setYear(year + 1); setMonth(1); }
+          else setMonth(month + 1);
+          setSelectedDate(null);
+        }}>
+          <Text className="cal-nav-btn__text">›</Text>
+        </View>
       </View>
 
-      {/* ===== 本月总览卡片 ===== */}
-      <View className="cal-summary-card">
-        <View className="cal-summary-row">
-          <View className="cal-summary-item">
-            <Text className="cal-summary-item__label">本月收入</Text>
-            <Text className="cal-summary-item__value cal-summary-item__value--income">
-              ¥{monthStats.totalIncome.toFixed(2)}
-            </Text>
-          </View>
-          <View className="cal-summary-item">
-            <Text className="cal-summary-item__label">本月支出</Text>
-            <Text className="cal-summary-item__value cal-summary-item__value--expense">
-              ¥{monthStats.totalExpense.toFixed(2)}
-            </Text>
-          </View>
-        </View>
-        <View className="cal-summary-divider" />
-        <View className="cal-summary-row">
-          <View className="cal-summary-item">
-            <Text className="cal-summary-item__label">本月结余</Text>
-            <Text
-              className={`cal-summary-item__value ${
-                monthStats.netFlow >= 0
-                  ? "cal-summary-item__value--income"
-                  : "cal-summary-item__value--expense"
-              }`}
-            >
-              {monthStats.netFlow >= 0 ? "+" : "-"}¥
-              {Math.abs(monthStats.netFlow).toFixed(2)}
-            </Text>
-          </View>
-          <View className="cal-summary-item">
-            <Text className="cal-summary-item__label">日均支出</Text>
-            <Text className="cal-summary-item__value">
-              ¥{monthStats.avgExpense.toFixed(2)}
-            </Text>
-          </View>
-        </View>
-      </View>
+      <MetricGrid
+        columns={2}
+        items={[
+          { label: "本月收入", value: `¥${monthStats.totalIncome.toFixed(2)}`, tone: "income" },
+          { label: "本月支出", value: `¥${monthStats.totalExpense.toFixed(2)}`, tone: "expense" },
+          { label: "总笔数", value: `${monthStats.txDays}天/${Object.values(dayMap).reduce((sum, d) => sum + d.count, 0)}笔` },
+          {
+            label: "本月结余",
+            value: `${monthStats.netFlow >= 0 ? "+" : "-"}¥${Math.abs(monthStats.netFlow).toFixed(2)}`,
+            tone: monthStats.netFlow >= 0 ? "income" : "expense",
+          },
+        ]}
+      />
 
       {/* ===== 周几标题 ===== */}
       <View className="cal-weekdays">
@@ -190,7 +186,7 @@ export default function Calendar() {
         ))}
       </View>
 
-      {/* ===== 日历网格 ===== */}
+      <AppSection title="月度日历" compact>
       <View className="cal-grid">
         {calendar.map((cell, i) => {
           if (!cell.date) {
@@ -213,6 +209,15 @@ export default function Calendar() {
               }
             >
               <Text className="cal-day">{cell.day}</Text>
+              {(() => {
+                const info = getLunarInfo(cell.date);
+                const isFestival = info.isLegalHoliday || info.subText !== info.lunarDayText;
+                return (
+                  <Text className={`cal-lunar ${isFestival ? "cal-lunar--festival" : ""}`}>
+                    {info.subText}
+                  </Text>
+                );
+              })()}
               {hasExpense && (
                 <Text className="cal-amount cal-amount--expense">
                   -{dayData!.expense.toFixed(0)}
@@ -228,10 +233,14 @@ export default function Calendar() {
                   +{dayData!.income.toFixed(0)}
                 </Text>
               )}
+              {dayData && dayData.count > 0 && (
+                <Text className="cal-count">{dayData.count}笔</Text>
+              )}
             </View>
           );
         })}
       </View>
+      </AppSection>
 
       {/* ===== 选中日期的明细卡片 ===== */}
       {selectedDate && (
@@ -268,7 +277,7 @@ export default function Calendar() {
               <Text className="cal-detail__loading-text">加载中...</Text>
             </View>
           ) : !dayTx?.data || dayTx.data.length === 0 ? (
-            <EmptyState icon="📋" title="当日无记录" />
+            <EmptyState icon="note" title="当日无记录" />
           ) : (
             <View className="cal-detail__body">
               {dayTx.data.map((t: any) => {

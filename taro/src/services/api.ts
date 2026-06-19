@@ -56,7 +56,7 @@ interface RequestOptions {
 }
 
 async function request<T>(
-  method: "GET" | "POST" | "PUT" | "DELETE",
+  method: "GET" | "POST" | "PUT" | "DELETE" | "PATCH",
   url: string,
   arg2?: RequestOptions | unknown,
 ): Promise<T> {
@@ -109,7 +109,17 @@ async function request<T>(
     });
 
     if (res.statusCode >= 200 && res.statusCode < 300) {
-      const payload = res.data as ApiEnvelope<T>;
+      // 防御性解析：部分 Taro 环境下 res.data 可能是字符串而非已解析的对象
+      let parsed: unknown = res.data;
+      if (typeof parsed === "string") {
+        try {
+          parsed = JSON.parse(parsed);
+        } catch {
+          // 非 JSON 字符串，原样返回
+          return parsed as unknown as T;
+        }
+      }
+      const payload = parsed as ApiEnvelope<T>;
       if (
         payload &&
         typeof payload === "object" &&
@@ -118,7 +128,7 @@ async function request<T>(
       ) {
         return payload.data as T;
       }
-      return res.data as T;
+      return parsed as T;
     }
 
     // HTTP error
@@ -168,6 +178,8 @@ export const apiPut = <T>(url: string, arg2?: unknown) =>
   request<T>("PUT", url, arg2);
 export const apiDelete = <T>(url: string, options?: RequestOptions) =>
   request<T>("DELETE", url, options);
+export const apiPatch = <T>(url: string, arg2?: unknown) =>
+  request<T>("PATCH", url, arg2);
 
 export const redirectToLogin = (): void => {
   Taro.navigateTo({ url: "/pages/User/Login/index" });

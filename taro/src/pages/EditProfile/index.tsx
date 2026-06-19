@@ -29,6 +29,7 @@ export default function EditProfile() {
   const [email, setEmail] = useState(user?.email || "");
   const [avatarUrl, setAvatarUrl] = useState(user?.avatar_url || "");
   const [avatarPreview, setAvatarPreview] = useState(user?.avatar_url || "");
+  const [avatarUploading, setAvatarUploading] = useState(false);
 
   const [showPwd, setShowPwd] = useState(false);
   const [oldPwd, setOldPwd] = useState("");
@@ -55,7 +56,7 @@ export default function EditProfile() {
       .catch(() => {});
   }, []);
 
-  // ---- 头像 ----
+  // ---- 头像：选择 → 上传到 custom icons 服务 → 使用返回的 URL ----
   const handleChangeAvatar = useCallback(() => {
     Taro.chooseImage({
       count: 1,
@@ -66,7 +67,26 @@ export default function EditProfile() {
         const path = res.tempFilePaths && res.tempFilePaths[0];
         if (!path) return;
         setAvatarPreview(path);
-        setAvatarUrl(path); // 保存时会把临时路径作为 avatar_url 上传
+        // 使用 custom icons 上传接口获取正式 URL
+        setAvatarUploading(true);
+        import("../../services/iconsApi")
+          .then(({ uploadIcon }) => uploadIcon(path, "book"))
+          .then((result: any) => {
+            const iconUrl = result?.icon_url || result?.url || "";
+            if (iconUrl) {
+              setAvatarUrl(iconUrl);
+              setAvatarPreview(iconUrl);
+              Taro.showToast({ title: "头像已更新", icon: "success" });
+            } else {
+              setAvatarUrl(path); // fallback：临时路径
+              Taro.showToast({ title: "已选择图片", icon: "success" });
+            }
+          })
+          .catch(() => {
+            setAvatarUrl(path); // fallback
+            Taro.showToast({ title: "已选择图片", icon: "success" });
+          })
+          .finally(() => setAvatarUploading(false));
       })
       .catch(() => {});
   }, []);
@@ -164,18 +184,27 @@ export default function EditProfile() {
     <PageLayout className="edit-profile-page">
       {/* ===== 头像区 ===== */}
       <View className="edit-avatar-wrap" onClick={handleChangeAvatar}>
-        {avatarPreview ? (
-          <Image
-            className="edit-avatar-img"
-            src={avatarPreview}
-            mode="aspectFill"
-          />
-        ) : (
-          <View className="edit-avatar-placeholder">
-            <Text className="edit-avatar-placeholder-text">{initial}</Text>
-          </View>
-        )}
-        <Text className="edit-avatar-tip">点击更换头像</Text>
+        <View className="edit-avatar-container">
+          {avatarPreview ? (
+            <Image
+              className="edit-avatar-img"
+              src={avatarPreview}
+              mode="aspectFill"
+            />
+          ) : (
+            <View className="edit-avatar-placeholder">
+              <Text className="edit-avatar-placeholder-text">{initial}</Text>
+            </View>
+          )}
+          {avatarUploading && (
+            <View className="edit-avatar-loading">
+              <Text className="edit-avatar-loading-text">上传中…</Text>
+            </View>
+          )}
+        </View>
+        <Text className="edit-avatar-tip">
+          {avatarUploading ? "正在上传头像…" : "点击更换头像"}
+        </Text>
       </View>
 
       {/* ===== 资料表单 ===== */}
@@ -185,7 +214,7 @@ export default function EditProfile() {
           <Input
             className="edit-input"
             value={username}
-            maxLength={50}
+            maxlength={50}
             placeholder="请输入用户名"
             placeholderClass="edit-input-placeholder"
             onInput={(e: any) => setUsername(e.detail.value)}

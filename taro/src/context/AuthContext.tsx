@@ -9,6 +9,7 @@ import React, {
   useEffect,
   useCallback,
   useRef,
+  useMemo,
 } from "react";
 import {
   hasToken,
@@ -136,15 +137,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   }, []);
 
-  const value: AuthContextType = {
-    user,
-    loading,
-    signIn,
-    signUp,
-    signOut,
-    refreshUser,
-    switchByToken,
-  };
+  // 关键：缓存 Provider value 避免每次渲染生成新对象导致全量重渲染
+  const value = useMemo<AuthContextType>(
+    () => ({
+      user,
+      loading,
+      signIn,
+      signUp,
+      signOut,
+      refreshUser,
+      switchByToken,
+    }),
+    [user, loading, signIn, signUp, signOut, refreshUser, switchByToken],
+  );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

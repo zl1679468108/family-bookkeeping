@@ -1,0 +1,28 @@
+.floating-action {
+  position: fixed;
+  right: 32rpx;
+  bottom: calc(148rpx + env(safe-area-inset-bottom, 0));
+  z-index: 60;
+  min-width: 92rpx;
+  height: 92rpx;
+  padding: 0 28rpx;
+  border-radius: 46rpx;
+  background: var(--fg, #1a1c19);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10rpx;
+  box-shadow: 0 16rpx 38rpx rgba(36, 49, 45, 0.24);
+}
+
+.floating-action:active {
+  transform: scale(0.96);
+  opacity: 0.9;
+}
+
+.floating-action__label {
+  color: #ffffff;
+  font-size: 26rpx;
+  font-weight: 800;
+}

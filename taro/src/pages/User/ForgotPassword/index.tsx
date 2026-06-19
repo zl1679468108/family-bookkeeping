@@ -79,7 +79,7 @@ export default function ForgotPassword() {
     setError("");
     setResetting(true);
     try {
-      await resetPasswordByCode(email.trim(), code.trim(), password);
+      await resetPasswordByCode(email.trim(), code.trim(), password, confirmPassword);
       setStep("success");
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "重置失败，请稍后重试");

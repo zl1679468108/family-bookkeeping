@@ -10,7 +10,7 @@
 
 /* ========== 主内容区 ========== */
 .profile-content {
-  padding: calc(24rpx + env(safe-area-inset-top, 0)) 32rpx calc(32rpx + env(safe-area-inset-bottom, 0));
+  padding: calc(18rpx + env(safe-area-inset-top, 0)) 32rpx calc(32rpx + env(safe-area-inset-bottom, 0));
   display: flex;
   flex-direction: column;
   gap: 20rpx;
@@ -96,71 +96,6 @@
   font-weight: 300;
   flex-shrink: 0;
   margin-left: 8rpx;
-}
-
-/* ========== 分组卡片容器（确保与全局 app.scss 配合） ========== */
-.profile-content .menu-section {
-  background-color: var(--surface, #ffffff);
-  border-radius: var(--radius-lg, 32rpx);
-  border: 1rpx solid var(--border, #e0e2dd);
-  overflow: hidden;
-  margin: 0;
-}
-
-.profile-content .menu-item {
-  display: flex;
-  align-items: center;
-  gap: 20rpx;
-  padding: 24rpx 28rpx;
-  background-color: var(--surface, #ffffff);
-  font-size: 28rpx;
-  font-weight: 500;
-  color: var(--fg, #1a1c19);
-  border-bottom: 1rpx solid var(--border-light, #edeee9);
-  min-height: 96rpx;
-  transition: background-color 0.15s ease;
-}
-
-.profile-content .menu-item:last-child {
-  border-bottom: none;
-}
-
-.profile-content .menu-item:active {
-  background-color: var(--bg, #f6f7f4);
-}
-
-.profile-content .mi-icon-wrap {
-  width: 64rpx;
-  height: 64rpx;
-  border-radius: var(--radius-md, 24rpx);
-  background-color: var(--bg, #f6f7f4);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.profile-content .mi-img {
-  width: 36rpx;
-  height: 36rpx;
-  display: block;
-}
-
-.profile-content .mi-text {
-  flex: 1;
-  font-size: 28rpx;
-  font-weight: 500;
-  color: var(--fg, #1a1c19);
-}
-
-.profile-content .mi-arrow {
-  color: var(--fg-3, #8b8e89);
-  font-size: 28rpx;
-  font-weight: 300;
-}
-
-.profile-content .menu-item.danger .mi-text {
-  color: var(--expense, #e06055);
 }
 
 /* ========== 退出确认弹窗 ========== */

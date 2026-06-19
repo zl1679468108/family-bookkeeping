@@ -35,40 +35,29 @@ export default function AnnualReport() {
   };
 
   // Process data
-  const totalIncome = report?.total_income || 0;
-  const totalExpense = report?.total_expense || 0;
-  const netSavings = totalIncome - totalExpense;
-  const transactionCount = report?.transaction_count || 0;
+  const totalIncome = report?.overview?.total_income || 0;
+  const totalExpense = report?.overview?.total_expense || 0;
+  const netSavings = report?.overview?.balance ?? (totalIncome - totalExpense);
+  const transactionCount = report?.record_count || 0;
 
-  // Monthly data
-  const monthlyData = Array.from({ length: 12 }, (_, i) => {
-    const monthKey = `m${i + 1}`;
-    const monthReport: any = report?.monthly?.[monthKey] || {};
-    return {
-      month: i + 1,
-      income: monthReport.income || 0,
-      expense: monthReport.expense || 0,
-    };
-  });
-
-  // Category data
-  const expenseCategories = (report?.expense_categories || []).map((c: any, _idx: number, arr: any[]) => ({
-    id: c.id,
-    name: c.name,
-    icon: c.icon || "📌",
-    amount: c.amount || 0,
-    count: c.count || 0,
-    percentage: arr.length > 0 ? ((c.amount || 0) / (arr.reduce((sum, cat) => sum + (cat.amount || 0), 0) || 1)) * 100 : 0,
+  // Monthly data (new type is already MonthlyTrendRecord[])
+  const monthlyData = (report?.monthly || []).map((m) => ({
+    month: m.month,
+    income: m.income || 0,
+    expense: m.expense || 0,
   }));
 
-  const incomeCategories = (report?.income_categories || []).map((c: any, _idx: number, arr: any[]) => ({
-    id: c.id,
-    name: c.name,
-    icon: c.icon || "💰",
+  // Category data (top_categories is the combined list now)
+  const expenseCategories = (report?.top_categories || []).map((c: any) => ({
+    id: c.category_name,
+    name: c.category_name,
+    icon: c.category_icon || "📌",
     amount: c.amount || 0,
-    count: c.count || 0,
-    percentage: arr.length > 0 ? ((c.amount || 0) / (arr.reduce((sum, cat) => sum + (cat.amount || 0), 0) || 1)) * 100 : 0,
+    count: 0,
+    percentage: c.percentage || 0,
   }));
+
+  const incomeCategories: typeof expenseCategories = [];
 
   // Fun fact data
   const totalDays = 365;
@@ -80,14 +69,14 @@ export default function AnnualReport() {
   // Record items
   const maxExpenseRecord = {
     label: "单笔最大支出",
-    value: `¥${(report?.max_expense || 0).toFixed(2)}`,
+    value: `¥${(report?.records?.max_expense?.amount || 0).toFixed(2)}`,
     icon: "💸",
-    desc: "",
+    desc: report?.records?.max_expense?.description || "",
   };
 
   const maxIncomeRecord = {
     label: "单笔最大收入",
-    value: `¥${(report?.max_income || 0).toFixed(2)}`,
+    value: "—",
     icon: "💰",
     desc: "",
   };

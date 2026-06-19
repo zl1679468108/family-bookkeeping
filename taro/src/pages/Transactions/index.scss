@@ -1,21 +1,18 @@
-/* ========== Transactions — 流水页 ========== */
-
 .txns-content {
   padding: 0;
   padding-top: env(safe-area-inset-top, 0);
-  padding-bottom: env(safe-area-inset-bottom, 0);
 }
 
 /* ========== 搜索框 ========== */
 .search-bar {
   display: flex;
   align-items: center;
-  margin: 24rpx 32rpx;
-  padding: 0 24rpx;
+  margin-bottom: 18rpx;
+  padding: 0 22rpx;
   height: 80rpx;
   background-color: var(--surface);
-  border-radius: var(--radius-md);
-  border: 2rpx solid var(--border);
+  border-radius: 24rpx;
+  border: 1rpx solid var(--border);
 }
 
 .search-input {
@@ -39,14 +36,14 @@
 .filter-scroll {
   display: flex;
   gap: 16rpx;
-  padding: 24rpx 32rpx 12rpx;
+  padding: 0 0 14rpx;
   overflow-x: auto;
 }
 
 .filter-chip {
   flex-shrink: 0;
   padding: 16rpx 28rpx;
-  background: #ffffff;
+  background: var(--surface);
   border-radius: 32rpx;
   font-size: 26rpx;
   font-weight: 500;
@@ -56,16 +53,15 @@
 }
 
 .filter-chip.active {
-  background: #2d9d8a;
+  background: var(--fg);
   color: #ffffff;
   font-weight: 600;
-  box-shadow: 0 4rpx 12rpx rgba(45, 157, 138, 0.2);
+  box-shadow: 0 4rpx 12rpx rgba(36, 49, 45, 0.18);
 }
 
 /* ========== 分类筛选 ========== */
 .category-filter {
-  padding: 16rpx 32rpx;
-  border-bottom: 1rpx solid var(--border-light);
+  padding: 6rpx 0 0;
 }
 
 .category-picker {
@@ -73,8 +69,9 @@
   align-items: center;
   gap: 8rpx;
   padding: 12rpx 20rpx;
-  background-color: var(--surface);
-  border-radius: var(--radius-sm);
+  background-color: var(--surface-soft);
+  border-radius: 22rpx;
+  border: 1rpx solid var(--border);
   width: fit-content;
 }
 
@@ -84,7 +81,7 @@
 }
 
 .category-arrow {
-  font-size: 20rpx;
+  font-size: 22rpx;
   color: var(--fg-3);
 }
 
@@ -93,9 +90,11 @@
   display: flex;
   align-items: center;
   justify-content: space-around;
-  padding: 24rpx 32rpx;
-  background-color: var(--surface);
-  border-bottom: 1rpx solid var(--border-light);
+  padding: 24rpx 24rpx;
+  background-color: var(--surface-soft);
+  border-radius: 28rpx;
+  border: 1rpx solid var(--border);
+  margin-bottom: 18rpx;
 }
 
 .stat-item {
@@ -130,22 +129,8 @@
 }
 
 /* ========== 交易列表容器 ========== */
-.section-card.txn-list {
-  padding: 12rpx 0 calc(12rpx + env(safe-area-inset-bottom, 0));
-}
-
-/* ========== 空状态 ========== */
-.empty-state {
-  padding: 80rpx 32rpx;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
-
-.empty-text {
-  font-size: 28rpx;
-  color: #a8adaa;
+.txns-metrics {
+  margin-bottom: 18rpx;
 }
 
 /* ========== 交易详情弹窗 ========== */
@@ -163,8 +148,8 @@
 
 .detail-dialog {
   width: 100%;
-  background-color: #ffffff;
-  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  background-color: var(--surface-soft);
+  border-radius: 32rpx 32rpx 0 0;
   max-height: 80vh;
   overflow: hidden;
 }
@@ -335,4 +320,120 @@
     color: var(--expense);
     border: 2rpx solid var(--expense);
   }
+}
+
+/* ========== 操作栏：批量选择 + 查看范围 ========== */
+.action-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16rpx 32rpx;
+  background-color: var(--surface);
+  border-bottom: 1rpx solid var(--border-light);
+}
+
+.action-scope,
+.action-batch {
+  padding: 8rpx 20rpx;
+  border-radius: 32rpx;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+.scope-tag,
+.batch-tag {
+  font-size: 24rpx;
+  font-weight: 600;
+  color: var(--fg-2);
+}
+
+.scope-tag.active,
+.batch-tag.active {
+  color: var(--primary);
+}
+
+/* ========== 批量操作栏 ========== */
+.batch-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16rpx 32rpx;
+  background-color: var(--primary-bg, rgba(45, 157, 138, 0.08));
+  border-bottom: 1rpx solid var(--border-light);
+}
+
+.batch-select-all {
+  padding: 8rpx 16rpx;
+}
+
+.batch-text {
+  font-size: 24rpx;
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.batch-info {
+  flex: 1;
+  text-align: center;
+}
+
+.batch-count {
+  font-size: 24rpx;
+  color: var(--fg-2);
+}
+
+.batch-delete {
+  padding: 12rpx 28rpx;
+  border-radius: 32rpx;
+  background-color: var(--expense);
+}
+
+.batch-delete.disabled {
+  background-color: #d1d5db;
+}
+
+.batch-delete-text {
+  font-size: 24rpx;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+/* ========== 批量选择列表项 ========== */
+.txn-item-with-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  padding: 12rpx 24rpx;
+  background-color: var(--surface);
+  border-bottom: 1rpx solid var(--border-light);
+
+  &.selected {
+    background-color: rgba(45, 157, 138, 0.06);
+  }
+}
+
+.txn-item-content {
+  flex: 1;
+}
+
+.checkbox {
+  width: 44rpx;
+  height: 44rpx;
+  border-radius: 50%;
+  border: 3rpx solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+
+  &.checked {
+    background-color: var(--primary);
+    border-color: var(--primary);
+  }
+}
+
+.checkbox-check {
+  font-size: 24rpx;
+  color: #ffffff;
+  font-weight: 700;
 }

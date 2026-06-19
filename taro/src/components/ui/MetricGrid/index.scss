@@ -1,0 +1,58 @@
+.metric-grid {
+  display: grid;
+  gap: 16rpx;
+  margin-bottom: 18rpx;
+}
+
+.metric-grid--2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.metric-grid--3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.metric-card {
+  min-width: 0;
+  padding: 24rpx;
+  border-radius: 26rpx;
+  border: 1rpx solid var(--border, #e0e2dd);
+  background: var(--surface-soft, #fafaf7);
+  box-shadow: 0 8rpx 24rpx rgba(36, 49, 45, 0.035);
+}
+
+.metric-card__label {
+  display: block;
+  font-size: 22rpx;
+  color: var(--fg-3, #8b8e89);
+  font-weight: 700;
+  margin-bottom: 10rpx;
+}
+
+.metric-card__value {
+  display: block;
+  font-size: 34rpx;
+  line-height: 1.15;
+  font-weight: 800;
+  color: var(--fg, #1a1c19);
+  word-break: break-all;
+}
+
+.metric-card__meta {
+  display: block;
+  margin-top: 8rpx;
+  font-size: 21rpx;
+  color: var(--fg-3, #8b8e89);
+}
+
+.metric-card--income .metric-card__value {
+  color: var(--income, #3ba272);
+}
+
+.metric-card--expense .metric-card__value {
+  color: var(--expense, #e06055);
+}
+
+.metric-card--accent .metric-card__value {
+  color: var(--accent, #c78f43);
+}
