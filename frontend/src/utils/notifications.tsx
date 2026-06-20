@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useMemo, useState } from 'react'
+import React, { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react'
 
 export type NotificationType = 'success' | 'error' | 'info'
 
@@ -34,18 +34,25 @@ export const notify = ({ type = 'info', message }: NotifyInput): void => {
 
 export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [notifications, setNotifications] = useState<NotificationItem[]>([])
+  // 存储所有未触发的定时器 ID，组件卸载时统一清理（F-M9）
+  const timersRef = useRef<Set<number>>(new Set())
 
   useEffect(() => {
     const handleAdd = (notification: NotificationItem) => {
       setNotifications((current) => [...current, notification])
-      window.setTimeout(() => {
+      const timerId = window.setTimeout(() => {
+        timersRef.current.delete(timerId)
         setNotifications((current) => current.filter((item) => item.id !== notification.id))
       }, 3000)
+      timersRef.current.add(timerId)
     }
 
     listeners.add(handleAdd)
     return () => {
       listeners.delete(handleAdd)
+      // 卸载时清理所有未触发的定时器
+      timersRef.current.forEach((id) => window.clearTimeout(id))
+      timersRef.current.clear()
     }
   }, [])
 

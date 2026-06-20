@@ -1,7 +1,7 @@
 export function formatAmount(amount: number | string, showSign = false, sign: '+' | '-' = '+'): string {
   const num = typeof amount === 'string' ? parseFloat(amount) : amount
-  
-  if (isNaN(num)) {
+
+  if (Number.isNaN(num)) {
     return '¥ 0.00'
   }
 
@@ -25,7 +25,7 @@ export function formatAmountWithType(amount: number | string, isIncome: boolean)
 export function formatDate(dateStr: string, mode: 'full' | 'dashboard' = 'full'): string {
   const date = new Date(dateStr.replace(' ', 'T'))
 
-  if (isNaN(date.getTime())) {
+  if (Number.isNaN(date.getTime())) {
     return dateStr
   }
 

@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
-import { startOfMonth, endOfMonth, format } from 'date-fns'
+import { startOfMonth, endOfMonth, format, parse } from 'date-fns'
 import { formatAmount } from '../../utils/common'
 import { getTransactions } from '../../services/api'
 import { fetchSummary } from '../../services/statisticsApi'
@@ -84,7 +84,7 @@ const Dashboard: React.FC = () => {
             <StatCard
               label="本月结余"
               value={formatAmount(summary?.balance || 0)}
-              sub={`共 ${recentTransactions.length} 笔`}
+              sub={`共 ${(summary?.incomeCount || 0) + (summary?.expenseCount || 0)} 笔`}
               variant="hero"
             />
             <StatCard
@@ -160,7 +160,7 @@ const Dashboard: React.FC = () => {
                   <div className="txn-info">
                     <div className="txn-title">{txn.description || '交易'}</div>
                     <div className="txn-meta">
-                      <span>{format(new Date(txn.date), 'MM-dd')}</span>
+                      <span>{format(parse(txn.date, 'yyyy-MM-dd', new Date()), 'MM-dd')}</span>
                     </div>
                   </div>
                   <div className={`txn-amount ${txn.type === 'expense' ? 'debit' : 'credit'}`}>

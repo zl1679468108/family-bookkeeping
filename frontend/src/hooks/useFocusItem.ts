@@ -122,7 +122,7 @@ export function useFocusItem(options: UseFocusItemOptions = {}) {
         pollTimerRef.current = null
       }
     }
-  }, [focusId, getSelector, clearAll, duration, scrollBehavior, scrollBlock, searchParams, setSearchParams])
+  }, [focusId, getSelector, clearAll, duration, scrollBehavior, scrollBlock, searchParams.toString(), setSearchParams])
 
   // 组件卸载时清理
   useEffect(() => {

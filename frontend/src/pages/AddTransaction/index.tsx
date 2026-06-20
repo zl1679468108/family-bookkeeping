@@ -17,9 +17,9 @@ const AddTransaction: React.FC = () => {
     showTemplateSelector, setShowTemplateSelector,
     ocrProcessing, canAddMore,
     templates, categoryOptions,
-    isSubmitting, fileInputRef,
+    isSubmitting, fileInputRef, ocrFileInputRef,
     handleSubmit, handleTemplateConfirm, handleLocationConfirm,
-    handleFileSelect, handleRemoveSavedImage, handleRemovePendingImage, handleClearAllImages, handleReset,
+    handleFileSelect, handleOcrSelect, handleRemoveSavedImage, handleRemovePendingImage, handleClearAllImages, handleReset,
   } = useTransactionForm()
 
   if (isEditMode && editLoading) {
@@ -57,7 +57,6 @@ const AddTransaction: React.FC = () => {
             pendingImages={pendingImages}
             allImageUrls={allImageUrls}
             canAddMore={canAddMore}
-            ocrProcessing={ocrProcessing}
             fileInputRef={fileInputRef}
             onFileSelect={handleFileSelect}
             onRemoveSaved={handleRemoveSavedImage}
@@ -103,12 +102,25 @@ const AddTransaction: React.FC = () => {
               <div className="sc-name">选择模板</div>
               <div className="sc-desc">一键填充表单</div>
             </div>
-            <div className="sc-item" onClick={() => fileInputRef.current?.click()}>
+            <div
+              className="sc-item"
+              onClick={() => ocrFileInputRef.current?.click()}
+              style={{ opacity: ocrProcessing ? 0.6 : 1, pointerEvents: ocrProcessing ? 'none' : 'auto' }}
+            >
               <div className="sc-icon">📷</div>
-              <div className="sc-name">OCR识别</div>
+              <div className="sc-name">{ocrProcessing ? '识别中...' : 'OCR识别'}</div>
               <div className="sc-desc">拍照识别票据</div>
             </div>
           </div>
+          {/* OCR 独立文件输入：单选，仅识别填充表单，不作为附件 */}
+          <input
+            ref={ocrFileInputRef}
+            type="file"
+            accept="image/*"
+            capture="environment"
+            style={{ display: 'none' }}
+            onChange={handleOcrSelect}
+          />
         </div>
       </div>
 

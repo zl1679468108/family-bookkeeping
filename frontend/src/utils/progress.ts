@@ -19,10 +19,14 @@ const activeTasks = new Set<string>()
 let state: ProgressState = { progress: 0, isVisible: false }
 let advanceTimer: number | null = null
 let hideTimer: number | null = null
+// 跟踪所有超时清理定时器，模块卸载/重置时可统一清理
+const timersRef = new Set<number>()
 
 const FAST_START_MS = 150
 const ADVANCE_INTERVAL_MS = 250
 const HIDE_DELAY_MS = 250
+// 请求超时自动清理：防止 trackRequest('start') 后因异常未调用 'end' 导致 pendingRequests 无限增长（F-L12）
+const REQUEST_TIMEOUT_MS = 120000
 
 const nextId = (): string => `${Date.now()}-${Math.random().toString(16).slice(2, 8)}`
 
@@ -109,6 +113,15 @@ export const getProgressState = (): ProgressState => ({ ...state })
 export const trackRequest = (id: string, action: 'start' | 'end'): void => {
   if (action === 'start') {
     pendingRequests.add(id)
+    // 超时自动清理，防止异常情况下 'end' 未被调用导致 pendingRequests 泄漏（F-L12）
+    const cleanupTimer = window.setTimeout(() => {
+      pendingRequests.delete(id)
+      timersRef.delete(cleanupTimer)
+      if (pendingRequests.size === 0 && activeTasks.size === 0) {
+        finish()
+      }
+    }, REQUEST_TIMEOUT_MS)
+    timersRef.add(cleanupTimer)
     if (!state.isVisible) {
       show()
     }

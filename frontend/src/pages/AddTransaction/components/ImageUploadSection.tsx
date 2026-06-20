@@ -7,7 +7,6 @@ interface ImageUploadSectionProps {
   pendingImages: PendingImage[]
   allImageUrls: string[]
   canAddMore: boolean
-  ocrProcessing: boolean
   fileInputRef: React.RefObject<HTMLInputElement>
   onFileSelect: (e: React.ChangeEvent<HTMLInputElement>) => void
   onRemoveSaved: (idx: number) => void
@@ -17,7 +16,7 @@ interface ImageUploadSectionProps {
 
 export const ImageUploadSection: React.FC<ImageUploadSectionProps> = ({
   savedImageUrls, pendingImages, allImageUrls, canAddMore,
-  ocrProcessing, fileInputRef, onFileSelect, onRemoveSaved, onRemovePending, onClearAll,
+  fileInputRef, onFileSelect, onRemoveSaved, onRemovePending, onClearAll,
 }) => {
   return (
     <div className="upload-section">
@@ -50,7 +49,6 @@ export const ImageUploadSection: React.FC<ImageUploadSectionProps> = ({
           </div>
         )}
       </div>
-      {ocrProcessing && <span className="upload-ocr-tip">OCR 识别中...</span>}
       <input
         ref={fileInputRef}
         type="file"

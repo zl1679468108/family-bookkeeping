@@ -20,9 +20,11 @@ import { plainToInstance } from 'class-transformer';
 import { TokenAuthGuard } from '../auth/token-auth.guard';
 import { CurrentUser } from '../auth/current-user.decorator';
 import { BookId } from '../books/book-id.decorator';
+import { FileValidationPipe } from '../common/pipes/file-validation.pipe';
 import { TransactionService, TransactionFilters } from './transaction.service';
 import { BatchTransactionDto, BatchOperation } from './dto/batch-transaction.dto';
-import { FileValidationPipe } from '../common/pipes/file-validation.pipe';
+import { CreateTransactionDto } from './dto/create-transaction.dto';
+import { UpdateTransactionDto } from './dto/update-transaction.dto';
 
 @Controller('transactions')
 @UseGuards(TokenAuthGuard)
@@ -88,7 +90,7 @@ export class TransactionController {
   async create(
     @CurrentUser('id') userId: string,
     @BookId() bookId: string | undefined,
-    @Body() transaction: any,
+    @Body() transaction: CreateTransactionDto,
   ) {
     const data = await this.transactionService.create(transaction, userId, bookId);
     return { message: '创建交易记录成功', data };
@@ -99,7 +101,7 @@ export class TransactionController {
     @CurrentUser('id') userId: string,
     @BookId() bookId: string | undefined,
     @Param('id') id: string,
-    @Body() transaction: any,
+    @Body() transaction: UpdateTransactionDto,
   ) {
     const data = await this.transactionService.update(+id, transaction, userId, bookId);
     return { message: '更新交易记录成功', data };

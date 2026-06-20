@@ -90,17 +90,17 @@ const Icons = {
 }
 
 const NAV_ITEMS = [
-  { id: 'dashboard', name: '首页', path: '/', type: 'normal' },
-  { id: 'transactions', name: '流水', path: '/transactions', type: 'normal' },
-  { id: 'add', name: '记一笔', path: '/add', type: 'add' },
-  { id: 'reports', name: '报表', path: '/reports', type: 'normal' },
-  { id: 'calendar', name: '日历', path: '/calendar', type: 'normal' },
-  { id: 'map', name: '地图', path: '/map', type: 'normal' },
-  { id: 'annual-report', name: '年报', path: '/annual-report', type: 'normal' },
-  { id: 'books', name: '账本', path: '/books', type: 'normal' },
-  { id: 'categories', name: '分类', path: '/categories', type: 'normal' },
-  { id: 'templates', name: '模板', path: '/templates', type: 'normal' },
-  { id: 'budgets', name: '预算', path: '/budgets', type: 'normal' },
+  { id: 'dashboard', name: '首页', path: '/', type: 'normal', group: 'main' as const },
+  { id: 'transactions', name: '流水', path: '/transactions', type: 'normal', group: 'main' as const },
+  { id: 'add', name: '记一笔', path: '/add', type: 'add', group: 'main' as const },
+  { id: 'reports', name: '报表', path: '/reports', type: 'normal', group: 'main' as const },
+  { id: 'calendar', name: '日历', path: '/calendar', type: 'normal', group: 'main' as const },
+  { id: 'map', name: '地图', path: '/map', type: 'normal', group: 'main' as const },
+  { id: 'annual-report', name: '年报', path: '/annual-report', type: 'normal', group: 'main' as const },
+  { id: 'books', name: '账本', path: '/books', type: 'normal', group: 'more' as const },
+  { id: 'categories', name: '分类', path: '/categories', type: 'normal', group: 'more' as const },
+  { id: 'templates', name: '模板', path: '/templates', type: 'normal', group: 'more' as const },
+  { id: 'budgets', name: '预算', path: '/budgets', type: 'normal', group: 'more' as const },
 ];
 
 const ADMIN_ITEMS = [
@@ -204,9 +204,9 @@ export const Sidebar: React.FC = () => {
 
       {/* 导航 */}
       <nav className="sidebar-nav">
-        {/* 主菜单 */}
+        {/* 主菜单：通过 group 字段筛选，避免硬编码切片（F-L8） */}
         {!collapsed && <div className="sidebar-nav-sep">主菜单</div>}
-        {NAV_ITEMS.slice(0, 7).map((item) => (
+        {NAV_ITEMS.filter((item) => item.group === 'main').map((item) => (
           <button key={item.id}
             className={`sidebar-nav-item${activeId === item.id ? ' active' : ''}${item.type === 'add' ? ' sidebar-nav-item--add' : ''}`}
             onClick={() => navigate(item.path)}
@@ -220,9 +220,9 @@ export const Sidebar: React.FC = () => {
             )}
           </button>
         ))}
-        {/* 更多 */}
+        {/* 更多：通过 group 字段筛选 */}
         {!collapsed && <div className="sidebar-nav-sep">更多</div>}
-        {NAV_ITEMS.slice(7).map((item) => (
+        {NAV_ITEMS.filter((item) => item.group === 'more').map((item) => (
           <button key={item.id}
             className={`sidebar-nav-item${activeId === item.id ? ' active' : ''}`}
             onClick={() => navigate(item.path)}
@@ -269,7 +269,11 @@ export const Sidebar: React.FC = () => {
           <button className="sidebar-user-btn" onClick={() => setMenuOpen(!menuOpen)}>
             <div className="sidebar-user-avatar">
               {user?.avatar_url ? (
-                <img src={user.avatar_url} alt="" />
+                <img
+                  src={user.avatar_url}
+                  alt=""
+                  onError={(e) => { e.currentTarget.style.display = 'none' }}
+                />
               ) : (
                 avatarChar
               )}
@@ -291,7 +295,11 @@ export const Sidebar: React.FC = () => {
             <div className="user-menu-header">
               <div className="user-menu-avatar">
                 {user?.avatar_url ? (
-                  <img src={user.avatar_url} alt="" />
+                  <img
+                    src={user.avatar_url}
+                    alt=""
+                    onError={(e) => { e.currentTarget.style.display = 'none' }}
+                  />
                 ) : (
                   avatarChar
                 )}
@@ -335,11 +343,13 @@ export const Sidebar: React.FC = () => {
         )}
       </div>
 
-      {/* 切换账号弹窗 */}
-      <SwitchAccountModal
-        visible={showSwitchModal}
-        onClose={() => setShowSwitchModal(false)}
-      />
+      {/* 切换账号弹窗：条件渲染避免不必要的初始化（F-L9） */}
+      {showSwitchModal && (
+        <SwitchAccountModal
+          visible={showSwitchModal}
+          onClose={() => setShowSwitchModal(false)}
+        />
+      )}
     </aside>
   )
 }

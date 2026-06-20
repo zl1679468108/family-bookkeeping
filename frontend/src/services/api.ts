@@ -488,18 +488,3 @@ export const setCurrentBook = async (bookId: string): Promise<{ book_id: string 
     requiresAuth: true,
   });
 }
-
-export const apiClient = {
-  post: async (url: string, data: unknown): Promise<unknown> => {
-    return request(url, { method: 'POST', body: data })
-  },
-  get: async (url: string): Promise<unknown> => {
-    return request(url, { requiresAuth: true })
-  },
-  put: async (url: string, data: unknown): Promise<unknown> => {
-    return request(url, { method: 'PUT', requiresAuth: true, body: data })
-  },
-  delete: async (url: string): Promise<unknown> => {
-    return request(url, { method: 'DELETE', requiresAuth: true })
-  },
-}

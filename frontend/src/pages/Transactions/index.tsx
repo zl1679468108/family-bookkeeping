@@ -1,11 +1,13 @@
 import React, { useState, useMemo } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
-import { startOfMonth, format } from 'date-fns'
+import { startOfMonth, format, parse } from 'date-fns'
 import { getTransactions, deleteTransaction } from '../../services/api'
 import { useCategoryLookup, useCategories } from '../../hooks/useCategories'
 import { renderCategoryIcon } from '../../utils/renderCategoryIcon'
 import type { DropdownOption } from '../../components/ui/Dropdown'
+import type { Transaction } from '../../services/api'
+import type { Category } from '../../types/category'
 import { useDebounce } from '../../hooks/useDebounce'
 import { useDebouncedAction } from '../../hooks/useDebouncedAction'
 import { useFocusItem } from '../../hooks/useFocusItem'
@@ -37,7 +39,7 @@ const Transactions: React.FC = () => {
   const monthStart = format(startOfMonth(today), 'yyyy-MM-dd')
   const todayStr = format(today, 'yyyy-MM-dd')
 
-  const { data: allCategories = [] }: any = useCategories()
+  const { data: allCategories = [] } = useCategories()
 
   const [typeFilter, setTypeFilter] = useState<string>(() => {
     const t = searchParams.get('type')
@@ -51,29 +53,47 @@ const Transactions: React.FC = () => {
 
   const categoryOptions: DropdownOption[] = useMemo(() => {
     return allCategories
-      .filter((c: any) => !typeFilter || c.type === typeFilter)
-      .map((c: any) => ({
+      .filter((c: Category) => !typeFilter || c.type === typeFilter)
+      .map((c: Category) => ({
         key: c.id,
         label: c.name,
         icon: renderCategoryIcon(c.icon, { size: 16 }),
       }))
   }, [typeFilter, allCategories])
 
+  // 过滤器变化时重置页码到第 1 页（F-M6）
   const handleTypeChange = (newType: string) => {
     setTypeFilter(newType)
+    setPage(1)
     if (categoryFilter && newType) {
-      const matched = allCategories.find((c: any) => c.id === categoryFilter)
+      const matched = allCategories.find((c: Category) => c.id === categoryFilter)
       if (matched && matched.type !== newType) {
         setCategoryFilter('')
       }
     }
   }
 
-  const [selectedTransaction, setSelectedTransaction] = useState<any>(null)
+  const handleCategoryChange = (key: string) => {
+    setCategoryFilter(key)
+    setPage(1)
+  }
+
+  const handleDateChange = (key: string) => {
+    setDateFilter(key)
+    setPage(1)
+  }
+
+  const handleSearchChange = (value: string) => {
+    setSearch(value)
+    setPage(1)
+  }
+
+  const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null)
   const [showDetail, setShowDetail] = useState(false)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
 
   const { run: handleDelete, isRunning: deleteLoading } = useDebouncedAction(async () => {
+    if (!selectedTransaction) return
     await deleteTransaction(selectedTransaction.id)
     queryClient.invalidateQueries({ queryKey: ['transactions'] })
     queryClient.invalidateQueries({ queryKey: ['statistics'] })
@@ -133,7 +153,7 @@ const Transactions: React.FC = () => {
             <>
               <SearchInput
                 value={search}
-                onChange={setSearch}
+                onChange={handleSearchChange}
                 placeholder="搜索描述/品牌..."
               />
 
@@ -148,14 +168,14 @@ const Transactions: React.FC = () => {
                 options={categoryOptions}
                 value={categoryFilter}
                 placeholder="全部分类"
-                onChange={(key) => setCategoryFilter(key)}
+                onChange={handleCategoryChange}
               />
 
               <DropdownSelect
                 options={dateOptions}
                 value={dateFilter}
                 placeholder="全部时间"
-                onChange={(key) => setDateFilter(key)}
+                onChange={handleDateChange}
               />
             </>
           }
@@ -231,9 +251,18 @@ const Transactions: React.FC = () => {
                       key={t.id}
                       data-focus={t.id}
                       onClick={() => { setSelectedTransaction(t); setShowDetail(true) }}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault()
+                          setSelectedTransaction(t)
+                          setShowDetail(true)
+                        }
+                      }}
+                      role="button"
+                      tabIndex={0}
                       style={{ cursor: 'pointer' }}
                     >
-                      <td>{format(new Date(t.date), 'yyyy-MM-dd')}</td>
+                      <td>{format(parse(t.date, 'yyyy-MM-dd', new Date()), 'yyyy-MM-dd')}</td>
                       <td><span className="cell-cat">{getCategoryIconNode(t.category, 16)} {getCategoryName(t.category)}</span></td>
                       <td>
                         {t.brand ? (
@@ -316,10 +345,8 @@ const Transactions: React.FC = () => {
             {selectedTransaction.latitude && selectedTransaction.longitude && (
               <DetailItem label="坐标" value={`${selectedTransaction.latitude}, ${selectedTransaction.longitude}`} />
             )}
-            {selectedTransaction.poi_id && <DetailItem label="商户 ID" value={selectedTransaction.poi_id} />}
-            {selectedTransaction.book_id && <DetailItem label="账本 ID" value={selectedTransaction.book_id} />}
             {selectedTransaction.created_at && (
-              <DetailItem label="创建时间" value={format(new Date(selectedTransaction.created_at), 'yyyy-MM-dd')} />
+              <DetailItem label="创建时间" value={format(parse(selectedTransaction.date, 'yyyy-MM-dd', new Date()), 'yyyy-MM-dd')} />
             )}
           </div>
 
@@ -355,7 +382,6 @@ const Transactions: React.FC = () => {
         type="confirm"
         open={showDeleteConfirm}
         title="确认删除"
-        children="确定要删除这笔交易吗？"
         onConfirm={handleDelete}
         onClose={() => {
           setShowDeleteConfirm(false)
@@ -363,7 +389,9 @@ const Transactions: React.FC = () => {
         loading={deleteLoading}
         confirmText="确认删除"
         confirmDanger
-      />
+      >
+        确定要删除这笔交易吗？
+      </GlobalModal>
     </div>
   )
 }

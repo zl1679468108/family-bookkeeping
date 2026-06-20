@@ -3,6 +3,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../utils/auth';
 import { setCurrentBook as setCurrentBookApi } from '../services/api';
 import { fetchBooks } from '../services/booksApi';
+import { notify } from '../utils/notifications';
 
 export interface Book {
   id: string;
@@ -26,18 +27,15 @@ interface BookContextType {
   refetchBooks: () => Promise<void>;
 }
 
-const BookContext = createContext<BookContextType>({
-  currentBook: null,
-  books: [],
-  switchBook: () => {},
-  loading: false,
-  isOwner: false,
-  setCurrentBookId: () => {},
-  hasBooks: false,
-  refetchBooks: async () => {},
-});
+const BookContext = createContext<BookContextType | undefined>(undefined);
 
-const useBook = () => useContext(BookContext);
+const useBook = () => {
+  const context = useContext(BookContext);
+  if (context === undefined) {
+    throw new Error('useBook must be used within a BookProvider');
+  }
+  return context;
+};
 export { useBook };
 
 export const BookProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -90,7 +88,9 @@ export const BookProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const switchBook = useCallback((book: Book | null) => {
     setCurrentBook(book);
     if (book?.id) {
-      setCurrentBookApi(book.id).catch((err) => console.error('设置当前账本失败', err));
+      setCurrentBookApi(book.id).catch(() => {
+        notify({ type: 'error', message: '设置当前账本失败，请重试' });
+      });
     }
     // 切换账本时刷新所有依赖账本 ID 的查询
     queryClient.invalidateQueries({ queryKey: ['transactions'] });

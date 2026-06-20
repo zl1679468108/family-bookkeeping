@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useCallback } from 'react';
+import React, { createContext, useContext, useCallback, useMemo } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   clearStoredToken,
@@ -10,6 +10,7 @@ import {
   request,
   storeToken,
   UserProfile,
+  ApiError,
 } from '../services/api';
 import { saveAccount, updateAccountInfo } from './savedAccounts';
 
@@ -31,7 +32,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // 登录后重置所有与用户相关的缓存：账本 / 交易 / 预算等
   const resetUserCache = useCallback(() => {
-    queryClient.clear();
+    queryClient.removeQueries({ queryKey: ['books'] });
+    queryClient.removeQueries({ queryKey: ['transactions'] });
+    queryClient.removeQueries({ queryKey: ['statistics'] });
+    queryClient.removeQueries({ queryKey: ['budgets'] });
+    queryClient.removeQueries({ queryKey: ['categories'] });
+    queryClient.removeQueries({ queryKey: ['templates'] });
+    queryClient.removeQueries({ queryKey: ['reports'] });
   }, [queryClient]);
 
   // 用 useQuery 管理 /auth/profile 请求，直接用 profileData 作为 user
@@ -47,15 +54,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
         return profile;
       } catch (error) {
-        // token 无效时清除
-        clearStoredToken();
-        return null;
+        // 仅 401 时清除 token；其他错误（503/504/网络）应抛出，让 React Query 处理重试
+        if (error instanceof ApiError && error.statusCode === 401) {
+          clearStoredToken();
+        }
+        throw error;
       }
     },
     enabled: hasToken(),
     staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
+    retry: (failureCount, error) => {
+      // 401 不 retry；其他错误最多 retry 2 次
+      if (error instanceof ApiError && error.statusCode === 401) return false;
+      return failureCount < 2;
+    },
   });
 
   // user 直接从 profileData 派生：
@@ -81,7 +95,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       // 与 signIn 保持一致：先清空所有缓存，再设置 profile 并 refetch
       // 避免 removeQueries 触发级联 refetch 时旧 token 残留导致 token 被清
-      queryClient.clear();
+      resetUserCache();
       queryClient.setQueryData(['auth', 'profile'], profile);
 
       // 切换成功：同步更新 savedAccounts 中该账号的 token、用户名、头像
@@ -96,7 +110,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } catch {
       // token 失效，清除并抛错
       clearStoredToken();
-      queryClient.removeQueries();
+      queryClient.removeQueries({ predicate: () => true });
       throw new Error('token_invalid');
     }
   };
@@ -112,8 +126,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signUp = async (email: string, password: string, username: string) => {
     const { user: userData, token } = await apiRegister(email, password, username);
-    storeToken(token);
-    saveAccount({ email, username: userData.username, avatar_url: userData.avatar_url });
+    storeToken(token.trim());
+    saveAccount({ email, token: token.trim(), username: userData.username, avatar_url: userData.avatar_url });
     resetUserCache();
     queryClient.setQueryData(['auth', 'profile'], userData);
     await refetch();
@@ -131,7 +145,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, [queryClient, resetUserCache]);
 
-  const value: AuthContextType = {
+  const value = useMemo<AuthContextType>(() => ({
     user,
     loading,
     signIn,
@@ -139,7 +153,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     signOut,
     refreshUser,
     switchByToken,
-  };
+  }), [user, loading, signIn, signUp, signOut, refreshUser, switchByToken]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

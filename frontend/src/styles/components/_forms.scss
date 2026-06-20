@@ -15,7 +15,8 @@
 .form-input,
 .form-select {
   width: 100%;
-  padding: 9px 12px;
+  height: 44px;
+  padding: 0 12px;
   border: 1px solid var(--bd);
   border-radius: var(--rs);
   background: var(--srf);
@@ -23,6 +24,7 @@
   font-family: var(--fn);
   color: var(--fg);
   transition: border-color var(--df);
+  box-sizing: border-box;
 }
 
 .form-input:focus,
@@ -33,10 +35,19 @@
 }
 
 .form-input.amt {
+  height: auto;
+  min-height: 64px;
   font-size: 24px;
   font-weight: 700;
   text-align: center;
   padding: 14px;
+}
+
+.form-input.textarea {
+  height: auto;
+  min-height: 80px;
+  padding: 10px 12px;
+  line-height: 1.6;
 }
 
 .form-row {

@@ -1,4 +1,4 @@
-import { useRef, useCallback, useMemo } from 'react'
+import { useState, useCallback } from 'react'
 
 /**
  * 异步操作防抖 hook —— 防止按钮重复点击导致重复调用 API
@@ -25,25 +25,23 @@ import { useRef, useCallback, useMemo } from 'react'
 export function useDebouncedAction<T extends any[], R>(
   fn: (...args: T) => Promise<R> | R,
 ) {
-  const isRunningRef = useRef(false)
+  const [isRunning, setIsRunning] = useState(false)
 
   const run = useCallback(
     async (...args: T): Promise<R | undefined> => {
-      if (isRunningRef.current) {
+      if (isRunning) {
         return undefined
       }
-      isRunningRef.current = true
+      setIsRunning(true)
       try {
         const result = await fn(...args)
         return result
       } finally {
-        isRunningRef.current = false
+        setIsRunning(false)
       }
     },
-    [fn],
+    [fn, isRunning],
   )
-
-  const isRunning = useMemo(() => isRunningRef.current, [])
 
   return { run, isRunning }
 }

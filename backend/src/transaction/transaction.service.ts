@@ -61,17 +61,18 @@ export class TransactionService {
 
   constructor(private supabaseService: SupabaseService) {}
 
-  /** 解析 image_urls 字段（支持 JSON 数组和逗号分隔字符串） */
+  /** 解析 image_urls 字段（支持 JSON 数组和逗号分隔字符串），并清理 URL 首尾可能存在的反引号/引号 */
   private parseImageUrls(imageUrls: string | null | undefined): string[] {
     if (!imageUrls) return [];
+    const clean = (s: any): string => String(s).trim().replace(/^[`'"\s]+|[`'"\s]+$/g, '');
     try {
       const parsed = JSON.parse(imageUrls);
       if (Array.isArray(parsed)) {
-        return parsed.map((p: any) => String(p));
+        return parsed.map(clean).filter(Boolean);
       }
     } catch {
       if (imageUrls.includes(',')) {
-        return imageUrls.split(',').map((s) => s.trim());
+        return imageUrls.split(',').map(clean).filter(Boolean);
       }
     }
     return [];
@@ -240,8 +241,9 @@ export class TransactionService {
 
     const { data, error } = await query.single();
 
+    // 统一返回 404，防止通过响应差异判断记录是否存在
     if (error || !data) {
-      throw new InternalServerErrorException(`获取交易记录失败: ${error?.message || '交易不存在'}`);
+      throw new NotFoundException('交易记录不存在');
     }
 
     // 权限检查：
@@ -259,7 +261,8 @@ export class TransactionService {
       }
     }
 
-    throw new ForbiddenException('无权访问此交易记录');
+    // 无权访问也统一返回 404，避免信息泄露
+    throw new NotFoundException('交易记录不存在');
   }
 
   async create(transaction: Partial<Transaction>, userId?: string, bookId?: string): Promise<Transaction> {

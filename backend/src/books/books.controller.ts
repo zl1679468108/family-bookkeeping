@@ -32,7 +32,10 @@ export class BooksController {
 
   /** GET /api/books/:id — 获取单个账本 */
   @Get(':id')
-  async getById(@Param('id') bookId: string) {
+  async getById(
+    @CurrentUser('id') userId: string,
+    @Param('id') bookId: string,
+  ) {
     const data = await this.booksService.getById(bookId);
     return { message: '获取账本详情成功', data };
   }

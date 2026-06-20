@@ -5,6 +5,7 @@ import { useDebouncedAction } from '../../../hooks/useDebouncedAction'
 import { useOnceEffect } from '../../../hooks/useOnceEffect'
 import AuthLayout from '../../../components/AuthLayout'
 import { LoginIllustration } from '../../../components/AuthLayout/AuthIllustrations'
+import { notify } from '../../../utils/notifications'
 import { getCaptcha } from '../../../services/api'
 
 const LoginPage: React.FC = () => {
@@ -40,8 +41,10 @@ const LoginPage: React.FC = () => {
       await signIn(email, password, captchaId, captchaCode)
       const redirect = searchParams.get('redirect') || '/'
       navigate(redirect)
-    } catch {
-      // 登录失败刷新验证码
+    } catch (error) {
+      // 登录失败：显示错误信息并刷新验证码（F-M8）
+      const message = error instanceof Error ? error.message : '登录失败，请重试'
+      notify({ type: 'error', message })
       refreshCaptcha()
     }
   })
@@ -100,11 +103,13 @@ const LoginPage: React.FC = () => {
               maxLength={4}
               autoComplete="off"
             />
-            <div
+            <img
               className="captcha-img"
+              src={captchaSvg ? `data:image/svg+xml;base64,${btoa(captchaSvg)}` : ''}
+              alt="验证码"
               onClick={refreshCaptcha}
               title="点击刷新验证码"
-              dangerouslySetInnerHTML={{ __html: captchaSvg }}
+              style={{ cursor: 'pointer', minHeight: 56 }}
             />
           </div>
         </div>

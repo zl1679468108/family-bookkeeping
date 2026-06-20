@@ -1,4 +1,4 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, ForbiddenException } from '@nestjs/common';
 import { SupabaseService } from '../supabase/supabase.service';
 import { MemberComparisonQueryDto } from './dto/member-comparison.dto';
 
@@ -387,6 +387,18 @@ export class StatisticsService {
     dto: MemberComparisonQueryDto,
   ): Promise<MemberComparisonItem[]> {
     const supabase = this.supabaseService.getClient();
+
+    // 权限校验：确认当前用户是目标账本的成员
+    const { data: membership } = await supabase
+      .from('book_members')
+      .select('id')
+      .eq('book_id', dto.book_id)
+      .eq('user_id', userId)
+      .single();
+
+    if (!membership) {
+      throw new ForbiddenException('无权访问该账本');
+    }
 
     // 日期转换: "2026-05" → "2026-05-01", "2026-07" → "2026-08-01" (左闭右开，含7月全月)
     const [fy, fm] = dto.month_from.split('-').map(Number);

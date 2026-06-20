@@ -24,6 +24,13 @@ export class ErrorBoundary extends React.Component<Props, State> {
     console.error('ErrorBoundary caught:', error, errorInfo);
   }
 
+  // 路由切换（children 变化）后重置错误状态，允许新组件重新尝试渲染
+  componentDidUpdate(prevProps: Props) {
+    if (prevProps.children !== this.props.children && this.state.hasError) {
+      this.setState({ hasError: false, error: null });
+    }
+  }
+
   render() {
     if (this.state.hasError) {
       if (this.props.fallback) {
@@ -48,10 +55,7 @@ export class ErrorBoundary extends React.Component<Props, State> {
             {this.state.error?.message || '未知错误'}
           </p>
           <button
-            onClick={() => {
-              this.setState({ hasError: false, error: null });
-              window.location.reload();
-            }}
+            onClick={() => this.setState({ hasError: false, error: null })}
             style={{
               padding: '8px 24px',
               borderRadius: '8px',
@@ -61,7 +65,7 @@ export class ErrorBoundary extends React.Component<Props, State> {
               fontSize: '14px',
             }}
           >
-            刷新页面
+            重试
           </button>
         </div>
       );
