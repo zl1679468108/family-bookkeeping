@@ -4,6 +4,8 @@ import { useQuery } from '@tanstack/react-query'
 import { startOfMonth, format } from 'date-fns'
 import { getTransactions, deleteTransaction } from '../../services/api'
 import { useCategoryLookup, useCategories } from '../../hooks/useCategories'
+import { renderCategoryIcon } from '../../utils/renderCategoryIcon'
+import type { DropdownOption } from '../../components/ui/Dropdown'
 import { useDebounce } from '../../hooks/useDebounce'
 import { useDebouncedAction } from '../../hooks/useDebouncedAction'
 import { useFocusItem } from '../../hooks/useFocusItem'
@@ -47,10 +49,14 @@ const Transactions: React.FC = () => {
   const [page, setPage] = useState(1)
   const debouncedSearch = useDebounce(search, 800)
 
-  const categoryOptions = useMemo(() => {
+  const categoryOptions: DropdownOption[] = useMemo(() => {
     return allCategories
       .filter((c: any) => !typeFilter || c.type === typeFilter)
-      .map((c: any) => ({ value: c.id, label: `${c.icon || ''} ${c.name}` }))
+      .map((c: any) => ({
+        key: c.id,
+        label: c.name,
+        icon: renderCategoryIcon(c.icon, { size: 16 }),
+      }))
   }, [typeFilter, allCategories])
 
   const handleTypeChange = (newType: string) => {
@@ -139,7 +145,7 @@ const Transactions: React.FC = () => {
               />
 
               <DropdownSelect
-                options={categoryOptions.map((opt: { value: string; label: string }) => ({ key: opt.value, label: opt.label }))}
+                options={categoryOptions}
                 value={categoryFilter}
                 placeholder="全部分类"
                 onChange={(key) => setCategoryFilter(key)}

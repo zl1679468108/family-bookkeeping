@@ -1,0 +1,22 @@
+.ui-switch {
+  width: 88rpx; height: 52rpx;
+  border-radius: 999rpx;
+  background: var(--bd);
+  position: relative;
+  transition: background var(--df) var(--ease);
+  flex-shrink: 0;
+
+  &--on { background: var(--pr); }
+  &--disabled { opacity: 0.5; }
+
+  &__thumb {
+    position: absolute;
+    top: 4rpx; left: 4rpx;
+    width: 44rpx; height: 44rpx;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: var(--sh1);
+    transition: transform var(--df) var(--ease);
+  }
+  &--on &__thumb { transform: translateX(36rpx); }
+}

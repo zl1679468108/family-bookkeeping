@@ -23,17 +23,8 @@ import { ChangePasswordDto } from './dto/change-password.dto';
 import { TokenAuthGuard } from './token-auth.guard';
 import { CaptchaService } from './captcha.service';
 import { RateLimitGuard } from './rate-limit.guard';
-
-class SendResetCodeDto {
-  email: string;
-}
-
-class ResetPasswordByCodeDto {
-  email: string;
-  code: string;
-  password: string;
-  confirmPassword: string;
-}
+import { SendResetCodeDto } from './dto/send-reset-code.dto';
+import { ResetPasswordByCodeDto } from './dto/reset-password-by-code.dto';
 
 @Controller('auth')
 export class AuthController {

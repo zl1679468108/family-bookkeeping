@@ -1,11 +1,13 @@
 import React from 'react'
+import { DropdownSelect } from '../../../components/ui/Dropdown'
 import { MAX_NOTE_LENGTH } from '../hooks/useTransactionForm'
 import type { FormData } from '../hooks/useTransactionForm'
+import type { DropdownOption } from '../../../components/ui/Dropdown'
 
 interface TransactionFormProps {
   formData: FormData
   setFormData: React.Dispatch<React.SetStateAction<FormData>>
-  categoryOptions: { value: string; label: string }[]
+  categoryOptions: DropdownOption[]
 }
 
 export const TransactionForm: React.FC<TransactionFormProps> = ({
@@ -47,16 +49,15 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({
       <div className="form-row">
         <div className="form-group">
           <label className="field-required">分类</label>
-          <select
-            className="form-select"
+          <DropdownSelect
+            label="分类"
+            options={categoryOptions}
             value={formData.category}
-            onChange={(e) => setFormData((prev) => ({ ...prev, category: e.target.value }))}
-          >
-            <option value="">选择分类</option>
-            {categoryOptions.map((cat) => (
-              <option key={cat.value} value={cat.value}>{cat.label}</option>
-            ))}
-          </select>
+            onChange={(key) => setFormData((prev) => ({ ...prev, category: key }))}
+            placeholder="选择分类"
+            required
+            width="100%"
+          />
         </div>
         <div className="form-group">
           <label className="field-required">日期</label>

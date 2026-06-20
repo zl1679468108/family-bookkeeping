@@ -1,0 +1,19 @@
+.ui-badge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: var(--rs);
+  font-weight: 500;
+  line-height: 1;
+
+  &--sm { padding: 4rpx 12rpx; font-size: 22rpx; }
+  &--md { padding: 8rpx 20rpx; font-size: 24rpx; }
+
+  &--default { background: var(--bdL); color: var(--fg2); }
+  &--primary { background: var(--prBg); color: var(--pr); }
+  &--income  { background: var(--incBg); color: var(--inc); }
+  &--expense { background: var(--expBg); color: var(--exp); }
+  &--warn    { background: var(--warnBg); color: var(--warn); }
+  &--info    { background: var(--infoBg); color: var(--info); }
+
+  &__text { font-size: inherit; }
+}

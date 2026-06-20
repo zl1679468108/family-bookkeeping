@@ -1,0 +1,28 @@
+.ui-card {
+  background: var(--srfSoft);
+  border: 2rpx solid var(--bdL);
+  border-radius: var(--rm);
+  box-shadow: var(--sh1);
+  box-sizing: border-box;
+  transition: box-shadow var(--df) var(--ease);
+  &--pressed { box-shadow: var(--sh2); }
+
+  &--pad-sm { padding: 24rpx; }
+  &--pad-md { padding: 40rpx; }
+  &--pad-lg { padding: 56rpx; }
+  &--pad-none { padding: 0; }
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 24rpx;
+    margin-bottom: 24rpx;
+    border-bottom: 2rpx solid var(--bdL);
+  }
+  &__header-text { display: flex; flex-direction: column; gap: 4rpx; }
+  &__title { font-size: 30rpx; font-weight: 600; color: var(--fg); }
+  &__subtitle { font-size: 24rpx; color: var(--fg3); }
+  &__action { display: flex; align-items: center; }
+  &__content { /* 透明容器，仅占位 */ }
+}

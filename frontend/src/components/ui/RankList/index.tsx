@@ -1,6 +1,5 @@
 import * as React from 'react'
 import { formatAmount } from '../../../utils/common'
-import { renderCategoryIcon } from '../../../utils/renderCategoryIcon'
 import './index.scss'
 
 /**
@@ -75,59 +74,6 @@ export const RankRow: React.FC<RankRowItem> = ({
         {status === 'danger' && progressPercent !== undefined && ' 超支!'}
         {meta && <span className="rank-row__extra">{meta}</span>}
       </div>
-    </div>
-  )
-}
-
-/**
- * 排行榜列表 —— 显示分类/成员排名，带金额占比进度条
- */
-export interface ReportRankItem {
-  id: string | number
-  icon?: React.ReactNode
-  label: React.ReactNode
-  amount: number
-  type: 'expense' | 'income'
-  tag?: string
-  onClick?: () => void
-}
-
-export const ReportRankList: React.FC<{
-  items: ReportRankItem[]
-  emptyText?: string
-}> = ({ items, emptyText = '暂无数据' }) => {
-  if (items.length === 0) {
-    return <div className="rank-list__empty">{emptyText}</div>
-  }
-
-  const total = items.reduce((s, d) => s + Number(d.amount), 0)
-
-  return (
-    <div className="report-rank-list">
-      {items.map((item) => {
-        const pct = total > 0 ? (item.amount / total) * 100 : 0
-        const colorVar = item.type === 'expense' ? 'var(--exp)' : 'var(--inc)'
-        return (
-          <div key={item.id} className="report-rank-item" onClick={item.onClick} style={item.onClick ? { cursor: 'pointer' } : undefined}>
-            <div className="report-rank-item__top">
-              <span className="report-rank-item__name">
-                {typeof item.icon === 'string' ? renderCategoryIcon(item.icon, { size: 16 }) : item.icon} {item.label}
-                {item.tag && (
-                  <span className="report-rank-item__tag" style={{ color: colorVar }}>
-                    {item.tag}
-                  </span>
-                )}
-              </span>
-              <span className="report-rank-item__amount" style={{ color: colorVar }}>
-                {formatAmount(item.amount)} · {pct.toFixed(1)}%
-              </span>
-            </div>
-            <div className="report-rank-item__bar">
-              <div style={{ height: '100%', width: `${pct}%`, background: colorVar, borderRadius: 2, transition: 'width 0.35s' }} />
-            </div>
-          </div>
-        )
-      })}
     </div>
   )
 }

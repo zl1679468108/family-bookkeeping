@@ -1,0 +1,70 @@
+.ui-input-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+  &--error .ui-input { border-color: var(--exp); }
+  /* number：row 包装，Input 左 + suffix 右 */
+  &--number {
+    flex-direction: row;
+    align-items: flex-end;
+    gap: 12rpx;
+    .ui-input-wrap { /* 内部 label 容器 */ }
+  }
+  /* search：柔色背景、无边框 */
+  &--search .ui-input {
+    background: var(--srfSoft);
+    border-color: transparent;
+  }
+}
+
+.ui-input__label {
+  font-size: 26rpx;
+  color: var(--fg2);
+  font-weight: 500;
+}
+.ui-input__required { color: var(--exp); margin-right: 4rpx; }
+
+.ui-input {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  height: 80rpx;
+  padding: 0 24rpx;
+  background: var(--srf);
+  border: 2rpx solid var(--bd);
+  border-radius: var(--rs);
+  transition: border-color var(--df) var(--ease);
+
+  &--focus { border-color: var(--pr); }
+  &--disabled { background: var(--bdL); opacity: 0.7; }
+
+  &__icon { display: flex; align-items: center; color: var(--fg3); }
+  &__field {
+    flex: 1;
+    font-size: 28rpx;
+    color: var(--fg);
+    min-height: 40rpx;
+  }
+  &__placeholder { color: var(--fg3); font-size: 28rpx; }
+  &__clear {
+    width: 36rpx; height: 36rpx;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--bd);
+    border-radius: 50%;
+  }
+  &__clear-icon { color: #fff; font-size: 24rpx; line-height: 1; }
+  &__search-icon { font-size: 28rpx; }
+  &__prefix { font-size: 28rpx; color: var(--fg2); }
+  &__error { font-size: 24rpx; color: var(--exp); }
+}
+
+/* number 包装下：Input 占满剩余宽度，suffix 行内右侧 */
+.ui-input-wrap--number {
+  .ui-input { flex: 1; }
+}
+.ui-input__suffix {
+  font-size: 28rpx;
+  color: var(--fg3);
+  padding-bottom: 20rpx;
+  white-space: nowrap;
+}

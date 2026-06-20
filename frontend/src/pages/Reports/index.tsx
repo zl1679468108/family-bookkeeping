@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react'
-import { format, parseISO } from 'date-fns'
+import { format } from 'date-fns'
 import { useBook } from '../../hooks/useBook'
 import { useMemberColors } from '../../hooks/useMemberColors'
 import { Card, CardHeader } from '../../components/ui/Card'
@@ -60,13 +60,13 @@ const Reports: React.FC = () => {
   }, [isDailyView, isMonthlyView, isMonthCompare, isYearCompare])
 
   const periodOptions = [
-    { value: PeriodType.Month, label: '本月' },
-    { value: PeriodType.ThreeMonth, label: '近 3 月' },
-    { value: PeriodType.SixMonth, label: '近 6 月' },
-    { value: PeriodType.Year, label: '近 1 年' },
-    { value: PeriodType.MonthCompare, label: '月对比' },
-    { value: PeriodType.YearCompare, label: '年对比' },
-  ] as const
+    { key: PeriodType.Month, label: '本月' },
+    { key: PeriodType.ThreeMonth, label: '近 3 月' },
+    { key: PeriodType.SixMonth, label: '近 6 月' },
+    { key: PeriodType.Year, label: '近 1 年' },
+    { key: PeriodType.MonthCompare, label: '月对比' },
+    { key: PeriodType.YearCompare, label: '年对比' },
+  ]
 
   return (
     <div className="page-container">
@@ -78,16 +78,15 @@ const Reports: React.FC = () => {
 
       {tab === 'analysis' && (
         <>
-          {/* 时间周期下拉框 */}
+          {/* 时间周期下拉框（默认本月） */}
           <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '14px' }}>
             {mainLoading ? (
               <Skeleton width="120px" height="32px" borderRadius="var(--rs)" />
             ) : (
               <DropdownSelect
-                options={periodOptions as unknown as { key: string; label: string }[]}
+                options={periodOptions}
                 value={period}
                 onChange={(k) => k && setPeriod(k as PeriodType)}
-                placeholder="选择时间周期"
               />
             )}
           </div>

@@ -1,0 +1,27 @@
+.ui-skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--bdL) 25%,
+    var(--srfH) 37%,
+    var(--bdL) 63%
+  );
+  background-size: 400% 100%;
+  animation: skeletonShimmer 1.4s ease infinite;
+}
+.ui-skeleton-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24rpx;
+}
+.ui-skeleton-stats {
+  display: flex;
+  gap: 16rpx;
+  &__item { flex: 1; }
+}
+.ui-skeleton-row {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+  padding: 24rpx 0;
+  &__text { flex: 1; }
+}

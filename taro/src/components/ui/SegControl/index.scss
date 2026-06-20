@@ -1,0 +1,40 @@
+.ui-seg {
+  display: inline-flex;
+  background: var(--bdL);
+  border-radius: var(--rs);
+  padding: 4rpx;
+  gap: 4rpx;
+
+  &--sm { .ui-seg__item { height: 52rpx; font-size: 24rpx; padding: 0 20rpx; } }
+  &--md { .ui-seg__item { height: 64rpx; font-size: 26rpx; padding: 0 28rpx; } }
+
+  &--pill {
+    background: transparent;
+    gap: 16rpx;
+    padding: 0;
+    .ui-seg__item {
+      border-radius: 999rpx;
+      &--active { background: var(--prBg); color: var(--pr); }
+    }
+  }
+
+  &__item {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8rpx;
+    border-radius: calc(var(--rs) - 4rpx);
+    color: var(--fg2);
+    transition: all var(--df) var(--ease);
+
+    &--active {
+      background: var(--srf);
+      color: var(--fg);
+      font-weight: 600;
+      box-shadow: var(--sh1);
+    }
+    &--pressed { opacity: 0.6; }
+  }
+  &__icon { display: flex; align-items: center; }
+  &__label { font-size: inherit; }
+}

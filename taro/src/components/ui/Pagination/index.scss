@@ -1,0 +1,20 @@
+.ui-pagination {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 24rpx 0;
+  gap: 16rpx;
+  &__info { font-size: 24rpx; color: var(--fg3); flex: 1; }
+  &__info-placeholder { flex: 1; }
+  &__btns { display: flex; gap: 16rpx; }
+  &__btn {
+    height: 60rpx;
+    padding: 0 24rpx;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: var(--rs);
+    background: var(--srf);
+    border: 2rpx solid var(--bd);
+    font-size: 24rpx; color: var(--fg2);
+    transition: opacity var(--df);
+    &--pressed { opacity: 0.7; }
+    &--disabled { opacity: 0.4; pointer-events: none; }
+  }
+}

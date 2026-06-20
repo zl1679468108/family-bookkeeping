@@ -5,7 +5,6 @@
 
 import { notify } from '../utils/notifications'
 import { trackRequest } from '../utils/progress'
-import type { BatchRequest, BatchResponse } from '../types/batch'
 
 const API_BASE = process.env.REACT_APP_API_BASE_URL || 'http://localhost:5000/api'
 
@@ -372,18 +371,6 @@ export const exportToPDF = async (filters?: TransactionFilters): Promise<void> =
 }
 
 /**
- * 批量操作交易 - P1-2
- * POST /api/transactions/batch
- */
-export const batchTransactions = async (data: BatchRequest): Promise<BatchResponse> => {
-  return request<BatchResponse>('/transactions/batch', {
-    method: 'POST',
-    requiresAuth: true,
-    body: data,
-  })
-}
-
-/**
  * 上传收据图片 - P2-1
  * POST /api/transactions/:id/receipt
  */
@@ -394,17 +381,6 @@ export const uploadReceipt = async (transactionId: number, file: Blob): Promise<
     method: 'POST',
     requiresAuth: true,
     body: formData,
-  });
-}
-
-/**
- * 删除收据图片 - P2-1
- * DELETE /api/transactions/:id/receipt
- */
-export const deleteReceipt = async (transactionId: number): Promise<void> => {
-  await request<null>(`/transactions/${transactionId}/receipt`, {
-    method: 'DELETE',
-    requiresAuth: true,
   });
 }
 

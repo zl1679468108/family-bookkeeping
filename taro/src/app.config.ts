@@ -18,6 +18,7 @@ export default defineAppConfig({
     "pages/TemplateManager/index",
     "pages/Calendar/index",
     "pages/Map/index",
+    "pages/_ui-demo/index",
   ],
   window: {
     backgroundTextStyle: "dark",

@@ -4,6 +4,7 @@
  */
 import { ReactNode } from "react";
 import { View, Text } from "@tarojs/components";
+import { Skeleton } from "../Skeleton";
 import "./index.scss";
 
 interface AppSectionProps {
@@ -16,6 +17,7 @@ interface AppSectionProps {
   bodyClassName?: string;
   compact?: boolean;
   flush?: boolean;
+  loading?: boolean;
 }
 
 export default function AppSection({
@@ -28,6 +30,7 @@ export default function AppSection({
   bodyClassName = "",
   compact = false,
   flush = false,
+  loading = false,
 }: AppSectionProps) {
   return (
     <View
@@ -48,7 +51,9 @@ export default function AppSection({
           ) : null}
         </View>
       )}
-      <View className={`app-section__body ${bodyClassName}`}>{children}</View>
+      <View className={`app-section__body ${bodyClassName}`}>
+        {loading ? <Skeleton height="200rpx" /> : children}
+      </View>
     </View>
   );
 }

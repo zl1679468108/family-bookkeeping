@@ -1,5 +1,6 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { SupabaseService } from '../supabase/supabase.service';
+import { UpsertBudgetDto } from './dto/upsert-budget.dto';
 
 export interface BudgetRecord {
   id: string;
@@ -38,11 +39,6 @@ export interface BudgetStatus {
   overallProgress: number;
   categories: BudgetCategoryStatus[];
   alerts: BudgetAlert[];
-}
-
-export interface UpsertBudgetDto {
-  month: string;
-  budgets: { category: string; amount: number }[];
 }
 
 @Injectable()

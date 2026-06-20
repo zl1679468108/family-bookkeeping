@@ -1,0 +1,40 @@
+.ui-drawer {
+  position: fixed; inset: 0;
+  display: flex; align-items: flex-end;
+  &__mask {
+    position: absolute; inset: 0;
+    background: var(--ov);
+    animation: fadeIn var(--df) var(--ease);
+  }
+  &__panel {
+    position: relative;
+    width: 100%;
+    max-height: 90vh;
+    background: var(--srf);
+    border-radius: var(--rl) var(--rl) 0 0;
+    padding-bottom: env(safe-area-inset-bottom);
+    box-shadow: var(--sh4);
+    animation: slideUp var(--dn) var(--ease);
+    display: flex; flex-direction: column;
+  }
+  &__handle {
+    width: 64rpx; height: 8rpx;
+    background: var(--bd);
+    border-radius: 999rpx;
+    margin: 16rpx auto 0;
+  }
+  &__header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 20rpx 32rpx;
+    border-bottom: 2rpx solid var(--bdL);
+  }
+  &__title { font-size: 30rpx; font-weight: 600; color: var(--fg); }
+  &__close {
+    width: 56rpx; height: 56rpx;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--bdL); border-radius: 50%;
+  }
+  &__close-icon { font-size: 36rpx; color: var(--fg2); line-height: 1; }
+  &__body { flex: 1; padding: 24rpx 32rpx; overflow: auto; }
+  &__footer { padding: 20rpx 32rpx 32rpx; border-top: 2rpx solid var(--bdL); }
+}

@@ -1,0 +1,79 @@
+.ui-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8rpx;
+  border-radius: var(--rs);
+  font-size: 28rpx;
+  font-weight: 500;
+  line-height: 1;
+  padding: 0 24rpx;
+  box-sizing: border-box;
+  transition: opacity var(--df) var(--ease), background var(--df) var(--ease);
+  user-select: none;
+
+  /* sizes */
+  &--sm { height: 56rpx; font-size: 24rpx; padding: 0 20rpx; }
+  &--md { height: 72rpx; font-size: 28rpx; padding: 0 28rpx; }
+  &--lg { height: 88rpx; font-size: 30rpx; padding: 0 36rpx; }
+
+  &--block { display: flex; width: 100%; }
+
+  /* variants */
+  &--default {
+    background: var(--srf);
+    color: var(--fg);
+    border: 2rpx solid var(--bd);
+  }
+  &--primary {
+    background: var(--pr);
+    color: #fff;
+  }
+  &--secondary {
+    background: var(--prBg);
+    color: var(--pr);
+  }
+  &--outline {
+    background: transparent;
+    color: var(--pr);
+    border: 2rpx solid var(--pr);
+  }
+  &--ghost {
+    background: transparent;
+    color: var(--fg2);
+  }
+  &--danger {
+    background: var(--exp);
+    color: #fff;
+  }
+
+  /* pressed（替代 hover） */
+  &--pressed { opacity: 0.82; }
+  &--primary.ui-btn--pressed,
+  &--danger.ui-btn--pressed { background: var(--prD); }
+
+  &--disabled,
+  &--loading {
+    opacity: 0.5;
+    pointer-events: none;
+  }
+
+  &__icon { display: flex; align-items: center; justify-content: center; }
+  &__label { font-size: inherit; }
+
+  /* loading spinner */
+  &__spinner {
+    width: 28rpx; height: 28rpx;
+    border: 3rpx solid rgba(255,255,255,0.4);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+  }
+  &--default &__spinner,
+  &--outline &__spinner,
+  &--ghost &__spinner,
+  &--secondary &__spinner {
+    border-color: rgba(45,157,138,0.3);
+    border-top-color: var(--pr);
+  }
+}

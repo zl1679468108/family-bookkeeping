@@ -1,0 +1,49 @@
+.ui-rank-row {
+  padding: 20rpx 0;
+  &--clickable { transition: background var(--df); }
+  &--pressed { background: var(--srfH); }
+  &__top { display: flex; align-items: center; gap: 16rpx; }
+  &__icon { flex-shrink: 0; }
+  &__label { flex: 1; font-size: 28rpx; color: var(--fg); }
+  &__amount-group { display: flex; flex-direction: column; align-items: flex-end; gap: 2rpx; }
+  &__total { font-size: 22rpx; color: var(--fg3); }
+  &__amount { font-size: 28rpx; font-weight: 600; color: var(--fg); font-family: var(--fm); }
+
+  &__bar {
+    height: 12rpx;
+    background: var(--bdL);
+    border-radius: 999rpx;
+    margin-top: 16rpx;
+    overflow: hidden;
+  }
+  &__bar-fill {
+    height: 100%;
+    background: var(--pr);
+    border-radius: 999rpx;
+    transition: width var(--ds) var(--ease);
+  }
+  &--income &__bar-fill { background: var(--inc); }
+  &--expense &__bar-fill { background: var(--exp); }
+  &--warn &__bar-fill { background: var(--warn); }
+  &--danger &__bar-fill { background: var(--exp); }
+
+  &__meta { display: block; font-size: 22rpx; color: var(--fg3); margin-top: 8rpx; }
+}
+
+.ui-rank-list {
+  &__row {
+    display: flex; align-items: center; gap: 16rpx;
+    padding: 20rpx 0;
+    border-bottom: 2rpx solid var(--bdL);
+  }
+  &__icon { flex-shrink: 0; }
+  &__main { flex: 1; display: flex; flex-direction: column; gap: 4rpx; }
+  &__label { font-size: 28rpx; color: var(--fg); }
+  &__tag { font-size: 20rpx; color: var(--fg3); }
+  &__amount { font-size: 28rpx; font-weight: 600; font-family: var(--fm); }
+  &__amount--income { color: var(--inc); }
+  &__amount--expense { color: var(--exp); }
+  &__amount--neutral { color: var(--fg); }
+}
+.ui-rank-empty { padding: 48rpx 0; text-align: center; }
+.ui-rank-empty__text { font-size: 26rpx; color: var(--fg3); }
