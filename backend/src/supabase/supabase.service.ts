@@ -138,7 +138,7 @@ export class SupabaseService implements OnModuleInit {
   async loadCategoryInfo(categoryIds: string[]): Promise<Map<string, { name: string; icon: string }>> {
     const client = this.getClient();
     const { data } = await client
-      .from('categories')
+      .from('jj_categories')
       .select('id, name, icon')
       .in('id', categoryIds);
 
@@ -159,7 +159,7 @@ export class SupabaseService implements OnModuleInit {
       await this.withRetry(
         async (client) => {
           const { error } = await client
-            .from('users')
+            .from('jj_users')
             .select('id', { head: true, count: 'exact' })
             .limit(0);
           if (error) throw error;

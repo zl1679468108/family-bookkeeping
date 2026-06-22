@@ -87,7 +87,7 @@ export class TransactionService {
   private async isBookOwner(userId: string, bookId: string): Promise<boolean> {
     const supabase = this.supabaseService.getClient();
     const { data, error } = await supabase
-      .from('book_members')
+      .from('jj_book_members')
       .select('role')
       .eq('book_id', bookId)
       .eq('user_id', userId)
@@ -124,7 +124,7 @@ export class TransactionService {
     const shouldViewAll = isOwner && filters?.view === 'all';
     
     let baseQuery = supabase
-      .from('transactions')
+      .from('jj_transactions')
       .select('*');
 
     if (shouldViewAll) {
@@ -179,7 +179,7 @@ export class TransactionService {
 
     // 先用独立的 head 查询获取精确 count（不受 range 影响）
     let countQuery = supabase
-      .from('transactions')
+      .from('jj_transactions')
       .select('*', { count: 'exact', head: true });
 
     if (shouldViewAll) {
@@ -235,7 +235,7 @@ export class TransactionService {
     
     // 首先查找交易记录（不限制 user_id）
     let query = supabase
-      .from('transactions')
+      .from('jj_transactions')
       .select('*')
       .eq('id', id);
 
@@ -294,7 +294,7 @@ export class TransactionService {
     }
 
     const { data, error } = await supabase
-      .from('transactions')
+      .from('jj_transactions')
       .insert([transactionData])
       .select()
       .single();
@@ -342,7 +342,7 @@ export class TransactionService {
     const isOwner = bookId ? await this.isBookOwner(userId, bookId) : false;
 
     let updateQuery = supabase
-      .from('transactions')
+      .from('jj_transactions')
       .update(updateData)
       .eq('id', id);
 
@@ -381,7 +381,7 @@ export class TransactionService {
     const isOwner = bookId ? await this.isBookOwner(userId, bookId) : false;
 
     let query = supabase
-      .from('transactions')
+      .from('jj_transactions')
       .delete()
       .eq('id', id);
 
@@ -419,7 +419,7 @@ export class TransactionService {
     // 1. 归属校验：确认所有 ids 属于当前用户（和指定账本）
     // 如果是 Owner，则只检查 book_id；否则检查 user_id
     let countQuery = supabase
-      .from('transactions')
+      .from('jj_transactions')
       .select('*', { count: 'exact', head: true });
 
     if (isOwner && bookId) {
@@ -461,7 +461,7 @@ export class TransactionService {
     let execQuery: any;
 
     if (operation === BatchOperation.DELETE) {
-      execQuery = supabase.from('transactions').delete();
+      execQuery = supabase.from('jj_transactions').delete();
     } else {
       const updateData: Record<string, any> = {};
 
@@ -481,7 +481,7 @@ export class TransactionService {
           break;
       }
 
-      execQuery = supabase.from('transactions').update(updateData);
+      execQuery = supabase.from('jj_transactions').update(updateData);
     }
 
     // 链式过滤
@@ -548,7 +548,7 @@ export class TransactionService {
     const mergedPaths = [...existingPaths, path];
 
     const { error: updateErr } = await supabase
-      .from('transactions')
+      .from('jj_transactions')
       .update({ image_urls: JSON.stringify(mergedPaths) })
       .eq('id', id);
 
@@ -587,7 +587,7 @@ export class TransactionService {
 
     // 清空 image_urls 字段
     const { error: updateErr } = await supabase
-      .from('transactions')
+      .from('jj_transactions')
       .update({ image_urls: null })
       .eq('id', id);
 

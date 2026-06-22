@@ -56,7 +56,7 @@ export class AuthService {
 
     // 检查邮箱是否已注册
     const { data: existingUser } = await supabase
-      .from('users')
+      .from('jj_users')
       .select('id')
       .eq('email', dto.email)
       .single();
@@ -70,7 +70,7 @@ export class AuthService {
 
     // 插入用户
     const { data: newUser, error } = await supabase
-      .from('users')
+      .from('jj_users')
       .insert({
         email: dto.email,
         username: dto.username,
@@ -117,7 +117,7 @@ export class AuthService {
     const supabase = this.supabaseService.getClient();
 
     const { data: user, error } = await supabase
-      .from('users')
+      .from('jj_users')
       .select('id, email, username, password_hash, avatar_url, current_book_id, role, status, created_at, updated_at')
       .eq('email', email)
       .single();
@@ -138,7 +138,7 @@ export class AuthService {
 
     // 登录成功后更新 users 表的 updated_at，并取最新记录返回
     const { data: updatedUser } = await supabase
-      .from('users')
+      .from('jj_users')
       .update({ updated_at: new Date().toISOString() })
       .eq('id', user.id)
       .select('*')
@@ -152,7 +152,7 @@ export class AuthService {
     const supabase = this.supabaseService.getClient();
 
     const { data: user, error } = await supabase
-      .from('users')
+      .from('jj_users')
       .select('id, email, username, avatar_url, role, status, created_at, current_book_id')
       .eq('id', id)
       .single();
@@ -168,7 +168,7 @@ export class AuthService {
     const supabase = this.supabaseService.getClient();
 
     const { data: user } = await supabase
-      .from('users')
+      .from('jj_users')
       .select('id')
       .eq('email', email)
       .single();
@@ -181,7 +181,7 @@ export class AuthService {
     const resetToken = this.tokenService.generateResetToken();
 
     const { error: resetInsertError } = await supabase
-      .from('password_resets')
+      .from('jj_password_resets')
       .insert({
         user_id: user.id,
         token: this.tokenService.hashToken(resetToken),
@@ -199,7 +199,7 @@ export class AuthService {
     const supabase = this.supabaseService.getClient();
     const tokenHash = this.tokenService.hashToken(token);
     const { data: resetRecords } = await supabase
-      .from('password_resets')
+      .from('jj_password_resets')
       .select('id, user_id, expires_at, used_at')
       .eq('token', tokenHash)
       .is('used_at', null)
@@ -215,7 +215,7 @@ export class AuthService {
     const passwordHash = await bcrypt.hash(newPassword, 10);
 
     const { error: userUpdateError } = await supabase
-      .from('users')
+      .from('jj_users')
       .update({ password_hash: passwordHash })
       .eq('id', resetRecord.user_id);
 
@@ -224,7 +224,7 @@ export class AuthService {
     }
 
     const { error: resetUpdateError } = await supabase
-      .from('password_resets')
+      .from('jj_password_resets')
       .update({ used_at: new Date().toISOString(), updated_at: new Date().toISOString() })
       .eq('id', resetRecord.id);
 
@@ -238,7 +238,7 @@ export class AuthService {
 
     if (dto.email) {
       const { data: existingUser } = await supabase
-        .from('users')
+        .from('jj_users')
         .select('id')
         .eq('email', dto.email)
         .neq('id', userId)
@@ -256,7 +256,7 @@ export class AuthService {
     if (dto.avatar_url !== undefined) updatePayload.avatar_url = dto.avatar_url;
 
     const { data: updatedUser, error } = await supabase
-      .from('users')
+      .from('jj_users')
       .update(updatePayload)
       .eq('id', userId)
       .select('id, email, username, avatar_url, created_at, updated_at')
@@ -273,7 +273,7 @@ export class AuthService {
     const supabase = this.supabaseService.getClient();
 
     const { data: user } = await supabase
-      .from('users')
+      .from('jj_users')
       .select('id')
       .eq('email', email)
       .single();
@@ -285,7 +285,7 @@ export class AuthService {
     const code = this.generateVerificationCode();
 
     const { data: existingReset } = await supabase
-      .from('password_resets')
+      .from('jj_password_resets')
       .select('id, created_at')
       .eq('user_id', user.id)
       .order('created_at', { ascending: false })
@@ -303,7 +303,7 @@ export class AuthService {
     const resetToken = this.tokenService.generateResetToken();
 
     await supabase
-      .from('password_resets')
+      .from('jj_password_resets')
       .insert({
         user_id: user.id,
         token: this.tokenService.hashToken(resetToken),
@@ -325,7 +325,7 @@ export class AuthService {
     }
 
     const { data: user } = await supabase
-      .from('users')
+      .from('jj_users')
       .select('id')
       .eq('email', trimmedEmail)
       .single();
@@ -335,7 +335,7 @@ export class AuthService {
     }
 
     const { data: resetRecords } = await supabase
-      .from('password_resets')
+      .from('jj_password_resets')
       .select('id, code, expires_at, used_at')
       .eq('user_id', user.id)
       .is('used_at', null)
@@ -356,7 +356,7 @@ export class AuthService {
     const passwordHash = await bcrypt.hash(newPassword, 10);
 
     const { error: userUpdateError } = await supabase
-      .from('users')
+      .from('jj_users')
       .update({ password_hash: passwordHash })
       .eq('id', user.id);
 
@@ -365,7 +365,7 @@ export class AuthService {
     }
 
     const { error: resetUpdateError } = await supabase
-      .from('password_resets')
+      .from('jj_password_resets')
       .update({ used_at: new Date().toISOString(), updated_at: new Date().toISOString() })
       .eq('id', resetRecord.id);
 
@@ -382,7 +382,7 @@ export class AuthService {
     }
 
     const { error } = await supabase
-      .from('user_sessions')
+      .from('jj_user_sessions')
       .delete()
       .eq('user_id', userId)
       .eq('token_hash', tokenHash);
@@ -414,7 +414,7 @@ export class AuthService {
     
     // 检查该 token 是否未过期
     const { data: existingSession } = await supabase
-      .from('user_sessions')
+      .from('jj_user_sessions')
       .select('id, expires_at')
       .eq('user_id', userId)
       .eq('token_hash', tokenHash)
@@ -425,7 +425,7 @@ export class AuthService {
       // token 未过期，更新过期时间并返回原 token
       const newExpiresAt = this.tokenService.getSessionExpiresAt();
       const { error: updateError } = await supabase
-        .from('user_sessions')
+        .from('jj_user_sessions')
         .update({ expires_at: newExpiresAt })
         .eq('id', existingSession.id);
       
@@ -445,7 +445,7 @@ export class AuthService {
     const token = this.tokenService.generateSessionToken();
     const tokenHash = this.tokenService.hashToken(token);
     const now = new Date();
-    const { error } = await supabase.from('user_sessions').insert({
+    const { error } = await supabase.from('jj_user_sessions').insert({
       user_id: userId,
       token_hash: tokenHash,
       created_at: now.toISOString(),
@@ -468,7 +468,7 @@ export class AuthService {
       { user_id: userId, name: '工资', icon: '💼', type: 'income', is_default: true, sort_order: 0 },
     ];
 
-    const { error } = await supabase.from('categories').insert(defaults);
+    const { error } = await supabase.from('jj_categories').insert(defaults);
 
     if (error) {
       this.logger.error(`创建默认分类失败 (user ${userId}): ${error.message}`);
@@ -483,7 +483,7 @@ export class AuthService {
     const supabase = this.supabaseService.getClient();
 
     const { data: user, error } = await supabase
-      .from('users')
+      .from('jj_users')
       .select('password_hash')
       .eq('id', userId)
       .single();
@@ -499,7 +499,7 @@ export class AuthService {
 
     const newHash = await bcrypt.hash(dto.newPassword, 10);
     const { error: updateError } = await supabase
-      .from('users')
+      .from('jj_users')
       .update({ password_hash: newHash })
       .eq('id', userId);
 
@@ -516,7 +516,7 @@ export class AuthService {
     const supabase = this.supabaseService.getClient();
 
     const { data: user, error } = await supabase
-      .from('users')
+      .from('jj_users')
       .select('password_hash')
       .eq('id', userId)
       .single();
@@ -534,7 +534,7 @@ export class AuthService {
 
     // 验证用户是否是账本成员
     const { data: member } = await supabase
-      .from('book_members')
+      .from('jj_book_members')
       .select('id')
       .eq('user_id', userId)
       .eq('book_id', bookId)
@@ -545,7 +545,7 @@ export class AuthService {
     }
 
     const { error } = await supabase
-      .from('users')
+      .from('jj_users')
       .update({ current_book_id: bookId })
       .eq('id', userId);
 

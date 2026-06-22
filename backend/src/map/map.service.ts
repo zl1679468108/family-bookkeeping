@@ -101,7 +101,7 @@ export class MapService {
       : baseFields;
 
     let dbQuery = supabase
-      .from('transactions')
+      .from('jj_transactions')
       .select(selectFields)
       .not('latitude', 'is', null)
       .not('longitude', 'is', null);
@@ -255,7 +255,7 @@ export class MapService {
 
       const userIdList = Array.from(allUserIds);
       const { data: usersData, error: usersError } = await supabase
-        .from('users')
+        .from('jj_users')
         .select('id, username')
         .in('id', userIdList);
 
@@ -305,7 +305,7 @@ export class MapService {
     const supabase = this.supabaseService.getClient();
 
     let dbQuery = supabase
-      .from('transactions')
+      .from('jj_transactions')
       .select('id, type, category, amount, date, description, latitude, longitude, location_name, poi_id')
       .eq('user_id', userId)
       .not('latitude', 'is', null)
@@ -349,8 +349,8 @@ export class MapService {
     const supabase = this.supabaseService.getClient();
 
     const { data, error } = await supabase
-      .from('book_members')
-      .select('user_id, role, joined_at, users(id, username)')
+      .from('jj_book_members')
+      .select('user_id, role, joined_at, jj_users(id, username)')
       .eq('book_id', bookId)
       .order('joined_at', { ascending: true });
 
@@ -376,7 +376,7 @@ export class MapService {
     if (!bookId) return null;
     const supabase = this.supabaseService.getClient();
     const { data, error } = await supabase
-      .from('member_locations')
+      .from('jj_member_locations')
       .upsert({
         book_id: bookId,
         user_id: userId,
@@ -398,8 +398,8 @@ export class MapService {
     if (!bookId) return [];
     const supabase = this.supabaseService.getClient();
     const { data, error } = await supabase
-      .from('member_locations')
-      .select('user_id, latitude, longitude, updated_at, is_sharing, users!inner(username, email)')
+      .from('jj_member_locations')
+      .select('user_id, latitude, longitude, updated_at, is_sharing, jj_users!inner(username, email)')
       .eq('book_id', bookId)
       .eq('is_sharing', true);
     if (error) {

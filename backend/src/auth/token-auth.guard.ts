@@ -39,7 +39,7 @@ export class TokenAuthGuard implements CanActivate {
     const now = new Date().toISOString();
 
     const { data: session, error } = await supabase
-      .from('user_sessions')
+      .from('jj_user_sessions')
       .select('user_id, expires_at')
       .eq('token_hash', tokenHash)
       .gt('expires_at', now)
@@ -50,7 +50,7 @@ export class TokenAuthGuard implements CanActivate {
     }
 
     const { data: user, error: userError } = await supabase
-      .from('users')
+      .from('jj_users')
       .select('id, email, username, role, status, created_at, current_book_id')
       .eq('id', session.user_id)
       .single();

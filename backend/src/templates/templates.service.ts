@@ -39,7 +39,7 @@ export class TemplatesService {
     const supabase = this.supabaseService.getClient();
 
     let query = supabase
-      .from('transaction_templates')
+      .from('jj_transaction_templates')
       .select('*')
       .eq('user_id', userId);
 
@@ -91,7 +91,7 @@ export class TemplatesService {
     insertData.book_id = dto.book_id ?? bookId ?? null;
 
     const { data, error } = await supabase
-      .from('transaction_templates')
+      .from('jj_transaction_templates')
       .insert(insertData)
       .select()
       .single();
@@ -134,7 +134,7 @@ export class TemplatesService {
     if (dto.sort_order !== undefined) updateData.sort_order = dto.sort_order;
 
     const { data, error } = await supabase
-      .from('transaction_templates')
+      .from('jj_transaction_templates')
       .update(updateData)
       .eq('id', id)
       .eq('user_id', userId)
@@ -160,7 +160,7 @@ export class TemplatesService {
     await this.findOwned(id, userId);
 
     const { error } = await supabase
-      .from('transaction_templates')
+      .from('jj_transaction_templates')
       .delete()
       .eq('id', id)
       .eq('user_id', userId);
@@ -224,7 +224,7 @@ export class TemplatesService {
 
     // 3. 插入 transactions 表
     const { data, error } = await supabase
-      .from('transactions')
+      .from('jj_transactions')
       .insert(transactionData)
       .select()
       .single();
@@ -247,7 +247,7 @@ export class TemplatesService {
 
     const updates = ids.map((id, i) =>
       supabase
-        .from('transaction_templates')
+        .from('jj_transaction_templates')
         .update({ sort_order: i })
         .eq('id', id)
         .eq('user_id', userId),
@@ -271,7 +271,7 @@ export class TemplatesService {
     const supabase = this.supabaseService.getClient();
 
     const { data, error } = await supabase
-      .from('transaction_templates')
+      .from('jj_transaction_templates')
       .select('*')
       .eq('id', id)
       .eq('user_id', userId)

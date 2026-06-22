@@ -24,26 +24,26 @@ export class AdminService {
       { count: totalTransactions },
       { data: recentUsers },
     ] = await Promise.all([
-      supabase.from('users').select('*', { count: 'exact', head: true }),
-      supabase.from('users').select('*', { count: 'exact', head: true }).eq('status', 'active'),
-      supabase.from('users').select('*', { count: 'exact', head: true }).eq('role', 'admin'),
-      supabase.from('books').select('*', { count: 'exact', head: true }),
-      supabase.from('transactions').select('*', { count: 'exact', head: true }),
-      supabase.from('users').select('id, email, username, role, status, created_at').order('created_at', { ascending: false }).limit(10),
+      supabase.from('jj_users').select('*', { count: 'exact', head: true }),
+      supabase.from('jj_users').select('*', { count: 'exact', head: true }).eq('status', 'active'),
+      supabase.from('jj_users').select('*', { count: 'exact', head: true }).eq('role', 'admin'),
+      supabase.from('jj_books').select('*', { count: 'exact', head: true }),
+      supabase.from('jj_transactions').select('*', { count: 'exact', head: true }),
+      supabase.from('jj_users').select('id, email, username, role, status, created_at').order('created_at', { ascending: false }).limit(10),
     ]);
 
     // 获取今日新增用户数
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const { count: newUsersToday } = await supabase
-      .from('users')
+      .from('jj_users')
       .select('*', { count: 'exact', head: true })
       .gte('created_at', today.toISOString());
 
     // 获取本月交易总额
     const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1).toISOString();
     const { data: monthTransactions } = await supabase
-      .from('transactions')
+      .from('jj_transactions')
       .select('amount, type')
       .gte('created_at', firstDayOfMonth);
 
@@ -84,7 +84,7 @@ export class AdminService {
     const offset = (page - 1) * pageSize;
 
     let query = supabase
-      .from('users')
+      .from('jj_users')
       .select('id, email, username, avatar_url, role, status, created_at', { count: 'exact' });
 
     if (filters.search) {
@@ -121,7 +121,7 @@ export class AdminService {
     const supabase = this.supabaseService.getClient();
 
     const { data: user, error } = await supabase
-      .from('users')
+      .from('jj_users')
       .select('id, email, username, role, status, avatar_url, created_at, updated_at')
       .eq('id', userId)
       .single();
@@ -136,10 +136,10 @@ export class AdminService {
       { count: bookCount },
       { data: recentTransactions },
     ] = await Promise.all([
-      supabase.from('transactions').select('*', { count: 'exact', head: true }).eq('user_id', userId),
-      supabase.from('book_members').select('*', { count: 'exact', head: true }).eq('user_id', userId),
+      supabase.from('jj_transactions').select('*', { count: 'exact', head: true }).eq('user_id', userId),
+      supabase.from('jj_book_members').select('*', { count: 'exact', head: true }).eq('user_id', userId),
       supabase
-        .from('transactions')
+        .from('jj_transactions')
         .select('id, amount, type, category, date, description, created_at')
         .eq('user_id', userId)
         .order('created_at', { ascending: false })
@@ -169,7 +169,7 @@ export class AdminService {
     const supabase = this.supabaseService.getClient();
 
     const { error } = await supabase
-      .from('users')
+      .from('jj_users')
       .update({ role: newRole, updated_at: new Date().toISOString() })
       .eq('id', targetUserId);
 
@@ -193,7 +193,7 @@ export class AdminService {
     const supabase = this.supabaseService.getClient();
 
     const { error } = await supabase
-      .from('users')
+      .from('jj_users')
       .update({ status: newStatus, updated_at: new Date().toISOString() })
       .eq('id', targetUserId);
 
@@ -223,13 +223,13 @@ export class AdminService {
     const offset = (page - 1) * pageSize;
 
     let query = supabase
-      .from('transactions')
+      .from('jj_transactions')
       .select(
         `
         id, amount, type, date, description, created_at, image_urls,
-        users (id, email, username),
-        categories (id, name, icon, type),
-        books (id, name)
+        jj_users (id, email, username),
+        jj_categories (id, name, icon, type),
+        jj_books (id, name)
       `,
         { count: 'exact' },
       );
@@ -304,7 +304,7 @@ export class AdminService {
     const supabase = this.supabaseService.getClient();
 
     const { data, count, error } = await supabase
-      .from('books')
+      .from('jj_books')
       .select('id, name, description, created_at', { count: 'exact' })
       .order('created_at', { ascending: false });
 

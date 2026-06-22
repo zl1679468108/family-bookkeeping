@@ -35,7 +35,7 @@ export class ExportService {
     }
 
     const supabase = this.supabaseService.getClient();
-    const { data } = await supabase.from('categories').select('id,name,icon');
+    const { data } = await supabase.from('jj_categories').select('id,name,icon');
     
     const map = new Map<string, { name: string; icon: string }>();
     (data || []).forEach((c: any) => {
@@ -321,7 +321,7 @@ export class ExportService {
   private async getTransactionData(filters?: TransactionFilters) {
     const supabase = this.supabaseService.getClient();
     let query = supabase
-      .from('transactions')
+      .from('jj_transactions')
       .select('*')
       .order('date', { ascending: false });
 

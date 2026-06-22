@@ -43,7 +43,7 @@ export class CategoriesService {
     const supabase = this.supabaseService.getClient();
 
     let query = supabase
-      .from('categories')
+      .from('jj_categories')
       .select('*')
       .eq('user_id', userId)
       .order('sort_order', { ascending: true })
@@ -74,7 +74,7 @@ export class CategoriesService {
 
     // 检查用户自己的分类中是否重名
     const { data: existing } = await supabase
-      .from('categories')
+      .from('jj_categories')
       .select('id')
       .eq('user_id', userId)
       .eq('name', dto.name)
@@ -89,7 +89,7 @@ export class CategoriesService {
     let iconUrl = dto.icon || '📌';
     if (dto.icon_id) {
       const { data: customIcon, error: iconError } = await supabase
-        .from('custom_icons')
+        .from('jj_custom_icons')
         .select('icon_url')
         .eq('id', dto.icon_id)
         .eq('user_id', userId)
@@ -102,7 +102,7 @@ export class CategoriesService {
     }
 
     const { data, error } = await supabase
-      .from('categories')
+      .from('jj_categories')
       .insert([{ user_id: userId, name: dto.name, icon: iconUrl, type: dto.type, is_default: false }])
       .select()
       .single();
@@ -125,7 +125,7 @@ export class CategoriesService {
     // 如果传的是 icon_id（自定义图标），需要转换为图标 URL
     if (dto.icon_id) {
       const { data: customIcon, error: iconError } = await supabase
-        .from('custom_icons')
+        .from('jj_custom_icons')
         .select('icon_url')
         .eq('id', dto.icon_id)
         .eq('user_id', userId)
@@ -145,7 +145,7 @@ export class CategoriesService {
     if (Object.keys(updateData).length === 0) return existing;
 
     const { data, error } = await supabase
-      .from('categories')
+      .from('jj_categories')
       .update(updateData)
       .eq('id', id)
       .eq('user_id', userId)
@@ -166,7 +166,7 @@ export class CategoriesService {
 
     const supabase = this.supabaseService.getClient();
     const { error } = await supabase
-      .from('categories')
+      .from('jj_categories')
       .delete()
       .eq('id', id)
       .eq('user_id', userId);
@@ -185,7 +185,7 @@ export class CategoriesService {
 
     const updates = orders.map((item) =>
       supabase
-        .from('categories')
+        .from('jj_categories')
         .update({ sort_order: item.sort_order })
         .eq('id', item.id)
         .eq('user_id', userId),
@@ -204,7 +204,7 @@ export class CategoriesService {
 
     // 先检查是否已有分类，避免重复创建
     const { count } = await supabase
-      .from('categories')
+      .from('jj_categories')
       .select('id', { count: 'exact', head: true })
       .eq('user_id', userId);
 
@@ -215,13 +215,13 @@ export class CategoriesService {
       user_id: userId,
     }));
 
-    await supabase.from('categories').insert(defaults);
+    await supabase.from('jj_categories').insert(defaults);
   }
 
   private async findById(id: string, userId: string): Promise<Category> {
     const supabase = this.supabaseService.getClient();
     const { data, error } = await supabase
-      .from('categories')
+      .from('jj_categories')
       .select('*')
       .eq('id', id)
       .eq('user_id', userId)

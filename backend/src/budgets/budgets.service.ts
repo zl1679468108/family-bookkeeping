@@ -63,7 +63,7 @@ export class BudgetsService {
     const supabase = this.supabaseService.getClient();
     const normalizedMonth = this.normalizeMonth(month);
     let query = supabase
-      .from('budgets')
+      .from('jj_budgets')
       .select('*')
       .eq('user_id', userId)
       .eq('month', normalizedMonth);
@@ -95,7 +95,7 @@ export class BudgetsService {
     }));
 
     const { data, error } = await supabase
-      .from('budgets')
+      .from('jj_budgets')
       .upsert(records, { onConflict: 'user_id,book_id,category,month' })
       .select();
 
@@ -208,7 +208,7 @@ export class BudgetsService {
     const endDate = `${y}-${String(m).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`;
 
     let query = supabase
-      .from('transactions')
+      .from('jj_transactions')
       .select('category, amount')
       .eq('user_id', userId)
       .eq('type', 'expense')

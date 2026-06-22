@@ -26,7 +26,7 @@ export class IconsService {
   ): Promise<CustomIcon[]> {
     const supabase = this.supabaseService.getClient();
     let query = supabase
-      .from('custom_icons')
+      .from('jj_custom_icons')
       .select('*')
       .eq('user_id', userId)
       .order('created_at', { ascending: false });
@@ -79,7 +79,7 @@ export class IconsService {
 
     // 保存记录到数据库
     const { data, error: dbError } = await supabase
-      .from('custom_icons')
+      .from('jj_custom_icons')
       .insert([{ user_id: userId, icon_url: publicUrl, icon_type: iconType }])
       .select()
       .single();
@@ -101,7 +101,7 @@ export class IconsService {
 
     // 先查询记录以获取文件路径
     const { data, error } = await supabase
-      .from('custom_icons')
+      .from('jj_custom_icons')
       .select('*')
       .eq('id', id)
       .eq('user_id', userId)
@@ -120,7 +120,7 @@ export class IconsService {
 
     // 删除数据库记录
     const { error: deleteError } = await supabase
-      .from('custom_icons')
+      .from('jj_custom_icons')
       .delete()
       .eq('id', id)
       .eq('user_id', userId);

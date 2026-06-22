@@ -53,7 +53,7 @@ export class BooksService {
     let iconUrl = icon || 'default';
     if (iconId) {
       const { data: customIcon, error: iconError } = await supabase
-        .from('custom_icons')
+        .from('jj_custom_icons')
         .select('icon_url')
         .eq('id', iconId)
         .eq('user_id', userId)
@@ -66,7 +66,7 @@ export class BooksService {
     }
 
     const { data: book, error } = await supabase
-      .from('books')
+      .from('jj_books')
       .insert({ name, owner_id: userId, description, icon: iconUrl })
       .select()
       .single();
@@ -76,7 +76,7 @@ export class BooksService {
     }
 
     // 自动将创建者添加为 owner 成员
-    await supabase.from('book_members').insert({
+    await supabase.from('jj_book_members').insert({
       book_id: book.id,
       user_id: userId,
       role: 'owner',
@@ -91,7 +91,7 @@ export class BooksService {
 
     // 查询用户作为成员的账本，同时获取角色
     const { data: memberBooks, error: memberError } = await supabase
-      .from('book_members')
+      .from('jj_book_members')
       .select('book_id, role')
       .eq('user_id', userId);
 
@@ -105,7 +105,7 @@ export class BooksService {
 
     const bookIds = memberBooks.map((m) => m.book_id);
     const { data, error } = await supabase
-      .from('books')
+      .from('jj_books')
       .select('*')
       .in('id', bookIds)
       .order('is_archived', { ascending: true })
@@ -117,7 +117,7 @@ export class BooksService {
 
     // 批量统计所有账本的交易笔数（单次查询）
     const { data: txnCounts, error: txnError } = await supabase
-      .from('transactions')
+      .from('jj_transactions')
       .select('book_id')
       .in('book_id', bookIds);
 
@@ -146,7 +146,7 @@ export class BooksService {
   async getById(bookId: string): Promise<Book> {
     const supabase = this.getClient();
     const { data, error } = await supabase
-      .from('books')
+      .from('jj_books')
       .select('*')
       .eq('id', bookId)
       .single();
@@ -177,7 +177,7 @@ export class BooksService {
     // 如果传的是 iconId（自定义图标），需要转换为图标 URL
     if (iconId) {
       const { data: customIcon, error: iconError } = await supabase
-        .from('custom_icons')
+        .from('jj_custom_icons')
         .select('icon_url')
         .eq('id', iconId)
         .eq('user_id', userId)
@@ -190,7 +190,7 @@ export class BooksService {
     }
 
     const { data, error } = await supabase
-      .from('books')
+      .from('jj_books')
       .update({ name, description, icon: iconUrl, updated_at: new Date().toISOString() })
       .eq('id', bookId)
       .select()
@@ -214,7 +214,7 @@ export class BooksService {
 
     // 先删除关联的账本成员记录
     const { error: memberError } = await supabase
-      .from('book_members')
+      .from('jj_book_members')
       .delete()
       .eq('book_id', bookId);
 
@@ -224,7 +224,7 @@ export class BooksService {
 
     // 再删除账本本身
     const { error } = await supabase
-      .from('books')
+      .from('jj_books')
       .delete()
       .eq('id', bookId);
 
@@ -237,8 +237,8 @@ export class BooksService {
   async getMembers(bookId: string): Promise<any[]> {
     const supabase = this.getClient();
     const { data, error } = await supabase
-      .from('book_members')
-      .select('id, book_id, user_id, role, joined_at, users(id, email, username)')
+      .from('jj_book_members')
+      .select('id, book_id, user_id, role, joined_at, jj_users(id, email, username)')
       .eq('book_id', bookId);
 
     if (error) {
@@ -263,7 +263,7 @@ export class BooksService {
 
     // 查询用户
     const { data: user } = await supabase
-      .from('users')
+      .from('jj_users')
       .select('id')
       .eq('email', email)
       .single();
@@ -274,7 +274,7 @@ export class BooksService {
 
     // 检查是否已经是成员
     const { data: existing } = await supabase
-      .from('book_members')
+      .from('jj_book_members')
       .select('id')
       .eq('book_id', bookId)
       .eq('user_id', user.id)
@@ -286,7 +286,7 @@ export class BooksService {
 
     // 添加成员
     const { data: member, error } = await supabase
-      .from('book_members')
+      .from('jj_book_members')
       .insert({
         book_id: bookId,
         user_id: user.id,
@@ -315,7 +315,7 @@ export class BooksService {
 
     const supabase = this.getClient();
     const { error } = await supabase
-      .from('book_members')
+      .from('jj_book_members')
       .delete()
       .eq('book_id', bookId)
       .eq('user_id', userId);
@@ -334,7 +334,7 @@ export class BooksService {
 
     const supabase = this.getClient();
     const { error } = await supabase
-      .from('book_members')
+      .from('jj_book_members')
       .delete()
       .eq('book_id', bookId)
       .eq('user_id', userId);
@@ -355,7 +355,7 @@ export class BooksService {
 
     // 查询新账主
     const { data: newOwner } = await supabase
-      .from('users')
+      .from('jj_users')
       .select('id')
       .eq('email', newOwnerEmail)
       .single();
@@ -366,7 +366,7 @@ export class BooksService {
 
     // 更新账主
     const { error: updateError } = await supabase
-      .from('books')
+      .from('jj_books')
       .update({ owner_id: newOwner.id, updated_at: new Date().toISOString() })
       .eq('id', bookId);
 
@@ -376,14 +376,14 @@ export class BooksService {
 
     // 更新原账主为普通成员
     await supabase
-      .from('book_members')
+      .from('jj_book_members')
       .update({ role: 'member' })
       .eq('book_id', bookId)
       .eq('user_id', currentOwnerId);
 
     // 更新新账主为 owner
     await supabase
-      .from('book_members')
+      .from('jj_book_members')
       .update({ role: 'owner' })
       .eq('book_id', bookId)
       .eq('user_id', newOwner.id);
@@ -398,7 +398,7 @@ export class BooksService {
 
     const supabase = this.getClient();
     const { error } = await supabase
-      .from('books')
+      .from('jj_books')
       .update({ is_archived: true, updated_at: new Date().toISOString() })
       .eq('id', bookId);
 
@@ -416,7 +416,7 @@ export class BooksService {
 
     const supabase = this.getClient();
     const { error } = await supabase
-      .from('books')
+      .from('jj_books')
       .update({ is_archived: false, updated_at: new Date().toISOString() })
       .eq('id', bookId);
 
@@ -437,7 +437,7 @@ export class BooksService {
 
     // 1. 查找该账本是否已有未过期、未使用的邀请码，有则直接返回
     const { data: existing } = await supabase
-      .from('book_invitations')
+      .from('jj_book_invitations')
       .select('code, expires_at')
       .eq('book_id', bookId)
       .gt('expires_at', now)
@@ -454,7 +454,7 @@ export class BooksService {
     const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
 
     const { data, error } = await supabase
-      .from('book_invitations')
+      .from('jj_book_invitations')
       .insert({
         book_id: bookId,
         code,
@@ -477,7 +477,7 @@ export class BooksService {
     const now = new Date().toISOString();
 
     const { data, error } = await supabase
-      .from('book_invitations')
+      .from('jj_book_invitations')
       .select('book_id, expires_at, used_at')
       .eq('code', code)
       .gt('expires_at', now)
@@ -506,7 +506,7 @@ export class BooksService {
 
     // 1. 查找有效邀请码
     const { data: invitation, error: inviteError } = await supabase
-      .from('book_invitations')
+      .from('jj_book_invitations')
       .select('id, book_id, expires_at, used_at, created_by')
       .eq('code', code)
       .gt('expires_at', now)
@@ -525,7 +525,7 @@ export class BooksService {
 
     // 3. 检查用户是否已经是成员
     const { data: existingMember } = await supabase
-      .from('book_members')
+      .from('jj_book_members')
       .select('role')
       .eq('book_id', invitation.book_id)
       .eq('user_id', userId)
@@ -542,7 +542,7 @@ export class BooksService {
 
     // 4. 添加为成员
     const { error: memberError } = await supabase
-      .from('book_members')
+      .from('jj_book_members')
       .insert({
         book_id: invitation.book_id,
         user_id: userId,
@@ -555,7 +555,7 @@ export class BooksService {
 
     // 5. 标记邀请码已使用
     await supabase
-      .from('book_invitations')
+      .from('jj_book_invitations')
       .update({ used_by: userId, used_at: now })
       .eq('id', invitation.id);
 
@@ -572,7 +572,7 @@ export class BooksService {
 
     const supabase = this.getClient();
     const { data, error } = await supabase
-      .from('books')
+      .from('jj_books')
       .update({ description, updated_at: new Date().toISOString() })
       .eq('id', bookId)
       .select()

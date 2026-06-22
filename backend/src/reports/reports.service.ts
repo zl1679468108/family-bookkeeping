@@ -92,7 +92,7 @@ export class ReportsService {
     if (bookId) {
       // 校验用户是否是该账本成员
       const { data: member } = await supabase
-        .from('book_members')
+        .from('jj_book_members')
         .select('id')
         .eq('book_id', bookId)
         .eq('user_id', userId)
@@ -105,7 +105,7 @@ export class ReportsService {
     } else {
       // 获取用户所有账本
       const { data: members } = await supabase
-        .from('book_members')
+        .from('jj_book_members')
         .select('book_id')
         .eq('user_id', userId);
 
@@ -117,7 +117,7 @@ export class ReportsService {
     const endDate = `${yearNum}-12-31`;
 
     let query = supabase
-      .from('transactions')
+      .from('jj_transactions')
       .select('id, amount, date, type, category, user_id, book_id, description, brand, location_name')
       .gte('date', startDate)
       .lte('date', endDate)
@@ -226,7 +226,7 @@ export class ReportsService {
     // 查询 categories 表获取真实名称和图标
     const categoryIds = Array.from(categoryMap.keys());
     const { data: categories } = await supabase
-      .from('categories')
+      .from('jj_categories')
       .select('id, name, icon')
       .in('id', categoryIds)
       .eq('user_id', userId);
@@ -337,7 +337,7 @@ export class ReportsService {
 
     // 获取账本名称
     const { data: books } = await supabase
-      .from('books')
+      .from('jj_books')
       .select('id, name')
       .in('id', bookIds);
 
@@ -387,7 +387,7 @@ export class ReportsService {
     // 获取成员昵称（从 users 表）
     const userIds = Array.from(memberMap.keys());
     const { data: users } = await supabase
-      .from('users')
+      .from('jj_users')
       .select('id, username')
       .in('id', userIds);
 
@@ -420,7 +420,7 @@ export class ReportsService {
 
     // 查询分类表，找到"餐饮"类别的 UUID
     const { data: categories } = await supabase
-      .from('categories')
+      .from('jj_categories')
       .select('id, name')
       .eq('user_id', userId);
 

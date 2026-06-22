@@ -99,7 +99,7 @@ export class StatisticsService {
   ): Promise<Transaction[]> {
     const supabase = this.supabaseService.getClient();
     let query = supabase
-      .from('transactions')
+      .from('jj_transactions')
       .select('id, amount, date, type, category, user_id, book_id')
       .eq('user_id', userId)
       .gte('date', startDate)
@@ -390,7 +390,7 @@ export class StatisticsService {
 
     // 权限校验：确认当前用户是目标账本的成员
     const { data: membership } = await supabase
-      .from('book_members')
+      .from('jj_book_members')
       .select('id')
       .eq('book_id', dto.book_id)
       .eq('user_id', userId)
@@ -410,7 +410,7 @@ export class StatisticsService {
 
     // 1. 查询指定账本下的所有支出交易
     const { data: transactions, error } = await supabase
-      .from('transactions')
+      .from('jj_transactions')
       .select('*')
       .eq('book_id', dto.book_id)
       .eq('type', 'expense')
@@ -498,7 +498,7 @@ export class StatisticsService {
     }
     const supabase = this.supabaseService.getClient();
     const { data } = await supabase
-      .from('users')
+      .from('jj_users')
       .select('id, username')
       .in('id', userIds);
 
