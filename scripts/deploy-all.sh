@@ -23,17 +23,19 @@ npm run build:prod
 
 echo -e "${GREEN}=== 2/4 部署后端到 CloudRun ===${NC}"
 cd "$PROJECT_ROOT"
-npx mcporter call --stdio 'npx' --stdio-arg '@cloudbase/cloudbase-mcp@latest' --cwd "$PROJECT_ROOT" \
-  manageCloudRun --args "{\"action\":\"deploy\",\"serverName\":\"$SERVICE_NAME\",\"targetPath\":\"backend\"}"
+echo "No" | tcb cloudrun deploy \
+  --serviceName "$SERVICE_NAME" \
+  --port 3000 \
+  --source "$PROJECT_ROOT/backend" \
+  --force
 
 echo -e "${GREEN}=== 3/4 构建前端 ===${NC}"
 cd "$PROJECT_ROOT/frontend"
 npm run build:prod
 
 echo -e "${GREEN}=== 4/4 部署前端到静态托管 ===${NC}"
-cd "$PROJECT_ROOT"
-npx mcporter call --stdio 'npx' --stdio-arg '@cloudbase/cloudbase-mcp@latest' --cwd "$PROJECT_ROOT" \
-  manageHosting --args '{"action":"upload","localPath":"frontend/build","cloudPath":"/","ignore":["**/*.map"]}'
+cd "$PROJECT_ROOT/frontend"
+tcb hosting deploy ./build --env-id "$ENV_ID" --yes
 
 echo ""
 echo -e "${GREEN}=== 部署完成 ===${NC}"

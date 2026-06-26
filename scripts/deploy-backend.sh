@@ -18,7 +18,7 @@ echo "📦 2/3 部署到 CloudBase Run..."
 echo "No" | tcb cloudrun deploy \
   --serviceName "$SERVICE_NAME" \
   --port 3000 \
-  --source "$PROJECT_ROOT" \
+  --source "$PROJECT_ROOT/backend" \
   --force
 
 echo "✅ 3/3 部署完成！"

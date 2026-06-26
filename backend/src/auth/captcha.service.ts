@@ -1,33 +1,14 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { createHmac, randomBytes } from 'crypto';
 import * as svgCaptcha from 'svg-captcha';
-
-interface CaptchaData {
-  text: string;
-  svg: string;
-  expiresAt: number;
-  attempts: number;
-}
 
 @Injectable()
 export class CaptchaService {
-  // 内存存储验证码，key 为 captchaId
-  private captchaStore = new Map<string, CaptchaData>();
-
   // 验证码有效期：5 分钟
   private readonly CAPTCHA_TTL = 5 * 60 * 1000;
 
-  // 最大尝试次数
-  private readonly MAX_ATTEMPTS = 5;
-
-  // 定时清理过期验证码
-  private cleanupInterval: NodeJS.Timeout;
-
-  constructor() {
-    // 每 10 分钟清理一次过期数据
-    this.cleanupInterval = setInterval(() => {
-      this.cleanup();
-    }, 10 * 60 * 1000);
-  }
+  constructor(private readonly configService: ConfigService) {}
 
   /**
    * 生成验证码
@@ -46,15 +27,12 @@ export class CaptchaService {
       charPreset: 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789', // 大写+数字，更易辨识
     });
 
-    const captchaId = this.generateId();
-    const expiresAt = Date.now() + this.CAPTCHA_TTL;
-
-    this.captchaStore.set(captchaId, {
+    const payload = {
       text: captcha.text.toLowerCase(),
-      svg: captcha.data,
-      expiresAt,
-      attempts: 0,
-    });
+      exp: Date.now() + this.CAPTCHA_TTL,
+      nonce: randomBytes(8).toString('hex'),
+    };
+    const captchaId = this.signPayload(payload);
 
     return { captchaId, svg: captcha.data };
   }
@@ -70,55 +48,55 @@ export class CaptchaService {
       throw new BadRequestException('请输入验证码');
     }
 
-    const captcha = this.captchaStore.get(captchaId);
-
-    if (!captcha) {
+    const payload = this.verifyPayload(captchaId);
+    if (!payload) {
       throw new BadRequestException('验证码已过期，请刷新');
     }
 
-    // 检查是否过期
-    if (Date.now() > captcha.expiresAt) {
-      this.captchaStore.delete(captchaId);
+    if (Date.now() > payload.exp) {
       throw new BadRequestException('验证码已过期，请刷新');
     }
 
-    // 检查尝试次数
-    captcha.attempts++;
-    if (captcha.attempts > this.MAX_ATTEMPTS) {
-      this.captchaStore.delete(captchaId);
-      throw new BadRequestException('验证码尝试次数过多，请刷新');
-    }
-
-    // 校验验证码（不区分大小写）
-    const isValid = captcha.text === code.toLowerCase().trim();
-
-    if (isValid) {
-      // 验证成功，删除验证码（一次性使用）
-      this.captchaStore.delete(captchaId);
-    } else {
-      // 更新尝试次数
-      this.captchaStore.set(captchaId, captcha);
-    }
-
-    return isValid;
+    return payload.text === code.toLowerCase().trim();
   }
 
-  /**
-   * 生成唯一 ID
-   */
-  private generateId(): string {
-    return `${Date.now()}-${Math.random().toString(36).substring(2, 15)}`;
+  private getSecret(): string {
+    return (
+      this.configService.get<string>('CAPTCHA_SECRET') ||
+      this.configService.get<string>('JWT_SECRET') ||
+      'family-bookkeeping-captcha-secret'
+    );
   }
 
-  /**
-   * 清理过期验证码
-   */
-  private cleanup(): void {
-    const now = Date.now();
-    for (const [id, captcha] of this.captchaStore.entries()) {
-      if (now > captcha.expiresAt) {
-        this.captchaStore.delete(id);
+  private signPayload(payload: { text: string; exp: number; nonce: string }): string {
+    const body = Buffer.from(JSON.stringify(payload)).toString('base64url');
+    const sig = createHmac('sha256', this.getSecret()).update(body).digest('base64url');
+    return `${body}.${sig}`;
+  }
+
+  private verifyPayload(captchaId: string): { text: string; exp: number; nonce: string } | null {
+    const [body, sig] = captchaId.split('.');
+    if (!body || !sig) {
+      return null;
+    }
+
+    const expectedSig = createHmac('sha256', this.getSecret()).update(body).digest('base64url');
+    if (sig !== expectedSig) {
+      return null;
+    }
+
+    try {
+      const payload = JSON.parse(Buffer.from(body, 'base64url').toString('utf8')) as {
+        text: string;
+        exp: number;
+        nonce: string;
+      };
+      if (!payload?.text || typeof payload.exp !== 'number') {
+        return null;
       }
+      return payload;
+    } catch {
+      return null;
     }
   }
 }

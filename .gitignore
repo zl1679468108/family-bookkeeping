@@ -37,6 +37,7 @@ _local_env_backup/
 .cache/
 .temp/
 .tmp/
+cloudbaserc.json
 
 # 测试覆盖率
 coverage/
