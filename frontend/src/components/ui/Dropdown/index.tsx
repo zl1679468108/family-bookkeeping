@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react'
+import React, { useState, useRef, useEffect, useCallback } from 'react'
 import './index.scss'
 
 /**
@@ -55,6 +55,7 @@ export const DropdownSelect: React.FC<DropdownSelectProps> = ({
   const containerRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLButtonElement>(null)
   const searchInputRef = useRef<HTMLInputElement>(null)
+  const panelRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (value !== undefined) setInternalValue(value)
@@ -79,6 +80,29 @@ export const DropdownSelect: React.FC<DropdownSelectProps> = ({
       setSearchKeyword('')
     }
   }, [open, showSearch])
+
+  // 打开且有选中值时，自动滚动到选中项在面板中间（参考图1→图2效果）
+  useEffect(() => {
+    if (!open) return
+    const hasValue = internalValue !== null && internalValue !== ''
+    if (!hasValue) return
+    // 等 DOM 渲染完成后再滚动（+100ms 确保面板已展开）
+    const timer = setTimeout(() => {
+      const panel = panelRef.current
+      if (!panel) return
+      const activeEl = panel.querySelector('.dd-select__item.is-active') as HTMLElement | null
+      if (!activeEl) return
+      const panelRect = panel.getBoundingClientRect()
+      const itemRect = activeEl.getBoundingClientRect()
+      // 计算选中项相对于面板可滚动区域的偏移
+      const panelScrollTop = panel.scrollTop
+      const panelHeight = panel.clientHeight
+      const itemCenter = itemRect.top - panelRect.top + panelScrollTop + itemRect.height / 2
+      const targetScroll = itemCenter - panelHeight / 2
+      panel.scrollTo({ top: Math.max(0, targetScroll), behavior: 'smooth' })
+    }, 100)
+    return () => clearTimeout(timer)
+  }, [open, internalValue])
 
   const currentOption = options.find((o) => o.key === internalValue)
   const hasValue = internalValue !== null && internalValue !== ''
@@ -128,7 +152,7 @@ export const DropdownSelect: React.FC<DropdownSelectProps> = ({
       </button>
 
       {open && (
-        <div className={`dd-select__panel dd-select__panel--${align}`} role="listbox">
+        <div ref={panelRef} className={`dd-select__panel dd-select__panel--${align}`} role="listbox">
           {showSearch && (
             <div className="dd-select__search">
               <input

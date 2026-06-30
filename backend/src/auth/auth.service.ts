@@ -302,7 +302,7 @@ export class AuthService {
 
     const resetToken = this.tokenService.generateResetToken();
 
-    await supabase
+    const { error: insertError } = await supabase
       .from('jj_password_resets')
       .insert({
         user_id: user.id,
@@ -310,6 +310,10 @@ export class AuthService {
         code: code,
         expires_at: this.tokenService.getResetCodeExpiresAt(),
       });
+
+    if (insertError) {
+      throw new InternalServerErrorException('验证码保存失败');
+    }
 
     await this.mailService.sendVerificationCodeEmail(email, code);
   }

@@ -1,4 +1,4 @@
-import { IsString, IsOptional, MaxLength } from 'class-validator';
+import { IsString, IsOptional, MaxLength, IsEmail, IsNotEmpty } from 'class-validator';
 
 export class CreateBookDto {
   @IsString()
@@ -22,6 +22,7 @@ export class CreateBookDto {
 
 export class InviteMemberDto {
   @IsString()
+  @IsEmail()
   email: string;
 }
 
@@ -44,4 +45,23 @@ export class UpdateBookDto {
   @IsOptional()
   @IsString()
   icon_id?: string;
+}
+
+/** B-M15: DTO for transfer owner */
+export class TransferOwnerDto {
+  @IsString()
+  @IsEmail()
+  @IsNotEmpty()
+  newOwnerEmail: string;
+
+  @IsString()
+  @IsNotEmpty()
+  password: string;
+}
+
+/** B-M15: DTO for update description */
+export class UpdateDescriptionDto {
+  @IsString()
+  @IsNotEmpty()
+  description: string;
 }

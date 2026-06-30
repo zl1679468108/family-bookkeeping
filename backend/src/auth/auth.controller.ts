@@ -11,6 +11,8 @@ import {
   Req,
 } from '@nestjs/common';
 import { Request } from 'express';
+import { IsString, IsNotEmpty, IsUUID } from 'class-validator';
+import { Type } from 'class-transformer';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { SwitchAccountDto } from './dto/switch-account.dto';
@@ -25,6 +27,14 @@ import { CaptchaService } from './captcha.service';
 import { RateLimitGuard } from './rate-limit.guard';
 import { SendResetCodeDto } from './dto/send-reset-code.dto';
 import { ResetPasswordByCodeDto } from './dto/reset-password-by-code.dto';
+
+/** B-M2: DTO for setCurrentBook */
+class SetCurrentBookDto {
+  @IsString()
+  @IsNotEmpty()
+  @IsUUID()
+  book_id: string;
+}
 
 @Controller('auth')
 export class AuthController {
@@ -141,9 +151,9 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   async setCurrentBook(
     @CurrentUser() user: { id: string },
-    @Body('book_id') bookId: string,
+    @Body() dto: SetCurrentBookDto,
   ) {
-    await this.authService.setCurrentBook(user.id, bookId);
-    return { message: '设置当前账本成功', data: { book_id: bookId } };
+    await this.authService.setCurrentBook(user.id, dto.book_id);
+    return { message: '设置当前账本成功', data: { book_id: dto.book_id } };
   }
 }

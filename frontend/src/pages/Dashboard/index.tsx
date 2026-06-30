@@ -118,7 +118,7 @@ const Dashboard: React.FC = () => {
         {/* 左侧 - 最近交易 */}
         <Card>
           <CardHeader
-            title={recentLoading ? <Skeleton width="70px" height="14px" /> : "最近交易"}
+            title={recentLoading ? <Skeleton width="70px" height="14px" /> : "本月最近交易"}
           />
           {recentLoading ? (
             <div className="txn-list">

@@ -13,7 +13,7 @@ import { TokenAuthGuard } from '../auth/token-auth.guard';
 import { CurrentUser } from '../auth/current-user.decorator';
 import { BooksService } from './books.service';
 import { AuthService } from '../auth/auth.service';
-import { CreateBookDto, InviteMemberDto, UpdateBookDto } from './dto/book.dto';
+import { CreateBookDto, InviteMemberDto, UpdateBookDto, TransferOwnerDto, UpdateDescriptionDto } from './dto/book.dto';
 
 @Controller('books')
 @UseGuards(TokenAuthGuard)
@@ -67,7 +67,7 @@ export class BooksController {
     @Param('id') bookId: string,
     @Body() dto: UpdateBookDto,
   ) {
-    const data = await this.booksService.update(bookId, userId, dto.name!, dto.description, dto.icon, dto.icon_id);
+    const data = await this.booksService.update(bookId, userId, dto.name, dto.description, dto.icon, dto.icon_id);
     return { message: '更新成功', data };
   }
 
@@ -77,8 +77,8 @@ export class BooksController {
     @CurrentUser('id') userId: string,
     @Param('id') bookId: string,
   ) {
-    const data = await this.booksService.delete(bookId, userId);
-    return data;
+    await this.booksService.delete(bookId, userId);
+    return { message: '删除账本成功', data: null };
   }
 
   /** GET /api/books/:id/members — 获取账本成员 */
@@ -125,14 +125,14 @@ export class BooksController {
   async transferOwner(
     @CurrentUser('id') currentOwnerId: string,
     @Param('id') bookId: string,
-    @Body() body: { newOwnerEmail: string; password: string },
+    @Body() dto: TransferOwnerDto,
   ) {
     // 先验证当前用户密码
-    const isPasswordValid = await this.authService.validatePassword(currentOwnerId, body.password);
+    const isPasswordValid = await this.authService.validatePassword(currentOwnerId, dto.password);
     if (!isPasswordValid) {
       throw new UnauthorizedException('密码错误，无法转让所有权');
     }
-    await this.booksService.transferOwner(bookId, currentOwnerId, body.newOwnerEmail);
+    await this.booksService.transferOwner(bookId, currentOwnerId, dto.newOwnerEmail);
     return { message: '所有权转让成功' };
   }
 
@@ -161,9 +161,9 @@ export class BooksController {
   async updateDescription(
     @CurrentUser('id') userId: string,
     @Param('id') bookId: string,
-    @Body() body: { description: string },
+    @Body() dto: UpdateDescriptionDto,
   ) {
-    const data = await this.booksService.updateDescription(bookId, userId, body.description);
+    const data = await this.booksService.updateDescription(bookId, userId, dto.description);
     return { message: '描述已更新', data };
   }
 

@@ -1,4 +1,4 @@
-import { Injectable, CanActivate, ExecutionContext, HttpException, HttpStatus } from '@nestjs/common';
+import { Injectable, CanActivate, ExecutionContext, HttpException, HttpStatus, OnModuleDestroy } from '@nestjs/common';
 
 interface RateLimitEntry {
   count: number;
@@ -6,14 +6,15 @@ interface RateLimitEntry {
 }
 
 @Injectable()
-export class RateLimitGuard implements CanActivate {
+export class RateLimitGuard implements CanActivate, OnModuleDestroy {
   private store = new Map<string, RateLimitEntry>();
+  private cleanupInterval: ReturnType<typeof setInterval> | null = null;
 
   constructor(
     private readonly windowMs: number = 60_000,
     private readonly max: number = 10,
   ) {
-    setInterval(() => this.cleanup(), 60_000);
+    this.cleanupInterval = setInterval(() => this.cleanup(), 60_000);
   }
 
   private cleanup() {
@@ -25,7 +26,12 @@ export class RateLimitGuard implements CanActivate {
 
   private getKey(context: ExecutionContext): string {
     const req = context.switchToHttp().getRequest();
-    return `${req.ip}:${req.route?.path || req.url}`;
+    // 使用 x-forwarded-for 获取真实 IP（B-H9: 反向代理后 req.ip 可能是 127.0.0.1）
+    const forwarded = req.headers['x-forwarded-for'];
+    const ip = typeof forwarded === 'string'
+      ? forwarded.split(',')[0].trim()
+      : req.ip;
+    return `${ip}:${req.route?.path || req.url}`;
   }
 
   canActivate(context: ExecutionContext): boolean {
@@ -48,5 +54,12 @@ export class RateLimitGuard implements CanActivate {
 
     entry.count++;
     return true;
+  }
+
+  onModuleDestroy() {
+    if (this.cleanupInterval) {
+      clearInterval(this.cleanupInterval);
+      this.cleanupInterval = null;
+    }
   }
 }

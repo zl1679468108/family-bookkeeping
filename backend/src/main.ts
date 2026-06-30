@@ -47,6 +47,14 @@ async function bootstrap() {
   app.useGlobalInterceptors(new ResponseInterceptor());
   app.useGlobalFilters(new HttpExceptionFilter());
 
+  // 启用关闭钩子（B-L2: Graceful Shutdown）
+  app.enableShutdownHooks();
+
+  // 健康检查端点（B-L1）
+  app.getHttpAdapter().getInstance().get('/health', (_req: any, res: any) => {
+    res.status(200).json({ status: 'ok', uptime: process.uptime() });
+  });
+
   // 获取端口配置
   const port = configService.get<number>('PORT') || 3000;
 

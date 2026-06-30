@@ -32,8 +32,9 @@ export class AdminService {
       supabase.from('jj_users').select('id, email, username, role, status, created_at').order('created_at', { ascending: false }).limit(10),
     ]);
 
-    // 获取今日新增用户数
-    const today = new Date();
+    // 获取今日新增用户数（B-H6: 使用北京时间计算"今日"）
+    const shanghaiTime = new Date().toLocaleString('en-US', { timeZone: 'Asia/Shanghai' });
+    const today = new Date(shanghaiTime);
     today.setHours(0, 0, 0, 0);
     const { count: newUsersToday } = await supabase
       .from('jj_users')

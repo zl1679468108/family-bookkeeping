@@ -72,14 +72,14 @@ export default function Home() {
     // 等待认证状态初始化完成，且已登录才请求
     if (loading) return;
     if (!user) return;
-    loadData().catch(() => {});
+    loadData().catch(() => { });
   }, [loading, user, loadData]);
 
   const handleRefresh = useCallback(() => {
     return new Promise<void>((resolve) => {
       setRefreshing(true);
       loadData()
-        .catch(() => {})
+        .catch(() => { })
         .finally(() => {
           setRefreshing(false);
           resolve();
@@ -106,96 +106,96 @@ export default function Home() {
 
   return (
     <>
-    <PageLayout
-      contentClassName="home-content"
-      onRefresh={handleRefresh}
-      refreshing={refreshing}
-    >
-      <PageHero
-        eyebrow="家庭记账"
-        title="本月结余"
-        value={`¥ ${fmtAmount(balance)}`}
-        meta={`${txn.length} 笔交易 · ${income >= expense ? "保持顺差" : "需要控制支出"}`}
-      />
-
-      <MetricGrid items={metricItems} className="home-metrics" />
-
-      {budgets.length > 0 && (
-        <AppSection
-          title="预算进度"
-          actionText="管理 ›"
-          onAction={() => Taro.navigateTo({ url: "/pages/Budgets/index" })}
-        >
-          <View className="budget-list">
-            {budgets.slice(0, 4).map((budget) => (
-              <View key={budget.category_id} className="budget-item">
-                <View className="budget-info">
-                  <Text className="budget-name">{budget.category_name}</Text>
-                  <Text className={`budget-amount ${budget.is_over_budget ? "over" : ""}`}>
-                    ¥{fmtAmount(budget.spent_amount)} / ¥{fmtAmount(budget.budget_amount)}
-                  </Text>
-                </View>
-                <View className="budget-bar-wrap">
-                  <View
-                    className={`budget-bar ${budget.is_over_budget ? "over" : ""}`}
-                    style={{ width: `${Math.min(budget.percentage, 100)}%` }}
-                  />
-                </View>
-                <Text className={`budget-percentage ${budget.is_over_budget ? "over" : ""}`}>
-                  {(budget.percentage ?? 0).toFixed(0)}%
-                </Text>
-              </View>
-            ))}
-          </View>
-        </AppSection>
-      )}
-
-      <AppSection
-        title="最近交易"
-        actionText="全部 ›"
-        onAction={() => Taro.switchTab({ url: "/pages/Transactions/index" })}
-        flush
+      <PageLayout
+        contentClassName="home-content"
+        onRefresh={handleRefresh}
+        refreshing={refreshing}
       >
-        {txn.length === 0 ? (
-          <View className="empty-state">
-            <Text className="empty-text">暂无交易记录</Text>
-          </View>
-        ) : (
-          <View>
-            {txn.map((t: any) => {
-              const catName = getCategoryName(t.category) || "其他";
-              const catIcon = getCategoryIcon(t.category) || "📌";
-              const amt = t.amount;
-              return (
-                <View
-                  key={t.id}
-                  className="txn-row"
-                  onClick={() => {
-                    Taro.setStorageSync("edit_tx_id", t.id);
-                    Taro.navigateTo({ url: "/pages/AddTransaction/index" });
-                  }}
-                >
-                  <View className="txn-icon">
-                    {renderCategoryIcon(catIcon, { size: 40 })}
+        <PageHero
+          eyebrow="家庭记账"
+          title="本月结余"
+          value={`¥ ${fmtAmount(balance)}`}
+          meta={`${txn.length} 笔交易 · ${income >= expense ? "保持顺差" : "需要控制支出"}`}
+        />
+
+        <MetricGrid items={metricItems} className="home-metrics" />
+
+        {budgets.length > 0 && (
+          <AppSection
+            title="预算进度"
+            actionText="管理 ›"
+            onAction={() => Taro.navigateTo({ url: "/pages/Budgets/index" })}
+          >
+            <View className="budget-list">
+              {budgets.slice(0, 4).map((budget) => (
+                <View key={budget.category_id} className="budget-item">
+                  <View className="budget-info">
+                    <Text className="budget-name">{budget.category_name}</Text>
+                    <Text className={`budget-amount ${budget.is_over_budget ? "over" : ""}`}>
+                      ¥{fmtAmount(budget.spent_amount)} / ¥{fmtAmount(budget.budget_amount)}
+                    </Text>
                   </View>
-                  <View className="txn-info">
-                    <Text className="txn-title">{t.description || catName}</Text>
-                    <Text className="txn-meta">{catName} · {(t.date || "").slice(5)}</Text>
+                  <View className="budget-bar-wrap">
+                    <View
+                      className={`budget-bar ${budget.is_over_budget ? "over" : ""}`}
+                      style={{ width: `${Math.min(budget.percentage, 100)}%` }}
+                    />
                   </View>
-                  <Text className={`txn-amount ${t.type === "expense" ? "debit" : "credit"}`}>
-                    {t.type === "expense" ? "-" : "+"}¥{fmtAmount(amt)}
+                  <Text className={`budget-percentage ${budget.is_over_budget ? "over" : ""}`}>
+                    {(budget.percentage ?? 0).toFixed(0)}%
                   </Text>
                 </View>
-              );
-            })}
-          </View>
+              ))}
+            </View>
+          </AppSection>
         )}
-      </AppSection>
 
-      <AppSection title="快捷记账" compact>
-        <View className="cat-grid">
-          {quickCats.map((c: any) => (
-            <View
+        <AppSection
+          title="最近交易"
+          actionText="全部 ›"
+          onAction={() => Taro.switchTab({ url: "/pages/Transactions/index" })}
+          flush
+        >
+          {txn.length === 0 ? (
+            <View className="empty-state">
+              <Text className="empty-text">暂无交易记录</Text>
+            </View>
+          ) : (
+            <View>
+              {txn.map((t: any) => {
+                const catName = getCategoryName(t.category) || "其他";
+                const catIcon = getCategoryIcon(t.category) || "📌";
+                const amt = t.amount;
+                return (
+                  <View
+                    key={t.id}
+                    className="txn-row"
+                    onClick={() => {
+                      Taro.setStorageSync("edit_tx_id", t.id);
+                      Taro.navigateTo({ url: "/pages/AddTransaction/index" });
+                    }}
+                  >
+                    <View className="txn-icon">
+                      {renderCategoryIcon(catIcon, { size: 40 })}
+                    </View>
+                    <View className="txn-info">
+                      <Text className="txn-title">{t.description || catName}</Text>
+                      <Text className="txn-meta">{catName} · {(t.date || "").slice(5)}</Text>
+                    </View>
+                    <Text className={`txn-amount ${t.type === "expense" ? "debit" : "credit"}`}>
+                      {t.type === "expense" ? "-" : "+"}¥{fmtAmount(amt)}
+                    </Text>
+                  </View>
+                );
+              })}
+            </View>
+          )}
+        </AppSection>
+
+        <AppSection title="快捷记账" compact>
+          <View className="cat-grid">
+            {quickCats.map((c: any) => (
+              <View
                 key={c.id}
                 className="cat-item"
                 onClick={() =>
@@ -207,12 +207,12 @@ export default function Home() {
                 {renderCategoryIcon(c.icon || "📌", { size: 72, className: "ci-emoji" })}
                 <Text className="ci-name">{c.name}</Text>
               </View>
-          ))}
-        </View>
-      </AppSection>
-    </PageLayout>
+            ))}
+          </View>
+        </AppSection>
+      </PageLayout>
 
-    <FloatingAction onClick={() => Taro.navigateTo({ url: "/pages/AddTransaction/index" })} />
+      <FloatingAction onClick={() => Taro.navigateTo({ url: "/pages/AddTransaction/index" })} />
     </>
   );
 }

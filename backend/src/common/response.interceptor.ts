@@ -49,16 +49,23 @@ function isTimeField(key: string, value: unknown): value is string {
 function toBeijingTime(isoString: string): string {
   const date = new Date(isoString);
   if (Number.isNaN(date.getTime())) return isoString;
-  const pad = (n: number) => String(n).padStart(2, '0');
-  const padMs = (n: number) => String(n).padStart(3, '0');
-  const year = date.getFullYear();
-  const month = pad(date.getMonth() + 1);
-  const day = pad(date.getDate());
-  const hours = pad(date.getHours());
-  const minutes = pad(date.getMinutes());
-  const seconds = pad(date.getSeconds());
-  const ms = padMs(date.getMilliseconds());
-  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}.${ms}`;
+  // 使用 Intl.DateTimeFormat 显式指定 Asia/Shanghai 时区（B-H7）
+  const formatter = new Intl.DateTimeFormat('zh-CN', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    fractionalSecondDigits: 3,
+    hour12: false,
+    timeZone: 'Asia/Shanghai',
+  });
+  // 格式化后补齐毫秒部分
+  const parts = formatter.format(date).replace(/\//g, '-');
+  // Intl 输出格式类似 "2024-06-30 14:30:45"，补充 ".000" 毫秒
+  const ms = String(date.getMilliseconds()).padStart(3, '0');
+  return `${parts}.${ms}`;
 }
 
 function convertTimeFields(obj: unknown): unknown {
@@ -68,11 +75,6 @@ function convertTimeFields(obj: unknown): unknown {
   const result: Record<string, unknown> = {};
   for (const [key, value] of Object.entries(obj as Record<string, unknown>)) {
     if (isTimeField(key, value)) {
-      result[key] = toBeijingTime(value);
-    } else if (
-      typeof value === 'string' &&
-      (ISO_DATE_REGEX.test(value) || TIMESTAMPTZ_REGEX.test(value))
-    ) {
       result[key] = toBeijingTime(value);
     } else {
       result[key] = convertTimeFields(value);

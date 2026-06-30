@@ -26,6 +26,18 @@ export class FileValidationPipe implements PipeTransform {
       throw new BadRequestException('文件大小不能超过 5MB');
     }
 
+    // 验证扩展名与 MIME 类型一致性（B-M5）
+    const ext = file.originalname.split('.').pop()?.toLowerCase();
+    const extMap: Record<string, string[]> = {
+      'jpeg': ['jpg', 'jpeg'],
+      'png': ['png'],
+      'webp': ['webp'],
+    };
+    const allowedExts = extMap[file.mimetype] || [];
+    if (ext && !allowedExts.includes(ext)) {
+      throw new BadRequestException('文件扩展名与类型不匹配');
+    }
+
     return file;
   }
 }

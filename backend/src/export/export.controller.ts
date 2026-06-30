@@ -4,6 +4,7 @@ import {
   Query,
   Res,
   BadRequestException,
+  InternalServerErrorException,
   UseGuards,
 } from '@nestjs/common';
 import { Response } from 'express';
@@ -53,9 +54,14 @@ export class ExportController {
 
       res.end(buffer);
     } catch (error) {
-      throw new BadRequestException(
-        `导出 Excel 失败: ${error.message}`,
-      );
+      // B-L4: 区分错误类型，不统一包装为 BadRequestException
+      if (error instanceof BadRequestException) throw error;
+      if (error.message?.includes('超过上限')) throw error;
+      // 数据库/网络错误 → 503
+      if (error.message?.includes('获取交易数据')) {
+        throw new InternalServerErrorException(`导出 Excel 失败: 服务器错误`);
+      }
+      throw new InternalServerErrorException(`导出 Excel 失败: ${error.message}`);
     }
   }
 
@@ -93,9 +99,12 @@ export class ExportController {
 
       res.end(buffer);
     } catch (error) {
-      throw new BadRequestException(
-        `导出 PDF 失败: ${error.message}`,
-      );
+      if (error instanceof BadRequestException) throw error;
+      if (error.message?.includes('超过上限')) throw error;
+      if (error.message?.includes('获取交易数据')) {
+        throw new InternalServerErrorException(`导出 PDF 失败: 服务器错误`);
+      }
+      throw new InternalServerErrorException(`导出 PDF 失败: ${error.message}`);
     }
   }
 }

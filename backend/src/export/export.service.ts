@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, BadRequestException } from '@nestjs/common';
 import { SupabaseService } from '../supabase/supabase.service';
 import { TransactionFilters } from '../transaction/transaction.service';
 import * as ExcelJS from 'exceljs';
@@ -6,12 +6,11 @@ import PDFDocument from 'pdfkit';
 import * as path from 'path';
 import * as fs from 'fs';
 
-// 中文字体路径（PDF 中文渲染用）
-const FONT_PATH = path.join(__dirname, '../../assets/fonts/NotoSansSC.ttf');
+// B-L7: 使用 process.cwd() 而非 __dirname，确保构建后路径正确
+const FONT_PATH = path.join(process.cwd(), 'assets/fonts/NotoSansSC.ttf');
 const FONT_REGISTERED = fs.existsSync(FONT_PATH);
 
-// Emoji 字体路径（PDF 中文字体不含 emoji 字形，需单独注册）
-const EMOJI_FONT_PATH = path.join(__dirname, '../../assets/fonts/NotoEmoji.ttf');
+const EMOJI_FONT_PATH = path.join(process.cwd(), 'assets/fonts/NotoEmoji.ttf');
 const EMOJI_FONT_REGISTERED = fs.existsSync(EMOJI_FONT_PATH);
 
 // Emoji 字符检测正则（含带 variation selector 的组合 emoji）
@@ -315,6 +314,9 @@ export class ExportService {
     });
   }
 
+  // 导出数量上限，防止大数据量导致 OOM（B-H4）
+  private readonly EXPORT_MAX_ROWS = 5000;
+
   /**
    * 获取交易数据
    */
@@ -322,7 +324,7 @@ export class ExportService {
     const supabase = this.supabaseService.getClient();
     let query = supabase
       .from('jj_transactions')
-      .select('*')
+      .select('*', { count: 'exact' })
       .order('date', { ascending: false });
 
     if (filters?.userId) {
@@ -347,6 +349,18 @@ export class ExportService {
 
     if (filters?.endDate) {
       query = query.lte('date', filters.endDate);
+    }
+
+    const { count, error: countError } = await query;
+
+    if (countError) {
+      throw new Error(`获取交易数据计数失败: ${countError.message}`);
+    }
+
+    if (count !== null && count > this.EXPORT_MAX_ROWS) {
+      throw new BadRequestException(
+        `导出数据超过上限 (${this.EXPORT_MAX_ROWS} 条)，请缩小时间范围或筛选条件后重试`,
+      );
     }
 
     const { data, error } = await query;

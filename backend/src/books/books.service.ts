@@ -374,19 +374,19 @@ export class BooksService {
       throw new ConflictException(`转让失败：${updateError.message}`);
     }
 
+    // 确保新 owner 是账本成员（B-H2）
+    await supabase.from('jj_book_members').upsert({
+      book_id: bookId,
+      user_id: newOwner.id,
+      role: 'owner',
+    }, { onConflict: 'book_id,user_id' });
+
     // 更新原账主为普通成员
     await supabase
       .from('jj_book_members')
       .update({ role: 'member' })
       .eq('book_id', bookId)
       .eq('user_id', currentOwnerId);
-
-    // 更新新账主为 owner
-    await supabase
-      .from('jj_book_members')
-      .update({ role: 'owner' })
-      .eq('book_id', bookId)
-      .eq('user_id', newOwner.id);
   }
 
   /** 归档账本 */
@@ -499,7 +499,7 @@ export class BooksService {
     };
   }
 
-  /** 使用邀请码加入账本 */
+  /** 使用邀请码加入账本（B-H3: 使用原子更新防止邀请码并发使用） */
   async joinByInvitationCode(code: string, userId: string): Promise<{ book_id: string; book_name: string }> {
     const supabase = this.getClient();
     const now = new Date().toISOString();
@@ -540,7 +540,26 @@ export class BooksService {
       throw new ConflictException(msg);
     }
 
-    // 4. 添加为成员
+    // 4. 原子化：先标记邀请码为已使用（B-H3 防止并发使用同一邀请码）
+    //    WHERE used_at IS NULL 确保只有一个请求能成功
+    const { data: updateResult, error: updateError } = await supabase
+      .from('jj_book_invitations')
+      .update({ used_by: userId, used_at: now })
+      .eq('id', invitation.id)
+      .is('used_at', null)
+      .select()
+      .single();
+
+    if (updateError) {
+      throw new ConflictException(`邀请码标记失败：${updateError.message}`);
+    }
+
+    // 如果 updateResult 为 null，说明邀请码已被其他人使用（并发竞争）
+    if (!updateResult) {
+      throw new ConflictException('邀请码已被使用，请重新获取');
+    }
+
+    // 5. 添加为成员
     const { error: memberError } = await supabase
       .from('jj_book_members')
       .insert({
@@ -552,12 +571,6 @@ export class BooksService {
     if (memberError) {
       throw new ConflictException(`加入账本失败：${memberError.message}`);
     }
-
-    // 5. 标记邀请码已使用
-    await supabase
-      .from('jj_book_invitations')
-      .update({ used_by: userId, used_at: now })
-      .eq('id', invitation.id);
 
     const book = await this.getById(invitation.book_id);
     return { book_id: book.id, book_name: book.name };

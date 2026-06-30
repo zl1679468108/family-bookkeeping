@@ -85,6 +85,9 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const message =
       exception instanceof Error ? exception.message : '服务器内部错误';
 
+    // B-L3: 记录未知错误的堆栈，方便线上排查
+    this.logger.error(message, exception instanceof Error ? exception.stack : undefined);
+
     response.status(status).json({
       success: false,
       message,

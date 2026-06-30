@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ForbiddenException,
   Injectable,
   InternalServerErrorException,
@@ -41,6 +42,7 @@ export interface TransactionFilters {
   sortBy?: 'amount' | 'date';
   sortOrder?: 'asc' | 'desc';
   search?: string;
+  /** @deprecated 使用 search 替代，保留以兼容旧客户端 */
   keyword?: string;
   min_amount?: string;
   max_amount?: string;
@@ -100,6 +102,40 @@ export class TransactionService {
     return data.role === 'owner';
   }
 
+  /**
+   * 构建公共查询条件（B-L5: 提取公共函数避免 countQuery/baseQuery 条件重复）
+   */
+  private applyFilters(supabase: any, filters: TransactionFilters, shouldViewAll: boolean, userId: string) {
+    let query = supabase.from('jj_transactions').select('*');
+
+    if (shouldViewAll) {
+      query = query.eq('book_id', filters.bookId);
+    } else {
+      query = query.eq('user_id', userId);
+      if (filters?.bookId) {
+        query = query.eq('book_id', filters.bookId);
+      }
+    }
+
+    if (filters?.type) query = query.eq('type', filters.type);
+    if (filters?.category) query = query.eq('category', filters.category);
+    if (filters?.startDate) query = query.gte('date', filters.startDate);
+    if (filters?.endDate) query = query.lte('date', filters.endDate);
+
+    const fuzzyTerm = filters?.keyword || filters?.search;
+    if (fuzzyTerm) {
+      const likeTerm = `%${fuzzyTerm}%`;
+      query = query.or(`description.ilike.${likeTerm},brand.ilike.${likeTerm}`);
+    }
+
+    if (filters?.min_amount) query = query.gte('amount', Number(filters.min_amount));
+    if (filters?.max_amount) query = query.lte('amount', Number(filters.max_amount));
+    if (filters?.date_from) query = query.gte('date', filters.date_from);
+    if (filters?.date_to) query = query.lte('date', filters.date_to);
+
+    return { query, fuzzyTerm };
+  }
+
   async findAll(filters?: TransactionFilters): Promise<PaginatedResponse<Transaction>> {
     const supabase = this.supabaseService.getClient();
 
@@ -113,75 +149,20 @@ export class TransactionService {
     const sortOrder = filters?.sortOrder || 'desc';
     const offset = (page - 1) * pageSize;
 
-    // 检查当前用户是否是账本 Owner（如果指定了 bookId）
     let isOwner = false;
     if (filters?.bookId) {
       isOwner = await this.isBookOwner(filters.userId, filters.bookId);
     }
 
-    // 构建查询条件
-    // 如果是 Owner 且 view=all，则查询账本内所有交易；否则只查询自己的交易
     const shouldViewAll = isOwner && filters?.view === 'all';
-    
-    let baseQuery = supabase
-      .from('jj_transactions')
-      .select('*');
+    const { query: baseQuery, fuzzyTerm } = this.applyFilters(supabase, filters, shouldViewAll, filters.userId);
 
-    if (shouldViewAll) {
-      // Owner 查看所有成员的交易
-      baseQuery = baseQuery.eq('book_id', filters.bookId);
-    } else {
-      // 普通视图：只查看自己的交易
-      baseQuery = baseQuery.eq('user_id', filters.userId);
-      if (filters?.bookId) {
-        baseQuery = baseQuery.eq('book_id', filters.bookId);
-      }
-    }
-
-    if (filters?.type) {
-      baseQuery = baseQuery.eq('type', filters.type);
-    }
-
-    if (filters?.category) {
-      baseQuery = baseQuery.eq('category', filters.category);
-    }
-
-    if (filters?.startDate) {
-      baseQuery = baseQuery.gte('date', filters.startDate);
-    }
-
-    if (filters?.endDate) {
-      baseQuery = baseQuery.lte('date', filters.endDate);
-    }
-
-    // 合并 search / keyword 作为模糊搜索词，同时匹配 description 和 brand
-    const fuzzyTerm = filters?.keyword || filters?.search;
-    if (fuzzyTerm) {
-      const likeTerm = `%${fuzzyTerm}%`;
-      baseQuery = baseQuery.or(`description.ilike.${likeTerm},brand.ilike.${likeTerm}`);
-    }
-
-    if (filters?.min_amount) {
-      baseQuery = baseQuery.gte('amount', Number(filters.min_amount));
-    }
-
-    if (filters?.max_amount) {
-      baseQuery = baseQuery.lte('amount', Number(filters.max_amount));
-    }
-
-    if (filters?.date_from) {
-      baseQuery = baseQuery.gte('date', filters.date_from);
-    }
-
-    if (filters?.date_to) {
-      baseQuery = baseQuery.lte('date', filters.date_to);
-    }
-
-    // 先用独立的 head 查询获取精确 count（不受 range 影响）
+    // 先用独立的 head 查询获取精确 count
     let countQuery = supabase
       .from('jj_transactions')
       .select('*', { count: 'exact', head: true });
 
+    // 复用 applyFilters 的逻辑构建 count 条件
     if (shouldViewAll) {
       countQuery = countQuery.eq('book_id', filters.bookId);
     } else {
@@ -266,6 +247,14 @@ export class TransactionService {
   }
 
   async create(transaction: Partial<Transaction>, userId?: string, bookId?: string): Promise<Transaction> {
+    // 业务规则校验（B-H5）
+    if (typeof transaction.amount !== 'number' || transaction.amount <= 0) {
+      throw new BadRequestException('金额必须为正数');
+    }
+    if (!['income', 'expense'].includes(transaction.type)) {
+      throw new BadRequestException('类型不合法，必须为 income 或 expense');
+    }
+
     const supabase = this.supabaseService.getClient();
     
     if (!userId) {
@@ -312,6 +301,14 @@ export class TransactionService {
     userId?: string,
     bookId?: string,
   ): Promise<Transaction> {
+    // 业务规则校验（B-H5）：如果提供了 amount/type，则校验
+    if (transaction.amount !== undefined && (typeof transaction.amount !== 'number' || transaction.amount <= 0)) {
+      throw new BadRequestException('金额必须为正数');
+    }
+    if (transaction.type !== undefined && !['income', 'expense'].includes(transaction.type)) {
+      throw new BadRequestException('类型不合法，必须为 income 或 expense');
+    }
+
     const supabase = this.supabaseService.getClient();
     
     if (!userId) {
@@ -571,6 +568,13 @@ export class TransactionService {
 
     if (existingPaths.length === 0) {
       throw new NotFoundException('该交易记录没有收据');
+    }
+
+    // 验证路径安全性（B-M4）：防止路径遍历攻击
+    for (const p of existingPaths) {
+      if (!p.startsWith('receipts/') || p.includes('..')) {
+        throw new BadRequestException('非法文件路径');
+      }
     }
 
     const supabase = this.supabaseService.getClient();
