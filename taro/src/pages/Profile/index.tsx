@@ -202,6 +202,11 @@ export default function Profile() {
       <MenuList
         items={[
           {
+            label: "关于静记",
+            icon: "settings" as const,
+            onClick: () => Taro.navigateTo({ url: "/pages/About/index" }),
+          },
+          {
             label: "切换账号",
             icon: "profile",
             onClick: handleOpenSwitch,

@@ -330,6 +330,14 @@ export const Sidebar: React.FC = () => {
               </svg>
               切换账号
             </button>
+            <button className="user-menu-item" onClick={() => { setMenuOpen(false); navigate('/about') }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10" />
+                <line x1="12" y1="16" x2="12" y2="12" />
+                <line x1="12" y1="8" x2="12.01" y2="8" />
+              </svg>
+              关于静记
+            </button>
             <div className="user-menu-divider" />
             <button className="user-menu-item user-menu-item--danger" onClick={handleLogout} disabled={logoutLoading}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">

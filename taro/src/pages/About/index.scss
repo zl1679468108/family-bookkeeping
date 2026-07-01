@@ -1,0 +1,279 @@
+/* ═══ About 关于页面样式 ═══ */
+
+/* 内容区 */
+.about-content {
+  padding: calc(24rpx + env(safe-area-inset-top, 0)) 32rpx calc(32rpx + env(safe-area-inset-bottom, 0));
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+/* ========== Hero 区域 ========== */
+.about-hero {
+  background: var(--srf);
+  border: 1rpx solid var(--bd);
+  border-radius: var(--rl);
+  box-shadow: var(--sh2);
+  padding: 80rpx 40rpx 60rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.about-logo {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 50%;
+  background: var(--prGr);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 24rpx;
+  box-shadow: 0 8rpx 32rpx rgba(45, 157, 138, 0.25);
+}
+
+.about-logo-text {
+  color: #fff;
+  font-size: 48rpx;
+  font-weight: 700;
+  letter-spacing: 2rpx;
+}
+
+.about-name {
+  font-size: 48rpx;
+  font-weight: 700;
+  color: var(--fg);
+  margin-bottom: 8rpx;
+  letter-spacing: 4rpx;
+}
+
+.about-slogan {
+  font-size: 26rpx;
+  color: var(--fg3);
+  margin-bottom: 32rpx;
+}
+
+/* 版本标签行 */
+.about-version-row {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+  width: 100%;
+  max-width: 400rpx;
+  margin-bottom: 12rpx;
+}
+
+.about-version-line {
+  flex: 1;
+  height: 1rpx;
+  background: var(--bdL);
+}
+
+.about-version-tag {
+  font-family: var(--fm);
+  font-size: 24rpx;
+  font-weight: 500;
+  color: var(--pr);
+  background: var(--prBg);
+  padding: 6rpx 24rpx;
+  border-radius: var(--rs);
+  white-space: nowrap;
+}
+
+.about-date {
+  font-size: 22rpx;
+  color: var(--fg3);
+}
+
+/* ========== 卡片通用 ========== */
+.about-card {
+  background: var(--srfSoft);
+  border: 1rpx solid var(--bd);
+  border-radius: 28rpx;
+  box-shadow: 0 10rpx 28rpx rgba(36, 49, 45, 0.035);
+  padding: 32rpx 28rpx;
+}
+
+.about-card-title {
+  font-size: 30rpx;
+  font-weight: 650;
+  color: var(--fg);
+  margin-bottom: 24rpx;
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+/* ========== 时间线 ========== */
+.about-timeline {
+  position: relative;
+  padding-left: 32rpx;
+}
+
+/* 竖线 */
+.about-timeline::before {
+  content: '';
+  position: absolute;
+  left: 8rpx;
+  top: 12rpx;
+  bottom: 12rpx;
+  width: 3rpx;
+  background: var(--bdL);
+  border-radius: 2rpx;
+}
+
+.timeline-item {
+  position: relative;
+  padding-bottom: 16rpx;
+}
+
+.timeline-item:last-child {
+  padding-bottom: 0;
+}
+
+/* 圆点 */
+.timeline-dot {
+  position: absolute;
+  left: -32rpx;
+  top: 20rpx;
+  width: 18rpx;
+  height: 18rpx;
+  border-radius: 50%;
+  background: var(--fg3);
+  border: 3rpx solid var(--srfSoft);
+  z-index: 1;
+}
+
+.timeline-item--latest .timeline-dot {
+  background: var(--pr);
+  box-shadow: 0 0 0 6rpx var(--prBg);
+}
+
+.timeline-body {
+  padding-left: 4rpx;
+}
+
+/* 时间线头部 */
+.timeline-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14rpx 16rpx;
+  border-radius: var(--rs);
+}
+
+.timeline-header:active {
+  background: rgba(45, 157, 138, 0.06);
+}
+
+.timeline-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.timeline-version {
+  font-family: var(--fm);
+  font-size: 28rpx;
+  font-weight: 600;
+  color: var(--fg);
+}
+
+.timeline-highlights {
+  font-size: 22rpx;
+  color: var(--pr);
+  background: var(--prBg);
+  padding: 2rpx 14rpx;
+  border-radius: 8rpx;
+  font-weight: 500;
+}
+
+.timeline-header-right {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.timeline-date {
+  font-size: 22rpx;
+  color: var(--fg3);
+}
+
+.timeline-chevron {
+  color: var(--fg3);
+  font-size: 32rpx;
+  font-weight: 300;
+  transform: rotate(90deg);
+  transition: transform var(--dn) var(--ease);
+}
+
+.timeline-chevron.expanded {
+  transform: rotate(270deg);
+}
+
+/* 变更列表 */
+.timeline-changes {
+  padding: 8rpx 16rpx 16rpx;
+}
+
+.timeline-change {
+  display: flex;
+  align-items: flex-start;
+  gap: 10rpx;
+  padding: 8rpx 0;
+}
+
+.timeline-change-dot {
+  color: var(--fg3);
+  font-weight: 700;
+  font-size: 32rpx;
+  line-height: 1.2;
+  flex-shrink: 0;
+}
+
+.timeline-change-text {
+  font-size: 26rpx;
+  color: var(--fg2);
+  line-height: 1.5;
+}
+
+/* ========== 应用信息列表 ========== */
+.about-info-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.about-info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20rpx 4rpx;
+  border-bottom: 1rpx solid var(--bdL);
+}
+
+.about-info-row:last-child {
+  border-bottom: none;
+}
+
+.about-info-label {
+  font-size: 26rpx;
+  color: var(--fg3);
+}
+
+.about-info-value {
+  font-size: 26rpx;
+  font-weight: 500;
+  color: var(--fg);
+}
+
+/* ========== 底部签名 ========== */
+.about-footer {
+  text-align: center;
+  padding: 16rpx 0 24rpx;
+}
+
+.about-footer-text {
+  font-size: 22rpx;
+  color: var(--fg3);
+}

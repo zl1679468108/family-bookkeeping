@@ -19,6 +19,7 @@ const Profile = lazy(() => import('../pages/User/Profile'))
 const AdminDashboard = lazy(() => import('../pages/Admin/AdminDashboard'))
 const AdminUsers = lazy(() => import('../pages/Admin/AdminUsers'))
 const AdminTransactions = lazy(() => import('../pages/Admin/AdminTransactions'))
+const About = lazy(() => import('../pages/About'))
 const Onboarding = lazy(() => import('../pages/Onboarding'))
 const NotFound = lazy(() => import('../pages/NotFound'))
 
@@ -39,6 +40,7 @@ export const routes: RouteConfig[] = [
   { path: '/templates', element: <Templates />, isPrivate: true },
   { path: '/annual-report', element: <AnnualReport />, isPrivate: true },
   { path: '/profile', element: <Profile />, isPrivate: true },
+  { path: '/about', element: <About />, isPrivate: true },
   { path: '/admin', element: <AdminDashboard />, isPrivate: true },
   { path: '/admin/users', element: <AdminUsers />, isPrivate: true },
   { path: '/admin/transactions', element: <AdminTransactions />, isPrivate: true },
