@@ -12,7 +12,6 @@ import { MenuList } from "../../components/ui";
 import {
   getSavedAccounts,
   removeAccount,
-  decodePassword,
   SavedAccount,
 } from "../../utils/savedAccounts";
 import "./index.scss";
@@ -100,10 +99,8 @@ export default function Profile() {
       }
       setSwitchingEmail(null);
     }
-    // 无 token 或 token 失效，显示密码输入框
+    // T-C1: 不再存储密码，token 失效时要求用户手动输入密码
     setTokenExpiredEmail(account.email);
-    setLoginEmail(account.email);
-    setLoginPassword(decodePassword(account.password));
     setShowLoginForm(true);
   };
 

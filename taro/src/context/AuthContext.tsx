@@ -103,24 +103,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   }, []);
 
-  const signIn = useCallback(async (email: string, password: string, captchaId: string, captchaCode: string) => {
-    const { user: userData, token } = await apiLogin(email, password, captchaId, captchaCode);
+  const signIn = useCallback(async (email: string, _password: string, captchaId: string, captchaCode: string) => {
+    const { user: userData, token } = await apiLogin(email, _password, captchaId, captchaCode);
     storeToken(token);
-    // 登录成功后保存账号信息（token 优先，密码备用）
-    saveAccount({ email, password, token, username: userData.username, avatar_url: userData.avatar_url });
+    // T-C1: 仅存储 token，不再存储密码
+    saveAccount({ email, token, username: userData.username, avatar_url: userData.avatar_url });
     setUser(userData);
   }, []);
 
   const signUp = useCallback(
-    async (email: string, password: string, username: string) => {
+    async (email: string, _password: string, username: string) => {
       const { user: userData, token } = await apiRegister(
         email,
-        password,
+        _password,
         username,
       );
       storeToken(token);
-      // 注册成功后也保存账号信息
-      saveAccount({ email, password, username: userData.username, avatar_url: userData.avatar_url });
+      // T-C1: 仅存储 token，不再存储密码
+      saveAccount({ email, token, username: userData.username, avatar_url: userData.avatar_url });
       setUser(userData);
     },
     [],

@@ -13,6 +13,7 @@ import {
 import { TokenAuthGuard } from '../auth/token-auth.guard';
 import { CurrentUser } from '../auth/current-user.decorator';
 import { AdminGuard } from './admin.guard';
+import { RateLimitGuard } from '../auth/rate-limit.guard';
 import { AdminService } from './admin.service';
 import {
   QueryUsersDto,
@@ -28,18 +29,20 @@ export class AdminController {
 
   /**
    * GET /api/admin/stats
-   * 平台数据看板
+   * 平台数据看板（T-M2: 添加限流）
    */
   @Get('stats')
+  @UseGuards(new RateLimitGuard(60_000, 5))
   async getStats() {
     return this.adminService.getPlatformStats();
   }
 
   /**
    * GET /api/admin/users
-   * 用户列表（分页 + 筛选）
+   * 用户列表（分页 + 筛选）（T-M2: 添加限流）
    */
   @Get('users')
+  @UseGuards(new RateLimitGuard(60_000, 5))
   async getUsers(@Query() query: QueryUsersDto) {
     const page = query.page ? parseInt(query.page, 10) : 1;
     const pageSize = query.pageSize ? parseInt(query.pageSize, 10) : 20;
@@ -55,9 +58,10 @@ export class AdminController {
 
   /**
    * GET /api/admin/users/:id
-   * 用户详情
+   * 用户详情（T-M2: 添加限流）
    */
   @Get('users/:id')
+  @UseGuards(new RateLimitGuard(60_000, 5))
   async getUserDetail(@Param('id') userId: string) {
     return this.adminService.getUserDetail(userId);
   }
@@ -105,9 +109,10 @@ export class AdminController {
 
   /**
    * GET /api/admin/transactions
-   * 全平台交易监控
+   * 全平台交易监控（T-M2: 添加限流）
    */
   @Get('transactions')
+  @UseGuards(new RateLimitGuard(60_000, 5))
   async getTransactions(@Query() query: QueryAdminTransactionsDto) {
     const page = query.page ? parseInt(query.page, 10) : 1;
     const pageSize = query.pageSize ? parseInt(query.pageSize, 10) : 20;
@@ -126,9 +131,10 @@ export class AdminController {
 
   /**
    * GET /api/admin/books
-   * 全平台账本列表（管理员筛选下拉用）
+   * 全平台账本列表（管理员筛选下拉用）（T-M2: 添加限流）
    */
   @Get('books')
+  @UseGuards(new RateLimitGuard(60_000, 5))
   async getBooks() {
     return this.adminService.getBooks();
   }

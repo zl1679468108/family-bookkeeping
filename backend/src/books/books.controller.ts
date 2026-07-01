@@ -30,13 +30,13 @@ export class BooksController {
     return { message: '获取账本列表成功', data };
   }
 
-  /** GET /api/books/:id — 获取单个账本 */
+  /** GET /api/books/:id — 获取单个账本（T-M1: 增加账本成员权限校验） */
   @Get(':id')
   async getById(
     @CurrentUser('id') userId: string,
     @Param('id') bookId: string,
   ) {
-    const data = await this.booksService.getById(bookId);
+    const data = await this.booksService.getByIdWithMembershipCheck(bookId, userId);
     return { message: '获取账本详情成功', data };
   }
 
@@ -81,10 +81,13 @@ export class BooksController {
     return { message: '删除账本成功', data: null };
   }
 
-  /** GET /api/books/:id/members — 获取账本成员 */
+  /** GET /api/books/:id/members — 获取账本成员（T-M1: 增加账本成员权限校验） */
   @Get(':id/members')
-  async getMembers(@Param('id') bookId: string) {
-    const data = await this.booksService.getMembers(bookId);
+  async getMembers(
+    @CurrentUser('id') userId: string,
+    @Param('id') bookId: string,
+  ) {
+    const data = await this.booksService.getMembersWithCheck(bookId, userId);
     return { message: '获取成员列表成功', data };
   }
 

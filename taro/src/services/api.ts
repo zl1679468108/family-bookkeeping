@@ -25,24 +25,28 @@ export class ApiError extends Error {
   }
 }
 
-// ---- Token helpers (Taro Storage) ----
-export const getToken = (): string | null =>
-  Taro.getStorageSync(AUTH_TOKEN_KEY) || null;
-export const hasToken = (): boolean => Boolean(getToken());
+// ---- Token helpers (T-M11: 内存缓存，避免每次请求同步读存储) ----
+let _tokenCache: string | null = null;
+let _bookIdCache: string | null = null;
+
+export const getToken = (): string | null => _tokenCache;
+export const hasToken = (): boolean => Boolean(_tokenCache);
 export const storeToken = (token: string): void => {
-  Taro.setStorageSync(AUTH_TOKEN_KEY, token);
+  _tokenCache = token;
+  try { Taro.setStorageSync(AUTH_TOKEN_KEY, token); } catch {}
 };
 export const clearStoredToken = (): void => {
-  Taro.removeStorageSync(AUTH_TOKEN_KEY);
+  _tokenCache = null;
+  try { Taro.removeStorageSync(AUTH_TOKEN_KEY); } catch {}
 };
 
-export const getStoredBookId = (): string | null =>
-  Taro.getStorageSync(BOOK_ID_KEY) || null;
+export const getStoredBookId = (): string | null => _bookIdCache;
 export const setStoredBookId = (id: string | null): void => {
+  _bookIdCache = id;
   if (id) {
-    Taro.setStorageSync(BOOK_ID_KEY, id);
+    try { Taro.setStorageSync(BOOK_ID_KEY, id); } catch {}
   } else {
-    Taro.removeStorageSync(BOOK_ID_KEY);
+    try { Taro.removeStorageSync(BOOK_ID_KEY); } catch {}
   }
 };
 
@@ -99,13 +103,16 @@ async function request<T>(
     throw new ApiError("未登录", 401);
   }
 
+  // T-M8: GET 请求 30s 超时，写操作 60s 超时（匹配前端行为）
+  const timeout = method === 'GET' ? 30000 : 60000;
+
   try {
     const res = await Taro.request({
       url: fullUrl,
       method,
       header,
       data,
-      timeout: 15000,
+      timeout,
     });
 
     if (res.statusCode >= 200 && res.statusCode < 300) {

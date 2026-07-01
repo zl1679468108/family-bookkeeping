@@ -20,7 +20,8 @@ const EMOJI_RE = /(\p{Emoji_Presentation}|\p{Emoji}\uFE0F)/gu;
 export class ExportService {
   private categoryCache: Map<string, { name: string; icon: string }> | null = null;
   private categoryCacheExpiry = 0;
-  private readonly CATEGORY_CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+  // T-L1: 缩短 TTL 到 2 分钟，减少缓存不一致窗口
+  private readonly CATEGORY_CACHE_TTL = 2 * 60 * 1000; // 2 minutes
   private readonly logger = new Logger(ExportService.name);
 
   constructor(private supabaseService: SupabaseService) {}

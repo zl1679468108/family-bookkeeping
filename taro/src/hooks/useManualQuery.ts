@@ -44,6 +44,7 @@ interface UseManualQueryResult<T> {
   data: T | undefined;
   isLoading: boolean;
   isFetching: boolean;
+  error: Error | null;
   refetch: () => void;
 }
 
@@ -57,18 +58,21 @@ export function useManualQuery<T>({
   const [data, setData] = useState<T | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(true);
   const [isFetching, setIsFetching] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
   const lastKey = useRef("");
 
   const fetch = () => {
     if (!enabled || !user) return;
     setIsFetching(true);
+    setError(null);
     if (!data) setIsLoading(true);
     queryFn()
       .then((res) => {
         setData(res);
       })
-      .catch(() => {
-        // 静默处理错误，由调用方决定是否展示
+      .catch((err) => {
+        // T-M9: 暴露错误状态，不再静默吞掉
+        setError(err instanceof Error ? err : new Error(String(err)));
       })
       .finally(() => {
         setIsLoading(false);
@@ -88,9 +92,9 @@ export function useManualQuery<T>({
 
   // 关键：缓存返回值，避免每次渲染都生成新对象触发子组件重渲染
   const result = useMemo<UseManualQueryResult<T>>(
-    () => ({ data, isLoading, isFetching, refetch: fetch }),
+    () => ({ data, isLoading, isFetching, error, refetch: fetch }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [data, isLoading, isFetching],
+    [data, isLoading, isFetching, error],
   );
 
   return result;

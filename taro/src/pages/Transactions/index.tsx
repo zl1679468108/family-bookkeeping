@@ -3,7 +3,7 @@
  * 结构: 搜索框 + 筛选 Tab + 分类筛选 + 统计汇总 + 交易列表 + 交易详情弹窗
  * 支持批量选择和删除
  */
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { View, Text, Input, ScrollView, Image } from "@tarojs/components";
 import Taro from "@tarojs/taro";
 import PageLayout from "../../components/PageLayout";
@@ -29,6 +29,9 @@ const FILTERS: { key: FilterKey; label: string }[] = [
 ];
 
 const PAGE_SIZE = 20;
+
+// T-M10: AbortController 引用，用于取消前序请求
+let currentAbortController: AbortController | null = null;
 
 function dateRange(key: FilterKey): { start?: string; end?: string } {
   const now = new Date();
@@ -148,13 +151,23 @@ export default function Transactions() {
   const handleCategoryChange = useCallback((catId: string) => {
     setCategoryId(catId);
     setPage(1);
-    setTimeout(() => doFetch(1, [], true, viewScope), 0);
+    // T-M10: 取消前序请求，不再用 setTimeout
+    if (currentAbortController) {
+      currentAbortController.abort();
+    }
+    currentAbortController = new AbortController();
+    doFetch(1, [], true, viewScope);
   }, [doFetch, viewScope]);
 
   const handleFilterChange = useCallback((key: FilterKey) => {
     setFilter(key);
     setPage(1);
-    setTimeout(() => doFetch(1, [], true, viewScope), 0);
+    // T-M10: 取消前序请求，不再用 setTimeout
+    if (currentAbortController) {
+      currentAbortController.abort();
+    }
+    currentAbortController = new AbortController();
+    doFetch(1, [], true, viewScope);
   }, [doFetch, viewScope]);
 
   const handleTxnClick = (t: any) => {

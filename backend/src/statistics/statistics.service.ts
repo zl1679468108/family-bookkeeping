@@ -225,6 +225,7 @@ export class StatisticsService {
         : Math.round((expenseChange / prev.totalExpense) * 1000) / 10;
 
     const balanceChange = balance - prevBalance;
+    // T-L2: 使用 Math.abs 确保基准值非零，但文档化预期行为
     const balanceChangePercent =
       prevBalance === 0
         ? null

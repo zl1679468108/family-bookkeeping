@@ -35,18 +35,21 @@ const Dashboard: React.FC = () => {
     queryKey: ['statistics', 'summary', monthStart, monthEnd],
     queryFn: () => fetchSummary({ startDate: monthStart, endDate: monthEnd }),
     enabled: hasBooks,
+    staleTime: 5 * 60 * 1000, // T-M5: 5 分钟内不重新请求
   })
 
   const { data: recentPaginated, isLoading: recentLoading } = useQuery({
     queryKey: ['transactions', 'recent', monthStart, monthEnd],
     queryFn: () => getTransactions({ pageSize: 5, startDate: monthStart, endDate: monthEnd }),
     enabled: hasBooks,
+    staleTime: 5 * 60 * 1000, // T-M5: 5 分钟内不重新请求
   })
 
   const { data: budgetStatus, isLoading: budgetLoading } = useQuery({
     queryKey: ['budgets', 'status', monthStr],
     queryFn: () => fetchBudgetStatus(monthStr),
     enabled: hasBooks,
+    staleTime: 5 * 60 * 1000, // T-M5: 5 分钟内不重新请求
   })
 
   const recentTransactions = recentPaginated?.data || []

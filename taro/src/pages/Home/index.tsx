@@ -49,24 +49,30 @@ export default function Home() {
     const startDate = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-01`;
     const endDate = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
     const monthStr = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-01`;
-    return Promise.all([
-      fetchSummary({ startDate, endDate }).then((s: any) => setSummary(s)),
-      getTransactions({ page: 1, pageSize: 5 })
-        .then((r: any) => setTxn(r.data || []))
-        .catch(() => setTxn([])),
-      fetchBudgetStatus(monthStr).then((b: any) => {
-        const cats = (b?.categories || []).map((c: any) => ({
-          category_id: c.category_id,
-          category_name: c.category_name,
-          budget_amount: c.budget,
-          spent_amount: c.spent,
-          percentage: c.progress ?? 0,
-          is_over_budget: c.status === "over",
-        }));
-        setBudgets(cats);
-      }).catch(() => setBudgets([])),
+
+    // T-L6: 使用 Promise.allSettled 防止单个请求失败导致全部丢弃
+    // T-L7: 日期计算移出 Promise.all 外，避免闭包依赖变化
+    const [summaryRes, txnRes, budgetRes] = await Promise.allSettled([
+      fetchSummary({ startDate, endDate }),
+      getTransactions({ page: 1, pageSize: 5 }),
+      fetchBudgetStatus(monthStr),
     ]);
-  }, [user]);
+
+    if (summaryRes.status === 'fulfilled') setSummary(summaryRes.value);
+    if (txnRes.status === 'fulfilled') setTxn(txnRes.value?.data || []);
+    if (budgetRes.status === 'fulfilled') {
+      const b = budgetRes.value;
+      const cats = (b?.categories || []).map((c: any) => ({
+        category_id: c.category_id,
+        category_name: c.category_name,
+        budget_amount: c.budget,
+        spent_amount: c.spent,
+        percentage: c.progress ?? 0,
+        is_over_budget: c.status === "over",
+      }));
+      setBudgets(cats);
+    }
+  }, [user, loadData]);
 
   useEffect(() => {
     // 等待认证状态初始化完成，且已登录才请求
@@ -154,6 +160,7 @@ export default function Home() {
           title="最近交易"
           actionText="全部 ›"
           onAction={() => Taro.switchTab({ url: "/pages/Transactions/index" })}
+          flush
           flush
         >
           {txn.length === 0 ? (

@@ -115,8 +115,9 @@ export class BooksService {
       throw new Error(`查询账本失败：${error.message}`);
     }
 
-    // 批量统计所有账本的交易笔数（单次查询）
-    const { data: txnCounts, error: txnError } = await supabase
+    // T-M3: 拉取所有交易行的 book_id 并在本地计数（Supabase 不支持 select+group 组合）
+    // 相比全量 select('*') 大幅减少数据传输
+    const { data: txnRows, error: txnError } = await supabase
       .from('jj_transactions')
       .select('book_id')
       .in('book_id', bookIds);
@@ -125,8 +126,8 @@ export class BooksService {
     for (const bookId of bookIds) {
       txnCountMap.set(bookId, 0);
     }
-    if (!txnError && txnCounts) {
-      for (const row of txnCounts) {
+    if (!txnError && txnRows) {
+      for (const row of txnRows) {
         txnCountMap.set(row.book_id, (txnCountMap.get(row.book_id) || 0) + 1);
       }
     }
@@ -156,6 +157,23 @@ export class BooksService {
     }
 
     return data as Book;
+  }
+
+  /** T-M1: 带成员校验的账本详情查询 */
+  async getByIdWithMembershipCheck(bookId: string, userId: string): Promise<Book> {
+    // 先检查是否是成员
+    const { data: membership } = await this.getClient()
+      .from('jj_book_members')
+      .select('id')
+      .eq('book_id', bookId)
+      .eq('user_id', userId)
+      .single();
+
+    if (!membership) {
+      throw new ForbiddenException('无权访问该账本');
+    }
+
+    return this.getById(bookId);
   }
 
   /** 检查用户是否为账本 Owner */
@@ -250,6 +268,23 @@ export class BooksService {
       email: m.users?.email,
       username: m.users?.username,
     }));
+  }
+
+  /** T-M1: 带成员校验的成员列表查询 */
+  async getMembersWithCheck(bookId: string, userId: string): Promise<any[]> {
+    // 先检查是否是成员
+    const { data: membership } = await this.getClient()
+      .from('jj_book_members')
+      .select('id')
+      .eq('book_id', bookId)
+      .eq('user_id', userId)
+      .single();
+
+    if (!membership) {
+      throw new ForbiddenException('无权访问该账本');
+    }
+
+    return this.getMembers(bookId);
   }
 
   /** 邀请成员 */

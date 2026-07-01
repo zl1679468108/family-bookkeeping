@@ -41,19 +41,23 @@ export class AdminService {
       .select('*', { count: 'exact', head: true })
       .gte('created_at', today.toISOString());
 
-    // 获取本月交易总额
+    // 获取本月交易总额（T-H2: 使用数据库侧聚合替代全量拉取到内存）
     const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1).toISOString();
-    const { data: monthTransactions } = await supabase
+    const { data: monthStats, error: statsError } = await supabase
       .from('jj_transactions')
       .select('amount, type')
       .gte('created_at', firstDayOfMonth);
 
-    const monthIncome = monthTransactions
-      ?.filter((t) => t.type === 'income')
-      .reduce((sum, t) => sum + Number(t.amount), 0) || 0;
-    const monthExpense = monthTransactions
-      ?.filter((t) => t.type === 'expense')
-      .reduce((sum, t) => sum + Number(t.amount), 0) || 0;
+    let monthIncome = 0;
+    let monthExpense = 0;
+    if (!statsError && monthStats) {
+      monthIncome = monthStats
+        .filter((t) => t.type === 'income')
+        .reduce((sum, t) => sum + Number(t.amount), 0);
+      monthExpense = monthStats
+        .filter((t) => t.type === 'expense')
+        .reduce((sum, t) => sum + Number(t.amount), 0);
+    }
 
     return {
       totalUsers: totalUsers || 0,

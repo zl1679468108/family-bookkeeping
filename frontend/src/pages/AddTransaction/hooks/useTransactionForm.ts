@@ -12,6 +12,7 @@ import { notify } from '../../../utils/notifications'
 import { parseImageList } from '../../../utils/parseImageList'
 import { compressImage } from '../../../utils/imageCompress'
 import type { LocationResult } from '../../../types/map'
+import type { Template } from '../../../types/template'
 
 export const MAX_NOTE_LENGTH = 500
 export const MAX_IMAGES = 10
@@ -268,13 +269,13 @@ export function useTransactionForm() {
   })
 
   // Template handler
-  const handleTemplateConfirm = (template: any) => {
+  const handleTemplateConfirm = (template: Template) => {
     setFormData((prev) => ({
       ...prev,
       type: (template.type as 'expense' | 'income') || prev.type,
       category: template.category_id || prev.category,
       amount: template.amount ? String(template.amount) : prev.amount,
-      brand: template.brand || prev.brand,
+      brand: template.merchant_name || prev.brand,
       note: template.note ?? prev.note,
     }))
     if (template.latitude && template.longitude) {

@@ -183,18 +183,18 @@ export class CategoriesService {
 
     const supabase = this.supabaseService.getClient();
 
-    const updates = orders.map((item) =>
-      supabase
-        .from('jj_categories')
-        .update({ sort_order: item.sort_order })
-        .eq('id', item.id)
-        .eq('user_id', userId),
-    );
+    // T-H1: 使用单次批量更新替代 N+1 请求
+    const ids = orders.map((o) => o.id);
+    const { error } = await supabase
+      .from('jj_categories')
+      .upsert(
+        orders.map((o) => ({ id: o.id, sort_order: o.sort_order, user_id: userId })),
+        { onConflict: 'id' },
+      )
+      .eq('user_id', userId);
 
-    const results = await Promise.all(updates);
-    const errors = results.filter((r) => r.error);
-    if (errors.length > 0) {
-      throw new InternalServerErrorException(`更新排序失败: ${errors[0].error?.message}`);
+    if (error) {
+      throw new InternalServerErrorException(`更新排序失败: ${error.message}`);
     }
   }
 

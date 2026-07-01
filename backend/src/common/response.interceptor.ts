@@ -38,14 +38,6 @@ const TIME_KEYS = new Set([
   'issued_at',
 ]);
 
-function isTimeField(key: string, value: unknown): value is string {
-  if (typeof value !== 'string') return false;
-  if (TIME_KEYS.has(key)) {
-    return ISO_DATE_REGEX.test(value) || TIMESTAMPTZ_REGEX.test(value);
-  }
-  return false;
-}
-
 function toBeijingTime(isoString: string): string {
   const date = new Date(isoString);
   if (Number.isNaN(date.getTime())) return isoString;
@@ -68,16 +60,69 @@ function toBeijingTime(isoString: string): string {
   return `${parts}.${ms}`;
 }
 
-function convertTimeFields(obj: unknown): unknown {
+// T-M4: 顶层时间字段集合（仅对这些字段转换，避免深拷贝大 payload）
+const TOP_LEVEL_TIME_KEYS = new Set([
+  'created_at',
+  'updated_at',
+  'expires_at',
+  'used_at',
+  'joined_at',
+  'last_login',
+  'deleted_at',
+  'last_active',
+  'last_used',
+  'expire_at',
+  'issued_at',
+]);
+
+// 嵌套数组中对象的常见时间字段
+const NESTED_TIME_KEYS = new Set([
+  'created_at',
+  'updated_at',
+  'date',
+  'time',
+  'datetime',
+  'timestamp',
+  'start_time',
+  'end_time',
+  'login_time',
+]);
+
+function isTimeField(key: string, value: unknown, topLevel: boolean): value is string {
+  if (typeof value !== 'string') return false;
+  const keys = topLevel ? TOP_LEVEL_TIME_KEYS : NESTED_TIME_KEYS;
+  if (keys.has(key)) {
+    return ISO_DATE_REGEX.test(value) || TIMESTAMPTZ_REGEX.test(value);
+  }
+  return false;
+}
+
+/**
+ * 转换时间字段（T-M4: 避免深拷贝大 payload）
+ * - 顶层对象：仅转换已知 TIME_KEYS 字段
+ * - 数组元素：递归转换常见时间字段
+ * - 其他对象：不递归，减少 O(n) 开销
+ */
+function convertTimeFields(obj: unknown, topLevel: boolean = true): unknown {
   if (obj === null || obj === undefined) return obj;
-  if (Array.isArray(obj)) return obj.map((item) => convertTimeFields(item));
+  if (Array.isArray(obj)) {
+    // 数组元素（如交易列表）需要递归处理时间字段
+    return obj.map((item) => convertTimeFields(item, false));
+  }
   if (typeof obj !== 'object') return obj;
+
   const result: Record<string, unknown> = {};
   for (const [key, value] of Object.entries(obj as Record<string, unknown>)) {
-    if (isTimeField(key, value)) {
+    if (isTimeField(key, value, topLevel)) {
       result[key] = toBeijingTime(value);
+    } else if (Array.isArray(value)) {
+      // 数组字段（如 transactions 列表）递归处理
+      result[key] = value.map((item) => convertTimeFields(item, false));
+    } else if (typeof value === 'object' && value !== null) {
+      // 嵌套对象不递归，避免 O(n) 深拷贝
+      result[key] = value;
     } else {
-      result[key] = convertTimeFields(value);
+      result[key] = value;
     }
   }
   return result;
