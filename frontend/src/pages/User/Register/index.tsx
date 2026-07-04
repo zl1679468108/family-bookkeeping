@@ -19,12 +19,10 @@ const RegisterPage: React.FC = () => {
       notify({ type: 'error', message: '两次输入的密码不一致' })
       return
     }
-
     if (password.length < 6) {
       notify({ type: 'error', message: '密码长度至少为6位' })
       return
     }
-
     try {
       await signUp(email, password, username)
       navigate('/')

@@ -170,10 +170,10 @@ const Budgets: React.FC = () => {
   return (
     <div className="page-container">
       <Card>
-        <CardHeader
-          title="预算明细"
-          subTitle={
-            budgetsLoading ? (
+        <div className="card-header">
+          <div className="card-header-left">
+            <h3 className="card-title">预算明细</h3>
+            {budgetsLoading ? (
               <Skeleton width="100px" height="14px" borderRadius="var(--rs)" />
             ) : (
               <DropdownSelect
@@ -185,18 +185,18 @@ const Budgets: React.FC = () => {
                 showSearch
                 searchPlaceholder="搜索月份..."
               />
-            )
-          }
-          action={
-            budgetsLoading ? (
+            )}
+          </div>
+          <div className="card-header-action">
+            {budgetsLoading ? (
               <Skeleton width="60px" height="28px" borderRadius="var(--rs)" />
             ) : (
               <Button variant="primary" size="sm" onClick={handleSave} disabled={saveLoading}>
                 {saveLoading ? '保存中...' : '保存'}
               </Button>
-            )
-          }
-        />
+            )}
+          </div>
+        </div>
 
         {budgetsLoading ? (
           <>
@@ -239,13 +239,13 @@ const Budgets: React.FC = () => {
               const status = catStatus?.status || 'safe'
               const isFocused = hasFocus && focusId === catKey
               const remaining = budget - spent
+              const statusClass = status === 'over' ? ' budget-item--over' : status === 'warning' ? ' budget-item--warn' : ''
 
               return (
                 <div
                   key={cat.name}
                   data-focus={catKey}
-                  className={`budget-item${isFocused ? ' spotlight--focused' : ''}`}
-                  style={{ cursor: 'pointer' }}
+                  className={`budget-item${statusClass}${isFocused ? ' spotlight--focused' : ''}`}
                   onClick={() => {
                     setSelectedBudget({ category: cat, spent, budget, progress, status, remaining })
                     setShowDetail(true)

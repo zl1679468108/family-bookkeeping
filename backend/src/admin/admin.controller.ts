@@ -70,6 +70,7 @@ export class AdminController {
    * PUT /api/admin/users/:id/role
    * 修改用户角色
    */
+  @UseGuards(new RateLimitGuard(60_000, 5))
   @Put('users/:id/role')
   async updateUserRole(
     @CurrentUser('id') adminUserId: string,
@@ -88,6 +89,7 @@ export class AdminController {
    * PUT /api/admin/users/:id/status
    * 修改用户状态
    */
+  @UseGuards(new RateLimitGuard(60_000, 5))
   @Put('users/:id/status')
   async updateUserStatus(
     @CurrentUser('id') adminUserId: string,

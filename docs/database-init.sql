@@ -409,3 +409,83 @@ CREATE POLICY "Users can delete their own icons" ON jj_custom_icons
 -- 以支持自定义图标 URL 的存储
 ALTER TABLE IF EXISTS jj_categories ALTER COLUMN icon TYPE VARCHAR(500);
 ALTER TABLE IF EXISTS jj_books ALTER COLUMN icon TYPE VARCHAR(500);
+
+-- ==============================================
+-- T-M17: 密码重置验证码防暴力破解 — 增加 failed_attempts 列
+-- ==============================================
+ALTER TABLE IF EXISTS jj_password_resets ADD COLUMN IF NOT EXISTS failed_attempts INTEGER NOT NULL DEFAULT 0;
+
+-- ==============================================
+-- T-H2: 管理员统计 — 月度交易总额数据库侧聚合 RPC
+-- 替代原全量拉取到 JS 中 reduce 的做法
+-- ==============================================
+CREATE OR REPLACE FUNCTION fn_monthly_transaction_totals(p_year INTEGER, p_month INTEGER)
+RETURNS TABLE (
+  income DECIMAL,
+  expense DECIMAL,
+  net DECIMAL
+) AS $$
+BEGIN
+  RETURN QUERY
+  SELECT
+    COALESCE(SUM(CASE WHEN t.type = 'income' THEN t.amount ELSE 0 END), 0)::DECIMAL,
+    COALESCE(SUM(CASE WHEN t.type = 'expense' THEN t.amount ELSE 0 END), 0)::DECIMAL,
+    COALESCE(SUM(CASE WHEN t.type = 'income' THEN t.amount ELSE 0 END), 0) - COALESCE(SUM(CASE WHEN t.type = 'expense' THEN t.amount ELSE 0 END), 0)::DECIMAL
+  FROM jj_transactions t
+  WHERE EXTRACT(YEAR FROM t.created_at) = p_year
+    AND EXTRACT(MONTH FROM t.created_at) = p_month;
+END;
+$$ LANGUAGE plpgsql;
+
+-- ==============================================
+-- T-M3: 账本列表交易计数 — 按 book_id 分组计数的 RPC
+-- 替代全量拉取交易行在本地计数
+-- ==============================================
+CREATE OR REPLACE FUNCTION fn_book_txn_counts(p_book_ids UUID[])
+RETURNS TABLE (book_id UUID, txn_count BIGINT) AS $$
+BEGIN
+  RETURN QUERY
+  SELECT book_id, COUNT(*)::BIGINT AS txn_count
+  FROM jj_transactions
+  WHERE book_id = ANY(p_book_ids)
+  GROUP BY book_id;
+END;
+$$ LANGUAGE plpgsql;
+
+-- ==============================================
+-- T-L8: Session 管理 — 按用户限制最大活跃 session 数 + 自动清理过期
+-- ==============================================
+
+-- 创建函数：清理过期 session
+CREATE OR REPLACE FUNCTION fn_cleanup_expired_sessions()
+RETURNS INTEGER AS $$
+DECLARE
+  deleted_count INTEGER;
+BEGIN
+  DELETE FROM jj_user_sessions
+  WHERE expires_at < NOW();
+  GET DIAGNOSTICS deleted_count = ROW_COUNT;
+  RETURN deleted_count;
+END;
+$$ LANGUAGE plpgsql;
+
+-- 创建函数：限制用户最大 session 数量（保留最新的 N 个）
+CREATE OR REPLACE FUNCTION fn_limit_user_sessions(p_user_id UUID, p_max_count INTEGER DEFAULT 5)
+RETURNS VOID AS $$
+BEGIN
+  WITH to_delete AS (
+    SELECT id
+    FROM jj_user_sessions
+    WHERE user_id = p_user_id
+      AND expires_at > NOW()
+    ORDER BY created_at ASC
+    LIMIT GREATEST(0, (SELECT COUNT(*) FROM jj_user_sessions WHERE user_id = p_user_id AND expires_at > NOW()) - p_max_count)
+  )
+  DELETE FROM jj_user_sessions WHERE id IN (SELECT id FROM to_delete);
+END;
+$$ LANGUAGE plpgsql;
+
+-- 创建定时清理索引（加速过期 session 查询）
+CREATE INDEX IF NOT EXISTS idx_jj_user_sessions_expired
+  ON jj_user_sessions(expires_at)
+  WHERE expires_at < NOW();

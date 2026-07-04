@@ -1,5 +1,6 @@
 import React from 'react'
 import { GlobalModal } from '../../components/ui'
+import { Card } from '../../components/ui/Card'
 import { useTemplatesPage } from './hooks/useTemplatesPage'
 import { TemplateGrid } from './components/TemplateGrid'
 import { TemplateDetailModal } from './components/TemplateDetailModal'
@@ -45,7 +46,7 @@ const Templates: React.FC = () => {
 
   return (
     <div className="page-container">
-      <div className="dash-card">
+      <Card>
         <TemplateGrid
           isLoading={isLoading}
           sortingMode={sortingMode}
@@ -62,7 +63,7 @@ const Templates: React.FC = () => {
           onSelect={(t) => { setSelectedTemplate(t); setShowDetail(true) }}
           getCategoryInfo={getCategoryInfo}
         />
-      </div>
+      </Card>
 
       <TemplateDetailModal
         template={selectedTemplate}

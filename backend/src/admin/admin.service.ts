@@ -41,22 +41,19 @@ export class AdminService {
       .select('*', { count: 'exact', head: true })
       .gte('created_at', today.toISOString());
 
-    // 获取本月交易总额（T-H2: 使用数据库侧聚合替代全量拉取到内存）
+    // T-H2: 使用数据库侧聚合 RPC 替代全量拉取到内存
     const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1).toISOString();
     const { data: monthStats, error: statsError } = await supabase
-      .from('jj_transactions')
-      .select('amount, type')
-      .gte('created_at', firstDayOfMonth);
+      .rpc('fn_monthly_transaction_totals', {
+        p_year: today.getFullYear(),
+        p_month: today.getMonth() + 1,
+      });
 
     let monthIncome = 0;
     let monthExpense = 0;
-    if (!statsError && monthStats) {
-      monthIncome = monthStats
-        .filter((t) => t.type === 'income')
-        .reduce((sum, t) => sum + Number(t.amount), 0);
-      monthExpense = monthStats
-        .filter((t) => t.type === 'expense')
-        .reduce((sum, t) => sum + Number(t.amount), 0);
+    if (!statsError && monthStats && monthStats[0]) {
+      monthIncome = Number(monthStats[0].income) || 0;
+      monthExpense = Number(monthStats[0].expense) || 0;
     }
 
     return {
@@ -93,7 +90,9 @@ export class AdminService {
       .select('id, email, username, avatar_url, role, status, created_at', { count: 'exact' });
 
     if (filters.search) {
-      query = query.or(`email.ilike.%${filters.search}%,username.ilike.%${filters.search}%`);
+      // T-M15: 转义 PostgREST 特殊字符
+      const sanitized = filters.search.replace(/[,.%()]/g, '\\$&');
+      query = query.or(`email.ilike.%${sanitized}%,username.ilike.%${sanitized}%`);
     }
     if (filters.role) {
       query = query.eq('role', filters.role);
@@ -206,6 +205,14 @@ export class AdminService {
       throw new Error(`修改用户状态失败: ${error.message}`);
     }
 
+    // T-C2: 暂停/删除用户时，清除其所有 session
+    if (newStatus === 'suspended' || newStatus === 'deleted') {
+      await supabase
+        .from('jj_user_sessions')
+        .delete()
+        .eq('user_id', targetUserId);
+    }
+
     return { message: `用户状态已更新为 ${newStatus}` };
   }
 
@@ -232,9 +239,9 @@ export class AdminService {
       .select(
         `
         id, amount, type, date, description, created_at, image_urls,
-        jj_users (id, email, username),
-        jj_categories (id, name, icon, type),
-        jj_books (id, name)
+        users:jj_users (id, email, username),
+        categories:jj_categories (id, name, icon, type),
+        books:jj_books (id, name)
       `,
         { count: 'exact' },
       );

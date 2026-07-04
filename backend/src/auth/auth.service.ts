@@ -106,6 +106,16 @@ export class AuthService {
    * 统一的 "邮箱或密码错误" 错误，由前端回退到带验证码的正常登录流程
    */
   async switchAccount(dto: SwitchAccountDto): Promise<{ user: SafeUser; token: string }> {
+    // T-M13: token 失效时需要 captcha 验证，防止暴力破解
+    if (!dto.token) {
+      if (!dto.captchaId || !dto.captchaCode) {
+        throw new UnauthorizedException('需要提供验证码');
+      }
+      const isCaptchaValid = this.captchaService.validate(dto.captchaId, dto.captchaCode);
+      if (!isCaptchaValid) {
+        throw new UnauthorizedException('验证码错误');
+      }
+    }
     return this.authenticateInternal(dto.email, dto.password, dto.token);
   }
 
@@ -129,6 +139,11 @@ export class AuthService {
     const isPasswordValid = await bcrypt.compare(password, user.password_hash);
     if (!isPasswordValid) {
       throw new UnauthorizedException('邮箱或密码错误');
+    }
+
+    // T-C2: 校验用户状态，暂停/禁用用户不允许登录
+    if (user.status !== 'active') {
+      throw new UnauthorizedException('账号已被暂停，请联系客服');
     }
 
     // 如果客户端传递了 token，检查是否未过期，如果未过期则复用
@@ -231,6 +246,12 @@ export class AuthService {
     if (resetUpdateError) {
       throw new InternalServerErrorException(`更新重置令牌失败：${resetUpdateError.message}`);
     }
+
+    // T-M14: 密码重置后销毁该用户所有 session
+    await supabase
+      .from('jj_user_sessions')
+      .delete()
+      .eq('user_id', resetRecord.user_id);
   }
 
   async updateProfile(userId: string, dto: UpdateProfileDto): Promise<SafeUser | null> {
@@ -318,6 +339,33 @@ export class AuthService {
     await this.mailService.sendVerificationCodeEmail(email, code);
   }
 
+  // T-M17: 验证码失败次数追踪（内存存储，生产环境建议用 Redis）
+  private resetCodeAttempts = new Map<string, { count: number; lockedUntil: number }>();
+  private readonly RESET_CODE_MAX_ATTEMPTS = 5;
+  private readonly RESET_CODE_LOCK_DURATION = 15 * 60 * 1000; // 15 分钟
+
+  private checkResetCodeLock(email: string): void {
+    const record = this.resetCodeAttempts.get(email);
+    if (record && record.lockedUntil > Date.now()) {
+      const remaining = Math.ceil((record.lockedUntil - Date.now()) / 60000);
+      throw new BadRequestException(`验证码错误次数过多，请 ${remaining} 分钟后重试`);
+    }
+  }
+
+  private recordResetCodeFailure(email: string): void {
+    const record = this.resetCodeAttempts.get(email) || { count: 0, lockedUntil: 0 };
+    record.count++;
+    if (record.count >= this.RESET_CODE_MAX_ATTEMPTS) {
+      record.lockedUntil = Date.now() + this.RESET_CODE_LOCK_DURATION;
+      record.count = 0; // 锁定后重置计数
+    }
+    this.resetCodeAttempts.set(email, record);
+  }
+
+  private clearResetCodeAttempts(email: string): void {
+    this.resetCodeAttempts.delete(email);
+  }
+
   async resetPasswordByCode(email: string, code: string, newPassword: string): Promise<void> {
     const supabase = this.supabaseService.getClient();
 
@@ -327,6 +375,9 @@ export class AuthService {
     if (!trimmedCode || trimmedCode.length !== 6) {
       throw new BadRequestException('验证码必须是 6 位数字');
     }
+
+    // T-M17: 检查是否被锁定
+    this.checkResetCodeLock(trimmedEmail);
 
     const { data: user } = await supabase
       .from('jj_users')
@@ -354,8 +405,13 @@ export class AuthService {
     }
 
     if (resetRecord.code !== trimmedCode) {
+      // T-M17: 记录失败次数
+      this.recordResetCodeFailure(trimmedEmail);
       throw new BadRequestException('验证码错误');
     }
+
+    // T-M17: 验证码正确，清除失败记录
+    this.clearResetCodeAttempts(trimmedEmail);
 
     const passwordHash = await bcrypt.hash(newPassword, 10);
 
@@ -376,6 +432,12 @@ export class AuthService {
     if (resetUpdateError) {
       throw new InternalServerErrorException(`更新验证码状态失败：${resetUpdateError.message}`);
     }
+
+    // T-M14: 密码重置后销毁该用户所有 session
+    await supabase
+      .from('jj_user_sessions')
+      .delete()
+      .eq('user_id', user.id);
   }
 
   async logout(userId: string, tokenHash: string): Promise<void> {
@@ -460,6 +522,16 @@ export class AuthService {
       throw new InternalServerErrorException(`创建会话失败：${error.message}`);
     }
 
+    // T-L8: 创建新 session 后限制用户最多 5 个活跃 session
+    try {
+      await supabase.rpc('fn_limit_user_sessions', {
+        p_user_id: userId,
+        p_max_count: 5,
+      });
+    } catch {
+      // 静默失败，不影响登录流程
+    }
+
     return token;
   }
 
@@ -510,6 +582,12 @@ export class AuthService {
     if (updateError) {
       throw new InternalServerErrorException(`修改密码失败：${updateError.message}`);
     }
+
+    // T-M14: 密码修改后销毁该用户所有 session（除当前 session 外）
+    await supabase
+      .from('jj_user_sessions')
+      .delete()
+      .eq('user_id', userId);
   }
 
   /**

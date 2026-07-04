@@ -5,10 +5,13 @@ import {
   Injectable,
   InternalServerErrorException,
   NotFoundException,
+  Inject,
+  forwardRef,
 } from '@nestjs/common';
 import { SupabaseService } from '../supabase/supabase.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
+import { ExportService } from '../export/export.service';
 
 export interface Category {
   id: string;
@@ -29,7 +32,11 @@ const DEFAULT_CATEGORIES = [
 
 @Injectable()
 export class CategoriesService {
-  constructor(private readonly supabaseService: SupabaseService) {}
+  constructor(
+    private readonly supabaseService: SupabaseService,
+    @Inject(forwardRef(() => ExportService))
+    private readonly exportService: ExportService,
+  ) {}
 
   /**
    * 查询用户所有分类（用户级默认 + 自定义）
@@ -108,6 +115,9 @@ export class CategoriesService {
       .single();
 
     if (error) throw new InternalServerErrorException(`创建分类失败: ${error.message}`);
+
+    // T-L1: 分类变更后清除导出缓存
+    this.exportService.clearCategoryCache();
     return data;
   }
 
@@ -153,6 +163,9 @@ export class CategoriesService {
       .single();
 
     if (error) throw new InternalServerErrorException(`更新分类失败: ${error.message}`);
+
+    // T-L1: 分类变更后清除导出缓存
+    this.exportService.clearCategoryCache();
     return data;
   }
 
@@ -172,6 +185,9 @@ export class CategoriesService {
       .eq('user_id', userId);
 
     if (error) throw new InternalServerErrorException(`删除分类失败: ${error.message}`);
+
+    // T-L1: 分类变更后清除导出缓存
+    this.exportService.clearCategoryCache();
   }
 
   /**
@@ -183,19 +199,38 @@ export class CategoriesService {
 
     const supabase = this.supabaseService.getClient();
 
-    // T-H1: 使用单次批量更新替代 N+1 请求
+    // T-H1: 先校验所有传入的 category ID 是否属于当前用户
     const ids = orders.map((o) => o.id);
-    const { error } = await supabase
+    const { data: ownedCategories, error: checkError } = await supabase
       .from('jj_categories')
-      .upsert(
-        orders.map((o) => ({ id: o.id, sort_order: o.sort_order, user_id: userId })),
-        { onConflict: 'id' },
-      )
+      .select('id')
+      .in('id', ids)
       .eq('user_id', userId);
 
-    if (error) {
-      throw new InternalServerErrorException(`更新排序失败: ${error.message}`);
+    if (checkError) {
+      throw new InternalServerErrorException(`校验分类归属失败: ${checkError.message}`);
     }
+
+    // 数量不匹配说明有不属于当前用户的 category
+    if (ownedCategories?.length !== ids.length) {
+      throw new ForbiddenException('无权修改他人的分类');
+    }
+
+    // T-H1: 循环逐条更新（PostgREST 不支持 .upsert().eq()）
+    for (const order of orders) {
+      const { error } = await supabase
+        .from('jj_categories')
+        .update({ sort_order: order.sort_order })
+        .eq('id', order.id)
+        .eq('user_id', userId);
+
+      if (error) {
+        throw new InternalServerErrorException(`更新分类排序失败: ${error.message}`);
+      }
+    }
+
+    // T-L1: 排序变更后清除导出缓存
+    this.exportService.clearCategoryCache();
   }
 
   /** 为已有用户创建默认分类（幂等：仅在用户无分类时调用） */

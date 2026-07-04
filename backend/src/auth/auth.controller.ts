@@ -51,6 +51,7 @@ export class AuthController {
   }
 
   @Get('captcha')
+  @UseGuards(new RateLimitGuard(60_000, 30))
   async getCaptcha() {
     const { captchaId, svg } = this.captchaService.generate();
     return { data: { captchaId, svg } };

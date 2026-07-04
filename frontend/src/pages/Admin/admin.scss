@@ -94,6 +94,28 @@
   color: var(--pr);
 }
 
+.stat-card--hero {
+  background: linear-gradient(135deg, var(--pr) 0%, var(--prH) 100%);
+  border-color: transparent;
+}
+
+.stat-card--hero .stat-card__label,
+.stat-card--hero .stat-card__hint {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.stat-card--hero .stat-card__value {
+  color: #fff;
+}
+
+.stat-card--income {
+  border-top: 3px solid var(--pr);
+}
+
+.stat-card--expense {
+  border-top: 3px solid var(--exp);
+}
+
 /* ============ 数据表格 ============ */
 .data-table-wrapper {
   overflow-x: auto;

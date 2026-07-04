@@ -18,7 +18,6 @@ const LoginPage: React.FC = () => {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
 
-  // 获取验证码
   const refreshCaptcha = async () => {
     try {
       const { captchaId, svg } = await getCaptcha()
@@ -30,7 +29,6 @@ const LoginPage: React.FC = () => {
     }
   }
 
-  // 页面加载时获取验证码（仅执行一次，避免 React 18 严格模式下重复请求）
   useOnceEffect(() => {
     refreshCaptcha()
   })
@@ -42,7 +40,6 @@ const LoginPage: React.FC = () => {
       const redirect = searchParams.get('redirect') || '/'
       navigate(redirect)
     } catch (error) {
-      // 登录失败：显示错误信息并刷新验证码（F-M8）
       const message = error instanceof Error ? error.message : '登录失败，请重试'
       notify({ type: 'error', message })
       refreshCaptcha()
@@ -82,7 +79,7 @@ const LoginPage: React.FC = () => {
           <input
             id="loginPass"
             type="password"
-            placeholder="••••••••"
+            placeholder="输入密码"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
@@ -103,14 +100,15 @@ const LoginPage: React.FC = () => {
               maxLength={4}
               autoComplete="off"
             />
-            <img
-              className="captcha-img"
-              src={captchaSvg ? `data:image/svg+xml;base64,${btoa(captchaSvg)}` : ''}
-              alt="验证码"
-              onClick={refreshCaptcha}
-              title="点击刷新验证码"
-              style={{ cursor: 'pointer', minHeight: 56 }}
-            />
+            {captchaSvg && (
+              <img
+                className="captcha-img"
+                src={`data:image/svg+xml;base64,${btoa(captchaSvg)}`}
+                alt="验证码"
+                onClick={refreshCaptcha}
+                title="点击刷新验证码"
+              />
+            )}
           </div>
         </div>
 

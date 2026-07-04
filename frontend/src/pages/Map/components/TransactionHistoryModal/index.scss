@@ -90,6 +90,29 @@
   border-bottom: 1px solid var(--border, #eee);
 }
 
+/* 筛选 Chip 按钮 */
+.map-chip {
+  padding: 4px 12px;
+  border-radius: 16px;
+  border: 1px solid var(--border, #ddd);
+  background: var(--bg, #fafafa);
+  color: var(--fg, #555);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+
+  &:hover {
+    background: #f0f0f0;
+  }
+
+  &.active {
+    background: #2D9D8A;
+    color: #fff;
+    border-color: #2D9D8A;
+  }
+}
+
 /* 历史列表 */
 .merchant-history-list {
   flex: 1;

@@ -44,7 +44,7 @@ export function useTransactionForm() {
   const isEditMode = !isNaN(editIdNum) && editIdNum > 0
 
   // todayStr 不缓存：保证用户跨午夜停留页面时日期会更新到当天（F-L6）
-  const todayStr = new Date().toISOString().slice(0, 10)
+  const todayStr = new Date().toLocaleDateString('sv-SE', { timeZone: 'Asia/Shanghai' })
 
   const [formData, setFormData] = useState<FormData>({
     amount: '',
@@ -65,6 +65,8 @@ export function useTransactionForm() {
   // 缓存 Tesseract worker，避免每次 OCR 都重新创建并加载语言包（F-H1）
   const workerRef = useRef<Tesseract.Worker | null>(null)
   const workerPromiseRef = useRef<Promise<Tesseract.Worker> | null>(null)
+  // T-M7: 追踪所有待清理的 blob URL
+  const pendingBlobUrlsRef = useRef<Set<string>>(new Set())
   const getWorker = useCallback(async (): Promise<Tesseract.Worker> => {
     if (workerRef.current) return workerRef.current
     if (workerPromiseRef.current) return workerPromiseRef.current
@@ -87,20 +89,19 @@ export function useTransactionForm() {
     return workerPromiseRef.current
   }, [])
 
-  // 组件卸载时清理：终止 worker + 释放所有未提交的 blob URL（F-H1, F-H2）
+  // T-M7: 组件卸载时清理：终止 worker + 释放所有未提交的 blob URL
   useEffect(() => {
     return () => {
       if (workerRef.current) {
         workerRef.current.terminate().catch(() => undefined)
         workerRef.current = null
       }
-      // 释放当前 pendingImages 中的 blob URL
-      pendingImages.forEach((p) => {
-        if (p.localUrl.startsWith('blob:')) URL.revokeObjectURL(p.localUrl)
+      // T-M7: 释放 ref 中追踪的所有 blob URL
+      pendingBlobUrlsRef.current.forEach((url) => {
+        if (url.startsWith('blob:')) URL.revokeObjectURL(url)
       })
+      pendingBlobUrlsRef.current.clear()
     }
-    // 仅卸载时执行，不依赖 pendingImages
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   // Queries
@@ -241,6 +242,7 @@ export function useTransactionForm() {
 
         queryClient.invalidateQueries({ queryKey: ['transactions'] })
         queryClient.invalidateQueries({ queryKey: ['statistics'] })
+        queryClient.invalidateQueries({ queryKey: ['budgets'] })
         notify({ type: 'success', message: '交易已更新' })
       } else {
         const result = await createMutation.mutateAsync()
@@ -259,6 +261,7 @@ export function useTransactionForm() {
 
         queryClient.invalidateQueries({ queryKey: ['transactions'] })
         queryClient.invalidateQueries({ queryKey: ['statistics'] })
+        queryClient.invalidateQueries({ queryKey: ['budgets'] })
         notify({ type: 'success', message: '交易已保存' })
       }
       handleReset()
@@ -315,6 +318,8 @@ export function useTransactionForm() {
       for (const file of toProcess) {
         const compressed = await compressImage(file, 1200, 0.7)
         const localUrl = URL.createObjectURL(compressed)
+        // T-M7: 追踪 blob URL 以便卸载时清理
+        pendingBlobUrlsRef.current.add(localUrl)
         newPending.push({ localUrl, blob: compressed })
       }
       setPendingImages((prev) => [...prev, ...newPending])
@@ -642,6 +647,7 @@ export function useTransactionForm() {
       const removed = prev[idx]
       if (removed && removed.localUrl.startsWith('blob:')) {
         URL.revokeObjectURL(removed.localUrl)
+        pendingBlobUrlsRef.current.delete(removed.localUrl)
       }
       return prev.filter((_, i) => i !== idx)
     })
@@ -650,6 +656,7 @@ export function useTransactionForm() {
   const handleClearAllImages = () => {
     pendingImages.forEach((p) => {
       if (p.localUrl.startsWith('blob:')) URL.revokeObjectURL(p.localUrl)
+      pendingBlobUrlsRef.current.delete(p.localUrl)
     })
     setPendingImages([])
     setSavedImageUrls([])

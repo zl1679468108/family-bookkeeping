@@ -13,7 +13,6 @@ export interface MemberComparisonItem {
 }
 
 export interface MemberComparisonParams {
-  book_id: string;
   month_from: string;
   month_to: string;
 }

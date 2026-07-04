@@ -62,7 +62,11 @@ export function useManualQuery<T>({
   const lastKey = useRef("");
 
   const fetch = () => {
-    if (!enabled || !user) return;
+    // T-L13: user 为 null 时关闭 loading，避免卡住
+    if (!enabled || !user) {
+      setIsLoading(false);
+      return;
+    }
     setIsFetching(true);
     setError(null);
     if (!data) setIsLoading(true);

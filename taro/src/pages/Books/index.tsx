@@ -10,7 +10,7 @@ import PageLayout from "../../components/PageLayout";
 import EmptyState from "../../components/EmptyState";
 import ConfirmDialog from "../../components/ConfirmDialog";
 import { AppSection, PageHero } from "../../components/ui";
-import { apiGet, apiPost, apiPut, apiDelete } from "../../services/api";
+import { apiGet, apiPost, apiPut, apiDelete, setStoredBookId } from "../../services/api";
 import {
   fetchBookMembers,
   inviteMember,
@@ -232,7 +232,7 @@ export default function BooksPage() {
       return;
     }
     switchBook(book);
-    Taro.setStorageSync("currentBookId", book.id);
+    // T-H11: 统一使用 setStoredBookId()，与 api.ts 中的 getStoredBookId() 共用 key
     qc.invalidateQueries();
     Taro.showToast({
       title: `已切换到「${book.name}」`,

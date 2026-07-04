@@ -93,13 +93,12 @@ export const fetchYearOverYear = async (
 
 /**
  * 获取多成员对比数据
- * GET /api/statistics/member-comparison?book_id=...&month_from=...&month_to=...
+ * GET /api/statistics/member-comparison?month_from=...&month_to=...
  */
 export const fetchMemberComparison = async (
   params: MemberComparisonParams,
 ): Promise<MemberComparisonItem[]> => {
   const query = new URLSearchParams({
-    book_id: params.book_id,
     month_from: params.month_from,
     month_to: params.month_to,
   }).toString();

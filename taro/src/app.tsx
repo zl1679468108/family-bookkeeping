@@ -24,7 +24,14 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import Taro, { useDidShow } from "@tarojs/taro";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { BookProvider } from "./context/BookContext";
+import { hydrateAuthFromStorage } from "./services/api";
+import { migrateSavedAccounts } from "./utils/savedAccounts";
 import "./app.scss";
+
+// T-C3: 在模块加载最早时机（Provider 挂载前）从 Storage 回填内存缓存
+hydrateAuthFromStorage();
+// T-C1: 启动时清理旧 saved_accounts 中的 password 字段
+migrateSavedAccounts();
 
 /**
  * QueryClient — React Query 的核心

@@ -64,16 +64,20 @@ export const RankRow: React.FC<RankRowItem> = ({
           </span>
         )}
       </div>
-      {progressPercent !== undefined && (
-        <div className="rank-row__bar">
-          <div className={`fill ${fillClass}`} style={{ width: `${Math.min(progressPercent, 100)}%` }} />
+      {(progressPercent !== undefined || meta) && (
+        <div className="rank-row__progress">
+          {progressPercent !== undefined && (
+            <div className="rank-row__bar">
+              <div className={`fill ${fillClass}`} style={{ width: `${Math.min(progressPercent, 100)}%` }} />
+            </div>
+          )}
+          <div className="rank-row__meta">
+            {progressPercent !== undefined && `${progressPercent}%`}
+            {status === 'danger' && progressPercent !== undefined && ' 超支!'}
+            {meta && <span className="rank-row__extra">{meta}</span>}
+          </div>
         </div>
       )}
-      <div className="rank-row__meta">
-        {progressPercent !== undefined && `${progressPercent}%`}
-        {status === 'danger' && progressPercent !== undefined && ' 超支!'}
-        {meta && <span className="rank-row__extra">{meta}</span>}
-      </div>
     </div>
   )
 }

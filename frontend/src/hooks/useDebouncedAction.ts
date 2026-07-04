@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useRef } from 'react'
 
 /**
  * 异步操作防抖 hook —— 防止按钮重复点击导致重复调用 API
@@ -26,21 +26,25 @@ export function useDebouncedAction<T extends any[], R>(
   fn: (...args: T) => Promise<R> | R,
 ) {
   const [isRunning, setIsRunning] = useState(false)
+  // T-L12: 使用 ref 作为锁，避免 setState 异步导致的竞态
+  const lockRef = useRef(false)
 
   const run = useCallback(
     async (...args: T): Promise<R | undefined> => {
-      if (isRunning) {
+      if (lockRef.current) {
         return undefined
       }
+      lockRef.current = true
       setIsRunning(true)
       try {
         const result = await fn(...args)
         return result
       } finally {
+        lockRef.current = false
         setIsRunning(false)
       }
     },
-    [fn, isRunning],
+    [fn],
   )
 
   return { run, isRunning }

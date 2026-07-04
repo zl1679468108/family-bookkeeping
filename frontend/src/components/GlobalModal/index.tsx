@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef, useCallback } from 'react';
 import { useModalZIndex } from '../../hooks/useModalZIndex';
 import './index.scss';
 
@@ -43,6 +43,18 @@ interface GlobalModalProps {
   onConfirm?: () => void;
 }
 
+/** 收集 DOM 元素中可 focus 的元素 */
+const FOCUSABLE_SELECTOR = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
+function getFocusableElements(container: HTMLElement): HTMLElement[] {
+  return Array.from(container.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR)).filter(
+    (el) => {
+      // 排除 disabled 按钮和不可见元素
+      if ('disabled' in el && (el as HTMLButtonElement).disabled) return false;
+      return el.offsetParent !== null;
+    },
+  );
+}
+
 export const GlobalModal: React.FC<GlobalModalProps> = ({
   open,
   onClose,
@@ -63,11 +75,76 @@ export const GlobalModal: React.FC<GlobalModalProps> = ({
   loading = false,
   onConfirm,
 }) => {
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const previouslyFocused = useRef<HTMLElement | null>(null);
+
   // 根据类型确定基础 z-index
   const zIndexType = type === 'confirm' ? 'critical' : type === 'detail' ? 'detail' : 'modal';
   const zIndex = useModalZIndex(open, zIndexType);
 
-  // ESC 键关闭弹窗
+  // T-M34: Focus trap + ARIA
+  useEffect(() => {
+    if (!open) return;
+
+    // 记录当前焦点以便恢复
+    previouslyFocused.current = document.activeElement as HTMLElement;
+
+    // 自动聚焦到 dialog
+    const dialogEl = dialogRef.current;
+    if (dialogEl) {
+      // 尝试聚焦第一个可交互元素，否则聚焦 dialog 本身
+      const focusable = getFocusableElements(dialogEl);
+      if (focusable.length > 0) {
+        focusable[0].focus();
+      } else {
+        dialogEl.setAttribute('tabindex', '-1');
+        dialogEl.focus();
+      }
+    }
+
+    // ESC 键关闭弹窗
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.stopPropagation();
+        onClose();
+        return;
+      }
+
+      // T-M34: Focus trap — Tab/Shift+Tab 循环聚焦
+      if (e.key === 'Tab' && dialogEl) {
+        const focusable = getFocusableElements(dialogEl);
+        if (focusable.length === 0) return;
+
+        const firstFocusable = focusable[0];
+        const lastFocusable = focusable[focusable.length - 1];
+
+        if (e.shiftKey) {
+          // Shift+Tab: 从第一个元素回到最后一个
+          if (document.activeElement === firstFocusable) {
+            e.preventDefault();
+            lastFocusable.focus();
+          }
+        } else {
+          // Tab: 从最后一个元素回到第一个
+          if (document.activeElement === lastFocusable) {
+            e.preventDefault();
+            firstFocusable.focus();
+          }
+        }
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      // 恢复之前焦点
+      if (previouslyFocused.current) {
+        previouslyFocused.current.focus();
+      }
+    };
+  }, [open, onClose]);
+
+  // ESC 键关闭弹窗（保留原有行为作为兜底）
   useEffect(() => {
     if (!open || !closable) return;
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -101,10 +178,18 @@ export const GlobalModal: React.FC<GlobalModalProps> = ({
   if (type === 'confirm') {
     const confirmVariant = confirmDanger ? 'danger' : 'primary';
     return (
-      <div className={overlayClass} onClick={onClose} style={{ zIndex }}>
-        <div className={dialogClass} onClick={(e) => e.stopPropagation()}>
-          {title && <h3 className="global-modal-dialog__title">{title}</h3>}
-          {children && <p className="global-modal-dialog__message">{children}</p>}
+      <div className={overlayClass} onClick={onClose} style={{ zIndex }} role="presentation">
+        <div
+          ref={dialogRef}
+          className={dialogClass}
+          onClick={(e) => e.stopPropagation()}
+          role="alertdialog"
+          aria-modal="true"
+          aria-labelledby={title ? `${type}-title` : undefined}
+          aria-describedby={description ? `${type}-desc` : undefined}
+        >
+          {title && <h3 id={`${type}-title`} className="global-modal-dialog__title">{title}</h3>}
+          {children && <p id={`${type}-desc`} className="global-modal-dialog__message">{children}</p>}
           <div className="global-modal-dialog__actions">
             <button
               type="button"
@@ -141,10 +226,15 @@ export const GlobalModal: React.FC<GlobalModalProps> = ({
 
   // 渲染详情弹窗和通用弹窗模式
   return (
-    <div className={overlayClass} onClick={() => closeOnMask && onClose()} style={{ zIndex }}>
+    <div className={overlayClass} onClick={() => closeOnMask && onClose()} style={{ zIndex }} role="presentation">
       <div
+        ref={dialogRef}
         className={dialogClass}
         onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={title ? `${type}-title` : undefined}
+        aria-describedby={description ? `${type}-desc` : undefined}
         style={{
           maxWidth: typeof defaultWidth === 'number' ? `${defaultWidth}px` : defaultWidth,
           width: '100%',
@@ -153,8 +243,8 @@ export const GlobalModal: React.FC<GlobalModalProps> = ({
         {(title || closable) && (
           <div className="global-modal-dialog__header">
             <div className="global-modal-dialog__header-text">
-              {title && <h3 className="global-modal-dialog__title">{title}</h3>}
-              {description && <div className="global-modal-dialog__desc">{description}</div>}
+              {title && <h3 id={`${type}-title`} className="global-modal-dialog__title">{title}</h3>}
+              {description && <div id={`${type}-desc`} className="global-modal-dialog__desc">{description}</div>}
             </div>
             {closable && (
               <button type="button" className="global-modal-dialog__close" onClick={onClose} aria-label="关闭">

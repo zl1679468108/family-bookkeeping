@@ -13,6 +13,7 @@ import { TransactionFilters } from '../transaction/transaction.service';
 import { TokenAuthGuard } from '../auth/token-auth.guard';
 import { CurrentUser } from '../auth/current-user.decorator';
 import { BookId } from '../books/book-id.decorator';
+import { RateLimitGuard } from '../auth/rate-limit.guard';
 
 @Controller('export')
 @UseGuards(TokenAuthGuard)
@@ -23,6 +24,7 @@ export class ExportController {
    * 导出 Excel 文件
    */
   @Get('excel')
+  @UseGuards(new RateLimitGuard(60_000, 3))
   async exportExcel(
     @Res() res: Response,
     @CurrentUser('id') userId: string,
@@ -69,6 +71,7 @@ export class ExportController {
    * 导出 PDF 文件
    */
   @Get('pdf')
+  @UseGuards(new RateLimitGuard(60_000, 3))
   async exportPdf(
     @Res() res: Response,
     @CurrentUser('id') userId: string,

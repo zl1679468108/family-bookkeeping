@@ -34,8 +34,7 @@ const AnnualReport: React.FC = () => {
   const { currentBook } = useBook();
   const { user } = useAuth();
 
-  const bookId = currentBook?.id;
-  const { data, isLoading, error } = useAnnualReport(year, bookId);
+  const { data, isLoading, error } = useAnnualReport(year);
 
   // 生成年份选项（前后各 5 年）
   const yearOptions = useMemo(() => {

@@ -1,4 +1,4 @@
-import { Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, Logger, ForbiddenException } from '@nestjs/common';
 import { SupabaseService } from '../supabase/supabase.service';
 import { MapTransactionsQueryDto, MerchantQueryDto, MerchantTransactionsQueryDto } from './dto/map-query.dto';
 import { UpdateLocationDto } from './dto/location.dto';
@@ -81,6 +81,19 @@ const MEMBER_COLORS: readonly string[] = [
 export class MapService {
   constructor(private supabaseService: SupabaseService) {}
 
+  /** 检查用户是否为账本 Owner */
+  private async isBookOwner(userId: string, bookId: string | undefined): Promise<boolean> {
+    if (!bookId) return false;
+    const supabase = this.supabaseService.getClient();
+    const { data } = await supabase
+      .from('jj_book_members')
+      .select('role')
+      .eq('book_id', bookId)
+      .eq('user_id', userId)
+      .single();
+    return data?.role === 'owner';
+  }
+
   /**
    * 获取带位置信息的交易记录。
    * P1 扩展：当 memberIds 有值时，查询多个用户的交易（.in 替代 .eq），
@@ -93,6 +106,23 @@ export class MapService {
     memberIds?: string[],
   ): Promise<MapTransaction[]> {
     const supabase = this.supabaseService.getClient();
+
+    // T-H4: 多成员查询仅限 owner，且需验证 memberIds 属于当前账本
+    if (memberIds && memberIds.length > 0) {
+      const isOwner = await this.isBookOwner(userId, bookId);
+      if (!isOwner) {
+        throw new ForbiddenException('仅账本管理员可查询其他成员数据');
+      }
+      // 验证 memberIds 是否都属于当前账本
+      const { data: members } = await supabase
+        .from('jj_book_members')
+        .select('user_id')
+        .eq('book_id', bookId)
+        .in('user_id', memberIds);
+      if (!members || members.length !== memberIds.length) {
+        throw new ForbiddenException('指定的成员不属于当前账本');
+      }
+    }
 
     const baseFields = 'id, type, category, amount, date, description, latitude, longitude, location_name, poi_id';
     // P1: multi-member mode — also select user_id
@@ -364,7 +394,8 @@ export class MapService {
 
     return data.map((bm: any, index: number) => ({
       userId: bm.user_id,
-      username: bm.users?.username || '未知用户',
+      // T-M22: join 使用 jj_users(...)，嵌套 key 是 jj_users 而非 users
+      username: bm.jj_users?.username || '未知用户',
       role: bm.role,
       color: MEMBER_COLORS[index % MEMBER_COLORS.length],
     }));
@@ -408,8 +439,9 @@ export class MapService {
     }
     return (data || []).map((r: any) => ({
       userId: r.user_id,
-      username: r.users?.username || '未知用户',
-      email: r.users?.email || '',
+      // T-M22: 使用 !inner join 的嵌套 key jj_users
+      username: r.jj_users?.username || '未知用户',
+      email: r.jj_users?.email || '',
       latitude: r.latitude,
       longitude: r.longitude,
       updatedAt: r.updated_at,

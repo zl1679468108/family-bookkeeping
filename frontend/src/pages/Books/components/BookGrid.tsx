@@ -85,7 +85,7 @@ export const BookGrid: React.FC<BookGridProps> = ({
                 <div className="bk-name">{book.name}</div>
               </div>
               <div className="bk-tags">
-                <span className="bk-tag">{book.m || 1} 成员</span>
+                <span className="bk-tag">{book.member_count || 1} 成员</span>
                 <span className="bk-tag">{book.txn_count || 0} 笔交易</span>
               </div>
               {book.description && (

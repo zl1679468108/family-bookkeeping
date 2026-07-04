@@ -164,7 +164,7 @@ const AdminUsers: React.FC = () => {
               <table className="data-table">
                 <thead>
                   <tr>
-                    <th style={{ width: '80px' }}>ID</th>
+                    <th style={{ width: '200px' }}>ID</th>
                     <th style={{ width: '100px' }}>头像</th>
                     <th style={{ width: '120px' }}>用户名</th>
                     <th>邮箱</th>

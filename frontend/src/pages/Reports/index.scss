@@ -67,3 +67,35 @@
   background: var(--fg);
   color: #fff;
 }
+
+/* 报表头部：tab + 筛选 */
+.reports-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.reports-filter {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* 收入支出 + 分类占比 并排 */
+.reports-summary-row {
+  display: grid;
+  grid-template-columns: 3fr 7fr;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.reports-summary-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.reports-category-card {
+  min-height: 0;
+}

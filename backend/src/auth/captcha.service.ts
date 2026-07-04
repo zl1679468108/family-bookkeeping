@@ -61,11 +61,14 @@ export class CaptchaService {
   }
 
   private getSecret(): string {
-    return (
+    const secret =
       this.configService.get<string>('CAPTCHA_SECRET') ||
-      this.configService.get<string>('JWT_SECRET') ||
-      'family-bookkeeping-captcha-secret'
-    );
+      this.configService.get<string>('JWT_SECRET');
+    if (!secret) {
+      // T-L10: 生产环境未配置任何 secret 时启动失败
+      throw new Error('CAPTCHA_SECRET 或 JWT_SECRET 环境变量未设置，请配置后重启');
+    }
+    return secret;
   }
 
   private signPayload(payload: { text: string; exp: number; nonce: string }): string {

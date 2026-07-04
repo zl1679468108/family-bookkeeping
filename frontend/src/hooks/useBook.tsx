@@ -85,14 +85,16 @@ export const BookProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const isOwner = currentBook?.role === 'owner';
   const hasBooks = !booksLoading && books.length > 0;
 
-  const switchBook = useCallback((book: Book | null) => {
+  const switchBook = useCallback(async (book: Book | null) => {
     setCurrentBook(book);
     if (book?.id) {
-      setCurrentBookApi(book.id).catch(() => {
+      try {
+        await setCurrentBookApi(book.id);
+      } catch {
         notify({ type: 'error', message: '设置当前账本失败，请重试' });
-      });
+      }
     }
-    // 切换账本时刷新所有依赖账本 ID 的查询
+    // T-H6: await API 成功后再 invalidate，避免竞态
     queryClient.invalidateQueries({ queryKey: ['transactions'] });
     queryClient.invalidateQueries({ queryKey: ['statistics'] });
     queryClient.invalidateQueries({ queryKey: ['budgets'] });

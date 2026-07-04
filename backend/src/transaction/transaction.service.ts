@@ -124,7 +124,9 @@ export class TransactionService {
 
     const fuzzyTerm = filters?.keyword || filters?.search;
     if (fuzzyTerm) {
-      const likeTerm = `%${fuzzyTerm}%`;
+      // T-M15: 转义 PostgREST 特殊字符，防止语法破坏
+      const sanitized = fuzzyTerm.replace(/[,.%()]/g, '\\$&');
+      const likeTerm = `%${sanitized}%`;
       query = query.or(`description.ilike.${likeTerm},brand.ilike.${likeTerm}`);
     }
 
@@ -144,7 +146,8 @@ export class TransactionService {
     }
 
     const page = filters?.page || 1;
-    const pageSize = filters?.pageSize || 10;
+    // T-M19: 限制 pageSize 最大值为 100
+    const pageSize = Math.min(filters?.pageSize || 10, 100);
     const sortBy = filters?.sortBy || 'date';
     const sortOrder = filters?.sortOrder || 'desc';
     const offset = (page - 1) * pageSize;
@@ -256,9 +259,22 @@ export class TransactionService {
     }
 
     const supabase = this.supabaseService.getClient();
-    
+
     if (!userId) {
       throw new ForbiddenException('需要登录才能创建交易记录');
+    }
+
+    // T-M12: 验证用户是当前账本成员
+    if (bookId) {
+      const { data: member } = await supabase
+        .from('jj_book_members')
+        .select('id')
+        .eq('book_id', bookId)
+        .eq('user_id', userId)
+        .single();
+      if (!member) {
+        throw new ForbiddenException('您不是该账本的成员');
+      }
     }
 
     const transactionData: Record<string, unknown> = {
@@ -268,8 +284,7 @@ export class TransactionService {
       date: transaction.date,
       description: transaction.description,
       brand: transaction.brand,
-      image_urls: transaction.image_urls,
-      image_url_list: transaction.image_url_list,
+      image_urls: transaction.image_urls || transaction.image_url_list,
       location_name: transaction.location_name,
       latitude: transaction.latitude,
       longitude: transaction.longitude,
@@ -474,7 +489,18 @@ export class TransactionService {
           updateData.date = payload!.date;
           break;
         case BatchOperation.MOVE_BOOK:
-          updateData.book_id = payload!.book_id;
+          // T-H5: 验证用户是目标账本成员
+          const targetBookId = payload!.book_id;
+          const { data: targetMember } = await supabase
+            .from('jj_book_members')
+            .select('id')
+            .eq('book_id', targetBookId)
+            .eq('user_id', userId)
+            .single();
+          if (!targetMember) {
+            throw new ForbiddenException('您不是目标账本的成员，无法移动交易');
+          }
+          updateData.book_id = targetBookId;
           break;
       }
 
@@ -547,7 +573,8 @@ export class TransactionService {
     const { error: updateErr } = await supabase
       .from('jj_transactions')
       .update({ image_urls: JSON.stringify(mergedPaths) })
-      .eq('id', id);
+      .eq('id', id)
+      .eq('user_id', userId); // T-L15: 防御性条件，防止 IDOR 修改他人交易
 
     if (updateErr) {
       throw new InternalServerErrorException('更新交易记录失败: ' + updateErr.message);

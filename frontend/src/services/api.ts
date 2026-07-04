@@ -6,7 +6,7 @@
 import { notify } from '../utils/notifications'
 import { trackRequest } from '../utils/progress'
 
-const API_BASE = process.env.REACT_APP_API_BASE_URL || 'http://localhost:5000/api'
+const API_BASE = process.env.REACT_APP_API_BASE_URL || 'http://localhost:3000/api'
 
 const TOKEN_KEY = 'auth_token'
 
@@ -291,7 +291,6 @@ export const getTransactions = async (filters?: TransactionFilters): Promise<Pag
   if (filters?.startDate) params.append('startDate', filters.startDate)
   if (filters?.endDate) params.append('endDate', filters.endDate)
   if (filters?.view) params.append('view', filters.view)
-  if (filters?.bookId) params.append('bookId', filters.bookId)
   if (filters?.page) params.append('page', String(filters.page))
   if (filters?.pageSize) params.append('pageSize', String(filters.pageSize))
   if (filters?.sortBy) params.append('sortBy', filters.sortBy)

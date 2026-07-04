@@ -29,6 +29,16 @@ export class ApiError extends Error {
 let _tokenCache: string | null = null;
 let _bookIdCache: string | null = null;
 
+/** T-C3: 从 Storage 回填内存缓存，解决冷启动后 hasToken() 恒为 false */
+export function hydrateAuthFromStorage(): void {
+  try {
+    _tokenCache = Taro.getStorageSync('auth_token') || null;
+  } catch {}
+  try {
+    _bookIdCache = Taro.getStorageSync('current_book_id') || null;
+  } catch {}
+}
+
 export const getToken = (): string | null => _tokenCache;
 export const hasToken = (): boolean => Boolean(_tokenCache);
 export const storeToken = (token: string): void => {
@@ -57,6 +67,8 @@ interface RequestOptions {
   silent?: boolean;
   /** 是否需要认证（默认 true，token 不存在时静默返回 401） */
   requiresAuth?: boolean;
+  /** T-M10: AbortController signal，用于取消请求 */
+  signal?: AbortSignal;
 }
 
 async function request<T>(
@@ -70,6 +82,7 @@ async function request<T>(
   let data: unknown = undefined;
   let silent = false;
   let requiresAuth = false; // 默认不需要认证（与PC端保持一致），需要认证的接口显式指定
+  let signal: AbortSignal | undefined;
 
   if (arg2 !== undefined) {
     if (
@@ -81,7 +94,8 @@ async function request<T>(
       const opts = arg2 as RequestOptions;
       data = opts.data;
       silent = opts.silent ?? false;
-      requiresAuth = opts.requiresAuth ?? requiresAuth; // 使用已有默认值，不是硬编码true
+      requiresAuth = opts.requiresAuth ?? requiresAuth;
+      signal = opts.signal;
     } else {
       // 直接作为请求体 data
       data = arg2;
@@ -113,6 +127,8 @@ async function request<T>(
       header,
       data,
       timeout,
+      // T-M10: 传入 signal 以支持取消请求
+      ...(signal ? { signal } : {}),
     });
 
     if (res.statusCode >= 200 && res.statusCode < 300) {
@@ -158,7 +174,8 @@ async function request<T>(
           ].includes(currentPath)
         ) {
           setTimeout(() => {
-            Taro.navigateTo({ url: "/pages/User/Login/index" });
+            // T-M33: 401 使用 reLaunch 清空页面栈，防止返回键回到已登录页面
+            Taro.reLaunch({ url: "/pages/User/Login/index" });
           }, 100);
         }
       }

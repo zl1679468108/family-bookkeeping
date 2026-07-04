@@ -10,12 +10,11 @@ const ForgotPassword: React.FC = () => {
   const [code, setCode] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
-  const [step, setStep] = useState<number>(1) // 1=输邮箱, 2=验证码+新密码, 3=成功
+  const [step, setStep] = useState<number>(1)
   const [countdown, setCountdown] = useState(0)
   const [message, setMessage] = useState('')
   const [messageType, setMessageType] = useState<'success' | 'error'>('success')
 
-  // 倒计时
   useEffect(() => {
     if (countdown > 0) {
       const timer = setTimeout(() => setCountdown(countdown - 1), 1000)
@@ -83,7 +82,7 @@ const ForgotPassword: React.FC = () => {
     ? '请输入注册邮箱，我们将发送验证码'
     : step === 3
       ? '密码已更新，请使用新密码登录'
-      : '验证码已发送，请查收邮件'
+      : '验证码已发送至您的邮箱'
 
   return (
     <AuthLayout
@@ -99,21 +98,18 @@ const ForgotPassword: React.FC = () => {
       <h3>{title}</h3>
       <p className="form-desc">{subtitle}</p>
 
-      {/* ── 步骤指示器 ── */}
       {step !== 3 && (
         <div className="step-indicator">
           <div className={`step-dot ${step === 1 ? 'active' : 'done'}`} />
           <div className={`step-line ${step >= 2 ? 'done' : ''}`} />
-          <div className={`step-dot ${step >= 2 ? (step === 3 ? 'done' : 'active') : ''}`} />
+          <div className={`step-dot ${step >= 2 ? 'active' : ''}`} />
         </div>
       )}
 
-      {/* ── 消息提示 ── */}
       {message && (
         <div className={`auth-message ${messageType}`}>{message}</div>
       )}
 
-      {/* ── 步骤 1：输入邮箱 ── */}
       {step === 1 && (
         <div>
           <div className="form-group">
@@ -139,7 +135,6 @@ const ForgotPassword: React.FC = () => {
         </div>
       )}
 
-      {/* ── 步骤 2：验证码 + 新密码 ── */}
       {step === 2 && (
         <form onSubmit={(e) => { e.preventDefault(); handleSubmit() }}>
           <div className="form-group">
@@ -188,20 +183,20 @@ const ForgotPassword: React.FC = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 autoComplete="new-password"
-              disabled={submitLoading}
-            />
-          </div>
-          <div className="form-group">
-            <label htmlFor="forgotNewPass2">确认密码</label>
-            <input
-              id="forgotNewPass2"
-              type="password"
-              placeholder="再次输入"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              required
-              autoComplete="new-password"
-              disabled={submitLoading}
+                disabled={submitLoading}
+              />
+            </div>
+            <div className="form-group">
+              <label htmlFor="forgotNewPass2">确认密码</label>
+              <input
+                id="forgotNewPass2"
+                type="password"
+                placeholder="再次输入"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+                autoComplete="new-password"
+                disabled={submitLoading}
               />
             </div>
           </div>
@@ -212,7 +207,6 @@ const ForgotPassword: React.FC = () => {
         </form>
       )}
 
-      {/* ── 步骤 3：成功 ── */}
       {step === 3 && (
         <div>
           <div className="success-card">
@@ -228,7 +222,6 @@ const ForgotPassword: React.FC = () => {
         </div>
       )}
 
-      {/* 底部链接 */}
       {step !== 3 && (
         <div className="form-links" style={{ justifyContent: 'center' }}>
           <Link to="/login">← 返回登录</Link>

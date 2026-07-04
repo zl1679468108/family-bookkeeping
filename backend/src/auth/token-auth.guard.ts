@@ -59,6 +59,11 @@ export class TokenAuthGuard implements CanActivate {
       throw new UnauthorizedException('登录状态已失效，请重新登录');
     }
 
+    // T-C2: 拒绝非 active 用户访问任何 API
+    if (user.status !== 'active') {
+      throw new UnauthorizedException('账号已被暂停，请联系客服');
+    }
+
     request.user = user;
     request.authTokenHash = tokenHash;
     return true;

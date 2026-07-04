@@ -41,23 +41,20 @@ const TIME_KEYS = new Set([
 function toBeijingTime(isoString: string): string {
   const date = new Date(isoString);
   if (Number.isNaN(date.getTime())) return isoString;
-  // 使用 Intl.DateTimeFormat 显式指定 Asia/Shanghai 时区（B-H7）
-  const formatter = new Intl.DateTimeFormat('zh-CN', {
+  // 输出 ISO 8601 格式北京时间，保证前端 new Date() 可解析
+  const formatter = new Intl.DateTimeFormat('sv-SE', {
     year: 'numeric',
     month: '2-digit',
     day: '2-digit',
     hour: '2-digit',
     minute: '2-digit',
     second: '2-digit',
-    fractionalSecondDigits: 3,
     hour12: false,
     timeZone: 'Asia/Shanghai',
   });
-  // 格式化后补齐毫秒部分
-  const parts = formatter.format(date).replace(/\//g, '-');
-  // Intl 输出格式类似 "2024-06-30 14:30:45"，补充 ".000" 毫秒
+  const parts = formatter.format(date).replace(' ', 'T');
   const ms = String(date.getMilliseconds()).padStart(3, '0');
-  return `${parts}.${ms}`;
+  return `${parts}.${ms}+08:00`;
 }
 
 // T-M4: 顶层时间字段集合（仅对这些字段转换，避免深拷贝大 payload）

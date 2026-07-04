@@ -381,19 +381,25 @@ export class StatisticsService {
    * 返回每个成员的总额及各分类明细（含分类名称、图标、占比）。
    *
    * @param userId  当前用户 ID
-   * @param dto     包含 book_id, month_from, month_to
+   * @param bookId  当前账本 ID（从 current_book_id 自动获取）
+   * @param dto     包含 month_from, month_to
    */
   async getMemberComparison(
     userId: string,
+    bookId: string | undefined,
     dto: MemberComparisonQueryDto,
   ): Promise<MemberComparisonItem[]> {
     const supabase = this.supabaseService.getClient();
+
+    if (!bookId) {
+      throw new ForbiddenException('请先选择账本');
+    }
 
     // 权限校验：确认当前用户是目标账本的成员
     const { data: membership } = await supabase
       .from('jj_book_members')
       .select('id')
-      .eq('book_id', dto.book_id)
+      .eq('book_id', bookId)
       .eq('user_id', userId)
       .single();
 
@@ -413,7 +419,7 @@ export class StatisticsService {
     const { data: transactions, error } = await supabase
       .from('jj_transactions')
       .select('*')
-      .eq('book_id', dto.book_id)
+      .eq('book_id', bookId)
       .eq('type', 'expense')
       .gte('date', startDate)
       .lt('date', endDate);

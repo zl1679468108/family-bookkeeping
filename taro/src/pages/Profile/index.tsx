@@ -11,6 +11,7 @@ import PageLayout from "../../components/PageLayout";
 import { MenuList } from "../../components/ui";
 import {
   getSavedAccounts,
+  getAccountToken,
   removeAccount,
   SavedAccount,
 } from "../../utils/savedAccounts";
@@ -75,11 +76,12 @@ export default function Profile() {
       Taro.showToast({ title: "当前已是该账号", icon: "none" });
       return;
     }
-    // 有 token，先尝试 token 登录
-    if (account.token) {
+    // T-C1: 从独立 key 读取 token
+    const token = getAccountToken(account.email);
+    if (token) {
       setSwitchingEmail(account.email);
       try {
-        await switchByToken(account.email, account.token);
+        await switchByToken(account.email, token);
         Taro.showToast({ title: "账号切换成功", icon: "success" });
         setAccounts(getSavedAccounts());
         setSwitchModal(false);

@@ -66,6 +66,10 @@
   color: #fff;
 }
 
+.stat-card.income {
+  border-top: 3px solid var(--inc);
+}
+
 .stat-card.income .stat-card__icon {
   background: rgba(45, 157, 138, 0.1);
   color: var(--inc);
@@ -73,6 +77,10 @@
 
 .stat-card.income .stat-card__value {
   color: var(--inc);
+}
+
+.stat-card.expense {
+  border-top: 3px solid var(--exp);
 }
 
 .stat-card.expense .stat-card__icon {

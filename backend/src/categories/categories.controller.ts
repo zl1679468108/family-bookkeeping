@@ -17,6 +17,7 @@ import { CurrentUser } from '../auth/current-user.decorator';
 import { CategoriesService } from './categories.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
+import { ReorderCategoriesDto } from './dto/reorder-categories.dto';
 
 @Controller('categories')
 @UseGuards(TokenAuthGuard)
@@ -66,9 +67,9 @@ export class CategoriesController {
   @HttpCode(HttpStatus.OK)
   async reorder(
     @CurrentUser('id') userId: string,
-    @Body() orders: { id: string; sort_order: number }[],
+    @Body() dto: ReorderCategoriesDto,
   ) {
-    await this.categoriesService.reorder(orders, userId);
+    await this.categoriesService.reorder(dto.orders, userId);
     return { message: '排序更新成功', data: null };
   }
 }

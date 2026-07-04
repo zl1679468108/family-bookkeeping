@@ -57,26 +57,26 @@ const AdminDashboard: React.FC = () => {
         <StatCardsSkeleton count={3} />
       ) : (
         <div className="stat-grid">
-          <div className="stat-card">
+          <div className="stat-card stat-card--hero">
+            <div className="stat-card__label">本月结余</div>
+            <div
+              className={`stat-card__value ${(stats?.monthNet || 0) >= 0 ? 'stat-card__value--success' : 'stat-card__value--danger'}`}>
+              {(stats?.monthNet || 0) >= 0 ? '+' : ''}
+              {stats?.monthNet.toFixed(2)}
+            </div>
+          </div>
+
+          <div className="stat-card stat-card--income">
             <div className="stat-card__label">本月收入</div>
             <div className="stat-card__value stat-card__value--success">
               +{stats?.monthIncome.toFixed(2)}
             </div>
           </div>
 
-          <div className="stat-card">
+          <div className="stat-card stat-card--expense">
             <div className="stat-card__label">本月支出</div>
             <div className="stat-card__value stat-card__value--danger">
               -{stats?.monthExpense.toFixed(2)}
-            </div>
-          </div>
-
-          <div className="stat-card">
-            <div className="stat-card__label">本月结余</div>
-            <div
-              className={`stat-card__value ${(stats?.monthNet || 0) >= 0 ? 'stat-card__value--success' : 'stat-card__value--danger'}`}>
-              {(stats?.monthNet || 0) >= 0 ? '+' : ''}
-              {stats?.monthNet.toFixed(2)}
             </div>
           </div>
         </div>
@@ -125,7 +125,7 @@ const AdminDashboard: React.FC = () => {
                       </span>
                     </td>
                     <td className="data-table__cell--muted">
-                      {new Date(user.created_at).toLocaleDateString('zh-CN')}
+                      {new Date(user.created_at).toLocaleString('zh-CN')}
                     </td>
                   </tr>
                 ))}

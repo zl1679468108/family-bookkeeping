@@ -1,37 +1,70 @@
 /* ═══════════════════════════════════════════
-   AuthLayout — 认证页面通用布局
-   左侧绿色渐变插画 + 右侧白色表单
+   AuthLayout — 认证页面通用布局 v2
+   左侧：沉浸式绿色渐变 + 精致插画
+   右侧：干净表单面板
    ═══════════════════════════════════════════ */
 
 .auth-page {
   display: flex;
   height: 100vh;
   overflow: hidden;
-  animation: fadeIn 0.4s ease;
+  background: var(--bg);
 }
 
-/* ── 左侧插画面板 ── */
+/* ═══════════════════════════════════════════
+   左侧：沉浸式插画面板
+   ═══════════════════════════════════════════ */
 .auth-illus {
   flex: 1;
   position: relative;
   overflow: hidden;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   background: var(--prGr);
   min-width: 0;
+
+  /* 微妙纹理叠加 */
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 50% at 50% 40%, rgba(255,255,255,0.08) 0%, transparent 100%),
+      radial-gradient(circle at 20% 80%, rgba(255,255,255,0.05) 0%, transparent 50%);
+    pointer-events: none;
+  }
 }
 
-/* 装饰圆 */
+/* 装饰几何元素 */
 .illus-bg {
   position: absolute;
   inset: 0;
-  opacity: 0.08;
+  overflow: hidden;
+  pointer-events: none;
 }
+
 .deco-circle {
   position: absolute;
   border-radius: 50%;
-  background: #fff;
+  background: rgba(255, 255, 255, 0.06);
+  animation: decoFloat 20s ease-in-out infinite;
+
+  &:nth-child(2) {
+    animation-delay: -7s;
+    opacity: 0.04;
+  }
+  &:nth-child(3) {
+    animation-delay: -13s;
+    opacity: 0.08;
+  }
+}
+
+@keyframes decoFloat {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(8px, -12px) scale(1.02); }
+  66% { transform: translate(-6px, 8px) scale(0.98); }
 }
 
 /* 插画内容区 */
@@ -39,135 +72,151 @@
   position: relative;
   z-index: var(--z-1);
   text-align: center;
-  padding: 40px;
+  padding: 60px 40px 80px;
+  max-width: 400px;
 }
 
 .illus-svg-wrap {
-  width: 280px;
-  height: 280px;
-  display: inline-flex;
+  width: 260px;
+  height: 260px;
+  display: flex;
   align-items: center;
   justify-content: center;
+  margin: 0 auto 32px;
+  /* 微妙投影让 SVG 浮起来 */
+  filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.12));
 }
 
 .illus-svg-wrap svg {
-  width: 280px;
-  height: 280px;
+  width: 100%;
+  height: 100%;
 }
 
 .illus-title {
-  font-size: 32px;
+  font-size: 28px;
   font-weight: 700;
   color: #fff;
-  margin-bottom: 12px;
-  letter-spacing: -0.02em;
+  margin-bottom: 10px;
+  letter-spacing: -0.01em;
 }
 
 .illus-sub {
-  font-size: 14px;
-  color: rgba(255, 255, 255, 0.7);
-  margin-bottom: 24px;
-  line-height: 1.6;
+  font-size: 15px;
+  color: rgba(255, 255, 255, 0.75);
+  line-height: 1.7;
   white-space: pre-line;
+  font-weight: 400;
 }
 
 .illus-footer {
-  color: rgba(255, 255, 255, 0.5);
+  color: rgba(255, 255, 255, 0.4);
   font-size: 12px;
   position: absolute;
-  bottom: 24px;
+  bottom: 32px;
   left: 50%;
   transform: translateX(-50%);
   white-space: nowrap;
+  letter-spacing: 0.02em;
 }
 
-/* ── 右侧表单面板 ── */
+/* ═══════════════════════════════════════════
+   右侧：表单面板
+   ═══════════════════════════════════════════ */
 .auth-form {
-  width: 480px;
-  min-width: 480px;
+  width: 520px;
+  min-width: 520px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 60px 56px;
+  padding: 48px 56px;
   background: var(--srf);
   overflow-y: auto;
 }
 
 .form-inner {
   width: 100%;
-  max-width: 380px;
+  max-width: 400px;
 }
 
 /* Logo */
 .form-logo {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   justify-content: center;
-  margin-bottom: 8px;
+  margin-bottom: 36px;
 }
 
 .fl-icon {
-  width: 38px;
-  height: 38px;
+  width: 42px;
+  height: 42px;
   background: var(--prGr);
   border-radius: var(--rm);
   display: flex;
   align-items: center;
   justify-content: center;
   color: #fff;
-  font-size: 17px;
+  font-size: 19px;
   font-weight: 700;
   flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(45, 157, 138, 0.25);
 }
 
 .fl-text {
-  font-size: 20px;
-  font-weight: 700;
-  color: var(--fg);
-}
-
-/* ── 表单元素 ── */
-.auth-form h3 {
   font-size: 22px;
   font-weight: 700;
-  text-align: center;
-  margin-bottom: 4px;
   color: var(--fg);
+  letter-spacing: 0.02em;
+}
+
+/* ── 表单标题 ── */
+.auth-form h3 {
+  font-size: 24px;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 6px;
+  color: var(--fg);
+  letter-spacing: -0.01em;
 }
 
 .auth-form .form-desc {
-  font-size: 13px;
+  font-size: 14px;
   color: var(--fg3);
   text-align: center;
-  margin-bottom: 28px;
+  margin-bottom: 32px;
+  line-height: 1.5;
 }
 
-/* 表单组 */
+/* ── 表单组 ── */
 .auth-form .form-group {
-  margin-bottom: 16px;
+  margin-bottom: 18px;
 }
 
 .auth-form label {
   display: block;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
   color: var(--fg2);
-  margin-bottom: 5px;
+  margin-bottom: 6px;
 }
 
 .auth-form input {
   width: 100%;
-  padding: 11px 14px;
-  border: 1px solid var(--bd);
+  padding: 12px 14px;
+  border: 1.5px solid var(--bd);
   border-radius: var(--rs);
   font-size: 14px;
   font-family: var(--fn);
   color: var(--fg);
   background: var(--srf);
-  transition: border-color 0.15s;
+  transition: border-color 0.2s, box-shadow 0.2s;
   outline: none;
+}
+
+.auth-form input::placeholder {
+  color: var(--fg3);
+  opacity: 0.7;
 }
 
 .auth-form input:focus {
@@ -175,38 +224,17 @@
   box-shadow: 0 0 0 3px var(--prBg);
 }
 
-.auth-form input.error {
-  border-color: var(--exp);
-}
-
 .auth-form input:disabled {
   background: var(--bg);
-  color: var(--fg3);
+  color: var(--fg2);
   opacity: 0.7;
+  cursor: default;
 }
 
-.auth-form .field-error {
-  font-size: 11px;
-  color: var(--exp);
-  margin-top: 3px;
-  display: none;
-}
-
-.auth-form .field-error.show {
-  display: block;
-}
-
-/* 双列 */
-.auth-form .form-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-}
-
-/* 提交按钮 */
+/* ── 按钮 ── */
 .auth-form .btn-submit {
   width: 100%;
-  padding: 12px;
+  padding: 13px 24px;
   background: var(--prGr);
   border: none;
   border-radius: var(--rs);
@@ -215,26 +243,34 @@
   font-weight: 600;
   cursor: pointer;
   font-family: var(--fn);
-  transition: all 0.2s;
-  margin-top: 8px;
+  transition: all 0.2s ease;
+  margin-top: 12px;
+  position: relative;
+  overflow: hidden;
 }
 
 .auth-form .btn-submit:hover:not(:disabled) {
   transform: translateY(-1px);
-  box-shadow: 0 4px 14px rgba(45, 157, 138, 0.35);
+  box-shadow: 0 6px 20px rgba(45, 157, 138, 0.3);
+}
+
+.auth-form .btn-submit:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(45, 157, 138, 0.25);
 }
 
 .auth-form .btn-submit:disabled {
-  opacity: 0.6;
+  opacity: 0.55;
   cursor: not-allowed;
+  transform: none;
 }
 
-/* 链接 */
+/* ── 链接 ── */
 .auth-form .form-links {
   display: flex;
   justify-content: space-between;
   font-size: 13px;
-  margin-top: 20px;
+  margin-top: 24px;
 }
 
 .auth-form .form-links a {
@@ -247,89 +283,10 @@
 
 .auth-form .form-links a:hover {
   color: var(--prD);
+  text-decoration: underline;
 }
 
-/* 分割线 */
-.auth-form .form-divider {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin: 20px 0;
-  font-size: 12px;
-  color: var(--fg3);
-}
-
-.form-divider::before,
-.form-divider::after {
-  content: '';
-  flex: 1;
-  height: 1px;
-  background: var(--bd);
-}
-
-/* ── 步骤指示器 ── */
-.step-indicator {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  margin-bottom: 24px;
-}
-
-.step-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: var(--bd);
-  transition: all 0.3s;
-}
-
-.step-dot.active {
-  background: var(--pr);
-  box-shadow: 0 0 6px rgba(45, 157, 138, 0.4);
-}
-
-.step-dot.done {
-  background: var(--inc);
-}
-
-.step-line {
-  width: 40px;
-  height: 2px;
-  background: var(--bd);
-  transition: all 0.3s;
-}
-
-.step-line.done {
-  background: var(--inc);
-}
-
-/* ── 验证码按钮 ── */
-.btn-code {
-  padding: 8px 16px;
-  border: 1px solid var(--pr);
-  border-radius: var(--rs);
-  background: transparent;
-  color: var(--pr);
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  font-family: var(--fn);
-  transition: all 0.15s;
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-
-.btn-code:hover:not(:disabled) {
-  background: var(--prBg);
-}
-
-.btn-code:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
-/* ── 图形验证码 ── */
+/* ── 验证码 ── */
 .captcha-row {
   display: flex;
   gap: 10px;
@@ -341,9 +298,9 @@
 }
 
 .captcha-img {
-  width: 160px;
-  height: 56px;
-  border: 1px solid var(--bd);
+  width: 140px;
+  height: 48px;
+  border: 1.5px solid var(--bd);
   border-radius: var(--rs);
   cursor: pointer;
   overflow: hidden;
@@ -352,12 +309,13 @@
   align-items: center;
   justify-content: center;
   background: #ffffff;
-  transition: opacity 0.15s;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+  transition: all 0.2s;
+  box-shadow: var(--sh1);
 }
 
 .captcha-img:hover {
-  opacity: 0.8;
+  border-color: var(--prBd);
+  box-shadow: var(--sh2);
 }
 
 .captcha-img svg {
@@ -365,15 +323,81 @@
   height: 100%;
 }
 
+/* ── 步骤指示器 ── */
+.step-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 28px;
+}
+
+.step-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--bd);
+  transition: all 0.3s ease;
+}
+
+.step-dot.active {
+  background: var(--pr);
+  box-shadow: 0 0 0 4px var(--prBg);
+  transform: scale(1.1);
+}
+
+.step-dot.done {
+  background: var(--inc);
+}
+
+.step-line {
+  width: 48px;
+  height: 2px;
+  background: var(--bd);
+  transition: all 0.3s ease;
+}
+
+.step-line.done {
+  background: var(--inc);
+}
+
+/* ── 消息提示 ── */
+.auth-message {
+  margin-bottom: 18px;
+  padding: 10px 14px;
+  border-radius: var(--rs);
+  font-size: 13px;
+  font-weight: 500;
+  text-align: center;
+  animation: msgSlideIn 0.3s ease;
+}
+
+@keyframes msgSlideIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.auth-message.success {
+  background: var(--incBg);
+  color: var(--inc);
+  border: 1px solid rgba(59, 162, 114, 0.15);
+}
+
+.auth-message.error {
+  background: var(--expBg);
+  color: var(--exp);
+  border: 1px solid rgba(224, 96, 85, 0.15);
+}
+
 /* ── 成功卡片 ── */
 .success-card {
   text-align: center;
-  padding: 20px 0;
+  padding: 16px 0;
 }
 
 .sc-icon {
-  font-size: 56px;
-  margin-bottom: 12px;
+  font-size: 48px;
+  margin-bottom: 16px;
 }
 
 .success-card h4 {
@@ -384,33 +408,32 @@
 }
 
 .success-card p {
-  font-size: 13px;
+  font-size: 14px;
   color: var(--fg3);
 }
 
-/* ── 消息提示 ── */
-.auth-message {
-  margin-bottom: 16px;
-  padding: 10px 14px;
-  border-radius: var(--rs);
-  font-size: 12px;
-  font-weight: 500;
-  text-align: center;
+/* ── 密码强度指示器 ── */
+.pwd-strength {
+  display: flex;
+  gap: 4px;
+  margin-top: 6px;
 }
 
-.auth-message.success {
-  background: var(--incBg);
-  color: var(--inc);
-  border: 1px solid rgba(59, 162, 114, 0.2);
+.pwd-bar {
+  flex: 1;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--bd);
+  transition: background 0.3s;
+
+  &.weak { background: var(--exp); }
+  &.medium { background: var(--warn); }
+  &.strong { background: var(--inc); }
 }
 
-.auth-message.error {
-  background: var(--expBg);
-  color: var(--exp);
-  border: 1px solid rgba(224, 96, 85, 0.2);
-}
-
-/* ── 响应式：≤900px 隐藏插画面板 ── */
+/* ═══════════════════════════════════════════
+   响应式
+   ═══════════════════════════════════════════ */
 @media (max-width: 900px) {
   .auth-page {
     flex-direction: column;
@@ -427,6 +450,40 @@
   }
 
   .form-inner {
-    max-width: 400px;
+    max-width: 440px;
+  }
+}
+
+/* 平板适配 */
+@media (min-width: 901px) and (max-width: 1200px) {
+  .auth-form {
+    width: 440px;
+    min-width: 440px;
+    padding: 40px 40px;
+  }
+
+  .illus-svg-wrap {
+    width: 220px;
+    height: 220px;
+  }
+}
+
+/* 小屏手机 */
+@media (max-width: 480px) {
+  .auth-form {
+    padding: 32px 20px;
+  }
+
+  .form-inner {
+    max-width: 100%;
+  }
+
+  .auth-form h3 {
+    font-size: 20px;
+  }
+
+  .auth-form .form-desc {
+    font-size: 13px;
+    margin-bottom: 24px;
   }
 }

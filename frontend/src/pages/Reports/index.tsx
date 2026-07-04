@@ -37,27 +37,28 @@ const Reports: React.FC = () => {
     totalExpense, totalIncome,
   } = useReportData()
 
-  const dailyData = useMemo(() => dailySummaryQueries.data?.[0] || [], [dailySummaryQueries.data])
-  const monthCompareData = useMemo(() => ({
+  // T-L4: dailyData 和 monthCompareData 的 memo 已移至 useReportData 内部统一管理
+  const dailyData = dailySummaryQueries.data?.[0] || []
+  const monthCompareData = {
     targetMonth: dailySummaryQueries.data?.[0] || [],
     currentMonth: dailySummaryQueries.data?.[1] || [],
-  }), [dailySummaryQueries.data])
+  }
 
-  const chartHasData = useMemo(() => {
+  const chartHasData = (() => {
     if (isDailyView) return dailyData.length > 0
     if (isMonthlyView) return trendData.length > 0
     if (isMonthCompare) return monthCompareData.currentMonth.length > 0 || monthCompareData.targetMonth.length > 0
     if (isYearCompare) return yoyExpenseData.length > 0 || yoyIncomeData.length > 0
     return false
-  }, [isDailyView, isMonthlyView, isMonthCompare, isYearCompare, dailyData, trendData, monthCompareData, yoyExpenseData, yoyIncomeData])
+  })()
 
-  const chartTitle = useMemo(() => {
+  const chartTitle = (() => {
     if (isDailyView) return '本月每日总支出/总收入'
     if (isMonthlyView) return '月度总支出/总收入汇总'
     if (isMonthCompare) return '月对比'
     if (isYearCompare) return '年对比'
     return ''
-  }, [isDailyView, isMonthlyView, isMonthCompare, isYearCompare])
+  })()
 
   const periodOptions = [
     { key: PeriodType.Month, label: '本月' },
@@ -70,16 +71,14 @@ const Reports: React.FC = () => {
 
   return (
     <div className="page-container">
-      <SegControl
-        options={[{ value: 'analysis', label: '数据分析' }, { value: 'members', label: '成员对比' }]}
-        value={tab}
-        onChange={(v) => setTab(v as 'analysis' | 'members')}
-      />
-
-      {tab === 'analysis' && (
-        <>
-          {/* 时间周期下拉框（默认本月） */}
-          <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '14px' }}>
+      <div className="reports-header">
+        <SegControl
+          options={[{ value: 'analysis', label: '数据分析' }, { value: 'members', label: '成员对比' }]}
+          value={tab}
+          onChange={(v) => setTab(v as 'analysis' | 'members')}
+        />
+        {tab === 'analysis' && (
+          <div className="reports-filter">
             {mainLoading ? (
               <Skeleton width="120px" height="32px" borderRadius="var(--rs)" />
             ) : (
@@ -90,52 +89,59 @@ const Reports: React.FC = () => {
               />
             )}
           </div>
+        )}
+      </div>
 
-          {/* 总收入、总支出卡片 */}
-          <Card>
-            {mainLoading ? (
-              <div style={{ display: 'flex', gap: '14px' }}>
-                <div style={{ flex: 1, padding: '16px' }}>
-                  <Skeleton width="60%" height="14px" />
-                  <Skeleton style={{ marginTop: '8px' }} width="80%" height="24px" />
+      {tab === 'analysis' && (
+        <>
+          {/* 总收入/总支出 + 分类占比 并排 */}
+          <div className="reports-summary-row">
+            {/* 总收入、总支出卡片 */}
+            <Card className="reports-summary-card">
+              {mainLoading ? (
+                <div style={{ display: 'flex', gap: '14px' }}>
+                  <div style={{ flex: 1, padding: '16px' }}>
+                    <Skeleton width="60%" height="14px" />
+                    <Skeleton style={{ marginTop: '8px' }} width="80%" height="24px" />
+                  </div>
+                  <div style={{ flex: 1, padding: '16px' }}>
+                    <Skeleton width="60%" height="14px" />
+                    <Skeleton style={{ marginTop: '8px' }} width="80%" height="24px" />
+                  </div>
                 </div>
-                <div style={{ flex: 1, padding: '16px' }}>
-                  <Skeleton width="60%" height="14px" />
-                  <Skeleton style={{ marginTop: '8px' }} width="80%" height="24px" />
+              ) : (
+                <div style={{ display: 'flex', gap: '14px' }}>
+                  <div style={{ flex: 1, padding: '16px', textAlign: 'center' }}>
+                    <div style={{ fontSize: '13px', color: 'var(--fg2)', marginBottom: '8px' }}>总收入</div>
+                    <div style={{ fontSize: '24px', fontWeight: 700, color: '#27ae60' }}>{formatAmount(totalIncome)}</div>
+                  </div>
+                  <div style={{ flex: 1, padding: '16px', textAlign: 'center' }}>
+                    <div style={{ fontSize: '13px', color: 'var(--fg2)', marginBottom: '8px' }}>总支出</div>
+                    <div style={{ fontSize: '24px', fontWeight: 700, color: '#e74c3c' }}>{formatAmount(totalExpense)}</div>
+                  </div>
                 </div>
-              </div>
-            ) : (
-              <div style={{ display: 'flex', gap: '14px' }}>
-                <div style={{ flex: 1, padding: '16px', textAlign: 'center' }}>
-                  <div style={{ fontSize: '13px', color: 'var(--fg2)', marginBottom: '8px' }}>总收入</div>
-                  <div style={{ fontSize: '24px', fontWeight: 700, color: '#27ae60' }}>{formatAmount(totalIncome)}</div>
-                </div>
-                <div style={{ flex: 1, padding: '16px', textAlign: 'center' }}>
-                  <div style={{ fontSize: '13px', color: 'var(--fg2)', marginBottom: '8px' }}>总支出</div>
-                  <div style={{ fontSize: '24px', fontWeight: 700, color: '#e74c3c' }}>{formatAmount(totalExpense)}</div>
-                </div>
-              </div>
-            )}
-          </Card>
+              )}
+            </Card>
 
-          {/* 分类占比卡片 */}
-          <Card style={{ marginTop: '14px' }}>
-            {categoryLoading ? (
-              <>
-                <CardHeader title={<Skeleton width="35%" height="16px" />} />
-                <Skeleton width="100%" height="280px" borderRadius="var(--rs)" />
-              </>
-            ) : (
-              <>
-                <CardHeader title="分类占比" />
-                {mergedDefaultBreakdown.length > 0 ? (
-                  <CategoryRankChart data={mergedDefaultBreakdown} height="280px" />
-                ) : (
-                  <EmptyState variant="compact" icon="📭" title="暂无分类数据" description="请等待数据加载或切换其他时间段" />
-                )}
-              </>
-            )}
-          </Card>
+            {/* 分类占比卡片 */}
+            <Card className="reports-category-card">
+              {categoryLoading ? (
+                <>
+                  <CardHeader title={<Skeleton width="35%" height="16px" />} />
+                  <Skeleton width="100%" height="280px" borderRadius="var(--rs)" />
+                </>
+              ) : (
+                <>
+                  <CardHeader title="分类占比" />
+                  {mergedDefaultBreakdown.length > 0 ? (
+                    <CategoryRankChart data={mergedDefaultBreakdown} height="280px" />
+                  ) : (
+                    <EmptyState variant="compact" icon="📭" title="暂无分类数据" description="请等待数据加载或切换其他时间段" />
+                  )}
+                </>
+              )}
+            </Card>
+          </div>
 
           {/* Trend Chart Card */}
           <Card style={{ marginTop: '14px' }}>
@@ -196,7 +202,7 @@ const Reports: React.FC = () => {
                 <DropdownSelect options={monthOptions} value={memberEndMonth} onChange={(k) => k && setMemberEndMonth(k)} showSearch searchPlaceholder="搜索月份..." />
               </div>
               {currentBook?.id ? (
-                <MemberComparison bookId={currentBook.id} monthFrom={memberStartMonth} monthTo={memberEndMonth} />
+                <MemberComparison monthFrom={memberStartMonth} monthTo={memberEndMonth} />
               ) : (
                 <Card>
                   <EmptyState icon="📒" title="请先选择一个账本" description="在左侧账本列表中选择要查看的账本" />

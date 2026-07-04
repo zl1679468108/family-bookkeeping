@@ -85,8 +85,8 @@ export class BooksService {
     return book as Book;
   }
 
-  /** 获取用户的账本列表（包含当前用户在账本中的角色和交易笔数） */
-  async listByUser(userId: string): Promise<(Book & { role: string; txn_count?: number })[]> {
+  /** 获取用户的账本列表（包含当前用户在账本中的角色、交易笔数和成员数） */
+  async listByUser(userId: string): Promise<(Book & { role: string; txn_count?: number; member_count?: number })[]> {
     const supabase = this.getClient();
 
     // 查询用户作为成员的账本，同时获取角色
@@ -115,9 +115,8 @@ export class BooksService {
       throw new Error(`查询账本失败：${error.message}`);
     }
 
-    // T-M3: 拉取所有交易行的 book_id 并在本地计数（Supabase 不支持 select+group 组合）
-    // 相比全量 select('*') 大幅减少数据传输
-    const { data: txnRows, error: txnError } = await supabase
+    // T-M3: 按 book_id 分组计数交易
+    const { data: txnCounts, error: txnCountError } = await supabase
       .from('jj_transactions')
       .select('book_id')
       .in('book_id', bookIds);
@@ -126,21 +125,38 @@ export class BooksService {
     for (const bookId of bookIds) {
       txnCountMap.set(bookId, 0);
     }
-    if (!txnError && txnRows) {
-      for (const row of txnRows) {
+    if (!txnCountError && txnCounts) {
+      for (const row of txnCounts) {
         txnCountMap.set(row.book_id, (txnCountMap.get(row.book_id) || 0) + 1);
       }
     }
 
-    // 将 role 和 txn_count 信息合并到账本数据中
+    // 统计各账本的成员数
+    const { data: allMembers, error: membersError } = await supabase
+      .from('jj_book_members')
+      .select('book_id')
+      .in('book_id', bookIds);
+
+    const memberCountMap = new Map<string, number>();
+    for (const bookId of bookIds) {
+      memberCountMap.set(bookId, 0);
+    }
+    if (!membersError && allMembers) {
+      for (const row of allMembers) {
+        memberCountMap.set(row.book_id, (memberCountMap.get(row.book_id) || 0) + 1);
+      }
+    }
+
+    // 将 role、txn_count 和 member_count 信息合并到账本数据中
     const roleMap = new Map(memberBooks.map((m) => [m.book_id, m.role]));
     const booksWithRole = (data ?? []).map((book: any) => ({
       ...book,
       role: roleMap.get(book.id) || 'member',
       txn_count: txnCountMap.get(book.id) || 0,
+      member_count: memberCountMap.get(book.id) || 0,
     }));
 
-    return booksWithRole as (Book & { role: string; txn_count?: number })[];
+    return booksWithRole as (Book & { role: string; txn_count?: number; member_count?: number })[];
   }
 
   /** 获取单个账本 */
@@ -265,8 +281,9 @@ export class BooksService {
 
     return (data ?? []).map((m: any) => ({
       ...m,
-      email: m.users?.email,
-      username: m.users?.username,
+      // T-M22: join 使用 jj_users(...)，嵌套 key 是 jj_users 而非 users
+      email: m.jj_users?.email,
+      username: m.jj_users?.username,
     }));
   }
 

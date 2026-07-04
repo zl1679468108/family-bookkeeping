@@ -1,91 +1,38 @@
 /* ═══ Budgets 预算模块样式 —— 嵌套写法实现样式隔离 ═══ */
 
 .page-container {
+  .card-header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
   .budget-item {
-    margin-bottom: 12px;
+    margin-bottom: 10px;
+    padding: 12px 16px;
+    background: var(--srf);
+    border: 1px solid var(--bd);
+    border-radius: var(--rm);
+    transition: all var(--df) ease;
+    cursor: pointer;
 
-    .budget-info {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 5px;
-      align-items: center;
+    &:hover {
+      border-color: var(--prBd);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
     }
 
-    .budget-name {
-      font-size: 13px;
-      font-weight: 600;
+    &.budget-item--over {
+      border-left: 3px solid var(--exp);
+      background: linear-gradient(90deg, rgba(220, 38, 38, 0.03) 0%, var(--srf) 100%);
     }
 
-    .budget-amount {
-      font-size: 12px;
-      font-weight: 500;
-      color: var(--fg2);
-      display: flex;
-      align-items: center;
-      gap: 6px;
+    &.budget-item--warn {
+      border-left: 3px solid #e8a838;
+      background: linear-gradient(90deg, rgba(232, 168, 56, 0.03) 0%, var(--srf) 100%);
     }
 
-    .budget-actions {
-      display: flex;
-      gap: 3px;
-      opacity: 0;
-      transition: opacity var(--df);
-    }
-
-    &:hover .budget-actions {
-      opacity: 1;
-    }
-
-    .budget-actions button {
-      background: var(--bg);
-      border: 1px solid var(--bd);
-      border-radius: 5px;
-      font-size: 10px;
-      cursor: pointer;
-      color: var(--fg3);
-      padding: 2px 6px;
-
-      &:hover {
-        background: var(--srf);
-        color: var(--fg);
-        border-color: var(--prBd);
-      }
-    }
-
-    .budget-actions button.del:hover {
-      color: var(--exp);
-      border-color: var(--exp);
-    }
-
-    .budget-bar {
-      height: 5px;
-      background: var(--bg);
-      border-radius: 3px;
-      overflow: hidden;
-
-      .fill {
-        height: 100%;
-        border-radius: 3px;
-        transition: width var(--ds) var(--sp);
-      }
-
-      .fill.safe {
-        background: var(--prGr);
-      }
-
-      .fill.warn {
-        background: linear-gradient(90deg, #E8A838, #F0C040);
-      }
-
-      .fill.danger {
-        background: linear-gradient(90deg, #E06055, #F08075);
-      }
-    }
-
-    .budget-percent {
-      font-size: 11px;
-      color: var(--fg3);
-      margin-top: 2px;
+    .rank-row {
+      padding: 0;
     }
   }
 }

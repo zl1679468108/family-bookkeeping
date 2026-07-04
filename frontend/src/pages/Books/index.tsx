@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { BookCreateModal } from './BookCreateModal';
 import { BookInviteModal } from './BookInviteModal';
 import { useBooksPage } from './hooks/useBooksPage';
@@ -28,6 +28,8 @@ const BooksPage: React.FC = () => {
     deleteMutation, removeMemberMutation,
     handleCreateSuccess,
   } = useBooksPage();
+
+  const [switchTarget, setSwitchTarget] = useState<any>(null);
 
   return (
     <div className="page-container">
@@ -88,9 +90,34 @@ const BooksPage: React.FC = () => {
         onGenerateInviteCode={() => selectedBook?.id && inviteCodeMutation.mutate(selectedBook.id)}
         onEdit={() => setEditTarget(selectedBook)}
         onDelete={() => setDeleteTarget(selectedBook?.id)}
-        onSwitchBook={() => { switchBook(selectedBook); setShowDetail(false); setSelectedBook(null); }}
+        onSwitchBook={() => { setSwitchTarget(selectedBook); setShowDetail(false); setSelectedBook(null); }}
         onRemoveMember={(member) => { setRemovingMember(member); setShowMemberConfirm(true); }}
       />
+
+      <GlobalModal
+        type="confirm"
+        open={!!switchTarget}
+        title="切换账本"
+        onConfirm={() => { if (switchTarget) { switchBook(switchTarget); setSwitchTarget(null); } }}
+        onClose={() => setSwitchTarget(null)}
+        confirmText="确认切换"
+      >
+        <div>
+          <p>切换到账本 <strong>{switchTarget?.name}</strong> 后，以下模块数据将切换为该账本的维度：</p>
+          <ul style={{ margin: '12px 0', paddingLeft: '20px', lineHeight: '1.8', color: 'var(--fg2)' }}>
+            <li><strong>首页</strong> — 收支概览与预算进度</li>
+            <li><strong>流水</strong> — 交易记录列表</li>
+            <li><strong>报表</strong> — 统计图表与分类分析</li>
+            <li><strong>日历</strong> — 日历视图中的交易</li>
+            <li><strong>地图</strong> — 交易位置与商户聚合</li>
+            <li><strong>模板</strong> — 快捷记账模板</li>
+            <li><strong>预算</strong> — 预算设置与消耗</li>
+            <li><strong>年报</strong> — 年度报告数据</li>
+            <li><strong>导出</strong> — 账单导出</li>
+          </ul>
+          <p style={{ color: 'var(--fg3)', fontSize: '13px' }}>当前账本：{currentBook?.name}</p>
+        </div>
+      </GlobalModal>
 
       <InviteMemberModal
         open={showInviteMemberModal && !!selectedBook}

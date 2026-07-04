@@ -9,7 +9,6 @@ import './MemberComparison.scss';
 import { formatAmount } from '../../utils/common';
 
 interface MemberComparisonProps {
-  bookId: string;
   monthFrom: string;
   monthTo: string;
 }
@@ -184,10 +183,8 @@ const MonthlyBarChart: React.FC<{
 
   const months = useMemo(() => generateMonthRange(monthFrom, monthTo), [monthFrom, monthTo]);
 
-  // 按成员+月份汇总支出
+  // T-H7: API 仅返回成员总支出（无月度细分），改为均分展示并标注「估算」
   const memberMonthData = useMemo(() => {
-    // 简化处理：当前API按成员汇总，没有月度细分
-    // 这里将各成员的总支出平均分配到选中的月份区间
     return data.map((member, i) => {
       const monthlyAmount = member.total_expense / Math.max(months.length, 1);
       return {
@@ -258,17 +255,12 @@ const MonthlyBarChart: React.FC<{
 };
 
 export const MemberComparison: React.FC<MemberComparisonProps> = ({
-  bookId,
   monthFrom,
   monthTo,
 }) => {
   const { data = [], isLoading, error } = useMemberComparison(
-    bookId ? { book_id: bookId, month_from: monthFrom, month_to: monthTo } : null,
+    { month_from: monthFrom, month_to: monthTo },
   );
-
-  if (!bookId) {
-    return <div className="mc-empty">请先选择一个账本</div>;
-  }
 
   if (isLoading) {
     return (
@@ -321,7 +313,7 @@ export const MemberComparison: React.FC<MemberComparisonProps> = ({
 
       {/* 第二行：月度明细 */}
       <Card style={{ marginTop: '14px' }}>
-        <CardHeader title={`月度明细 · ${periodLabel}`} />
+        <CardHeader title={`月度估算 · ${periodLabel}`} />
         <MonthlyBarChart data={data} monthFrom={monthFrom} monthTo={monthTo} />
       </Card>
     </div>

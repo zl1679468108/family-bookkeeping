@@ -14,6 +14,7 @@ import { getTransactions, deleteTransaction, batchDeleteTransactions } from "../
 import { useCategoryLookup } from "../../hooks/useCategories";
 import { useCategoryList } from "../../hooks/useCategories";
 import { useAuth } from "../../context/AuthContext";
+import { useBookContext } from "../../context/BookContext";
 import { fmtAmount } from "../../utils/format";
 import { renderCategoryIcon } from "../../utils/renderCategoryIcon";
 import "./index.scss";
@@ -29,6 +30,9 @@ const FILTERS: { key: FilterKey; label: string }[] = [
 ];
 
 const PAGE_SIZE = 20;
+
+// T-M10: AbortController 引用，用于取消前序请求
+let currentAbortController: AbortController | null = null;
 
 // T-M10: AbortController 引用，用于取消前序请求
 let currentAbortController: AbortController | null = null;
@@ -52,6 +56,7 @@ function dateRange(key: FilterKey): { start?: string; end?: string } {
 
 export default function Transactions() {
   const { user, loading: authLoading } = useAuth();
+  const { currentBook } = useBookContext(); // T-H10: 获取当前账本用于触发刷新
   const [filter, setFilter] = useState<FilterKey>("all");
   const [categoryId, setCategoryId] = useState<string>("");
   const [searchKeyword, setSearchKeyword] = useState("");
@@ -79,22 +84,31 @@ export default function Transactions() {
   }, [categories, filter]);
 
   // 核心异步请求函数，使用 ref 避免闭包陷阱
+  // T-H9: 支持 override 参数，避免 setState 异步导致的陈旧闭包
+  // T-M10: 支持 signal 参数用于取消请求
   const doFetch = useCallback(
-    async (targetPage: number, currentList: any[], replace: boolean, scope: "own" | "all") => {
-      const r = dateRange(filter);
+    async (targetPage: number, currentList: any[], replace: boolean, scope: "own" | "all", overrides?: {
+      filter?: FilterKey;
+      categoryId?: string;
+      searchKeyword?: string;
+    }, signal?: AbortSignal) => {
+      const f = overrides?.filter ?? filter;
+      const c = overrides?.categoryId ?? categoryId;
+      const s = overrides?.searchKeyword ?? searchKeyword;
+      const r = dateRange(f);
       if (replace) setLoading(true);
       else setLoadingMore(true);
       try {
         const res: any = await getTransactions({
-          type: filter === "expense" || filter === "income" ? filter : undefined,
+          type: f === "expense" || f === "income" ? f : undefined,
           startDate: r.start,
           endDate: r.end,
-          category: categoryId || undefined,
-          search: searchKeyword.trim() || undefined,
+          category: c || undefined,
+          search: s.trim() || undefined,
           page: targetPage,
           pageSize: PAGE_SIZE,
           view: scope,
-        });
+        }, signal); // T-M10: 传入 signal
         const list: any[] = res?.data || [];
         const next = replace ? list : [...currentList, ...list];
         setTxn(next);
@@ -118,12 +132,16 @@ export default function Transactions() {
     if (authLoading || !user) return;
     doFetch(1, [], true, viewScope);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [authLoading, user]);
+  }, [authLoading, user, currentBook]); // T-H10: 依赖 currentBook 变化时重新加载
 
   const handleRefresh = useCallback(() =>
     new Promise<void>((resolve) => {
       setRefreshing(true);
-      doFetch(1, [], true, viewScope)
+      // T-M10: 取消前序请求
+      if (currentAbortController) currentAbortController.abort();
+      const ac = new AbortController();
+      currentAbortController = ac;
+      doFetch(1, [], true, viewScope, undefined, ac.signal)
         .catch(() => {})
         .finally(() => {
           setRefreshing(false);
@@ -134,40 +152,50 @@ export default function Transactions() {
 
   const handleLoadMore = useCallback(() => {
     if (loadingMore || !hasMore) return;
-    doFetch(page + 1, txn, false, viewScope);
+    // T-M10: 取消前序请求
+    if (currentAbortController) currentAbortController.abort();
+    const ac = new AbortController();
+    currentAbortController = ac;
+    doFetch(page + 1, txn, false, viewScope, undefined, ac.signal);
   }, [loadingMore, hasMore, page, txn, doFetch, viewScope]);
 
   const handleSearch = useCallback(() => {
     setPage(1);
-    doFetch(1, [], true, viewScope);
-  }, [doFetch, viewScope]);
+    // T-M10: 取消前序请求
+    if (currentAbortController) currentAbortController.abort();
+    const ac = new AbortController();
+    currentAbortController = ac;
+    doFetch(1, [], true, viewScope, { searchKeyword }, ac.signal);
+  }, [doFetch, viewScope, searchKeyword]);
 
   const handleClearSearch = useCallback(() => {
     setSearchKeyword("");
     setPage(1);
-    doFetch(1, [], true, viewScope);
+    // T-M10: 取消前序请求
+    if (currentAbortController) currentAbortController.abort();
+    const ac = new AbortController();
+    currentAbortController = ac;
+    doFetch(1, [], true, viewScope, { searchKeyword: "" }, ac.signal);
   }, [doFetch, viewScope]);
 
   const handleCategoryChange = useCallback((catId: string) => {
     setCategoryId(catId);
     setPage(1);
-    // T-M10: 取消前序请求，不再用 setTimeout
-    if (currentAbortController) {
-      currentAbortController.abort();
-    }
-    currentAbortController = new AbortController();
-    doFetch(1, [], true, viewScope);
+    // T-M10: 取消前序请求
+    if (currentAbortController) currentAbortController.abort();
+    const ac = new AbortController();
+    currentAbortController = ac;
+    doFetch(1, [], true, viewScope, { categoryId: catId }, ac.signal);
   }, [doFetch, viewScope]);
 
   const handleFilterChange = useCallback((key: FilterKey) => {
     setFilter(key);
     setPage(1);
-    // T-M10: 取消前序请求，不再用 setTimeout
-    if (currentAbortController) {
-      currentAbortController.abort();
-    }
-    currentAbortController = new AbortController();
-    doFetch(1, [], true, viewScope);
+    // T-M10: 取消前序请求
+    if (currentAbortController) currentAbortController.abort();
+    const ac = new AbortController();
+    currentAbortController = ac;
+    doFetch(1, [], true, viewScope, { filter: key }, ac.signal);
   }, [doFetch, viewScope]);
 
   const handleTxnClick = (t: any) => {
@@ -262,7 +290,11 @@ export default function Transactions() {
     const newScope = viewScope === "own" ? "all" : "own";
     setViewScope(newScope as "own" | "all");
     setPage(1);
-    setTimeout(() => doFetch(1, [], true, newScope), 0);
+    // T-M10: 取消前序请求
+    if (currentAbortController) currentAbortController.abort();
+    const ac = new AbortController();
+    currentAbortController = ac;
+    doFetch(1, [], true, newScope, undefined, ac.signal);
   }, [viewScope, doFetch]);
 
   const stats = useMemo(() => {
@@ -469,20 +501,14 @@ export default function Transactions() {
               )}
               {selectedTxn.brand && (
                 <View className="detail-row">
-                  <Text className="detail-label">品牌</Text>
+                  <Text className="detail-label">商户</Text>
                   <Text className="detail-value">{selectedTxn.brand}</Text>
                 </View>
               )}
-              {selectedTxn.counterparty && (
-                <View className="detail-row">
-                  <Text className="detail-label">对方</Text>
-                  <Text className="detail-value">{selectedTxn.counterparty}</Text>
-                </View>
-              )}
-              {selectedTxn.location && (
+              {selectedTxn.location_name && (
                 <View className="detail-row">
                   <Text className="detail-label">地点</Text>
-                  <Text className="detail-value">{selectedTxn.location}</Text>
+                  <Text className="detail-value">{selectedTxn.location_name}</Text>
                 </View>
               )}
               {selectedTxn.date && (

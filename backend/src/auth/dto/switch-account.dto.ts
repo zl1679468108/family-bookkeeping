@@ -11,4 +11,13 @@ export class SwitchAccountDto {
   @IsOptional()
   @IsString()
   token?: string;
+
+  // T-M13: 可选 captcha 字段，token 失效时需要提供
+  @IsOptional()
+  @IsString()
+  captchaId?: string;
+
+  @IsOptional()
+  @IsString()
+  captchaCode?: string;
 }

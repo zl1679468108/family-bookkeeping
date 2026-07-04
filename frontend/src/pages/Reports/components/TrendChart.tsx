@@ -74,7 +74,14 @@ export const TrendChart: React.FC<TrendChartProps> = ({
     chartInstance.current = echarts.init(chartRef.current)
     const handleResize = () => chartInstance.current?.resize()
     window.addEventListener('resize', handleResize)
-    return () => window.removeEventListener('resize', handleResize)
+    return () => {
+      window.removeEventListener('resize', handleResize)
+      // T-M30: 组件卸载时 dispose ECharts 实例
+      if (chartInstance.current) {
+        chartInstance.current.dispose()
+        chartInstance.current = null
+      }
+    }
   }, [period])
 
   useEffect(() => {

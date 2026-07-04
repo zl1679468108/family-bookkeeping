@@ -5,17 +5,17 @@ import { fetchAnnualReport } from '../services/reportsApi';
 /**
  * 年度报告数据 Hook
  */
-export function useAnnualReport(year: number, bookId?: string) {
+export function useAnnualReport(year: number) {
   const queryClient = useQueryClient();
 
   // 当年份变化时，立即清除缓存
   useEffect(() => {
-    queryClient.removeQueries({ queryKey: ['annual-report', year, bookId] });
-  }, [year, bookId, queryClient]);
+    queryClient.removeQueries({ queryKey: ['annual-report', year] });
+  }, [year, queryClient]);
 
   return useQuery({
-    queryKey: ['annual-report', year, bookId],
-    queryFn: () => fetchAnnualReport(year, bookId),
+    queryKey: ['annual-report', year],
+    queryFn: () => fetchAnnualReport(year),
     enabled: !!year,
     staleTime: 0,
     refetchOnWindowFocus: false,

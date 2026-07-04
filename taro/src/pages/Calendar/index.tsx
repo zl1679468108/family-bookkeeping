@@ -299,7 +299,7 @@ export default function Calendar() {
                     }
                     onClick={() => {
                       Taro.setStorageSync("edit_tx_id", t.id);
-                      Taro.switchTab({ url: "/pages/AddTransaction/index" });
+                      Taro.navigateTo({ url: "/pages/AddTransaction/index" });
                     }}
                   />
                 );

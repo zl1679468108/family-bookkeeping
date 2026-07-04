@@ -1,10 +1,11 @@
-import { Injectable, Logger, BadRequestException } from '@nestjs/common';
+import { Injectable, Logger, BadRequestException, Inject, forwardRef } from '@nestjs/common';
 import { SupabaseService } from '../supabase/supabase.service';
 import { TransactionFilters } from '../transaction/transaction.service';
 import * as ExcelJS from 'exceljs';
 import PDFDocument from 'pdfkit';
 import * as path from 'path';
 import * as fs from 'fs';
+import { CategoriesService } from '../categories/categories.service';
 
 // B-L7: 使用 process.cwd() 而非 __dirname，确保构建后路径正确
 const FONT_PATH = path.join(process.cwd(), 'assets/fonts/NotoSansSC.ttf');
@@ -18,40 +19,54 @@ const EMOJI_RE = /(\p{Emoji_Presentation}|\p{Emoji}\uFE0F)/gu;
 
 @Injectable()
 export class ExportService {
-  private categoryCache: Map<string, { name: string; icon: string }> | null = null;
+  // T-L9: 按 userId 分 scope 缓存分类，避免全表加载
+  private categoryCache: Map<string, Map<string, { name: string; icon: string }>> = new Map();
   private categoryCacheExpiry = 0;
   // T-L1: 缩短 TTL 到 2 分钟，减少缓存不一致窗口
   private readonly CATEGORY_CACHE_TTL = 2 * 60 * 1000; // 2 minutes
   private readonly logger = new Logger(ExportService.name);
 
-  constructor(private supabaseService: SupabaseService) {}
+  constructor(
+    private supabaseService: SupabaseService,
+    @Inject(forwardRef(() => CategoriesService))
+    private categoriesService: CategoriesService,
+  ) {}
 
-  /**
-   * 从数据库加载所有分类，构建 id→{name,icon} 映射
-   */
-  private async loadCategoryMap(): Promise<Map<string, { name: string; icon: string }>> {
-    if (this.categoryCache && Date.now() < this.categoryCacheExpiry) {
-      return this.categoryCache;
+  /** T-L1: 清除分类缓存 */
+  clearCategoryCache(): void {
+    this.categoryCache.clear();
+    this.categoryCacheExpiry = 0;
+  }
+
+  /** T-L9: 按 userId 获取分类映射 */
+  private async loadCategoryMap(userId: string): Promise<Map<string, { name: string; icon: string }>> {
+    // TTL 过期则重建
+    if (Date.now() >= this.categoryCacheExpiry) {
+      this.categoryCache.clear();
+      this.categoryCacheExpiry = Date.now() + this.CATEGORY_CACHE_TTL;
     }
 
+    // 命中缓存则直接返回
+    const cached = this.categoryCache.get(userId);
+    if (cached) return cached;
+
     const supabase = this.supabaseService.getClient();
-    const { data } = await supabase.from('jj_categories').select('id,name,icon');
-    
+    const { data } = await supabase.from('jj_categories').select('id,name,icon').eq('user_id', userId);
+
     const map = new Map<string, { name: string; icon: string }>();
     (data || []).forEach((c: any) => {
       map.set(c.id, { name: c.name, icon: c.icon });
     });
 
-    this.categoryCache = map;
-    this.categoryCacheExpiry = Date.now() + this.CATEGORY_CACHE_TTL;
+    this.categoryCache.set(userId, map);
     return map;
   }
 
   /**
    * 获取分类展示文本（emoji + 中文名），根据 category UUID 查找
    */
-  private async getCategoryDisplay(categoryId: string): Promise<string> {
-    const map = await this.loadCategoryMap();
+  private async getCategoryDisplay(userId: string, categoryId: string): Promise<string> {
+    const map = await this.loadCategoryMap(userId);
     const info = map.get(categoryId);
     if (info) return `${info.icon} ${info.name}`;
     return `📌 未知`;
@@ -72,7 +87,9 @@ export class ExportService {
   async exportToExcel(filters?: TransactionFilters): Promise<Buffer> {
     // 获取交易数据和分类映射
     const transactions = await this.getTransactionData(filters);
-    const categoryMap = await this.loadCategoryMap();
+    // T-L9: 按 userId 分 scope 加载分类
+    const userId = filters?.userId || 'anonymous';
+    const categoryMap = await this.loadCategoryMap(userId);
 
     // 创建工作簿
     const workbook = new ExcelJS.Workbook();
@@ -137,7 +154,9 @@ export class ExportService {
    */
   async exportToPDF(filters?: TransactionFilters): Promise<Buffer> {
     const transactions = await this.getTransactionData(filters);
-    const categoryMap = await this.loadCategoryMap();
+    // T-L9: 按 userId 分 scope 加载分类
+    const userId = filters?.userId || 'anonymous';
+    const categoryMap = await this.loadCategoryMap(userId);
 
     // 同步版本的分类展示函数（数据已在 Promise 外加载好，按 UUID 查找）
     const getDisplay = (categoryId: string): string => {

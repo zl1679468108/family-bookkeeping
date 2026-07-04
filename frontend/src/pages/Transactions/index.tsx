@@ -181,7 +181,7 @@ const Transactions: React.FC = () => {
           }
           right={
             <span className="filter-summary">
-              {transactions.length}笔 · 支出{formatAmount(totalExpense)} · 收入{formatAmount(totalIncome)}
+              本页{transactions.length}笔 · 支出{formatAmount(totalExpense)} · 收入{formatAmount(totalIncome)}
             </span>
           }
         />
@@ -260,6 +260,7 @@ const Transactions: React.FC = () => {
                       }}
                       role="button"
                       tabIndex={0}
+                      aria-label={`查看交易详情：${t.description || getCategoryName(t.category)} ${formatAmountWithType(t.amount, t.type === 'income')}`}
                       style={{ cursor: 'pointer' }}
                     >
                       <td>{format(parse(t.date, 'yyyy-MM-dd', new Date()), 'yyyy-MM-dd')}</td>
@@ -346,7 +347,7 @@ const Transactions: React.FC = () => {
               <DetailItem label="坐标" value={`${selectedTransaction.latitude}, ${selectedTransaction.longitude}`} />
             )}
             {selectedTransaction.created_at && (
-              <DetailItem label="创建时间" value={format(parse(selectedTransaction.date, 'yyyy-MM-dd', new Date()), 'yyyy-MM-dd')} />
+              <DetailItem label="创建时间" value={selectedTransaction.created_at} />
             )}
           </div>
 

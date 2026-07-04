@@ -18,6 +18,7 @@ import { fetchSummary } from "../../services/statisticsApi";
 import { fetchBudgetStatus } from "../../services/budgetsApi";
 import { useCategoryLookup } from "../../hooks/useCategories";
 import { useAuth } from "../../context/AuthContext";
+import { useBookContext } from "../../context/BookContext";
 import { fmtAmount } from "../../utils/format";
 import { renderCategoryIcon } from "../../utils/renderCategoryIcon";
 import "./index.scss";
@@ -34,15 +35,16 @@ interface BudgetStatus {
 export default function Home() {
   const { categories, getCategoryName, getCategoryIcon } = useCategoryLookup();
   const { user, loading } = useAuth();
+  const { currentBook } = useBookContext(); // T-H10: 获取当前账本用于触发刷新
   const [txn, setTxn] = useState<any[]>([]);
   const [summary, setSummary] = useState<any>(null);
   const [budgets, setBudgets] = useState<BudgetStatus[]>([]);
   const [refreshing, setRefreshing] = useState(false);
 
-  const loadData = useCallback(() => {
+  const loadData = useCallback(async () => {
     // 未登录不请求接口，由 AuthGuard 跳转登录页
     if (!user) {
-      return Promise.resolve();
+      return;
     }
     const now = new Date();
     const pad = (n: number) => String(n).padStart(2, "0");
@@ -51,7 +53,7 @@ export default function Home() {
     const monthStr = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-01`;
 
     // T-L6: 使用 Promise.allSettled 防止单个请求失败导致全部丢弃
-    // T-L7: 日期计算移出 Promise.all 外，避免闭包依赖变化
+    // T-C4: 日期计算提前到 Promise.all 外，避免闭包依赖变化
     const [summaryRes, txnRes, budgetRes] = await Promise.allSettled([
       fetchSummary({ startDate, endDate }),
       getTransactions({ page: 1, pageSize: 5 }),
@@ -72,14 +74,14 @@ export default function Home() {
       }));
       setBudgets(cats);
     }
-  }, [user, loadData]);
+  }, [user]); // T-C4: 移除 loadData 自引用
 
   useEffect(() => {
     // 等待认证状态初始化完成，且已登录才请求
     if (loading) return;
     if (!user) return;
     loadData().catch(() => { });
-  }, [loading, user, loadData]);
+  }, [loading, user, loadData, currentBook]); // T-H10: 依赖 currentBook 变化时重新加载
 
   const handleRefresh = useCallback(() => {
     return new Promise<void>((resolve) => {
@@ -160,7 +162,6 @@ export default function Home() {
           title="最近交易"
           actionText="全部 ›"
           onAction={() => Taro.switchTab({ url: "/pages/Transactions/index" })}
-          flush
           flush
         >
           {txn.length === 0 ? (

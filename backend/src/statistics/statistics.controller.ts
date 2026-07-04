@@ -93,11 +93,12 @@ export class StatisticsController {
   @Get('member-comparison')
   async getMemberComparison(
     @CurrentUser('id') userId: string,
+    @BookId() bookId: string | undefined,
     @Query() query: MemberComparisonQueryDto,
   ) {
     return {
       message: '获取成员对比成功',
-      data: await this.statisticsService.getMemberComparison(userId, query),
+      data: await this.statisticsService.getMemberComparison(userId, bookId, query),
     };
   }
 

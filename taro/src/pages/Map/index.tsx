@@ -104,7 +104,7 @@ export default function MapPage() {
   // 查看账单详情
   const handleViewTransaction = (tx: MapTransaction) => {
     Taro.setStorageSync("edit_tx_id", String(tx.id));
-    Taro.switchTab({ url: "/pages/AddTransaction/index" });
+    Taro.navigateTo({ url: "/pages/AddTransaction/index" });
   };
 
   // 按地点分组
