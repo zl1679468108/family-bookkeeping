@@ -43,6 +43,9 @@ cloudbaserc.json
 coverage/
 *.lcov
 
+# 测试结果
+frontend/test-results/
+
 # 工作记忆（可能包含敏感信息）
 .workbuddy/memory/
 
