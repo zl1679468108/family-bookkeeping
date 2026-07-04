@@ -12,49 +12,61 @@
 }
 
 .rank-row__name {
-  font-size: 13px;
-  font-weight: 500;
+  font-size: 14px;
+  font-weight: 600;
   color: var(--fg);
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
 }
 
 .rank-row__icon {
-  font-size: 14px;
+  font-size: 16px;
 }
 
 .rank-row__amount {
   font-size: 13px;
   font-weight: 500;
   color: var(--fg);
+  font-variant-numeric: tabular-nums;
+}
+
+.rank-row__progress {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 .rank-row__bar {
-  height: 4px;
+  flex: 7;
+  height: 8px;
   background: var(--bg);
-  border-radius: 2px;
+  border-radius: 4px;
   overflow: hidden;
-  margin-bottom: 4px;
 }
 
 .rank-row__bar .fill {
   height: 100%;
-  border-radius: 2px;
+  border-radius: 4px;
   transition: width 0.35s ease;
 }
 
-.rank-row__bar .fill.safe { background: var(--pr); }
+.rank-row__bar .fill.safe { background: var(--prGr); }
 .rank-row__bar .fill.income { background: var(--inc); }
-.rank-row__bar .fill.warn { background: var(--warn, #f59e0b); }
-.rank-row__bar .fill.danger { background: var(--exp); }
+.rank-row__bar .fill.warn { background: linear-gradient(90deg, #E8A838, #F0C040); }
+.rank-row__bar .fill.danger { background: linear-gradient(90deg, #E06055, #F08075); }
 
 .rank-row__meta {
+  flex: 3;
   font-size: 12px;
   color: var(--fg3);
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
 }
 
 .rank-row__extra {
-  margin-left: 8px;
   color: var(--fg2);
 }
