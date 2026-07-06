@@ -18,14 +18,17 @@ async function bootstrap() {
   app.useBodyParser('json', { limit: '10mb' });
   app.useBodyParser('urlencoded', { limit: '10mb', extended: true });
 
-  // 启用 CORS — 允许前端域名和开发环境
+  // 启用 CORS — 支持从环境变量 CORS_ORIGINS 读取逗号分隔的域名列表
   const frontendUrl = configService.get<string>('FRONTEND_URL', 'http://localhost:3001');
-  const allowedOrigins = [
-    frontendUrl,
-    'http://localhost:3000',
-    'http://127.0.0.1:3000',
-    'http://127.0.0.1:3001',
-  ];
+  const corsOriginsEnv = configService.get<string>('CORS_ORIGINS', '');
+  const allowedOrigins = corsOriginsEnv
+    ? corsOriginsEnv.split(',').map((s) => s.trim()).filter(Boolean)
+    : [
+        frontendUrl,
+        'http://localhost:3000',
+        'http://127.0.0.1:3000',
+        'http://127.0.0.1:3001',
+      ];
   app.enableCors({
     origin: (origin, callback) => {
       // 允许无 origin 的请求（如 Postman、服务端调用）

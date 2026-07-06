@@ -103,40 +103,39 @@ export class TransactionService {
   }
 
   /**
-   * 构建公共查询条件（B-L5: 提取公共函数避免 countQuery/baseQuery 条件重复）
-   */
-  private applyFilters(supabase: any, filters: TransactionFilters, shouldViewAll: boolean, userId: string) {
-    let query = supabase.from('jj_transactions').select('*');
-
-    if (shouldViewAll) {
-      query = query.eq('book_id', filters.bookId);
-    } else {
-      query = query.eq('user_id', userId);
-      if (filters?.bookId) {
+     * 构建公共查询条件（B-L5: 提取公共函数避免 countQuery/baseQuery 条件重复）
+     * 接受一个 query builder 并应用所有筛选条件，可用于数据查询和 count 查询
+     */
+    private applyFilters(query: any, filters: TransactionFilters, shouldViewAll: boolean, userId: string) {
+      if (shouldViewAll) {
         query = query.eq('book_id', filters.bookId);
+      } else {
+        query = query.eq('user_id', userId);
+        if (filters?.bookId) {
+          query = query.eq('book_id', filters.bookId);
+        }
       }
+
+      if (filters?.type) query = query.eq('type', filters.type);
+      if (filters?.category) query = query.eq('category', filters.category);
+      if (filters?.startDate) query = query.gte('date', filters.startDate);
+      if (filters?.endDate) query = query.lte('date', filters.endDate);
+
+      const fuzzyTerm = filters?.keyword || filters?.search;
+      if (fuzzyTerm) {
+        // T-M15: 转义 PostgREST 特殊字符，防止语法破坏
+        const sanitized = fuzzyTerm.replace(/[,.%()]/g, '\\$&');
+        const likeTerm = `%${sanitized}%`;
+        query = query.or(`description.ilike.${likeTerm},brand.ilike.${likeTerm}`);
+      }
+
+      if (filters?.min_amount) query = query.gte('amount', Number(filters.min_amount));
+      if (filters?.max_amount) query = query.lte('amount', Number(filters.max_amount));
+      if (filters?.date_from) query = query.gte('date', filters.date_from);
+      if (filters?.date_to) query = query.lte('date', filters.date_to);
+
+      return { query, fuzzyTerm };
     }
-
-    if (filters?.type) query = query.eq('type', filters.type);
-    if (filters?.category) query = query.eq('category', filters.category);
-    if (filters?.startDate) query = query.gte('date', filters.startDate);
-    if (filters?.endDate) query = query.lte('date', filters.endDate);
-
-    const fuzzyTerm = filters?.keyword || filters?.search;
-    if (fuzzyTerm) {
-      // T-M15: 转义 PostgREST 特殊字符，防止语法破坏
-      const sanitized = fuzzyTerm.replace(/[,.%()]/g, '\\$&');
-      const likeTerm = `%${sanitized}%`;
-      query = query.or(`description.ilike.${likeTerm},brand.ilike.${likeTerm}`);
-    }
-
-    if (filters?.min_amount) query = query.gte('amount', Number(filters.min_amount));
-    if (filters?.max_amount) query = query.lte('amount', Number(filters.max_amount));
-    if (filters?.date_from) query = query.gte('date', filters.date_from);
-    if (filters?.date_to) query = query.lte('date', filters.date_to);
-
-    return { query, fuzzyTerm };
-  }
 
   async findAll(filters?: TransactionFilters): Promise<PaginatedResponse<Transaction>> {
     const supabase = this.supabaseService.getClient();
@@ -158,33 +157,17 @@ export class TransactionService {
     }
 
     const shouldViewAll = isOwner && filters?.view === 'all';
-    const { query: baseQuery, fuzzyTerm } = this.applyFilters(supabase, filters, shouldViewAll, filters.userId);
 
-    // 先用独立的 head 查询获取精确 count
-    let countQuery = supabase
-      .from('jj_transactions')
-      .select('*', { count: 'exact', head: true });
+    // 构建数据查询 + count 查询，共用一个 applyFilters 以避免条件重复
+    const { query: baseQuery } = this.applyFilters(
+      supabase.from('jj_transactions').select('*'),
+      filters, shouldViewAll, filters.userId,
+    );
 
-    // 复用 applyFilters 的逻辑构建 count 条件
-    if (shouldViewAll) {
-      countQuery = countQuery.eq('book_id', filters.bookId);
-    } else {
-      countQuery = countQuery.eq('user_id', filters.userId);
-      if (filters?.bookId) countQuery = countQuery.eq('book_id', filters.bookId);
-    }
-
-    if (filters?.type) countQuery = countQuery.eq('type', filters.type);
-    if (filters?.category) countQuery = countQuery.eq('category', filters.category);
-    if (filters?.startDate) countQuery = countQuery.gte('date', filters.startDate);
-    if (filters?.endDate) countQuery = countQuery.lte('date', filters.endDate);
-    if (fuzzyTerm) {
-      const likeTerm = `%${fuzzyTerm}%`;
-      countQuery = countQuery.or(`description.ilike.${likeTerm},brand.ilike.${likeTerm}`);
-    }
-    if (filters?.min_amount) countQuery = countQuery.gte('amount', Number(filters.min_amount));
-    if (filters?.max_amount) countQuery = countQuery.lte('amount', Number(filters.max_amount));
-    if (filters?.date_from) countQuery = countQuery.gte('date', filters.date_from);
-    if (filters?.date_to) countQuery = countQuery.lte('date', filters.date_to);
+    const { query: countQuery } = this.applyFilters(
+      supabase.from('jj_transactions').select('*', { count: 'exact', head: true }),
+      filters, shouldViewAll, filters.userId,
+    );
 
     const { count, error: countError } = await countQuery;
 
@@ -203,7 +186,7 @@ export class TransactionService {
     }
 
     return {
-      data: (data || []).map((t) => this.resolveImageUrl(t)),
+      data: (data || []).map((t: any) => this.resolveImageUrl(t)),
       total: count || 0,
       page,
       pageSize,
@@ -254,7 +237,8 @@ export class TransactionService {
     if (typeof transaction.amount !== 'number' || transaction.amount <= 0) {
       throw new BadRequestException('金额必须为正数');
     }
-    if (!['income', 'expense'].includes(transaction.type)) {
+    const transType = transaction.type;
+    if (!transType || !(['income', 'expense'] as string[]).includes(transType)) {
       throw new BadRequestException('类型不合法，必须为 income 或 expense');
     }
 

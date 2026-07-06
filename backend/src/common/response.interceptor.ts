@@ -116,8 +116,8 @@ function convertTimeFields(obj: unknown, topLevel: boolean = true): unknown {
       // 数组字段（如 transactions 列表）递归处理
       result[key] = value.map((item) => convertTimeFields(item, false));
     } else if (typeof value === 'object' && value !== null) {
-      // 嵌套对象不递归，避免 O(n) 深拷贝
-      result[key] = value;
+      // 嵌套对象：1 层浅递归转换时间字段（避免 O(n) 深拷贝）
+      result[key] = convertTimeFields(value, false);
     } else {
       result[key] = value;
     }

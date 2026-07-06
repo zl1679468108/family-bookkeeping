@@ -119,7 +119,7 @@ const Transactions: React.FC = () => {
       category: categoryFilter || undefined,
       startDate: effectiveStartDate || undefined,
       endDate: todayStr,
-      keyword: debouncedSearch || undefined,
+      search: debouncedSearch || undefined,
       page,
       pageSize: PAGE_SIZE,
     }),

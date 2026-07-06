@@ -199,7 +199,7 @@ export class BooksService {
   }
 
   /** 更新账本 */
-  async update(bookId: string, userId: string, name: string, description?: string, icon?: string, iconId?: string): Promise<Book> {
+  async update(bookId: string, userId: string, name?: string, description?: string, icon?: string, iconId?: string): Promise<Book> {
     const book = await this.getById(bookId);
     if (book.owner_id !== userId) {
       throw new ForbiddenException('只有账主可以修改账本信息');
