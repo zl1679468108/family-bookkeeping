@@ -171,7 +171,7 @@ export class SupabaseService implements OnModuleInit {
     } catch (outerErr) {
       try {
         const client = this.getClient();
-        const { error } = await client.rpc('version' as never);
+        const { error } = await client.rpc('version');
         if (!error) return { ok: true, latencyMs: Date.now() - start };
         if ((error as any)?.code === '42883') {
           return { ok: true, latencyMs: Date.now() - start };

@@ -13,6 +13,7 @@ import { TemplatesModule } from './templates/templates.module';
 import { ReportsModule } from './reports/reports.module';
 import { AdminModule } from './admin/admin.module';
 import { IconsModule } from './icons/icons.module';
+import { OcrModule } from './ocr/ocr.module';
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { IconsModule } from './icons/icons.module';
     ReportsModule,
     AdminModule,
     IconsModule,
+    OcrModule,
   ],
 })
 export class AppModule {}

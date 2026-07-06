@@ -41,7 +41,6 @@ export interface TransactionFilters {
   sortBy?: 'amount' | 'date'
   sortOrder?: 'asc' | 'desc'
   search?: string
-  keyword?: string
   min_amount?: number
   max_amount?: number
   date_from?: string
@@ -296,7 +295,6 @@ export const getTransactions = async (filters?: TransactionFilters): Promise<Pag
   if (filters?.sortBy) params.append('sortBy', filters.sortBy)
   if (filters?.sortOrder) params.append('sortOrder', filters.sortOrder)
   if (filters?.search) params.append('search', filters.search)
-  if (filters?.keyword) params.append('keyword', filters.keyword)
   if (filters?.min_amount !== undefined) params.append('min_amount', String(filters.min_amount))
   if (filters?.max_amount !== undefined) params.append('max_amount', String(filters.max_amount))
   if (filters?.date_from) params.append('date_from', filters.date_from)
@@ -486,4 +484,33 @@ export const setCurrentBook = async (bookId: string): Promise<{ book_id: string 
     body: { book_id: bookId },
     requiresAuth: true,
   });
+}
+
+/**
+ * OCR 识别收据/账单图片
+ * POST /api/ocr/receipt
+ * 免费额度用完时后端返回 503，ApiError 会以错误通知显示
+ */
+export interface OcrResult {
+  rawText: string
+  amount?: string
+  date?: string
+  type?: 'expense' | 'income'
+  note?: string
+}
+
+export const ocrReceipt = async (file: Blob): Promise<OcrResult> => {
+  const formData = new FormData()
+  // compressImage 输出的 Blob 可能是 image/jpeg 或 image/png，
+  // 后端 FileValidationPipe 要求扩展名与 MIME 一致
+  const ext = file.type === 'image/png' ? '.png' : '.jpg'
+  formData.append('file', file, `receipt${ext}`)
+  return request<OcrResult>('/ocr/receipt', {
+    method: 'POST',
+    requiresAuth: true,
+    body: formData,
+    showProgress: true,
+    // OCR 失败时不需要前端额外通知（后端已经有中文提示）
+    notifyOnError: true,
+  })
 }

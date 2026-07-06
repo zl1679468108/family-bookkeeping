@@ -42,17 +42,6 @@ export class FileValidationPipe implements PipeTransform {
       throw new BadRequestException('文件扩展名与实际类型不匹配');
     }
 
-    // 验证扩展名与客户端声明的 MIME 一致性（原有逻辑）
-    const clientExtMap: Record<string, string[]> = {
-      'jpeg': ['jpg', 'jpeg'],
-      'png': ['png'],
-      'webp': ['webp'],
-    };
-    const clientAllowedExts = clientExtMap[file.mimetype] || [];
-    if (ext && !clientAllowedExts.includes(ext)) {
-      throw new BadRequestException('文件扩展名与类型不匹配');
-    }
-
     return file;
   }
 }
