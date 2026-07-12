@@ -35,8 +35,9 @@ const SwitchAccountModal: React.FC<SwitchAccountModalProps> = ({ visible, onClos
       }
       setSwitchingEmail(account.email)
       try {
-        if (account.token) {
-          await switchByToken(account.email, account.token)
+        const accessToken = account.accessToken ?? account.token
+        if (accessToken) {
+          await switchByToken(account.email, accessToken, account.refreshToken)
           notify({ type: 'success', message: '账号切换成功' })
           setAccounts(getSavedAccounts())
           onClose()

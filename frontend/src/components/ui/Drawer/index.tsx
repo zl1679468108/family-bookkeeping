@@ -1,5 +1,4 @@
 import React, { useEffect, useRef } from 'react';
-import './index.scss';
 
 export interface DrawerHandle {
   close: () => void;

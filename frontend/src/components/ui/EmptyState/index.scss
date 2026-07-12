@@ -21,9 +21,18 @@
 }
 
 .empty-state__icon {
-  font-size: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--fg3); /* SVG 用 currentColor，随明暗主题自适应 */
+  font-size: 32px; /* emoji 回退字号 */
   margin-bottom: 12px;
   line-height: 1;
+}
+
+/* 统一默认图标（SVG）略降低存在感，与 Taro 端保持一致 */
+.empty-state__icon svg {
+  opacity: 0.9;
 }
 
 .empty-state--compact .empty-state__icon {

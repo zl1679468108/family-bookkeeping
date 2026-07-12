@@ -38,21 +38,22 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
   const timersRef = useRef<Set<number>>(new Set())
 
   useEffect(() => {
+    const timers = timersRef.current
     const handleAdd = (notification: NotificationItem) => {
       setNotifications((current) => [...current, notification])
       const timerId = window.setTimeout(() => {
-        timersRef.current.delete(timerId)
+        timers.delete(timerId)
         setNotifications((current) => current.filter((item) => item.id !== notification.id))
       }, 3000)
-      timersRef.current.add(timerId)
+      timers.add(timerId)
     }
 
     listeners.add(handleAdd)
     return () => {
       listeners.delete(handleAdd)
       // 卸载时清理所有未触发的定时器
-      timersRef.current.forEach((id) => window.clearTimeout(id))
-      timersRef.current.clear()
+      timers.forEach((id) => window.clearTimeout(id))
+      timers.clear()
     }
   }, [])
 

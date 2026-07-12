@@ -157,7 +157,7 @@ const AdminUsers: React.FC = () => {
             <TableRowsSkeleton columns={9} rows={10} />
           </div>
         ) : (data?.users || []).length === 0 ? (
-          <EmptyState icon="👥" title="暂无用户" variant="compact" />
+          <EmptyState title="暂无用户" variant="compact" />
         ) : (
           <>
             <div className="data-table-wrapper">

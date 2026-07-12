@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react'
+import React, { useState } from 'react'
 import { format } from 'date-fns'
 import { useBook } from '../../hooks/useBook'
 import { useMemberColors } from '../../hooks/useMemberColors'
@@ -28,12 +28,9 @@ const Reports: React.FC = () => {
     now, currentYear,
     yearOptions, monthOptions,
     isDailyView, isMonthCompare, isYearCompare, isMonthlyView,
-    months,
     trendData, dailySummaryQueries, yoyExpenseData, yoyIncomeData,
     mainLoading, categoryLoading,
     mergedDefaultBreakdown,
-    currentMonthMerged, targetMonthMerged,
-    currentYearMerged, targetYearMerged,
     totalExpense, totalIncome,
   } = useReportData()
 
@@ -136,7 +133,7 @@ const Reports: React.FC = () => {
                   {mergedDefaultBreakdown.length > 0 ? (
                     <CategoryRankChart data={mergedDefaultBreakdown} height="280px" />
                   ) : (
-                    <EmptyState variant="compact" icon="📭" title="暂无分类数据" description="请等待数据加载或切换其他时间段" />
+                    <EmptyState variant="compact" title="暂无分类数据" description="请等待数据加载或切换其他时间段" />
                   )}
                 </>
               )}
@@ -178,7 +175,7 @@ const Reports: React.FC = () => {
                 />
                 {!chartHasData && (
                   <div style={{ position: 'relative', marginTop: '-300px', height: '300px', display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none', background: 'var(--bg-card)' }}>
-                    <EmptyState icon="📊" title="暂无数据" description="当前时间段内没有交易记录" action={<Button variant="outline">开始记账</Button>} />
+                    <EmptyState title="暂无数据" description="当前时间段内没有交易记录" action={<Button variant="outline">开始记账</Button>} />
                   </div>
                 )}
               </>
@@ -191,7 +188,7 @@ const Reports: React.FC = () => {
         <>
           {!isMultiMember ? (
             <Card>
-              <EmptyState icon="👥" title="单成员账本" description="成员对比功能仅在多成员账本中可用，请切换至其他账本或邀请家人加入" />
+              <EmptyState title="单成员账本" description="成员对比功能仅在多成员账本中可用，请切换至其他账本或邀请家人加入" />
             </Card>
           ) : (
             <>
@@ -205,7 +202,7 @@ const Reports: React.FC = () => {
                 <MemberComparison monthFrom={memberStartMonth} monthTo={memberEndMonth} />
               ) : (
                 <Card>
-                  <EmptyState icon="📒" title="请先选择一个账本" description="在左侧账本列表中选择要查看的账本" />
+                  <EmptyState title="请先选择一个账本" description="在左侧账本列表中选择要查看的账本" />
                 </Card>
               )}
             </>

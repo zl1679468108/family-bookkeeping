@@ -31,11 +31,12 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
   const hasInitialPos = !!(initialLocation && initialLocation.latitude !== 0);
 
   /* ---- Map instance via pool (active only when visible) ---- */
-  const { mapContainerRef, map, ready } = useMapInstance(
+  const { mapContainerRef, map: rawMap, ready } = useMapInstance(
     'location-picker',
     {},
     visible,
   );
+  const map = rawMap as any;
 
   // Sync AMap instance to stable ref for imperative access
   const mapRef = useRef<any>(null);
@@ -159,7 +160,7 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
         setError('无法获取当前位置，请确认已授权位置权限后手动搜索或点击地图选择位置');
       }
     });
-  }, []);
+  }, [reverseGeocode]);
 
   /* ---- 弹窗打开 + 地图就绪 → 初始化 ---- */
   useEffect(() => {

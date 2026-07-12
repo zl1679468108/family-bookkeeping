@@ -387,11 +387,13 @@
 }
 
 .btn-primary {
-  background: var(--fg);
+  background: var(--pr);
   color: #fff;
+  border-color: var(--pr);
 
   &:hover:not(:disabled) {
-    background: var(--fgD);
+    background: var(--prH);
+    border-color: var(--prH);
   }
 }
 

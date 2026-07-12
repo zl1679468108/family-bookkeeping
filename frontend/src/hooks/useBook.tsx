@@ -80,7 +80,7 @@ export const BookProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
     // 否则选中列表中的第一个账本
     setCurrentBook(books[0]);
-  }, [books, booksLoading, user]);
+  }, [books, booksLoading, user, currentBook]);
 
   const isOwner = currentBook?.role === 'owner';
   const hasBooks = !booksLoading && books.length > 0;

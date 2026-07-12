@@ -88,9 +88,14 @@ cd frontend && npm run start         # 开发模式，端口 3001
 cd frontend && npm run build:prod    # 生产构建
 
 # 小程序
-cd taro && npm run dev:weapp         # 微信小程序开发构建
+cd taro && npm run dev:weapp         # 微信小程序开发构建（输出 dist/，微信开发者工具指向此目录）
 cd taro && npm run dev:h5            # H5 开发构建
-cd taro && npm run build:weapp       # 微信小程序生产构建
+cd taro && npm run build:weapp       # 微信小程序生产构建（输出 dist-prod/，独立目录不与 dev 冲突）
+
+# ⚠️ 构建目录隔离约定（重要）
+# dev:* 输出到 dist/，build:* 输出到 dist-prod/，两者物理隔离。
+# 不要把 dev:weapp(watch) 和 build:weapp 同时跑——会争抢同一目录导致微信开发者工具读到残缺产物。
+# 正常开发用 dev:weapp，需干净生产构建/上传时才单独跑 build:weapp（产物在 dist-prod/）。
 
 # 类型检查
 cd frontend && npx tsc --noEmit
@@ -126,11 +131,8 @@ backend/
     icons/           图标模块
     admin/           管理员模块
     mail/            邮件模块
-    common/          公共模块
-      supabase/      Supabase 客户端
-      pipes/         管道（文件验证等）
-      interceptors/  拦截器（响应包装）
-      filters/       过滤器（异常处理）
+    supabase/         Supabase 客户端
+    common/          公共模块（interceptors / filters / pipes）
 
 taro/
   src/
@@ -210,6 +212,7 @@ docs/
 - 限制：不支持 `atob`/`btoa`、不支持 inline SVG、WXSS 不支持部分 CSS 选择器。
 - 环境变量前缀：`TARO_APP_`
 - Provider 层级：`QueryClientProvider > AuthProvider > BookProvider > AuthGuard > Pages`
+- **构建目录隔离**：`dev:*` → `dist/`，`build:*` → `dist-prod/`。两者不可同时运行（勿让 watch 与一次性构建争抢同一目录，否则微信开发者工具会读到残缺产物）。正常开发用 `dev:weapp`（微信开发者工具指向 `dist/`），生产构建/上传用 `build:weapp`（产物在 `dist-prod/`）。
 
 ## 8. Backend（NestJS）规则
 

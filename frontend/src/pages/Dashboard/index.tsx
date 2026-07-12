@@ -130,8 +130,8 @@ const Dashboard: React.FC = () => {
             </div>
           ) : recentTransactions.length === 0 ? (
             <EmptyState
-              icon="📭"
               title="暂无交易记录"
+              description="记录每一笔交易，掌握家庭收支"
               action={
                 <Button
                   variant="primary"
@@ -169,9 +169,7 @@ const Dashboard: React.FC = () => {
         {/* 右侧 - 预算进度 */}
         {budgetLoading ? (
           <Card>
-            <CardHeader
-              title={<Skeleton width="70px" height="14px" />}
-            />
+            <CardHeader title="本月预算" />
             {[0, 1, 2].map((i) => (
               <div key={i} className="budget-item" style={{ pointerEvents: 'none' }}>
                 <div className="budget-info">
@@ -187,9 +185,7 @@ const Dashboard: React.FC = () => {
           </Card>
         ) : hasBudget ? (
           <Card>
-            <CardHeader
-              title="预算进度"
-            />
+            <CardHeader title="本月预算" />
             {budgetStatus.categories.slice(0, 4).map((cat) => (
               <div
                 key={cat.category_id}
@@ -221,8 +217,8 @@ const Dashboard: React.FC = () => {
           </Card>
         ) : (
           <Card>
+            <CardHeader title="本月预算" />
             <EmptyState
-              icon="📊"
               title="暂无预算设置"
               description="设置预算可以更好地控制支出"
               action={

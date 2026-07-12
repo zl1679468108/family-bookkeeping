@@ -1,6 +1,5 @@
-import React, { useEffect, useRef, useCallback } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useModalZIndex } from '../../hooks/useModalZIndex';
-import './index.scss';
 
 export type GlobalModalType = 'confirm' | 'detail' | 'modal';
 
@@ -77,6 +76,8 @@ export const GlobalModal: React.FC<GlobalModalProps> = ({
 }) => {
   const dialogRef = useRef<HTMLDivElement>(null);
   const previouslyFocused = useRef<HTMLElement | null>(null);
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
 
   // 根据类型确定基础 z-index
   const zIndexType = type === 'confirm' ? 'critical' : type === 'detail' ? 'detail' : 'modal';
@@ -92,10 +93,14 @@ export const GlobalModal: React.FC<GlobalModalProps> = ({
     // 自动聚焦到 dialog
     const dialogEl = dialogRef.current;
     if (dialogEl) {
-      // 尝试聚焦第一个可交互元素，否则聚焦 dialog 本身
+      // 表单类弹窗优先聚焦第一个输入框，否则聚焦第一个可交互元素
       const focusable = getFocusableElements(dialogEl);
-      if (focusable.length > 0) {
-        focusable[0].focus();
+      const fieldEls = focusable.filter(
+        (el) => el.tagName === 'INPUT' || el.tagName === 'TEXTAREA',
+      );
+      const target = fieldEls[0] || focusable[0];
+      if (target) {
+        target.focus();
       } else {
         dialogEl.setAttribute('tabindex', '-1');
         dialogEl.focus();
@@ -106,7 +111,7 @@ export const GlobalModal: React.FC<GlobalModalProps> = ({
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         e.stopPropagation();
-        onClose();
+        onCloseRef.current();
         return;
       }
 
@@ -142,7 +147,7 @@ export const GlobalModal: React.FC<GlobalModalProps> = ({
         previouslyFocused.current.focus();
       }
     };
-  }, [open, onClose]);
+  }, [open]);
 
   // ESC 键关闭弹窗（保留原有行为作为兜底）
   useEffect(() => {
@@ -150,12 +155,12 @@ export const GlobalModal: React.FC<GlobalModalProps> = ({
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         e.stopPropagation();
-        onClose();
+        onCloseRef.current();
       }
     };
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [open, closable, onClose]);
+  }, [open, closable]);
 
   if (!open) return null;
 
@@ -186,10 +191,10 @@ export const GlobalModal: React.FC<GlobalModalProps> = ({
           role="alertdialog"
           aria-modal="true"
           aria-labelledby={title ? `${type}-title` : undefined}
-          aria-describedby={description ? `${type}-desc` : undefined}
+          aria-describedby={children ? `${type}-desc` : undefined}
         >
           {title && <h3 id={`${type}-title`} className="global-modal-dialog__title">{title}</h3>}
-          {children && <p id={`${type}-desc`} className="global-modal-dialog__message">{children}</p>}
+          {children && <div id={`${type}-desc`} className="global-modal-dialog__message">{children}</div>}
           <div className="global-modal-dialog__actions">
             <button
               type="button"

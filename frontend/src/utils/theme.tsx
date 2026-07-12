@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { Sun, Moon, Monitor } from 'lucide-react';
 
 type ThemeMode = 'light' | 'dark' | 'system';
@@ -39,9 +39,7 @@ const resolveTheme = (mode: ThemeMode): ResolvedTheme => {
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [theme, setThemeState] = useState<ThemeMode>(getStoredTheme);
-  const resolvedRef = useRef<ResolvedTheme>(resolveTheme(getStoredTheme()));
-
-  const resolvedTheme = resolvedRef.current;
+  const [resolvedTheme, setResolvedTheme] = useState<ResolvedTheme>(() => resolveTheme(getStoredTheme()));
 
   // 同步 data-theme 属性到 document 根元素
   useEffect(() => {
@@ -56,10 +54,8 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
     const handleChange = (e: MediaQueryListEvent) => {
       const newResolved: ResolvedTheme = e.matches ? 'dark' : 'light';
-      resolvedRef.current = newResolved;
+      setResolvedTheme(newResolved);
       document.documentElement.setAttribute(THEME_ATTR, newResolved);
-      // 强制重渲染
-      setThemeState('system');
     };
 
     mediaQuery.addEventListener('change', handleChange);
@@ -73,7 +69,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       // localStorage 不可用时忽略
     }
     const newResolved = resolveTheme(mode);
-    resolvedRef.current = newResolved;
+    setResolvedTheme(newResolved);
     document.documentElement.setAttribute(THEME_ATTR, newResolved);
     setThemeState(mode);
   }, []);
@@ -81,9 +77,9 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   // 初始化时设置 data-theme
   useEffect(() => {
     const resolved = resolveTheme(theme);
-    resolvedRef.current = resolved;
+    setResolvedTheme(resolved);
     document.documentElement.setAttribute(THEME_ATTR, resolved);
-  }, []);
+  }, [theme]);
 
   return (
     <ThemeContext.Provider value={{ theme, resolvedTheme, setTheme }}>

@@ -1,6 +1,5 @@
 import React, { useState } from 'react'
 import { notify } from '../../../utils/notifications'
-import './index.scss'
 
 /**
  * 通用图标网格选择器
@@ -29,7 +28,7 @@ export interface IconGridOption {
 export interface CustomIconItem {
   id: string
   icon_url: string
-  icon_type: 'category' | 'book'
+  icon_type: 'category' | 'book' | 'avatar'
 }
 
 interface IconGridProps {
@@ -39,11 +38,11 @@ interface IconGridProps {
   /** 自定义图标列表（用户上传的） */
   customIcons?: CustomIconItem[]
   /** 上传回调，传入后自动触发文件选择 */
-  onUpload?: (file: File, iconType: 'category' | 'book') => Promise<void>
+  onUpload?: (file: File, iconType: 'category' | 'book' | 'avatar') => Promise<void>
   /** 删除自定义图标回调 */
   onDelete?: (iconId: string) => Promise<void>
-  /** 图标类型：分类 or 账本 */
-  iconType?: 'category' | 'book'
+  /** 图标类型：分类 / 账本 / 头像 */
+  iconType?: 'category' | 'book' | 'avatar'
   columns?: number
   className?: string
 }

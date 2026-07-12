@@ -1,34 +1,52 @@
+// 设计令牌
+@use './design-tokens.css';
+
+// 导入组件样式
+@use './components/buttons';
+@use './components/forms';
+@use './components/modals';
+@use './components/animations';
+@use './components/tooltip';
+@use './components/common';
+@use '../components/GlobalModal/index' as global-modal;
+@use '../components/ui/Button/index' as ui-button;
+@use '../components/ui/Card/index' as ui-card;
+@use '../components/ui/DetailItem/index' as ui-detail-item;
+@use '../components/ui/Drawer/index' as ui-drawer;
+@use '../components/ui/Dropdown/index' as ui-dropdown;
+@use '../components/ui/EmptyState/index' as ui-empty-state;
+@use '../components/ui/FilterBar/index' as ui-filter-bar;
+@use '../components/ui/IconGrid/index' as ui-icon-grid;
+@use '../components/ui/Input/index' as ui-input;
+@use '../components/ui/LocationDisplay/index' as ui-location-display;
+@use '../components/ui/Pagination/index' as ui-pagination;
+@use '../components/ui/RankList/index' as ui-rank-list;
+@use '../components/ui/SegControl/index' as ui-seg-control;
+@use '../components/ui/Skeleton/index' as ui-skeleton;
+@use '../components/ui/Space/index' as ui-space;
+@use '../components/ui/StatCard/index' as ui-stat-card;
+@use '../components/ui/Textarea/index' as ui-textarea;
+
+// 导入 Sidebar 样式
+@use './sidebar';
+
+// 导入页面模块样式
+@use '../pages/Dashboard';
+@use '../pages/Transactions';
+@use '../pages/Calendar';
+@use '../pages/Budgets';
+@use '../pages/Books';
+@use '../pages/Categories';
+@use '../pages/Templates';
+@use '../pages/Reports';
+@use '../pages/AddTransaction';
+@use '../pages/Map';
+@use '../pages/About';
+
 // Tailwind CSS
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-// 设计令牌
-@import './design-tokens.css';
-
-// 导入组件样式
-@import './components/_buttons.scss';
-@import './components/_forms.scss';
-@import './components/_modals.scss';
-@import './components/_animations.scss';
-@import './components/_tooltip.scss';
-@import './components/_common.scss';
-
-// 导入 Sidebar 样式
-@import './sidebar/index.scss';
-
-// 导入页面模块样式
-@import '../pages/Dashboard/index.scss';
-@import '../pages/Transactions/index.scss';
-@import '../pages/Calendar/index.scss';
-@import '../pages/Budgets/index.scss';
-@import '../pages/Books/index.scss';
-@import '../pages/Categories/index.scss';
-@import '../pages/Templates/index.scss';
-@import '../pages/Reports/index.scss';
-@import '../pages/AddTransaction/index.scss';
-@import '../pages/Map/index.scss';
-@import '../pages/About/index.scss';
 
 /* ==============================
    统一页面容器 padding

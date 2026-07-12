@@ -1,36 +1,133 @@
 # TASKS.md — 任务清单
 
-> 更新日期：2026-07-05
-> 状态说明：🔄 部分修复 / ⏳ 待处理
+> 更新日期：2026-07-07
+> 状态说明：🔄 进行中 / ⏳ 待处理 / ✅ 已完成 / ❌ 阻塞
+> 当前重心：Taro 微信小程序功能完善与质量收尾。
 
 ---
 
-## 一、High（高优先级）
+## 本轮目标：Taro 端结构对齐已完成，进入质量收尾与功能深度对齐
 
-（暂无任务）
-
----
-
-## 二、Medium（中优先级）
-
-（暂无任务）
+已完成（2026-07-06）：
+- 删除报表/日历/地图/年报 4 模块 + 孤儿页；TabBar 重构为 首页/流水(含记一笔FAB)/工作台(账本·分类·模板·预算)/我的；新增 Onboarding 引导页（含 BookContext.refetchBooks，顺带修复 PC 端创建账本后缓存不刷新的循环隐患）
+- 清理 tsc 报错：`tsc --noEmit` 零错误；删除孤儿 `lunarUtils.ts`；修复 `Skeleton`/`Books`/`Transactions` 未用引用；修复 `AuthContext` 切换账号未持久化 token 的隐患（改用 `setAccountToken`）
+- 双平台构建验证：`build:weapp` ✅、`build:h5` ✅
+- 工作台模块对齐：Books 详情补 `updated_at`/`owner_id`；TemplateManager 新增「复制模板」；**修复 TemplateManager 整页样式缺失缺陷**（tsx 用的 `tpl-card`/`tpl-pill`/`tpl-fab`/`tpl-mask` 及 sheet `__` 子类在 scss 中几乎全缺失，已重写 scss 对齐现有设计令牌）
 
 ---
 
-## 三、Low（低优先级）
+## 双 Token 认证改造（已实现 · 2026-07-08）
 
-（暂无任务）
+> 状态：✅ 已实现 · 后端 + 前端 PC + Taro 三端落地，三端 `tsc --noEmit` 与 `build` 均通过
+> 目标：单 token（3 天）→ 短 Access Token（~2h，请求携带）+ 长 Refresh Token（~14d，仅用于刷新）
+> 选型：**全不透明 token**（沿用现有 `jj_user_sessions` 哈希存储，**不做 JWT**），与现状架构、即时吊销、会话上限一致，迁移成本最低。
+> 📝 术语对齐（用户口径）：**短 token（请求携带、过期即用长 token 刷新）= Access Token**；**长 token（仅用于 /auth/refresh 换发短 token）= Refresh Token**。
+> ⚠️ 破坏性变更：登录/注册/切换账号返回结构由 `{ user, token }` 改为 `{ user, accessToken, refreshToken }`，**后端 + 前端 PC + Taro 须同步发布**。
+> 🗄️ **DB 迁移必做**：部署前在 Supabase SQL Editor 执行 `docs/database-migration-dual-token.sql`（幂等），并同步更新了 `docs/database-init.sql` 权威 schema。
+
+### 方案要点
+
+1. Access Token 仍存 `jj_user_sessions.token_hash` + `expires_at`，`TokenAuthGuard` **无需改动**（全项目 `@UseGuards(TokenAuthGuard)` 不受影响）。
+2. 新增 `refresh_token_hash` + `refresh_expires_at` 列（同一行 = 一个登录会话，同时持有 access/refresh）。
+3. 新增 `POST /auth/refresh`：用长 token(refresh) 校验 → 发新短 token(access) → 返回 `{ user, accessToken, refreshToken }`。**默认 refresh 长期 token 不强制轮换（保持稳定，符合"长token"语义）**；轮换失效 + 复用检测（吊销全部会话）作为可选安全加固见 S 系列。
+4. 客户端：401 时自动用 refresh 换发（single-flight 锁 + 重试队列），刷新失败才清理并跳登录。
+5. 老单行 token（无 refresh）兼容：access 仍可用至 `expires_at`，之后 401 触发重登；不做回填（无法还原明文）。
+
+### 数据库变更（B 系列前置）✅ 已实现
+
+- **B0. 迁移 SQL（Supabase SQL Editor 执行）**
+  - `jj_user_sessions` 增加 `refresh_token_hash VARCHAR(255)`、`refresh_expires_at TIMESTAMPTZ`；建 `UNIQUE` 索引（nullable 允许多 NULL，老行无碍）。
+  - 更新 `fn_cleanup_expired_sessions`：`WHERE COALESCE(refresh_expires_at, expires_at) < NOW()`（按 refresh 真正过期才清理，避免 access 过期即删导致 refresh 孤儿）。
+  - 同步更新 `docs/database-init.sql`（权威 schema）。
+  - 受影响：无 ORM，需手动执行；提醒用户执行并记录到当日日志。
+
+### 后端（backend/src/auth/）✅ 已实现
+
+- **B1. TokenService**：拆分 TTL 常量（`ACCESS_TTL_MS=2h`、`REFRESH_TTL_MS=14d`，可走 env）；新增 `generateRefreshToken()`、`getAccessExpiresAt()`、`getRefreshExpiresAt()`。
+- **B2. AuthService.createSessionInternal**：生成 access+refresh 双 token，写一行（token_hash + expires_at + refresh_token_hash + refresh_expires_at），返回两者。
+- **B3. login / register**：返回 `{ user, accessToken, refreshToken }`（breaking）。
+- **B4. 新增 refreshAuth(refreshToken)**：用长 token(refresh)（hash + refresh_expires_at）校验 → 发新短 token(access) 并返回；**默认不轮换长 token（保持稳定，符合"长token"语义）**。轮换失效 + 复用检测（旧 refresh 被复用→吊销该 user 全部 session）列为可选安全加固，见 S 系列。
+- **B5. 新增 `POST /auth/refresh`**：`RateLimitGuard`（防刷新令牌爆破），**不挂** `TokenAuthGuard`；新增 `refresh.dto.ts` 校验 `refreshToken` 非空。
+- **B6. switch-account**：复用 refresh token 跳过验证码（语义同现"免验证码"）；返回新双 token（旧账号 session 保留，多账号并存）。
+- **B7. logout**：按 access `token_hash` 删除该行（access+refresh 同时失效），逻辑不变。
+- **B8. change-password / reset-password**：仍删除该 user 全部 session（含 refresh），逻辑不变。
+- **B9. 清理/上限函数复核**：`fn_limit_user_sessions` 计数不变（一行=一会话）；`fn_cleanup_expired_sessions` 见 B0。
+
+### 前端 PC（frontend/src/）✅ 已实现
+
+- **F1. services/api.ts**：`storeToken` 拆为 `storeAccess/storeRefresh`；新增 `refresh()` 调 `/auth/refresh`；`login/register/switchAccount` 适配新返回。
+- **F2. request() 自动刷新**：401 触发 single-flight 刷新（并发请求共享同一个刷新 Promise + 重试队列）；刷新失败 → `clearStoredToken()` + 跳登录。
+- **F3. utils/auth.tsx（AuthContext）**：登录成功持久化双 token；logout 清理两者；冷启动 hydrate。
+- **F4. utils/savedAccounts.ts / SwitchAccountModal**：消费新返回结构（双 token）。
+- **F5. 类型**：新增 `TokenPair` 类型；`UserProfile` 不变。
+
+### Taro（taro/src/）✅ 已实现
+
+- **T1. services/api.ts**：同 F1（双 token 存储 + `refresh()` 函数；`storeToken` 拆为 access/refresh，`hydrateAuthFromStorage` 回填两者）。
+- **T2. request() 自动刷新**：401 触发 single-flight 刷新 + 重试队列；刷新失败 → `clearStoredToken()` + `reLaunch` 登录。
+- **T3. context/AuthContext.tsx**：登录持久化双 token；logout 清理。
+- **T4. utils/savedAccounts.ts**：消费新返回结构（双 token）。
+
+### 测试与迁移（X 系列）✅ 已实现（X3 三端 tsc/build 通过；X1/X2 运行时联调待部署后验证）
+
+- **X1. 本地手动验证**：登录拿双 token → access 过期后用 refresh 换发成功 → 轮换后旧 refresh 失效 → 复用旧 refresh 触发全量吊销 → logout 同时失效。
+- **X2. 老会话兼容**：无 refresh 的老 token，access 仍可用至 `expires_at`，之后 401 重登（客户端已有该兜底）。
+- **X3. 三端校验**：`npx tsc --noEmit`（前端/后端/Taro）、`npm run build:prod`（前端）、`npm run build:weapp`（Taro）。
+- **X4. 上线协同**：后端与两前端必须同批次发布（返回结构 breaking）；灰度顺序建议 后端 → 前端 PC → Taro。
+
+### 安全加固（可选 / 后续，S 系列）⏳ 未做
+
+- **S1. Refresh Token 改存 httpOnly + Secure Cookie**（PC Web），降低 XSS 窃取风险（需后端 `Set-Cookie` + CSRF 防护；Taro 端 Cookie 支持需评估）。
+- **S2. Refresh 端点严格限流 + 审计日志（记录设备/IP/UA）**。
+- **S3. Refresh Token 绑定设备/UA（可选）**。
 
 ---
 
-## 四、未来规划（后续增强池）
+### ✅ 已完成
 
-> 来源：PRD.md §5.2
+#### T1. 清理 tsc 报错与孤儿文件 — 完成
+#### T2. 双平台构建验证 — 完成（weapp + h5 均通过）
+#### T3. 工作台四模块对齐核查 — 完成
+- Books：详情补 更新时间 / 账主ID ✅
+- TemplateManager：复制模板 ✅ + 修复整页样式缺失（重大预存缺陷）✅
+- Categories / Budgets：核心 CRUD/图标/排序与 PC 基本一致
+#### T4. 流水页体验对齐 — 完成
+- Transactions 已具备 搜索 / 筛选 Tab / 分类筛选 / 月份切换 / 统计汇总 / 详情弹窗(含编辑入口) / 批量删除，与 PC 一致
+#### T5. 全局体验一致性巡检 — 完成（本轮）
+- **首页 Home**：概览卡补「本月收入/支出笔数」（`summary.incomeCount/expenseCount`，后端已返回，此前未渲染）✅
+- **BookMembers**：补三态角色标签（所有者/管理员/成员，按 `role` 字段）；新增「生成邀请码」入口（复用 `createInvitation` + `setClipboardData` 自动复制，能力此前仅在 Books 详情弹窗、成员/设置入口未暴露）✅
+- **Books 详情**：`Book` 类型补 `txn_count`/`member_count`/`is_archived` 可选字段（后端 `/books` 已返回）；详情展示「N 人·M 笔交易·创建/更新时间」+ 已归档标签 ✅
+- Login / Register / ForgotPassword / EditProfile / About / Profile：与 PC 核心一致，无需改动（Profile 无主题切换，属可选差异）
+- 验证：`tsc --noEmit` 零错误；`build:weapp` 通过
 
-| 任务 | 当前状态 | 优先级 | 说明 |
-|------|----------|--------|------|
-| H5 适配优化 | 待优化 | Low | 移动端响应式布局优化 |
-| 离线记账 | 暂缓 | Low | 需写入队列、冲突合并 |
-| 第三方登录 | 可选增强 | Low | 微信 OAuth、Apple 登录 |
-| AI 智能分类 | 暂缓 | Medium | 接入大模型自动分类 |
-| 语音记账 | 暂缓 | Medium | 语音识别自动填充表单 |
+### ⏳ 待处理（低优先级，非阻断，可延后）
+
+- **Budgets**：清零单条预算无确认弹窗（易误触）；月份选择范围窄（2020~今、无搜索、不可选未来月）—— 因预算为「整月批量保存」流程，加单条确认较脆，暂延后
+- **详情弹窗交互差异**：Categories / Templates / Books 采用「点卡片直接进编辑」而非 PC 的独立只读详情弹窗（展示 ID/创建时间等元数据）—— 属交互差异，非阻断
+- **Profile 主题切换**：PC 有深色模式切换，Taro 端无 —— 小程序端暂不需要，可标注为产品决策
+
+### ✅ PC Web 自动化测试发现项（2026-07-07 已修复）
+
+- **Sidebar SVG React warning**：流水图标已改为 React 兼容的 `strokeWidth`。
+- **Books 切换账本确认弹窗 DOM nesting warning**：`GlobalModal` confirm 内容容器已从 `<p>` 改为 `<div>`，支持段落/列表等富文本 children。
+- **AnnualReport 数据健壮性**：年度报告页已在接口边界补默认值/类型收束；e2e 已用稀疏 `/reports/annual` mock 回归缺字段场景，并移除 console warning 临时豁免。
+
+---
+
+## 历史遗留（跨项目、非阻塞、主动延后项）
+
+### H2. 前端 CRA (react-scripts 5.0.1) 已停止维护
+- **路径**：`frontend/package.json`
+- **状态**：⏳ Medium — CRA 仍可正常工作。待资源充裕时迁移到 Vite
+
+### H3. PC Web 生产构建 warning 清理
+- **状态**：✅ 已完成 — 已清理 `mini-css-extract-plugin` CSS chunk 顺序冲突、Sass `@import` deprecation、以及项目代码 eslint warnings；`build:prod` 显示 `Compiled successfully`。
+- **备注**：命令行仍可能出现用户级 npm 配置提示（`electron_mirror` 来自 `/Users/zhaolong/.npmrc`）和 `react-scripts` 内部 Node deprecation（如 `fs.F_OK`），不属于项目源码 warning。
+
+### M8. 三端 TypeScript 类型定义独立维护
+- **现状**：前端 / Taro / 后端各有一套独立类型定义，修改需同步三处
+- **状态**：⏳ Low — 后续引入 `openapi-typescript` 或共享包
+
+### L7. 数据库 `jj_book_invitations` 主键类型不一致
+- **影响**：BIGSERIAL vs UUID 仅为风格差异，不影响功能
+- **状态**：⏳ 保留 — 后续重构邀请表时一并统一

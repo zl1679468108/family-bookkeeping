@@ -8,7 +8,7 @@ import {
   logout as apiLogout,
   register as apiRegister,
   request,
-  storeToken,
+  storeTokens,
   UserProfile,
   ApiError,
 } from '../services/api';
@@ -22,7 +22,7 @@ interface AuthContextType {
   signOut: () => Promise<void>;
   refreshUser: () => Promise<void>;
   /** 通过已存储的 token 切换账号，token 失效则抛错 */
-  switchByToken: (email: string, token: string) => Promise<void>;
+  switchByToken: (email: string, accessToken: string, refreshToken?: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -79,13 +79,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const user = profileData ?? null;
   const loading = hasToken() ? !isFetched : false;
 
-  const refreshUser = async () => {
+  const refreshUser = useCallback(async () => {
     await refetch();
-  };
+  }, [refetch]);
 
   /** 通过已存储的 token 切换账号（token 有效则直接切换，失效则抛错由调用方处理） */
-  const switchByToken = async (email: string, token: string) => {
-    storeToken(token);
+  const switchByToken = useCallback(async (email: string, accessToken: string, refreshToken?: string) => {
+    // 同时设置当前会话的 access + refresh；profile 401 时自动刷新会用 refresh 续期
+    if (accessToken) storeTokens(accessToken.trim(), (refreshToken || '').trim());
     try {
       // 先用新 token 验证并获取 profile（silent 模式：不显示 toast、不跳转）
       const profile = await request<UserProfile>('/auth/profile', {
@@ -100,7 +101,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       // 切换成功：同步更新 savedAccounts 中该账号的 token、用户名、头像
       updateAccountInfo(email, {
-        token,
+        token: accessToken.trim(),
+        accessToken: accessToken.trim(),
+        refreshToken: (refreshToken || '').trim(),
         username: profile.username,
         avatar_url: profile.avatar_url,
       });
@@ -113,25 +116,39 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       queryClient.removeQueries({ predicate: () => true });
       throw new Error('token_invalid');
     }
-  };
+  }, [queryClient, refetch, resetUserCache]);
 
-  const signIn = async (email: string, password: string, captchaId: string, captchaCode: string) => {
-    const { user: userData, token } = await apiLogin(email, password, captchaId, captchaCode);
-    storeToken(token.trim());
-    saveAccount({ email, token: token.trim(), username: userData.username, avatar_url: userData.avatar_url });
+  const signIn = useCallback(async (email: string, password: string, captchaId: string, captchaCode: string) => {
+    const { user: userData, accessToken, refreshToken } = await apiLogin(email, password, captchaId, captchaCode);
+    storeTokens(accessToken.trim(), refreshToken.trim());
+    saveAccount({
+      email,
+      token: accessToken.trim(),
+      accessToken: accessToken.trim(),
+      refreshToken: refreshToken.trim(),
+      username: userData.username,
+      avatar_url: userData.avatar_url,
+    });
     resetUserCache();
     queryClient.setQueryData(['auth', 'profile'], userData);
     await refetch();
-  };
+  }, [queryClient, refetch, resetUserCache]);
 
-  const signUp = async (email: string, password: string, username: string) => {
-    const { user: userData, token } = await apiRegister(email, password, username);
-    storeToken(token.trim());
-    saveAccount({ email, token: token.trim(), username: userData.username, avatar_url: userData.avatar_url });
+  const signUp = useCallback(async (email: string, password: string, username: string) => {
+    const { user: userData, accessToken, refreshToken } = await apiRegister(email, password, username);
+    storeTokens(accessToken.trim(), refreshToken.trim());
+    saveAccount({
+      email,
+      token: accessToken.trim(),
+      accessToken: accessToken.trim(),
+      refreshToken: refreshToken.trim(),
+      username: userData.username,
+      avatar_url: userData.avatar_url,
+    });
     resetUserCache();
     queryClient.setQueryData(['auth', 'profile'], userData);
     await refetch();
-  };
+  }, [queryClient, refetch, resetUserCache]);
 
   const signOut = useCallback(async () => {
     try {

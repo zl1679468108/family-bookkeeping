@@ -1,5 +1,4 @@
 import React from 'react'
-import './index.scss'
 
 /**
  * 统计卡片组件 —— Dashboard 等页面展示关键指标

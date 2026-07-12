@@ -14,11 +14,13 @@
 }
 
 .btn-primary {
-  background: var(--fg);
+  background: var(--pr);
   color: #fff;
+  border: 1px solid var(--pr);
 }
 .btn-primary:hover {
-  background: #000;
+  background: var(--prH);
+  border-color: var(--prH);
 }
 .btn-primary:disabled {
   opacity: 0.6;

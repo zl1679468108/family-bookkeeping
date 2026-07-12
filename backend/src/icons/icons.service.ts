@@ -9,7 +9,7 @@ export interface CustomIcon {
   id: string;
   user_id: string;
   icon_url: string;
-  icon_type: 'category' | 'book';
+  icon_type: 'category' | 'book' | 'avatar';
   created_at: string;
 }
 
@@ -22,7 +22,7 @@ export class IconsService {
    */
   async findAll(
     userId: string,
-    iconType?: 'category' | 'book',
+    iconType?: 'category' | 'book' | 'avatar',
   ): Promise<CustomIcon[]> {
     const supabase = this.supabaseService.getClient();
     let query = supabase
@@ -49,7 +49,7 @@ export class IconsService {
    */
   async upload(
     userId: string,
-    iconType: 'category' | 'book',
+    iconType: 'category' | 'book' | 'avatar',
     file: Express.Multer.File,
   ): Promise<CustomIcon> {
     const supabase = this.supabaseService.getClient();

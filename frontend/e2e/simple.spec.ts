@@ -1,6 +1,8 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
+import { installApiMocks } from './helpers';
 
-test('homepage loads', async ({ page }) => {
-  await page.goto('http://localhost:3001');
-  await expect(page).toHaveTitle(/静记/);
+test('应用文档标题正确', async ({ page }) => {
+  await installApiMocks(page);
+  await page.goto('/#/login');
+  await expect(page).toHaveTitle(/登录 - 静记/);
 });

@@ -1,5 +1,4 @@
 import React from 'react';
-import './index.scss';
 
 interface SpaceProps {
   size?: 'xs' | 'sm' | 'md' | 'lg';

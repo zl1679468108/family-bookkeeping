@@ -1,79 +1,60 @@
-import { test, expect } from '@playwright/test';
-import { login, TEST_ACCOUNTS } from './helpers';
+import { expect, test } from '@playwright/test';
+import { chooseDropdownOption, expectObject, setupAuthenticatedPage, waitForRequest } from './helpers';
 
-const TEST_EMAIL = TEST_ACCOUNTS[0].email;
-const TEST_PASSWORD = TEST_ACCOUNTS[0].password;
-
-test.describe('模板管理 - 真实数据', () => {
+test.describe('模板管理 - UI 与提交', () => {
   test.beforeEach(async ({ page }) => {
-    await login(page, TEST_EMAIL, TEST_PASSWORD);
+    await setupAuthenticatedPage(page);
   });
 
-  test('查看模板页面', async ({ page }) => {
-    await page.goto('/templates');
-    await page.waitForTimeout(2000);
-    await expect(page.locator('text=模板')).toBeVisible();
+  test('展示模板列表和模板详情', async ({ page }) => {
+    await page.goto('/#/templates');
+
+    await expect(page.getByText('交易模板')).toBeVisible();
+    await page.locator('.tpl-card').filter({ hasText: '工作日午餐' }).click();
+    await expect(page.getByText('模板详情')).toBeVisible();
+    await expect(page.getByText('公司附近')).toBeVisible();
   });
 
-  test('创建交易模板', async ({ page }) => {
-    await page.goto('/templates');
-    await page.waitForTimeout(2000);
-    
-    const createBtn = page.locator('button:has-text("创建")');
-    if (await createBtn.isVisible()) {
-      await createBtn.click();
-      await page.waitForTimeout(1000);
-      
-      const nameInput = page.locator('input[placeholder*="名称"]');
-      if (await nameInput.isVisible()) {
-        await nameInput.fill('E2E午餐模板');
-        
-        const amountInput = page.locator('input[type="number"]');
-        if (await amountInput.isVisible()) {
-          await amountInput.fill('35');
-        }
-        
-        await page.click('button:has-text("保存")');
-      }
-    }
+  test('新建模板提交名称、类型、分类、金额和备注', async ({ page }) => {
+    await page.goto('/#/templates');
+    await page.getByRole('button', { name: '+ 新建模板' }).click();
+
+    await page.getByPlaceholder('如：公司食堂午餐').fill('E2E午餐模板');
+    await chooseDropdownOption(page, '选择分类', '餐饮');
+    await page.locator('input[type="number"]').first().fill('35');
+    await page.getByPlaceholder('添加备注（可选）').fill('固定午餐');
+
+    const payload = await waitForRequest(page, 'POST', '/api/templates', async () => {
+      await page.getByRole('button', { name: '创建' }).click();
+    });
+    const template = expectObject(payload);
+    expect(template.name).toBe('E2E午餐模板');
+    expect(template.type).toBe('expense');
+    expect(template.category_id).toBe('cat-food');
+    expect(template.amount).toBe(35);
+    expect(template.note).toBe('固定午餐');
   });
 
-  test('执行模板', async ({ page }) => {
-    await page.goto('/templates');
-    await page.waitForTimeout(2000);
-    
-    const executeBtn = page.locator('[data-testid="execute-template"]').first();
-    if (await executeBtn.isVisible()) {
-      await executeBtn.click();
-      await page.waitForTimeout(1000);
-    }
+  test('复制模板会打开预填表单，保存时发起 POST', async ({ page }) => {
+    await page.goto('/#/templates');
+    await page.locator('.tpl-card').filter({ hasText: '工作日午餐' }).click();
+    await page.getByRole('button', { name: '复制' }).click();
+
+    await expect(page.getByPlaceholder('如：公司食堂午餐')).toHaveValue('工作日午餐 (副本)');
+    const payload = await waitForRequest(page, 'POST', '/api/templates', async () => {
+      await page.getByRole('button', { name: '创建' }).click();
+    });
+    const template = expectObject(payload);
+    expect(template.name).toBe('工作日午餐 (副本)');
   });
 
-  test('编辑模板', async ({ page }) => {
-    await page.goto('/templates');
-    await page.waitForTimeout(2000);
-    
-    const editBtn = page.locator('[data-testid="edit-template"]').first();
-    if (await editBtn.isVisible()) {
-      await editBtn.click();
-      await page.waitForTimeout(500);
-      
-      const nameInput = page.locator('input[placeholder*="名称"]');
-      if (await nameInput.isVisible()) {
-        await nameInput.fill('E2E已修改模板');
-        await page.click('button:has-text("保存")');
-      }
-    }
-  });
+  test('删除模板会二次确认并发起 DELETE', async ({ page }) => {
+    await page.goto('/#/templates');
+    await page.locator('.tpl-card').filter({ hasText: '工作日午餐' }).click();
 
-  test('删除模板', async ({ page }) => {
-    await page.goto('/templates');
-    await page.waitForTimeout(2000);
-    
-    const deleteBtn = page.locator('[data-testid="delete-template"]').first();
-    if (await deleteBtn.isVisible()) {
-      await deleteBtn.click();
-      await page.click('button:has-text("确定")');
-    }
+    await waitForRequest(page, 'DELETE', '/api/templates/tpl-lunch', async () => {
+      await page.getByRole('button', { name: '删除' }).click();
+      await page.getByRole('button', { name: '确认删除' }).click();
+    });
   });
 });

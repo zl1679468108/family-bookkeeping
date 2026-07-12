@@ -1,5 +1,4 @@
 import React from 'react'
-import './index.scss'
 
 /**
  * 通用卡片容器

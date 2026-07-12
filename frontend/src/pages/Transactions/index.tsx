@@ -222,7 +222,6 @@ const Transactions: React.FC = () => {
       ) : transactions.length === 0 ? (
         <Card>
           <EmptyState
-            icon="📭"
             title="暂无交易记录"
             action={
               <button className="btn btn-primary" onClick={() => navigate('/add?type=expense')}>

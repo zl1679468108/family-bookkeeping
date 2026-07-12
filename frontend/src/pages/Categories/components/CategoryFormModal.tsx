@@ -19,7 +19,7 @@ interface CategoryFormModalProps {
   setModalName: (name: string) => void
   setModalIcon: (icon: string) => void
   handleModalConfirm: () => void
-  handleIconUpload: (file: File, iconType: 'category' | 'book') => Promise<void>
+  handleIconUpload: (file: File, iconType: 'category' | 'book' | 'avatar') => Promise<void>
   handleIconDelete: (iconId: string) => Promise<void>
 }
 

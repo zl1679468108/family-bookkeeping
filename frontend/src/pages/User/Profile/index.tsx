@@ -200,7 +200,7 @@ const ProfilePage: React.FC = () => {
       setAvatarUrl(user.avatar_url || '')
       setAvatarPreview(user.avatar_url || '')
     }
-  }, [user?.id])
+  }, [user])
 
   // 头像上传
   const handleAvatarChange = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {

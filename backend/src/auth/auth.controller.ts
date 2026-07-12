@@ -27,6 +27,7 @@ import { CaptchaService } from './captcha.service';
 import { RateLimitGuard } from './rate-limit.guard';
 import { SendResetCodeDto } from './dto/send-reset-code.dto';
 import { ResetPasswordByCodeDto } from './dto/reset-password-by-code.dto';
+import { RefreshDto } from './dto/refresh.dto';
 
 /** B-M2: DTO for setCurrentBook */
 class SetCurrentBookDto {
@@ -71,6 +72,16 @@ export class AuthController {
   async switchAccount(@Body() dto: SwitchAccountDto) {
     const data = await this.authService.switchAccount(dto);
     return { message: '账号切换成功', data };
+  }
+
+  // 双 Token：用长令牌（refresh）换发新的访问令牌（access）
+  // 不挂 TokenAuthGuard（否则无法在 access 过期时调用）
+  @UseGuards(new RateLimitGuard(60_000, 20))
+  @Post('refresh')
+  @HttpCode(HttpStatus.OK)
+  async refresh(@Body() dto: RefreshDto) {
+    const data = await this.authService.refreshAuth(dto.refreshToken);
+    return { message: '刷新成功', data };
   }
 
   @UseGuards(new RateLimitGuard(60_000, 5))

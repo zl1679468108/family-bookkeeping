@@ -1,5 +1,4 @@
 import React from 'react'
-import './index.scss'
 
 /**
  * 通用按钮组件 —— 取代各页面手写的 button + 内联样式

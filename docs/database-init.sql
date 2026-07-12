@@ -81,22 +81,28 @@ CREATE TRIGGER update_jj_password_resets_updated_at BEFORE UPDATE ON jj_password
 -- 3. 会话表
 -- ==============================================
 CREATE TABLE IF NOT EXISTS jj_user_sessions (
-  id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id     UUID NOT NULL REFERENCES jj_users(id) ON DELETE CASCADE,
-  token_hash  VARCHAR(255) UNIQUE NOT NULL,
-  expires_at  TIMESTAMPTZ NOT NULL,
-  created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
+  id                 UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id            UUID NOT NULL REFERENCES jj_users(id) ON DELETE CASCADE,
+  token_hash         VARCHAR(255) UNIQUE NOT NULL,
+  expires_at         TIMESTAMPTZ NOT NULL,
+  -- 双 Token：refresh_token_hash 为长令牌（仅用于 /auth/refresh 换发 access），可为 NULL 以兼容老会话
+  refresh_token_hash VARCHAR(255) UNIQUE,
+  refresh_expires_at TIMESTAMPTZ,
+  created_at         TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 CREATE INDEX IF NOT EXISTS idx_jj_user_sessions_token_hash ON jj_user_sessions(token_hash);
+CREATE INDEX IF NOT EXISTS idx_jj_user_sessions_refresh_token_hash ON jj_user_sessions(refresh_token_hash);
 CREATE INDEX IF NOT EXISTS idx_jj_user_sessions_user_id ON jj_user_sessions(user_id);
 CREATE INDEX IF NOT EXISTS idx_jj_user_sessions_expires_at ON jj_user_sessions(expires_at);
 
-COMMENT ON TABLE jj_user_sessions IS '用户会话表 - 存储用户登录后的会话信息，用于保持登录状态';
+COMMENT ON TABLE jj_user_sessions IS '用户会话表 - 存储用户登录后的会话信息（access + refresh 双令牌），用于保持登录状态';
 COMMENT ON COLUMN jj_user_sessions.id IS '会话记录唯一标识符，UUID 类型';
 COMMENT ON COLUMN jj_user_sessions.user_id IS '关联的用户 ID，外键引用 users 表，删除用户时级联删除';
-COMMENT ON COLUMN jj_user_sessions.token_hash IS '会话令牌的哈希值，用于验证登录状态，必须唯一';
-COMMENT ON COLUMN jj_user_sessions.expires_at IS '会话过期时间，超时后需要重新登录';
+COMMENT ON COLUMN jj_user_sessions.token_hash IS '访问令牌(access)的哈希值，用于验证登录状态，必须唯一';
+COMMENT ON COLUMN jj_user_sessions.expires_at IS '访问令牌过期时间，超时后需要刷新，而不是直接重登';
+COMMENT ON COLUMN jj_user_sessions.refresh_token_hash IS '刷新令牌(refresh)的哈希值，仅用于 /auth/refresh 换发新的 access；可为 NULL（老会话无 refresh）';
+COMMENT ON COLUMN jj_user_sessions.refresh_expires_at IS '刷新令牌过期时间，真正决定会话是否仍有效';
 COMMENT ON COLUMN jj_user_sessions.created_at IS '会话创建时间，即用户登录时间';
 
 -- ==============================================
@@ -247,7 +253,7 @@ CREATE TABLE IF NOT EXISTS jj_budgets (
   book_id     UUID REFERENCES jj_books(id) ON DELETE SET NULL,
   created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  UNIQUE(user_id, category, month)
+  UNIQUE(user_id, book_id, category, month)
 );
 
 CREATE INDEX IF NOT EXISTS idx_jj_budgets_user_id ON jj_budgets(user_id);
@@ -373,7 +379,7 @@ CREATE TABLE IF NOT EXISTS jj_custom_icons (
   id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id     UUID NOT NULL REFERENCES jj_users(id) ON DELETE CASCADE,
   icon_url    TEXT NOT NULL,
-  icon_type   VARCHAR(20) NOT NULL CHECK (icon_type IN ('category', 'book')),
+  icon_type   VARCHAR(20) NOT NULL CHECK (icon_type IN ('category', 'book', 'avatar')),
   created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
@@ -384,7 +390,7 @@ COMMENT ON TABLE jj_custom_icons IS '自定义图标表 - 存储用户上传的�
 COMMENT ON COLUMN jj_custom_icons.id IS '图标记录唯一标识符，UUID 类型';
 COMMENT ON COLUMN jj_custom_icons.user_id IS '图标所属用户 ID，外键引用 users 表，删除用户时级联删除';
 COMMENT ON COLUMN jj_custom_icons.icon_url IS '图标文件的 URL 地址，存储在 Supabase Storage 中';
-COMMENT ON COLUMN jj_custom_icons.icon_type IS '图标类型：category(分类图标) / book(账本图标)，用于区分用途';
+COMMENT ON COLUMN jj_custom_icons.icon_type IS '图标类型：category(分类图标) / book(账本图标) / avatar(用户头像)，用于区分用途';
 COMMENT ON COLUMN jj_custom_icons.created_at IS '图标上传时间';
 
 -- 启用 RLS
@@ -462,8 +468,9 @@ RETURNS INTEGER AS $$
 DECLARE
   deleted_count INTEGER;
 BEGIN
+  -- 双 Token：按 refresh 真正过期才清理，避免 access 过期即删导致 refresh 孤儿
   DELETE FROM jj_user_sessions
-  WHERE expires_at < NOW();
+  WHERE COALESCE(refresh_expires_at, expires_at) < NOW();
   GET DIAGNOSTICS deleted_count = ROW_COUNT;
   RETURN deleted_count;
 END;
@@ -477,9 +484,10 @@ BEGIN
     SELECT id
     FROM jj_user_sessions
     WHERE user_id = p_user_id
-      AND expires_at > NOW()
+      -- 双 Token：活跃 = refresh 未过期（fallback 到 access 过期，兼容老会话）
+      AND COALESCE(refresh_expires_at, expires_at) > NOW()
     ORDER BY created_at ASC
-    LIMIT GREATEST(0, (SELECT COUNT(*) FROM jj_user_sessions WHERE user_id = p_user_id AND expires_at > NOW()) - p_max_count)
+    LIMIT GREATEST(0, (SELECT COUNT(*) FROM jj_user_sessions WHERE user_id = p_user_id AND COALESCE(refresh_expires_at, expires_at) > NOW()) - p_max_count)
   )
   DELETE FROM jj_user_sessions WHERE id IN (SELECT id FROM to_delete);
 END;

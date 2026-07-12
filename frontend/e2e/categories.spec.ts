@@ -1,69 +1,58 @@
-import { test, expect } from '@playwright/test';
-import { login, TEST_ACCOUNTS } from './helpers';
+import { expect, test } from '@playwright/test';
+import { expectObject, setupAuthenticatedPage, waitForRequest } from './helpers';
 
-const TEST_EMAIL = TEST_ACCOUNTS[0].email;
-const TEST_PASSWORD = TEST_ACCOUNTS[0].password;
-
-test.describe('分类管理 - 真实数据', () => {
+test.describe('分类管理 - UI 与 CRUD 请求', () => {
   test.beforeEach(async ({ page }) => {
-    await login(page, TEST_EMAIL, TEST_PASSWORD);
+    await setupAuthenticatedPage(page);
   });
 
-  test('查看分类页面', async ({ page }) => {
-    await page.goto('/categories');
-    await page.waitForTimeout(2000);
-    // 只验证页面加载
-    await expect(page.locator('nav')).toBeVisible();
+  test('展示支出/收入分类并能切换标签', async ({ page }) => {
+    await page.goto('/#/categories');
+
+    await expect(page.getByText('分类管理')).toBeVisible();
+    await expect(page.locator('.cat-card').filter({ hasText: '餐饮' })).toBeVisible();
+
+    await page.getByRole('button', { name: '收入' }).click();
+    await expect(page.locator('.cat-card').filter({ hasText: '工资' })).toBeVisible();
+    await expect(page.locator('.cat-card').filter({ hasText: '餐饮' })).toBeHidden();
   });
 
-  test('创建自定义分类', async ({ page }) => {
-    await page.goto('/categories');
-    await page.waitForTimeout(2000);
-    
-    const createBtn = page.locator('button:has-text("创建")');
-    if (await createBtn.isVisible()) {
-      await createBtn.click();
-      await page.waitForTimeout(1000);
-      
-      const nameInput = page.locator('input[placeholder*="名称"]');
-      if (await nameInput.isVisible()) {
-        await nameInput.fill('E2E测试分类');
-        await page.click('button:has-text("保存")');
-      }
-    }
+  test('新建分类会提交名称、图标和类型', async ({ page }) => {
+    await page.goto('/#/categories');
+    await page.getByRole('button', { name: '+ 新建分类' }).click();
+
+    await expect(page.getByRole('dialog', { name: '新增支出分类' })).toBeVisible();
+    await page.getByPlaceholder('输入分类名称').fill('E2E分类');
+
+    const payload = await waitForRequest(page, 'POST', '/api/categories', async () => {
+      await page.getByRole('button', { name: '确认' }).click();
+    });
+    const category = expectObject(payload);
+    expect(category.name).toBe('E2E分类');
+    expect(category.type).toBe('expense');
+    expect(typeof category.icon).toBe('string');
   });
 
-  test('编辑分类', async ({ page }) => {
-    await page.goto('/categories');
-    await page.waitForTimeout(2000);
-    
-    const category = page.locator('text=E2E测试分类');
-    if (await category.isVisible()) {
-      await category.click();
-      await page.waitForTimeout(500);
-      
-      const nameInput = page.locator('input[placeholder*="名称"]');
-      if (await nameInput.isVisible()) {
-        await nameInput.fill('E2E已修改分类');
-        await page.click('button:has-text("保存")');
-      }
-    }
+  test('编辑自定义分类会提交更新请求', async ({ page }) => {
+    await page.goto('/#/categories');
+    await page.locator('.cat-card').filter({ hasText: '购物' }).click();
+    await page.getByRole('button', { name: '编辑', exact: true }).click();
+    await page.getByPlaceholder('输入分类名称').fill('E2E已修改分类');
+
+    const payload = await waitForRequest(page, 'PUT', '/api/categories/cat-shopping', async () => {
+      await page.getByRole('button', { name: '确认' }).click();
+    });
+    const category = expectObject(payload);
+    expect(category.name).toBe('E2E已修改分类');
   });
 
-  test('删除自定义分类', async ({ page }) => {
-    await page.goto('/categories');
-    await page.waitForTimeout(2000);
-    
-    const category = page.locator('text=E2E已修改分类');
-    if (await category.isVisible()) {
-      await category.click();
-      await page.waitForTimeout(500);
-      
-      const deleteBtn = page.locator('[data-testid="delete-category"]');
-      if (await deleteBtn.isVisible()) {
-        await deleteBtn.click();
-        await page.click('button:has-text("确定")');
-      }
-    }
+  test('删除自定义分类会二次确认并发起 DELETE', async ({ page }) => {
+    await page.goto('/#/categories');
+    await page.locator('.cat-card').filter({ hasText: '购物' }).click();
+
+    await waitForRequest(page, 'DELETE', '/api/categories/cat-shopping', async () => {
+      await page.getByRole('button', { name: '删除' }).click();
+      await page.getByRole('button', { name: '确认删除' }).click();
+    });
   });
 });

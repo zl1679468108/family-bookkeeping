@@ -114,11 +114,17 @@
   color: var(--exp);
 }
 
-/* 数字输入框字段 - 去除原生上下箭头 (可选) */
+/* 数字输入框字段 - 去除原生上下箭头 */
 .ui-number-field::-webkit-outer-spin-button,
 .ui-number-field::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
+}
+
+.ui-number-field {
+  text-align: right;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
 }
 
 /* ── 搜索输入框 ── */

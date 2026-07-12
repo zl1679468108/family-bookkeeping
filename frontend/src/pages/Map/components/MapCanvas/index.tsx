@@ -98,9 +98,10 @@ const _MapCanvas: React.ForwardRefRenderFunction<MapCanvasHandle, MapCanvasProps
   const [locateError, setLocateError] = useState('');
 
   // ---- Map instance via pool ----
-  const { mapContainerRef, map, ready } = useMapInstance('map-canvas', {
+  const { mapContainerRef, map: rawMap, ready } = useMapInstance('map-canvas', {
     skipResizeObserver: true,
   });
+  const map = rawMap as any;
 
   const mapRef = useRef<any>(null);
   mapRef.current = map;

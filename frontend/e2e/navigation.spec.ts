@@ -1,62 +1,35 @@
-import { test, expect } from '@playwright/test';
-import { login, TEST_ACCOUNTS } from './helpers';
+import { expect, test } from '@playwright/test';
+import { setupAuthenticatedPage } from './helpers';
 
-const TEST_EMAIL = TEST_ACCOUNTS[0].email;
-const TEST_PASSWORD = TEST_ACCOUNTS[0].password;
+const routes = [
+  { path: '/', title: '本月结余' },
+  { path: '/transactions', title: '本页3笔' },
+  { path: '/reports', title: '数据分析' },
+  { path: '/categories', title: '分类管理' },
+  { path: '/budgets', title: '预算明细' },
+  { path: '/books', title: '我的账本' },
+  { path: '/templates', title: '交易模板' },
+  { path: '/calendar', title: '日历' },
+  { path: '/annual-report', title: '保存为图片' },
+  { path: '/profile', title: 'E2E用户' },
+  { path: '/about', title: '静记' },
+];
 
-test.describe('导航和路由 - 真实数据', () => {
+test.describe('主路由 smoke - 用户可到达且无控制台错误', () => {
   test.beforeEach(async ({ page }) => {
-    await login(page, TEST_EMAIL, TEST_PASSWORD);
+    await setupAuthenticatedPage(page);
   });
 
-  test('侧边栏导航', async ({ page }) => {
-    await expect(page.locator('.sidebar, nav')).toBeVisible();
-    
-    await page.click('button:has-text("流水")');
-    await page.waitForTimeout(1000);
-    
-    await page.click('button:has-text("报表")');
-    await page.waitForTimeout(1000);
-    
-    await page.click('button:has-text("分类")');
-    await page.waitForTimeout(1000);
-    
-    await page.click('button:has-text("预算")');
-    await page.waitForTimeout(1000);
-    
-    await page.click('button:has-text("账本")');
-    await page.waitForTimeout(1000);
-  });
+  for (const route of routes) {
+    test(`${route.path} 可加载`, async ({ page }) => {
+      await page.goto(`/#${route.path}`);
+      await expect(page.locator('.sidebar, nav').first()).toBeVisible();
+      await expect(page.getByText(route.title).first()).toBeVisible();
+    });
+  }
 
-  test('未登录跳转登录页', async ({ page }) => {
-    await page.evaluate(() => localStorage.clear());
-    await page.goto('/transactions');
-    await page.waitForTimeout(2000);
-    await expect(page.locator('text=登录')).toBeVisible();
-  });
-
-  test('页面加载', async ({ page }) => {
-    await page.goto('/reports');
-    await page.waitForTimeout(2000);
-    // 只验证页面加载完成
-    await expect(page.locator('nav')).toBeVisible();
-  });
-
-  test('404页面', async ({ page }) => {
-    await page.goto('/nonexistent-page');
-    await page.waitForTimeout(2000);
-    // 验证页面加载
-    await expect(page.locator('nav')).toBeVisible();
-  });
-
-  test('返回按钮', async ({ page }) => {
-    await page.goto('/add');
-    await page.waitForTimeout(2000);
-    
-    const backBtn = page.locator('[data-testid="back-button"], button:has-text("返回")');
-    if (await backBtn.isVisible()) {
-      await backBtn.click();
-      await page.waitForTimeout(1000);
-    }
+  test('未知路由展示 404 页面', async ({ page }) => {
+    await page.goto('/#/nonexistent-page');
+    await expect(page.getByRole('heading', { name: '页面不存在' })).toBeVisible();
   });
 });

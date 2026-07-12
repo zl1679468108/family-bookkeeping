@@ -24,12 +24,11 @@ interface UseMapInstanceOptions {
   center?: [number, number]; // [lng, lat]
   /** Skip the built-in ResizeObserver — component handles resize itself */
   skipResizeObserver?: boolean;
-  [key: string]: any;
 }
 
 interface UseMapInstanceReturn {
   mapContainerRef: React.RefCallback<HTMLDivElement>;
-  map: any | null;
+  map: unknown | null;
   ready: boolean;
 }
 
@@ -51,7 +50,7 @@ export function useMapInstance(
   const [parentEl, setParentEl] = useState<HTMLDivElement | null>(null);
 
   // ---- Map instance ----
-  const [map, setMap] = useState<any>(null);
+  const [map, setMap] = useState<unknown | null>(null);
   const [ready, setReady] = useState(false);
   const acquiredRef = useRef(false);
 
@@ -69,7 +68,18 @@ export function useMapInstance(
   }, [manager]);
 
   /* ---- Stabilise options ---- */
-  const resolvedOptions = useMemo(() => ({ ...options }), [options?.zoom, options?.center?.[0], options?.center?.[1]]);
+  const centerLng = options?.center?.[0];
+  const centerLat = options?.center?.[1];
+  const zoom = options?.zoom;
+  const skipResizeObserver = options?.skipResizeObserver ?? false;
+  const resolvedOptions = useMemo(
+    () => ({
+      skipResizeObserver,
+      ...(zoom !== undefined ? { zoom } : {}),
+      ...(centerLng !== undefined && centerLat !== undefined ? { center: [centerLng, centerLat] as [number, number] } : {}),
+    }),
+    [centerLng, centerLat, zoom, skipResizeObserver],
+  );
 
   /* ---- Acquire / release ---- */
   useEffect(() => {
@@ -89,7 +99,7 @@ export function useMapInstance(
         acquiredRef.current = true;
 
         // ResizeObserver — optional, skipped when component handles resize itself
-        if (!options?.skipResizeObserver) {
+        if (!skipResizeObserver) {
           let resizeTimer: ReturnType<typeof setTimeout> | undefined;
           const ro = new ResizeObserver(() => {
             clearTimeout(resizeTimer);
@@ -125,7 +135,7 @@ export function useMapInstance(
         setReady(false);
       }
     };
-  }, [id, active, sdkReady, resolvedOptions, manager, parentEl]);
+  }, [id, active, sdkReady, resolvedOptions, manager, parentEl, skipResizeObserver]);
 
   /* ---- Callback ref for the React wrapper div ---- */
   const mapContainerRef: React.RefCallback<HTMLDivElement> = useCallback(

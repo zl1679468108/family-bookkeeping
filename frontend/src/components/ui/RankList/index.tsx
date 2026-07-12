@@ -1,6 +1,5 @@
 import * as React from 'react'
 import { formatAmount } from '../../../utils/common'
-import './index.scss'
 
 /**
  * 排行/预算进度行组件 —— Reports / Budgets 等页面通用

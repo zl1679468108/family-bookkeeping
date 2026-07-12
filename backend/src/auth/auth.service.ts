@@ -36,6 +36,12 @@ export interface UpdateProfileDto {
   avatar_url?: string;
 }
 
+/** 双 Token：访问令牌（短，请求携带）+ 刷新令牌（长，仅用于换发） */
+export interface TokenPair {
+  accessToken: string;
+  refreshToken: string;
+}
+
 type SafeUser = Omit<User, 'password_hash'>;
 
 @Injectable()
@@ -51,7 +57,7 @@ export class AuthService {
 
   async register(
     dto: RegisterDto,
-  ): Promise<{ user: SafeUser; token: string }> {
+  ): Promise<{ user: SafeUser; accessToken: string; refreshToken: string }> {
     const supabase = this.supabaseService.getClient();
 
     // 检查邮箱是否已注册
@@ -86,11 +92,17 @@ export class AuthService {
     // 自动创建默认分类（账本由前端引导用户自行创建，或通过邀请加入）
     await this.ensureDefaultCategories(newUser.id);
 
-    const token = await this.createSessionInternal(newUser.id);
-    return { user: newUser, token };
+    const tokens = await this.createSessionInternal(newUser.id);
+    return {
+      user: newUser,
+      accessToken: tokens.accessToken,
+      refreshToken: tokens.refreshToken,
+    };
   }
 
-  async login(dto: LoginDto): Promise<{ user: SafeUser; token: string }> {
+  async login(
+    dto: LoginDto,
+  ): Promise<{ user: SafeUser; accessToken: string; refreshToken: string }> {
     // 先校验验证码
     const isCaptchaValid = this.captchaService.validate(dto.captchaId, dto.captchaCode);
     if (!isCaptchaValid) {
@@ -105,7 +117,9 @@ export class AuthService {
    * 仅使用已保存的账号密码（+ token）进行身份验证；密码错误或 token 过期均返回
    * 统一的 "邮箱或密码错误" 错误，由前端回退到带验证码的正常登录流程
    */
-  async switchAccount(dto: SwitchAccountDto): Promise<{ user: SafeUser; token: string }> {
+  async switchAccount(
+    dto: SwitchAccountDto,
+  ): Promise<{ user: SafeUser; accessToken: string; refreshToken: string }> {
     // T-M13: token 失效时需要 captcha 验证，防止暴力破解
     if (!dto.token) {
       if (!dto.captchaId || !dto.captchaCode) {
@@ -123,7 +137,7 @@ export class AuthService {
     email: string,
     password: string,
     token?: string,
-  ): Promise<{ user: SafeUser; token: string }> {
+  ): Promise<{ user: SafeUser; accessToken: string; refreshToken: string }> {
     const supabase = this.supabaseService.getClient();
 
     const { data: user, error } = await supabase
@@ -146,8 +160,8 @@ export class AuthService {
       throw new UnauthorizedException('账号已被暂停，请联系客服');
     }
 
-    // 如果客户端传递了 token，检查是否未过期，如果未过期则复用
-    const newToken = token
+    // token 此处为刷新令牌（长 token）：未过期则复用并签发新 access；否则创建新会话
+    const tokens = token
       ? await this.reuseOrCreateSession(user.id, token)
       : await this.createSessionInternal(user.id);
 
@@ -160,7 +174,11 @@ export class AuthService {
       .single();
 
     const { password_hash, ...userWithoutPassword } = updatedUser || user;
-    return { user: userWithoutPassword, token: newToken };
+    return {
+      user: userWithoutPassword,
+      accessToken: tokens.accessToken,
+      refreshToken: tokens.refreshToken,
+    };
   }
 
   async getUserById(id: string): Promise<SafeUser & { current_book_id?: string } | null> {
@@ -464,58 +482,68 @@ export class AuthService {
   }
 
   /**
-   * 复用或创建会话
-   * 如果客户端传递的 token 未过期，则更新过期时间并返回原 token
-   * 如果 token 已过期或不存在，抛出错误提示登录过期
+   * 复用或创建会话（双 Token）
+   * clientRefreshToken 为刷新令牌（长 token）：未过期则在原会话行上签发新的 access，
+   * refresh 保持不变（符合"长 token"语义）；若过期或不存在则抛错提示登录过期。
    */
-  private async reuseOrCreateSession(userId: string, clientToken?: string): Promise<string> {
-    if (!clientToken) {
-      // 没有传递 token（正常登录场景），直接创建新会话
+  private async reuseOrCreateSession(
+    userId: string,
+    clientRefreshToken?: string,
+  ): Promise<TokenPair> {
+    if (!clientRefreshToken) {
+      // 没有传递 refresh（正常登录场景），直接创建新会话
       return this.createSessionInternal(userId);
     }
 
-    // 有 token 的情况（切换账号场景）：验证并复用
     const supabase = this.supabaseService.getClient();
-    const tokenHash = this.tokenService.hashToken(clientToken);
-    
-    // 检查该 token 是否未过期
+    const refreshHash = this.tokenService.hashToken(clientRefreshToken);
+
+    // 检查该 refresh 是否未过期
     const { data: existingSession } = await supabase
       .from('jj_user_sessions')
-      .select('id, expires_at')
+      .select('id, refresh_expires_at')
       .eq('user_id', userId)
-      .eq('token_hash', tokenHash)
-      .gt('expires_at', new Date().toISOString())
+      .eq('refresh_token_hash', refreshHash)
+      .gt('refresh_expires_at', new Date().toISOString())
       .single();
 
     if (existingSession) {
-      // token 未过期，更新过期时间并返回原 token
-      const newExpiresAt = this.tokenService.getSessionExpiresAt();
+      // refresh 仍有效：签发新的 access，刷新过期时间，refresh 保持不变
+      const accessToken = this.tokenService.generateAccessToken();
+      const accessHash = this.tokenService.hashToken(accessToken);
       const { error: updateError } = await supabase
         .from('jj_user_sessions')
-        .update({ expires_at: newExpiresAt })
+        .update({
+          token_hash: accessHash,
+          expires_at: this.tokenService.getAccessExpiresAt(),
+        })
         .eq('id', existingSession.id);
-      
+
       if (updateError) {
         // 更新 token 过期时间失败不应阻断流程
       }
-      
-      return clientToken; // 返回原 token
+
+      return { accessToken, refreshToken: clientRefreshToken };
     }
 
-    // token 已过期或不存在，抛出错误提示登录过期
+    // refresh 已过期或不存在，抛出错误提示登录过期
     throw new UnauthorizedException('登录状态已过期，请重新登录');
   }
 
-  private async createSessionInternal(userId: string): Promise<string> {
+  private async createSessionInternal(userId: string): Promise<TokenPair> {
     const supabase = this.supabaseService.getClient();
-    const token = this.tokenService.generateSessionToken();
-    const tokenHash = this.tokenService.hashToken(token);
+    const accessToken = this.tokenService.generateAccessToken();
+    const accessHash = this.tokenService.hashToken(accessToken);
+    const refreshToken = this.tokenService.generateRefreshToken();
+    const refreshHash = this.tokenService.hashToken(refreshToken);
     const now = new Date();
     const { error } = await supabase.from('jj_user_sessions').insert({
       user_id: userId,
-      token_hash: tokenHash,
+      token_hash: accessHash,
+      refresh_token_hash: refreshHash,
       created_at: now.toISOString(),
-      expires_at: this.tokenService.getSessionExpiresAt(),
+      expires_at: this.tokenService.getAccessExpiresAt(),
+      refresh_expires_at: this.tokenService.getRefreshExpiresAt(),
     });
 
     if (error) {
@@ -532,7 +560,67 @@ export class AuthService {
       // 静默失败，不影响登录流程
     }
 
-    return token;
+    return { accessToken, refreshToken };
+  }
+
+  /**
+   * 刷新访问令牌（双 Token）
+   * 使用长令牌（refresh）校验 → 签发新的短令牌（access）→ 返回两者。
+   * 默认 refresh 不轮换（保持稳定，符合"长 token"语义）。
+   */
+  async refreshAuth(
+    refreshToken: string,
+  ): Promise<{ user: SafeUser; accessToken: string; refreshToken: string }> {
+    const supabase = this.supabaseService.getClient();
+    const refreshHash = this.tokenService.hashToken(refreshToken);
+
+    const { data: session, error } = await supabase
+      .from('jj_user_sessions')
+      .select('user_id, refresh_expires_at')
+      .eq('refresh_token_hash', refreshHash)
+      .gt('refresh_expires_at', new Date().toISOString())
+      .single();
+
+    if (error || !session) {
+      throw new UnauthorizedException('刷新令牌无效或已过期，请重新登录');
+    }
+
+    const { data: user, error: userError } = await supabase
+      .from('jj_users')
+      .select('id, email, username, password_hash, avatar_url, current_book_id, role, status, created_at, updated_at')
+      .eq('id', session.user_id)
+      .single();
+
+    if (userError || !user) {
+      throw new UnauthorizedException('刷新令牌无效或已过期，请重新登录');
+    }
+
+    // T-C2: 拒绝非 active 用户
+    if (user.status !== 'active') {
+      throw new UnauthorizedException('账号已被暂停，请联系客服');
+    }
+
+    // 默认不轮换 refresh（保持稳定），仅签发新的 access token
+    const accessToken = this.tokenService.generateAccessToken();
+    const accessHash = this.tokenService.hashToken(accessToken);
+    const { error: updateError } = await supabase
+      .from('jj_user_sessions')
+      .update({
+        token_hash: accessHash,
+        expires_at: this.tokenService.getAccessExpiresAt(),
+      })
+      .eq('refresh_token_hash', refreshHash);
+
+    if (updateError) {
+      throw new InternalServerErrorException(`刷新会话失败：${updateError.message}`);
+    }
+
+    const { password_hash, ...userWithoutPassword } = user;
+    return {
+      user: userWithoutPassword,
+      accessToken,
+      refreshToken,
+    };
   }
 
   /** 为新注册用户自动创建 2 个默认分类 */

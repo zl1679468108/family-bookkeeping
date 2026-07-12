@@ -16,17 +16,199 @@ import ReportMemberRanking from './ReportMemberRanking';
 import ReportFunFact from './ReportFunFact';
 import ReportFooter from './ReportFooter';
 
+interface AnnualOverview {
+  total_income: number;
+  total_expense: number;
+  balance: number;
+  balance_rate: number;
+}
+
+interface AnnualMonthlyItem {
+  month: number;
+  income: number;
+  expense: number;
+}
+
+interface AnnualCategoryItem {
+  category_name: string;
+  category_icon: string;
+  category_type: string;
+  amount: number;
+  percentage: number;
+}
+
+interface AnnualRecordItem {
+  amount: number;
+  description?: string;
+  counterparty?: string;
+  date?: string;
+  count?: number;
+}
+
+interface AnnualRecords {
+  max_expense: AnnualRecordItem | null;
+  max_expense_day: AnnualRecordItem | null;
+  max_expense_merchant: AnnualRecordItem | null;
+}
+
+interface AnnualBookItem {
+  book_id: string;
+  book_name: string;
+  amount: number;
+  percentage: number;
+}
+
+interface AnnualMemberItem {
+  user_id: string;
+  nickname: string;
+  expense: number;
+  percentage: number;
+}
+
+interface AnnualFunFact {
+  dining_total: number;
+  daily_avg_expense: number;
+  max_continuous_days: number;
+}
+
 interface AnnualReportData {
-  overview: any;
-  monthly: any[];
-  top_categories: any[];
-  records: any;
-  book_breakdown: any[];
-  member_ranking: any[];
-  fun_fact: any;
+  overview: AnnualOverview;
+  monthly: AnnualMonthlyItem[];
+  top_categories: AnnualCategoryItem[];
+  records: AnnualRecords;
+  book_breakdown: AnnualBookItem[];
+  member_ranking: AnnualMemberItem[];
+  fun_fact: AnnualFunFact;
 }
 
 const CURRENT_YEAR = new Date().getFullYear();
+
+const EMPTY_OVERVIEW: AnnualOverview = {
+  total_income: 0,
+  total_expense: 0,
+  balance: 0,
+  balance_rate: 0,
+};
+
+const EMPTY_RECORDS: AnnualRecords = {
+  max_expense: null,
+  max_expense_day: null,
+  max_expense_merchant: null,
+};
+
+const EMPTY_FUN_FACT: AnnualFunFact = {
+  dining_total: 0,
+  daily_avg_expense: 0,
+  max_continuous_days: 0,
+};
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function toFiniteNumber(value: unknown, fallback = 0): number {
+  if (typeof value === 'number' && Number.isFinite(value)) return value;
+  if (typeof value === 'string' && value.trim() !== '') {
+    const numericValue = Number(value);
+    if (Number.isFinite(numericValue)) return numericValue;
+  }
+  return fallback;
+}
+
+function toStringValue(value: unknown, fallback = ''): string {
+  if (typeof value === 'string') return value;
+  if (typeof value === 'number' && Number.isFinite(value)) return String(value);
+  return fallback;
+}
+
+function clampPercent(value: unknown): number {
+  return Math.min(100, Math.max(0, Math.round(toFiniteNumber(value))));
+}
+
+function normalizeRecordItem(value: unknown): AnnualRecordItem | null {
+  if (!isRecord(value)) return null;
+
+  const countValue = toFiniteNumber(value.count, NaN);
+  return {
+    amount: Math.max(0, toFiniteNumber(value.amount)),
+    description: toStringValue(value.description),
+    counterparty: toStringValue(value.counterparty),
+    date: toStringValue(value.date),
+    count: Number.isFinite(countValue) ? Math.max(0, Math.round(countValue)) : undefined,
+  };
+}
+
+function normalizeAnnualReport(rawData: unknown): AnnualReportData | undefined {
+  if (rawData === null || rawData === undefined) return undefined;
+
+  const source = isRecord(rawData) ? rawData : {};
+  const overview = isRecord(source.overview) ? source.overview : {};
+  const records = isRecord(source.records) ? source.records : {};
+  const funFact = isRecord(source.fun_fact) ? source.fun_fact : {};
+
+  return {
+    overview: {
+      total_income: Math.max(0, toFiniteNumber(overview.total_income, EMPTY_OVERVIEW.total_income)),
+      total_expense: Math.max(0, toFiniteNumber(overview.total_expense, EMPTY_OVERVIEW.total_expense)),
+      balance: toFiniteNumber(overview.balance, EMPTY_OVERVIEW.balance),
+      balance_rate: clampPercent(overview.balance_rate),
+    },
+    monthly: Array.isArray(source.monthly)
+      ? source.monthly.map((item, index) => {
+          const monthlyItem = isRecord(item) ? item : {};
+          return {
+            month: Math.min(12, Math.max(1, Math.round(toFiniteNumber(monthlyItem.month, index + 1)))),
+            income: Math.max(0, toFiniteNumber(monthlyItem.income)),
+            expense: Math.max(0, toFiniteNumber(monthlyItem.expense)),
+          };
+        })
+      : [],
+    top_categories: Array.isArray(source.top_categories)
+      ? source.top_categories.map((item, index) => {
+          const category = isRecord(item) ? item : {};
+          return {
+            category_name: toStringValue(category.category_name, `分类 ${index + 1}`),
+            category_icon: toStringValue(category.category_icon, '📦'),
+            category_type: toStringValue(category.category_type, 'expense'),
+            amount: Math.max(0, toFiniteNumber(category.amount)),
+            percentage: clampPercent(category.percentage),
+          };
+        })
+      : [],
+    records: {
+      max_expense: normalizeRecordItem(records.max_expense) ?? EMPTY_RECORDS.max_expense,
+      max_expense_day: normalizeRecordItem(records.max_expense_day) ?? EMPTY_RECORDS.max_expense_day,
+      max_expense_merchant: normalizeRecordItem(records.max_expense_merchant) ?? EMPTY_RECORDS.max_expense_merchant,
+    },
+    book_breakdown: Array.isArray(source.book_breakdown)
+      ? source.book_breakdown.map((item, index) => {
+          const book = isRecord(item) ? item : {};
+          return {
+            book_id: toStringValue(book.book_id, `book-${index}`),
+            book_name: toStringValue(book.book_name, `账本 ${index + 1}`),
+            amount: Math.max(0, toFiniteNumber(book.amount)),
+            percentage: clampPercent(book.percentage),
+          };
+        })
+      : [],
+    member_ranking: Array.isArray(source.member_ranking)
+      ? source.member_ranking.map((item, index) => {
+          const member = isRecord(item) ? item : {};
+          return {
+            user_id: toStringValue(member.user_id, `member-${index}`),
+            nickname: toStringValue(member.nickname, `成员 ${index + 1}`),
+            expense: Math.max(0, toFiniteNumber(member.expense)),
+            percentage: clampPercent(member.percentage),
+          };
+        })
+      : [],
+    fun_fact: {
+      dining_total: Math.max(0, toFiniteNumber(funFact.dining_total, EMPTY_FUN_FACT.dining_total)),
+      daily_avg_expense: Math.max(0, toFiniteNumber(funFact.daily_avg_expense, EMPTY_FUN_FACT.daily_avg_expense)),
+      max_continuous_days: Math.max(0, Math.round(toFiniteNumber(funFact.max_continuous_days, EMPTY_FUN_FACT.max_continuous_days))),
+    },
+  };
+}
 
 const AnnualReport: React.FC = () => {
   const [year, setYear] = useState(CURRENT_YEAR);
@@ -59,7 +241,7 @@ const AnnualReport: React.FC = () => {
     }
   };
 
-  const reportData = data as AnnualReportData | undefined;
+  const reportData = useMemo(() => normalizeAnnualReport(data), [data]);
 
   return (
     <div className="page-container">

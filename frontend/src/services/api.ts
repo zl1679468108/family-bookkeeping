@@ -8,7 +8,9 @@ import { trackRequest } from '../utils/progress'
 
 const API_BASE = process.env.REACT_APP_API_BASE_URL || 'http://localhost:3000/api'
 
-const TOKEN_KEY = 'auth_token'
+// 双 Token 存储键
+const ACCESS_TOKEN_KEY = 'auth_access_token'
+const REFRESH_TOKEN_KEY = 'auth_refresh_token'
 
 export interface Transaction {
   id: number
@@ -65,6 +67,12 @@ export interface UserProfile {
   created_at: string
 }
 
+/** 双 Token：访问令牌（短，请求携带）+ 刷新令牌（长，仅用于换发） */
+export interface TokenPair {
+  accessToken: string
+  refreshToken: string
+}
+
 interface ApiEnvelope<T> {
   success: true
   message: string
@@ -103,18 +111,63 @@ interface RequestOptions extends Omit<RequestInit, 'body'> {
    * GET/HEAD 等读操作默认不显示（页面初始化类加载走骨架屏即可）。
    */
   showProgress?: boolean
+  /** 内部：标记本次请求为刷新令牌请求本身，避免 401 时递归触发自动刷新 */
+  _internalRefresh?: boolean
 }
 
-const getToken = (): string | null => localStorage.getItem(TOKEN_KEY)
+const getToken = (): string | null => localStorage.getItem(ACCESS_TOKEN_KEY)
+
+export const getAccessToken = (): string | null => localStorage.getItem(ACCESS_TOKEN_KEY)
+
+export const getRefreshToken = (): string | null => localStorage.getItem(REFRESH_TOKEN_KEY)
 
 export const hasToken = (): boolean => Boolean(getToken())
 
+/** 持久化访问令牌 + 刷新令牌（登录/注册/刷新成功后调用） */
+export const storeTokens = (accessToken: string, refreshToken: string): void => {
+  localStorage.setItem(ACCESS_TOKEN_KEY, accessToken.trim())
+  localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken.trim())
+}
+
+/** 仅更新访问令牌（刷新后调用） */
+export const storeAccessToken = (accessToken: string): void => {
+  localStorage.setItem(ACCESS_TOKEN_KEY, accessToken.trim())
+}
+
+/** 兼容别名：写入访问令牌（单值场景） */
 export const storeToken = (token: string): void => {
-  localStorage.setItem(TOKEN_KEY, token)
+  localStorage.setItem(ACCESS_TOKEN_KEY, token.trim())
 }
 
 export const clearStoredToken = (): void => {
-  localStorage.removeItem(TOKEN_KEY)
+  localStorage.removeItem(ACCESS_TOKEN_KEY)
+  localStorage.removeItem(REFRESH_TOKEN_KEY)
+}
+
+// ---- 自动刷新（single-flight）----
+// 并发 401 共享同一个刷新 Promise，避免刷新风暴；刷新成功后重试原请求
+let refreshPromise: Promise<TokenPair> | null = null
+
+const tryRefresh = (): Promise<TokenPair> => {
+  if (!refreshPromise) {
+    refreshPromise = (async () => {
+      const refreshToken = getRefreshToken()
+      if (!refreshToken) {
+        throw new ApiError('登录状态已失效，请重新登录', 401)
+      }
+      const data = await request<TokenPair>('/auth/refresh', {
+        method: 'POST',
+        body: { refreshToken },
+        silent: true,
+        _internalRefresh: true,
+      })
+      storeTokens(data.accessToken, data.refreshToken)
+      return data
+    })().finally(() => {
+      refreshPromise = null
+    })
+  }
+  return refreshPromise
 }
 
 const redirectToLogin = (): void => {
@@ -229,6 +282,16 @@ export const request = async <T>(path: string, options: RequestOptions = {}): Pr
       const error = new ApiError(message, status, errorPayload.code)
 
       if (requiresAuth && response.status === 401) {
+        // 双 Token：尝试用 refresh 换发新的 access，成功则重试原请求
+        if (!options._internalRefresh && getRefreshToken()) {
+          try {
+            await tryRefresh()
+            // 用新 access token 重试（_internalRefresh 防止刷新请求自身递归）
+            return request<T>(path, { ...options, _internalRefresh: true })
+          } catch {
+            // 刷新失败，继续走下面的 401 处理
+          }
+        }
         if (!silent) {
           handleUnauthorized(effectiveNotify)
         }
@@ -385,8 +448,8 @@ export const register = async (
   email: string,
   password: string,
   username: string,
-): Promise<{ user: UserProfile; token: string }> => {
-  return request<{ user: UserProfile; token: string }>('/auth/register', {
+): Promise<{ user: UserProfile; accessToken: string; refreshToken: string }> => {
+  return request<{ user: UserProfile; accessToken: string; refreshToken: string }>('/auth/register', {
     method: 'POST',
     body: { email, password, username },
   })
@@ -397,21 +460,21 @@ export const login = async (
   password: string,
   captchaId: string,
   captchaCode: string,
-): Promise<{ user: UserProfile; token: string }> => {
+): Promise<{ user: UserProfile; accessToken: string; refreshToken: string }> => {
   // 登录时不传递 token，直接创建新会话（带验证码的登录是新会话）
-  return request<{ user: UserProfile; token: string }>('/auth/login', {
+  return request<{ user: UserProfile; accessToken: string; refreshToken: string }>('/auth/login', {
     method: 'POST',
     body: { email, password, captchaId, captchaCode },
   })
 }
 
-// 切换账号（免验证码，使用已保存的账号密码+token）
+// 切换账号（免验证码，使用已保存的账号密码 + 刷新令牌复用会话）
 export const switchAccount = async (
   email: string,
   password: string,
   token?: string,
-): Promise<{ user: UserProfile; token: string }> => {
-  return request<{ user: UserProfile; token: string }>('/auth/switch-account', {
+): Promise<{ user: UserProfile; accessToken: string; refreshToken: string }> => {
+  return request<{ user: UserProfile; accessToken: string; refreshToken: string }>('/auth/switch-account', {
     method: 'POST',
     body: { email, password, token: token || undefined },
     notifyOnError: false,

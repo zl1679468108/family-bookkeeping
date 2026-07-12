@@ -9,7 +9,7 @@ export interface CustomIcon {
   id: string;
   user_id: string;
   icon_url: string;
-  icon_type: 'category' | 'book';
+  icon_type: 'category' | 'book' | 'avatar';
   created_at: string;
 }
 
@@ -17,7 +17,7 @@ export interface CustomIcon {
  * 获取用户自定义图标列表
  * GET /icons?icon_type=
  */
-export const fetchCustomIcons = async (iconType?: 'category' | 'book'): Promise<CustomIcon[]> => {
+export const fetchCustomIcons = async (iconType?: 'category' | 'book' | 'avatar'): Promise<CustomIcon[]> => {
   const query = iconType ? `?icon_type=${iconType}` : '';
   return request<CustomIcon[]>(`/icons${query}`, { requiresAuth: true });
 };
@@ -26,7 +26,7 @@ export const fetchCustomIcons = async (iconType?: 'category' | 'book'): Promise<
  * 上传图标图片
  * POST /icons/upload
  */
-export const uploadIcon = async (file: File, iconType: 'category' | 'book'): Promise<CustomIcon> => {
+export const uploadIcon = async (file: File, iconType: 'category' | 'book' | 'avatar'): Promise<CustomIcon> => {
   const formData = new FormData();
   formData.append('file', file);
   formData.append('icon_type', iconType);

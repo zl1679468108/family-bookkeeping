@@ -175,7 +175,7 @@ export function useCategoriesPage() {
   )
 
   // Icon upload handler
-  const handleIconUpload = useCallback(async (file: File, iconType: 'category' | 'book') => {
+  const handleIconUpload = useCallback(async (file: File, iconType: 'category' | 'book' | 'avatar') => {
     await uploadIcon(file, iconType)
     refetchIcons()
     notify({ type: 'success', message: '图标上传成功' })

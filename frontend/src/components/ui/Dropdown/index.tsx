@@ -1,5 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react'
-import './index.scss'
+import React, { useState, useRef, useEffect } from 'react'
 
 /**
  * 通用下拉选择组件 —— 取代各页面手写的 <select> 和自定义下拉

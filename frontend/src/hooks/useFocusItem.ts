@@ -31,6 +31,7 @@ export function useFocusItem(options: UseFocusItemOptions = {}) {
 
   const [searchParams, setSearchParams] = useSearchParams()
   const focusId = searchParams.get(FOCUS_PARAM)
+  const searchParamsString = searchParams.toString()
 
   const cleanupTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const pollTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
@@ -88,7 +89,7 @@ export function useFocusItem(options: UseFocusItemOptions = {}) {
         if (appliedElementRef.current === target) {
           appliedElementRef.current = null
         }
-        const newParams = new URLSearchParams(searchParams)
+        const newParams = new URLSearchParams(searchParamsString)
         newParams.delete(FOCUS_PARAM)
         setSearchParams(newParams, { replace: true })
       }, duration)
@@ -122,7 +123,7 @@ export function useFocusItem(options: UseFocusItemOptions = {}) {
         pollTimerRef.current = null
       }
     }
-  }, [focusId, getSelector, clearAll, duration, scrollBehavior, scrollBlock, searchParams.toString(), setSearchParams])
+  }, [focusId, getSelector, clearAll, duration, scrollBehavior, scrollBlock, searchParamsString, setSearchParams])
 
   // 组件卸载时清理
   useEffect(() => {

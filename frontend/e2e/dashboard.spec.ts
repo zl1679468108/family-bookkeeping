@@ -1,41 +1,52 @@
-import { test, expect } from '@playwright/test';
-import { login, TEST_ACCOUNTS } from './helpers';
+import { expect, test } from '@playwright/test';
+import { expectAppReady, setupAuthenticatedPage } from './helpers';
 
-const TEST_EMAIL = TEST_ACCOUNTS[0].email;
-const TEST_PASSWORD = TEST_ACCOUNTS[0].password;
-
-test.describe('仪表板 - 真实数据', () => {
+test.describe('仪表板 - 查询数据与快捷入口', () => {
   test.beforeEach(async ({ page }) => {
-    await login(page, TEST_EMAIL, TEST_PASSWORD);
+    await setupAuthenticatedPage(page);
   });
 
-  test('显示首页内容', async ({ page }) => {
-    await expect(page.locator('text=首页')).toBeVisible();
-    await expect(page.locator('text=本月结余')).toBeVisible();
-    await expect(page.locator('text=本月收入')).toBeVisible();
-    await expect(page.locator('text=本月支出')).toBeVisible();
+  test('展示本月概览、最近交易、预算进度', async ({ page }) => {
+    await page.goto('/#/');
+    await expectAppReady(page);
+
+    await expect(page.getByText('本月结余')).toBeVisible();
+    await expect(page.getByText('本月收入')).toBeVisible();
+    await expect(page.getByText('本月支出')).toBeVisible();
+    await expect(page.getByText('本月最近交易')).toBeVisible();
+    await expect(page.getByText('午餐')).toBeVisible();
+    await expect(page.getByText('预算进度')).toBeVisible();
+    await expect(page.getByText(/餐饮/).first()).toBeVisible();
   });
 
-  test('显示最近交易', async ({ page }) => {
-    await expect(page.locator('text=本月最近交易')).toBeVisible();
+  test('点击最近交易进入流水详情', async ({ page }) => {
+    await page.goto('/#/');
+    await expect(page.getByText('午餐')).toBeVisible();
+
+    await page.getByText('午餐').click();
+
+    await expect(page).toHaveURL(/#\/transactions\?focus=101/);
+    await expect(page.getByRole('button', { name: /查看交易详情：午餐/ })).toBeVisible();
+    await page.getByRole('button', { name: /查看交易详情：午餐/ }).click();
+    const dialog = page.getByRole('dialog', { name: '交易详情' });
+    await expect(dialog).toBeVisible();
+    await expect(dialog.getByText('社区食堂')).toBeVisible();
   });
 
-  test('快捷操作按钮', async ({ page }) => {
-    await expect(page.locator('h4:has-text("记一笔")')).toBeVisible();
-    await expect(page.locator('h4:has-text("查看报表")')).toBeVisible();
-  });
+  test('空态快捷按钮进入记一笔', async ({ page }) => {
+    await page.route('http://localhost:3000/api/transactions**', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({ success: true, message: 'ok', data: { data: [], total: 0, page: 1, pageSize: 5 } }),
+      });
+    });
 
-  test('点击记一笔跳转', async ({ page }) => {
-    await page.click('h4:has-text("记一笔")');
-    await page.waitForTimeout(3000);
-    // 验证页面变化
-    await expect(page.locator('text=添加交易, text=记账')).toBeVisible();
-  });
+    await page.goto('/#/');
+    await expect(page.getByText('暂无交易记录')).toBeVisible();
+    await page.getByRole('button', { name: '添加第一笔交易' }).click();
 
-  test('点击查看报表跳转', async ({ page }) => {
-    await page.click('h4:has-text("查看报表")');
-    await page.waitForTimeout(3000);
-    // 验证页面变化
-    await expect(page.locator('canvas, svg, text=收支')).toBeVisible();
+    await expect(page).toHaveURL(/#\/add\?type=expense/);
+    await expect(page.getByText('快捷方式')).toBeVisible();
   });
 });

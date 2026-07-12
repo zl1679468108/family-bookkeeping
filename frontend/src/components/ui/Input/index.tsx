@@ -1,5 +1,4 @@
 import React, { InputHTMLAttributes, useState, useEffect, useRef } from 'react'
-import './index.scss'
 
 /**
  * 通用输入框组件 —— 取代各页面手写的 `<input>` + `<div className="form-input">` 结构

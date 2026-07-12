@@ -1,76 +1,47 @@
-import { test, expect } from '@playwright/test';
-import { login, TEST_ACCOUNTS } from './helpers';
+import { expect, test } from '@playwright/test';
+import { expectObject, setupAuthenticatedPage, waitForRequest } from './helpers';
 
-const TEST_EMAIL = TEST_ACCOUNTS[0].email;
-const TEST_PASSWORD = TEST_ACCOUNTS[0].password;
-
-test.describe('预算管理 - 真实数据', () => {
+test.describe('预算管理 - 查询、编辑、提交', () => {
   test.beforeEach(async ({ page }) => {
-    await login(page, TEST_EMAIL, TEST_PASSWORD);
+    await setupAuthenticatedPage(page);
   });
 
-  test('查看预算页面', async ({ page }) => {
-    await page.goto('/budgets');
-    await page.waitForTimeout(2000);
-    await expect(page.locator('.empty-state__title')).toBeVisible();
+  test('展示预算执行状态和分类进度', async ({ page }) => {
+    await page.goto('/#/budgets');
+
+    await expect(page.getByText('预算明细')).toBeVisible();
+    await expect(page.locator('.budget-item').filter({ hasText: '餐饮' })).toBeVisible();
+    await expect(page.getByText(/剩余/).first()).toBeVisible();
   });
 
-  test('设置月度预算', async ({ page }) => {
-    await page.goto('/budgets');
-    await page.waitForTimeout(2000);
-    
-    const settingBtn = page.locator('button:has-text("设置")');
-    if (await settingBtn.isVisible()) {
-      await settingBtn.click();
-      await page.waitForTimeout(2000);
-      
-      // 验证表单出现
-      await expect(page.locator('input[type="number"]')).toBeVisible();
-    }
+  test('修改单个预算后点击保存会提交整月预算数组', async ({ page }) => {
+    await page.goto('/#/budgets');
+    await page.locator('.budget-item').filter({ hasText: '餐饮' }).click();
+    await expect(page.getByText('预算详情')).toBeVisible();
+    await page.getByRole('button', { name: '编辑预算' }).click();
+    await page.locator('input[type="number"]').fill('1500');
+    await page.getByRole('button', { name: '确定' }).click();
+
+    const payload = await waitForRequest(page, 'PUT', '/api/budgets', async () => {
+      await page.getByRole('button', { name: '保存' }).click();
+    });
+    const input = expectObject(payload);
+    expect(typeof input.month).toBe('string');
+    expect(input.budgets).toEqual(expect.arrayContaining([
+      expect.objectContaining({ category: 'cat-food', amount: 1500 }),
+    ]));
   });
 
-  test('查看预算执行状态', async ({ page }) => {
-    await page.goto('/budgets');
-    await page.waitForTimeout(2000);
-    await expect(page.locator('.empty-state__title, .budget-item')).toBeVisible();
-  });
+  test('清零预算后直接保存会提示至少设置一个预算，不发起提交', async ({ page }) => {
+    const captured = await setupAuthenticatedPage(page);
 
-  test('修改预算金额', async ({ page }) => {
-    await page.goto('/budgets');
-    await page.waitForTimeout(2000);
-    
-    const editBtn = page.locator('[data-testid="edit-budget"]').first();
-    if (await editBtn.isVisible()) {
-      await editBtn.click();
-      await page.waitForTimeout(1000);
-      
-      const amountInput = page.locator('input[type="number"]');
-      if (await amountInput.isVisible()) {
-        await amountInput.fill('3000');
-        await page.click('button:has-text("保存")');
-      }
-    }
-  });
+    await page.goto('/#/budgets');
+    await page.locator('.budget-item').filter({ hasText: '餐饮' }).click();
+    await page.getByRole('button', { name: '删除预算' }).click();
+    await page.getByRole('button', { name: '确认删除' }).click();
+    await page.getByRole('button', { name: '保存' }).click();
 
-  test('删除预算', async ({ page }) => {
-    await page.goto('/budgets');
-    await page.waitForTimeout(2000);
-    
-    const deleteBtn = page.locator('[data-testid="delete-budget"]').first();
-    if (await deleteBtn.isVisible()) {
-      await deleteBtn.click();
-      await page.click('button:has-text("确定")');
-    }
-  });
-
-  test('复制上月预算', async ({ page }) => {
-    await page.goto('/budgets');
-    await page.waitForTimeout(2000);
-    
-    const copyBtn = page.locator('button:has-text("复制")');
-    if (await copyBtn.isVisible()) {
-      await copyBtn.click();
-      await page.click('button:has-text("确定")');
-    }
+    await expect(page.getByText('请至少设置一个分类的预算金额')).toBeVisible();
+    expect(captured.some((entry) => entry.method === 'PUT' && entry.pathname.endsWith('/api/budgets'))).toBe(false);
   });
 });

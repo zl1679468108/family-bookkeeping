@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react'
+import React, { useMemo, useState, useRef } from 'react'
 import { format } from 'date-fns'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { fetchBudgets, fetchBudgetStatus, upsertBudgets } from '../../services/budgetsApi'
@@ -11,7 +11,7 @@ import type { BudgetRecord, UpsertBudgetInput } from '../../types/budget'
 import { notify } from '../../utils/notifications'
 import { Skeleton } from '../../components/ui/Skeleton'
 import { GlobalModal, DetailItem, Space } from '../../components/ui'
-import { Card, CardHeader } from '../../components/ui/Card'
+import { Card } from '../../components/ui/Card'
 import { Button } from '../../components/ui/Button'
 import { NumberInput } from '../../components/ui/Input'
 import { RankRow } from '../../components/ui/RankList'
@@ -59,10 +59,13 @@ const Budgets: React.FC = () => {
     queryFn: () => fetchBudgetStatus(selectedMonth),
   })
 
-  const budgetMap = new Map<string, number>()
-  budgets.forEach((b) => {
-    budgetMap.set(b.category, b.amount)
-  })
+  const budgetMap = useMemo(() => {
+    const map = new Map<string, number>()
+    budgets.forEach((b) => {
+      map.set(b.category, b.amount)
+    })
+    return map
+  }, [budgets])
 
   const statusMap = new Map<string, { spent: number; progress: number; status: string }>()
   if (budgetStatus?.categories) {
@@ -92,7 +95,7 @@ const Budgets: React.FC = () => {
       lastSynced.current = hash
       setEditValues(synced)
     }
-  }, [selectedMonth, budgets, expenseCategories])
+  }, [selectedMonth, budgetMap, expenseCategories])
 
   const handleAmountChange = (category: string, value: string) => {
     const num = parseFloat(value)
@@ -224,7 +227,6 @@ const Budgets: React.FC = () => {
           </>
         ) : expenseCategories.length === 0 ? (
           <EmptyState
-            icon="📊"
             title="暂无支出分类"
             description="请先在分类管理中添加支出分类"
           />
@@ -334,9 +336,10 @@ const Budgets: React.FC = () => {
           </label>
           <NumberInput
             prefix="¥"
-            value={editFormValues.budget || '0'}
+            value={editFormValues.budget}
             onChange={handleEditFormChange}
             min={0}
+            placeholder="0"
           />
         </div>
       </GlobalModal>

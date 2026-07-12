@@ -1,61 +1,59 @@
-import { test, expect } from '@playwright/test';
-import { login, TEST_ACCOUNTS } from './helpers';
+import { expect, test } from '@playwright/test';
+import { expectObject, setupAuthenticatedPage, waitForRequest } from './helpers';
 
-const TEST_EMAIL = TEST_ACCOUNTS[0].email;
-const TEST_PASSWORD = TEST_ACCOUNTS[0].password;
-
-test.describe('账本管理 - 真实数据', () => {
+test.describe('账本管理 - UI 与成员协作入口', () => {
   test.beforeEach(async ({ page }) => {
-    await login(page, TEST_EMAIL, TEST_PASSWORD);
+    await setupAuthenticatedPage(page);
   });
 
-  test('查看账本页面', async ({ page }) => {
-    await page.goto('/books');
-    await page.waitForTimeout(2000);
-    // 只验证页面加载
-    await expect(page.locator('text=账本')).toBeVisible();
+  test('展示账本列表和详情元数据', async ({ page }) => {
+    await page.goto('/#/books');
+
+    await expect(page.getByText('我的账本')).toBeVisible();
+    await page.locator('.bk-card').filter({ hasText: '家庭账本' }).click();
+    const dialog = page.getByRole('dialog', { name: '账本详情' });
+    await expect(dialog).toBeVisible();
+    await expect(dialog.getByText('日常家庭收支')).toBeVisible();
+    await expect(dialog.getByText('2 人')).toBeVisible();
+    await expect(dialog.getByText('12 笔')).toBeVisible();
+    await expect(dialog.getByText('家庭成员')).toBeVisible();
   });
 
-  test('创建新账本', async ({ page }) => {
-    await page.goto('/books');
-    await page.waitForTimeout(2000);
-    
-    // 点击创建按钮
-    const createBtn = page.locator('button:has-text("创建")');
-    if (await createBtn.isVisible()) {
-      await createBtn.click();
-      await page.waitForTimeout(1000);
-      
-      // 填写名称
-      const nameInput = page.locator('input[placeholder*="名称"]');
-      if (await nameInput.isVisible()) {
-        await nameInput.fill('E2E测试账本');
-        await page.click('button:has-text("保存")');
-      }
-    }
+  test('创建账本提交名称、描述和图标', async ({ page }) => {
+    await page.goto('/#/books');
+    await page.getByRole('button', { name: '+ 新建账本' }).click();
+
+    await page.getByPlaceholder('如：家庭账本').fill('E2E账本');
+    await page.getByPlaceholder('简单介绍一下这个账本').fill('自动化测试创建');
+
+    const payload = await waitForRequest(page, 'POST', '/api/books', async () => {
+      await page.getByRole('button', { name: '创建账本' }).click();
+    });
+    const book = expectObject(payload);
+    expect(book.name).toBe('E2E账本');
+    expect(book.description).toBe('自动化测试创建');
+    expect(typeof book.icon).toBe('string');
   });
 
-  test('切换当前账本', async ({ page }) => {
-    await page.goto('/books');
-    await page.waitForTimeout(2000);
-    
-    // 点击第一个账本卡片
-    const bookCard = page.locator('.book-card, [data-testid="book-card"]').first();
-    if (await bookCard.isVisible()) {
-      await bookCard.click();
-      await page.waitForTimeout(500);
-    }
+  test('生成邀请码会调用邀请接口并展示邀请码', async ({ page }) => {
+    await page.goto('/#/books');
+    await page.locator('.bk-card').filter({ hasText: '家庭账本' }).click();
+
+    await waitForRequest(page, 'POST', '/api/books/book-1/invitations', async () => {
+      await page.getByRole('button', { name: '生成邀请码' }).click();
+    });
+    await expect(page.getByText('JJ2026')).toBeVisible();
   });
 
-  test('删除账本', async ({ page }) => {
-    await page.goto('/books');
-    await page.waitForTimeout(2000);
-    
-    // 点击删除按钮
-    const deleteBtn = page.locator('[data-testid="delete-book"]').first();
-    if (await deleteBtn.isVisible()) {
-      await deleteBtn.click();
-      await page.click('button:has-text("确定")');
-    }
+  test('切换账本会二次确认并提交当前账本 ID', async ({ page }) => {
+    await page.goto('/#/books');
+    await page.locator('.bk-card').filter({ hasText: '旅行账本' }).click();
+    await page.getByRole('button', { name: '切换到此账本' }).click();
+
+    const payload = await waitForRequest(page, 'PUT', '/api/auth/current-book', async () => {
+      await page.getByRole('button', { name: '确认切换' }).click();
+    });
+    const input = expectObject(payload);
+    expect(input.book_id).toBe('book-2');
   });
 });
