@@ -1,0 +1,237 @@
+.catedit-content {
+  padding-bottom: calc(180rpx + env(safe-area-inset-bottom));
+}
+
+/* 类型切换 */
+.catedit-type-tabs {
+  display: flex;
+  gap: 16rpx;
+}
+.catedit-type-tab {
+  flex: 1;
+  text-align: center;
+  padding: 22rpx 0;
+  border-radius: 18rpx;
+  background: var(--bg);
+  border: 2rpx solid var(--bd);
+  color: var(--fg-2);
+  font-size: 28rpx;
+  font-weight: 600;
+  transition: all 0.15s ease;
+}
+.catedit-type-tab--active {
+  background: var(--pr);
+  border-color: var(--pr);
+  color: #fff;
+}
+
+/* 表单行 */
+.catedit-form-row {
+  display: flex;
+  align-items: center;
+  padding: 24rpx 0;
+  border-bottom: 2rpx solid var(--bd);
+}
+.catedit-form-row:last-child {
+  border-bottom: none;
+}
+.catedit-form-row--icon {
+  justify-content: flex-start;
+  gap: 20rpx;
+}
+.catedit-form-label {
+  width: 120rpx;
+  flex-shrink: 0;
+  font-size: 28rpx;
+  color: var(--fg-2);
+  font-weight: 500;
+}
+.catedit-form-input {
+  flex: 1;
+  font-size: 28rpx;
+  color: var(--fg);
+  text-align: right;
+}
+.catedit-form-emoji-current {
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 16rpx;
+  background: var(--srfSoft);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.catedit-form-emoji-current__icon {
+  width: 40rpx;
+  height: 40rpx;
+  font-size: 36rpx;
+}
+
+/* emoji 网格 */
+.catedit-emoji-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 16rpx;
+  padding: 8rpx 0;
+}
+.catedit-emoji-item {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 16rpx;
+  background: var(--bg);
+  border: 2rpx solid var(--bd);
+  font-size: 36rpx;
+  transition: all 0.15s ease;
+}
+.catedit-emoji-item--selected {
+  border-color: var(--pr);
+  background: var(--srfSoft);
+  box-shadow: 0 0 0 2rpx var(--pr) inset;
+}
+
+/* 平台图标 */
+.catedit-emoji-grid--platform {
+  grid-template-columns: repeat(4, 1fr);
+}
+.catedit-platform-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10rpx;
+  padding: 16rpx 8rpx;
+  border-radius: 16rpx;
+  background: var(--bg);
+  border: 2rpx solid var(--bd);
+  transition: all 0.15s ease;
+}
+.catedit-platform-item--selected {
+  border-color: var(--pr);
+  background: var(--srfSoft);
+  box-shadow: 0 0 0 2rpx var(--pr) inset;
+}
+.catedit-platform-item__icon {
+  width: 44rpx;
+  height: 44rpx;
+}
+.catedit-platform-item__label {
+  font-size: 20rpx;
+  color: var(--fg-2);
+  text-align: center;
+  line-height: 1.2;
+}
+.catedit-platform-item__label--selected {
+  color: var(--pr);
+  font-weight: 600;
+}
+
+/* 自定义图标 */
+.catedit-custom-icons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+  padding: 8rpx 0;
+}
+.catedit-custom-icon-upload {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 16rpx;
+  border: 2rpx dashed var(--bd);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22rpx;
+  color: var(--fg-2);
+  text-align: center;
+}
+.catedit-custom-icon-upload--loading {
+  opacity: 0.6;
+}
+.catedit-custom-icon-item {
+  position: relative;
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 16rpx;
+  background: var(--bg);
+  border: 2rpx solid var(--bd);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.catedit-custom-icon-item--selected {
+  border-color: var(--pr);
+  box-shadow: 0 0 0 2rpx var(--pr) inset;
+}
+.catedit-custom-icon-item__img {
+  width: 100%;
+  height: 100%;
+}
+.catedit-custom-icon-item__del {
+  position: absolute;
+  top: 4rpx;
+  right: 4rpx;
+  width: 32rpx;
+  height: 32rpx;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  font-size: 24rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.catedit-custom-empty {
+  width: 100%;
+  font-size: 22rpx;
+  color: var(--fg-3);
+}
+
+/* 底部操作栏 */
+.catedit-actions {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  gap: 16rpx;
+  padding: 16rpx 32rpx calc(16rpx + env(safe-area-inset-bottom));
+  background: var(--surface);
+  border-top: 2rpx solid var(--bd);
+  z-index: 50;
+}
+.catedit-actions__save {
+  flex: 1;
+  height: 88rpx;
+  border-radius: 20rpx;
+  background: var(--pr);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 30rpx;
+  font-weight: 600;
+}
+.catedit-actions__save--full {
+  flex: 1;
+}
+.catedit-actions__save--disabled {
+  opacity: 0.6;
+}
+.catedit-actions__delete {
+  width: 200rpx;
+  height: 88rpx;
+  border-radius: 20rpx;
+  background: var(--bg);
+  border: 2rpx solid var(--danger, #ef5350);
+  color: var(--danger, #ef5350);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 30rpx;
+  font-weight: 600;
+}
+.catedit-actions__delete--pending {
+  opacity: 0.6;
+}

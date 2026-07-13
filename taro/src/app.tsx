@@ -23,7 +23,8 @@ import { PropsWithChildren, useEffect, useState } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import Taro, { useDidShow } from "@tarojs/taro";
 import { AuthProvider, useAuth } from "./context/AuthContext";
-import { BookProvider } from "./context/BookContext";
+import { BookProvider, useBookContext } from "./context/BookContext";
+import { ThemeProvider } from "./context/ThemeContext";
 import { hydrateAuthFromStorage } from "./services/api";
 import { migrateSavedAccounts } from "./utils/savedAccounts";
 import "./app.scss";
@@ -52,6 +53,44 @@ const AUTH_PAGE_PREFIXES = [
   "pages/User/Register",
   "pages/User/ForgotPassword",
 ];
+
+/**
+ * OnboardingGate — 新用户引导守卫
+ * 已登录 + 账本列表加载完成 + 无账本时，reLaunch 到引导页。
+ * 老用户有 current_book_id 时直接放行（不等 books 异步加载）。
+ * 若已在引导页但账本列表已加载出结果，自动跳回首页（避免卡死）。
+ */
+function OnboardingGate({ children }: PropsWithChildren<object>) {
+  const { user, loading: authLoading } = useAuth();
+  const { books, loading: booksLoading } = useBookContext();
+
+  useEffect(() => {
+    if (authLoading || !user) return;
+
+    const pages = Taro.getCurrentPages();
+    const currentPath =
+      pages.length > 0 ? pages[pages.length - 1].route || "" : "";
+
+    // 反向跳出：已在引导页、books 已加载完成、且已有账本 → 自动回首页
+    if (currentPath === "pages/Onboarding/index" && !booksLoading && books.length > 0) {
+      Taro.reLaunch({ url: "/pages/Home/index" });
+      return;
+    }
+
+    // 老用户放行：服务端有 current_book_id 说明已有账本，不需等异步 books 列表
+    if (user.current_book_id && !booksLoading) return;
+
+    // books 还在加载中，暂不判断（避免竞态）
+    if (booksLoading) return;
+
+    // 无账本 → 跳引导页
+    if (books.length === 0 && currentPath !== "pages/Onboarding/index") {
+      Taro.reLaunch({ url: "/pages/Onboarding/index" });
+    }
+  }, [authLoading, booksLoading, user, books]);
+
+  return <>{children}</>;
+}
 
 /**
  * AuthGuard — 全局登录守卫
@@ -97,11 +136,15 @@ function AuthGuard({ children }: PropsWithChildren<object>) {
 function App({ children }: PropsWithChildren<object>) {
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <BookProvider>
-          <AuthGuard>{children}</AuthGuard>
-        </BookProvider>
-      </AuthProvider>
+      <ThemeProvider>
+        <AuthProvider>
+          <BookProvider>
+            <AuthGuard>
+              <OnboardingGate>{children}</OnboardingGate>
+            </AuthGuard>
+          </BookProvider>
+        </AuthProvider>
+      </ThemeProvider>
     </QueryClientProvider>
   );
 }

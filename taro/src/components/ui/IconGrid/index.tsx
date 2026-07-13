@@ -18,7 +18,7 @@ export interface IconGridOption {
 export interface CustomIconItem {
   id: string;
   icon_url: string;
-  icon_type: "category" | "book";
+  icon_type: "category" | "book" | "avatar";
 }
 
 export interface IconGridProps {
@@ -28,10 +28,10 @@ export interface IconGridProps {
   customIcons?: CustomIconItem[];
   onUpload?: (
     file: { tempFilePath: string; name?: string; size?: number },
-    iconType: "category" | "book"
+    iconType: "category" | "book" | "avatar"
   ) => Promise<void>;
   onDelete?: (iconId: string) => Promise<void>;
-  iconType?: "category" | "book";
+  iconType?: "category" | "book" | "avatar";
   columns?: number;
   className?: string;
 }
@@ -65,7 +65,7 @@ export function IconGrid({
           return (
             <View
               key={opt.value}
-              className={`ui-icon-grid__item ${active ? "ui-icon-grid__item--active" : ""}`}
+              className={`ui-icon-grid__item ${active ? "ui-icon-grid__item--active" : ""} ${opt.label ? "ui-icon-grid__item--labeled" : ""}`}
               onClick={() => onChange?.(opt.value)}
             >
               {opt.isImage ? (
@@ -73,6 +73,9 @@ export function IconGrid({
               ) : (
                 <Text className="ui-icon-grid__emoji">{opt.icon}</Text>
               )}
+              {opt.label ? (
+                <Text className="ui-icon-grid__label">{opt.label}</Text>
+              ) : null}
             </View>
           );
         })}

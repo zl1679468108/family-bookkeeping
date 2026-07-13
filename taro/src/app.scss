@@ -81,6 +81,7 @@ page {
   --primary-grad: var(--prGr);
   --surface:      var(--srf);
   --surface-soft: var(--srfSoft);
+  --bg-secondary: #f6f7f4;
   --fg-2:         var(--fg2);
   --fg-3:         var(--fg3);
   --border:       var(--bd);
@@ -244,8 +245,8 @@ view, text, image, input, button, scroll-view { box-sizing: border-box; }
   bottom: 0;
   height: calc(164rpx + env(safe-area-inset-bottom, 0));
   padding-bottom: env(safe-area-inset-bottom, 0);
-  background-color: rgba(255, 255, 255, 0.92);
-  border-top: 1rpx solid rgba(0, 0, 0, 0.08);
+  background-color: var(--srf);
+  border-top: 1rpx solid var(--border);
   display: flex;
   align-items: flex-start;
   padding-top: 8rpx;
@@ -400,7 +401,7 @@ view, text, image, input, button, scroll-view { box-sizing: border-box; }
 }
 
 .txn-row + .txn-row { border-top: 2rpx solid var(--border-light); }
-.txn-row:active { background-color: #f5f6f3; }
+.txn-row:active { background-color: var(--bdL); }
 
 .txn-icon {
   width: 76rpx;
@@ -612,7 +613,7 @@ view, text, image, input, button, scroll-view { box-sizing: border-box; }
   min-height: 96rpx;
 }
 
-.picker-row:active { background-color: #f5f6f3; }
+.picker-row:active { background-color: var(--bdL); }
 
 .picker-row .pr-icon { font-size: 48rpx; flex-shrink: 0; }
 
@@ -813,7 +814,7 @@ view, text, image, input, button, scroll-view { box-sizing: border-box; }
 }
 
 .menu-item:last-child { border-bottom: none; }
-.menu-item:active { background-color: #f5f6f3; }
+.menu-item:active { background-color: var(--bdL); }
 
 .mi-icon-wrap {
   width: 64rpx;
@@ -1116,7 +1117,7 @@ view, text, image, input, button, scroll-view { box-sizing: border-box; }
 
 .logout-dialog {
   width: 560rpx;
-  background-color: #ffffff;
+  background-color: var(--surface);
   border-radius: var(--radius-lg);
   padding: 48rpx 40rpx 32rpx;
 }
@@ -1353,7 +1354,9 @@ view, text, image, input, button, scroll-view { box-sizing: border-box; }
 .spotlight--focused { animation: spotlightPulse 1.6s var(--ease) 2; }
 
 /* === 深色模式 === */
-page.theme-dark {
+/* 小程序原生 page 选择器 + View 容器 class 双兼容 */
+page.theme-dark,
+.theme-dark {
   --bg:    #1A1C19; --srf: #252825; --srfH: #2C2F2C; --srfSoft: #2C2F2C;
   --fg:    #E8EAE5; --fg2: #A5A8A3; --fg3: #6E716C;
   --bd:    #3A3D39; --bdL: #303330; --bdH: #454845;
@@ -1368,4 +1371,28 @@ page.theme-dark {
   --sh2: 0 4rpx 16rpx rgba(0, 0, 0, 0.3);
   --sh3: 0 16rpx 48rpx rgba(0, 0, 0, 0.4);
   --sh4: 0 32rpx 96rpx rgba(0, 0, 0, 0.5);
+
+  /* 兼容别名重绑定（指向暗色基础变量）
+     关键：.theme-dark 仅挂在 PageLayout 根 View 而非 page 节点，
+     page{} 内定义的 var() 别名在微信小程序中不会随后代 class 动态重解析，
+     故在此处重新绑定别名，确保后代组件在暗色下取到暗色值 */
+  --surface:      var(--srf);
+  --surface-soft: var(--srfSoft);
+  --bg-secondary: var(--srfH);
+  --fg-2:         var(--fg2);
+  --fg-3:         var(--fg3);
+  --border:       var(--bd);
+  --border-light: var(--bdL);
+  --primary:      var(--pr);
+  --primary-dark: var(--prH);
+  --primary-bg:   var(--prBg);
+  --primary-grad: linear-gradient(135deg, #45B7A7 0%, #2D9D8A 100%);
+  --income:       var(--inc);
+  --income-bg:    var(--incBg);
+  --expense:      var(--exp);
+  --expense-bg:   var(--expBg);
+  --radius-sm: 16rpx;
+  --radius-md: 24rpx;
+  --radius-lg: 36rpx;
+  --radius-xl: 48rpx;
 }

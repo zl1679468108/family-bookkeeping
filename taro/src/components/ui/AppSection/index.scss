@@ -1,5 +1,5 @@
 .app-section {
-  background: var(--surface-soft, #fafaf7);
+  background: var(--surface);
   border: 1rpx solid var(--border, #e0e2dd);
   border-radius: 28rpx;
   padding: 28rpx;
@@ -43,6 +43,13 @@
   font-size: 22rpx;
   color: var(--fg-3, #8b8e89);
   line-height: 1.35;
+}
+
+.app-section__header-right {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  min-width: 0;
 }
 
 .app-section__action {

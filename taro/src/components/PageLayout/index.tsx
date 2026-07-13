@@ -17,7 +17,9 @@
 import { ReactNode, useCallback } from "react";
 import { View, Text, ScrollView } from "@tarojs/components";
 import Taro, { useDidShow } from "@tarojs/taro";
-import PullRefresh from "../PullRefresh";
+import LoadingOverlay from "../ui/LoadingOverlay";
+import { useTheme } from "../../context/ThemeContext";
+import { useNavBarTheme } from "../../hooks/useNavBarTheme";
 import "./index.scss";
 
 interface PageLayoutProps {
@@ -46,6 +48,8 @@ interface PageLayoutProps {
   loadingMore?: boolean;
   /** 上拉加载阈值（距底部多少 rpx 触发） */
   lowerThreshold?: number;
+  /** 滚动回调（透传 ScrollView 的 scrollTop，用于吸顶阴影等） */
+  onScroll?: (scrollTop: number) => void;
 }
 
 export default function PageLayout({
@@ -62,7 +66,14 @@ export default function PageLayout({
   hasMore = true,
   loadingMore: loadingMoreProp,
   lowerThreshold = 100,
+  onScroll,
 }: PageLayoutProps) {
+  const { isDark } = useTheme();
+  const themeClass = isDark ? "theme-dark" : "";
+
+  // 同步微信原生导航栏（标题栏）配色到当前主题
+  useNavBarTheme();
+
   const handleScrollToLower = useCallback(() => {
     if (!onLoadMore || !hasMore || loadingMoreProp) return;
     onLoadMore();
@@ -74,13 +85,13 @@ export default function PageLayout({
 
   const enableRefresh = Boolean(onRefresh);
 
-  // Loading 态
+  // Loading 态（遮罩覆盖内容区，保留吸顶 header）
   if (loading) {
     return (
-      <View className={`min-h-screen bg-bg flex flex-col page-layout page-layout--loading ${className}`}>
+      <View className={`min-h-screen bg-bg flex flex-col page-layout ${themeClass} ${className}`}>
         {header}
-        <View className={`page-layout-content ${contentClassName}`}>
-          <PullRefresh loading text={loadingText || "加载中…"} />
+        <View className={`page-layout-content page-layout-content--overlay ${contentClassName}`}>
+          <LoadingOverlay tip={loadingText || "加载中…"} />
         </View>
       </View>
     );
@@ -89,13 +100,17 @@ export default function PageLayout({
   // 下拉刷新 + 上拉加载
   if (enableRefresh || onLoadMore) {
     return (
-      <View className={`min-h-screen bg-bg flex flex-col page-layout ${className}`}>
+      <View className={`min-h-screen bg-bg flex flex-col page-layout ${themeClass} ${className}`}>
         {header}
         <ScrollView
           className={`flex-1 overflow-y-auto page-layout-scroll ${contentClassName}`}
           scrollY
+          showScrollbar={false}
           refresherEnabled={enableRefresh}
           refresherTriggered={refreshing}
+          onScroll={(e) => {
+            if (onScroll) onScroll(e.detail.scrollTop);
+          }}
           onRefresherRefresh={() => {
             if (onRefresh) {
               const r = onRefresh();
@@ -132,7 +147,7 @@ export default function PageLayout({
   // 普通滚动容器
   if (scrollable) {
     return (
-      <View className={`min-h-screen bg-bg flex flex-col page-layout ${className}`}>
+      <View className={`min-h-screen bg-bg flex flex-col page-layout ${themeClass} ${className}`}>
         {header}
         <View className={`flex-1 overflow-y-auto page-layout-content ${contentClassName}`}>
           {children}
@@ -142,7 +157,7 @@ export default function PageLayout({
   }
 
   return (
-    <View className={`min-h-screen bg-bg flex flex-col page-layout ${className}`}>
+    <View className={`min-h-screen bg-bg flex flex-col page-layout ${themeClass} ${className}`}>
       {header}
       <View className={`page-layout-content ${contentClassName}`}>{children}</View>
     </View>

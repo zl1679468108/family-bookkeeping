@@ -1,12 +1,20 @@
 /* PageLayout — 页面布局容器（使用系统默认导航栏） */
 .page-layout {
   width: 100%;
-  min-height: 100vh;
-  background:
-    radial-gradient(circle at 0 0, rgba(199, 143, 67, 0.08), transparent 34%),
-    linear-gradient(180deg, #fbfbf7 0%, var(--bg, #f5f6f1) 42%);
+  /* 关键：锁死高度（而非 min-height），让内部 ScrollView 拿到固定高度、在内部滚动。
+     否则容器被长列表撑开 → 退化成页面整体滚动 → header 吸顶失效、随列表滚走。 */
+  height: 100vh;
+  overflow: hidden;
+  background-color: var(--bg);
   display: flex;
   flex-direction: column;
+}
+
+/* 浅色模式装饰渐变（仅亮色） */
+.page-layout:not(.theme-dark) {
+  background:
+    radial-gradient(circle at 0 0, rgba(199, 143, 67, 0.08), transparent 34%),
+    linear-gradient(180deg, #fbfbf7 0%, var(--bg, #F6F7F4) 42%);
 }
 
 .page-layout-content,
@@ -14,7 +22,7 @@
   width: 100%;
   flex: 1;
   overflow-y: auto;
-  padding: calc(24rpx + env(safe-area-inset-top, 0)) 32rpx calc(220rpx + env(safe-area-inset-bottom, 0));
+  padding: calc(24rpx + env(safe-area-inset-top, 0)) 32rpx calc(140rpx + env(safe-area-inset-bottom, 0));
   box-sizing: border-box;
 }
 
@@ -37,8 +45,8 @@
   width: 32rpx;
   height: 32rpx;
   border-radius: 50%;
-  border: 4rpx solid #d4d7cf;
-  border-top-color: #2d9d8a;
+  border: 4rpx solid var(--bdL);
+  border-top-color: var(--pr);
   animation: page-loadmore-spin 0.8s linear infinite;
 }
 
@@ -48,9 +56,15 @@
 
 .page-loadmore-text {
   font-size: 24rpx;
-  color: #7a7f7a;
+  color: var(--fg-3);
   font-weight: 500;
 }
 
 .page-loadmore-text--hint { opacity: 0.85; }
 .page-loadmore-text--end { opacity: 0.6; letter-spacing: 2rpx; }
+
+/* loading 遮罩分支：让内容区成为定位上下文，覆盖 LoadingOverlay */
+.page-layout-content--overlay {
+  position: relative;
+  overflow: hidden;
+}

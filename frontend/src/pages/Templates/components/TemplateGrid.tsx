@@ -2,6 +2,7 @@ import React from 'react'
 import { CardHeader } from '../../../components/ui/Card'
 import { Button } from '../../../components/ui/Button'
 import { Skeleton } from '../../../components/ui/Skeleton'
+import { EmptyState } from '../../../components/ui/EmptyState'
 import { renderCategoryIcon } from '../../../utils/renderCategoryIcon'
 import { formatAmount } from '../../../utils/common'
 
@@ -90,8 +91,14 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
           </div>
         }
       />
-      <div className={`tpl-grid${sortingMode ? ' sort-mode' : ''}`}>
-        {orderedList.map((t, idx) => {
+      {orderedList.length === 0 ? (
+        <EmptyState
+          title="还没有交易模板"
+          description="创建模板后，记账时可一键套用，省去重复填写。"
+        />
+      ) : (
+        <div className={`tpl-grid${sortingMode ? ' sort-mode' : ''}`}>
+          {orderedList.map((t, idx) => {
           const cat = getCategoryInfo(t.category_id)
           const isDragging = dragIndex === idx
           return (
@@ -125,7 +132,8 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
             </div>
           )
         })}
-      </div>
+        </div>
+      )}
     </>
   )
 }

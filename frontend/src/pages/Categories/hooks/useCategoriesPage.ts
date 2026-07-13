@@ -76,6 +76,9 @@ export function useCategoriesPage() {
       notify({ type: 'success', message: '分类已创建' })
       setModalOpen(false)
     },
+    onError: (err: any) => {
+      notify({ type: 'error', message: err?.message || '创建失败' })
+    },
   })
 
   const updateMutation = useMutation({
@@ -89,6 +92,9 @@ export function useCategoriesPage() {
       setEditingCategory(null)
       setSelectedCategory(null)
     },
+    onError: (err: any) => {
+      notify({ type: 'error', message: err?.message || '更新失败' })
+    },
   })
 
   const deleteMutation = useMutation({
@@ -99,6 +105,9 @@ export function useCategoriesPage() {
       setDeleteTarget(null)
       setShowDetail(false)
       setSelectedCategory(null)
+    },
+    onError: (err: any) => {
+      notify({ type: 'error', message: err?.message || '删除失败' })
     },
   })
 

@@ -1,66 +1,361 @@
-/* 预算进度 */
-.budget-list {
-  display: flex;
-  flex-direction: column;
-  gap: 20rpx;
-}
+/* ═════════════════════════════════
+   Home — 首页样式（v2）
+   对齐 PC Dashboard 视觉风格
+   ═════════════════════════════════ */
 
+/* ── 主内容区间距 ── */
 .home-content {
-  padding: calc(18rpx + env(safe-area-inset-top, 0)) 32rpx calc(200rpx + env(safe-area-inset-bottom, 0));
+  padding: calc(18rpx + env(safe-area-inset-top, 0)) 32rpx calc(32rpx + env(safe-area-inset-bottom, 0));
 }
 
-.budget-item {
-  display: flex;
-  flex-direction: column;
-  gap: 12rpx;
+/* 三列指标 — 统一视觉 */
+.home-metrics {
+  margin-bottom: 24rpx;
 }
 
-.budget-info {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.budget-name {
-  font-size: 28rpx;
-  color: var(--fg);
-  font-weight: 500;
-}
-
-.budget-amount {
-  font-size: 26rpx;
-  color: var(--fg-2);
-
-  &.over {
-    color: var(--expense);
-    font-weight: 600;
-  }
-}
-
-.budget-bar-wrap {
-  height: 12rpx;
-  background-color: var(--border-light);
-  border-radius: 6rpx;
+/* ═════════════════════════════════
+   三栏统计卡片 — 首页专属样式
+   结余：绿色实心底 | 收入：白底+绿顶边 | 支出：白底+红顶边
+   ═════════════════════════════════ */
+.home-metrics .metric-card {
+  position: relative;
+  padding: 28rpx 24rpx;
+  border-radius: 20rpx;
+  border: none;
+  box-shadow: none;
   overflow: hidden;
 }
 
-.budget-bar {
-  height: 100%;
-  background-color: var(--primary);
-  border-radius: 6rpx;
-  transition: width 0.3s ease;
+/* ── 本月结余：品牌绿实心背景 + 白字 ── */
+.home-metrics .metric-card--default {
+  background: linear-gradient(135deg, #42b8a3 0%, #2d9d8a 100%);
+}
 
-  &.over {
-    background-color: var(--expense);
+.home-metrics .metric-card--default .metric-card__label {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.home-metrics .metric-card--default .metric-card__value {
+  color: #ffffff;
+  font-size: 40rpx;
+}
+
+.home-metrics .metric-card--default .metric-card__meta {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* ── 本月收入：白底 + 绿色顶边 ── */
+.home-metrics .metric-card--income {
+  background: var(--surface);
+  border-top: 5rpx solid var(--inc, #3ba272);
+}
+
+.home-metrics .metric-card--income .metric-card__value {
+  color: var(--inc, #3ba272);
+  font-size: 36rpx;
+}
+
+/* ── 本月支出：白底 + 红色顶边 ── */
+.home-metrics .metric-card--expense {
+  background: var(--surface);
+  border-top: 5rpx solid var(--exp, #e06055);
+}
+
+.home-metrics .metric-card--expense .metric-card__value {
+  color: var(--exp, #e06055);
+  font-size: 36rpx;
+}
+
+/* 标签字号 */
+.home-metrics .metric-card__label {
+  font-size: 24rpx;
+  margin-bottom: 12rpx;
+  letter-spacing: 0.5rpx;
+}
+
+/* 辅助信息 */
+.home-metrics .metric-card__meta {
+  font-size: 22rpx;
+  margin-top: 8rpx;
+}
+
+/* ═════════════════════════════════
+   预算大卡片
+   ═════════════════════════════════ */
+.budget-card {
+  background: var(--surface);
+  border: 1rpx solid var(--bd, #e0e2dd);
+  border-radius: 24rpx;
+  padding: 28rpx 28rpx 20rpx;
+  margin-bottom: 24rpx;
+  box-shadow: 0 4rpx 16rpx rgba(36, 49, 45, 0.04);
+}
+
+/* 卡片头部：标题 + 总额 */
+.budget-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 18rpx;
+}
+
+.budget-card__title {
+  font-size: 28rpx;
+  font-weight: 700;
+  color: var(--fg, #1a1c19);
+}
+
+.budget-card__total {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: var(--pr, #2d9d8a);
+}
+
+.budget-card__total-sep {
+  color: var(--fg-3, #8b8e89);
+  font-weight: 400;
+}
+
+/* 总进度条 */
+.budget-card__bar-wrap {
+  height: 12rpx;
+  background: var(--bdL, #f0f0ec);
+  border-radius: 6rpx;
+  overflow: hidden;
+  margin-bottom: 20rpx;
+}
+
+.budget-card__bar {
+  height: 100%;
+  background: linear-gradient(90deg, #2d9d8a, #45b7a7);
+  border-radius: 6rpx;
+  transition: width 0.4s ease;
+}
+
+.budget-card__bar--over {
+  background: linear-gradient(90deg, #e06055, #f08075);
+}
+
+/* 分类明细列表 */
+.budget-card__list {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.budget-card__row {
+  display: flex;
+  align-items: center;
+  gap: 14rpx;
+}
+
+.budget-card__row-icon {
+  width: 48rpx;
+  height: 48rpx;
+  border-radius: 14rpx;
+  background: var(--bg, #f6f7f4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.budget-card__row-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+}
+
+.budget-card__row-name {
+  font-size: 25rpx;
+  font-weight: 600;
+  color: var(--fg, #1a1c19);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.budget-card__row-amt {
+  font-size: 22rpx;
+  color: var(--fg-3, #8b8e89);
+}
+
+.budget-card__row-amt--over {
+  color: var(--exp, #e06055);
+  font-weight: 600;
+}
+
+.budget-card__row-bar-wrap {
+  width: 100rpx;
+  height: 8rpx;
+  background: var(--bdL, #f0f0ec);
+  border-radius: 4rpx;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.budget-card__row-bar {
+  height: 100%;
+  background: var(--pr, #2d9d8a);
+  border-radius: 4rpx;
+  transition: width 0.3s ease;
+}
+
+.budget-card__row-bar--over {
+  background: var(--exp, #e06055);
+}
+
+.budget-card__row-pct {
+  width: 56rpx;
+  text-align: right;
+  font-size: 21rpx;
+  color: var(--fg-3, #8b8e89);
+  flex-shrink: 0;
+}
+
+.budget-card__row-pct--over {
+  color: var(--exp, #e06055);
+  font-weight: 600;
+}
+
+/* 无预算时的空态 */
+.budget-card__empty {
+  padding: 20rpx 0 8rpx;
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+}
+
+/* budget-card__empty-link 仍被 EmptyState action 复用 */
+.budget-card__empty-link {
+  font-size: 25rpx;
+  color: var(--pr, #2d9d8a);
+  font-weight: 600;
+}
+
+/* ═════════════════════════════════
+   最近交易列表（卡片包裹式 v4）
+   外层 AppSection 提供 28rpx 卡片内边距
+   ═════════════════════════════════ */
+
+.home-txn-list {
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── 单行交易：图标 | 信息 + 金额 ── */
+.home-txn-row {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+  padding: 18rpx 0;
+  border-bottom: 1rpx solid var(--bdL, #f0f0ec);
+
+  &:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+
+  &:first-child {
+    padding-top: 0;
+  }
+
+  &:active {
+    background: var(--surface);
+    border-radius: 16rpx;
+    margin: 0 -12rpx;
+    padding-left: 12rpx;
+    padding-right: 12rpx;
   }
 }
 
-.budget-percentage {
-  text-align: right;
-  font-size: 24rpx;
-  color: var(--fg-3);
+/* ── 图标容器：圆角方形，按类型着色 ── */
+.home-txn-icon {
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: 18rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  overflow: hidden;
 
-  &.over {
-    color: var(--expense);
+  &--exp {
+    background: rgba(224, 96, 85, 0.08);
   }
+
+  &--inc {
+    background: rgba(59, 162, 114, 0.08);
+  }
+}
+
+/* 无图标时的文字 fallback：支 / 收 */
+.home-txn-icon__fallback {
+  font-size: 26rpx;
+  font-weight: 700;
+  color: var(--fg-2, #6e716c);
+}
+
+/* 图标内容填满容器（图片按 aspectFit = contain 居中，emoji 放大到容器比例） */
+.home-txn-icon > Image {
+  width: 100% ! important;
+  height: 100% ! important;
+  display: block ! important;
+  object-fit: contain ! important;
+}
+
+.home-txn-icon > Text:not(.home-txn-icon__fallback) {
+  font-size: 42rpx ! important;
+  line-height: 1 ! important;
+}
+
+/* ── 文字区域 ── */
+.home-txn-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+}
+
+/* 交易名称 / 描述 — 最多显示两行 */
+.home-txn-name {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: var(--fg, #1a1c19);
+  line-height: 1.4;
+
+  /* 两行截断 */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+/* 分类 · 日期 */
+.home-txn-meta {
+  font-size: 23rpx;
+  color: var(--fg-3, #a5a8a3);
+  line-height: 1.4;
+  margin-top: 2rpx;
+}
+
+/* ── 金额 ── */
+.home-txn-amt {
+  font-size: 28rpx;
+  font-weight: 700;
+  flex-shrink: 0;
+  text-align: right;
+  line-height: 1.4;
+}
+
+.home-txn-amt--exp {
+  color: var(--exp, #e06055);
+}
+
+.home-txn-amt--inc {
+  color: var(--inc, #3ba272);
 }

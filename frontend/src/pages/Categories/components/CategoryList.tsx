@@ -1,5 +1,7 @@
 import React from 'react'
 import { renderCategoryIcon } from '../../../utils/renderCategoryIcon'
+import { EmptyState } from '../../../components/ui/EmptyState'
+import { Button } from '../../../components/ui/Button'
 import type { Category } from '../../../types/category'
 
 interface CategoryListProps {
@@ -12,6 +14,7 @@ interface CategoryListProps {
   handleDragEnd: () => void
   setSelectedCategory: (category: Category) => void
   setShowDetail: (show: boolean) => void
+  onAdd?: () => void
 }
 
 export const CategoryList: React.FC<CategoryListProps> = ({
@@ -24,7 +27,24 @@ export const CategoryList: React.FC<CategoryListProps> = ({
   handleDragEnd,
   setSelectedCategory,
   setShowDetail,
+  onAdd,
 }) => {
+  if (orderedList.length === 0) {
+    return (
+      <EmptyState
+        title="暂无分类"
+        description="添加第一个分类，让每一笔收支都有清晰的归类。"
+        action={
+          onAdd ? (
+            <Button variant="primary" size="sm" onClick={onAdd}>
+              + 新增分类
+            </Button>
+          ) : undefined
+        }
+      />
+    )
+  }
+
   return (
     <div className={`cat-grid${sortingMode ? ' sort-mode' : ''}`}>
       {orderedList.map((cat, idx) => {

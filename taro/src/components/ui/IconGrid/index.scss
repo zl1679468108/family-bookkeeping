@@ -25,9 +25,24 @@
       background: var(--prBg);
       box-shadow: 0 0 0 4rpx rgba(45,157,138,0.15);
     }
+    &--labeled {
+      aspect-ratio: auto;
+      padding: 16rpx 8rpx 12rpx;
+      min-height: 120rpx;
+    }
   }
   &__emoji { font-size: 48rpx; line-height: 1; }
   &__img { width: 56rpx; height: 56rpx; }
+  &__label {
+    font-size: 22rpx;
+    color: var(--fg2);
+    line-height: 1.2;
+    margin-top: 4rpx;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 100%;
+  }
 
   &__del {
     position: absolute;

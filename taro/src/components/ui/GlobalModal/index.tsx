@@ -8,6 +8,7 @@
 import { ReactNode } from "react";
 import { View, Text, ScrollView } from "@tarojs/components";
 import { useModalZIndex } from "./useModalZIndex";
+import SheetHeader from "../../SheetHeader";
 import "./index.scss";
 
 export type GlobalModalType = "confirm" | "detail" | "modal";
@@ -102,19 +103,15 @@ export function GlobalModal({
         </View>
       ) : (
         /* detail / modal: 底部 sheet */
-        <View className={`ui-modal__dialog ui-modal__dialog--sheet ui-modal__dialog--${size}`}>
-          <View className="ui-modal__sheet">
-            {title || closable ? (
-              <View className="ui-modal__header">
-                {title ? <Text className="ui-modal__title">{title}</Text> : <Text />}
-                {closable ? (
-                  <View className="ui-modal__close" onClick={onClose}>
-                    <Text className="ui-modal__close-icon">×</Text>
-                  </View>
-                ) : null}
-              </View>
-            ) : null}
-            {description ? <Text className="ui-modal__desc">{description}</Text> : null}
+          <View className={`ui-modal__dialog ui-modal__dialog--sheet ui-modal__dialog--${size}`}>
+            <View className="ui-modal__sheet">
+              {title || closable ? (
+                <SheetHeader
+                  title={typeof title === "string" ? title : ""}
+                  onClose={onClose}
+                />
+              ) : null}
+              {description ? <Text className="ui-modal__desc">{description}</Text> : null}
             <ScrollView scrollY className={`ui-modal__body ${bodyClassName}`}>
               {children}
             </ScrollView>

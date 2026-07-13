@@ -13,7 +13,7 @@ export interface MetricItem {
 
 interface MetricGridProps {
   items: MetricItem[];
-  columns?: 2 | 3;
+  columns?: 2 | 3 | 4;
   className?: string;
 }
 

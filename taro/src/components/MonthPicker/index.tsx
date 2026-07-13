@@ -44,7 +44,7 @@ export default function MonthPicker({
       >
           <View className="month-picker-inner">
             <Text className="month-picker-text">
-              {year}年{month}月
+              {year} 年 {String(month).padStart(2, "0")} 月
             </Text>
             <Text className={`month-picker-chevron ${light ? "light" : ""}`}>
               ▼

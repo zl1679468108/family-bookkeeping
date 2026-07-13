@@ -3,13 +3,14 @@
  * Base URL from TARO_APP_API_BASE_URL env.
  */
 import Taro from "@tarojs/taro";
-import type { ApiEnvelope, ApiErrorPayload } from "../types";
+import type { ApiEnvelope, ApiErrorPayload, UserProfile } from "../types";
 
 export const API_BASE_URL: string =
   (typeof process !== "undefined" && process.env?.TARO_APP_API_BASE_URL) ||
   "http://localhost:3000/api";
 
-const AUTH_TOKEN_KEY = "auth_token";
+const AUTH_TOKEN_KEY = "auth_token"; // 访问令牌（短，请求携带）
+const AUTH_REFRESH_TOKEN_KEY = "auth_refresh_token"; // 刷新令牌（长，仅用于换发）
 const BOOK_ID_KEY = "current_book_id";
 
 /** Custom API error class */
@@ -26,28 +27,77 @@ export class ApiError extends Error {
 }
 
 // ---- Token helpers (T-M11: 内存缓存，避免每次请求同步读存储) ----
-let _tokenCache: string | null = null;
+let _tokenCache: string | null = null; // 访问令牌（access）
+let _refreshCache: string | null = null; // 刷新令牌（refresh）
 let _bookIdCache: string | null = null;
 
 /** T-C3: 从 Storage 回填内存缓存，解决冷启动后 hasToken() 恒为 false */
 export function hydrateAuthFromStorage(): void {
   try {
-    _tokenCache = Taro.getStorageSync('auth_token') || null;
+    _tokenCache = Taro.getStorageSync(AUTH_TOKEN_KEY) || null;
   } catch {}
   try {
-    _bookIdCache = Taro.getStorageSync('current_book_id') || null;
+    _refreshCache = Taro.getStorageSync(AUTH_REFRESH_TOKEN_KEY) || null;
+  } catch {}
+  try {
+    _bookIdCache = Taro.getStorageSync(BOOK_ID_KEY) || null;
   } catch {}
 }
 
 export const getToken = (): string | null => _tokenCache;
+export const getRefreshToken = (): string | null => _refreshCache;
 export const hasToken = (): boolean => Boolean(_tokenCache);
+
+/** 持久化访问令牌 + 刷新令牌（登录/注册/刷新成功后调用） */
+export const storeTokens = (accessToken: string, refreshToken: string): void => {
+  _tokenCache = accessToken;
+  _refreshCache = refreshToken;
+  try { Taro.setStorageSync(AUTH_TOKEN_KEY, accessToken); } catch {}
+  try { Taro.setStorageSync(AUTH_REFRESH_TOKEN_KEY, refreshToken); } catch {}
+};
+
+/** 仅更新访问令牌（刷新后调用） */
+export const storeAccessToken = (accessToken: string): void => {
+  _tokenCache = accessToken;
+  try { Taro.setStorageSync(AUTH_TOKEN_KEY, accessToken); } catch {}
+};
+
+/** 兼容别名：写入访问令牌（单值场景） */
 export const storeToken = (token: string): void => {
   _tokenCache = token;
   try { Taro.setStorageSync(AUTH_TOKEN_KEY, token); } catch {}
 };
+
 export const clearStoredToken = (): void => {
   _tokenCache = null;
+  _refreshCache = null;
   try { Taro.removeStorageSync(AUTH_TOKEN_KEY); } catch {}
+  try { Taro.removeStorageSync(AUTH_REFRESH_TOKEN_KEY); } catch {}
+};
+
+// ---- 自动刷新（single-flight）----
+// 并发 401 共享同一个刷新 Promise，避免刷新风暴；刷新成功后重试原请求
+let refreshPromise: Promise<{ accessToken: string; refreshToken: string }> | null = null;
+
+const tryRefresh = (): Promise<{ accessToken: string; refreshToken: string }> => {
+  if (!refreshPromise) {
+    refreshPromise = (async () => {
+      const refreshToken = getRefreshToken();
+      if (!refreshToken) {
+        throw new ApiError("登录状态已失效，请重新登录", 401);
+      }
+      const data = await request<{ user: UserProfile; accessToken: string; refreshToken: string }>(
+        "POST",
+        "/auth/refresh",
+        { data: { refreshToken }, silent: true, _internalRefresh: true },
+      );
+      storeTokens(data.accessToken, data.refreshToken);
+      return data;
+    })().finally(() => {
+      refreshPromise = null;
+    });
+  }
+  return refreshPromise;
 };
 
 export const getStoredBookId = (): string | null => _bookIdCache;
@@ -69,6 +119,8 @@ interface RequestOptions {
   requiresAuth?: boolean;
   /** T-M10: AbortController signal，用于取消请求 */
   signal?: AbortSignal;
+  /** 内部：标记刷新请求本身，避免 401 时递归触发自动刷新 */
+  _internalRefresh?: boolean;
 }
 
 async function request<T>(
@@ -83,6 +135,7 @@ async function request<T>(
   let silent = false;
   let requiresAuth = false; // 默认不需要认证（与PC端保持一致），需要认证的接口显式指定
   let signal: AbortSignal | undefined;
+  let internalRefresh = false; // 内部：标记刷新请求本身，避免递归触发自动刷新
 
   if (arg2 !== undefined) {
     if (
@@ -96,6 +149,7 @@ async function request<T>(
       silent = opts.silent ?? false;
       requiresAuth = opts.requiresAuth ?? requiresAuth;
       signal = opts.signal;
+      internalRefresh = opts._internalRefresh ?? false;
     } else {
       // 直接作为请求体 data
       data = arg2;
@@ -160,6 +214,21 @@ async function request<T>(
     const apiError = new ApiError(message, res.statusCode, errorData?.code);
 
     if (res.statusCode === 401) {
+      // 双 Token：尝试用 refresh 换发新的 access，成功则重试原请求
+      if (!internalRefresh && getRefreshToken()) {
+        try {
+          await tryRefresh();
+          // 用新 access token 重试（_internalRefresh 防止刷新请求自身递归）
+          return request<T>(method, url, {
+            data,
+            silent,
+            requiresAuth,
+            _internalRefresh: true,
+          });
+        } catch {
+          // 刷新失败，继续走下面的 401 处理
+        }
+      }
       if (!silent) {
         clearStoredToken();
         // Don't redirect if we're already on an auth page (login/register/forgot-password)

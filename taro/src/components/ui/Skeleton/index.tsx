@@ -1,7 +1,6 @@
 /**
  * Skeleton — 骨架屏（对齐 PC Skeleton + 预设）
  */
-import { ReactNode } from "react";
 import { View } from "@tarojs/components";
 import "./index.scss";
 

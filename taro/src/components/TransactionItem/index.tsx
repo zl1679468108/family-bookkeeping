@@ -1,6 +1,8 @@
 /**
- * TransactionItem — single transaction row with swipe-to-delete.
- * v3.0: updated colors (expense=terracotta, income=sage green), flat style.
+ * TransactionItem — 交易条目（v4.0 重设计）
+ * 布局: [图标] 分类名        金额
+ *       描述 · [品牌]标签   日期
+ * 使用 CSS 变量，支持滑动删除
  */
 import { useRef, useState, useCallback } from "react";
 import { View, Text, Image } from "@tarojs/components";
@@ -13,7 +15,6 @@ export interface TransactionItemProps {
   brand?: string;
   amount: number;
   type: "income" | "expense";
-  date?: string;
   onClick?: () => void;
   onDelete?: () => void;
   onLongPress?: () => void;
@@ -29,7 +30,6 @@ export default function TransactionItem({
   brand,
   amount,
   type,
-  date,
   onClick,
   onDelete,
   onLongPress,
@@ -77,7 +77,7 @@ export default function TransactionItem({
 
   return (
     <View className="txi-wrapper">
-      {/* Delete action behind */}
+      {/* 滑动删除按钮 */}
       {onDelete && (
         <View
           className={`txi-delete ${swiped ? "txi-delete--show" : ""}`}
@@ -87,7 +87,7 @@ export default function TransactionItem({
         </View>
       )}
 
-      {/* Main content */}
+      {/* 主内容区 */}
       <View
         className={`txi-main ${swiped ? "txi-main--swiped" : ""}`}
         onClick={() => {
@@ -102,36 +102,46 @@ export default function TransactionItem({
         onTouchMove={onDelete ? handleTouchMove : undefined}
         onTouchEnd={onDelete ? handleTouchEnd : undefined}
       >
-        <View
-          className={`txi-icon ${isExpense ? "txi-icon--expense" : "txi-icon--income"}`}
-        >
-          {icon && (icon.startsWith("http://") || icon.startsWith("https://")) ? (
-            <Image className="txi-icon-img" src={icon} mode="aspectFit" />
-          ) : (
-            <Text className="txi-icon-text">{icon}</Text>
-          )}
+        {/* 左侧：分类图标 */}
+        <View className="txi-left">
+          <View className={`txi-icon ${isExpense ? "txi-icon--expense" : "txi-icon--income"}`}>
+            {icon && (icon.startsWith("http://") || icon.startsWith("https://")) ? (
+              <Image className="txi-icon-img" src={icon} mode="aspectFit" />
+            ) : (
+              <Text className="txi-icon-text">{icon}</Text>
+            )}
+          </View>
         </View>
 
+        {/* 中间：信息 */}
         <View className="txi-body">
-          <Text className="txi-name">{categoryName}</Text>
-          <Text className="txi-meta">
-            {description || ""}
-            {description && brand ? " · " : ""}
-            {brand || ""}
-            {(description || brand) && date ? " · " : ""}
-            {date || ""}
-          </Text>
+          <View className="txi-top-line">
+            <Text className="txi-name">{categoryName}</Text>
+            {brand && (
+              <Text className="txi-brand-tag">{brand}</Text>
+            )}
+          </View>
+          <View className="txi-bottom-line">
+            {(description) && (
+              <Text className="txi-desc">{description}</Text>
+            )}
+            {hasImage && (
+              <Text className="txi-img-dot">·</Text>
+            )}
+            {hasImage && (
+              <Text className="txi-img-hint">附件</Text>
+            )}
+          </View>
         </View>
 
+        {/* 右侧：金额 */}
         <View className="txi-right">
-          <Text
-            className={`txi-amount ${isExpense ? "txi-amount--expense" : "txi-amount--income"}`}
-          >
+          <Text className={`txi-amount ${isExpense ? "txi-amount--expense" : "txi-amount--income"}`}>
             {amountStr}
           </Text>
-          {hasImage ? <Text className="txi-image-badge">附件</Text> : null}
         </View>
       </View>
     </View>
   );
 }
+

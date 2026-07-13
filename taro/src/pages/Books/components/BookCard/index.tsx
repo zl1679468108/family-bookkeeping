@@ -9,6 +9,7 @@ import { useMutation } from "@tanstack/react-query";
 import { fetchBookMembers, inviteMember } from "../../../../services/booksApi";
 import { useManualQuery } from "../../../../hooks/useManualQuery";
 import type { Book } from "../../../../types";
+import { Spinner } from "../../../../components/ui";
 import "./index.scss";
 
 interface BookCardProps {
@@ -53,6 +54,9 @@ export default function BookCard({
         title: err?.message || "邀请失败",
         icon: "error",
       });
+      // 失败时关闭邀请输入，避免卡住
+      setShowInvite(false);
+      setInviteEmail("");
     },
   });
 
@@ -194,14 +198,16 @@ export default function BookCard({
                   focus
                 />
                 <View
-                  className="book-card__invite-btn"
+                  className={`book-card__invite-btn ${inviteMut.isPending ? "ui-spin-row" : ""}`}
                   onClick={() => {
+                    if (inviteMut.isPending) return;
                     if (inviteEmail.trim())
                       inviteMut.mutate({ email: inviteEmail.trim() });
                   }}
                 >
+                  {inviteMut.isPending && <Spinner />}
                   <Text className="book-card__invite-btn-text">
-                    {inviteMut.isPending ? "..." : "添加"}
+                    {inviteMut.isPending ? "添加中" : "添加"}
                   </Text>
                 </View>
                 <View

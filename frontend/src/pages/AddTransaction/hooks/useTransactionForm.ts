@@ -224,8 +224,8 @@ export function useTransactionForm() {
       }
       handleReset()
       navigate('/transactions')
-    } catch {
-      notify({ type: 'error', message: isEditMode ? '更新失败' : '保存失败' })
+    } catch (err: any) {
+      notify({ type: 'error', message: err?.message || (isEditMode ? '更新失败' : '保存失败') })
     }
   })
 

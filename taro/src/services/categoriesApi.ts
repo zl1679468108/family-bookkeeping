@@ -39,9 +39,9 @@ export const deleteCategory = async (id: string): Promise<void> => {
   return apiDelete<void>(`${CATEGORIES_PATH}/${id}`, { requiresAuth: true });
 };
 
-/** Reorder categories (PATCH /categories/reorder) */
+/** Reorder categories (PATCH /categories/reorder with { orders: [...]) */
 export const reorderCategories = async (
   orders: { id: string; sort_order: number }[],
 ): Promise<void> => {
-  return apiPatch<void>(`${CATEGORIES_PATH}/reorder`, orders);
+  return apiPatch<void>(`${CATEGORIES_PATH}/reorder`, { data: { orders }, requiresAuth: true });
 };

@@ -1,17 +1,20 @@
 /**
  * Profile — 我的
- * 菜单顺序：年报 / 日历 / 地图 / 账本 / 分类 / 模版 / 预算 / 切换账号 / 退出登录
+ * 菜单：切换主题 / 切换账号 / 关于静记 / 退出登录
+ * （个人信息入口 = 顶部 Header 卡片点击）
  */
 import { useState, useEffect } from "react";
 import { View, Text, Image, Input } from "@tarojs/components";
 import Taro from "@tarojs/taro";
 import { useAuth } from "../../context/AuthContext";
+import { useTheme } from "../../context/ThemeContext";
 import { getCaptcha } from "../../services/authApi";
 import PageLayout from "../../components/PageLayout";
 import { MenuList } from "../../components/ui";
 import {
   getSavedAccounts,
   getAccountToken,
+  getAccountRefreshToken,
   removeAccount,
   SavedAccount,
 } from "../../utils/savedAccounts";
@@ -19,6 +22,7 @@ import "./index.scss";
 
 export default function Profile() {
   const { user, signOut, signIn, switchByToken } = useAuth();
+  const { isDark, toggleTheme } = useTheme();
   const [logoutConfirm, setLogoutConfirm] = useState(false);
   const [switchModal, setSwitchModal] = useState(false);
   const [accounts, setAccounts] = useState<SavedAccount[]>([]);
@@ -35,19 +39,6 @@ export default function Profile() {
 
   const initial = (user?.username || "U").charAt(0).toUpperCase();
   const hasAvatar = user?.avatar_url && user.avatar_url.startsWith('data:') || user?.avatar_url?.startsWith('http');
-
-  const menuSection1 = [
-    { icon: "annual" as const, label: "年报", url: "/pages/AnnualReport/index" },
-    { icon: "calendar" as const, label: "日历", url: "/pages/Calendar/index" },
-    { icon: "map" as const, label: "地图", url: "/pages/Map/index" },
-  ];
-
-  const menuSection2 = [
-    { icon: "books" as const, label: "账本", url: "/pages/Books/index" },
-    { icon: "categories" as const, label: "分类", url: "/pages/Categories/index" },
-    { icon: "templates" as const, label: "模版", url: "/pages/TemplateManager/index" },
-    { icon: "budgets" as const, label: "预算", url: "/pages/Budgets/index" },
-  ];
 
   const handleLogout = async () => {
     try {
@@ -67,21 +58,20 @@ export default function Profile() {
     setLoginPassword("");
     setLoginError("");
     setSwitchingEmail(null);
-    setTokenExpiredEmail(null);
   };
 
-  // 切换到已有账号：优先用 token，失效则显示密码输入框
+  // 切换到已有账号
   const handleSwitchAccount = async (account: SavedAccount) => {
     if (account.email === user?.email) {
       Taro.showToast({ title: "当前已是该账号", icon: "none" });
       return;
     }
-    // T-C1: 从独立 key 读取 token
     const token = getAccountToken(account.email);
+    const refreshToken = getAccountRefreshToken(account.email);
     if (token) {
       setSwitchingEmail(account.email);
       try {
-        await switchByToken(account.email, token);
+        await switchByToken(account.email, token, refreshToken ?? undefined);
         Taro.showToast({ title: "账号切换成功", icon: "success" });
         setAccounts(getSavedAccounts());
         setSwitchModal(false);
@@ -89,7 +79,6 @@ export default function Profile() {
       } catch (err: unknown) {
         const msg = err instanceof Error ? err.message : '';
         if (msg === 'token_invalid') {
-          // token 失效，显示密码输入框
           setTokenExpiredEmail(account.email);
           setLoginEmail(account.email);
           setLoginPassword('');
@@ -97,16 +86,13 @@ export default function Profile() {
           setSwitchingEmail(null);
           return;
         }
-        // 其他错误，继续走密码登录
       }
       setSwitchingEmail(null);
     }
-    // T-C1: 不再存储密码，token 失效时要求用户手动输入密码
     setTokenExpiredEmail(account.email);
     setShowLoginForm(true);
   };
 
-  // 删除已保存账号
   const handleRemoveAccount = (email: string) => {
     removeAccount(email);
     setAccounts(getSavedAccounts());
@@ -116,7 +102,6 @@ export default function Profile() {
     try {
       const { captchaId: id, svg } = await getCaptcha();
       setCaptchaId(id);
-      // 小程序Image组件支持data URL，将SVG编码为URL-safe格式
       const encodedSvg = encodeURIComponent(svg);
       setCaptchaSrc(`data:image/svg+xml,${encodedSvg}`);
       setCaptchaCode("");
@@ -126,12 +111,9 @@ export default function Profile() {
   };
 
   useEffect(() => {
-    if (showLoginForm) {
-      refreshCaptcha();
-    }
+    if (showLoginForm) refreshCaptcha();
   }, [showLoginForm]);
 
-  // 使用邮箱密码登录
   const handleLogin = async () => {
     if (!loginEmail.trim() || !loginPassword.trim()) {
       setLoginError("请输入邮箱和密码");
@@ -164,7 +146,7 @@ export default function Profile() {
 
   return (
     <PageLayout contentClassName="profile-content">
-      {/* ===== User Header — 点击进入编辑资料 ===== */}
+      {/* ===== 用户 Header ===== */}
       <View
         className="profile-header"
         onClick={() => Taro.navigateTo({ url: "/pages/EditProfile/index" })}
@@ -183,35 +165,33 @@ export default function Profile() {
         <Text className="profile-header__arrow">›</Text>
       </View>
 
-      <MenuList
-        items={menuSection1.map((item) => ({
-          key: item.label,
-          label: item.label,
-          icon: item.icon,
-          onClick: () => Taro.navigateTo({ url: item.url }),
-        }))}
-      />
-
-      <MenuList
-        items={menuSection2.map((item) => ({
-          key: item.label,
-          label: item.label,
-          icon: item.icon,
-          onClick: () => Taro.navigateTo({ url: item.url }),
-        }))}
-      />
-
+      {/* ===== 菜单列表（与 PC 端对齐） ===== */}
       <MenuList
         items={[
           {
-            label: "关于静记",
-            icon: "settings" as const,
-            onClick: () => Taro.navigateTo({ url: "/pages/About/index" }),
+            label: "切换主题",
+            icon: "settings",
+            right: (
+              <View className="theme-toggle" onClick={(e) => { e.stopPropagation(); toggleTheme(); }}>
+                <Text className={`theme-toggle__label ${isDark ? "theme-toggle__label--dark" : ""}`}>
+                  {isDark ? "暗色模式" : "亮色模式"}
+                </Text>
+                <View className={`theme-toggle__switch ${isDark ? "theme-toggle__switch--on" : ""}`}>
+                  <View className="theme-toggle__knob" />
+                </View>
+              </View>
+            ),
+            onClick: toggleTheme,
           },
           {
             label: "切换账号",
             icon: "profile",
             onClick: handleOpenSwitch,
+          },
+          {
+            label: "关于静记",
+            icon: "settings",
+            onClick: () => Taro.navigateTo({ url: "/pages/About/index" }),
           },
           {
             label: "退出登录",
@@ -251,7 +231,6 @@ export default function Profile() {
 
             {!showLoginForm ? (
               <>
-                {/* 已保存账号列表 */}
                 {accounts.length > 0 && (
                   <View className="switch-account-list">
                     {accounts.map((account) => {
@@ -296,7 +275,6 @@ export default function Profile() {
                   </View>
                 )}
 
-                {/* 添加账号按钮 */}
                 <View
                   className="switch-add-btn"
                   onClick={() => { setShowLoginForm(true); setLoginEmail(""); setLoginPassword(""); setLoginError(""); }}
@@ -306,13 +284,12 @@ export default function Profile() {
               </>
             ) : (
               <>
-                {/* 登录表单 */}
                 <View className="switch-login-form">
                   <Text className="switch-login-hint">
                     {tokenExpiredEmail ? "登录已过期，请重新输入密码" : "添加新账号登录"}
                   </Text>
                   <View className="switch-form-group">
-                    <Text className="switch-form-label">邮箱</Text>
+                    <Text className="switch-form-label">邮箱地址</Text>
                     <Input
                       className="switch-form-input"
                       value={loginEmail}

@@ -19,7 +19,8 @@ export interface UserProfile {
 
 export interface AuthResponse {
   user: UserProfile;
-  token: string;
+  accessToken: string;
+  refreshToken: string;
 }
 
 // ---- Book / Ledger ----
@@ -33,6 +34,9 @@ export interface Book {
   role?: string;
   icon?: string;
   description?: string;
+  txn_count?: number;
+  member_count?: number;
+  is_archived?: boolean;
 }
 
 // ---- Transaction ----
@@ -49,8 +53,8 @@ export interface Transaction {
   image_urls?: string;
   image_url_list?: string[];
   location_name?: string;
-  location_lat?: number;
-  location_lng?: number;
+  latitude?: number;
+  longitude?: number;
   poi_id?: string | null;
   created_at: string;
 }
@@ -83,8 +87,8 @@ export interface CreateTransactionInput {
   brand?: string;
   image_urls?: string;
   location_name?: string;
-  location_lat?: number;
-  location_lng?: number;
+  latitude?: number;
+  longitude?: number;
 }
 
 export interface PaginatedResponse<T> {
@@ -165,82 +169,9 @@ export interface StatisticsSummary {
   expenseCount?: number;
 }
 
-export interface MonthlyTrendItem {
-  month: string; // "2025-01"
-  amount: number;
-  income?: number;
-  expense?: number;
-}
-
-export interface CategoryBreakdownItem {
-  category_id: string;
-  category_name: string;
-  category_icon: string;
-  amount: number;
-  percentage: number;
-}
-
-export interface YoYComparisonItem {
-  month: string; // "01"-"12"
-  monthLabel: string; // "1月"-"12月"
-  currentYear: number;
-  lastYear: number;
-}
-
-export interface YoYComparisonParams {
-  year?: number;
-  compareYear?: number;
-  type?: "income" | "expense";
-}
-
-export interface DailySummaryItem {
-  date: string; // "YYYY-MM-DD"
-  total_income: number;
-  total_expense: number;
-  transaction_count: number;
-}
-
-export interface DailySummaryParams {
-  month: string; // "YYYY-MM"
-}
-
 export interface SummaryParams {
   startDate: string;
   endDate: string;
-}
-
-export interface MonthlyTrendParams {
-  months?: number;
-  endDate?: string;
-  type?: "income" | "expense";
-}
-
-export interface CategoryBreakdownParams {
-  startDate: string;
-  endDate: string;
-  type: "income" | "expense";
-}
-
-// ---- Member Comparison ----
-
-export interface MemberCategoryBreakdown {
-  category_name: string;
-  category_icon: string;
-  amount: number;
-  percentage: number;
-}
-
-export interface MemberComparisonItem {
-  user_id: string;
-  user_name: string;
-  total_expense: number;
-  categories: MemberCategoryBreakdown[];
-}
-
-export interface MemberComparisonParams {
-  book_id: string;
-  month_from: string; // "YYYY-MM"
-  month_to: string; // "YYYY-MM"
 }
 
 // ---- Budget ----
@@ -339,86 +270,13 @@ export interface ReorderInput {
   ids: string[];
 }
 
-// ---- Map ----
-
-export interface MapTransaction {
-  id: number;
-  type: "income" | "expense";
-  category: string;
-  amount: number;
-  date: string;
-  description: string | null;
-  latitude: number;
-  longitude: number;
-  location_name: string;
-  poi_id: string | null;
-  userId?: string;
-  username?: string;
-}
-
-export interface MerchantSummary {
-  poi_id: string | null;
-  location_name: string;
-  total_amount: number;
-  transaction_count: number;
-  last_transaction_date: string;
-  expense_count: number;
-  income_count: number;
-  expense_total: number;
-  income_total: number;
-  last_expense_date: string | null;
-  last_income_date: string | null;
-  memberBreakdown?: MemberBreakdown[];
-  latitude?: number;
-  longitude?: number;
-}
-
-export interface MapFilters {
-  startDate?: string;
-  endDate?: string;
-  type?: "income" | "expense";
-  categories?: string[];
-  minAmount?: number;
-  maxAmount?: number;
-  memberIds?: string[];
-}
-
-export interface MapMember {
-  userId: string;
-  username: string;
-  role: "owner" | "member";
-  color: string;
-}
-
-export interface MemberLocation {
-  userId: string;
-  username: string;
-  email: string;
-  latitude: number;
-  longitude: number;
-  updatedAt: string;
-}
-
-export interface LocationUpdateRequest {
-  latitude: number;
-  longitude: number;
-  isSharing: boolean;
-}
-
-export interface MemberBreakdown {
-  userId: string;
-  username: string;
-  expenseTotal: number;
-  expenseCount: number;
-}
-
 // ---- Custom Icons ----
 
 export interface CustomIcon {
   id: string;
   user_id: string;
   icon_url: string;
-  icon_type: "category" | "book";
+  icon_type: "category" | "book" | "avatar";
   created_at: string;
 }
 

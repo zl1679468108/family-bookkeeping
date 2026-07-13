@@ -23,18 +23,6 @@
     border-radius: 999rpx;
     margin: 16rpx auto 0;
   }
-  &__header {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 20rpx 32rpx;
-    border-bottom: 2rpx solid var(--bdL);
-  }
-  &__title { font-size: 30rpx; font-weight: 600; color: var(--fg); }
-  &__close {
-    width: 56rpx; height: 56rpx;
-    display: flex; align-items: center; justify-content: center;
-    background: var(--bdL); border-radius: 50%;
-  }
-  &__close-icon { font-size: 36rpx; color: var(--fg2); line-height: 1; }
   &__body { flex: 1; padding: 24rpx 32rpx; overflow: auto; }
   &__footer { padding: 20rpx 32rpx 32rpx; border-top: 2rpx solid var(--bdL); }
 }

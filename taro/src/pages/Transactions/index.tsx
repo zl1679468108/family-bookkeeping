@@ -1,114 +1,156 @@
 /**
- * Transactions — 流水页（增强版）
- * 结构: 搜索框 + 筛选 Tab + 分类筛选 + 统计汇总 + 交易列表 + 交易详情弹窗
- * 支持批量选择和删除
+ * Transactions — 流水页
+ * 布局: 搜索栏(第1行) → 筛选 Picker(第2行) → 统计摘要 → 日期分组列表（卡片形式）
+ * 交互: 点击列表项 → 直接跳转编辑页（AddTransaction），编辑页内含删除按钮
  */
-import { useState, useEffect, useCallback, useMemo, useRef } from "react";
-import { View, Text, Input, ScrollView, Image } from "@tarojs/components";
+import { useState, useEffect, useCallback, useMemo } from "react";
+import { View, Text, Input, Picker } from "@tarojs/components";
 import Taro from "@tarojs/taro";
 import PageLayout from "../../components/PageLayout";
-import EmptyState from "../../components/EmptyState";
+import { EmptyState } from "../../components/ui";
 import TransactionItem from "../../components/TransactionItem";
-import { AppSection, MetricGrid } from "../../components/ui";
-import { getTransactions, deleteTransaction, batchDeleteTransactions } from "../../services/transactionsApi";
+import { getTransactions } from "../../services/transactionsApi";
 import { useCategoryLookup } from "../../hooks/useCategories";
 import { useCategoryList } from "../../hooks/useCategories";
 import { useAuth } from "../../context/AuthContext";
 import { useBookContext } from "../../context/BookContext";
 import { fmtAmount } from "../../utils/format";
-import { renderCategoryIcon } from "../../utils/renderCategoryIcon";
 import "./index.scss";
 
-type FilterKey = "all" | "expense" | "income" | "week7" | "month";
-
-const FILTERS: { key: FilterKey; label: string }[] = [
-  { key: "all", label: "全部" },
-  { key: "expense", label: "支出" },
-  { key: "income", label: "收入" },
-  { key: "week7", label: "近7天" },
-  { key: "month", label: "本月" },
-];
+const FILTER_OPTIONS = ["全部类型", "支出", "收入"];
+const TIME_OPTIONS = ["全部时间", "近 7 天", "近 30 天"];
 
 const PAGE_SIZE = 20;
 
-// T-M10: AbortController 引用，用于取消前序请求
 let currentAbortController: AbortController | null = null;
 
-// T-M10: AbortController 引用，用于取消前序请求
-let currentAbortController: AbortController | null = null;
-
-function dateRange(key: FilterKey): { start?: string; end?: string } {
+function dateRange(timeIdx: number): { start?: string; end?: string } {
   const now = new Date();
   const pad = (n: number) => String(n).padStart(2, "0");
   const fmt = (d: Date) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
   const end = fmt(now);
-  if (key === "week7") {
+
+  if (timeIdx === 1) {
     const d = new Date(now);
     d.setDate(now.getDate() - 6);
     return { start: fmt(d), end };
   }
-  if (key === "month") {
-    const d = new Date(now.getFullYear(), now.getMonth(), 1);
+  if (timeIdx === 2) {
+    const d = new Date(now);
+    d.setDate(now.getDate() - 29);
     return { start: fmt(d), end };
   }
   return {};
 }
 
+function getTypeFromFilter(typeIdx: number): "expense" | "income" | undefined {
+  if (typeIdx === 1) return "expense";
+  if (typeIdx === 2) return "income";
+  return undefined;
+}
+
+/** 按日期分组 */
+function groupByDate(txns: any[]): Record<string, any[]> {
+  const groups: Record<string, any[]> = {};
+  txns.forEach((t) => {
+    const key = (t.date || "").slice(0, 10) || "未知日期";
+    if (!groups[key]) groups[key] = [];
+    groups[key].push(t);
+  });
+  return groups;
+}
+
+/** 格式化日期显示 */
+function formatDateLabel(dateStr: string): string {
+  if (!dateStr || dateStr === "未知日期") return dateStr;
+  const d = new Date(dateStr);
+  const today = new Date();
+  const yesterday = new Date(today);
+  yesterday.setDate(yesterday.getDate() - 1);
+
+  const ds = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  const td = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+  const yd = `${yesterday.getFullYear()}-${String(yesterday.getMonth() + 1).padStart(2, "0")}-${String(yesterday.getDate()).padStart(2, "0")}`;
+
+  if (ds === td) return "今天";
+  if (ds === yd) return "昨天";
+
+  const weekDays = ["日", "一", "二", "三", "四", "五", "六"];
+  const diffDays = Math.floor((today.getTime() - d.getTime()) / 86400000);
+  if (diffDays > 0 && diffDays < 7) return `周${weekDays[d.getDay()]}`;
+
+  return `${d.getMonth() + 1}月${d.getDate()}日`;
+}
+
 export default function Transactions() {
   const { user, loading: authLoading } = useAuth();
-  const { currentBook } = useBookContext(); // T-H10: 获取当前账本用于触发刷新
-  const [filter, setFilter] = useState<FilterKey>("all");
-  const [categoryId, setCategoryId] = useState<string>("");
+  const { currentBook } = useBookContext();
+
+  // 筛选状态
+  const [typeIdx, setTypeIdx] = useState(0);
+  const [timeIdx, setTimeIdx] = useState(0); // 默认全部时间
+  const [catIdx, setCatIdx] = useState(0);
   const [searchKeyword, setSearchKeyword] = useState("");
+
+  // 数据状态
   const [txn, setTxn] = useState<any[]>([]);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
-  const [selectedTxn, setSelectedTxn] = useState<any>(null);
-  const [showDetail, setShowDetail] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const handleScroll = useCallback((top: number) => setScrolled(top > 4), []);
   const { getCategoryName, getCategoryIcon } = useCategoryLookup();
   const { categories } = useCategoryList();
 
-  // 批量选择模式
-  const [batchMode, setBatchMode] = useState(false);
-  const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
+  // 分类 Picker 数据源
+  const categoryOptions = useMemo(() => {
+    const typeFilter = getTypeFromFilter(typeIdx);
+    const cats = typeFilter
+      ? categories.filter((c) => c.type === typeFilter)
+      : categories;
+    return ["全部分类", ...cats.map((c) => c.name)];
+  }, [categories, typeIdx]);
 
-  // 查看范围：own=只看自己，all=全部成员
-  const [viewScope, setViewScope] = useState<"own" | "all">("own");
+  const filteredCategoriesForSelection = useMemo(() => {
+    const type = getTypeFromFilter(typeIdx);
+    return type ? categories.filter((c) => c.type === type) : categories;
+  }, [categories, typeIdx]);
 
-  const filteredCategories = useMemo(() => {
-    const type = filter === "expense" ? "expense" : filter === "income" ? "income" : undefined;
-    return categories.filter((c) => !type || c.type === type);
-  }, [categories, filter]);
-
-  // 核心异步请求函数，使用 ref 避免闭包陷阱
-  // T-H9: 支持 override 参数，避免 setState 异步导致的陈旧闭包
-  // T-M10: 支持 signal 参数用于取消请求
+  // 数据请求
   const doFetch = useCallback(
-    async (targetPage: number, currentList: any[], replace: boolean, scope: "own" | "all", overrides?: {
-      filter?: FilterKey;
-      categoryId?: string;
+    async (targetPage: number, currentList: any[], replace: boolean, overrides?: {
+      typeIdx?: number;
+      timeIdx?: number;
+      catIdx?: number;
       searchKeyword?: string;
     }, signal?: AbortSignal) => {
-      const f = overrides?.filter ?? filter;
-      const c = overrides?.categoryId ?? categoryId;
+      const ti = overrides?.typeIdx ?? typeIdx;
+      const tmi = overrides?.timeIdx ?? timeIdx;
+      const ci = overrides?.catIdx ?? catIdx;
       const s = overrides?.searchKeyword ?? searchKeyword;
-      const r = dateRange(f);
+
+      const r = dateRange(tmi);
+      const typeParam = getTypeFromFilter(ti);
+      const catParam = ci > 0 && filteredCategoriesForSelection[ci - 1]
+        ? filteredCategoriesForSelection[ci - 1].id
+        : undefined;
+
       if (replace) setLoading(true);
       else setLoadingMore(true);
+
       try {
         const res: any = await getTransactions({
-          type: f === "expense" || f === "income" ? f : undefined,
+          type: typeParam,
           startDate: r.start,
           endDate: r.end,
-          category: c || undefined,
+          category: catParam || undefined,
           search: s.trim() || undefined,
           page: targetPage,
           pageSize: PAGE_SIZE,
-          view: scope,
-        }, signal); // T-M10: 传入 signal
+          view: "own",
+        }, signal);
         const list: any[] = res?.data || [];
         const next = replace ? list : [...currentList, ...list];
         setTxn(next);
@@ -124,435 +166,215 @@ export default function Transactions() {
         setLoadingMore(false);
       }
     },
-    [filter, categoryId, searchKeyword],
+    [typeIdx, timeIdx, catIdx, searchKeyword, filteredCategoriesForSelection],
   );
 
-  // 初始加载：仅认证完成后触发一次
   useEffect(() => {
     if (authLoading || !user) return;
-    doFetch(1, [], true, viewScope);
+    doFetch(1, [], true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [authLoading, user, currentBook]); // T-H10: 依赖 currentBook 变化时重新加载
+  }, [authLoading, user, currentBook]);
 
   const handleRefresh = useCallback(() =>
     new Promise<void>((resolve) => {
       setRefreshing(true);
-      // T-M10: 取消前序请求
       if (currentAbortController) currentAbortController.abort();
       const ac = new AbortController();
       currentAbortController = ac;
-      doFetch(1, [], true, viewScope, undefined, ac.signal)
+      doFetch(1, [], true, undefined, ac.signal)
         .catch(() => {})
         .finally(() => {
           setRefreshing(false);
           resolve();
         });
     }),
-  [doFetch, viewScope]);
+    [doFetch],
+  );
 
   const handleLoadMore = useCallback(() => {
     if (loadingMore || !hasMore) return;
-    // T-M10: 取消前序请求
     if (currentAbortController) currentAbortController.abort();
     const ac = new AbortController();
     currentAbortController = ac;
-    doFetch(page + 1, txn, false, viewScope, undefined, ac.signal);
-  }, [loadingMore, hasMore, page, txn, doFetch, viewScope]);
+    doFetch(page + 1, txn, false, undefined, ac.signal);
+  }, [loadingMore, hasMore, page, txn, doFetch]);
 
   const handleSearch = useCallback(() => {
     setPage(1);
-    // T-M10: 取消前序请求
     if (currentAbortController) currentAbortController.abort();
     const ac = new AbortController();
     currentAbortController = ac;
-    doFetch(1, [], true, viewScope, { searchKeyword }, ac.signal);
-  }, [doFetch, viewScope, searchKeyword]);
+    doFetch(1, [], true, { searchKeyword }, ac.signal);
+  }, [doFetch, searchKeyword]);
 
   const handleClearSearch = useCallback(() => {
     setSearchKeyword("");
     setPage(1);
-    // T-M10: 取消前序请求
     if (currentAbortController) currentAbortController.abort();
     const ac = new AbortController();
     currentAbortController = ac;
-    doFetch(1, [], true, viewScope, { searchKeyword: "" }, ac.signal);
-  }, [doFetch, viewScope]);
+    doFetch(1, [], true, { searchKeyword: "" }, ac.signal);
+  }, [doFetch]);
 
-  const handleCategoryChange = useCallback((catId: string) => {
-    setCategoryId(catId);
+  const handleTypeChange = useCallback((e: any) => {
+    const idx = Number(e.detail.value);
+    setTypeIdx(idx);
+    setCatIdx(0);
     setPage(1);
-    // T-M10: 取消前序请求
     if (currentAbortController) currentAbortController.abort();
     const ac = new AbortController();
     currentAbortController = ac;
-    doFetch(1, [], true, viewScope, { categoryId: catId }, ac.signal);
-  }, [doFetch, viewScope]);
+    doFetch(1, [], true, { typeIdx: idx, catIdx: 0 }, ac.signal);
+  }, [doFetch]);
 
-  const handleFilterChange = useCallback((key: FilterKey) => {
-    setFilter(key);
+  const handleTimeChange = useCallback((e: any) => {
+    const idx = Number(e.detail.value);
+    setTimeIdx(idx);
     setPage(1);
-    // T-M10: 取消前序请求
     if (currentAbortController) currentAbortController.abort();
     const ac = new AbortController();
     currentAbortController = ac;
-    doFetch(1, [], true, viewScope, { filter: key }, ac.signal);
-  }, [doFetch, viewScope]);
+    doFetch(1, [], true, { timeIdx: idx }, ac.signal);
+  }, [doFetch]);
 
+  const handleCatChange = useCallback((e: any) => {
+    const idx = Number(e.detail.value);
+    setCatIdx(idx);
+    setPage(1);
+    if (currentAbortController) currentAbortController.abort();
+    const ac = new AbortController();
+    currentAbortController = ac;
+    doFetch(1, [], true, { catIdx: idx }, ac.signal);
+  }, [doFetch]);
+
+  // 条目点击 → 直接跳转编辑页
   const handleTxnClick = (t: any) => {
-    setSelectedTxn(t);
-    setShowDetail(true);
+    Taro.navigateTo({ url: `/pages/AddTransaction/index?edit=${t.id}` });
   };
 
-  const handleEdit = () => {
-    if (selectedTxn) {
-      Taro.setStorageSync("edit_tx_id", selectedTxn.id);
-      setShowDetail(false);
-      Taro.navigateTo({ url: "/pages/AddTransaction/index" });
-    }
-  };
-
-  const handleDelete = () => {
-    if (!selectedTxn) return;
-    Taro.showModal({
-      title: "确认删除",
-      content: "确定要删除这笔交易吗？",
-      success: async (res) => {
-        if (res.confirm && selectedTxn) {
-          try {
-            await deleteTransaction(selectedTxn.id);
-            setTxn(txn.filter((t) => t.id !== selectedTxn.id));
-            Taro.showToast({ title: "删除成功", icon: "success" });
-          } catch {
-            Taro.showToast({ title: "删除失败", icon: "none" });
-          } finally {
-            setShowDetail(false);
-            setSelectedTxn(null);
-          }
-        }
-      },
-    });
-  };
-
-  // 批量选择切换
-  const toggleBatchMode = () => {
-    if (batchMode) {
-      // 退出批量模式，清空选择
-      setSelectedIds(new Set());
-    }
-    setBatchMode(!batchMode);
-  };
-
-  // 切换选中状态
-  const toggleSelect = (id: number) => {
-    const newSet = new Set(selectedIds);
-    if (newSet.has(id)) {
-      newSet.delete(id);
-    } else {
-      newSet.add(id);
-    }
-    setSelectedIds(newSet);
-  };
-
-  // 全选
-  const handleSelectAll = () => {
-    if (selectedIds.size === txn.length) {
-      setSelectedIds(new Set());
-    } else {
-      setSelectedIds(new Set(txn.map((t) => t.id)));
-    }
-  };
-
-  // 批量删除
-  const handleBatchDelete = () => {
-    if (selectedIds.size === 0) return;
-    Taro.showModal({
-      title: "确认删除",
-      content: `确定要删除选中的 ${selectedIds.size} 笔交易吗？`,
-      success: async (res) => {
-        if (res.confirm) {
-          try {
-            const idsToDelete = Array.from(selectedIds);
-            await batchDeleteTransactions(idsToDelete);
-            setTxn(txn.filter((t) => !selectedIds.has(t.id)));
-            setSelectedIds(new Set());
-            setBatchMode(false);
-            Taro.showToast({ title: "删除成功", icon: "success" });
-          } catch {
-            Taro.showToast({ title: "批量删除失败", icon: "none" });
-          }
-        }
-      },
-    });
-  };
-
-  // 范围切换
-  const toggleViewScope = useCallback(() => {
-    const newScope = viewScope === "own" ? "all" : "own";
-    setViewScope(newScope as "own" | "all");
-    setPage(1);
-    // T-M10: 取消前序请求
-    if (currentAbortController) currentAbortController.abort();
-    const ac = new AbortController();
-    currentAbortController = ac;
-    doFetch(1, [], true, newScope, undefined, ac.signal);
-  }, [viewScope, doFetch]);
-
+  // 统计
   const stats = useMemo(() => {
     return txn.reduce(
       (acc, t) => {
         const amount = parseFloat(t.amount) || 0;
-        if (t.type === "income") {
-          acc.income += amount;
-        } else {
-          acc.expense += amount;
-        }
+        if (t.type === "income") acc.income += amount;
+        else acc.expense += amount;
         return acc;
       },
       { income: 0, expense: 0 },
     );
   }, [txn]);
 
-  const currentCategoryName = useMemo(() => {
-    if (!categoryId) return "全部分类";
-    const cat = categories.find((c) => c.id === categoryId);
-    return cat?.name || "全部分类";
-  }, [categoryId, categories]);
+  // 日期分组
+  const groupedTxns = useMemo(() => groupByDate(txn), [txn]);
+  const dates = useMemo(() => Object.keys(groupedTxns).sort().reverse(), [groupedTxns]);
 
   return (
-    <PageLayout
-      contentClassName="txns-content"
-      onRefresh={handleRefresh}
-      refreshing={refreshing}
-      onLoadMore={handleLoadMore}
-      hasMore={hasMore}
-      loadingMore={loadingMore}
-    >
-      <AppSection title="流水筛选" subtitle={viewScope === "own" ? "当前仅看我的记录" : "当前查看全部成员"} compact>
-        <View className="search-bar">
-          <Input
-            className="search-input"
-            value={searchKeyword}
-            onInput={(e) => setSearchKeyword(e.detail.value)}
-            placeholder="搜索描述或品牌"
-            confirmType="search"
-            onConfirm={handleSearch}
-          />
-          {searchKeyword && (
-            <Text className="search-clear" onClick={handleClearSearch}>×</Text>
+    <>
+      <PageLayout
+        contentClassName="txns-content"
+        loading={loading}
+        loadingText="加载中…"
+        onRefresh={handleRefresh}
+        refreshing={refreshing}
+        onLoadMore={handleLoadMore}
+        hasMore={hasMore}
+        loadingMore={loadingMore}
+        onScroll={handleScroll}
+        header={
+          <View className={`filter-card ${scrolled ? "scrolled" : ""}`}>
+          <View className="filter-card-surface">
+          <View className="search-row">
+            <Input
+              className="search-input"
+              value={searchKeyword}
+              onInput={(e) => setSearchKeyword(e.detail.value)}
+              placeholder="搜索描述/品牌..."
+              confirmType="search"
+              onConfirm={handleSearch}
+            />
+            {searchKeyword && (
+              <Text className="search-clear-btn" onClick={handleClearSearch}>✕</Text>
+            )}
+          </View>
+
+          {/* ═══ 第2行：筛选 Picker ═══ */}
+          <View className="picker-row">
+            <Picker mode="selector" range={FILTER_OPTIONS} value={typeIdx} onChange={handleTypeChange}>
+              <View className="picker-chip">
+                <Text className="picker-chip-text">{FILTER_OPTIONS[typeIdx]}</Text>
+                <Text className="picker-arrow">▾</Text>
+              </View>
+            </Picker>
+            <Picker mode="selector" range={TIME_OPTIONS} value={timeIdx} onChange={handleTimeChange}>
+              <View className="picker-chip">
+                <Text className="picker-chip-text">{TIME_OPTIONS[timeIdx]}</Text>
+                <Text className="picker-arrow">▾</Text>
+              </View>
+            </Picker>
+            <Picker mode="selector" range={categoryOptions} value={catIdx} onChange={handleCatChange}>
+              <View className="picker-chip">
+                <Text className="picker-chip-text">{categoryOptions[catIdx] || "全部分类"}</Text>
+                <Text className="picker-arrow">▾</Text>
+              </View>
+            </Picker>
+          </View>
+          </View>
+
+          {/* ═══ 第3行：统计摘要（对齐PC端） ═══ */}
+          {txn.length > 0 && (
+            <View className="stats-summary">
+              <Text className="stats-text">
+                本页{txn.length}笔 · 支出{fmtAmount(stats.expense)} · 收入{fmtAmount(stats.income)}
+              </Text>
+            </View>
+          )}
+        </View>
+      }
+      >
+        {/* 交易列表（卡片形式） */}
+        <View className="txn-list">
+          {txn.length === 0 ? (
+            <EmptyState title="暂无交易记录" description="调整筛选条件或新增一笔账单" />
+          ) : (
+            <View>
+              {dates.map((date) => (
+                <View key={date} className="date-group">
+                  <View className="date-header">
+                    <Text className="date-label">{formatDateLabel(date)}</Text>
+                  </View>
+                  {groupedTxns[date].map((t: any) => {
+                    const catName = getCategoryName(t.category) || "其他";
+                    const catIcon = getCategoryIcon(t.category) || "📌";
+
+                    return (
+                      <View key={t.id} className="txn-card" onClick={() => handleTxnClick(t)}>
+                        <TransactionItem
+                          icon={catIcon}
+                          categoryName={catName}
+                          description={t.description}
+                          brand={t.brand}
+                          amount={parseFloat(t.amount) || 0}
+                          type={t.type === "income" ? "income" : "expense"}
+                          hasImage={t.image_url_list && t.image_url_list.length > 0}
+                        />
+                      </View>
+                    );
+                  })}
+                </View>
+              ))}
+            </View>
           )}
         </View>
 
-        <ScrollView scrollX className="filter-scroll">
-          {FILTERS.map((f) => (
-            <View
-              key={f.key}
-              className={`filter-chip ${filter === f.key ? "active" : ""}`}
-              onClick={() => handleFilterChange(f.key)}
-            >
-              <Text>{f.label}</Text>
-            </View>
-          ))}
-        </ScrollView>
-
-        <View className="category-filter">
-          <View className="category-picker" onClick={() => Taro.showActionSheet({
-            itemList: ["全部分类", ...filteredCategories.map((c) => c.name)],
-            success: (res) => {
-              const idx = res.tapIndex;
-              if (idx === 0) {
-                handleCategoryChange("");
-              } else {
-                const cat = filteredCategories[idx - 1];
-                handleCategoryChange(cat.id);
-              }
-            },
-          })}>
-            <Text className="category-label">{currentCategoryName}</Text>
-            <Text className="category-arrow">⌄</Text>
-          </View>
-        </View>
-      </AppSection>
-
-      <MetricGrid
-        columns={3}
-        items={[
-          { label: "收入", value: `¥${fmtAmount(stats.income)}`, tone: "income" },
-          { label: "支出", value: `¥${fmtAmount(stats.expense)}`, tone: "expense" },
-          {
-            label: "结余",
-            value: `¥${fmtAmount(stats.income - stats.expense)}`,
-            tone: stats.income >= stats.expense ? "income" : "expense",
-          },
-        ]}
-        className="txns-metrics"
-      />
-
-      {/* 操作栏：批量选择 + 查看范围 */}
-      <View className="action-bar">
-        <View className="action-scope" onClick={toggleViewScope}>
-          <Text className={`scope-tag ${viewScope === "all" ? "active" : ""}`}>
-            {viewScope === "own" ? "我的" : "全部"}
-          </Text>
-        </View>
-        <View className="action-batch" onClick={toggleBatchMode}>
-          <Text className={`batch-tag ${batchMode ? "active" : ""}`}>
-            {batchMode ? "取消" : "批量"}
-          </Text>
-        </View>
-      </View>
-
-      {/* 批量操作栏 */}
-      {batchMode && (
-        <View className="batch-bar">
-          <View className="batch-select-all" onClick={handleSelectAll}>
-            <Text className="batch-text">
-              {selectedIds.size === txn.length ? "取消全选" : "全选"}
-            </Text>
-          </View>
-          <View className="batch-info">
-            <Text className="batch-count">已选 {selectedIds.size} 笔</Text>
-          </View>
-          <View
-            className={`batch-delete ${selectedIds.size === 0 ? "disabled" : ""}`}
-            onClick={handleBatchDelete}
-          >
-            <Text className="batch-delete-text">删除</Text>
-          </View>
-        </View>
-      )}
-
-      <AppSection title="交易列表" className="txn-list" flush>
-        {loading && txn.length === 0 ? (
-          <EmptyState icon="note" title="加载中..." />
-        ) : txn.length === 0 ? (
-          <EmptyState icon="transactions" title="暂无流水记录" description="调整筛选条件或新增一笔账单" />
-        ) : (
-          <View>
-            {txn.map((t: any) => {
-              const catName = getCategoryName(t.category) || "其他";
-              const catIcon = getCategoryIcon(t.category) || "📌";
-              const isSelected = selectedIds.has(t.id);
-              return batchMode ? (
-                <View
-                  key={t.id}
-                  className={`txn-item-with-checkbox ${isSelected ? "selected" : ""}`}
-                  onClick={() => toggleSelect(t.id)}
-                >
-                  <View className={`checkbox ${isSelected ? "checked" : ""}`}>
-                    {isSelected && <Text className="checkbox-check">✓</Text>}
-                  </View>
-                  <View className="txn-item-content">
-                    <TransactionItem
-                      icon={catIcon}
-                      categoryName={catName}
-                      description={t.description}
-                      brand={t.brand}
-                      amount={parseFloat(t.amount) || 0}
-                      type={t.type === "income" ? "income" : "expense"}
-                      date={(t.date || "").slice(0, 10)}
-                      onClick={() => {}}
-                      hasImage={t.image_url_list && t.image_url_list.length > 0}
-                    />
-                  </View>
-                </View>
-              ) : (
-                <TransactionItem
-                  key={t.id}
-                  icon={catIcon}
-                  categoryName={catName}
-                  description={t.description}
-                  brand={t.brand}
-                  amount={parseFloat(t.amount) || 0}
-                  type={t.type === "income" ? "income" : "expense"}
-                  date={(t.date || "").slice(0, 10)}
-                  onClick={() => handleTxnClick(t)}
-                  hasImage={t.image_url_list && t.image_url_list.length > 0}
-                />
-              );
-            })}
+        {/* 底部提示 */}
+        {!hasMore && txn.length > 0 && (
+          <View className="list-footer">
+            <Text className="footer-text">— 已经到底了 —</Text>
           </View>
         )}
-      </AppSection>
 
-      {/* 交易详情弹窗 */}
-      {showDetail && selectedTxn && (
-        <View className="detail-mask" onClick={() => setShowDetail(false)}>
-          <View className="detail-dialog" onClick={(e) => e.stopPropagation()}>
-            <View className="detail-header">
-              <Text className="detail-title">交易详情</Text>
-              <Text className="detail-close" onClick={() => setShowDetail(false)}>✕</Text>
-            </View>
-            <View className="detail-content">
-              <View className="detail-main">
-                <View className="detail-icon">{renderCategoryIcon(getCategoryIcon(selectedTxn.category) || "📌", { size: 44 })}</View>
-                <View className="detail-info">
-                  <Text className="detail-category">{getCategoryName(selectedTxn.category) || "其他"}</Text>
-                  <Text className="detail-type">{selectedTxn.type === "income" ? "收入" : "支出"}</Text>
-                </View>
-                <Text className={`detail-amount ${selectedTxn.type === "income" ? "income" : "expense"}`}>
-                  {selectedTxn.type === "income" ? "+" : "-"}¥{fmtAmount(parseFloat(selectedTxn.amount) || 0)}
-                </Text>
-              </View>
-              {selectedTxn.description && (
-                <View className="detail-row">
-                  <Text className="detail-label">描述</Text>
-                  <Text className="detail-value">{selectedTxn.description}</Text>
-                </View>
-              )}
-              {selectedTxn.brand && (
-                <View className="detail-row">
-                  <Text className="detail-label">商户</Text>
-                  <Text className="detail-value">{selectedTxn.brand}</Text>
-                </View>
-              )}
-              {selectedTxn.location_name && (
-                <View className="detail-row">
-                  <Text className="detail-label">地点</Text>
-                  <Text className="detail-value">{selectedTxn.location_name}</Text>
-                </View>
-              )}
-              {selectedTxn.date && (
-                <View className="detail-row">
-                  <Text className="detail-label">日期</Text>
-                  <Text className="detail-value">{selectedTxn.date}</Text>
-                </View>
-              )}
-              {selectedTxn.image_url_list && selectedTxn.image_url_list.length > 0 && (
-                <View className="detail-images">
-                  <Text className="detail-label">附件</Text>
-                  <View className="image-grid">
-                    {selectedTxn.image_url_list.map((img: string, i: number) => (
-                      <View
-                        key={i}
-                        className="image-wrapper"
-                        onClick={() => {
-                          Taro.previewImage({
-                            urls: selectedTxn.image_url_list,
-                            current: img,
-                          });
-                        }}
-                      >
-                        <Image className="detail-image" src={img} mode="aspectFill" />
-                        <View className="image-zoom-hint">
-                          <Text>查看</Text>
-                        </View>
-                      </View>
-                    ))}
-                  </View>
-                </View>
-              )}
-            </View>
-            <View className="detail-actions">
-              <View className="detail-btn edit" onClick={handleEdit}>
-                <Text>编辑</Text>
-              </View>
-              <View className="detail-btn delete" onClick={handleDelete}>
-                <Text>删除</Text>
-              </View>
-            </View>
-          </View>
-        </View>
-      )}
-    </PageLayout>
+      </PageLayout>
+    </>
   );
 }

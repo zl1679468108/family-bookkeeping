@@ -70,7 +70,7 @@ export default function EditProfile() {
         // 使用 custom icons 上传接口获取正式 URL
         setAvatarUploading(true);
         import("../../services/iconsApi")
-          .then(({ uploadIcon }) => uploadIcon(path, "book"))
+          .then(({ uploadIcon }) => uploadIcon(path, "avatar"))
           .then((result: any) => {
             const iconUrl = result?.icon_url || result?.url || "";
             if (iconUrl) {
@@ -146,14 +146,14 @@ export default function EditProfile() {
       return Taro.showToast({ title: "请输入当前密码", icon: "none" });
     }
     if (newPwd.length < 6) {
-      return Taro.showToast({ title: "新密码至少 6 位", icon: "none" });
+      return Taro.showToast({ title: "新密码长度至少为 6 位", icon: "none" });
     }
     if (newPwd !== confirmPwd) {
-      return Taro.showToast({ title: "两次密码不一致", icon: "none" });
+      return Taro.showToast({ title: "两次输入的新密码不一致", icon: "none" });
     }
     if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(newPwd)) {
       return Taro.showToast({
-        title: "需含大小写字母和数字",
+        title: "新密码必须同时包含大小写字母和数字",
         icon: "none",
       });
     }
@@ -247,7 +247,7 @@ export default function EditProfile() {
           onClick={handleSave}
         >
           <Text className="edit-save-text">
-            {isSaving ? "保存中..." : "保存"}
+            {isSaving ? "更新中..." : "更新信息"}
           </Text>
         </View>
       </View>

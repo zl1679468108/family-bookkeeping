@@ -12,6 +12,7 @@ interface AppSectionProps {
   subtitle?: string;
   actionText?: string;
   onAction?: () => void;
+  headerRight?: ReactNode;
   children: ReactNode;
   className?: string;
   bodyClassName?: string;
@@ -25,6 +26,7 @@ export default function AppSection({
   subtitle,
   actionText,
   onAction,
+  headerRight,
   children,
   className = "",
   bodyClassName = "",
@@ -36,7 +38,7 @@ export default function AppSection({
     <View
       className={`app-section ${compact ? "app-section--compact" : ""} ${flush ? "app-section--flush" : ""} ${className}`}
     >
-      {(title || actionText) && (
+      {(title || actionText || headerRight) && (
         <View className="app-section__header">
           <View className="app-section__title-wrap">
             {title ? <Text className="app-section__title">{title}</Text> : null}
@@ -44,7 +46,9 @@ export default function AppSection({
               <Text className="app-section__subtitle">{subtitle}</Text>
             ) : null}
           </View>
-          {actionText ? (
+          {headerRight ? (
+            <View className="app-section__header-right">{headerRight}</View>
+          ) : actionText ? (
             <Text className="app-section__action" onClick={onAction}>
               {actionText}
             </Text>

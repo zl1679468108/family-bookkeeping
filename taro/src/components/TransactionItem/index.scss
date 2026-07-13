@@ -1,64 +1,78 @@
 /**
- * TransactionItem — 交易条目
- * 使用硬编码颜色值（CSS 变量未定义导致样式）
+ * TransactionItem — 交易条目（卡片内嵌）
+ * 布局: [图标] 分类名[品牌]        金额
+ *       描述 · 附件              日期
+ * 全部使用 CSS 变量；描述文字限2行溢出省略
  */
+
+/* 外层容器 */
 .txi-wrapper {
   position: relative;
   overflow: hidden;
 }
 
+/* 主内容行 — 卡片内无边框分隔线 */
 .txi-main {
   display: flex;
   align-items: center;
-  padding: 20rpx 24rpx;
-  background-color: #ffffff;
-  border-bottom: 1rpx solid #edeee9;
+  padding: 24rpx;
+  background-color: transparent;
   position: relative;
   z-index: 2;
   transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-}
 
-.txi-main:active {
-  background-color: #f5f6f3;
+  &:active {
+    opacity: 0.7;
+  }
 }
 
 .txi-main--swiped {
   transform: translateX(-140rpx);
 }
 
+/* ========== 滑动删除按钮 ========== */
 .txi-delete {
   position: absolute;
   right: 0;
   top: 0;
   bottom: 0;
   width: 140rpx;
-  background-color: #e06055;
+  background-color: var(--expense, #E06055);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1;
-  border-radius: 0 16rpx 16rpx 0;
 }
 
 .txi-delete-text {
-  color: #fff;
+  color: #ffffff;
   font-size: 28rpx;
-  font-weight: 500;
+  font-weight: 600;
+}
+
+/* ========== 左侧：分类图标 ========== */
+.txi-left {
+  margin-right: 18rpx;
+  flex-shrink: 0;
 }
 
 .txi-icon {
-  width: 72rpx;
-  height: 72rpx;
-  border-radius: 16rpx;
+  width: 76rpx;
+  height: 76rpx;
+  border-radius: 18rpx;
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
-  margin-right: 20rpx;
-  border: 1rpx solid #edeee9;
-  background-color: #f6f7f4;
-  font-size: 36rpx;
   overflow: hidden;
+  flex-shrink: 0;
+
+  &--expense {
+    background-color: rgba(224, 96, 85, 0.08);
+  }
+
+  &--income {
+    background-color: rgba(45, 157, 138, 0.08);
+  }
 }
 
 .txi-icon-img {
@@ -67,61 +81,119 @@
   display: block;
 }
 
+.txi-icon-text {
+  font-size: 38rpx;
+  line-height: 1;
+}
+
+/* ========== 中间：信息区（限制宽度防溢出） ========== */
 .txi-body {
   flex: 1;
-  min-width: 0;
-  margin-right: 16rpx;
-}
-
-.txi-right {
+  min-width: 0; /* 关键：允许 flex 子项收缩 */
+  margin-right: 14rpx;
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
-  gap: 6rpx;
+  gap: 8rpx;
 }
 
-.txi-image-badge {
-  font-size: 20rpx;
-  color: #8b8e89;
-  border: 1rpx solid #edeee9;
-  border-radius: 999rpx;
-  padding: 2rpx 10rpx;
+/* 上行：分类名 + 品牌标签 */
+.txi-top-line {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+  min-height: 38rpx;
 }
 
 .txi-name {
   font-size: 28rpx;
-  font-weight: 600;
-  color: #1f2421;
-  display: block;
+  font-weight: 700;
+  color: var(--fg, #1a1c19);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  flex-shrink: 1;
+  min-width: 0;
 }
 
-.txi-meta {
-  font-size: 24rpx;
-  color: #7a7f7a;
-  margin-top: 6rpx;
-  display: -webkit-box;
+/* 品牌标签 */
+.txi-brand-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 2rpx 14rpx;
+  font-size: 20rpx;
+  font-weight: 600;
+  color: var(--primary, #2D9D8A);
+  background-color: rgba(45, 157, 138, 0.1);
+  border-radius: 999rpx;
+  flex-shrink: 0;
+  line-height: 1.5;
   overflow: hidden;
   text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 160rpx;
+}
+
+/* 下行：描述 + 附件提示 — 限制最多2行 */
+.txi-bottom-line {
+  display: flex;
+  align-items: center;
+  gap: 6rpx;
+  min-height: 32rpx;
+}
+
+.txi-desc {
+  font-size: 24rpx;
+  color: var(--fg-3, #8b8e89);
+  /* 关键修复：限制2行+溢出省略号 */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
-  width: 100%;
-  max-height: 72rpx;
+  line-height: 1.5;
+  max-width: 340rpx;
+  flex-shrink: 1;
+}
+
+.txi-img-dot {
+  font-size: 24rpx;
+  color: var(--fg-3, #8b8e89);
+  flex-shrink: 0;
+}
+
+.txi-img-hint {
+  font-size: 20rpx;
+  color: var(--primary, #2D9D8A);
+  font-weight: 500;
+  flex-shrink: 0;
+  padding: 0 6rpx;
+}
+
+/* ========== 右侧：金额 + 日期 ========== */
+.txi-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8rpx;
+  flex-shrink: 0;
 }
 
 .txi-amount {
   font-size: 30rpx;
-  font-weight: 600;
-  flex-shrink: 0;
-  text-align: right;
+  font-weight: 700;
+  letter-spacing: -0.5rpx;
+
+  &--expense {
+    color: var(--expense, #E06055);
+  }
+
+  &--income {
+    color: var(--income, #3BA272);
+  }
 }
 
-.txi-amount--expense {
-  color: #e06055;
-}
-
-.txi-amount--income {
-  color: #2d9d8a;
+.txi-date {
+  font-size: 22rpx;
+  color: var(--fg-3, #8b8e89);
+  font-weight: 500;
 }

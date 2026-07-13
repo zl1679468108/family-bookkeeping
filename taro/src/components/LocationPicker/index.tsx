@@ -2,6 +2,7 @@
  * LocationPicker — 地图位置选择组件
  * 基于高德坐标（与后端、PC端一致）
  * 使用微信小程序原生 Map 组件 + 后端逆地理编码 / POI搜索 API
+ * 定位策略（3 层降级）：持续采样 → 单次高精度 → 单次普通精度
  * z-index: 2000，确保高于其他 sheet/modal
  */
 import { useState, useCallback, useEffect } from "react";
@@ -9,6 +10,7 @@ import { View, Text, Input, Map } from "@tarojs/components";
 import Taro from "@tarojs/taro";
 import { apiGet } from "../../services/api";
 import { useManualQuery } from "../../hooks/useManualQuery";
+import SheetHeader from "../SheetHeader";
 import "./index.scss";
 
 export interface LocationResult {
@@ -37,6 +39,7 @@ export default function LocationPicker({
   const [poiId, setPoiId] = useState<string | null>(null);
   const [searchText, setSearchText] = useState("");
   const [locating, setLocating] = useState(false);
+  const [locAccuracy, setLocAccuracy] = useState<number | null>(null);
 
   // 打开时：如果有 initialLocation 则显示该位置，否则自动定位
   useEffect(() => {
@@ -53,17 +56,64 @@ export default function LocationPicker({
     }
   }, [visible, initialLocation]);
 
-  // GPS 定位
+  // 定位（3 层降级：持续采样 → 单次高精度 → 单次普通精度）
   const handleLocate = useCallback(async () => {
     setLocating(true);
+    setLocAccuracy(null);
+
+    // Layer 1: 持续定位采样 — 连续监听位置变化，取 8s 内 accuracy 最优的点
+    const tryContinuous = (): Promise<{ lat: number; lng: number; acc: number }> =>
+      new Promise((resolve, reject) => {
+        let best: { lat: number; lng: number; acc: number } | null = null;
+        let rejected = false;
+        const SAMPLE_MS = 8000;
+
+        const onChange = (res: any) => {
+          if (rejected) return;
+          const acc = res.accuracy ?? 9999;
+          if (!best || acc < best.acc) {
+            best = { lat: res.latitude, lng: res.longitude, acc };
+          }
+        };
+
+        Taro.onLocationChange(onChange);
+
+        setTimeout(() => {
+          rejected = true;
+          Taro.offLocationChange(onChange);
+          Taro.stopLocationUpdate();
+          if (best && best.acc < 500) {
+            resolve({ lat: best.lat, lng: best.lng, acc: best.acc });
+          } else {
+            reject(new Error("no_good_sample"));
+          }
+        }, SAMPLE_MS);
+
+        Taro.startLocationUpdate({ type: "gcj02" });
+      });
+
+    // Layer 2/3: 单次定位 fallback
+    const singleLocate = (highAccuracy: boolean) =>
+      Taro.getLocation({
+        type: "gcj02",
+        isHighAccuracy: highAccuracy,
+        highAccuracyExpireTime: 10000,
+      }).then((res: any) => ({
+        lat: res.latitude,
+        lng: res.longitude,
+        acc: res.accuracy ?? 9999,
+      }));
+
     try {
-      const res = await Taro.getLocation({ type: "gcj02" });
-      const newPos = { lat: res.latitude, lng: res.longitude };
+      let newPos = await tryContinuous().catch(() =>
+        singleLocate(true).catch(() => singleLocate(false)),
+      );
       setPos(newPos);
+      setLocAccuracy(newPos.acc);
       await reverseGeocode(newPos.lat, newPos.lng);
     } catch (e: any) {
       Taro.showToast({
-        title: e?.errMsg || "定位失败，请授权位置权限",
+        title: e?.errMsg || "无法获取当前位置，请确认已授权位置权限后手动搜索或点击地图选择位置",
         icon: "none",
       });
     } finally {
@@ -185,19 +235,13 @@ export default function LocationPicker({
     <View className="lp-overlay">
       <View className="lp-panel">
         {/* Header */}
-        <View className="lp-header">
-          <Text className="lp-close" onClick={onClose}>
-            ×
-          </Text>
-          <Text className="lp-title">选择位置</Text>
-          <View style={{ width: 60 }} />
-        </View>
+        <SheetHeader title="选择消费位置" onClose={onClose} />
 
         {/* Search */}
         <View className="lp-search">
           <Input
             className="lp-search-input"
-            placeholder="搜索地址或商户…"
+            placeholder="搜索地址或商户名称..."
             value={searchText}
             onInput={(e: any) => setSearchText(e.detail.value)}
           />
@@ -268,9 +312,18 @@ export default function LocationPicker({
         <View className="lp-address">
           <Text className="lp-addr-icon">位置</Text>
           <Text className="lp-addr-text">
-            {address || "点击地图或搜索选择位置"}
+            {address || "在地图上点击选择位置，或使用搜索查找地址"}
           </Text>
         </View>
+
+        {/* 定位精度提示 */}
+        {locAccuracy != null && (
+          <View className={`lp-accuracy ${locAccuracy > 100 ? "lp-accuracy--low" : ""}`}>
+            {locAccuracy > 100
+              ? `定位精度约 ±${Math.round(locAccuracy)} 米，建议到开阔处或手动拖动微调`
+              : `定位精度约 ±${Math.round(locAccuracy)} 米`}
+          </View>
+        )}
 
         {/* Coords */}
         {pos && (

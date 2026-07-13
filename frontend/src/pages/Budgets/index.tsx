@@ -112,6 +112,9 @@ const Budgets: React.FC = () => {
       queryClient.invalidateQueries({ queryKey: ['budgets', selectedMonth] })
       queryClient.invalidateQueries({ queryKey: ['budgets', 'status', selectedMonth] })
     },
+    onError: (err: any) => {
+      notify({ type: 'error', message: err?.message || '预算保存失败' })
+    },
   })
 
   const { run: handleSave, isRunning: saveLoading } = useDebouncedAction(async () => {

@@ -52,3 +52,7 @@ export { DropdownSelect } from "./DropdownSelect";
 export type { DropdownOption } from "./DropdownSelect";
 export { IconGrid } from "./IconGrid";
 export type { IconGridOption, CustomIconItem } from "./IconGrid";
+export { LoadingOverlay } from "./LoadingOverlay";
+export type { LoadingOverlayProps } from "./LoadingOverlay";
+export { default as Spinner } from "./Spinner";
+export type { SpinnerProps } from "./Spinner";

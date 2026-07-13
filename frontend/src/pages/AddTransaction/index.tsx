@@ -4,7 +4,7 @@ import { TemplateSelector } from './components/TemplateSelector'
 import { TransactionForm } from './components/TransactionForm'
 import { ImageUploadSection } from './components/ImageUploadSection'
 import { useTransactionForm } from './hooks/useTransactionForm'
-import { Skeleton } from '../../components/ui/Skeleton'
+import { Skeleton, FormSkeleton } from '../../components/ui/Skeleton'
 import { LocationDisplay } from '../../components/ui/LocationDisplay'
 
 const AddTransaction: React.FC = () => {
@@ -27,10 +27,7 @@ const AddTransaction: React.FC = () => {
       <div className="page-container">
         <div className="add-grid">
           <div className="add-left">
-            <Skeleton width="100%" height="48px" borderRadius="8px" marginBottom="16px" />
-            <Skeleton width="100%" height="44px" borderRadius="8px" marginBottom="16px" />
-            <Skeleton width="100%" height="44px" borderRadius="8px" marginBottom="16px" />
-            <Skeleton width="100%" height="44px" borderRadius="8px" marginBottom="16px" />
+            <FormSkeleton fields={4} submitWidth={120} />
           </div>
           <div className="add-right">
             <Skeleton width="80%" height="20px" marginBottom="16px" />

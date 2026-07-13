@@ -6,9 +6,12 @@
 import { useState, useEffect } from "react";
 import { View, ScrollView, Picker, Text } from "@tarojs/components";
 import Taro from "@tarojs/taro";
+import { useTheme } from "../../context/ThemeContext";
+import { useNavBarTheme } from "../../hooks/useNavBarTheme";
 import {
   getTransaction,
   uploadReceipt,
+  deleteTransaction,
 } from "../../services/transactionsApi";
 import { getTemplates } from "../../services/templatesApi";
 import { useCategoryList } from "../../hooks/useCategories";
@@ -16,8 +19,6 @@ import {
   useCreateTransaction,
   useUpdateTransaction,
 } from "../../hooks/useTransactions";
-import TypeTabs from "../../components/form/TypeTabs";
-import AmountCard from "../../components/form/AmountCard";
 import FieldRow from "../../components/form/FieldRow";
 import SectionCard from "../../components/form/SectionCard";
 import NoteField from "../../components/form/NoteField";
@@ -26,6 +27,7 @@ import LocationField, {
 } from "../../components/form/LocationField";
 import ImageUpload from "../../components/form/ImageUpload";
 import ActionButtons from "../../components/form/ActionButtons";
+import { todayBeijing } from "../../utils/format";
 import "./index.scss";
 
 interface Template {
@@ -33,14 +35,19 @@ interface Template {
   name: string;
   category_id: string;
   category_name: string;
-  amount: number;
+  amount?: number;
   brand?: string;
   description?: string;
+  note?: string;
+  merchant_name?: string;
+  latitude?: number;
+  longitude?: number;
+  location_name?: string;
   type: "expense" | "income";
 }
 
 const MAX_NOTE_LENGTH = 500;
-const MAX_IMAGES = 5;
+const MAX_IMAGES = 10; // 与 PC 端记一笔保持一致
 
 const parseImageList = (tx: any): string[] => {
   if (
@@ -64,12 +71,19 @@ const parseImageList = (tx: any): string[] => {
 };
 
 export default function AddTransaction() {
+  const { isDark } = useTheme();
+  useNavBarTheme();
   const router = Taro.useRouter();
   const params = router.params as Record<string, string | undefined>;
-  const editId = params.edit || Taro.getStorageSync("edit_tx_id") || "";
+  const editId = params.edit || "";
   const isEdit = !!editId;
   const urlType: "expense" | "income" =
     params.type === "income" ? "income" : "expense";
+
+  // 旧版本用 Storage 传 editId，现已改为 URL query；清掉旧数据避免误进编辑模式
+  useEffect(() => {
+    Taro.removeStorageSync("edit_tx_id");
+  }, []);
 
   const createMut = useCreateTransaction();
   const updateMut = useUpdateTransaction();
@@ -77,10 +91,7 @@ export default function AddTransaction() {
   const [type, setType] = useState<"expense" | "income">(urlType);
   const [amount, setAmount] = useState("");
   const [categoryId, setCategoryId] = useState<string | number | "">("");
-  const [date, setDate] = useState(
-    new Date().toISOString().slice(0, 10),
-  );
-  const [time, setTime] = useState(new Date().toTimeString().slice(0, 5));
+  const [date, setDate] = useState(todayBeijing());
   const [brand, setBrand] = useState("");
   const [note, setNote] = useState("");
   const [savedImages, setSavedImages] = useState<string[]>([]);
@@ -102,14 +113,13 @@ export default function AddTransaction() {
         if (!data) return;
         setAmount(String(data.amount ?? ""));
         setCategoryId(
-          typeof data.category === "object"
-            ? data.category?.id
-            : data.category_id,
+          typeof data.category === "object" && data.category
+            ? data.category.id
+            : (data.category ?? data.category_id ?? ""),
         );
         setType(data.type ?? "expense");
         const dateStr = data.date || "";
         setDate(dateStr.slice(0, 10));
-        setTime(dateStr.slice(11, 16) || new Date().toTimeString().slice(0, 5));
         setBrand(data.brand || "");
         setNote(data.description || "");
         if (data.location_name || data.latitude) {
@@ -141,19 +151,21 @@ export default function AddTransaction() {
   // 加载模板列表
   useEffect(() => {
     getTemplates().then((data: any) => {
-      setTemplates(data?.data || []);
+      setTemplates(data || []);
     }).catch(() => {});
   }, []);
 
   // 类型切换时，如果当前分类不属于新类型，清空
+  // 编辑模式下不执行：已回显的分类是权威数据，避免异步时序误清空
   useEffect(() => {
+    if (isEdit) return;
     if (categoryId) {
       const matched = categories.find(
         (c: any) => String(c.id) === String(categoryId),
       );
       if (!matched) setCategoryId("");
     }
-  }, [type, categories]); // eslint-disable-line
+  }, [type, categories, isEdit]); // eslint-disable-line
 
   const isSubmitting = createMut.isPending || updateMut.isPending;
 
@@ -171,16 +183,46 @@ export default function AddTransaction() {
       .catch(() => {});
   };
 
-  // 应用模板
+  // 应用模板（与 PC 端一致：带出商户名与位置）
   const applyTemplate = (template: Template) => {
     setType(template.type);
-    setAmount(String(template.amount));
+    setAmount(String(template.amount ?? ""));
     setCategoryId(template.category_id);
-    setBrand(template.brand || "");
-    setNote(template.description || "");
+    setBrand(template.merchant_name || template.brand || "");
+    setNote(template.description || template.note || "");
+    if (template.latitude !== undefined && template.longitude !== undefined) {
+      setLocation({
+        name: template.location_name || "",
+        latitude: template.latitude,
+        longitude: template.longitude,
+      });
+    }
     setSelectedTemplate(template);
     setShowTemplates(false);
-    Taro.showToast({ title: `已应用模板: ${template.name}`, icon: "success" });
+    Taro.showToast({ title: `已应用模板：${template.name}`, icon: "success" });
+  };
+
+  // 删除
+  const handleDelete = async () => {
+    if (!editId) return;
+    Taro.showModal({
+      title: "确认删除",
+      content: "确定要删除这笔交易吗？",
+      success: async (res) => {
+        if (res.confirm) {
+          try {
+            Taro.showLoading({ title: "删除中..." });
+            await deleteTransaction(Number(editId));
+            Taro.hideLoading();
+            Taro.showToast({ title: "交易已删除", icon: "success" });
+            setTimeout(() => Taro.navigateBack(), 500);
+          } catch {
+            Taro.hideLoading();
+            Taro.showToast({ title: "删除失败", icon: "none" });
+          }
+        }
+      },
+    });
   };
 
   // 提交
@@ -198,7 +240,7 @@ export default function AddTransaction() {
       type,
       amount: parseFloat(amount),
       category: categoryId,
-      date: `${date} ${time}`,
+      date,
       brand: brand || undefined,
       description: note || undefined,
       latitude: location?.latitude,
@@ -278,7 +320,7 @@ export default function AddTransaction() {
 
       Taro.hideLoading();
       Taro.showToast({
-        title: isEdit ? "修改成功" : "添加成功",
+        title: isEdit ? "交易已更新" : "交易已保存",
         icon: "success",
       });
       setTimeout(() => Taro.navigateBack(), 600);
@@ -293,11 +335,8 @@ export default function AddTransaction() {
 
   return (
     <>
-    <ScrollView className="addtx" scrollY>
-      <TypeTabs value={type} onChange={setType} />
-
-      <AmountCard value={amount} onChange={setAmount} />
-
+    <ScrollView className={`addtx ${isDark ? "theme-dark" : ""}`} scrollY>
+      {/* 快捷方式 — 置顶 */}
       <SectionCard title="快捷方式">
         <FieldRow
           label="模板"
@@ -308,7 +347,36 @@ export default function AddTransaction() {
         />
       </SectionCard>
 
+      {/* 账单信息 */}
       <SectionCard title="账单信息">
+        {/* 类型 */}
+        <Picker
+          mode="selector"
+          range={["支出", "收入"]}
+          value={type === "income" ? 1 : 0}
+          onChange={(e: any) => setType(e.detail.value === 1 ? "income" : "expense")}
+        >
+          <FieldRow label="类型" required variant="row" value={type === "income" ? "收入" : "支出"} />
+        </Picker>
+
+        {/* 金额 */}
+        <FieldRow
+          label="金额"
+          required
+          variant="input"
+          inputValue={amount}
+          inputPlaceholder="0.00"
+          onInput={(v: string) => {
+            const cleaned = v.replace(/[^0-9.]/g, "");
+            const parts = cleaned.split(".");
+            setAmount(
+              parts[0] + (parts.length > 1 ? "." + (parts[1] || "").slice(0, 2) : "")
+            );
+          }}
+          inputMaxlength={10}
+        />
+
+        {/* 分类 */}
         <FieldRow
           label="分类"
           required
@@ -317,6 +385,8 @@ export default function AddTransaction() {
           placeholder="选择分类"
           onClick={handlePickCategory}
         />
+
+        {/* 日期 */}
         <Picker
           mode="date"
           value={date}
@@ -324,18 +394,13 @@ export default function AddTransaction() {
         >
           <FieldRow label="日期" required variant="row" value={date} />
         </Picker>
-        <Picker
-          mode="time"
-          value={time}
-          onChange={(e: any) => setTime(e.detail.value)}
-        >
-          <FieldRow label="时间" required variant="row" value={time} />
-        </Picker>
+
+        {/* 品牌 */}
         <FieldRow
           label="品牌"
           variant="input"
           inputValue={brand}
-          inputPlaceholder="雅诗兰黛 / 苹果 / 可不填"
+          inputPlaceholder="例如：雅诗兰黛、苹果"
           onInput={setBrand}
           inputMaxlength={100}
         />
@@ -359,6 +424,8 @@ export default function AddTransaction() {
         primaryLoading={isSubmitting}
         onPrimary={handleSubmit}
         onSecondary={() => Taro.navigateBack()}
+        dangerText={isEdit ? "删除此笔" : undefined}
+        onDanger={isEdit ? handleDelete : undefined}
       />
 
       <View className="addtx-safe" style="height: 60rpx;" />
@@ -369,7 +436,7 @@ export default function AddTransaction() {
       <View className="template-mask" onClick={() => setShowTemplates(false)}>
         <View className="template-dialog" onClick={(e) => e.stopPropagation()}>
           <View className="template-header">
-            <Text className="template-title">选择记账模板</Text>
+            <Text className="template-title">选择模板</Text>
             <Text className="template-close" onClick={() => setShowTemplates(false)}>✕</Text>
           </View>
           <ScrollView className="template-list" scrollY>
@@ -390,7 +457,7 @@ export default function AddTransaction() {
                   </View>
                   <View className="template-amount">
                     <Text className={template.type === "income" ? "income" : "expense"}>
-                      {template.type === "income" ? "+" : "-"}¥{template.amount.toFixed(2)}
+                      {template.type === "income" ? "+" : "-"}¥{Number(template.amount ?? 0).toFixed(2)}
                     </Text>
                   </View>
                 </View>

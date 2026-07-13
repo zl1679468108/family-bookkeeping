@@ -57,6 +57,9 @@ export const BookCreateModal: React.FC<BookCreateModalProps> = ({ open, onClose,
       onClose();
       onSuccess?.();
     },
+    onError: (err: any) => {
+      notify({ type: 'error', message: err?.message || (isEdit ? '更新失败' : '创建失败') });
+    },
   });
 
   const handleSubmit = () => {

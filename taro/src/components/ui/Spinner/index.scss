@@ -1,0 +1,33 @@
+/* Spinner — 旋转加载指示器 */
+.ui-spin {
+  display: inline-block;
+  box-sizing: border-box;
+  border-radius: 50%;
+  border: 3rpx solid currentColor;
+  border-top-color: transparent;
+  animation: ui-spin-rotate 0.7s linear infinite;
+}
+
+.ui-spin--sm {
+  width: 28rpx;
+  height: 28rpx;
+}
+
+.ui-spin--md {
+  width: 40rpx;
+  height: 40rpx;
+}
+
+/* 按钮 loading 态：spinner + 文字横向居中 */
+.ui-spin-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12rpx;
+}
+
+@keyframes ui-spin-rotate {
+  to {
+    transform: rotate(360deg);
+  }
+}

@@ -1,439 +1,177 @@
+/* ═══════════════ 流水页 Transactions ═══════════════ */
+
 .txns-content {
-  padding: 0;
   padding-top: env(safe-area-inset-top, 0);
 }
 
-/* ========== 搜索框 ========== */
-.search-bar {
+/* ========== 筛选区：搜索(第1行) + Picker(第2行) + 统计摘要(第3行) ========== */
+/* 整体卡片左右内缩 32rpx，与下方交易列表卡片的左右间距保持一致（对齐首页标准） */
+.filter-card {
+  z-index: 10;
+  margin: 0 32rpx;
+  padding: 16rpx 0 0;
+  transition: box-shadow 0.2s ease;
+
+  &.scrolled {
+    box-shadow: 0 4rpx 14rpx rgba(0, 0, 0, 0.08);
+    background-color: var(--bg, #f6f7f4);
+  }
+}
+
+/* 搜索 + 筛选 Picker 的白底卡片容器 */
+.filter-card-surface {
+  background-color: var(--srf, #fff);
+  border-radius: 24rpx;
+  padding: 20rpx 24rpx;
+  box-shadow: var(--sh1, 0 2rpx 4rpx rgba(0, 0, 0, 0.04));
+}
+
+.search-row {
   display: flex;
   align-items: center;
-  margin-bottom: 18rpx;
-  padding: 0 22rpx;
-  height: 80rpx;
-  background-color: var(--surface);
-  border-radius: 24rpx;
-  border: 1rpx solid var(--border);
+  position: relative;
+  margin-bottom: 16rpx;
 }
 
 .search-input {
   flex: 1;
-  height: 100%;
-  font-size: 28rpx;
-  color: var(--fg);
-}
-
-.search-clear {
-  font-size: 32rpx;
-  color: var(--fg-3);
-  padding: 8rpx;
-}
-
-/* ========== 筛选栏 ========== */
-.filter-bar {
-  border-top: 1rpx solid var(--border-light);
-}
-
-.filter-scroll {
-  display: flex;
-  gap: 16rpx;
-  padding: 0 0 14rpx;
-  overflow-x: auto;
-}
-
-.filter-chip {
-  flex-shrink: 0;
-  padding: 16rpx 28rpx;
-  background: var(--surface);
-  border-radius: 32rpx;
+  height: 72rpx;
+  padding: 0 56rpx 0 28rpx;
   font-size: 26rpx;
-  font-weight: 500;
-  color: #7a7f7a;
-  transition: all 0.2s ease;
-  border: 2rpx solid transparent;
-}
-
-.filter-chip.active {
-  background: var(--fg);
-  color: #ffffff;
-  font-weight: 600;
-  box-shadow: 0 4rpx 12rpx rgba(36, 49, 45, 0.18);
-}
-
-/* ========== 分类筛选 ========== */
-.category-filter {
-  padding: 6rpx 0 0;
-}
-
-.category-picker {
-  display: flex;
-  align-items: center;
-  gap: 8rpx;
-  padding: 12rpx 20rpx;
-  background-color: var(--surface-soft);
+  color: var(--fg, #1a1c19);
+  background-color: transparent;
   border-radius: 22rpx;
-  border: 1rpx solid var(--border);
-  width: fit-content;
-}
+  border: 2rpx solid var(--bdL, #edeee9);
+  transition: border-color 0.2s ease;
 
-.category-label {
-  font-size: 26rpx;
-  color: var(--fg);
-}
-
-.category-arrow {
-  font-size: 22rpx;
-  color: var(--fg-3);
-}
-
-/* ========== 统计汇总 ========== */
-.stats-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-around;
-  padding: 24rpx 24rpx;
-  background-color: var(--surface-soft);
-  border-radius: 28rpx;
-  border: 1rpx solid var(--border);
-  margin-bottom: 18rpx;
-}
-
-.stat-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8rpx;
-}
-
-.stat-label {
-  font-size: 24rpx;
-  color: var(--fg-3);
-}
-
-.stat-value {
-  font-size: 32rpx;
-  font-weight: 700;
-
-  &.income {
-    color: var(--income);
-  }
-
-  &.expense {
-    color: var(--expense);
+  &:focus {
+    border-color: var(--primary, #2D9D8A);
   }
 }
 
-.stat-divider {
-  width: 1rpx;
-  height: 48rpx;
-  background-color: var(--border);
-}
-
-/* ========== 交易列表容器 ========== */
-.txns-metrics {
-  margin-bottom: 18rpx;
-}
-
-/* ========== 交易详情弹窗 ========== */
-.detail-mask {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: flex-end;
-  z-index: 1000;
-}
-
-.detail-dialog {
-  width: 100%;
-  background-color: var(--surface-soft);
-  border-radius: 32rpx 32rpx 0 0;
-  max-height: 80vh;
-  overflow: hidden;
-}
-
-.detail-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 28rpx 32rpx;
-  border-bottom: 1rpx solid var(--border-light);
-}
-
-.detail-title {
-  font-size: 32rpx;
-  font-weight: 600;
-  color: var(--fg);
-}
-
-.detail-close {
-  font-size: 36rpx;
-  color: var(--fg-3);
-  padding: 8rpx;
-}
-
-.detail-content {
-  padding: 24rpx 32rpx;
-  max-height: 60vh;
-  overflow-y: auto;
-}
-
-.detail-main {
-  display: flex;
-  align-items: center;
-  gap: 20rpx;
-  padding-bottom: 24rpx;
-  border-bottom: 1rpx solid var(--border-light);
-  margin-bottom: 20rpx;
-}
-
-.detail-icon {
-  width: 80rpx;
-  height: 80rpx;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: var(--primary-bg);
-  border-radius: var(--radius-md);
-  font-size: 40rpx;
-}
-
-.detail-info {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 4rpx;
-}
-
-.detail-category {
-  font-size: 30rpx;
-  font-weight: 600;
-  color: var(--fg);
-}
-
-.detail-type {
-  font-size: 24rpx;
-  color: var(--fg-3);
-}
-
-.detail-amount {
-  font-size: 40rpx;
-  font-weight: 700;
-
-  &.income {
-    color: var(--income);
-  }
-
-  &.expense {
-    color: var(--expense);
-  }
-}
-
-.detail-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 16rpx 0;
-  border-bottom: 1rpx solid var(--border-light);
-}
-
-.detail-label {
-  font-size: 26rpx;
-  color: var(--fg-3);
-}
-
-.detail-value {
-  font-size: 26rpx;
-  color: var(--fg);
-  text-align: right;
-  flex: 1;
-  margin-left: 20rpx;
-}
-
-.detail-images {
-  margin-top: 16rpx;
-}
-
-.image-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12rpx;
-  margin-top: 12rpx;
-}
-
-.detail-image {
-  width: 180rpx;
-  height: 180rpx;
-  border-radius: var(--radius-sm);
-}
-
-.image-wrapper {
-  position: relative;
-}
-
-.image-zoom-hint {
+.search-clear-btn {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 60rpx;
-  height: 60rpx;
-  background-color: rgba(0, 0, 0, 0.4);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  opacity: 0;
-  transition: opacity 0.2s ease;
-}
-
-.image-wrapper:active .image-zoom-hint {
-  opacity: 1;
-}
-
-.detail-actions {
-  display: flex;
-  gap: 20rpx;
-  padding: 24rpx 32rpx calc(24rpx + env(safe-area-inset-bottom, 0));
-  border-top: 1rpx solid var(--border-light);
-}
-
-.detail-btn {
-  flex: 1;
-  height: 88rpx;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: var(--radius-md);
-  font-size: 30rpx;
-  font-weight: 600;
-
-  &.edit {
-    background-color: var(--primary);
-    color: #ffffff;
-  }
-
-  &.delete {
-    background-color: var(--surface);
-    color: var(--expense);
-    border: 2rpx solid var(--expense);
-  }
-}
-
-/* ========== 操作栏：批量选择 + 查看范围 ========== */
-.action-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16rpx 32rpx;
-  background-color: var(--surface);
-  border-bottom: 1rpx solid var(--border-light);
-}
-
-.action-scope,
-.action-batch {
-  padding: 8rpx 20rpx;
-  border-radius: 32rpx;
-  background-color: rgba(0, 0, 0, 0.04);
-}
-
-.scope-tag,
-.batch-tag {
-  font-size: 24rpx;
-  font-weight: 600;
-  color: var(--fg-2);
-}
-
-.scope-tag.active,
-.batch-tag.active {
-  color: var(--primary);
-}
-
-/* ========== 批量操作栏 ========== */
-.batch-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16rpx 32rpx;
-  background-color: var(--primary-bg, rgba(45, 157, 138, 0.08));
-  border-bottom: 1rpx solid var(--border-light);
-}
-
-.batch-select-all {
-  padding: 8rpx 16rpx;
-}
-
-.batch-text {
-  font-size: 24rpx;
-  color: var(--primary);
-  font-weight: 600;
-}
-
-.batch-info {
-  flex: 1;
+  right: 18rpx;
+  width: 38rpx;
+  height: 38rpx;
+  line-height: 36rpx;
   text-align: center;
+  font-size: 22rpx;
+  color: var(--fg-3, #8b8e89);
+  background-color: var(--border-light, #f0f1ee);
+  border-radius: 50%;
 }
 
-.batch-count {
-  font-size: 24rpx;
-  color: var(--fg-2);
-}
-
-.batch-delete {
-  padding: 12rpx 28rpx;
-  border-radius: 32rpx;
-  background-color: var(--expense);
-}
-
-.batch-delete.disabled {
-  background-color: #d1d5db;
-}
-
-.batch-delete-text {
-  font-size: 24rpx;
-  font-weight: 600;
-  color: #ffffff;
-}
-
-/* ========== 批量选择列表项 ========== */
-.txn-item-with-checkbox {
+.picker-row {
   display: flex;
-  align-items: center;
-  gap: 16rpx;
-  padding: 12rpx 24rpx;
-  background-color: var(--surface);
-  border-bottom: 1rpx solid var(--border-light);
+  gap: 14rpx;
 
-  &.selected {
-    background-color: rgba(45, 157, 138, 0.06);
+  /* 每个 Picker 撑满均等宽度 */
+  > Picker {
+    flex: 1;
   }
 }
 
-.txn-item-content {
+.picker-chip {
   flex: 1;
-}
-
-.checkbox {
-  width: 44rpx;
-  height: 44rpx;
-  border-radius: 50%;
-  border: 3rpx solid var(--border);
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
-  transition: all 0.2s ease;
+  gap: 6rpx;
+  height: 64rpx;
+  background-color: transparent;
+  border-radius: 20rpx;
+  border: 2rpx solid var(--bdL, #edeee9);
+  transition: border-color 0.2s ease;
 
-  &.checked {
-    background-color: var(--primary);
-    border-color: var(--primary);
+  &:active {
+    border-color: var(--primary, #2D9D8A);
   }
 }
 
-.checkbox-check {
-  font-size: 24rpx;
-  color: #ffffff;
+.picker-chip-text {
+  font-size: 25rpx;
+  font-weight: 600;
+  color: var(--fg, #1a1c19);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.picker-arrow {
+  font-size: 18rpx;
+  color: var(--fg-3, #8b8e89);
+  flex-shrink: 0;
+}
+
+/* ========== 统计摘要（对齐PC端） ========== */
+.stats-summary {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 12rpx 24rpx 4rpx;
+}
+
+.stats-text {
+  font-size: 22rpx;
+  color: var(--fg-3, #8b8e89);
+  font-weight: 500;
+  letter-spacing: 0.5rpx;
+}
+
+/* ========== 交易列表容器（白底卡片） ========== */
+.txn-list {
+  background: var(--surface, #fff);
+  border-radius: 24rpx;
+  padding: 28rpx 24rpx;
+  margin: 20rpx 32rpx 0;
+}
+
+/* ========== 日期分组标题 ========== */
+.date-group {
+  margin-bottom: 16rpx;
+}
+
+.date-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 8rpx 8rpx 12rpx;
+}
+
+.date-label {
+  font-size: 28rpx;
   font-weight: 700;
+  color: var(--fg, #1a1c19);
+}
+
+.date-full {
+  font-size: 22rpx;
+  color: var(--fg-3, #8b8e89);
+  font-weight: 500;
+}
+
+/* ========== 每条交易 — 卡片形式 ========== */
+.txn-card {
+  margin-bottom: 14rpx;
+  border-radius: 18rpx;
+  background-color: var(--surface, #ffffff);
+  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+
+  &:active {
+    opacity: 0.85;
+  }
+}
+
+/* ========== 列表底部提示 ========== */
+.list-footer {
+  text-align: center;
+  padding: 36rpx 32rpx 48rpx;
+}
+
+.footer-text {
+  font-size: 24rpx;
+  color: var(--fg-3, #8b8e89);
+  letter-spacing: 2rpx;
 }

@@ -12,12 +12,32 @@
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
+.metric-grid--4 {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.metric-grid--4 .metric-card {
+  padding: 18rpx 14rpx;
+}
+
+.metric-grid--4 .metric-card__label {
+  font-size: 20rpx;
+}
+
+.metric-grid--4 .metric-card__value {
+  font-size: 26rpx;
+}
+
+.metric-grid--4 .metric-card__meta {
+  font-size: 18rpx;
+}
+
 .metric-card {
   min-width: 0;
   padding: 24rpx;
   border-radius: 26rpx;
   border: 1rpx solid var(--border, #e0e2dd);
-  background: var(--surface-soft, #fafaf7);
+  background: var(--surface);
   box-shadow: 0 8rpx 24rpx rgba(36, 49, 45, 0.035);
 }
 

@@ -54,12 +54,16 @@ export function useTemplatesPage() {
   })
 
   const { run: handleDeleteTemplate, isRunning: deleteLoading } = useDebouncedAction(async () => {
-    deleteTemplate(selectedTemplate.id)
-    queryClient.invalidateQueries({ queryKey: ['templates'] })
-    setShowDetail(false)
-    setShowDeleteConfirm(false)
-    setSelectedTemplate(null)
-    notify({ type: 'success', message: '模板已删除' })
+    try {
+      await deleteTemplate(selectedTemplate.id)
+      queryClient.invalidateQueries({ queryKey: ['templates'] })
+      setShowDetail(false)
+      setShowDeleteConfirm(false)
+      setSelectedTemplate(null)
+      notify({ type: 'success', message: '模板已删除' })
+    } catch (err: any) {
+      notify({ type: 'error', message: err?.message || '删除失败' })
+    }
   })
 
   const createMutation = useMutation({
@@ -67,6 +71,9 @@ export function useTemplatesPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['templates'] })
       notify({ type: 'success', message: '模板已创建' })
+    },
+    onError: (err: any) => {
+      notify({ type: 'error', message: err?.message || '创建失败' })
     },
   })
 
@@ -78,6 +85,9 @@ export function useTemplatesPage() {
       setShowForm(false)
       setShowDetail(false)
       setSelectedTemplate(null)
+    },
+    onError: (err: any) => {
+      notify({ type: 'error', message: err?.message || '更新失败' })
     },
   })
 

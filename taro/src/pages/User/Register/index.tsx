@@ -1,14 +1,18 @@
 /**
- * Register — V3.0 安静注册页
+ * Register — 极简注册页
  */
 import { useState } from "react";
 import { View, Text, Input } from "@tarojs/components";
 import Taro from "@tarojs/taro";
 import { useAuth } from "../../../context/AuthContext";
+import { useTheme } from "../../../context/ThemeContext";
+import { useNavBarTheme } from "../../../hooks/useNavBarTheme";
 import { ApiError } from "../../../services/api";
 import "./index.scss";
 
 export default function Register() {
+  const { isDark } = useTheme();
+  useNavBarTheme();
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -23,11 +27,11 @@ export default function Register() {
       return;
     }
     if (password !== confirmPassword) {
-      setError("两次密码输入不一致");
+      setError("两次输入的密码不一致");
       return;
     }
     if (password.length < 6) {
-      setError("密码长度至少6位");
+      setError("密码长度至少为6位");
       return;
     }
     setError("");
@@ -43,61 +47,61 @@ export default function Register() {
   };
 
   return (
-    <View className="register-page min-h-screen bg-white flex flex-col">
-      {/* Brand area */}
-      <View className="brand-section flex flex-col items-center">
-        <View className="app-icon flex items-center justify-center">
-          <Text className="app-icon-text">静</Text>
+    <View className={`register-page min-h-screen bg-bg flex flex-col ${isDark ? "theme-dark" : ""}`}>
+      {/* 品牌区 */}
+      <View className="register-hero">
+        <View className="register-brand-mark">
+          <Text className="register-brand-text">静</Text>
         </View>
-        <Text className="app-name text-2xl font-bold">静记</Text>
-        <Text className="app-slogan text-base text-secondary mt-2">
-          开始你的记账之旅
-        </Text>
+        <Text className="register-brand-name">静记</Text>
       </View>
 
-      {/* Form */}
-      <View className="register-form flex flex-col px-4">
-        <View className="form-item">
-          <Text className="input-label">用户名</Text>
+      {/* 表单 */}
+      <View className="register-form">
+        <View className="register-field">
+          <Text className="register-field-label">用户名</Text>
           <Input
-            className="auth-input"
+            className="register-input"
             value={username}
             onInput={(e) => setUsername(e.detail.value)}
-            placeholder="输入用户名"
+            placeholder="您的昵称"
             placeholderClass="text-hint"
             confirmType="next"
           />
         </View>
-        <View className="form-item">
-          <Text className="input-label">邮箱</Text>
+
+        <View className="register-field">
+          <Text className="register-field-label">邮箱</Text>
           <Input
-            className="auth-input"
+            className="register-input"
             value={email}
             onInput={(e) => setEmail(e.detail.value)}
-            placeholder="输入邮箱地址"
+            placeholder="your@email.com"
             placeholderClass="text-hint"
             confirmType="next"
           />
         </View>
-        <View className="form-item">
-          <Text className="input-label">密码</Text>
+
+        <View className="register-field">
+          <Text className="register-field-label">密码</Text>
           <Input
-            className="auth-input"
+            className="register-input"
             value={password}
             onInput={(e) => setPassword(e.detail.value)}
-            placeholder="密码（至少6位）"
+            placeholder="至少6位"
             placeholderClass="text-hint"
             password
             confirmType="next"
           />
         </View>
-        <View className="form-item">
-          <Text className="input-label">确认密码</Text>
+
+        <View className="register-field">
+          <Text className="register-field-label">确认密码</Text>
           <Input
-            className="auth-input"
+            className="register-input"
             value={confirmPassword}
             onInput={(e) => setConfirmPassword(e.detail.value)}
-            placeholder="再次输入密码"
+            placeholder="再次输入"
             placeholderClass="text-hint"
             password
             confirmType="done"
@@ -105,28 +109,22 @@ export default function Register() {
           />
         </View>
 
-        {error ? (
-          <Text className="form-error text-sm text-danger">{error}</Text>
-        ) : null}
+        {error ? <Text className="register-error">{error}</Text> : null}
 
-        <View className="register-form-submit">
-          <View
-            className={`register-btn ${submitting ? "opacity-60" : ""}`}
-            onClick={() => !submitting && handleSubmit()}
-          >
-            <Text>{submitting ? "注册中..." : "注册"}</Text>
-          </View>
+        <View
+          className={`register-submit ${submitting ? "opacity-60" : ""}`}
+          onClick={() => !submitting && handleSubmit()}
+        >
+          <Text>{submitting ? "注册中..." : "注册"}</Text>
         </View>
 
-        <View className="form-footer text-center mt-4">
-          <Text className="text-secondary text-md">
-            已有账号？
-            <Text
-              className="text-primary font-semibold"
-              onClick={() => Taro.redirectTo({ url: "/pages/User/Login/index" })}
-            >
-              去登录
-            </Text>
+        <View className="register-footer">
+          <Text
+            className="link-muted"
+            onClick={() => Taro.redirectTo({ url: "/pages/User/Login/index" })}
+          >
+            已有账户？
+            <Text className="link-primary">立即登录</Text>
           </Text>
         </View>
       </View>

@@ -1,7 +1,7 @@
 .menu-list {
   border-radius: 28rpx;
   border: 1rpx solid var(--border, #e0e2dd);
-  background: var(--surface-soft, #fafaf7);
+  background: var(--surface);
   overflow: hidden;
   margin-bottom: 18rpx;
   box-shadow: 0 10rpx 28rpx rgba(36, 49, 45, 0.035);
@@ -21,14 +21,14 @@
 }
 
 .menu-list__item:active {
-  background: rgba(45, 157, 138, 0.06);
+  background: var(--prBg);
 }
 
 .menu-list__icon {
   width: 64rpx;
   height: 64rpx;
   border-radius: 20rpx;
-  background: #f0f3ee;
+  background: var(--bg);
   display: flex;
   align-items: center;
   justify-content: center;

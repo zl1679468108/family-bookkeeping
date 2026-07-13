@@ -75,18 +75,6 @@
     display: flex;
     flex-direction: column;
   }
-  &__header {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 32rpx 32rpx 20rpx;
-    border-bottom: 2rpx solid var(--bdL);
-  }
-  &__title { font-size: 32rpx; font-weight: 600; color: var(--fg); }
-  &__close {
-    width: 56rpx; height: 56rpx;
-    display: flex; align-items: center; justify-content: center;
-    background: var(--bdL); border-radius: 50%;
-  }
-  &__close-icon { font-size: 36rpx; color: var(--fg2); line-height: 1; }
   &__desc { display: block; padding: 20rpx 32rpx 0; font-size: 26rpx; color: var(--fg3); }
   &__body {
     flex: 1;

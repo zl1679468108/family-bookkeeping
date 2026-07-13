@@ -1,6 +1,6 @@
 /**
- * TabBar（1:1 严格按设计稿）
- * 白色背景、分隔线 0.5px，SVG 图标 24rpx/48rpx，主色 #2D9D8A
+ * TabBar — 仅保留布局/图标样式
+ * 背景/边框/文字色由 TSX 内联 style 直接控制（绕过 custom-tab-bar 样式隔离）
  */
 
 .tab-bar-container {
@@ -9,8 +9,8 @@
   right: 0;
   bottom: 0;
   z-index: 50;
-  background-color: #FFFFFF;
-  border-top: 0.5px solid #E0E2DD;
+  border-top-style: solid;
+  border-top-width: 0.5px;
   display: flex;
   align-items: flex-start;
   justify-content: space-around;
@@ -19,7 +19,7 @@
   padding-bottom: calc(8rpx + env(safe-area-inset-bottom));
 }
 
-/* ===== Tab Item ===== */
+/* ===== Tab Item（布局 + active 字重） ===== */
 .tab-bar-item {
   flex: 1;
   display: flex;
@@ -28,28 +28,23 @@
   justify-content: center;
   gap: 4rpx;
   position: relative;
-  color: #8B8E89;
   font-size: 20rpx;
   font-weight: 500;
-  transition: color 0.15s ease;
 }
 
 .tab-bar-item--active {
-  color: #2D9D8A;
   font-weight: 600;
 }
 
-/* ===== Image 图标（微信小程序不支持 inline SVG） ===== */
+/* ===== Image 图标 ===== */
 .tab-bar-icon {
   width: 48rpx;
   height: 48rpx;
   display: block;
 }
 
-/* ===== Label ===== */
+/* ===== Label（颜色由内联 style 控制） ===== */
 .tab-bar-label {
   font-size: 20rpx;
-  color: inherit;
-  font-weight: inherit;
   line-height: 1;
 }

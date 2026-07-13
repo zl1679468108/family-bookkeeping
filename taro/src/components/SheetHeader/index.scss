@@ -1,0 +1,64 @@
+/* =========================================================
+ * SheetHeader — 统一 Sheet 标题栏
+ * 左返回 icon（无中文）/ 中标题 / 右关闭 icon
+ * ========================================================= */
+
+.sheet-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 28rpx 32rpx;
+  border-bottom: 1rpx solid var(--border-light, #edeee9);
+  background-color: var(--surface, #ffffff);
+  flex-shrink: 0;
+}
+
+.sheet-header__side {
+  width: 80rpx;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.sheet-header__side--left {
+  justify-content: flex-start;
+}
+
+.sheet-header__side--right {
+  justify-content: flex-end;
+}
+
+.sheet-header__icon {
+  width: 56rpx;
+  height: 56rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--bg, #f6f7f4);
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.sheet-header__icon:active {
+  opacity: 0.7;
+  transform: scale(0.92);
+}
+
+.sheet-header__icon Text {
+  font-size: 36rpx;
+  color: var(--fg-2, #5a5d58);
+  line-height: 1;
+  font-weight: 300;
+}
+
+.sheet-header__title {
+  flex: 1;
+  text-align: center;
+  font-size: 30rpx;
+  color: var(--fg, #1a1c19);
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin: 0 16rpx;
+}

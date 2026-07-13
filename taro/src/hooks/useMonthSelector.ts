@@ -2,7 +2,7 @@
  * useMonthSelector — 统一月份选择状态
  *
  * 返回 year/month 状态、dateRange、monthKey 等。
- * 在 Home/Transactions/Statistics/Budgets/Calendar 五个页面使用。
+ * 在 Home/Transactions/Budgets 等页面使用。
  */
 import { useState, useMemo } from "react";
 

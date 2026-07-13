@@ -1,334 +1,330 @@
 /**
- * Books — 账本管理 v2
- * 对齐 PC：账本列表、切换账本、新增、编辑、删除 + 成员管理（邀请/生成邀请码/移除成员）
+ * Books — 账本管理
+ * 列表 + 账本详情 Sheet（成员/邀请/邀请码/编辑/删除）+ 新建 + 使用邀请码加入
+ * 点击账本卡片 → 弹出底部详情 Sheet（含所有管理操作）
  */
-import { useState } from "react";
-import { View, Text, Input, ScrollView, Image } from "@tarojs/components";
-import Taro from "@tarojs/taro";
-import { useQueryClient, useMutation } from "@tanstack/react-query";
+import { useState, useCallback, useMemo, useRef, useEffect } from "react";
+import { View, Text, Input, Image } from "@tarojs/components";
+import Taro, { useDidShow } from "@tarojs/taro";
+import { useMutation } from "@tanstack/react-query";
 import PageLayout from "../../components/PageLayout";
-import EmptyState from "../../components/EmptyState";
+import { EmptyState, Spinner } from "../../components/ui";
 import ConfirmDialog from "../../components/ConfirmDialog";
-import { AppSection, PageHero } from "../../components/ui";
-import { apiGet, apiPost, apiPut, apiDelete, setStoredBookId } from "../../services/api";
+import SheetHeader from "../../components/SheetHeader";
 import {
+  fetchBooks,
+  joinByInvitation,
   fetchBookMembers,
   inviteMember,
   createInvitation,
+  deleteBook,
   removeMember,
-  leaveBook,
-  joinByInvitation,
 } from "../../services/booksApi";
+import { ApiError } from "../../services/api";
 import { useManualQuery } from "../../hooks/useManualQuery";
 import { useBookContext } from "../../context/BookContext";
-import { BOOK_ICONS, renderBookIconSvg } from "../../utils/bookIcons";
-import { uploadIcon } from "../../services/iconsApi";
+import { useAuth } from "../../context/AuthContext";
+import { renderBookIconSvg } from "../../utils/bookIcons";
 import type { Book } from "../../types";
 import "./index.scss";
 
-// Backend may return is_default flag; extend the base Book type for this page
 type BookRow = Book & { is_default?: boolean };
 
+interface Member {
+  id: string;
+  email: string;
+  username?: string;
+  role: "owner" | "member";
+}
+
+const isCustomIcon = (val: string | undefined): boolean =>
+  !!val && (val.startsWith("http://") || val.startsWith("https://"));
+
+// 格式化北京时间字符串为可读日期
+const fmtDate = (s: string) => {
+  if (!s) return "";
+  try {
+    const d = new Date(s);
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    const h = String(d.getHours()).padStart(2, "0");
+    const min = String(d.getMinutes()).padStart(2, "0");
+    return `${y}-${m}-${day} ${h}:${min}`;
+  } catch {
+    return s;
+  }
+};
+
 export default function BooksPage() {
-  const qc = useQueryClient();
   const { currentBook, switchBook } = useBookContext();
+  const { user } = useAuth();
 
-  // 新增/编辑弹窗
-  const [showSheet, setShowSheet] = useState(false);
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [form, setForm] = useState({
-    name: "",
-    description: "",
-    icon: "default", // 使用 PC 端的 key；也可能是自定义图标 URL
-  });
-  const [uploadingIcon, setUploadingIcon] = useState(false);
-
-  // 自定义图标上传（与 PC 端一致：上传到 /icons，得到 URL 后保存到 icon 字段）
-  const handleUploadCustomIcon = () => {
-    Taro.chooseImage({
-      count: 1,
-      sizeType: ["compressed"],
-      sourceType: ["album", "camera"],
-    })
-      .then((res) => {
-        const path = res.tempFilePaths && res.tempFilePaths[0];
-        if (!path) return;
-        setUploadingIcon(true);
-        uploadIcon(path, "book")
-          .then((result: any) => {
-            const url = result?.icon_url || result?.url;
-            if (url) {
-              setForm((p) => ({ ...p, icon: url }));
-              Taro.showToast({ title: "图标已上传", icon: "success" });
-            } else {
-              Taro.showToast({ title: "上传失败", icon: "none" });
-            }
-          })
-          .catch(() => {
-            Taro.showToast({ title: "上传失败", icon: "none" });
-          })
-          .finally(() => setUploadingIcon(false));
-      })
-      .catch(() => {});
-  };
-
-  // 判断当前 icon 是否为 URL（自定义图标）
-  const isCustomIcon = (val: string | undefined): boolean =>
-    !!val && (val.startsWith("http://") || val.startsWith("https://"));
-
-  // 删除确认
-  const [deleteId, setDeleteId] = useState<string | null>(null);
-
-  // 账本详情弹窗
-  const [detailBook, setDetailBook] = useState<BookRow | null>(null);
-  const [showDetail, setShowDetail] = useState(false);
-  const [members, setMembers] = useState<any[]>([]);
-  const [membersLoading, setMembersLoading] = useState(false);
-
-  // 邀请成员
-  const [showInviteSheet, setShowInviteSheet] = useState(false);
-  const [inviteEmail, setInviteEmail] = useState("");
-
-  // 邀请码展示
-  const [inviteCode, setInviteCode] = useState("");
-  const [showInviteCode, setShowInviteCode] = useState(false);
-
-  // 移除成员确认
-  const [removeMemberId, setRemoveMemberId] = useState<string | null>(null);
-  const [removeMemberName, setRemoveMemberName] = useState("");
-
-  // 离开账本确认
-  const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
-  const [leaveBookId, setLeaveBookId] = useState<string | null>(null);
-
-  // 使用邀请码加入
+  // --- 使用邀请码加入 ---
+  const __BUILD_MARKER__ = "BUILD_MARKER_2026_07_13_V3_TEST";
   const [showJoinSheet, setShowJoinSheet] = useState(false);
   const [joinCode, setJoinCode] = useState("");
+  const [joining, setJoining] = useState(false);
+  const joiningRef = useRef(false);
+  // 键盘高度：输入框聚焦时软键盘会盖住底部页脚，需把弹窗抬到键盘上方
+  const [kbdHeight, setKbdHeight] = useState(0);
 
-  // 加入 Mutation
-  const joinMut = useMutation({
-    mutationFn: (code: string) => joinByInvitation(code),
-    onSuccess: () => {
-      Taro.showToast({ title: "已加入账本", icon: "success" });
-      setShowJoinSheet(false);
-      setJoinCode("");
-      refetch();
-    },
-    onError: () => {
-      Taro.showToast({ title: "邀请码无效或已过期", icon: "none" });
-    },
-  });
+  const resetJoining = () => {
+    joiningRef.current = false;
+    setJoining(false);
+  };
 
   const handleJoinSubmit = () => {
     const code = joinCode.trim();
-    if (!code) {
-      Taro.showToast({ title: "请输入邀请码", icon: "none" });
+    if (code.length < 4) {
+      Taro.showToast({ title: "邀请码至少需要4位", icon: "none" });
       return;
     }
-    joinMut.mutate(code);
+    if (joiningRef.current) return;
+    joiningRef.current = true;
+    setJoining(true);
+
+    let safetyTimer: any;
+    const done = () => {
+      if (safetyTimer) clearTimeout(safetyTimer);
+      safetyTimer = undefined;
+      joiningRef.current = false;
+      setJoining(false);
+    };
+
+    safetyTimer = setTimeout(() => {
+      joiningRef.current = false;
+      setJoining(false);
+    }, 3000);
+
+    joinByInvitation(code.toUpperCase())
+      .then(() => {
+        Taro.showToast({ title: "加入成功", icon: "success" });
+        setShowJoinSheet(false);
+        setJoinCode("");
+        refetch();
+      })
+      .catch((err: any) => {
+        const msg = err instanceof ApiError ? err.message : err?.message;
+        try {
+          Taro.showToast({ title: (msg || "加入失败，请重试").slice(0, 20), icon: "none" });
+        } catch {}
+      })
+      .then(() => {
+        done();
+      });
   };
+
+  // 打开 sheet 时强制重置状态，防止上次异常残留；并监听键盘高度把页脚抬到键盘上方
+  useEffect(() => {
+    if (!showJoinSheet) return;
+    setJoinCode("");
+    setJoining(false);
+    joiningRef.current = false;
+    const onKbd = (res: any) => setKbdHeight(res?.height || 0);
+    Taro.onKeyboardHeightChange(onKbd);
+    return () => {
+      Taro.offKeyboardHeightChange(onKbd);
+      setKbdHeight(0);
+    };
+  }, [showJoinSheet]);
 
   // --- 数据请求 ---
   const { data: books, isLoading, refetch } = useManualQuery<BookRow[]>({
     key: "books",
-    queryFn: () => apiGet<BookRow[]>("/books"),
+    queryFn: () => fetchBooks(),
   });
 
-  const createMut = useMutation({
-    mutationFn: (data: { name: string; description?: string; icon?: string }) =>
-      apiPost<Book>("/books", data),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["books"] });
-      Taro.showToast({ title: "已创建", icon: "success" });
-      handleClose();
-      refetch();
-    },
+  useDidShow(() => {
+    refetch();
   });
 
-  const updateMut = useMutation({
-    mutationFn: ({
-      id,
-      data,
-    }: {
-      id: string;
-      data: { name: string; description?: string; icon?: string };
-    }) => apiPut<Book>(`/books/${id}`, data),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["books"] });
-      Taro.showToast({ title: "已更新", icon: "success" });
-      handleClose();
-      refetch();
-    },
+  // --- 账本详情 Sheet ---
+  const [detailBook, setDetailBook] = useState<BookRow | null>(null);
+  const [detailMode, setDetailMode] = useState<"info" | "invite" | "inviteCode">("info");
+
+  // 成员列表（使用 useManualQuery：Taro 下 useQuery enabled 激活不可靠）
+  const {
+    data: members,
+    isLoading: membersLoading,
+    refetch: refetchMembers,
+  } = useManualQuery<Member[]>({
+    key: `bookMembers-${detailBook?.id || "none"}-${detailMode}`,
+    queryFn: () => fetchBookMembers(detailBook!.id),
+    enabled: !!detailBook && detailMode === "info",
   });
 
-  const deleteMut = useMutation({
-    mutationFn: (id: string) => apiDelete(`/books/${id}`),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["books"] });
-      Taro.showToast({ title: "已删除", icon: "success" });
-      setDeleteId(null);
-      refetch();
-    },
-  });
+  // Owner 检查：直接比对 owner_id，避免多余 API 且与 PC 行为一致
+  const isOwner = useMemo(
+    () => !!detailBook?.owner_id && detailBook.owner_id === user?.id,
+    [detailBook?.owner_id, user?.id],
+  );
 
-  const handleAdd = () => {
-    setForm({ name: "", description: "", icon: "default" });
-    setEditingId(null);
-    setShowSheet(true);
-  };
-
-  const handleEdit = (book: BookRow) => {
-    setForm({
-      name: book.name,
-      description: book.description || "",
-      icon: book.icon || "default",
-    });
-    setEditingId(book.id);
-    setShowSheet(true);
-  };
-
-  const handleClose = () => {
-    setShowSheet(false);
-    setEditingId(null);
-    setForm({ name: "", description: "", icon: "default" });
-  };
-
-  const handleSave = () => {
-    if (!form.name.trim()) {
-      Taro.showToast({ title: "请输入账本名称", icon: "none" });
-      return;
-    }
-    const data: { name: string; description?: string; icon?: string } = {
-      name: form.name.trim(),
-      icon: form.icon || "default",
-    };
-    if (form.description && form.description.trim()) {
-      data.description = form.description.trim();
-    }
-    if (editingId) {
-      updateMut.mutate({ id: editingId, data });
-    } else {
-      createMut.mutate(data);
-    }
-  };
-
-  // 点击卡片 → 打开详情弹窗
-  const handleCardTap = (book: BookRow) => {
+  // 打开详情
+  const handleCardTap = useCallback((book: BookRow) => {
     setDetailBook(book);
-    setShowDetail(true);
-    setMembersLoading(true);
-    fetchBookMembers(book.id)
-      .then((data) => {
-        setMembers(data || []);
-      })
-      .catch(() => setMembers([]))
-      .finally(() => setMembersLoading(false));
+    setDetailMode("info");
+  }, []);
+
+  const closeDetail = () => {
+    setDetailBook(null);
+    setDetailMode("info");
+    setInviteEmail("");
+    setInviteCodeData(null);
   };
 
-  // 打开切换账本确认
-  const handleOpenSwitch = (book: BookRow) => {
-    if (currentBook && String(currentBook.id) === String(book.id)) {
-      Taro.showToast({ title: "当前已是该账本", icon: "none" });
-      return;
-    }
-    switchBook(book);
-    // T-H11: 统一使用 setStoredBookId()，与 api.ts 中的 getStoredBookId() 共用 key
-    qc.invalidateQueries();
-    Taro.showToast({
-      title: `已切换到「${book.name}」`,
-      icon: "success",
-    });
-  };
+  // --- 邀请成员 ---
+  const [inviteEmail, setInviteEmail] = useState("");
 
-  // 生成邀请码
-  const inviteCodeMut = useMutation({
-    mutationFn: (bookId: string) => createInvitation(bookId),
-    onSuccess: (data) => {
-      setInviteCode(data.code);
-      setShowInviteCode(true);
-    },
-    onError: () => {
-      Taro.showToast({ title: "生成邀请码失败", icon: "none" });
-    },
-  });
-
-  // 邀请成员
   const inviteMut = useMutation({
     mutationFn: ({ bookId, email }: { bookId: string; email: string }) =>
       inviteMember(bookId, email),
     onSuccess: () => {
       Taro.showToast({ title: "邀请已发送", icon: "success" });
       setInviteEmail("");
-      setShowInviteSheet(false);
-      // 刷新成员列表
-      if (detailBook) {
-        fetchBookMembers(detailBook.id).then(setMembers).catch(() => {});
-      }
+      setDetailMode("info");
+      refetchMembers();
+      refetch(); // 刷新列表（成员数可能变化）
     },
-    onError: () => {
-      Taro.showToast({ title: "邀请失败", icon: "none" });
+    onError: (err: any) => {
+      Taro.showToast({ title: err?.message || "邀请失败，请检查邮箱", icon: "none" });
+      setInviteEmail("");
+      setDetailMode("info");
     },
   });
 
-  // 移除成员
-  const removeMut = useMutation({
+  const handleInviteSubmit = () => {
+    const email = inviteEmail.trim();
+    if (!email) {
+      Taro.showToast({ title: "请输入邮箱地址", icon: "none" });
+      return;
+    }
+    inviteMut.mutate({ bookId: detailBook!.id, email });
+  };
+
+  // --- 生成邀请码 ---
+  const [inviteCodeData, setInviteCodeData] = useState<{
+    code: string;
+    expires_at: string;
+    book_name: string;
+  } | null>(null);
+
+  const inviteCodeMut = useMutation({
+    mutationFn: (bookId: string) => createInvitation(bookId),
+    onSuccess: (data) => {
+      setInviteCodeData(data as any);
+    },
+    onError: (err: any) => {
+      Taro.showToast({ title: err?.message || "生成失败", icon: "none" });
+    },
+  });
+
+  const handleGenerateCode = () => {
+    inviteCodeMut.mutate(detailBook!.id);
+  };
+
+  const handleCopyCode = async () => {
+    if (inviteCodeData?.code) {
+      await Taro.setClipboardData({ data: inviteCodeData.code });
+      Taro.showToast({ title: "已复制邀请码", icon: "success" });
+    }
+  };
+
+  // --- 删除账本 ---
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deletingBook, setDeletingBook] = useState<BookRow | null>(null);
+  const [switchTarget, setSwitchTarget] = useState<BookRow | null>(null);
+  const [removingMember, setRemovingMember] = useState<Member | null>(null);
+  const [showRemoveConfirm, setShowRemoveConfirm] = useState(false);
+  const deleteMut = useMutation({
+    mutationFn: (bookId: string) => deleteBook(bookId),
+    onSuccess: () => {
+      Taro.showToast({ title: "账本已删除", icon: "success" });
+      setDeletingBook(null);
+      closeDetail();
+      refetch();
+    },
+    onError: (err: any) => {
+      Taro.showToast({ title: err?.message || "删除失败", icon: "none" });
+      setDeletingBook(null);
+    },
+  });
+
+  const removeMemberMut = useMutation({
     mutationFn: ({ bookId, userId }: { bookId: string; userId: string }) =>
       removeMember(bookId, userId),
     onSuccess: () => {
       Taro.showToast({ title: "成员已移除", icon: "success" });
-      setRemoveMemberId(null);
-      if (detailBook) {
-        fetchBookMembers(detailBook.id).then(setMembers).catch(() => {});
-      }
-    },
-    onError: () => {
-      Taro.showToast({ title: "移除失败", icon: "none" });
-    },
-  });
-
-  // 离开账本
-  const leaveMut = useMutation({
-    mutationFn: (bookId: string) => leaveBook(bookId),
-    onSuccess: () => {
-      Taro.showToast({ title: "已退出账本", icon: "success" });
-      setShowLeaveConfirm(false);
-      setLeaveBookId(null);
+      setRemovingMember(null);
+      setShowRemoveConfirm(false);
+      refetchMembers();
       refetch();
     },
-    onError: () => {
-      Taro.showToast({ title: "退出失败", icon: "none" });
+    onError: (err: any) => {
+      Taro.showToast({ title: err?.message || "移除失败", icon: "none" });
+      setRemovingMember(null);
+      setShowRemoveConfirm(false);
     },
   });
 
-  const saving = createMut.isPending || updateMut.isPending;
+  // --- 切换 / 新建 ---
+  const handleSwitch = (book: BookRow) => {
+    if (currentBook && String(currentBook.id) === String(book.id)) {
+      Taro.showToast({ title: "当前已是该账本", icon: "none" });
+      return;
+    }
+    switchBook(book);
+    Taro.showToast({ title: `已切换到「${book.name}」`, icon: "success" });
+  };
+
+  const handleConfirmSwitch = () => {
+    if (switchTarget) {
+      handleSwitch(switchTarget);
+      setSwitchTarget(null);
+    }
+  };
+
+  const handleAdd = () => {
+    Taro.navigateTo({ url: "/pages/BookSettings/index" });
+  };
+
+  const handleEdit = () => {
+    if (!detailBook) return;
+    closeDetail();
+    setTimeout(() => {
+      Taro.navigateTo({
+        url: `/pages/BookSettings/index?id=${detailBook.id}`,
+        success: (res) => {
+          res.eventChannel?.emit("bookData", detailBook);
+        },
+      });
+    }, 300);
+  };
+
   const currentId = currentBook?.id;
 
   return (
-    <PageLayout contentClassName="bk-content">
-      <PageHero
-        eyebrow="账本管理"
-        title={currentBook?.name || "所有账本"}
-        meta={currentBook ? "管理当前账本、成员和邀请" : "创建、切换和加入家庭账本"}
-        tone="surface"
-      />
-
-      <AppSection title="账本列表" compact flush>
-      {isLoading ? (
-        <View className="bk-list">
-          <View className="bk-loading-row" />
-          <View className="bk-loading-row" />
-          <View className="bk-loading-row" />
+    <PageLayout contentClassName="bk-content" loading={isLoading} loadingText="加载中…">
+      {/* ====== 页面顶部栏 ====== */}
+      <View className="bk-page-header">
+        <View /> {/* 左侧占位 */}
+        <View className="bk-page-actions">
+          <View className="bk-page-btn bk-page-btn--outline" onClick={() => setShowJoinSheet(true)}>
+            <Text>使用邀请码加入</Text>
+          </View>
+          <View className="bk-page-btn bk-page-btn--primary" onClick={handleAdd}>
+            <Text>+ 新建账本</Text>
+          </View>
         </View>
-      ) : !books || books.length === 0 ? (
+      </View>
+
+      {/* ====== 账本列表（双列网格）====== */}
+      {!books || books.length === 0 ? (
         <View className="bk-empty">
-          <EmptyState
-            icon="book"
-            title="暂无账本"
-            description="点击右下角 ＋ 新建账本"
-          />
+          <EmptyState title="暂无账本" description="点击右上角新建账本" />
         </View>
       ) : (
-        <View className="bk-list">
+        <View className="bk-grid">
           {books.map((book) => {
             const isActive = String(currentId) === String(book.id);
             return (
@@ -337,234 +333,97 @@ export default function BooksPage() {
                 className={`bk-card ${isActive ? "bk-card--active" : ""}`}
                 onClick={() => handleCardTap(book)}
               >
+                {/* 图标 + 名称 */}
                 <View className="bk-card__head">
                   <View className="bk-card__icon-wrap">
                     {isCustomIcon(book.icon) ? (
                       <Text>图</Text>
                     ) : (
                       <Image
-                        src={renderBookIconSvg(book.icon, 28, "#2d9d8a")}
+                        src={renderBookIconSvg(book.icon, 28, "#1a1c19")}
                         mode="aspectFit"
                         style={{ width: "28px", height: "28px", display: "block" }}
                       />
                     )}
                   </View>
                   <Text className="bk-card__name">{book.name}</Text>
-                  {isActive && (
-                    <Text className="bk-tag bk-tag--active">当前</Text>
-                  )}
-                  {book.is_default && !isActive && (
-                    <Text className="bk-tag bk-tag--default">默认</Text>
-                  )}
                 </View>
+
+                {/* 统计行：成员数 + 交易数 */}
+                <View className="bk-card__stats">
+                  <Text className="bk-card__stat">{book.member_count ?? 0} 成员</Text>
+                  <Text className="bk-card__stat">{book.txn_count ?? 0} 笔交易</Text>
+                </View>
+
+                {/* 分割线 */}
+                <View className="bk-card__divider" />
+
                 {book.description && (
-                  <Text className="bk-card__meta-line">
-                    简介：{book.description}
-                  </Text>
+                  <Text className="bk-card__meta-line">{book.description}</Text>
                 )}
-                {book.created_at && (
-                  <Text className="bk-card__meta-line">
-                    创建于{" "}
-                    {new Date(book.created_at).toLocaleDateString("zh-CN")}
-                  </Text>
-                )}
-                <View className="bk-card__actions">
-                  <View
-                    className="bk-pill bk-pill--edit"
-                    onClick={(e: any) => {
-                      e.stopPropagation();
-                      handleEdit(book);
-                    }}
-                  >
-                    <Text>编辑</Text>
-                  </View>
-                  {!book.is_default && (
-                    <View
-                      className="bk-pill bk-pill--delete"
-                      onClick={(e: any) => {
-                        e.stopPropagation();
-                        setDeleteId(book.id);
-                      }}
-                    >
-                      <Text>删除</Text>
-                    </View>
-                  )}
-                </View>
               </View>
             );
           })}
         </View>
       )}
-      </AppSection>
 
-      {/* 悬浮按钮组：新建账本 + 使用邀请码加入 */}
-      <View className="bk-fab-wrap">
-        <View className="bk-fab bk-fab--join" onClick={() => setShowJoinSheet(true)}>
-          <Text className="bk-fab__icon bk-fab__icon--join">邀</Text>
-          <Text className="bk-fab__label">使用邀请码加入</Text>
-        </View>
-        <View className="bk-fab" onClick={handleAdd}>
-          <Text className="bk-fab__icon">＋</Text>
-        </View>
-      </View>
-
-      {/* 使用邀请码加入 Sheet */}
+      {/* ====== 使用邀请码加入 Sheet ====== */}
       {showJoinSheet && (
-        <View className="bk-mask" onClick={() => setShowJoinSheet(false)}>
-          <View className="bk-sheet" onClick={(e: any) => e.stopPropagation()}>
-            <View className="bk-sheet__header">
-              <Text className="bk-sheet__cancel" onClick={() => setShowJoinSheet(false)}>取消</Text>
-              <Text className="bk-sheet__title">使用邀请码加入</Text>
-              <Text
-                className={`bk-sheet__confirm ${joinMut.isPending ? "bk-sheet__confirm--disabled" : ""}`}
-                onClick={handleJoinSubmit}
-              >
-                {joinMut.isPending ? "加入中…" : "加入"}
-              </Text>
-            </View>
+        <View
+          className="bk-mask"
+          onClick={() => {
+            resetJoining();
+            setShowJoinSheet(false);
+          }}
+        >
+          <View
+            className="bk-sheet"
+            style={kbdHeight ? { paddingBottom: `${kbdHeight}px` } : undefined}
+            onClick={(e: any) => e.stopPropagation()}
+          >
+            <SheetHeader
+              title="使用邀请码加入TESTZ9"
+              onClose={() => {
+                resetJoining();
+                setShowJoinSheet(false);
+              }}
+            />
 
             <View className="bk-sheet__body">
               <View className="bk-form-row">
-                <Text className="bk-form-label">邀请码</Text>
+                <Text className="bk-form-label bk-form-label--required">邀请码</Text>
                 <Input
                   className="bk-form-input"
-                  placeholder="请输入邀请码"
+                  placeholder="例如 A3F8K2"
                   maxlength={32}
                   value={joinCode}
-                  onInput={(e: any) => setJoinCode(e.detail.value)}
+                  onInput={(e: any) => setJoinCode(e.detail.value.toUpperCase())}
                 />
               </View>
               <View className="bk-join-hint">
-                <Text>向账本管理员索取邀请码，加入后即可在该账本中记账</Text>
+                <Text>
+                  <Text className="bk-join-hint__bold">邀请码获取方式：</Text>
+                  由账主在「账本详情 → 生成邀请码」中生成，有效期为 7 天。
+                </Text>
               </View>
             </View>
 
-            <View className="bk-sheet__safe" />
-          </View>
-        </View>
-      )}
-
-      {/* Sheet 弹窗（新增/编辑） */}
-      {showSheet && (
-        <View className="bk-mask" onClick={handleClose}>
-          <View className="bk-sheet" onClick={(e: any) => e.stopPropagation()}>
-            <View className="bk-sheet__header">
-              <Text className="bk-sheet__cancel" onClick={handleClose}>
+            <View className="bk-sheet__footer bk-sheet__footer--dual">
+              <Text
+                className="bk-sheet__footer-btn bk-sheet__footer-btn--secondary"
+                onClick={() => {
+                  resetJoining();
+                  setShowJoinSheet(false);
+                }}
+              >
                 取消
               </Text>
-              <Text className="bk-sheet__title">
-                {editingId ? "编辑账本" : "新建账本"}
-              </Text>
               <Text
-                className={`bk-sheet__confirm ${
-                  saving ? "bk-sheet__confirm--disabled" : ""
-                }`}
-                onClick={handleSave}
+                className={`bk-sheet__footer-btn ${joining ? "bk-sheet__footer-btn--disabled" : ""}`}
+                onClick={joining ? undefined : handleJoinSubmit}
               >
-                {saving ? "保存中…" : "保存"}
+                {joining ? "加入中…" : "加入账本"}
               </Text>
-            </View>
-
-            <View className="bk-sheet__body">
-              {/* 1. 名称 —— 对齐 PC：账本名称 */}
-              <View className="bk-form-row">
-                <Text className="bk-form-label">名称</Text>
-                <Input
-                  className="bk-form-input"
-                  placeholder="如：家庭账本"
-                  maxlength={50}
-                  value={form.name}
-                  onInput={(e: any) =>
-                    setForm((p) => ({ ...p, name: e.detail.value }))
-                  }
-                />
-              </View>
-
-              {/* 2. 描述 —— 对齐 PC：描述（可选） */}
-              <View className="bk-form-row">
-                <Text className="bk-form-label">描述</Text>
-                <Input
-                  className="bk-form-input"
-                  placeholder="简单介绍一下这个账本"
-                  maxlength={200}
-                  value={form.description}
-                  onInput={(e: any) =>
-                    setForm((p) => ({ ...p, description: e.detail.value }))
-                  }
-                />
-              </View>
-
-              {/* 3. 图标 —— 对齐 PC：预设 SVG 线条图标 + 自定义上传 */}
-              <View className="bk-form-row">
-                <Text className="bk-form-label">图标</Text>
-                <View className="bk-form-emoji-current">
-                  {isCustomIcon(form.icon) ? (
-                    <Text>图</Text>
-                  ) : (
-                    <Image
-                      src={renderBookIconSvg(form.icon, 20, "#1a1c19")}
-                      mode="aspectFit"
-                      style={{ width: "20px", height: "20px", display: "block" }}
-                    />
-                  )}
-                </View>
-              </View>
-
-              {/* 3.1 预设 SVG 图标网格（与 PC 端 16 个一致） */}
-              <View className="bk-emoji-grid">
-                {BOOK_ICONS.map((item) => {
-                  const isSelected = form.icon === item.key;
-                  return (
-                    <View
-                      key={item.key}
-                      className={`bk-emoji-item ${
-                        isSelected ? "bk-emoji-item--selected" : ""
-                      }`}
-                      onClick={() =>
-                        setForm((p) => ({ ...p, icon: item.key }))
-                      }
-                    >
-                      <View className="bk-emoji-item__emoji">
-                        <Image
-                          src={renderBookIconSvg(
-                            item.key,
-                            20,
-                            isSelected ? "#2d9d8a" : "#1a1c19",
-                          )}
-                          mode="aspectFit"
-                          style={{ width: "20px", height: "20px", display: "block" }}
-                        />
-                      </View>
-                      <Text
-                        className={`bk-emoji-item__label ${
-                          isSelected ? "bk-emoji-item__label--selected" : ""
-                        }`}
-                      >
-                        {item.label}
-                      </Text>
-                    </View>
-                  );
-                })}
-
-                {/* 3.2 自定义图标上传 */}
-                <View
-                  className={`bk-custom-icon-item ${
-                    isCustomIcon(form.icon) ? "bk-custom-icon-item--selected" : ""
-                  }`}
-                  onClick={handleUploadCustomIcon}
-                >
-                  {isCustomIcon(form.icon) ? (
-                    <View className="bk-custom-icon-item__img-wrap">
-                      <Text className="bk-custom-icon-item__img-text">图</Text>
-                    </View>
-                  ) : (
-                    <Text className="bk-custom-icon-item__upload">
-                      {uploadingIcon ? "上传中…" : "＋ 上传"}
-                    </Text>
-                  )}
-                  <Text className="bk-emoji-item__label">自定义</Text>
-                </View>
-              </View>
             </View>
 
             <View className="bk-sheet__safe" />
@@ -572,271 +431,353 @@ export default function BooksPage() {
         </View>
       )}
 
-      {/* 账本详情弹窗（底部 Sheet） */}
-      {showDetail && detailBook && (
-        <View className="bk-mask" onClick={() => setShowDetail(false)}>
+      {/* ====== 账本详情 Sheet ====== */}
+      {detailBook && (
+        <View className="bk-mask" onClick={closeDetail}>
           <View className="bk-detail-sheet" onClick={(e: any) => e.stopPropagation()}>
-            <View className="bk-detail-header">
-              <Text className="bk-detail-cancel" onClick={() => setShowDetail(false)}>
-                关闭
+          {/* 自定义详情 Sheet Header：与 PC 端 GlobalModal 一致，标题居左、关闭居右 */}
+          <View className="bk-detail-header">
+            <View className="bk-detail-header__left">
+              {detailMode !== "info" && (
+                <View className="bk-detail-header__back" onClick={() => setDetailMode("info")}>
+                  <Text>←</Text>
+                </View>
+              )}
+              <Text className="bk-detail-header__title" numberOfLines={1}>
+                {detailMode === "info"
+                  ? "账本详情"
+                  : detailMode === "invite"
+                    ? "邀请成员"
+                    : "邀请码"}
               </Text>
-              <Text className="bk-detail-title">账本详情</Text>
-              <View className="bk-detail-spacer" />
+            </View>
+            <View className="bk-detail-header__close" onClick={closeDetail}>
+              <Text>×</Text>
+            </View>
+          </View>
+
+          <View className="bk-detail-body">
+              {/* ---- 基础信息模式 ---- */}
+              {detailMode === "info" && (
+                <>
+                  {/* 账本信息头部 */}
+                  <View className="bk-detail-info">
+                    <View className="bk-detail-emoji">
+                      {isCustomIcon(detailBook.icon) ? (
+                        <Text style={{ fontSize: "36rpx" }}>图</Text>
+                      ) : (
+                        <Image
+                          src={renderBookIconSvg(detailBook.icon, 40, "#1a1c19")}
+                          mode="aspectFit"
+                          style={{ width: "40px", height: "40px", display: "block" }}
+                        />
+                      )}
+                    </View>
+                    <View className="bk-detail-meta">
+                      <Text className="bk-detail-name">{detailBook.name}</Text>
+                      {detailBook.description && (
+                        <Text className="bk-detail-desc">{detailBook.description}</Text>
+                      )}
+                    </View>
+                  </View>
+
+                  {/* 统计信息 */}
+                  <View className="bk-detail-stats">
+                    <View className="bk-detail-stat-item">
+                      <Text className="bk-detail-stat-label">成员</Text>
+                      <Text className="bk-detail-stat-value">{detailBook.member_count ?? 0} 人</Text>
+                    </View>
+                    <View className="bk-detail-stat-item">
+                      <Text className="bk-detail-stat-label">交易笔数</Text>
+                      <Text className="bk-detail-stat-value">{detailBook.txn_count ?? 0} 笔</Text>
+                    </View>
+                  </View>
+                  <View className="bk-detail-stats">
+                    <View className="bk-detail-stat-item">
+                      <Text className="bk-detail-stat-label">创建时间</Text>
+                      <Text className="bk-detail-stat-value">{fmtDate(detailBook.created_at)}</Text>
+                    </View>
+                    <View className="bk-detail-stat-item">
+                      <Text className="bk-detail-stat-label">更新时间</Text>
+                      <Text className="bk-detail-stat-value">{fmtDate(detailBook.updated_at)}</Text>
+                    </View>
+                  </View>
+                  <View className="bk-detail-stats">
+                    <View className="bk-detail-stat-item bk-detail-stat-item--full">
+                      <Text className="bk-detail-stat-label">账主 ID</Text>
+                      <Text className="bk-detail-stat-value bk-detail-stat-value--mono">{detailBook.owner_id ?? "-"}</Text>
+                    </View>
+                  </View>
+
+                  {/* 分隔线 */}
+                  <View className="bk-detail-divider" />
+
+                  {/* 成员列表 */}
+                  <Text className="bk-detail-section-title">成员明细</Text>
+                  {membersLoading ? (
+                    <View className="bk-member-skeleton">
+                      <View className="bk-member-skeleton__item" />
+                      <View className="bk-member-skeleton__item" />
+                      <View className="bk-member-skeleton__item" />
+                    </View>
+                  ) : !members || members.length === 0 ? (
+                    <Text className="bk-detail-empty">暂无成员</Text>
+                  ) : (
+                    <View className="bk-member-list">
+                      {(members as Member[]).map((m) => (
+                        <View key={m.id} className="bk-member-item">
+                          <View className="bk-member-info">
+                            <Text className="bk-member-name">{m.username || m.email}</Text>
+                            <Text className="bk-member-email">{m.email}</Text>
+                          </View>
+                          <View className="bk-member-role">
+                            <Text
+                              className={`bk-member-role-tag ${m.role === "owner" ? "bk-member-role-tag--owner" : ""}`}
+                            >
+                              {m.role === "owner" ? "账主" : "成员"}
+                            </Text>
+                            {isOwner && m.role !== "owner" && m.id !== user?.id && (
+                              <View
+                                className="bk-member-remove"
+                                onClick={() => {
+                                  setRemovingMember(m);
+                                  setShowRemoveConfirm(true);
+                                }}
+                              >
+                                <Text>✕</Text>
+                              </View>
+                            )}
+                          </View>
+                        </View>
+                      ))}
+                    </View>
+                  )}
+                </>
+              )}
+
+              {/* ---- 邀请成员模式 ---- */}
+              {detailMode === "invite" && (
+                <View className="bk-invite-form">
+                  <View className="bk-form-row">
+                    <Text className="bk-form-label bk-form-label--required">邮箱地址</Text>
+                    <Input
+                      className="bk-form-input bk-form-input--underlined"
+                      placeholder="请输入对方的邮箱"
+                      value={inviteEmail}
+                      onInput={(e: any) => setInviteEmail(e.detail.value)}
+                      type="text"
+                    />
+                  </View>
+                </View>
+              )}
+
+              {/* ---- 生成邀请码模式 ---- */}
+              {detailMode === "inviteCode" && (
+                <>
+                  {!inviteCodeData ? (
+                    <View className="bk-invite-generate">
+                      <Text className="bk-invite-generate__hint">
+                        将以下邀请码分享给他人，对方在「加入账本」中输入邀请码即可加入账本
+                      </Text>
+                      <View
+                        className={`bk-detail-btn bk-detail-btn--primary bk-invite-generate__btn ${inviteCodeMut.isPending ? "bk-detail-btn--pending ui-spin-row" : ""}`}
+                        onClick={inviteCodeMut.isPending ? undefined : handleGenerateCode}
+                      >
+                        {inviteCodeMut.isPending && <Spinner />}
+                        <Text>{inviteCodeMut.isPending ? "生成中…" : "生成邀请码"}</Text>
+                      </View>
+                    </View>
+                  ) : (
+                    <View className="bk-invite-code-result">
+                      <View className="bk-invite-code-card">
+                        <View className="bk-invite-code-box">
+                          <Text className="bk-invite-code">{inviteCodeData.code}</Text>
+                          <View className="bk-invite-code-copy" onClick={handleCopyCode}>
+                            <Text className="bk-invite-code-copy__label">复制邀请码</Text>
+                          </View>
+                        </View>
+                        <Text className="bk-invite-hint">
+                          有效期至：{fmtDate(inviteCodeData.expires_at)}
+                        </Text>
+                        <Text className="bk-invite-tip">
+                          将以下邀请码分享给他人，对方在「加入账本」中输入邀请码即可加入账本
+                        </Text>
+                      </View>
+                    </View>
+                  )}
+                </>
+              )}
             </View>
 
-            <ScrollView className="bk-detail-body" scrollY>
-              {/* 账本信息 */}
-              <View className="bk-detail-info">
-                <View className="bk-detail-emoji">
-                  {isCustomIcon(detailBook.icon) ? (
-                    <Text>图</Text>
-                  ) : (
-                    <Image
-                      src={renderBookIconSvg(detailBook.icon, 36, "#2d9d8a")}
-                      mode="aspectFit"
-                      style={{ width: "36px", height: "36px", display: "block" }}
-                    />
-                  )}
-                </View>
-                <View className="bk-detail-meta">
-                  <Text className="bk-detail-name">{detailBook.name}</Text>
-                  {detailBook.description && (
-                    <Text className="bk-detail-desc">{detailBook.description}</Text>
-                  )}
-                  <Text className="bk-detail-sub">
-                    {members.length} 人 · 创建于{" "}
-                    {new Date(detailBook.created_at).toLocaleDateString("zh-CN")}
-                  </Text>
-                </View>
-              </View>
-
-              {/* 操作按钮区 */}
-              <View className="bk-detail-actions">
-                <View
-                  className="bk-detail-btn"
-                  onClick={() => {
-                    setShowDetail(false);
-                    handleEdit(detailBook);
-                  }}
-                >
-                  <Text>编辑</Text>
-                </View>
-                <View
-                  className="bk-detail-btn"
-                  onClick={() => {
-                    setShowInviteSheet(true);
-                  }}
-                >
-                  <Text>邀请成员</Text>
-                </View>
-                <View
-                  className={`bk-detail-btn ${inviteCodeMut.isPending ? "bk-detail-btn--pending" : ""}`}
-                  onClick={() => {
-                    if (detailBook.id) inviteCodeMut.mutate(detailBook.id);
-                  }}
-                >
-                  <Text>
-                    {inviteCodeMut.isPending ? "生成中..." : "生成邀请码"}
-                  </Text>
-                </View>
-                {currentBook && String(currentBook.id) !== String(detailBook.id) && (
+            {/* 操作按钮区 — 与 PC 端 GlobalModal footer 一致：邀请/邀请码/编辑/删除/切换 */}
+            {detailMode === "info" && (
+              <View className="bk-detail-actions bk-detail-actions--sticky">
+                {isOwner ? (
+                  <>
+                    <View
+                      className="bk-detail-btn bk-detail-btn--secondary"
+                      onClick={() => setDetailMode("invite")}
+                    >
+                      <Text>邀请成员</Text>
+                    </View>
+                    <View
+                      className="bk-detail-btn bk-detail-btn--secondary"
+                      onClick={() => setDetailMode("inviteCode")}
+                    >
+                      <Text>生成邀请码</Text>
+                    </View>
+                    <View className="bk-detail-btn bk-detail-btn--secondary" onClick={handleEdit}>
+                      <Text>编辑</Text>
+                    </View>
+                    {detailBook.name !== "默认账本" && (
+                      <View
+                        className="bk-detail-btn bk-detail-btn--danger"
+                        onClick={() => {
+                          if (detailBook) {
+                            setDeletingBook(detailBook);
+                            closeDetail();
+                            setShowDeleteConfirm(true);
+                          }
+                        }}
+                      >
+                        <Text>删除</Text>
+                      </View>
+                    )}
+                  </>
+                ) : (
+                  <View className="bk-detail-btn bk-detail-btn--secondary" onClick={handleEdit}>
+                    <Text>查看详情</Text>
+                  </View>
+                )}
+                {currentBook && String(currentBook.id) !== String(detailBook?.id) && (
                   <View
-                    className="bk-detail-btn bk-detail-btn--primary"
+                    className="bk-detail-btn bk-detail-btn--switch"
                     onClick={() => {
-                      setShowDetail(false);
-                      handleOpenSwitch(detailBook);
+                      setSwitchTarget(detailBook!);
+                      closeDetail();
                     }}
                   >
                     <Text>切换到此账本</Text>
                   </View>
                 )}
-                {!detailBook.is_default && (
-                  <View
-                    className="bk-detail-btn bk-detail-btn--danger"
-                    onClick={() => {
-                      setShowDetail(false);
-                      setDeleteId(detailBook.id);
-                    }}
-                  >
-                    <Text>删除账本</Text>
-                  </View>
-                )}
+              </View>
+            )}
+
+            {detailMode === "invite" && (
+              <View className="bk-detail-actions bk-detail-actions--sticky bk-detail-actions--single">
                 <View
-                  className="bk-detail-btn bk-detail-btn--secondary"
-                  onClick={() => {
-                    setShowDetail(false);
-                    setLeaveBookId(detailBook.id);
-                    setShowLeaveConfirm(true);
-                  }}
+                  className={`bk-detail-btn bk-detail-btn--primary ${inviteMut.isPending ? "bk-detail-btn--pending ui-spin-row" : ""}`}
+                  onClick={inviteMut.isPending ? undefined : handleInviteSubmit}
                 >
-                  <Text>退出账本</Text>
+                  {inviteMut.isPending && <Spinner />}
+                  <Text>{inviteMut.isPending ? "发送中…" : "发送邀请"}</Text>
                 </View>
               </View>
+            )}
 
-              {/* 成员列表 */}
-              <View className="bk-detail-section">
-                <Text className="bk-detail-section-title">成员列表</Text>
-                {membersLoading ? (
-                  <Text className="bk-detail-loading">加载中…</Text>
-                ) : members.length === 0 ? (
-                  <Text className="bk-detail-empty">暂无成员信息</Text>
-                ) : (
-                  <View className="bk-member-list">
-                    {members.map((m: any) => {
-                      const isOwner = m.role === "owner" || m.id === detailBook.owner_id;
-                      return (
-                        <View key={m.id || m.user_id} className="bk-member-item">
-                          <View className="bk-member-info">
-                            <Text className="bk-member-avatar">
-                              {(m.username || m.email || "成").charAt(0).toUpperCase()}
-                            </Text>
-                            <View>
-                              <Text className="bk-member-name">
-                                {m.username || m.email || "成员"}
-                              </Text>
-                              <Text className="bk-member-role">
-                                {isOwner ? "账主" : "成员"}
-                              </Text>
-                            </View>
-                          </View>
-                          {!isOwner && (
-                            <View
-                              className="bk-member-remove"
-                              onClick={() => {
-                                setRemoveMemberId(m.id || m.user_id);
-                                setRemoveMemberName(m.username || m.email || "该成员");
-                              }}
-                            >
-                              <Text>移除</Text>
-                            </View>
-                          )}
-                        </View>
-                      );
-                    })}
-                  </View>
-                )}
-              </View>
-            </ScrollView>
+            {detailMode === "inviteCode" && (
+              <View className="bk-detail-safe" />
+            )}
 
             <View className="bk-detail-safe" />
           </View>
         </View>
       )}
 
-      {/* 邀请成员 Sheet */}
-      {showInviteSheet && detailBook && (
-        <View className="bk-mask" onClick={() => setShowInviteSheet(false)}>
-          <View className="bk-sheet" onClick={(e: any) => e.stopPropagation()}>
-            <View className="bk-sheet__header">
-              <Text className="bk-sheet__cancel" onClick={() => setShowInviteSheet(false)}>
-                取消
-              </Text>
-              <Text className="bk-sheet__title">邀请成员</Text>
-              <Text
-                className={`bk-sheet__confirm ${inviteMut.isPending ? "bk-sheet__confirm--disabled" : ""}`}
-                onClick={() => {
-                  if (!inviteEmail.trim()) {
-                    Taro.showToast({ title: "请输入邮箱", icon: "none" });
-                    return;
-                  }
-                  if (detailBook) {
-                    inviteMut.mutate({ bookId: detailBook.id, email: inviteEmail.trim() });
-                  }
-                }}
-              >
-                {inviteMut.isPending ? "发送中…" : "发送"}
-              </Text>
-            </View>
-            <View className="bk-sheet__body">
-              <View className="bk-form-row">
-                <Text className="bk-form-label">邮箱</Text>
-                <Input
-                  className="bk-form-input"
-                  placeholder="member@example.com"
-                  value={inviteEmail}
-                  onInput={(e: any) => setInviteEmail(e.detail.value)}
-                />
+      {/* 切换账本确认弹窗 */}
+      {switchTarget && (
+        <View className="bk-switch-mask" onClick={() => setSwitchTarget(null)}>
+          <View className="bk-switch-dialog" onClick={(e: any) => e.stopPropagation()}>
+            <Text className="bk-switch-title">切换账本</Text>
+            <Text className="bk-switch-desc">
+              切换到账本 <Text className="bk-switch-name">{switchTarget.name}</Text>{" "}
+              后，以下模块数据将切换为该账本的维度：
+            </Text>
+            <View className="bk-switch-list">
+              <View className="bk-switch-item">
+                <Text className="bk-switch-label">首页</Text>
+                <Text className="bk-switch-text"> — 收支概览与预算进度</Text>
+              </View>
+              <View className="bk-switch-item">
+                <Text className="bk-switch-label">流水</Text>
+                <Text className="bk-switch-text"> — 交易记录列表</Text>
+              </View>
+              <View className="bk-switch-item">
+                <Text className="bk-switch-label">报表</Text>
+                <Text className="bk-switch-text"> — 统计图表与分类分析</Text>
+              </View>
+              <View className="bk-switch-item">
+                <Text className="bk-switch-label">日历</Text>
+                <Text className="bk-switch-text"> — 日历视图中的交易</Text>
+              </View>
+              <View className="bk-switch-item">
+                <Text className="bk-switch-label">地图</Text>
+                <Text className="bk-switch-text"> — 交易位置与商户聚合</Text>
+              </View>
+              <View className="bk-switch-item">
+                <Text className="bk-switch-label">模板</Text>
+                <Text className="bk-switch-text"> — 快捷记账模板</Text>
+              </View>
+              <View className="bk-switch-item">
+                <Text className="bk-switch-label">预算</Text>
+                <Text className="bk-switch-text"> — 预算设置与消耗</Text>
+              </View>
+              <View className="bk-switch-item">
+                <Text className="bk-switch-label">年报</Text>
+                <Text className="bk-switch-text"> — 年度报告数据</Text>
+              </View>
+              <View className="bk-switch-item">
+                <Text className="bk-switch-label">导出</Text>
+                <Text className="bk-switch-text"> — 账单导出</Text>
               </View>
             </View>
-            <View className="bk-sheet__safe" />
+            <Text className="bk-switch-current">当前账本：{currentBook?.name}</Text>
+            <View className="bk-switch-actions">
+              <View className="bk-switch-btn bk-switch-btn--cancel" onClick={() => setSwitchTarget(null)}>
+                <Text>取消</Text>
+              </View>
+              <View className="bk-switch-btn bk-switch-btn--confirm" onClick={handleConfirmSwitch}>
+                <Text>确认切换</Text>
+              </View>
+            </View>
           </View>
         </View>
       )}
 
-      {/* 邀请码展示 */}
-      {showInviteCode && inviteCode && (
-        <View className="bk-mask" onClick={() => setShowInviteCode(false)}>
-          <View className="bk-sheet" onClick={(e: any) => e.stopPropagation()}>
-            <View className="bk-sheet__header">
-              <Text className="bk-sheet__cancel" onClick={() => setShowInviteCode(false)}>
-                关闭
-              </Text>
-              <Text className="bk-sheet__title">邀请码</Text>
-              <View className="bk-sheet__spacer" />
-            </View>
-            <View className="bk-sheet__body">
-              <View className="bk-invite-code-box">
-                <Text className="bk-invite-code">{inviteCode}</Text>
-              </View>
-              <Text className="bk-invite-hint">复制上方邀请码，发送给要加入的成员</Text>
-              <View
-                className="bk-invite-copy"
-                onClick={() => {
-                  Taro.setClipboardData({
-                    data: inviteCode,
-                    success: () => Taro.showToast({ title: "已复制", icon: "success" }),
-                  });
-                }}
-              >
-                <Text>复制邀请码</Text>
-              </View>
-            </View>
-            <View className="bk-sheet__safe" />
-          </View>
-        </View>
-      )}
-
-      {/* 移除成员确认 */}
+      {/* 删除确认弹窗 */}
       <ConfirmDialog
-        visible={!!deleteId}
-        title="确认删除"
-        message="确定要删除这个账本吗？账本内数据将无法恢复。"
-        confirmText="确认删除"
+        visible={showDeleteConfirm}
+        title="删除账本"
+        message={`确定要删除「${deletingBook?.name || detailBook?.name || ""}」吗？此操作不可恢复，所有数据将被永久删除。`}
+        confirmText="删除"
         danger
         confirmLoading={deleteMut.isPending}
-        onCancel={() => setDeleteId(null)}
-        onConfirm={() => deleteId && deleteMut.mutate(deleteId)}
+        onConfirm={() => {
+          const target = deletingBook || detailBook;
+          if (target) deleteMut.mutate(target.id);
+        }}
+        onCancel={() => {
+          setShowDeleteConfirm(false);
+          setDeletingBook(null);
+        }}
       />
 
+      {/* 移除成员确认弹窗 */}
       <ConfirmDialog
-        visible={!!removeMemberId}
+        visible={showRemoveConfirm}
         title="确认移除"
-        message={`确定要移除成员 ${removeMemberName} 吗？`}
-        confirmText="确认移除"
+        message={`确定要移除成员 ${removingMember?.username || removingMember?.email} 吗？`}
+        confirmText="移除"
         danger
-        confirmLoading={removeMut.isPending}
-        onCancel={() => setRemoveMemberId(null)}
+        confirmLoading={removeMemberMut.isPending}
         onConfirm={() => {
-          if (removeMemberId && detailBook) {
-            removeMut.mutate({ bookId: detailBook.id, userId: removeMemberId });
+          if (removingMember && detailBook) {
+            removeMemberMut.mutate({ bookId: detailBook.id, userId: removingMember.id });
           }
         }}
-      />
-
-      {/* 离开账本确认 */}
-      <ConfirmDialog
-        visible={showLeaveConfirm}
-        title="确认退出"
-        message="确定要退出这个账本吗？退出后你将无法查看该账本的数据。"
-        confirmText="确认退出"
-        danger
-        confirmLoading={leaveMut.isPending}
         onCancel={() => {
-          setShowLeaveConfirm(false);
-          setLeaveBookId(null);
-        }}
-        onConfirm={() => {
-          if (leaveBookId) leaveMut.mutate(leaveBookId);
+          setShowRemoveConfirm(false);
+          setRemovingMember(null);
         }}
       />
     </PageLayout>

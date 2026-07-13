@@ -10,7 +10,7 @@ const ICONS_PATH = "/icons";
 
 /** 获取自定义图标列表 */
 export const fetchCustomIcons = (
-  iconType?: "category" | "book",
+  iconType?: "category" | "book" | "avatar",
 ): Promise<CustomIcon[]> => {
   const query = iconType ? `?icon_type=${encodeURIComponent(iconType)}` : "";
   return apiGet<CustomIcon[]>(`${ICONS_PATH}${query}`, { requiresAuth: true });
@@ -22,7 +22,7 @@ export const fetchCustomIcons = (
  */
 export const uploadIcon = (
   filePath: string,
-  iconType: "category" | "book",
+  iconType: "category" | "book" | "avatar",
 ): Promise<CustomIcon> => {
   const token = getToken();
   const bookId = getStoredBookId();

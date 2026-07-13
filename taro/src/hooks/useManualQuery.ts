@@ -78,7 +78,9 @@ export function useManualQuery<T>({
         // T-M9: 暴露错误状态，不再静默吞掉
         setError(err instanceof Error ? err : new Error(String(err)));
       })
-      .finally(() => {
+      .then(() => {
+        // 注意：用 .then() 兜底而非 .finally()，规避 Taro/微信 regenerator 下
+        // .finally 偶发不执行的隐患，确保 isLoading 一定复位（否则全屏遮罩会卡死拦截点击）
         setIsLoading(false);
         setIsFetching(false);
       });

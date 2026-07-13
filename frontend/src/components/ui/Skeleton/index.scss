@@ -1,6 +1,95 @@
 /* ═══ Skeleton —— 骨架屏样式 ═══ */
 
 .skeleton-shimmer {
-  background: var(--bg);
+  background-color: var(--sk-base, #e9ebe6);
+  background-image: linear-gradient(
+    90deg,
+    var(--sk-base, #e9ebe6) 0%,
+    var(--sk-hi, #f6f7f4) 50%,
+    var(--sk-base, #e9ebe6) 100%
+  );
+  background-size: 200% 100%;
+  animation: skeletonShimmer 1.5s ease-in-out infinite;
+  border: none;
+}
+
+/* 尊重系统「减少动态效果」偏好 */
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-shimmer {
+    animation: none;
+  }
+}
+
+/* ── 组合骨架屏容器样式 ── */
+
+/* 页面头部：标题 + 右侧操作/筛选 */
+.sk-page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 20px;
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+}
+
+/* 图表卡片：卡片头 + 图表占位 */
+.sk-chart-card {
+  background: var(--srf);
   border: 1px solid var(--bd);
+  border-radius: var(--rm);
+  padding: 20px;
+
+  &__head {
+    margin-bottom: 16px;
+  }
+}
+
+/* 列表行：图标 + 两行文字 + 右侧金额 */
+.sk-list {
+  display: flex;
+  flex-direction: column;
+
+  &__row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--bdL);
+
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+
+  &__body {
+    flex: 1;
+    min-width: 0;
+  }
+}
+
+/* 筛选栏 */
+.sk-filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+/* 表单 */
+.sk-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  &__field {
+    display: flex;
+    flex-direction: column;
+  }
 }

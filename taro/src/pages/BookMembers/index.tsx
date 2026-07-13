@@ -10,7 +10,9 @@ import {
   removeMember,
   inviteMember,
   checkOwner,
+  createInvitation,
 } from "../../services/booksApi";
+import { Spinner } from "../../components/ui";
 import ConfirmDialog from "../../components/ConfirmDialog";
 import PageLayout from "../../components/PageLayout";
 
@@ -25,6 +27,19 @@ export default function BookMembers() {
   } | null>(null);
   const [inviteEmail, setInviteEmail] = useState("");
   const [showInvite, setShowInvite] = useState(false);
+  const [inviteCode, setInviteCode] = useState<string | null>(null);
+
+  const inviteCodeMut = useMutation({
+    mutationFn: () => createInvitation(bookId),
+    onSuccess: (res) => {
+      setInviteCode(res.code);
+      Taro.setClipboardData({ data: res.code });
+      Taro.showToast({ title: "邀请码已复制", icon: "success" });
+    },
+    onError: (err: any) => {
+      Taro.showToast({ title: err.message || "生成失败", icon: "none" });
+    },
+  });
 
   const { data: members = [], isLoading } = useQuery({
     queryKey: ["books", bookId, "members"],
@@ -48,6 +63,7 @@ export default function BookMembers() {
     },
     onError: (err: any) => {
       Taro.showToast({ title: err.message || "移除失败", icon: "none" });
+      setRemoveTarget(null);
     },
   });
 
@@ -61,21 +77,22 @@ export default function BookMembers() {
     },
     onError: (err: any) => {
       Taro.showToast({ title: err.message || "邀请失败", icon: "none" });
+      setShowInvite(false);
     },
   });
 
   return (
-    <PageLayout contentClassName="bm-content">
+    <PageLayout contentClassName="bm-content" loading={isLoading} loadingText="加载中…">
       <View style={{ padding: "24rpx 32rpx" }}>
         {/* Invite section */}
         {isOwner && (
           <View
             style={{
-              background: "var(--color-card)",
+              background: "var(--srfSoft)",
               borderRadius: "24rpx",
               padding: "24rpx",
               marginBottom: "24rpx",
-              border: "1px solid var(--color-border)",
+              border: "1px solid var(--bd)",
             }}
           >
             {showInvite ? (
@@ -93,13 +110,13 @@ export default function BookMembers() {
                   style={{
                     padding: "20rpx",
                     borderRadius: "16rpx",
-                    border: "1px solid var(--color-border)",
+                    border: "1px solid var(--bd)",
                     fontSize: "28rpx",
                     marginBottom: "16rpx",
                   }}
                   value={inviteEmail}
                   onInput={(e: any) => setInviteEmail(e.detail.value)}
-                  placeholder="输入用户邮箱"
+                  placeholder="请输入对方的邮箱"
                   placeholderStyle="color: #999"
                 />
                 <View style={{ display: "flex", gap: "16rpx" }}>
@@ -111,7 +128,7 @@ export default function BookMembers() {
                       alignItems: "center",
                       justifyContent: "center",
                       borderRadius: "16rpx",
-                      border: "1px solid var(--color-border)",
+                      border: "1px solid var(--bd)",
                     }}
                     onClick={() => {
                       setShowInvite(false);
@@ -121,21 +138,24 @@ export default function BookMembers() {
                     <Text style={{ fontSize: "28rpx" }}>取消</Text>
                   </View>
                   <View
-                    style={{
-                      flex: 1,
-                      padding: "20rpx 0",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      borderRadius: "16rpx",
-                      backgroundColor: "var(--color-primary)",
-                      opacity: inviteMut.isPending ? 0.6 : 1,
-                    }}
-                    onClick={() => {
-                      if (inviteEmail.trim())
-                        inviteMut.mutate(inviteEmail.trim());
-                    }}
-                  >
+                  style={{
+                    flex: 1,
+                    padding: "20rpx 0",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "12rpx",
+                    borderRadius: "16rpx",
+                    backgroundColor: "var(--pr)",
+                    opacity: inviteMut.isPending ? 0.6 : 1,
+                  }}
+                  onClick={() => {
+                    if (inviteMut.isPending) return;
+                    if (inviteEmail.trim())
+                      inviteMut.mutate(inviteEmail.trim());
+                  }}
+                >
+                    {inviteMut.isPending && <Spinner />}
                     <Text
                       style={{
                         fontSize: "28rpx",
@@ -143,58 +163,138 @@ export default function BookMembers() {
                         fontWeight: 500,
                       }}
                     >
-                      {inviteMut.isPending ? "邀请中..." : "确认邀请"}
+                      {inviteMut.isPending ? "发送中..." : "发送邀请"}
                     </Text>
                   </View>
                 </View>
               </View>
             ) : (
-              <View
-                style={{
-                  padding: "16rpx 0",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  borderRadius: "16rpx",
-                  backgroundColor: "var(--color-primary-bg)",
-                }}
-                onClick={() => setShowInvite(true)}
-              >
-                <Text
+              <View style={{ display: "flex", flexDirection: "column", gap: "16rpx" }}>
+                <View
                   style={{
-                    fontSize: "28rpx",
-                    color: "var(--color-primary)",
-                    fontWeight: 500,
+                    padding: "16rpx 0",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    borderRadius: "16rpx",
+                    backgroundColor: "var(--prBg)",
+                  }}
+                  onClick={() => setShowInvite(true)}
+                >
+                  <Text
+                    style={{
+                      fontSize: "28rpx",
+                      color: "var(--pr)",
+                      fontWeight: 500,
+                    }}
+                  >
+                    + 邀请成员
+                  </Text>
+                </View>
+
+                <View
+                  style={{
+                    padding: "16rpx 0",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "12rpx",
+                    borderRadius: "16rpx",
+                    backgroundColor: "var(--prBg)",
+                  }}
+                  onClick={() => {
+                    if (inviteCodeMut.isPending) return;
+                    inviteCodeMut.mutate();
                   }}
                 >
-                  + 邀请成员
-                </Text>
+                  {inviteCodeMut.isPending && <Spinner />}
+                  <Text
+                    style={{
+                      fontSize: "28rpx",
+                      color: "var(--pr)",
+                      fontWeight: 500,
+                    }}
+                  >
+                    {inviteCodeMut.isPending ? "生成中..." : "🔗 生成邀请码"}
+                  </Text>
+                </View>
+
+                {inviteCode && (
+                  <View
+                    style={{
+                      background: "var(--srfSoft)",
+                      borderRadius: "24rpx",
+                      padding: "24rpx",
+                      border: "1px solid var(--bd)",
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "16rpx",
+                    }}
+                  >
+                    <Text style={{ fontSize: "22rpx", color: "var(--fg3)" }}>
+                      邀请码已生成（已复制到剪贴板）
+                    </Text>
+                    <View
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        padding: "24rpx",
+                        background: "var(--bg)",
+                        borderRadius: "16rpx",
+                        border: "2rpx dashed var(--pr)",
+                      }}
+                    >
+                      <Text
+                        style={{
+                          fontSize: "36rpx",
+                          fontWeight: 700,
+                          letterSpacing: "4rpx",
+                          color: "var(--pr)",
+                          fontFamily: "monospace",
+                        }}
+                      >
+                        {inviteCode}
+                      </Text>
+                      <View
+                        style={{
+                          padding: "10rpx 28rpx",
+                          borderRadius: "100rpx",
+                          backgroundColor: "var(--pr)",
+                          boxShadow: "0 4rpx 14rpx rgba(45, 157, 138, 0.25)",
+                        }}
+                        onClick={() => Taro.setClipboardData({ data: inviteCode })}
+                      >
+                        <Text style={{ fontSize: "24rpx", color: "#fff", fontWeight: 500 }}>
+                          复制
+                        </Text>
+                      </View>
+                    </View>
+                    <Text style={{ fontSize: "22rpx", color: "var(--fg3)" }}>
+                      将以下邀请码分享给他人，对方在「加入账本」中输入即可加入账本
+                    </Text>
+                  </View>
+                )}
               </View>
             )}
           </View>
         )}
 
         {/* Members list */}
-        {isLoading ? (
-          <View
-            style={{
-              textAlign: "center",
-              padding: "80rpx 0",
-              color: "var(--color-text-secondary)",
-            }}
-          >
-            <Text>加载中...</Text>
-          </View>
-        ) : (
+        {(
           <View style={{ display: "flex", flexDirection: "column", gap: "16rpx" }}>
-            {members.map((m: any) => (
+            {members.map((m: any) => {
+              const roleLabel =
+                m.role === "owner" ? "所有者" : m.role === "admin" ? "管理员" : "成员";
+              const isOwnerRole = m.role === "owner";
+              return (
               <View
                 key={m.userId || m.id}
                 style={{
-                  background: "var(--color-card)",
+                  background: "var(--srfSoft)",
                   borderRadius: "24rpx",
                   padding: "24rpx",
-                  border: "1px solid var(--color-border)",
+                  border: "1px solid var(--bd)",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "space-between",
@@ -206,7 +306,7 @@ export default function BookMembers() {
                       width: "72rpx",
                       height: "72rpx",
                       borderRadius: "50%",
-                      background: "var(--color-primary)",
+                      background: "var(--pr)",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
@@ -221,30 +321,28 @@ export default function BookMembers() {
                       <Text style={{ fontSize: "30rpx", fontWeight: 600 }}>
                         {m.username || "未命名用户"}
                       </Text>
-                      {m.role === "owner" && (
-                        <View
+                      <View
+                        style={{
+                          background: isOwnerRole ? "var(--prBg)" : "var(--bd)",
+                          padding: "4rpx 12rpx",
+                          borderRadius: "8rpx",
+                        }}
+                      >
+                        <Text
                           style={{
-                            background: "var(--color-primary-bg)",
-                            padding: "4rpx 12rpx",
-                            borderRadius: "8rpx",
+                            fontSize: "22rpx",
+                            color: isOwnerRole ? "var(--pr)" : "var(--fg3)",
+                            fontWeight: 500,
                           }}
                         >
-                          <Text
-                            style={{
-                              fontSize: "22rpx",
-                              color: "var(--color-primary)",
-                              fontWeight: 500,
-                            }}
-                          >
-                            所有者
-                          </Text>
-                        </View>
-                      )}
+                          {roleLabel}
+                        </Text>
+                      </View>
                     </View>
                     <Text
                       style={{
                         fontSize: "24rpx",
-                        color: "var(--color-text-secondary)",
+                        color: "var(--fg3)",
                         marginTop: "4rpx",
                       }}
                     >
@@ -258,7 +356,7 @@ export default function BookMembers() {
                     style={{
                       padding: "12rpx 24rpx",
                       borderRadius: "12rpx",
-                      background: "var(--color-danger-bg)",
+                      background: "var(--expBg)",
                     }}
                     onClick={() =>
                       setRemoveTarget({
@@ -270,7 +368,7 @@ export default function BookMembers() {
                     <Text
                       style={{
                         fontSize: "26rpx",
-                        color: "var(--color-danger)",
+                        color: "var(--exp)",
                       }}
                     >
                       移除
@@ -278,14 +376,15 @@ export default function BookMembers() {
                   </View>
                 )}
               </View>
-            ))}
+            );
+            })}
 
             {members.length === 0 && (
               <View
                 style={{
                   textAlign: "center",
                   padding: "80rpx 0",
-                  color: "var(--color-text-secondary)",
+                  color: "var(--fg3)",
                 }}
               >
                 <Text>暂无成员</Text>

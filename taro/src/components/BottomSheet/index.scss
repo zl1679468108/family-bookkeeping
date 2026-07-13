@@ -1,0 +1,70 @@
+/* ========== 通用底部弹窗 BottomSheet ========== */
+.bs-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.45);
+  z-index: 1000;
+  display: flex;
+  align-items: flex-end;
+}
+
+.bs-sheet {
+  width: 100%;
+  background-color: var(--surface, #ffffff);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-top-left-radius: 28rpx;
+  border-top-right-radius: 28rpx;
+  animation: bsSheetUp 0.25s cubic-bezier(0.25, 0, 0.2, 1);
+}
+
+@keyframes bsSheetUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.bs-sheet__body {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.bs-sheet__footer {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 14rpx;
+  padding: 20rpx 32rpx;
+  padding-bottom: calc(20rpx + env(safe-area-inset-bottom, 0));
+  border-top: 1rpx solid var(--border-light, #edeee9);
+  background-color: var(--surface, #ffffff);
+}
+
+.bs-sheet__safe {
+  height: env(safe-area-inset-bottom, 0);
+  background-color: var(--surface, #ffffff);
+  flex-shrink: 0;
+}
+
+.bs-sheet__loading {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16rpx;
+  padding: 80rpx 0;
+}
+
+.bs-sheet__loading-text {
+  font-size: 26rpx;
+  color: var(--fg-3, #8b8e89);
+}

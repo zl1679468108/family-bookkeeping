@@ -10,9 +10,19 @@ export function fmtAmount(v: number): string {
   return abs.toLocaleString("zh-CN");
 }
 
-/** 日期格式化 YYYY-MM-DD */
+/** 日期格式化 YYYY-MM-DD（按传入 Date 的本地字段输出） */
 export function fmtDate(d: Date): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
+/** 今天（北京时间 YYYY-MM-DD）— 不依赖设备时区，统一以 Asia/Shanghai 为准 */
+export function todayBeijing(): string {
+  const now = new Date();
+  // 北京时间固定为 UTC+8；构造出的 Date 本地字段即表示北京时间
+  const beijing = new Date(
+    now.getTime() + now.getTimezoneOffset() * 60000 + 8 * 3600000,
+  );
+  return fmtDate(beijing);
 }
 
 /** 友好日期（今天/昨天/月日） */

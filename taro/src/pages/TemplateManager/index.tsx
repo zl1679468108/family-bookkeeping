@@ -1,118 +1,90 @@
 /**
- * TemplateManager — v3.1 模板管理页
- * 对齐 PC：创建/编辑/删除模板，预填类型/分类/备注/位置，支持排序
- * 布局：列表 + 悬浮新建按钮 + Picker 式编辑弹窗
- * 地图：使用 LocationPicker（高德坐标，与后端一致）
+ * TemplateManager — 模板管理（内嵌弹窗模式）
+ *
+ * 对齐 PC 端功能：
+ *   列表页 + 详情弹窗（完整信息+执行/编辑/复制/删除）+ 表单弹窗（PC风格边框输入框）
  */
 import { useState, useMemo } from "react";
 import { View, Text, Input, Picker } from "@tarojs/components";
-import Taro from "@tarojs/taro";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import EmptyState from "../../components/EmptyState";
-import ConfirmDialog from "../../components/ConfirmDialog";
+import Taro, { useDidShow } from "@tarojs/taro";
+import { useQueryClient, useMutation } from "@tanstack/react-query";
 import PageLayout from "../../components/PageLayout";
+import ConfirmDialog from "../../components/ConfirmDialog";
 import CategoryIcon from "../../components/CategoryIcon";
+import BottomSheet from "../../components/BottomSheet";
 import LocationPicker, { LocationResult } from "../../components/LocationPicker";
-import { AppSection, PageHero } from "../../components/ui";
-import { getTemplates, createTemplate, updateTemplate, deleteTemplate, reorderTemplates, executeTemplate } from "../../services/templatesApi";
+import { EmptyState, Spinner } from "../../components/ui";
+import {
+  getTemplates,
+  createTemplate,
+  updateTemplate,
+  deleteTemplate,
+  reorderTemplates,
+  executeTemplate,
+} from "../../services/templatesApi";
 import { useCategories } from "../../hooks/useCategories";
 import { useManualQuery } from "../../hooks/useManualQuery";
 import { isIconUrl } from "../../utils/renderCategoryIcon";
+import type { Template } from "../../types";
 import "./index.scss";
 
-interface Template {
-  id: string;
-  name: string;
-  type: "expense" | "income";
-  category_id?: string;
-  amount?: number;
-  note?: string;
-  description?: string;
-  brand?: string;
-  merchant_name?: string;
-  latitude?: number;
-  longitude?: number;
-  location_name?: string;
-  poi_id?: string | null;
-  sort_order?: number;
-}
+/* ---------- 空表单初始态 ---------- */
+const EMPTY_FORM = {
+  name: "",
+  type: "expense" as "expense" | "income",
+  category_id: "",
+  amount: "",
+  note: "",
+  merchant_name: "",
+  latitude: "",
+  longitude: "",
+  location_name: "",
+  poi_id: "",
+  sort_order: 0,
+};
 
 export default function TemplateManager() {
   const qc = useQueryClient();
   const { data: cats } = useCategories();
 
-  // Tab：支出/收入
-  const [tabIndex, setTabIndex] = useState<number>(0);
-  const curType: "expense" | "income" = tabIndex === 0 ? "expense" : "income";
-
-  // Picker 编辑/新增弹窗状态
-  const [showPicker, setShowPicker] = useState(false);
-  const [showLocationPicker, setShowLocationPicker] = useState(false);
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [deleteId, setDeleteId] = useState<string | null>(null);
-
-  // 排序模式
-  const [sortMode, setSortMode] = useState(false);
-  const [sortOrder, setSortOrder] = useState<Template[]>([]);
-
-  // 表单状态
-  const [form, setForm] = useState({
-    name: "",
-    type: "expense" as "expense" | "income",
-    category_id: "",
-    amount: "",
-    note: "",
-    merchant_name: "",
-    latitude: "",
-    longitude: "",
-    location_name: "",
-    poi_id: "",
-    sort_order: 0,
-  });
-
+  /* ---- 数据获取 ---- */
   const { data: templates, isLoading, refetch } = useManualQuery<Template[]>({
     key: "templates",
     queryFn: () => getTemplates(),
   });
 
-  // 过滤并排序（当前类型）
-  const filtered = useMemo(() => {
-    return (templates || [])
-      .filter((t) => t.type === curType)
-      .sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
-  }, [templates, curType]);
+  useDidShow(() => { refetch(); });
 
-  // 排序模式下的列表
-  const displayList = sortMode && sortOrder.length > 0 ? sortOrder : filtered;
+  const displayList = useMemo(() => {
+    return (templates || []).sort((a, b) => {
+      const tA = a.type === "expense" ? 0 : 1;
+      const tB = b.type === "expense" ? 0 : 1;
+      return tA - tB || (a.sort_order || 0) - (b.sort_order || 0);
+    });
+  }, [templates]);
 
-  // --- Mutations ---
-  const createMut = useMutation({
-    mutationFn: (data: any) => createTemplate(data),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["templates"] });
-      Taro.showToast({ title: "模板创建成功", icon: "success" });
-      resetForm();
-    },
-  });
+  /* ---- 排序模式 ---- */
+  const [sortMode, setSortMode] = useState(false);
+  const [sortOrder, setSortOrder] = useState<Template[]>([]);
 
-  const updateMut = useMutation({
-    mutationFn: ({ id, data }: any) => updateTemplate(id, data),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["templates"] });
-      Taro.showToast({ title: "模板更新成功", icon: "success" });
-      resetForm();
-    },
-  });
+  const sortedList = sortMode && sortOrder.length > 0 ? sortOrder : displayList;
+  const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
+  const [showDetail, setShowDetail] = useState(false);
+  const [showForm, setShowForm] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [form, setForm] = useState({ ...EMPTY_FORM });
+  const [showLocationPicker, setShowLocationPicker] = useState(false);
+  const [showDelete, setShowDelete] = useState(false);
 
-  const deleteMut = useMutation({
-    mutationFn: (id: string) => deleteTemplate(id),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["templates"] });
-      Taro.showToast({ title: "模板已删除", icon: "success" });
-      setDeleteId(null);
-    },
-  });
+  /* ---- 分类查找 ---- */
+  const findCat = (cid?: string) => (cats || []).find((c) => c.id === cid);
+  const catOpts = useMemo(
+    () => (cats || []).filter((c: any) => c.type === form.type),
+    [cats, form.type],
+  );
+  const selectedCat = findCat(form.category_id);
 
+  /* ==================== 排序逻辑 ==================== */
   const reorderMut = useMutation({
     mutationFn: (ids: string[]) => reorderTemplates({ ids }),
     onSuccess: () => {
@@ -122,68 +94,62 @@ export default function TemplateManager() {
       setSortOrder([]);
       refetch();
     },
+    onError: (err: any) => {
+      Taro.showToast({ title: err?.message || "排序保存失败", icon: "none" });
+    },
   });
 
-  // --- Helpers ---
-  const resetForm = () => {
-    const currentTypeTemplates = templates?.filter((t) => t.type === form.type) || [];
-    const nextSortOrder = currentTypeTemplates.length + 1;
-    setForm({
-      name: "",
-      type: curType,
-      category_id: "",
-      amount: "",
-      note: "",
-      merchant_name: "",
-      latitude: "",
-      longitude: "",
-      location_name: "",
-      poi_id: "",
-      sort_order: nextSortOrder,
-    });
-    setShowPicker(false);
-    setEditingId(null);
+  const handleEnterSortMode = () => { setSortOrder([...displayList]); setSortMode(true); };
+  const handleCancelSortMode = () => { setSortMode(false); setSortOrder([]); };
+  const handleMoveUp = (idx: number) => {
+    if (idx <= 0) return;
+    const nl = [...sortOrder]; [nl[idx - 1], nl[idx]] = [nl[idx], nl[idx - 1]];
+    setSortOrder(nl);
   };
-
-  // 进入排序模式
-  const handleEnterSortMode = () => {
-    setSortOrder([...filtered]);
-    setSortMode(true);
+  const handleMoveDown = (idx: number) => {
+    if (idx >= sortOrder.length - 1) return;
+    const nl = [...sortOrder]; [nl[idx], nl[idx + 1]] = [nl[idx + 1], nl[idx]];
+    setSortOrder(nl);
   };
-
-  // 退出排序模式
-  const handleCancelSortMode = () => {
-    setSortMode(false);
-    setSortOrder([]);
-  };
-
-  // 上移
-  const handleMoveUp = (index: number) => {
-    if (index <= 0) return;
-    const newList = [...sortOrder];
-    [newList[index - 1], newList[index]] = [newList[index], newList[index - 1]];
-    setSortOrder(newList);
-  };
-
-  // 下移
-  const handleMoveDown = (index: number) => {
-    if (index >= sortOrder.length - 1) return;
-    const newList = [...sortOrder];
-    [newList[index], newList[index + 1]] = [newList[index + 1], newList[index]];
-    setSortOrder(newList);
-  };
-
-  // 提交排序
   const handleSaveSort = () => {
     if (sortOrder.length === 0) return;
-    const ids = sortOrder.map((t) => t.id);
-    reorderMut.mutate(ids);
+    reorderMut.mutate(sortOrder.map((t) => t.id));
   };
 
-  // 点击列表项 → 打开 Picker 编辑弹窗
-  const handleEdit = (t: Template) => {
+  /* ==================== 详情弹窗 ==================== */
+  const openDetail = (t: Template) => {
+    setSelectedTemplate(t);
+    setShowDetail(true);
+  };
+  const closeDetail = () => { setShowDetail(false); setSelectedTemplate(null); };
+
+  /* 从详情 → 进入编辑 */
+  const handleEditFromDetail = () => {
+    if (!selectedTemplate) return;
+    setEditingId(selectedTemplate.id);
     setForm({
-      name: t.name,
+      name: selectedTemplate.name,
+      type: selectedTemplate.type,
+      category_id: selectedTemplate.category_id || "",
+      amount: selectedTemplate.amount ? String(selectedTemplate.amount) : "",
+      note: selectedTemplate.note || "",
+      merchant_name: selectedTemplate.merchant_name || "",
+      latitude: selectedTemplate.latitude ? String(selectedTemplate.latitude) : "",
+      longitude: selectedTemplate.longitude ? String(selectedTemplate.longitude) : "",
+      location_name: selectedTemplate.location_name || "",
+      poi_id: selectedTemplate.poi_id || "",
+      sort_order: selectedTemplate.sort_order || 0,
+    });
+    setShowDetail(false);
+    setShowForm(true);
+  };
+
+  /* 从详情 → 复制（对齐 PC：打开预填表单，由用户确认创建） */
+  const handleCopyFromDetail = () => {
+    if (!selectedTemplate) return;
+    const t = selectedTemplate;
+    setForm({
+      name: `${t.name} (副本)`,
       type: t.type,
       category_id: t.category_id || "",
       amount: t.amount ? String(t.amount) : "",
@@ -195,57 +161,66 @@ export default function TemplateManager() {
       poi_id: t.poi_id || "",
       sort_order: t.sort_order || 0,
     });
-    setEditingId(t.id);
-    setShowPicker(true);
-  };
-
-  // 点击悬浮按钮 → 打开 Picker 新增弹窗
-  const handleAdd = () => {
-    resetForm();
-    setForm((p) => ({
-      ...p,
-      type: curType,
-      category_id: "",
-    }));
     setEditingId(null);
-    setShowPicker(true);
+    setShowForm(true);
+    closeDetail();
   };
 
-  // 执行模板 → 跳转到记一笔页面
-  const handleExecute = async (t: Template) => {
-    try {
-      Taro.showLoading({ title: "加载中..." });
-      const result = await executeTemplate(t.id);
-      Taro.hideLoading();
-      // 存储模板执行结果到 storage，供 AddTransaction 页面读取
-      Taro.setStorageSync("templateExecuteResult", {
-        category_id: result.category_id,
-        amount: result.amount,
-        description: result.description || result.note || "",
-        brand: result.brand || "",
-        merchant_name: result.merchant_name || "",
-        type: result.type,
-      });
-      Taro.navigateTo({ url: "/pages/AddTransaction/index" });
-    } catch (err: any) {
-      Taro.hideLoading();
-      Taro.showToast({ title: err?.message || "执行模板失败", icon: "none" });
-    }
+  /* 从详情 → 删除 */
+  const deleteMut = useMutation({
+    mutationFn: (id: string) => deleteTemplate(id),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["templates"] });
+      Taro.showToast({ title: "模板已删除", icon: "success" });
+      setShowDelete(false);
+      closeDetail();
+      refetch();
+    },
+    onError: (err: any) => {
+      Taro.showToast({ title: err?.message || "删除失败", icon: "none" });
+      setShowDelete(false);
+    },
+  });
+  const handleDeleteFromDetail = () => { closeDetail(); setShowDelete(true); };
+
+  /* ==================== 表单弹窗 ==================== */
+  const openCreateForm = () => {
+    setEditingId(null);
+    setForm({ ...EMPTY_FORM });
+    setShowForm(true);
   };
 
-  // 位置选择确认
-  const handleLocationConfirm = (result: LocationResult) => {
-    setForm((p) => ({
-      ...p,
-      location_name: result.locationName || "",
-      latitude: result.latitude ? String(result.latitude) : "",
-      longitude: result.longitude ? String(result.longitude) : "",
-      poi_id: result.poiId || "",
-    }));
-    setShowLocationPicker(false);
-  };
+  const createMut = useMutation({
+    mutationFn: (data: any) => createTemplate(data),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["templates"] });
+      Taro.showToast({ title: editingId ? "模板已更新" : "模板已创建", icon: "success" });
+      setShowForm(false);
+      refetch();
+    },
+    onError: (err: any) => {
+      Taro.showToast({ title: err?.message || "操作失败", icon: "none" });
+      // 失败时也关闭表单，避免 loading 卡住
+      setShowForm(false);
+    },
+  });
 
-  const handleSave = () => {
+  const updateMut = useMutation({
+    mutationFn: ({ id, data }: any) => updateTemplate(id, data),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["templates"] });
+      Taro.showToast({ title: "模板已更新", icon: "success" });
+      setShowForm(false);
+      refetch();
+    },
+    onError: (err: any) => {
+      Taro.showToast({ title: err?.message || "更新失败", icon: "none" });
+      // 失败时也关闭表单，避免 loading 卡住
+      setShowForm(false);
+    },
+  });
+
+  const handleFormSave = () => {
     if (!form.name.trim()) {
       Taro.showToast({ title: "请输入模板名称", icon: "none" });
       return;
@@ -271,405 +246,417 @@ export default function TemplateManager() {
     }
   };
 
-  const typeOpts = ["expense", "income"];
-  const catOpts = (cats || []).filter((c) => c.type === form.type);
+  const closeForm = () => { setShowForm(false); setEditingId(null); };
 
-  // LocationPicker 的初始位置
-  const initialLocation =
-    form.latitude && form.longitude
-      ? {
-          latitude: parseFloat(form.latitude),
-          longitude: parseFloat(form.longitude),
-          locationName: form.location_name || "",
-          address: form.location_name || "",
-          poiId: form.poi_id || null,
-        }
-      : null;
+  /* 位置选择回调 */
+  const handleLocationConfirm = (result: LocationResult) => {
+    setForm((p) => ({
+      ...p,
+      location_name: result.locationName || "",
+      latitude: result.latitude ? String(result.latitude) : "",
+      longitude: result.longitude ? String(result.longitude) : "",
+      poi_id: result.poiId || "",
+    }));
+    setShowLocationPicker(false);
+  };
+
+  /* 执行模板 */
+  const handleExecute = async (t: Template) => {
+    try {
+      Taro.showLoading({ title: "加载中..." });
+      const result = await executeTemplate(t.id);
+      Taro.hideLoading();
+      Taro.setStorageSync("templateExecuteResult", {
+        category_id: result.category_id,
+        amount: result.amount,
+        description: result.description || result.note || "",
+        brand: result.brand || "",
+        merchant_name: result.merchant_name || "",
+        type: result.type,
+      });
+      Taro.navigateTo({ url: "/pages/AddTransaction/index" });
+    } catch (err: any) {
+      Taro.hideLoading();
+      Taro.showToast({ title: err?.message || "执行失败", icon: "none" });
+    }
+  };
+
+  /* ==================== 渲染 ==================== */
+  const saving = createMut.isPending || updateMut.isPending;
 
   return (
-    <PageLayout contentClassName="tpl-content">
-      <PageHero
-        eyebrow="模板管理"
-        title={curType === "expense" ? "支出模板" : "收入模板"}
-        meta={`${filtered.length} 个模板 · ${sortMode ? "排序模式" : "点击模板可编辑或执行"}`}
-        tone="surface"
-      />
+    <PageLayout contentClassName="tpl-content" loading={isLoading} loadingText="加载中…">
 
-      {/* Tab 切换：支出 / 收入 + 排序按钮 */}
-      <View className="tpl-tabs-card">
-        <View className="tpl-pill-tabs">
-          <View
-            className={`tpl-pill-tab ${tabIndex === 0 ? "tpl-pill-tab--active" : ""}`}
-            onClick={() => {
-              if (sortMode) handleCancelSortMode();
-              setTabIndex(0);
-            }}
-          >
-            <Text className="tpl-pill-tab__text">支出模板</Text>
-          </View>
-          <View
-            className={`tpl-pill-tab ${tabIndex === 1 ? "tpl-pill-tab--active" : ""}`}
-            onClick={() => {
-              if (sortMode) handleCancelSortMode();
-              setTabIndex(1);
-            }}
-          >
-            <Text className="tpl-pill-tab__text">收入模板</Text>
-          </View>
-        </View>
-        {!isLoading && filtered.length > 1 && (
+      {/* ====== 顶部工具栏（对齐 Categories/Budgets：无外层卡片） ====== */}
+      <View className="tpl-toolbar">
+        {!isLoading && displayList.length > 1 && (
           <View
             className={`tpl-sort-btn ${sortMode ? "tpl-sort-btn--active" : ""}`}
             onClick={sortMode ? handleCancelSortMode : handleEnterSortMode}
           >
-            <Text>{sortMode ? "取消" : "排序"}</Text>
+            <Text>{sortMode ? "完成排序" : "编辑排序"}</Text>
           </View>
         )}
+        <View className="tpl-add-btn" onClick={openCreateForm}>
+          <Text className="tpl-add-btn__icon">＋</Text>
+          <Text className="tpl-add-btn__text">新建模板</Text>
+        </View>
       </View>
 
-      {/* 排序模式提示条 */}
+      {/* 排序提示 */}
       {sortMode && (
         <View className="tpl-sort-hint">
-          <Text>点击 ↑ / ↓ 调整顺序，完成后点击「保存排序」</Text>
-          <View
-            className={`tpl-sort-save ${reorderMut.isPending ? "tpl-sort-save--pending" : ""}`}
-            onClick={handleSaveSort}
-          >
-            <Text>{reorderMut.isPending ? "保存中..." : "保存排序"}</Text>
-          </View>
+          <Text>拖动调整顺序，完成后点击保存</Text>
+            <View
+              className={`tpl-sort-save ${reorderMut.isPending ? "tpl-sort-save--pending ui-spin-row" : ""}`}
+              onClick={reorderMut.isPending ? undefined : handleSaveSort}
+            >
+              {reorderMut.isPending && <Spinner />}
+              <Text>{reorderMut.isPending ? "保存中..." : "保存排序"}</Text>
+            </View>
         </View>
       )}
 
-      {/* Template List */}
-      <AppSection title="模板列表" compact flush>
-      {isLoading ? (
-        <View className="tpl-list">
-          <View className="tpl-loading-row" />
-          <View className="tpl-loading-row" />
-          <View className="tpl-loading-row" />
-        </View>
-      ) : filtered.length === 0 ? (
+      {/* ====== 模板卡片列表 ====== */}
+      {displayList.length === 0 ? (
         <View className="tpl-empty">
           <EmptyState
-            icon="template"
-            title={`暂无${curType === "expense" ? "支出" : "收入"}模板`}
-            description="点击右下角 ＋ 新建模板"
+            title="还没有交易模板"
+            description="创建模板后，记账时可一键套用，省去重复填写。"
           />
         </View>
       ) : (
-        <View className="tpl-list">
-          {displayList.map((t, idx) => {
-            const cat = cats?.find((c) => c.id === t.category_id);
-            return (
-              <View
-                key={t.id}
-                className={`tpl-card ${sortMode ? "tpl-card--sort" : ""}`}
-                onClick={() => {
-                  if (sortMode) return;
-                  handleEdit(t);
-                }}
-              >
-                <View className="tpl-card__head">
-                  <CategoryIcon icon={cat?.icon} className="tpl-card__icon" />
-                  <Text className="tpl-card__name">{t.name}</Text>
-                </View>
-                <View className="tpl-card__meta">
-                  {cat && (
-                    <Text className="tpl-card__meta-line">
-                      分类：{cat.name}
-                    </Text>
-                  )}
-                  {t.amount != null && t.amount > 0 && (
-                    <Text className="tpl-card__meta-line">
-                      金额：¥{Number(t.amount).toFixed(2)}
-                    </Text>
-                  )}
-                  {t.note && (
-                    <Text className="tpl-card__meta-line">备注：{t.note}</Text>
-                  )}
-                  {t.merchant_name && (
-                    <Text className="tpl-card__meta-line">
-                      商户：{t.merchant_name}
-                    </Text>
-                  )}
-                  {t.location_name && (
-                    <Text className="tpl-card__meta-line">
-                      位置：{t.location_name}
-                    </Text>
-                  )}
-                  <Text className="tpl-card__meta-line">排序：第 {idx + 1} 位</Text>
-                </View>
-                <View className="tpl-card__actions">
-                  {sortMode ? (
-                    <>
+        <View className="tpl-grid">
+          {sortedList.map((t, idx) => {
+              const cat = findCat(t.category_id);
+              return (
+                <View
+                  key={t.id}
+                  className={`tpl-card ${sortMode ? "tpl-card--sort" : ""}`}
+                  onClick={() => !sortMode && openDetail(t)}
+                >
+                  {/* 卡片头部：图标 + 名称 */}
+                  <View className="tpl-card__head">
+                    <CategoryIcon icon={cat?.icon} size={28} className="tpl-card__icon" />
+                    <Text className="tpl-card__name">{t.name}</Text>
+                  </View>
+                  {/* 卡片内容：类型标签 + 分类 + 金额 */}
+                  <View className="tpl-card__body">
+                    <View className={`tpl-card__type tpl-card__type--${t.type}`}>
+                      <Text>{t.type === "expense" ? "支出" : "收入"}</Text>
+                    </View>
+                    {cat && (
+                      <Text className="tpl-card__cat">{cat.name}</Text>
+                    )}
+                    {t.amount != null && t.amount > 0 && (
+                      <Text className={`tpl-card__amount tpl-card__amount--${t.type}`}>
+                        ¥{Number(t.amount).toFixed(2)}
+                      </Text>
+                    )}
+                  </View>
+
+                  {/* 排序模式的操作按钮 */}
+                  {sortMode && (
+                    <View className="tpl-card__sort-actions">
                       <View
                         className={`tpl-pill tpl-pill--sort ${idx === 0 ? "tpl-pill--disabled" : ""}`}
-                        onClick={(e: any) => {
-                          e.stopPropagation();
-                          handleMoveUp(idx);
-                        }}
+                        onClick={(e: any) => { e.stopPropagation(); handleMoveUp(idx); }}
                       >
-                        <Text>↑ 上移</Text>
+                        <Text>↑</Text>
                       </View>
                       <View
                         className={`tpl-pill tpl-pill--sort ${idx === sortOrder.length - 1 ? "tpl-pill--disabled" : ""}`}
-                        onClick={(e: any) => {
-                          e.stopPropagation();
-                          handleMoveDown(idx);
-                        }}
+                        onClick={(e: any) => { e.stopPropagation(); handleMoveDown(idx); }}
                       >
-                        <Text>↓ 下移</Text>
+                        <Text>↓</Text>
                       </View>
-                    </>
-                  ) : (
-                    <>
-                      <View
-                        className="tpl-pill tpl-pill--execute"
-                        onClick={(e: any) => {
-                          e.stopPropagation();
-                          handleExecute(t);
-                        }}
-                      >
-                        <Text>执行</Text>
-                      </View>
-                      <View
-                        className="tpl-pill tpl-pill--edit"
-                        onClick={(e: any) => {
-                          e.stopPropagation();
-                          handleEdit(t);
-                        }}
-                      >
-                        <Text>编辑</Text>
-                      </View>
-                      <View
-                        className="tpl-pill tpl-pill--delete"
-                        onClick={(e: any) => {
-                          e.stopPropagation();
-                          setDeleteId(t.id);
-                        }}
-                      >
-                        <Text>删除</Text>
-                      </View>
-                    </>
+                    </View>
                   )}
                 </View>
+              );
+            })}
+          </View>
+        )}
+
+      {/* ========== 详情弹窗（对齐PC截图2） ========== */}
+      {showDetail && selectedTemplate && (
+        <BottomSheet
+          title="模板详情"
+          onClose={closeDetail}
+          maxHeight="85vh"
+          bodyClassName="tpl-detail-pad"
+          footer={
+            <View className="tpl-detail-footer">
+              <View className="tpl-detail-btn tpl-detail-btn--execute" onClick={() => selectedTemplate && handleExecute(selectedTemplate)}>
+                <Text>执行</Text>
               </View>
-            );
-          })}
-        </View>
-      )}
-      </AppSection>
-
-      {/* 悬浮新建按钮（非排序模式） */}
-      {!sortMode && (
-        <View className="tpl-fab" onClick={handleAdd}>
-          <Text className="tpl-fab__icon">＋</Text>
-        </View>
-      )}
-
-      {/* Picker 式编辑/新增弹窗 */}
-      {showPicker && (
-        <View className="tpl-mask" onClick={resetForm}>
-          <View
-            className="tpl-sheet"
-            onClick={(e: any) => e.stopPropagation()}
-          >
-            <View className="tpl-sheet__header">
-              <Text className="tpl-sheet__cancel" onClick={resetForm}>
-                取消
-              </Text>
-              <Text className="tpl-sheet__title">
-                {editingId ? "编辑模板" : "新建模板"}
-              </Text>
-              <Text
-                className={`tpl-sheet__confirm ${
-                  createMut.isPending || updateMut.isPending
-                    ? "tpl-sheet__confirm--disabled"
-                    : ""
-                }`}
-                onClick={handleSave}
-              >
-                {createMut.isPending || updateMut.isPending ? "保存中…" : "保存"}
-              </Text>
+              <View className="tpl-detail-btn tpl-detail-btn--edit" onClick={handleEditFromDetail}>
+                <Text>编辑</Text>
+              </View>
+              <View className="tpl-detail-btn tpl-detail-btn--copy" onClick={handleCopyFromDetail}>
+                <Text>复制</Text>
+              </View>
+              <View className="tpl-detail-btn tpl-detail-btn--delete" onClick={handleDeleteFromDetail}>
+                <Text>删除</Text>
+              </View>
             </View>
-
-            <View className="tpl-sheet__body">
-              <View className="tpl-form-row">
-                <Text className="tpl-form-label">名称</Text>
-                <Input
-                  className="tpl-form-input"
-                  placeholder="如：公司食堂午餐"
-                  maxlength={20}
-                  value={form.name}
-                  onInput={(e: any) =>
-                    setForm((p) => ({ ...p, name: e.detail.value }))
-                  }
-                />
+          }
+        >
+          <View className="tpl-detail-hero">
+            <CategoryIcon
+              icon={findCat(selectedTemplate.category_id)?.icon}
+              size={48}
+              className="tpl-detail-hero__icon"
+            />
+            <Text className="tpl-detail-hero__name">{selectedTemplate.name}</Text>
+            <View className="tpl-detail-hero__tags">
+              <View className={`tpl-tag tpl-tag--type tpl-tag--${selectedTemplate.type}`}>
+                <Text>{selectedTemplate.type === "expense" ? "支出" : "收入"}</Text>
               </View>
-
-              <View className="tpl-picker-row">
-                <Text className="tpl-picker-label">类型</Text>
-                <Picker
-                  mode="selector"
-                  range={typeOpts.map((t) => (t === "expense" ? "支出" : "收入"))}
-                  value={typeOpts.indexOf(form.type)}
-                  onChange={(e: any) =>
-                    setForm((p) => ({
-                      ...p,
-                      type: typeOpts[e.detail.value] as any,
-                      category_id: "",
-                    }))
-                  }
-                >
-                  <View className="tpl-picker-item">
-                    <Text
-                      className={`tpl-picker-value tpl-picker-value--${
-                        form.type === "expense" ? "expense" : "income"
-                      }`}
-                    >
-                      {form.type === "expense" ? "支出" : "收入"}
-                    </Text>
-                    <Text className="tpl-picker-arrow">▸</Text>
-                  </View>
-                </Picker>
-              </View>
-
-              <View className="tpl-picker-row">
-                <Text className="tpl-picker-label">分类</Text>
-                <Picker
-                  mode="selector"
-                  range={
-                    catOpts.length > 0
-                      ? catOpts.map((c) => {
-                          const ic = c.icon || "";
-                          // Picker 只能渲染文本，自定义 URL 图标降级为 📌
-                          const displayIcon = isIconUrl(ic) ? "📌" : ic;
-                          return `${displayIcon} ${c.name}`;
-                        })
-                      : ["暂无分类"]
-                  }
-                  value={
-                    catOpts.length > 0
-                      ? catOpts.findIndex((c) => c.id === form.category_id)
-                      : 0
-                  }
-                  onChange={(e: any) => {
-                    if (catOpts.length > 0) {
-                      const idx = Number(e.detail.value);
-                      setForm((p) => ({
-                        ...p,
-                        category_id: catOpts[idx]?.id || "",
-                      }));
-                    }
-                  }}
-                >
-                  <View className="tpl-picker-item">
-                    <Text className="tpl-picker-value">
-                      {form.category_id && catOpts.find((c) => c.id === form.category_id)
-                        ? catOpts.find((c) => c.id === form.category_id)?.name || ""
-                        : "选择分类"}
-                    </Text>
-                    <Text className="tpl-picker-arrow">▸</Text>
-                  </View>
-                </Picker>
-              </View>
-
-              <View className="tpl-form-row">
-                <Text className="tpl-form-label">金额</Text>
-                <Input
-                  className="tpl-form-input"
-                  placeholder="0.00"
-                  type="digit"
-                  value={form.amount}
-                  onInput={(e: any) =>
-                    setForm((p) => ({ ...p, amount: e.detail.value }))
-                  }
-                />
-              </View>
-
-              <View className="tpl-form-row">
-                <Text className="tpl-form-label">备注</Text>
-                <Input
-                  className="tpl-form-input"
-                  placeholder="添加备注（可选）"
-                  value={form.note}
-                  onInput={(e: any) =>
-                    setForm((p) => ({ ...p, note: e.detail.value }))
-                  }
-                />
-              </View>
-
-              <View className="tpl-form-row">
-                <Text className="tpl-form-label">商户</Text>
-                <Input
-                  className="tpl-form-input"
-                  placeholder="如：星巴克、 Walmart（可选）"
-                  value={form.merchant_name}
-                  onInput={(e: any) =>
-                    setForm((p) => ({ ...p, merchant_name: e.detail.value }))
-                  }
-                />
-              </View>
-
-              {/* 位置选择：使用高德坐标的 LocationPicker（与后端一致） */}
-              <View className="tpl-form-row tpl-form-row--location">
-                <Text className="tpl-form-label">位置</Text>
-                <View
-                  className="tpl-location-picker"
-                  onClick={() => setShowLocationPicker(true)}
-                >
-                  <Text className="tpl-location-text">
-                    {form.location_name || "点击选择位置"}
-                  </Text>
-                  <Text className="tpl-location-arrow">›</Text>
-                </View>
-              </View>
-
-              {form.location_name && (
-                <View className="tpl-location-coords">
-                  <Text>
-                    坐标：{form.latitude}, {form.longitude}
-                  </Text>
-                  <Text
-                    className="tpl-location-clear"
-                    onClick={() =>
-                      setForm((p) => ({
-                        ...p,
-                        location_name: "",
-                        latitude: "",
-                        longitude: "",
-                        poi_id: "",
-                      }))
-                    }
-                  >
-                    清除
-                  </Text>
+              {selectedTemplate.amount != null && (
+                <View className={`tpl-tag tpl-tag--amount tpl-tag--${selectedTemplate.type}`}>
+                  <Text>¥{Number(selectedTemplate.amount).toFixed(2)}</Text>
                 </View>
               )}
-
-              <View className="tpl-form-row">
-                <Text className="tpl-form-label">商户 ID</Text>
-                <Input
-                  className="tpl-form-input"
-                  placeholder="POI ID"
-                  value={form.poi_id}
-                  onInput={(e: any) =>
-                    setForm((p) => ({ ...p, poi_id: e.detail.value }))
-                  }
-                />
-              </View>
+              {findCat(selectedTemplate.category_id) && (
+                <View className="tpl-tag tpl-tag--cat">
+                  <Text>{findCat(selectedTemplate.category_id)?.name}</Text>
+                </View>
+              )}
             </View>
-
-            <View className="tpl-sheet__safe" />
           </View>
-        </View>
+
+          <View className="tpl-detail-divider" />
+
+          <View className="tpl-detail-grid">
+            {selectedTemplate.note && (
+              <View className="tpl-detail-item">
+                <Text className="tpl-detail-item__label">备注</Text>
+                <Text className="tpl-detail-item__value">{selectedTemplate.note}</Text>
+              </View>
+            )}
+            {selectedTemplate.latitude && selectedTemplate.longitude && (
+              <View className="tpl-detail-item">
+                <Text className="tpl-detail-item__label">位置</Text>
+                <Text className="tpl-detail-item__value">
+                  {selectedTemplate.latitude}, {selectedTemplate.longitude}
+                </Text>
+              </View>
+            )}
+            {selectedTemplate.location_name && (
+              <View className="tpl-detail-item tpl-detail-item--full">
+                <Text className="tpl-detail-item__label">地址</Text>
+                <Text className="tpl-detail-item__value">{selectedTemplate.location_name}</Text>
+              </View>
+            )}
+            {selectedTemplate.poi_id && (
+              <View className="tpl-detail-item">
+                <Text className="tpl-detail-item__label">商户 ID</Text>
+                <Text className="tpl-detail-item__value">{selectedTemplate.poi_id}</Text>
+              </View>
+            )}
+            {selectedTemplate.book_id && (
+              <View className="tpl-detail-item">
+                <Text className="tpl-detail-item__label">账本 ID</Text>
+                <Text className="tpl-detail-item__value">{selectedTemplate.book_id}</Text>
+              </View>
+            )}
+            {selectedTemplate.sort_order !== undefined && (
+              <View className="tpl-detail-item">
+                <Text className="tpl-detail-item__label">排序</Text>
+                <Text className="tpl-detail-item__value">第 {(selectedTemplate.sort_order ?? 0) + 1} 位</Text>
+              </View>
+            )}
+            {selectedTemplate.created_at && (
+              <View className="tpl-detail-item">
+                <Text className="tpl-detail-item__label">创建时间</Text>
+                <Text className="tpl-detail-item__value">{selectedTemplate.created_at.slice(0, 16).replace("T", " ")}</Text>
+              </View>
+            )}
+          </View>
+        </BottomSheet>
       )}
 
-      {/* 位置选择弹窗（高德坐标） */}
+      {/* ========== 表单弹窗（对齐PC截图） ========== */}
+      {showForm && (
+        <BottomSheet
+          title={editingId ? "编辑模板" : "新建模板"}
+          onClose={closeForm}
+          maxHeight="90vh"
+          bodyClassName="tpl-form-pad"
+          footer={
+            <View className="tpl-form-footer tpl-form-footer--single">
+              <View
+                className={`tpl-form-btn tpl-form-btn--submit ${saving ? "tpl-form-btn--disabled ui-spin-row" : ""}`}
+                onClick={saving ? undefined : handleFormSave}
+              >
+                {saving && <Spinner />}
+                <Text>{saving ? "保存中..." : (editingId ? "更新" : "创建")}</Text>
+              </View>
+            </View>
+          }
+        >
+          {/* 模板名称 */}
+          <View className="tpl-fg">
+            <Text className="tpl-fg__label tpl-fg__label--req">模板名称</Text>
+            <Input
+              className="tpl-fg__input"
+              placeholder="如：公司食堂午餐"
+              maxlength={20}
+              value={form.name}
+              onInput={(e: any) => setForm((p) => ({ ...p, name: e.detail.value }))}
+            />
+          </View>
+
+          {/* 类型 + 分类 并排 */}
+          <View className="tpl-fg-row">
+            <View className="tpl-fg tpl-fg--half">
+              <Text className="tpl-fg__label tpl-fg__label--req">类型</Text>
+              <Picker
+                mode="selector"
+                range={[{ label: "支出", value: "expense" }, { label: "收入", value: "income" }]}
+                rangeKey="label"
+                value={form.type === "expense" ? 0 : 1}
+                onChange={(e: any) =>
+                  setForm((p) => ({ ...p, type: e.detail.value === 0 ? "expense" : "income", category_id: "" }))
+                }
+              >
+                <View className="tpl-fg__select">
+                  <Text className={`tpl-fg__select-val tpl-fg__select-val--${form.type}`}>
+                    {form.type === "expense" ? "支出" : "收入"}
+                  </Text>
+                  <Text
+                    className="tpl-fg__select-cls"
+                    onClick={(e: any) => {
+                      e.stopPropagation();
+                      setForm((p) => ({ ...p, type: p.type === "expense" ? "income" : "expense", category_id: "" }));
+                    }}
+                  >×</Text>
+                  <Text className="tpl-fg__select-arrow">·</Text>
+                </View>
+              </Picker>
+            </View>
+            <View className="tpl-fg tpl-fg--half">
+              <Text className="tpl-fg__label tpl-fg__label--req">分类</Text>
+              <Picker
+                mode="selector"
+                range={
+                  catOpts.length > 0
+                    ? catOpts.map((c: any) => {
+                        const ic = c.icon || "";
+                        const displayIcon = isIconUrl(ic) ? "📌" : ic;
+                        return `${displayIcon} ${c.name}`;
+                      })
+                    : ["暂无分类"]
+                }
+                value={Math.max(0, catOpts.findIndex((c: any) => c.id === form.category_id))}
+                onChange={(e: any) => {
+                  if (catOpts.length > 0) {
+                    setForm((p) => ({ ...p, category_id: catOpts[Number(e.detail.value)]?.id || "" }));
+                  }
+                }}
+              >
+                <View className="tpl-fg__select">
+                  <Text className={`tpl-fg__select-val ${selectedCat ? "" : "tpl-fg__select-val--ph"}`}>
+                    {selectedCat ? selectedCat.name : "选择分类"}
+                  </Text>
+                  <Text className="tpl-fg__select-arrow">·</Text>
+                </View>
+              </Picker>
+            </View>
+          </View>
+
+          {/* 金额 */}
+          <View className="tpl-fg">
+            <Text className="tpl-fg__label">金额</Text>
+            <View className="tpl-fg__input-wrap">
+              <Text className="tpl-fg__yen">¥</Text>
+              <Input
+                className="tpl-fg__input tpl-fg__input--amount"
+                placeholder="0.00"
+                type="digit"
+                value={form.amount}
+                onInput={(e: any) => setForm((p) => ({ ...p, amount: e.detail.value }))}
+              />
+            </View>
+          </View>
+
+          {/* 备注 */}
+          <View className="tpl-fg">
+            <Text className="tpl-fg__label">备注</Text>
+            <Input
+              className="tpl-fg__input"
+              placeholder="添加备注（可选）"
+              value={form.note}
+              onInput={(e: any) => setForm((p) => ({ ...p, note: e.detail.value }))}
+            />
+          </View>
+
+          {/* 位置信息 */}
+          <View className="tpl-fg">
+            <Text className="tpl-fg__label">位置信息</Text>
+            {form.location_name ? (
+              <View className="tpl-location-block" onClick={() => setShowLocationPicker(true)}>
+                <Text className="tpl-location-block__addr">{form.location_name}</Text>
+                <View className="tpl-location-block__meta">
+                  <Text className="tpl-location-block__coord">
+                    {form.latitude}, {form.longitude}
+                  </Text>
+                  {form.poi_id && (
+                    <Text className="tpl-location-block__poi">
+                      商户ID: {form.poi_id}
+                    </Text>
+                  )}
+                </View>
+                <View className="tpl-location-block__actions">
+                  <Text className="tpl-location-block__modify" onClick={() => setShowLocationPicker(true)}>
+                    点击修改
+                  </Text>
+                  <Text
+                    className="tpl-location-block__clear"
+                    onClick={() =>
+                      setForm((p) => ({ ...p, location_name: "", latitude: "", longitude: "", poi_id: "" }))
+                    }
+                  >
+                    关闭
+                  </Text>
+                </View>
+              </View>
+            ) : (
+              <View className="tpl-location-empty" onClick={() => setShowLocationPicker(true)}>
+                <Text>📍 选择位置</Text>
+              </View>
+            )}
+          </View>
+
+          {/* 排序 */}
+          <View className="tpl-fg">
+            <Text className="tpl-fg__label">排序</Text>
+            <Input
+              className="tpl-fg__input tpl-fg__input--num"
+              type="number"
+              value={String(form.sort_order || 0)}
+              onInput={(e: any) => setForm((p) => ({ ...p, sort_order: parseInt(e.detail.value) || 0 }))}
+            />
+          </View>
+        </BottomSheet>
+      )}
+
+      {/* 位置选择器 */}
       {showLocationPicker && (
         <LocationPicker
           visible={showLocationPicker}
-          initialLocation={initialLocation}
+          initialLocation={
+            form.latitude && form.longitude
+              ? {
+                  latitude: parseFloat(form.latitude),
+                  longitude: parseFloat(form.longitude),
+                  locationName: form.location_name || "",
+                  address: form.location_name || "",
+                  poiId: form.poi_id || null,
+                }
+              : null
+          }
           onClose={() => setShowLocationPicker(false)}
           onConfirm={handleLocationConfirm}
         />
@@ -677,13 +664,14 @@ export default function TemplateManager() {
 
       {/* 删除确认弹窗 */}
       <ConfirmDialog
-        visible={!!deleteId}
+        visible={showDelete}
         title="确认删除"
         message="确定要删除这个模板吗？"
         confirmText="确认删除"
+        danger
         confirmLoading={deleteMut.isPending}
-        onCancel={() => setDeleteId(null)}
-        onConfirm={() => deleteId && deleteMut.mutate(deleteId)}
+        onCancel={() => setShowDelete(false)}
+        onConfirm={() => selectedTemplate && deleteMut.mutate(selectedTemplate.id)}
       />
     </PageLayout>
   );

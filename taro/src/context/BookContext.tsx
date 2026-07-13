@@ -21,6 +21,8 @@ interface BookContextType {
   currentBook: Book | null;
   books: Book[];
   switchBook: (book: Book | null) => void;
+  /** 重新拉取账本列表（创建/加入后调用，避免缓存为空导致引导循环） */
+  refetchBooks: () => Promise<Book[]>;
   loading: boolean;
 }
 
@@ -28,6 +30,7 @@ const BookContext = createContext<BookContextType>({
   currentBook: null,
   books: [],
   switchBook: () => {},
+  refetchBooks: async () => [],
   loading: false,
 });
 
@@ -39,7 +42,8 @@ export const BookProvider: React.FC<{ children: React.ReactNode }> = ({
   const { user } = useAuth();
   const [currentBook, setCurrentBook] = useState<Book | null>(null);
   const [books, setBooks] = useState<Book[]>([]);
-  const [loading, setLoading] = useState(false);
+  // loading 初始值：user 存在时默认为 true（fetch effect 尚未执行时子组件已读到 loading=true，避免竞态误跳转）
+  const [loading, setLoading] = useState(!!user);
   const initialized = useRef(false);
 
   // 用户切换时重置账本状态，防止旧账本残留
@@ -117,10 +121,23 @@ export const BookProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   }, []);
 
+  /** 重新拉取账本列表。返回最新数据，供 Onboarding 创建/加入后定位新账本 */
+  const refetchBooks = useCallback(async (): Promise<Book[]> => {
+    if (!user) return [];
+    try {
+      const data = await fetchBooks();
+      setBooks(data);
+      return data;
+    } catch (err) {
+      console.error("[BookContext] 拉取账本失败", err);
+      return [];
+    }
+  }, [user]);
+
   // 关键：缓存 Provider value 避免每次渲染生成新对象导致全量重渲染
   const contextValue = useMemo<BookContextType>(
-    () => ({ currentBook, books, switchBook, loading }),
-    [currentBook, books, switchBook, loading],
+    () => ({ currentBook, books, switchBook, refetchBooks, loading }),
+    [currentBook, books, switchBook, refetchBooks, loading],
   );
 
   return (

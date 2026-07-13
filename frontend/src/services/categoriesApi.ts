@@ -65,6 +65,6 @@ export const reorderCategories = async (orders: { id: string; sort_order: number
   await request<null>('/categories/reorder', {
     method: 'PATCH',
     requiresAuth: true,
-    body: orders,
+    body: { orders },
   });
 };

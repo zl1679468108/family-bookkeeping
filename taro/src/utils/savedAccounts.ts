@@ -28,6 +28,11 @@ function tokenKey(email: string): string {
   return `account_token_${emailHash(email)}`;
 }
 
+/** 刷新令牌独立存储 key（双 Token） */
+function refreshTokenKey(email: string): string {
+  return `account_refresh_token_${emailHash(email)}`;
+}
+
 /** 读取指定账号的 token */
 export function getAccountToken(email: string): string | null {
   try {
@@ -48,6 +53,29 @@ export function setAccountToken(email: string, token: string): void {
 export function removeAccountToken(email: string): void {
   try {
     Taro.removeStorageSync(tokenKey(email));
+  } catch {}
+}
+
+/** 读取指定账号的刷新令牌 */
+export function getAccountRefreshToken(email: string): string | null {
+  try {
+    return Taro.getStorageSync(refreshTokenKey(email)) || null;
+  } catch {
+    return null;
+  }
+}
+
+/** 保存指定账号的刷新令牌 */
+export function setAccountRefreshToken(email: string, token: string): void {
+  try {
+    Taro.setStorageSync(refreshTokenKey(email), token);
+  } catch {}
+}
+
+/** 删除指定账号的刷新令牌 */
+export function removeAccountRefreshToken(email: string): void {
+  try {
+    Taro.removeStorageSync(refreshTokenKey(email));
   } catch {}
 }
 
@@ -97,16 +125,22 @@ const saveAccounts = (accounts: SavedAccount[]): void => {
   Taro.setStorageSync(SAVED_ACCOUNTS_KEY, JSON.stringify(accounts));
 };
 
-/** 保存账号（T-C1: token 不再存入 saved_accounts） */
+/** 保存账号（T-C1: token 单独存储；双 Token 独立存 access + refresh） */
 export const saveAccount = (account: {
   email: string;
   token?: string;
+  accessToken?: string;
+  refreshToken?: string;
   username?: string;
   avatar_url?: string;
 }): void => {
   // T-C1: token 单独存储
-  if (account.token) {
-    setAccountToken(account.email, account.token);
+  const accessToken = account.accessToken ?? account.token;
+  if (accessToken) {
+    setAccountToken(account.email, accessToken);
+  }
+  if (account.refreshToken) {
+    setAccountRefreshToken(account.email, account.refreshToken);
   }
 
   const accounts = getSavedAccounts();
@@ -129,6 +163,7 @@ export const removeAccount = (email: string): void => {
   const accounts = getSavedAccounts().filter((a) => a.email !== email);
   saveAccounts(accounts);
   removeAccountToken(email);
+  removeAccountRefreshToken(email);
 };
 
 /** 更新账号信息（T-C1: token 通过 setAccountToken 单独更新） */

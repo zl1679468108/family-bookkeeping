@@ -20,18 +20,18 @@
   width: 20rpx;
   height: 20rpx;
   border-radius: 50%;
-  background-color: var(--color-primary);
+  background-color: var(--pr);
   animation: coin-bounce 0.6s ease-in-out infinite;
 }
 
 .pull-coin--delay {
   animation-delay: 0.15s;
-  background-color: var(--color-expense);
+  background-color: var(--exp);
 }
 
 .pull-coin--delay2 {
   animation-delay: 0.3s;
-  background-color: var(--color-warning);
+  background-color: var(--warn);
 }
 
 @keyframes coin-bounce {
@@ -48,6 +48,6 @@
 
 .pull-refresh-text {
   margin-top: 16rpx;
-  font-size: var(--font-xs);
-  color: var(--color-text-hint);
+  font-size: 20rpx;
+  color: var(--fg3);
 }

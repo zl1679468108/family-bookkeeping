@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import React, { useState, useEffect, useRef } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { joinByInvitation } from '../../../services/booksApi';
 import { notify } from '../../../utils/notifications';
 import { GlobalModal } from '../../../components/ui';
@@ -16,31 +16,53 @@ interface BookInviteModalProps {
 export const BookInviteModal: React.FC<BookInviteModalProps> = ({ open, onClose, onSuccess }) => {
   const queryClient = useQueryClient();
   const [inviteCode, setInviteCode] = useState('');
+  const [joining, setJoining] = useState(false);
+  // 防重复点击 + 超时兜底（双保险，接口卡死也能结束 loading）
+  const joiningRef = useRef(false);
 
   useEffect(() => {
     if (open) {
       setInviteCode('');
+      setJoining(false);
+      joiningRef.current = false;
     }
   }, [open]);
 
-  const joinMutation = useMutation({
-    mutationFn: () => joinByInvitation(inviteCode.trim().toUpperCase(), { notifyOnError: false }),
-    onSuccess: () => {
-      notify({ type: 'success', message: '加入成功' });
-      queryClient.invalidateQueries({ queryKey: ['books'] });
-      onClose();
-      onSuccess?.();
-    },
-    onError: (err: any) => {
-      // api.ts 已在本请求关闭了 notifyOnError，这里是唯一的错误提示出口
-      const msg = err?.message || '加入失败，请重试';
-      notify({ type: 'error', message: Array.isArray(msg) ? msg[0] : msg });
-    },
-  });
+  const resetJoining = () => {
+    joiningRef.current = false;
+    setJoining(false);
+  };
 
   const handleSubmit = () => {
-    if (inviteCode.trim().length < 4) return;
-    joinMutation.mutate();
+    const code = inviteCode.trim();
+    if (code.length < 4) {
+      notify({ type: 'error', message: '邀请码至少需要4位' });
+      return;
+    }
+    if (joiningRef.current) return;
+    joiningRef.current = true;
+    setJoining(true);
+
+    // 极端兜底：10s 后无论如何强制结束 loading
+    const safetyTimer = window.setTimeout(() => {
+      resetJoining();
+    }, 10000);
+
+    joinByInvitation(code.toUpperCase(), { notifyOnError: false })
+      .then(() => {
+        notify({ type: 'success', message: '加入成功' });
+        queryClient.invalidateQueries({ queryKey: ['books'] });
+        onClose();
+        onSuccess?.();
+      })
+      .catch((err: any) => {
+        const msg = err?.message || '加入失败，请重试';
+        notify({ type: 'error', message: Array.isArray(msg) ? msg[0] : msg });
+      })
+      .finally(() => {
+        window.clearTimeout(safetyTimer);
+        resetJoining();
+      });
   };
 
   return (
@@ -55,9 +77,9 @@ export const BookInviteModal: React.FC<BookInviteModalProps> = ({ open, onClose,
             <Button
               variant="primary"
               onClick={handleSubmit}
-              disabled={joinMutation.isPending || inviteCode.trim().length < 4}
+              disabled={joining || inviteCode.trim().length < 4}
             >
-              {joinMutation.isPending ? '加入中...' : '加入账本'}
+              {joining ? '加入中...' : '加入账本'}
             </Button>
           </div>
       }

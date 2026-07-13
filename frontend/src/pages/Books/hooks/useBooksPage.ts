@@ -63,6 +63,9 @@ export function useBooksPage() {
       closeAllDialogs();
       queryClient.invalidateQueries({ queryKey: ['book-members'] });
     },
+    onError: (err: any) => {
+      notify({ type: 'error', message: err?.message || '邀请失败，请检查邮箱' });
+    },
   });
 
   const inviteCodeMutation = useMutation({
@@ -70,6 +73,9 @@ export function useBooksPage() {
     onSuccess: (data) => {
       setGeneratedInviteCode(data);
       setShowInviteCodeModal(true);
+    },
+    onError: (err: any) => {
+      notify({ type: 'error', message: err?.message || '生成邀请码失败' });
     },
   });
 
@@ -80,6 +86,9 @@ export function useBooksPage() {
       closeAllDialogs();
       refetchBooks();
     },
+    onError: (err: any) => {
+      notify({ type: 'error', message: err?.message || '删除失败' });
+    },
   });
 
   const removeMemberMutation = useMutation({
@@ -88,6 +97,11 @@ export function useBooksPage() {
     onSuccess: () => {
       notify({ type: 'success', message: '成员已移除' });
       queryClient.invalidateQueries({ queryKey: ['book-members'] });
+      setShowMemberConfirm(false);
+      setRemovingMember(null);
+    },
+    onError: (err: any) => {
+      notify({ type: 'error', message: err?.message || '移除失败' });
       setShowMemberConfirm(false);
       setRemovingMember(null);
     },

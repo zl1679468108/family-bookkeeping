@@ -1,209 +1,228 @@
 /* ============================================
-   ForgotPassword V3.0 — 安静密码重置页
+   ForgotPassword — 极简密码重置页
    ============================================ */
 
-.forgot-password-page {
-  /* Brand section */
-  .brand-section {
-    padding-top: 120rpx;
-    padding-bottom: 60rpx;
-    flex-direction: row;
+.forgot-page {
+  /* 品牌区 */
+  .forgot-hero {
+    display: flex;
+    flex-direction: column;
     align-items: center;
-    justify-content: center;
-    gap: 24rpx;
-    position: relative;
+    padding: 150rpx 0 48rpx;
   }
 
-  .app-icon {
-    width: 36rpx;
-    height: 36rpx;
-    border-radius: 8rpx;
-    background-color: var(--primary-bg);
-  }
-
-  .app-icon-text {
-    font-size: 20rpx;
-    font-weight: 700;
-    color: var(--primary);
-  }
-
-  .app-name {
-    color: var(--fg);
-    font-size: 36rpx;
-  }
-
-  .app-slogan {
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-    top: 200rpx;
-    margin-top: 0;
-  }
-
-  /* Step Indicator */
-  .step-indicator {
+  .forgot-brand-mark {
+    width: 112rpx;
+    height: 112rpx;
+    border-radius: 32rpx;
+    background: var(--prGr);
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 24rpx;
-    padding: 20rpx 0 40rpx;
+    box-shadow: 0 12rpx 32rpx rgba(45, 157, 138, 0.32);
   }
 
-  .step-dot {
+  .forgot-brand-text {
+    font-size: 56rpx;
+    font-weight: 700;
+    color: #ffffff;
+  }
+
+  .forgot-brand-name {
+    margin-top: 24rpx;
+    font-size: 40rpx;
+    font-weight: 700;
+    color: var(--fg);
+    letter-spacing: 4rpx;
+  }
+
+  /* 步骤指示器 */
+  .forgot-steps {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    padding: 8rpx 0 40rpx;
+  }
+
+  .fstep-dot {
     width: 20rpx;
     height: 20rpx;
     border-radius: 50%;
-    background-color: var(--border);
+    background: var(--bd);
     transition: all 0.3s ease;
 
     &.active {
-      background-color: var(--primary);
+      background: var(--pr);
       box-shadow: 0 0 0 6rpx rgba(45, 157, 138, 0.2);
     }
 
     &.done {
-      background-color: var(--primary);
+      background: var(--pr);
     }
   }
 
-  .step-line {
+  .fstep-line {
     width: 80rpx;
     height: 4rpx;
-    background-color: var(--border);
+    background: var(--bd);
     transition: all 0.3s ease;
 
     &.done {
-      background-color: var(--primary);
+      background: var(--pr);
     }
   }
 
-  /* Form */
+  /* 表单 */
   .forgot-form {
     flex: 1;
-    padding-top: 0;
+    padding: 0 48rpx;
   }
 
-  .form-item {
-    margin-bottom: 24rpx;
+  .forgot-field {
+    margin-bottom: 28rpx;
   }
 
-  .input-label {
+  .forgot-field-label {
+    display: block;
     font-size: 24rpx;
     font-weight: 500;
-    color: var(--fg-2);
-    margin-bottom: 10rpx;
-    display: block;
+    color: var(--fg2);
+    margin-bottom: 12rpx;
+    padding-left: 4rpx;
   }
 
-  .auth-input {
+  .forgot-input {
     width: 100%;
     box-sizing: border-box;
-    padding: 28rpx 24rpx;
-    border: 2rpx solid var(--border);
-    border-radius: var(--radius-sm);
-    background-color: var(--surface);
-    font-size: 28rpx;
-    color: var(--fg);
-    margin-bottom: 0;
-    height: 88rpx;
-  }
-
-  .form-error {
-    margin-bottom: 16rpx;
-  }
-
-  .form-success {
-    margin-bottom: 16rpx;
-  }
-
-  .forgot-form-submit {
-    margin-top: 32rpx;
-  }
-
-  .forgot-btn {
-    width: 100%;
     height: 96rpx;
-    background-color: var(--primary);
-    color: #ffffff;
-    border-radius: var(--radius-sm);
+    padding: 0 28rpx;
+    border: 2rpx solid var(--bd);
+    border-radius: var(--rs);
+    background-color: var(--srf);
     font-size: 30rpx;
-    font-weight: 600;
+    color: var(--fg);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+    &.forgot-captcha-input {
+      flex: 1;
+    }
+
+    &:focus {
+      border-color: var(--pr);
+      box-shadow: 0 0 0 4rpx var(--prBg);
+    }
+  }
+
+  .forgot-captcha-row {
     display: flex;
-    align-items: center;
-    justify-content: center;
-    border: none;
-  }
-
-  .forgot-btn:active { transform: scale(0.98); opacity: 0.9; }
-
-  .form-link {
-    margin-top: 24rpx;
-    display: block;
-  }
-
-  .form-footer {
-    margin-top: 32rpx;
-    text-align: center;
-  }
-
-  /* Captcha */
-  .captcha-row {
-    display: flex;
-    gap: 16rpx;
+    gap: 20rpx;
     align-items: center;
   }
 
-  .auth-input.captcha-input {
-    flex: 1;
-  }
-
-  .captcha-btn {
-    width: 160rpx;
-    height: 88rpx;
-    border-radius: var(--radius-sm);
-    background-color: var(--surface);
-    border: 2rpx solid var(--border);
+  .forgot-code-btn {
+    width: 200rpx;
+    height: 96rpx;
+    border-radius: var(--rs);
+    background-color: var(--srf);
+    border: 2rpx solid var(--bd);
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 24rpx;
-    color: var(--primary);
-    font-weight: 500;
+    color: var(--pr);
+    font-weight: 600;
+    flex-shrink: 0;
 
     &.disabled {
-      color: var(--fg-3);
-      border-color: var(--border-light);
+      color: var(--fg3);
+      border-color: var(--bdL);
       background-color: var(--bg);
     }
   }
 
-  /* Success */
-  .success-content {
+  .forgot-error {
+    display: block;
+    margin: 4rpx 0 8rpx 4rpx;
+    font-size: 24rpx;
+    color: var(--exp);
+  }
+
+  .forgot-success {
+    display: block;
+    margin: 4rpx 0 16rpx 4rpx;
+    font-size: 24rpx;
+    color: var(--pr);
+  }
+
+  .forgot-submit {
+    margin-top: 40rpx;
+    height: 96rpx;
+    background: var(--prGr);
+    color: #ffffff;
+    border-radius: var(--rl);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32rpx;
+    font-weight: 600;
+    box-shadow: 0 12rpx 32rpx rgba(45, 157, 138, 0.28);
+    transition: transform 0.15s ease, opacity 0.15s ease;
+  }
+
+  .forgot-submit:active {
+    transform: scale(0.98);
+    opacity: 0.92;
+  }
+
+  .forgot-back {
+    margin-top: 32rpx;
+    text-align: center;
+  }
+
+  .link-muted {
+    color: var(--fg3);
+    font-size: 26rpx;
+  }
+
+  /* 成功页 */
+  .forgot-success-content {
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding-top: 60rpx;
+    padding-top: 40rpx;
   }
 
-  .success-card {
+  .forgot-success-card {
     text-align: center;
-    padding: 60rpx 40rpx;
+    padding: 56rpx 40rpx;
   }
 
-  .success-icon {
-    font-size: 100rpx;
-    margin-bottom: 24rpx;
+  .forgot-success-icon {
+    width: 120rpx;
+    height: 120rpx;
+    border-radius: 50%;
+    background: var(--prBg);
+    color: var(--pr);
+    font-size: 64rpx;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 28rpx;
   }
 
-  .success-title {
-    font-size: 36rpx;
+  .forgot-success-title {
+    display: block;
+    font-size: 38rpx;
     font-weight: 600;
     color: var(--fg);
     margin-bottom: 12rpx;
   }
 
-  .success-desc {
+  .forgot-success-desc {
+    display: block;
     font-size: 28rpx;
-    color: var(--fg-2);
+    color: var(--fg2);
   }
 }

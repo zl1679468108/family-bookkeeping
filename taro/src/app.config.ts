@@ -2,24 +2,24 @@ export default defineAppConfig({
   pages: [
     "pages/Home/index",
     "pages/Transactions/index",
+    "pages/Workbench/index",
     "pages/AddTransaction/index",
-    "pages/Statistics/index",
     "pages/Profile/index",
     "pages/EditProfile/index",
-    "pages/AnnualReport/index",
     "pages/User/Login/index",
     "pages/User/Register/index",
     "pages/User/ForgotPassword/index",
     "pages/Budgets/index",
     "pages/Categories/index",
+    "pages/CategoryEdit/index",
     "pages/Books/index",
     "pages/BookMembers/index",
     "pages/BookSettings/index",
     "pages/TemplateManager/index",
-    "pages/Calendar/index",
-    "pages/Map/index",
+    "pages/TemplateEdit/index",
     "pages/About/index",
-    "pages/_ui-demo/index",
+    "pages/Onboarding/index",
+    "pages/MapPicker/index",
   ],
   window: {
     backgroundTextStyle: "dark",
@@ -29,6 +29,13 @@ export default defineAppConfig({
     backgroundColor: "#F6F7F4",
     enablePullDownRefresh: false,
   },
+  // 位置权限声明（MapPicker 的「我的位置」用到 Taro.getLocation）
+  permission: {
+    "scope.userLocation": {
+      desc: "用于记录交易发生的地点",
+    },
+  },
+  requiredPrivateInfos: ["getLocation", "onLocationChange"],
   tabBar: {
     custom: true,
     color: "#8B8E89",
@@ -38,14 +45,8 @@ export default defineAppConfig({
     list: [
       { pagePath: "pages/Home/index", text: "首页" },
       { pagePath: "pages/Transactions/index", text: "流水" },
-      { pagePath: "pages/Statistics/index", text: "报表" },
+      { pagePath: "pages/Workbench/index", text: "工作台" },
       { pagePath: "pages/Profile/index", text: "我的" },
     ],
   },
-  permission: {
-    "scope.userLocation": {
-      desc: "你的位置信息将用于记录账单发生地点",
-    },
-  },
-  requiredPrivateInfos: ["getLocation", "chooseLocation"],
 });

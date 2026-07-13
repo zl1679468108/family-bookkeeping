@@ -1,14 +1,17 @@
 /**
  * Hook: fetch and lookup categories.
  * 使用手动 fetch 避免 React Query 在 Taro 中的兼容性问题。
+ *
+ * ⚠️ 分类只拉取一次（不按 type 过滤请求后端），前端按 type 过滤。
+ * 这样在「记一笔」表单里切换 支出/收入 时不会反复请求分类接口。
  */
 import { useState, useEffect, useMemo } from "react";
 import { fetchCategories } from "../services/categoriesApi";
 import { useAuth } from "../context/AuthContext";
 import type { Category } from "../types";
 
-/** Fetch categories, optionally filtered by type. Only fires when authenticated. */
-export function useCategories(type?: "expense" | "income") {
+/** Fetch all categories once. Only fires when authenticated. */
+export function useCategories() {
   const { user } = useAuth();
   const [data, setData] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -19,20 +22,25 @@ export function useCategories(type?: "expense" | "income") {
       return;
     }
     setIsLoading(true);
-    fetchCategories(type)
+    // 一次性拉取全部分类，前端再按 type 过滤
+    fetchCategories()
       .then(setData)
       .catch(() => setData([]))
       .finally(() => setIsLoading(false));
-  }, [user, type]);
+  }, [user]);
 
   return { data, isLoading };
 }
 
-/** Alias for useCategories — returns categories as a flat array */
+/** Alias — returns categories, optionally filtered by type on the frontend */
 export function useCategoryList(type?: "expense" | "income") {
   const { user } = useAuth();
-  const { data, isLoading } = useCategories(type);
-  return { categories: user ? (data || []) : [], isLoading };
+  const { data, isLoading } = useCategories();
+  const categories = useMemo(
+    () => (type ? data.filter((c) => c.type === type) : data),
+    [data, type],
+  );
+  return { categories: user ? categories : [], isLoading };
 }
 
 /** Category lookup helpers */

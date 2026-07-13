@@ -115,6 +115,7 @@ const Categories: React.FC = () => {
               handleDragEnd={handleDragEnd}
               setSelectedCategory={setSelectedCategory}
               setShowDetail={setShowDetail}
+              onAdd={handleOpenAdd}
             />
           </>
         )}

@@ -1,15 +1,19 @@
 /**
- * Login — V3.0 安静登录页
+ * Login — 极简登录页
  */
 import { useState, useEffect, useRef } from "react";
 import { View, Text, Input, Image } from "@tarojs/components";
 import Taro from "@tarojs/taro";
 import { useAuth } from "../../../context/AuthContext";
+import { useTheme } from "../../../context/ThemeContext";
+import { useNavBarTheme } from "../../../hooks/useNavBarTheme";
 import { getCaptcha } from "../../../services/authApi";
 import { ApiError } from "../../../services/api";
 import "./index.scss";
 
 export default function Login() {
+  const { isDark } = useTheme();
+  useNavBarTheme();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [captchaCode, setCaptchaCode] = useState("");
@@ -24,7 +28,6 @@ export default function Login() {
     try {
       const { captchaId: id, svg } = await getCaptcha();
       setCaptchaId(id);
-      // 小程序Image组件支持data URL，将SVG编码为URL-safe格式
       const encodedSvg = encodeURIComponent(svg);
       setCaptchaSrc(`data:image/svg+xml,${encodedSvg}`);
       setCaptchaCode("");
@@ -34,7 +37,6 @@ export default function Login() {
   };
 
   useEffect(() => {
-    // 防止 React 18 严格模式或多次渲染时重复请求
     if (captchaLoaded.current) return;
     captchaLoaded.current = true;
     refreshCaptcha();
@@ -54,14 +56,12 @@ export default function Login() {
     try {
       await signIn(email.trim(), password, captchaId, captchaCode);
     } catch (err) {
-      // 仅 API 层错误才显示登录失败提示
       console.error("[Login] signIn failed:", err);
       setError(err instanceof ApiError ? err.message : "登录失败，请稍后重试");
       refreshCaptcha();
       setSubmitting(false);
       return;
     }
-    // 登录成功，执行导航（独立于登录 try-catch，避免导航异常被误判为登录失败）
     setSubmitting(false);
     try {
       const pages = Taro.getCurrentPages();
@@ -77,35 +77,33 @@ export default function Login() {
   };
 
   return (
-    <View className="login-page min-h-screen bg-white flex flex-col">
-      {/* Brand area */}
-      <View className="brand-section flex flex-col items-center">
-        <View className="app-icon flex items-center justify-center">
-          <Text className="app-icon-text">静</Text>
+    <View className={`login-page min-h-screen bg-bg flex flex-col ${isDark ? "theme-dark" : ""}`}>
+      {/* 品牌区 */}
+      <View className="login-hero">
+        <View className="login-brand-mark">
+          <Text className="login-brand-text">静</Text>
         </View>
-        <Text className="app-name text-2xl font-bold">静记</Text>
-        <Text className="app-slogan text-base text-secondary mt-2">
-          记录每一笔，管好每一分
-        </Text>
+        <Text className="login-brand-name">静记</Text>
       </View>
 
-      {/* Form */}
-      <View className="login-form flex flex-col px-4">
-        <View className="mb-3">
-          <Text className="input-label">邮箱</Text>
+      {/* 表单 */}
+      <View className="login-form">
+        <View className="login-field">
+          <Text className="login-field-label">邮箱</Text>
           <Input
-            className="auth-input"
+            className="login-input"
             value={email}
             onInput={(e) => setEmail(e.detail.value)}
-            placeholder="输入邮箱地址"
+            placeholder="your@email.com"
             placeholderClass="text-hint"
             confirmType="next"
           />
         </View>
-        <View>
-          <Text className="input-label">密码</Text>
+
+        <View className="login-field">
+          <Text className="login-field-label">密码</Text>
           <Input
-            className="auth-input"
+            className="login-input"
             value={password}
             onInput={(e) => setPassword(e.detail.value)}
             placeholder="输入密码"
@@ -115,11 +113,11 @@ export default function Login() {
           />
         </View>
 
-        <View className="mb-3">
-          <Text className="input-label">验证码</Text>
-          <View className="captcha-row">
+        <View className="login-field">
+          <Text className="login-field-label">验证码</Text>
+          <View className="login-captcha-row">
             <Input
-              className="auth-input captcha-input"
+              className="login-input login-captcha-input"
               value={captchaCode}
               onInput={(e) => setCaptchaCode(e.detail.value)}
               placeholder="请输入验证码"
@@ -129,41 +127,33 @@ export default function Login() {
               onConfirm={handleSubmit}
             />
             <Image
-              className="captcha-img"
+              className="login-captcha-img"
               src={captchaSrc}
-              mode="widthFix"
+              mode="aspectFit"
               onClick={refreshCaptcha}
             />
           </View>
         </View>
 
-        {error ? (
-          <Text className="login-error text-sm text-danger mt-2">{error}</Text>
-        ) : null}
+        {error ? <Text className="login-error">{error}</Text> : null}
 
-        <View className="login-form-submit">
-          <View
-            className={`login-btn ${submitting ? "opacity-60" : ""}`}
-            onClick={() => !submitting && handleSubmit()}
-          >
-            <Text>{submitting ? "登录中..." : "登录"}</Text>
-          </View>
+        <View
+          className={`login-submit ${submitting ? "opacity-60" : ""}`}
+          onClick={() => !submitting && handleSubmit()}
+        >
+          <Text>{submitting ? "登录中..." : "登录"}</Text>
         </View>
 
-        <View className="login-links flex justify-between mt-3">
+        <View className="login-links">
           <Text
-            className="text-primary text-md font-semibold"
-            onClick={() =>
-              Taro.navigateTo({ url: "/pages/User/Register/index" })
-            }
+            className="link-primary"
+            onClick={() => Taro.navigateTo({ url: "/pages/User/Register/index" })}
           >
-            注册账号
+            注册新账户
           </Text>
           <Text
-            className="text-hint text-md"
-            onClick={() =>
-              Taro.navigateTo({ url: "/pages/User/ForgotPassword/index" })
-            }
+            className="link-muted"
+            onClick={() => Taro.navigateTo({ url: "/pages/User/ForgotPassword/index" })}
           >
             忘记密码？
           </Text>

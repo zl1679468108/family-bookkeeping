@@ -30,11 +30,18 @@
     animation: slideUp var(--dn) var(--ease);
   }
   &__sheet-header {
-    display: flex; align-items: center; justify-content: space-between;
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
     padding: 28rpx 32rpx 20rpx;
   }
   &__sheet-title { font-size: 30rpx; font-weight: 600; color: var(--fg); }
-  &__sheet-close { width: 56rpx; height: 56rpx; display: flex; align-items: center; justify-content: center; background: var(--bdL); border-radius: 50%; }
+  &__sheet-close {
+    position: absolute;
+    right: 32rpx;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 56rpx; height: 56rpx; display: flex; align-items: center; justify-content: center; background: var(--bdL); border-radius: 50%;
+  }
   &__close-icon { font-size: 36rpx; color: var(--fg2); line-height: 1; }
   &__search { padding: 0 32rpx 16rpx; }
 

@@ -1,101 +1,118 @@
 /* ============================================
-   Register V3.0 — 安静注册页
+   Register — 极简注册页
    ============================================ */
 
 .register-page {
-  /* Brand section */
-  .brand-section {
-    padding-top: 120rpx;
-    padding-bottom: 60rpx;
-    flex-direction: row;
+  /* 品牌区 */
+  .register-hero {
+    display: flex;
+    flex-direction: column;
     align-items: center;
-    justify-content: center;
-    gap: 24rpx;
-    position: relative;
+    padding: 150rpx 0 56rpx;
   }
 
-  .app-icon {
-    width: 36rpx;
-    height: 36rpx;
-    border-radius: 8rpx;
-    background-color: var(--primary-bg);
-  }
-
-  .app-icon-text {
-    font-size: 20rpx;
-    font-weight: 700;
-    color: var(--primary);
-  }
-
-  .app-name {
-    color: var(--fg);
-    font-size: 36rpx;
-  }
-
-  .app-slogan {
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-    top: 200rpx;
-    margin-top: 0;
-  }
-
-  /* Form */
-  .register-form {
-    flex: 1;
-    padding-top: 0;
-  }
-
-  .form-item {
-    margin-bottom: 24rpx;
-  }
-
-  .input-label {
-    font-size: 24rpx;
-    font-weight: 500;
-    color: var(--fg-2);
-    margin-bottom: 10rpx;
-    display: block;
-  }
-
-  .auth-input {
-    width: 100%;
-    box-sizing: border-box;
-    padding: 28rpx 24rpx;
-    border: 2rpx solid var(--border);
-    border-radius: var(--radius-sm);
-    background-color: var(--surface);
-    font-size: 28rpx;
-    color: var(--fg);
-    margin-bottom: 0;
-    height: 88rpx;
-  }
-
-  .form-error {
-    margin-bottom: 16rpx;
-  }
-
-  .register-form-submit {
-    margin-top: 32rpx;
-  }
-
-  .register-btn {
-    width: 100%;
-    height: 96rpx;
-    background-color: var(--primary);
-    color: #ffffff;
-    border-radius: var(--radius-sm);
-    font-size: 30rpx;
-    font-weight: 600;
+  .register-brand-mark {
+    width: 112rpx;
+    height: 112rpx;
+    border-radius: 32rpx;
+    background: var(--prGr);
     display: flex;
     align-items: center;
     justify-content: center;
-    border: none;
+    box-shadow: 0 12rpx 32rpx rgba(45, 157, 138, 0.32);
   }
 
-  .register-btn:active { transform: scale(0.98); opacity: 0.9; }
+  .register-brand-text {
+    font-size: 56rpx;
+    font-weight: 700;
+    color: #ffffff;
+  }
 
-  .form-footer {
-    padding-bottom: 48rpx;
+  .register-brand-name {
+    margin-top: 24rpx;
+    font-size: 40rpx;
+    font-weight: 700;
+    color: var(--fg);
+    letter-spacing: 4rpx;
+  }
+
+  /* 表单 */
+  .register-form {
+    flex: 1;
+    padding: 0 48rpx;
+  }
+
+  .register-field {
+    margin-bottom: 28rpx;
+  }
+
+  .register-field-label {
+    display: block;
+    font-size: 24rpx;
+    font-weight: 500;
+    color: var(--fg2);
+    margin-bottom: 12rpx;
+    padding-left: 4rpx;
+  }
+
+  .register-input {
+    width: 100%;
+    box-sizing: border-box;
+    height: 96rpx;
+    padding: 0 28rpx;
+    border: 2rpx solid var(--bd);
+    border-radius: var(--rs);
+    background-color: var(--srf);
+    font-size: 30rpx;
+    color: var(--fg);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+    &:focus {
+      border-color: var(--pr);
+      box-shadow: 0 0 0 4rpx var(--prBg);
+    }
+  }
+
+  .register-error {
+    display: block;
+    margin: 4rpx 0 8rpx 4rpx;
+    font-size: 24rpx;
+    color: var(--exp);
+  }
+
+  .register-submit {
+    margin-top: 40rpx;
+    height: 96rpx;
+    background: var(--prGr);
+    color: #ffffff;
+    border-radius: var(--rl);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32rpx;
+    font-weight: 600;
+    box-shadow: 0 12rpx 32rpx rgba(45, 157, 138, 0.28);
+    transition: transform 0.15s ease, opacity 0.15s ease;
+  }
+
+  .register-submit:active {
+    transform: scale(0.98);
+    opacity: 0.92;
+  }
+
+  .register-footer {
+    margin-top: 36rpx;
+    text-align: center;
+  }
+
+  .link-primary {
+    color: var(--pr);
+    font-weight: 600;
+    font-size: 26rpx;
+  }
+
+  .link-muted {
+    color: var(--fg3);
+    font-size: 26rpx;
   }
 }

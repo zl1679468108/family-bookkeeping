@@ -13,7 +13,7 @@ import React, {
 } from "react";
 import {
   hasToken,
-  storeToken,
+  storeTokens,
   clearStoredToken,
   apiGet,
 } from "../services/api";
@@ -23,7 +23,12 @@ import {
   logout as apiLogout,
   getProfile,
 } from "../services/authApi";
-import { saveAccount, updateAccountInfo } from "../utils/savedAccounts";
+import {
+  saveAccount,
+  updateAccountInfo,
+  setAccountToken,
+  setAccountRefreshToken,
+} from "../utils/savedAccounts";
 import type { UserProfile } from "../types";
 
 interface AuthContextType {
@@ -34,7 +39,7 @@ interface AuthContextType {
   signOut: () => Promise<void>;
   refreshUser: () => Promise<void>;
   /** 通过已存储的 token 切换账号，token 失效则抛错 */
-  switchByToken: (email: string, token: string) => Promise<void>;
+  switchByToken: (email: string, accessToken: string, refreshToken?: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -83,15 +88,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   }, []);
 
   /** 通过已存储的 token 切换账号（token 有效则直接切换，失效则抛错由调用方处理） */
-  const switchByToken = useCallback(async (email: string, token: string) => {
-    storeToken(token);
+  const switchByToken = useCallback(async (email: string, accessToken: string, refreshToken?: string) => {
+    // 同时设置当前会话的 access + refresh；profile 401 时自动刷新会用 refresh 续期
+    if (accessToken) storeTokens(accessToken, refreshToken || "");
     try {
       // 用 silent 模式：401 不跳转登录页，错误直接抛出
       const profile = await apiGet<UserProfile>("/auth/profile", { silent: true });
       setUser(profile);
-      // 切换成功：同步更新 savedAccounts 中该账号的 token、用户名、头像
+      // 切换成功：token 独立持久化（T-C1），用户名/头像同步到 saved_accounts
+      if (accessToken) setAccountToken(email, accessToken);
+      if (refreshToken) setAccountRefreshToken(email, refreshToken);
       updateAccountInfo(email, {
-        token,
         username: profile.username,
         avatar_url: profile.avatar_url,
       });
@@ -104,23 +111,37 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   }, []);
 
   const signIn = useCallback(async (email: string, _password: string, captchaId: string, captchaCode: string) => {
-    const { user: userData, token } = await apiLogin(email, _password, captchaId, captchaCode);
-    storeToken(token);
+    const { user: userData, accessToken, refreshToken } = await apiLogin(email, _password, captchaId, captchaCode);
+    storeTokens(accessToken, refreshToken);
     // T-C1: 仅存储 token，不再存储密码
-    saveAccount({ email, token, username: userData.username, avatar_url: userData.avatar_url });
+    saveAccount({
+      email,
+      token: accessToken,
+      accessToken,
+      refreshToken,
+      username: userData.username,
+      avatar_url: userData.avatar_url,
+    });
     setUser(userData);
   }, []);
 
   const signUp = useCallback(
     async (email: string, _password: string, username: string) => {
-      const { user: userData, token } = await apiRegister(
+      const { user: userData, accessToken, refreshToken } = await apiRegister(
         email,
         _password,
         username,
       );
-      storeToken(token);
+      storeTokens(accessToken, refreshToken);
       // T-C1: 仅存储 token，不再存储密码
-      saveAccount({ email, token, username: userData.username, avatar_url: userData.avatar_url });
+      saveAccount({
+        email,
+        token: accessToken,
+        accessToken,
+        refreshToken,
+        username: userData.username,
+        avatar_url: userData.avatar_url,
+      });
       setUser(userData);
     },
     [],

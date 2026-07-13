@@ -35,11 +35,25 @@
 }
 
 .ft-btn--ghost {
-  background: var(--surface-soft, #fafaf7);
+  background: var(--surface);
   color: var(--fg, #24312d);
   border: 1rpx solid var(--border, #e0e2dd);
 }
 
 .ft-btn-text--ghost {
   color: var(--fg, #24312d);
+}
+
+/* 危险操作按钮（删除） */
+.ft-btn--danger {
+  background: transparent;
+  border: 2rpx solid var(--expense, #E06055);
+}
+
+.ft-btn-text--danger {
+  color: var(--expense, #E06055);
+}
+
+.ft-btn--danger:active {
+  background: rgba(224, 96, 85, 0.06);
 }

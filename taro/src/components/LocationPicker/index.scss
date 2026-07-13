@@ -7,7 +7,7 @@
   position: fixed;
   inset: 0;
   z-index: 2000;
-  background-color: #ffffff;
+  background-color: var(--srf);
   display: flex;
   flex-direction: column;
 }
@@ -19,56 +19,25 @@
   width: 100%;
 }
 
-/* ========== Header ========== */
-.lp-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 24rpx 32rpx;
-  background-color: #ffffff;
-  border-bottom: 1rpx solid #edeeee;
-  flex-shrink: 0;
-}
-
-.lp-close {
-  font-size: 56rpx;
-  color: #8b8e89;
-  width: 60rpx;
-  font-weight: 300;
-  line-height: 1;
-}
-
-.lp-close:active {
-  color: #1a1c19;
-}
-
-.lp-title {
-  font-size: 30rpx;
-  font-weight: 700;
-  color: #1a1c19;
-  flex: 1;
-  text-align: center;
-}
-
 /* ========== Search ========== */
 .lp-search {
   display: flex;
   align-items: center;
   gap: 12rpx;
   padding: 20rpx 32rpx;
-  background-color: #ffffff;
-  border-bottom: 1rpx solid #edeeee;
+  background-color: var(--srf);
+  border-bottom: 1rpx solid var(--bdL);
   flex-shrink: 0;
 }
 
 .lp-search-input {
   flex: 1;
   height: 72rpx;
-  background-color: #f5f6f3;
+  background-color: var(--bg);
   border-radius: 16rpx;
   padding: 0 24rpx;
   font-size: 28rpx;
-  color: #1a1c19;
+  color: var(--fg);
 }
 
 .lp-locate {
@@ -90,30 +59,30 @@
 .lp-results {
   max-height: 280rpx;
   overflow-y: auto;
-  background-color: #ffffff;
-  border-bottom: 1rpx solid #edeeee;
+  background-color: var(--srf);
+  border-bottom: 1rpx solid var(--bdL);
   flex-shrink: 0;
 }
 
 .lp-result-item {
   padding: 20rpx 32rpx;
-  border-bottom: 1rpx solid #f3f4f1;
+  border-bottom: 1rpx solid var(--bdL);
 }
 
 .lp-result-item:active {
-  background-color: #f5f6f3;
+  background-color: var(--bg);
 }
 
 .lp-result-name {
   font-size: 28rpx;
   font-weight: 600;
-  color: #1a1c19;
+  color: var(--fg);
   display: block;
 }
 
 .lp-result-addr {
   font-size: 24rpx;
-  color: #8b8e89;
+  color: var(--fg3);
   margin-top: 4rpx;
   display: block;
 }
@@ -123,7 +92,7 @@
   flex: 1;
   position: relative;
   width: 100%;
-  background-color: #f5f6f3;
+  background-color: var(--bg);
 }
 
 .lp-map {
@@ -145,8 +114,8 @@
   width: 24rpx;
   height: 24rpx;
   border-radius: 50%;
-  background-color: #e06055;
-  border: 4rpx solid #ffffff;
+  background-color: var(--exp);
+  border: 4rpx solid var(--srf);
   box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.2);
 }
 
@@ -156,9 +125,21 @@
   align-items: center;
   gap: 12rpx;
   padding: 20rpx 32rpx;
-  background-color: #e9f7f4;
-  border-top: 1rpx solid #2d9d8a;
+  background-color: var(--prBg);
+  border-top: 1rpx solid var(--pr);
   flex-shrink: 0;
+}
+
+.lp-accuracy {
+  display: block;
+  padding: 10rpx 32rpx 16rpx;
+  font-size: 22rpx;
+  color: #2d9d8a;
+  background-color: var(--prBg);
+}
+
+.lp-accuracy--low {
+  color: #e06055;
 }
 
 .lp-addr-icon {
@@ -168,7 +149,7 @@
 
 .lp-addr-text {
   font-size: 28rpx;
-  color: #1a1c19;
+  color: var(--fg);
   font-weight: 500;
   flex: 1;
   overflow: hidden;
@@ -179,13 +160,13 @@
 /* ========== Coordinates ========== */
 .lp-coords {
   padding: 12rpx 32rpx;
-  background-color: #ffffff;
+  background-color: var(--srf);
   flex-shrink: 0;
 }
 
 .lp-coords-text {
   font-size: 22rpx;
-  color: #8b8e89;
+  color: var(--fg3);
   font-family: "SF Mono", Menlo, monospace;
 }
 
@@ -195,8 +176,8 @@
   gap: 16rpx;
   padding: 20rpx 32rpx;
   padding-bottom: calc(20rpx + env(safe-area-inset-bottom));
-  background-color: #ffffff;
-  border-top: 1rpx solid #edeeee;
+  background-color: var(--srf);
+  border-top: 1rpx solid var(--bdL);
   flex-shrink: 0;
 }
 
@@ -215,20 +196,20 @@
 }
 
 .lp-btn--ghost {
-  background-color: #f5f6f3;
+  background-color: var(--bg);
 }
 
 .lp-btn--primary {
-  background-color: #2d9d8a;
+  background-color: var(--pr);
   box-shadow: 0 6rpx 20rpx rgba(45, 157, 138, 0.25);
 }
 
 .lp-btn-text {
   font-size: 28rpx;
   font-weight: 700;
-  color: #ffffff;
+  color: var(--srf);
 }
 
 .lp-btn-text--ghost {
-  color: #1a1c19;
+  color: var(--fg);
 }
