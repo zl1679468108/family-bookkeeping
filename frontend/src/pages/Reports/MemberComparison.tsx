@@ -4,6 +4,7 @@ import type { ECharts, EChartsOption } from '../../utils/echarts';
 import { useMemberComparison } from '../../hooks/useMemberComparison';
 import type { MemberComparisonItem } from '../../types/memberComparison';
 import { Skeleton } from '../../components/ui/Skeleton';
+import { EmptyState } from '../../components/ui/EmptyState';
 import { Card, CardHeader } from '../../components/ui/Card';
 import './MemberComparison.scss';
 import { formatAmount } from '../../utils/common';
@@ -285,14 +286,21 @@ export const MemberComparison: React.FC<MemberComparisonProps> = ({
 
   if (error) {
     return (
-      <div className="mc-empty">
-        加载失败：{error instanceof Error ? error.message : '未知错误'}
-      </div>
+      <EmptyState
+        icon="⚠️"
+        title="加载失败"
+        description={error instanceof Error ? error.message : '未知错误'}
+      />
     );
   }
 
   if (data.length === 0) {
-    return <div className="mc-empty">暂无成员消费数据</div>;
+    return (
+      <EmptyState
+        title="暂无成员消费数据"
+        description="该时间段内还没有成员消费记录"
+      />
+    );
   }
 
   const periodLabel = `${formatMonth(monthFrom)} ~ ${formatMonth(monthTo)}`;

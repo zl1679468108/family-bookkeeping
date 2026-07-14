@@ -6,7 +6,7 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { View, Text, Input, Picker } from "@tarojs/components";
 import Taro from "@tarojs/taro";
-import PageLayout from "../../components/PageLayout";
+import PageContainer from "../../components/PageContainer";
 import { EmptyState } from "../../components/ui";
 import TransactionItem from "../../components/TransactionItem";
 import { getTransactions } from "../../services/transactionsApi";
@@ -156,14 +156,15 @@ export default function Transactions() {
         setTxn(next);
         setHasMore(list.length === PAGE_SIZE);
         setPage(targetPage);
+        setLoading(false);
+        setLoadingMore(false);
         return next;
       } catch {
         if (replace) setTxn([]);
         setHasMore(false);
-        return replace ? [] : currentList;
-      } finally {
         setLoading(false);
         setLoadingMore(false);
+        return replace ? [] : currentList;
       }
     },
     [typeIdx, timeIdx, catIdx, searchKeyword, filteredCategoriesForSelection],
@@ -182,8 +183,11 @@ export default function Transactions() {
       const ac = new AbortController();
       currentAbortController = ac;
       doFetch(1, [], true, undefined, ac.signal)
-        .catch(() => {})
-        .finally(() => {
+        .then(() => {
+          setRefreshing(false);
+          resolve();
+        })
+        .catch(() => {
           setRefreshing(false);
           resolve();
         });
@@ -271,8 +275,7 @@ export default function Transactions() {
 
   return (
     <>
-      <PageLayout
-        contentClassName="txns-content"
+      <PageContainer
         loading={loading}
         loadingText="加载中…"
         onRefresh={handleRefresh}
@@ -374,7 +377,7 @@ export default function Transactions() {
           </View>
         )}
 
-      </PageLayout>
+      </PageContainer>
     </>
   );
 }

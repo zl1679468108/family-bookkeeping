@@ -47,7 +47,7 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
           return (
             <div
               key={cell.date}
-              className={`cal-cell${isToday ? ' today' : ''}`}
+              className={`cal-cell${isToday ? ' today' : ''}${hasTransactions ? ' has-data' : ''}`}
               onClick={() => onDateClick(cell.date)}
             >
               <div className="cd-left">
@@ -69,7 +69,6 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
                   </div>
                 </div>
               </div>
-              {hasTransactions && <div className="cd-dot" />}
             </div>
           );
         })

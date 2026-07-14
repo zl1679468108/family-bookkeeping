@@ -26,7 +26,7 @@ interface CategoryIconProps {
 
 export default function CategoryIcon({
   icon,
-  size = 20,
+  size = 24,
   className = "",
   background = "#f6f7f4",
   border = "1rpx solid #e9ecef",

@@ -7,6 +7,7 @@ import Taro from "@tarojs/taro";
 import { sendResetCode, resetPasswordByCode } from "../../../services/authApi";
 import { useTheme } from "../../../context/ThemeContext";
 import { useNavBarTheme } from "../../../hooks/useNavBarTheme";
+import { useSubmit } from "../../../hooks/useSubmit";
 import { ApiError } from "../../../services/api";
 import "./index.scss";
 
@@ -22,8 +23,7 @@ export default function ForgotPassword() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-  const [sending, setSending] = useState(false);
-  const [resetting, setResetting] = useState(false);
+  const { run } = useSubmit();
   const [countdown, setCountdown] = useState(0);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -48,26 +48,23 @@ export default function ForgotPassword() {
     }, 1000);
   };
 
-  const handleSendCode = useCallback(async () => {
+  const handleSendCode = useCallback(() => {
     if (!email.trim()) {
       setError("请输入有效的邮箱地址");
       return;
     }
     setError("");
-    setSending(true);
-    try {
+    run(async () => {
       await sendResetCode(email.trim());
       setSuccess(`验证码已发送至 ${email.trim()}`);
       setStep("code");
       startCountdown();
-    } catch (err) {
-      setError(err instanceof ApiError ? err.message : "发送失败，请检查邮箱地址");
-    } finally {
-      setSending(false);
-    }
+    }, "发送中…").catch((err: any) => {
+      Taro.showToast({ title: err?.message || "发送失败", icon: "none" });
+    });
   }, [email]);
 
-  const handleReset = useCallback(async () => {
+  const handleReset = useCallback(() => {
     if (!code.trim()) {
       setError("请输入6位验证码");
       return;
@@ -81,15 +78,12 @@ export default function ForgotPassword() {
       return;
     }
     setError("");
-    setResetting(true);
-    try {
+    run(async () => {
       await resetPasswordByCode(email.trim(), code.trim(), password, confirmPassword);
       setStep("success");
-    } catch (err) {
-      setError(err instanceof ApiError ? err.message : "重置失败，请稍后重试");
-    } finally {
-      setResetting(false);
-    }
+    }, "重置中…").catch((err: any) => {
+      Taro.showToast({ title: err?.message || "重置失败", icon: "none" });
+    });
   }, [email, code, password, confirmPassword]);
 
   const handleResendCode = useCallback(async () => {
@@ -158,11 +152,8 @@ export default function ForgotPassword() {
 
             {error ? <Text className="forgot-error">{error}</Text> : null}
 
-            <View
-              className={`forgot-submit ${sending ? "opacity-60" : ""}`}
-              onClick={() => !sending && handleSendCode()}
-            >
-              <Text>{sending ? "发送中..." : "发送验证码"}</Text>
+            <View className="forgot-submit" onClick={handleSendCode}>
+              <Text>发送验证码</Text>
             </View>
 
             <View className="forgot-back" onClick={handleGoBack}>
@@ -229,10 +220,10 @@ export default function ForgotPassword() {
             {error ? <Text className="forgot-error">{error}</Text> : null}
 
             <View
-              className={`forgot-submit ${resetting ? "opacity-60" : ""}`}
-              onClick={() => !resetting && handleReset()}
+              className="forgot-submit"
+              onClick={handleReset}
             >
-              <Text>{resetting ? "重置中..." : "重置密码"}</Text>
+              <Text>重置密码</Text>
             </View>
 
             <View className="forgot-back" onClick={handleGoBack}>

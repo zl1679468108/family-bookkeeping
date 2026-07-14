@@ -7,13 +7,13 @@
 import { useState, useMemo } from "react";
 import { View, Text, Input, Picker } from "@tarojs/components";
 import Taro, { useDidShow } from "@tarojs/taro";
-import { useQueryClient, useMutation } from "@tanstack/react-query";
-import PageLayout from "../../components/PageLayout";
+import { useQueryClient } from "@tanstack/react-query";
+import PageContainer from "../../components/PageContainer";
 import ConfirmDialog from "../../components/ConfirmDialog";
 import CategoryIcon from "../../components/CategoryIcon";
 import BottomSheet from "../../components/BottomSheet";
 import LocationPicker, { LocationResult } from "../../components/LocationPicker";
-import { EmptyState, Spinner } from "../../components/ui";
+import { EmptyState } from "../../components/ui";
 import {
   getTemplates,
   createTemplate,
@@ -24,6 +24,8 @@ import {
 } from "../../services/templatesApi";
 import { useCategories } from "../../hooks/useCategories";
 import { useManualQuery } from "../../hooks/useManualQuery";
+import { useSubmit } from "../../hooks/useSubmit";
+import { useReorder } from "../../hooks/useReorder";
 import { isIconUrl } from "../../utils/renderCategoryIcon";
 import type { Template } from "../../types";
 import "./index.scss";
@@ -45,6 +47,7 @@ const EMPTY_FORM = {
 
 export default function TemplateManager() {
   const qc = useQueryClient();
+  const { run } = useSubmit();
   const { data: cats } = useCategories();
 
   /* ---- 数据获取 ---- */
@@ -55,7 +58,7 @@ export default function TemplateManager() {
 
   useDidShow(() => { refetch(); });
 
-  const displayList = useMemo(() => {
+  const orderedTemplates = useMemo(() => {
     return (templates || []).sort((a, b) => {
       const tA = a.type === "expense" ? 0 : 1;
       const tB = b.type === "expense" ? 0 : 1;
@@ -63,11 +66,24 @@ export default function TemplateManager() {
     });
   }, [templates]);
 
-  /* ---- 排序模式 ---- */
-  const [sortMode, setSortMode] = useState(false);
-  const [sortOrder, setSortOrder] = useState<Template[]>([]);
-
-  const sortedList = sortMode && sortOrder.length > 0 ? sortOrder : displayList;
+  /* ---- 排序（useReorder 共享 Hook）---- */
+  const {
+    sortMode,
+    sortOrder,
+    displayList,
+    enter: handleEnterSortMode,
+    cancel: handleCancelSortMode,
+    moveUp: handleMoveUp,
+    moveDown: handleMoveDown,
+    save: handleSaveSort,
+  } = useReorder<Template>({
+    items: orderedTemplates,
+    getKey: (t) => t.id,
+    onSave: (ids) => reorderTemplates({ ids }),
+    queryKey: ["templates"],
+    queryClient: qc,
+    refetch,
+  });
   const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
   const [showDetail, setShowDetail] = useState(false);
   const [showForm, setShowForm] = useState(false);
@@ -83,38 +99,6 @@ export default function TemplateManager() {
     [cats, form.type],
   );
   const selectedCat = findCat(form.category_id);
-
-  /* ==================== 排序逻辑 ==================== */
-  const reorderMut = useMutation({
-    mutationFn: (ids: string[]) => reorderTemplates({ ids }),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["templates"] });
-      Taro.showToast({ title: "排序已保存", icon: "success" });
-      setSortMode(false);
-      setSortOrder([]);
-      refetch();
-    },
-    onError: (err: any) => {
-      Taro.showToast({ title: err?.message || "排序保存失败", icon: "none" });
-    },
-  });
-
-  const handleEnterSortMode = () => { setSortOrder([...displayList]); setSortMode(true); };
-  const handleCancelSortMode = () => { setSortMode(false); setSortOrder([]); };
-  const handleMoveUp = (idx: number) => {
-    if (idx <= 0) return;
-    const nl = [...sortOrder]; [nl[idx - 1], nl[idx]] = [nl[idx], nl[idx - 1]];
-    setSortOrder(nl);
-  };
-  const handleMoveDown = (idx: number) => {
-    if (idx >= sortOrder.length - 1) return;
-    const nl = [...sortOrder]; [nl[idx], nl[idx + 1]] = [nl[idx + 1], nl[idx]];
-    setSortOrder(nl);
-  };
-  const handleSaveSort = () => {
-    if (sortOrder.length === 0) return;
-    reorderMut.mutate(sortOrder.map((t) => t.id));
-  };
 
   /* ==================== 详情弹窗 ==================== */
   const openDetail = (t: Template) => {
@@ -167,21 +151,28 @@ export default function TemplateManager() {
   };
 
   /* 从详情 → 删除 */
-  const deleteMut = useMutation({
-    mutationFn: (id: string) => deleteTemplate(id),
-    onSuccess: () => {
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+  const handleDelete = () => {
+    if (!deleteId) return;
+    run(async () => {
+      await deleteTemplate(deleteId);
       qc.invalidateQueries({ queryKey: ["templates"] });
       Taro.showToast({ title: "模板已删除", icon: "success" });
       setShowDelete(false);
-      closeDetail();
+      setDeleteId(null);
       refetch();
-    },
-    onError: (err: any) => {
+    }, "删除中…").catch((err: any) => {
       Taro.showToast({ title: err?.message || "删除失败", icon: "none" });
       setShowDelete(false);
-    },
-  });
-  const handleDeleteFromDetail = () => { closeDetail(); setShowDelete(true); };
+      setDeleteId(null);
+    });
+  };
+  const handleDeleteFromDetail = () => {
+    if (!selectedTemplate) return;
+    setDeleteId(selectedTemplate.id);
+    closeDetail();
+    setShowDelete(true);
+  };
 
   /* ==================== 表单弹窗 ==================== */
   const openCreateForm = () => {
@@ -189,36 +180,6 @@ export default function TemplateManager() {
     setForm({ ...EMPTY_FORM });
     setShowForm(true);
   };
-
-  const createMut = useMutation({
-    mutationFn: (data: any) => createTemplate(data),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["templates"] });
-      Taro.showToast({ title: editingId ? "模板已更新" : "模板已创建", icon: "success" });
-      setShowForm(false);
-      refetch();
-    },
-    onError: (err: any) => {
-      Taro.showToast({ title: err?.message || "操作失败", icon: "none" });
-      // 失败时也关闭表单，避免 loading 卡住
-      setShowForm(false);
-    },
-  });
-
-  const updateMut = useMutation({
-    mutationFn: ({ id, data }: any) => updateTemplate(id, data),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["templates"] });
-      Taro.showToast({ title: "模板已更新", icon: "success" });
-      setShowForm(false);
-      refetch();
-    },
-    onError: (err: any) => {
-      Taro.showToast({ title: err?.message || "更新失败", icon: "none" });
-      // 失败时也关闭表单，避免 loading 卡住
-      setShowForm(false);
-    },
-  });
 
   const handleFormSave = () => {
     if (!form.name.trim()) {
@@ -239,11 +200,22 @@ export default function TemplateManager() {
     if (form.latitude) data.latitude = parseFloat(form.latitude);
     if (form.longitude) data.longitude = parseFloat(form.longitude);
 
-    if (editingId) {
-      updateMut.mutate({ id: editingId, data });
-    } else {
-      createMut.mutate(data);
-    }
+    run(async () => {
+      if (editingId) {
+        await updateTemplate(editingId, data);
+      } else {
+        await createTemplate(data);
+      }
+      qc.invalidateQueries({ queryKey: ["templates"] });
+      Taro.showToast({ title: editingId ? "模板已更新" : "模板已创建", icon: "success" });
+      setShowForm(false);
+      setEditingId(null);
+      refetch();
+    }, "保存中…").catch((err: any) => {
+      Taro.showToast({ title: err?.message || "操作失败", icon: "none" });
+      setShowForm(false);
+      setEditingId(null);
+    });
   };
 
   const closeForm = () => { setShowForm(false); setEditingId(null); };
@@ -282,14 +254,13 @@ export default function TemplateManager() {
   };
 
   /* ==================== 渲染 ==================== */
-  const saving = createMut.isPending || updateMut.isPending;
 
   return (
-    <PageLayout contentClassName="tpl-content" loading={isLoading} loadingText="加载中…">
+    <PageContainer loading={isLoading} loadingText="加载中…">
 
       {/* ====== 顶部工具栏（对齐 Categories/Budgets：无外层卡片） ====== */}
       <View className="tpl-toolbar">
-        {!isLoading && displayList.length > 1 && (
+        {!isLoading && orderedTemplates.length > 1 && (
           <View
             className={`tpl-sort-btn ${sortMode ? "tpl-sort-btn--active" : ""}`}
             onClick={sortMode ? handleCancelSortMode : handleEnterSortMode}
@@ -308,17 +279,16 @@ export default function TemplateManager() {
         <View className="tpl-sort-hint">
           <Text>拖动调整顺序，完成后点击保存</Text>
             <View
-              className={`tpl-sort-save ${reorderMut.isPending ? "tpl-sort-save--pending ui-spin-row" : ""}`}
-              onClick={reorderMut.isPending ? undefined : handleSaveSort}
+              className="tpl-sort-save"
+              onClick={handleSaveSort}
             >
-              {reorderMut.isPending && <Spinner />}
-              <Text>{reorderMut.isPending ? "保存中..." : "保存排序"}</Text>
+              <Text>保存排序</Text>
             </View>
         </View>
       )}
 
       {/* ====== 模板卡片列表 ====== */}
-      {displayList.length === 0 ? (
+      {orderedTemplates.length === 0 ? (
         <View className="tpl-empty">
           <EmptyState
             title="还没有交易模板"
@@ -327,7 +297,7 @@ export default function TemplateManager() {
         </View>
       ) : (
         <View className="tpl-grid">
-          {sortedList.map((t, idx) => {
+          {displayList.map((t, idx) => {
               const cat = findCat(t.category_id);
               return (
                 <View
@@ -405,7 +375,7 @@ export default function TemplateManager() {
           <View className="tpl-detail-hero">
             <CategoryIcon
               icon={findCat(selectedTemplate.category_id)?.icon}
-              size={48}
+              size={56}
               className="tpl-detail-hero__icon"
             />
             <Text className="tpl-detail-hero__name">{selectedTemplate.name}</Text>
@@ -487,12 +457,11 @@ export default function TemplateManager() {
           footer={
             <View className="tpl-form-footer tpl-form-footer--single">
               <View
-                className={`tpl-form-btn tpl-form-btn--submit ${saving ? "tpl-form-btn--disabled ui-spin-row" : ""}`}
-                onClick={saving ? undefined : handleFormSave}
-              >
-                {saving && <Spinner />}
-                <Text>{saving ? "保存中..." : (editingId ? "更新" : "创建")}</Text>
-              </View>
+              className="tpl-form-btn tpl-form-btn--submit"
+              onClick={handleFormSave}
+            >
+              <Text>{editingId ? "更新" : "创建"}</Text>
+            </View>
             </View>
           }
         >
@@ -669,10 +638,10 @@ export default function TemplateManager() {
         message="确定要删除这个模板吗？"
         confirmText="确认删除"
         danger
-        confirmLoading={deleteMut.isPending}
-        onCancel={() => setShowDelete(false)}
-        onConfirm={() => selectedTemplate && deleteMut.mutate(selectedTemplate.id)}
+        confirmLoading={false}
+        onCancel={() => { setShowDelete(false); setDeleteId(null); }}
+        onConfirm={handleDelete}
       />
-    </PageLayout>
+    </PageContainer>
   );
 }

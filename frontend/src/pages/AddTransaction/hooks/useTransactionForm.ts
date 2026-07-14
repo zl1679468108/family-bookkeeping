@@ -70,7 +70,7 @@ export function useTransactionForm() {
   })
 
   const { data: categories = [] } = useCategories()
-  const { data: templates = [] } = useTemplates()
+  const { data: templates = [], isLoading: templatesLoading } = useTemplates()
 
   // Load edit data
   useEffect(() => {
@@ -386,7 +386,7 @@ export function useTransactionForm() {
     savedImageUrls, pendingImages, allImageUrls,
     showTemplateSelector, setShowTemplateSelector,
     ocrProcessing, canAddMore,
-    categories, templates, categoryOptions,
+    categories, templates, templatesLoading, categoryOptions,
     isSubmitting, fileInputRef, ocrFileInputRef,
     handleSubmit, handleTemplateConfirm, handleLocationConfirm,
     handleFileSelect, handleOcrSelect, handleRemoveSavedImage, handleRemovePendingImage, handleClearAllImages, handleReset,

@@ -45,7 +45,13 @@ export type IconName =
   | "chevron-right"
   | "annual"
   | "map"
-  | "logout";
+  | "logout"
+  | "monitor"
+  | "info"
+  | "switch-account"
+  | "sun"
+  | "moon"
+  | "clock";
 
 interface IconProps {
   name: IconName;
@@ -93,12 +99,18 @@ function getIconFile(name: IconName): string {
     annual: "annual",
     map: "map",
     logout: "logout",
+    monitor: "monitor",
+    info: "info",
+    "switch-account": "switch-account",
+    sun: "sun",
+    moon: "moon",
+    clock: "clock",
   };
   return map[name] || "home";
 }
 
 /** 主入口 — 使用 Image 组件渲染 SVG（颜色已在 SVG 文件内固定） */
-export default function Icon({ name, size = 44, className }: IconProps) {
+export default function Icon({ name, size = 56, className }: IconProps) {
   const s = size;
   const svgPath = `/assets/icons/${getIconFile(name)}.svg`;
   const rotate = name === "chevron-right" ? "rotate(-90deg)" : undefined;

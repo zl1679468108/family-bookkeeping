@@ -31,8 +31,8 @@
       min-height: 120rpx;
     }
   }
-  &__emoji { font-size: 48rpx; line-height: 1; }
-  &__img { width: 56rpx; height: 56rpx; }
+  &__emoji { font-size: 56rpx; line-height: 1; }
+  &__img { width: 64rpx; height: 64rpx; }
   &__label {
     font-size: 22rpx;
     color: var(--fg2);
@@ -46,19 +46,19 @@
 
   &__del {
     position: absolute;
-    top: -12rpx; right: -12rpx;
-    width: 36rpx; height: 36rpx;
+    top: -14rpx; right: -14rpx;
+    width: 44rpx; height: 44rpx;
     background: var(--exp);
     border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
   }
-  &__del-icon { color: #fff; font-size: 24rpx; line-height: 1; }
+  &__del-icon { color: #fff; font-size: 30rpx; line-height: 1; }
 
   &__upload {
     border: 2rpx dashed var(--bd);
     background: transparent;
     flex-direction: column;
   }
-  &__upload-icon { font-size: 44rpx; color: var(--fg3); line-height: 1; }
+  &__upload-icon { font-size: 52rpx; color: var(--fg3); line-height: 1; }
   &__upload-text { font-size: 22rpx; color: var(--fg3); }
 }

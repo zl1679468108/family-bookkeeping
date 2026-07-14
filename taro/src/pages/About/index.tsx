@@ -4,7 +4,8 @@
  */
 import { useState } from "react";
 import { View, Text } from "@tarojs/components";
-import PageLayout from "../../components/PageLayout";
+import PageContainer from "../../components/PageContainer";
+import Icon from "../../components/Icon";
 import {
   APP_NAME,
   APP_SLOGAN,
@@ -37,7 +38,7 @@ export default function About() {
   };
 
   return (
-    <PageLayout contentClassName="about-content">
+    <PageContainer contentClassName="about-content">
       {/* Hero 区域 */}
       <View className="about-hero">
         <View className="about-logo">
@@ -57,7 +58,10 @@ export default function About() {
 
       {/* 更新日志 */}
       <View className="about-card">
-        <Text className="about-card-title">更新日志</Text>
+        <View className="about-card-title">
+          <Icon name="clock" size={40} />
+          <Text>更新日志</Text>
+        </View>
 
         <View className="about-timeline">
           {CHANGELOG.map((entry, index) => {
@@ -108,7 +112,10 @@ export default function About() {
 
       {/* 应用信息 */}
       <View className="about-card">
-        <Text className="about-card-title">应用信息</Text>
+        <View className="about-card-title">
+          <Icon name="info" size={40} />
+          <Text>应用信息</Text>
+        </View>
 
         <View className="about-info-list">
           <View className="about-info-row">
@@ -130,6 +137,6 @@ export default function About() {
       <View className="about-footer">
         <Text className="about-footer-text">© 2026 {APP_NAME} · {APP_SLOGAN}</Text>
       </View>
-    </PageLayout>
+    </PageContainer>
   );
 }

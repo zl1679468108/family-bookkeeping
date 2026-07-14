@@ -7,8 +7,8 @@ import Taro from "@tarojs/taro";
 import { useAuth } from "../../../context/AuthContext";
 import { useTheme } from "../../../context/ThemeContext";
 import { useNavBarTheme } from "../../../hooks/useNavBarTheme";
+import { useSubmit } from "../../../hooks/useSubmit";
 import { getCaptcha } from "../../../services/authApi";
-import { ApiError } from "../../../services/api";
 import "./index.scss";
 
 export default function Login() {
@@ -20,8 +20,8 @@ export default function Login() {
   const [captchaId, setCaptchaId] = useState("");
   const [captchaSrc, setCaptchaSrc] = useState("");
   const [error, setError] = useState("");
-  const [submitting, setSubmitting] = useState(false);
   const { signIn } = useAuth();
+  const { run } = useSubmit();
   const captchaLoaded = useRef(false);
 
   const refreshCaptcha = async () => {
@@ -42,7 +42,7 @@ export default function Login() {
     refreshCaptcha();
   }, []);
 
-  const handleSubmit = async () => {
+  const handleSubmit = () => {
     if (!email.trim() || !password.trim()) {
       setError("请输入邮箱和密码");
       return;
@@ -52,28 +52,24 @@ export default function Login() {
       return;
     }
     setError("");
-    setSubmitting(true);
-    try {
+    run(async () => {
       await signIn(email.trim(), password, captchaId, captchaCode);
-    } catch (err) {
-      console.error("[Login] signIn failed:", err);
-      setError(err instanceof ApiError ? err.message : "登录失败，请稍后重试");
-      refreshCaptcha();
-      setSubmitting(false);
-      return;
-    }
-    setSubmitting(false);
-    try {
-      const pages = Taro.getCurrentPages();
-      if (pages.length > 1) {
-        Taro.navigateBack();
-      } else {
+      try {
+        const pages = Taro.getCurrentPages();
+        if (pages.length > 1) {
+          Taro.navigateBack();
+        } else {
+          Taro.reLaunch({ url: "/pages/Home/index" });
+        }
+      } catch (navErr) {
+        console.warn("[Login] navigation failed, retrying reLaunch:", navErr);
         Taro.reLaunch({ url: "/pages/Home/index" });
       }
-    } catch (navErr) {
-      console.warn("[Login] navigation failed, retrying reLaunch:", navErr);
-      Taro.reLaunch({ url: "/pages/Home/index" });
-    }
+    }, "登录中…").catch((err: any) => {
+      console.error("[Login] signIn failed:", err);
+      Taro.showToast({ title: err?.message || "登录失败", icon: "none" });
+      refreshCaptcha();
+    });
   };
 
   return (
@@ -137,11 +133,8 @@ export default function Login() {
 
         {error ? <Text className="login-error">{error}</Text> : null}
 
-        <View
-          className={`login-submit ${submitting ? "opacity-60" : ""}`}
-          onClick={() => !submitting && handleSubmit()}
-        >
-          <Text>{submitting ? "登录中..." : "登录"}</Text>
+        <View className="login-submit" onClick={handleSubmit}>
+          <Text>登录</Text>
         </View>
 
         <View className="login-links">

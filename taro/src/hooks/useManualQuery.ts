@@ -88,9 +88,14 @@ export function useManualQuery<T>({
 
   useEffect(() => {
     // key 变化时清空旧数据，重新请求
+    // 注意：fetch() 内 `if (!data) setIsLoading(true)` 依赖闭包中的 data，
+    // 但 setData(undefined) 是异步的，本轮闭包里 data 仍是旧值，
+    // 会导致切换月份/账本等 key 变化场景下 isLoading 不变 true、loading 遮罩不显示。
+    // 因此在 key 变化分支显式 setIsLoading(true)。
     if (key !== lastKey.current) {
       lastKey.current = key;
       setData(undefined);
+      setIsLoading(true);
     }
     fetch();
     // eslint-disable-next-line react-hooks/exhaustive-deps

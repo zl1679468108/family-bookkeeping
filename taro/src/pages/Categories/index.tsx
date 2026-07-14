@@ -11,9 +11,9 @@
 import { useState, useMemo, useEffect } from "react";
 import { View, Text, Input } from "@tarojs/components";
 import Taro, { useDidShow } from "@tarojs/taro";
-import { useQueryClient, useMutation } from "@tanstack/react-query";
-import PageLayout from "../../components/PageLayout";
-import { EmptyState, Spinner } from "../../components/ui";
+import { useQueryClient } from "@tanstack/react-query";
+import PageContainer from "../../components/PageContainer";
+import { EmptyState } from "../../components/ui";
 import CategoryIcon from "../../components/CategoryIcon";
 import ConfirmDialog from "../../components/ConfirmDialog";
 import { IconGrid } from "../../components/ui/IconGrid";
@@ -36,6 +36,8 @@ import {
   getPlatformIconSvgDataUrl,
 } from "../../utils/platformIcons";
 import { useManualQuery } from "../../hooks/useManualQuery";
+import { useSubmit } from "../../hooks/useSubmit";
+import { useReorder } from "../../hooks/useReorder";
 import "./index.scss";
 
 /* ---------- 类型 ---------- */
@@ -76,10 +78,6 @@ export default function CategoriesPage() {
   const [tabIndex, setTabIndex] = useState<number>(0);
   const catType: CatType = tabIndex === 0 ? "expense" : "income";
 
-  // 排序模式
-  const [sortMode, setSortMode] = useState(false);
-  const [sortOrder, setSortOrder] = useState<Category[]>([]);
-
   // ---- 弹窗状态 ----
   const [detailCat, setDetailCat] = useState<Category | null>(null); // 截图2：详情弹窗
   const [formMode, setFormMode] = useState<FormMode | null>(null); // 截图3：表单弹窗
@@ -87,6 +85,10 @@ export default function CategoriesPage() {
   const [formIcon, setFormIcon] = useState("📌");
   const [formCatType, setFormCatType] = useState<CatType>("expense");
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deletingCat, setDeletingCat] = useState<Category | null>(null); // 待删除目标（关闭 detail 后 detailCat 会丢失）
+
+  const { run } = useSubmit();
+  const [editingId, setEditingId] = useState<string | null>(null); // 编辑目标 id（关闭详情后不丢失）
 
   // 自定义图标列表
   const [customIcons, setCustomIcons] = useState<
@@ -118,98 +120,27 @@ export default function CategoriesPage() {
       .sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
   }, [categories, catType]);
 
-  const displayList = sortMode && sortOrder.length > 0 ? sortOrder : filtered;
-
-  // ---- 排序 Mutations ----
-  const reorderMut = useMutation({
-    mutationFn: (orders: { id: string; sort_order: number }[]) =>
-      reorderCategories(orders),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["categories"] });
-      Taro.showToast({ title: "排序已保存", icon: "success" });
-      setSortMode(false);
-      setSortOrder([]);
-      refetch();
-    },
-    onError: (err: any) => {
-      Taro.showToast({ title: err?.message || "排序保存失败", icon: "none" });
-    },
+  // ---- 排序（useReorder 共享 Hook）----
+  const {
+    sortMode,
+    displayList,
+    enter: handleEnterSortMode,
+    cancel: handleCancelSortMode,
+    moveUp: handleMoveUp,
+    moveDown: handleMoveDown,
+    save: handleSaveSort,
+  } = useReorder<Category>({
+    items: filtered,
+    getKey: (c) => c.id,
+    onSave: (ids) => reorderCategories(ids.map((id, i) => ({ id, sort_order: i }))),
+    queryKey: ["categories"],
+    queryClient: qc,
+    refetch,
   });
 
-  // ---- CRUD Mutations ----
-  const createMut = useMutation({
-    mutationFn: (data: { name: string; icon: string; type: CatType }) =>
-      createCategory(data),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["categories"] });
-      Taro.showToast({ title: "分类已创建", icon: "success" });
-      closeForm();
-      refetch();
-    },
-    onError: (err: any) => {
-      Taro.showToast({ title: err?.message || "创建失败", icon: "none" });
-      // 失败时也关闭表单，避免 loading 卡住
-      closeForm();
-    },
-  });
-
-  const updateMut = useMutation({
-    mutationFn: ({ id, data }: { id: string; data: { name: string; icon: string } }) =>
-      updateCategory(id, data),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["categories"] });
-      Taro.showToast({ title: "分类已更新", icon: "success" });
-      closeForm();
-      refetch();
-    },
-    onError: (err: any) => {
-      Taro.showToast({ title: err?.message || "更新失败", icon: "none" });
-      // 失败时也关闭表单，避免 loading 卡住
-      closeForm();
-    },
-  });
-
-  const deleteMut = useMutation({
-    mutationFn: (id: string) => deleteCategory(id),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["categories"] });
-      Taro.showToast({ title: "已删除", icon: "success" });
-      setShowDeleteConfirm(false);
-      setDetailCat(null);
-      refetch();
-    },
-    onError: (err: any) => {
-      Taro.showToast({ title: err?.message || "删除失败", icon: "none" });
-      setShowDeleteConfirm(false);
-    },
-  });
-
-  // ---- 排序操作 ----
-  const handleEnterSortMode = () => {
-    setSortOrder([...filtered]);
-    setSortMode(true);
-  };
-  const handleCancelSortMode = () => {
-    setSortMode(false);
-    setSortOrder([]);
-  };
-  const handleMoveUp = (index: number) => {
-    if (index <= 0) return;
-    const newList = [...sortOrder];
-    [newList[index - 1], newList[index]] = [newList[index], newList[index - 1]];
-    setSortOrder(newList);
-  };
-  const handleMoveDown = (index: number) => {
-    if (index >= sortOrder.length - 1) return;
-    const newList = [...sortOrder];
-    [newList[index], newList[index + 1]] = [newList[index + 1], newList[index]];
-    setSortOrder(newList);
-  };
-  const handleSaveSort = () => {
-    if (sortOrder.length === 0) return;
-    const orders = sortOrder.map((c, index) => ({ id: c.id, sort_order: index }));
-    reorderMut.mutate(orders);
-  };
+  // ---- 创建 / 更新 / 删除 全部改用手动 Promise 链（见对应 handle* 函数）----
+  // 不再依赖 useMutation 驱动 UI，规避 Taro 下 isPending/onSettled 偶发卡死导致
+  // 按钮永久 loading、弹窗不关闭、关闭按钮无响应。
 
   // ---- 卡片点击 → 详情弹窗（截图2）----
   const handleCardTap = (cat: Category) => {
@@ -228,6 +159,7 @@ export default function CategoriesPage() {
   // ---- 详情弹窗内操作 ----
   const handleDetailEdit = () => {
     if (!detailCat) return;
+    setEditingId(detailCat.id); // 记住编辑目标，关闭详情后不丢失
     setFormName(detailCat.name);
     setFormIcon(detailCat.icon || "📌");
     setFormCatType(detailCat.type);
@@ -236,28 +168,38 @@ export default function CategoriesPage() {
   };
 
   const handleDetailDelete = () => {
+    if (!detailCat) return;
+    setDeletingCat(detailCat); // 先保存目标，再关闭 detail
     closeDetail();
     setShowDeleteConfirm(true);
   };
 
-  // ---- 表单提交 ----
+  // ---- 表单提交（手动 Promise 链，规避 Taro 下 useMutation 卡死）----
   const handleFormSubmit = () => {
     if (!formName.trim()) {
       Taro.showToast({ title: "请输入名称", icon: "none" });
       return;
     }
-    if (formMode === "edit" && detailCat) {
-      updateMut.mutate({
-        id: detailCat.id,
-        data: { name: formName.trim(), icon: formIcon },
+    const name = formName.trim();
+    const icon = formIcon;
+    const isEdit = formMode === "edit" && !!editingId;
+    run(async () => {
+      const apiCall = isEdit
+        ? updateCategory(editingId as string, { name, icon })
+        : createCategory({ name, icon, type: catType });
+      await apiCall;
+      qc.invalidateQueries({ queryKey: ["categories"] });
+      Taro.showToast({ title: isEdit ? "分类已更新" : "分类已创建", icon: "success" });
+      closeForm();
+      refetch();
+    }, "保存中…").catch((err: any) => {
+      Taro.showToast({
+        title: err?.message || (isEdit ? "更新失败" : "创建失败"),
+        icon: "none",
       });
-    } else {
-      createMut.mutate({
-        name: formName.trim(),
-        icon: formIcon,
-        type: catType,
-      });
-    }
+      // 失败也关闭表单，避免 loading 卡住
+      closeForm();
+    });
   };
 
   // ---- 图标上传/删除 ----
@@ -295,15 +237,16 @@ export default function CategoriesPage() {
 
   // ---- 关闭弹窗 ----
   const closeDetail = () => setDetailCat(null);
-  const closeForm = () => setFormMode(null);
-
-  const saving = createMut.isPending || updateMut.isPending;
+  const closeForm = () => {
+    setFormMode(null);
+    setEditingId(null);
+  };
 
   /* ======================== 渲染 ======================== */
   const iconOptions = useMemo(() => buildIconOptions(), []);
 
   return (
-    <PageLayout contentClassName="cats-content" loading={isLoading} loadingText="加载中…">
+    <PageContainer loading={isLoading} loadingText="加载中…">
       {/* Tab 切换 + 排序 + 添加按钮 */}
       <View className="cats-tabs-card">
         <View className="cats-pill-tabs">
@@ -333,11 +276,10 @@ export default function CategoriesPage() {
                 <Text>取消</Text>
               </View>
               <View
-                className={`cats-sort-save ${reorderMut.isPending ? "cats-sort-save--pending ui-spin-row" : ""}`}
-                onClick={reorderMut.isPending ? undefined : handleSaveSort}
+                className="cats-sort-save"
+                onClick={handleSaveSort}
               >
-                {reorderMut.isPending && <Spinner />}
-                <Text>{reorderMut.isPending ? "保存中..." : "完成排序"}</Text>
+                <Text>完成排序</Text>
               </View>
             </>
           ) : (
@@ -384,7 +326,7 @@ export default function CategoriesPage() {
                 }}
               >
                 <View className="cats-grid-card__icon-wrap">
-                  <CategoryIcon icon={cat.icon} className="cats-grid-card__icon" />
+                  <CategoryIcon icon={cat.icon} size={28} className="cats-grid-card__icon" />
                 </View>
                 <Text className="cats-grid-card__name">{cat.name}</Text>
                 <View className="cats-grid-card__tags">
@@ -445,64 +387,57 @@ export default function CategoriesPage() {
         >
           {/* 内容区 */}
           <View className="catds-body">
-            {/* 图标 + 名称 + 标签 */}
+            {/* 图标 + 名称 + 标签（PC 同款左右布局） */}
             <View className="catds-hero">
               <View className="catds-hero__icon-wrap">
-                <CategoryIcon icon={detailCat.icon} className="catds-hero__icon" />
+                <CategoryIcon icon={detailCat.icon} size={56} className="catds-hero__icon" />
               </View>
-              <Text className="catds-hero__name">{detailCat.name}</Text>
-              <View className="catds-hero__badges">
-                <Text
-                  className={`catds-badge catds-badge--type ${
-                    detailCat.type === "expense" ? "catds-badge--expense" : "catds-badge--income"
-                  }`}
-                >
-                  {detailCat.type === "expense" ? "支出" : "收入"}
-                </Text>
-                <Text
-                  className={`catds-badge catds-badge--origin ${
-                    detailCat.is_default ? "catds-badge--default" : "catds-badge--custom"
-                  }`}
-                >
-                  {detailCat.is_default ? "默认" : "自定义"}
-                </Text>
+              <View className="catds-hero__content">
+                <Text className="catds-hero__name">{detailCat.name}</Text>
+                <View className="catds-hero__badges">
+                  <Text
+                    className={`catds-badge catds-badge--type ${
+                      detailCat.type === "expense" ? "catds-badge--expense" : "catds-badge--income"
+                    }`}
+                  >
+                    {detailCat.type === "expense" ? "支出" : "收入"}
+                  </Text>
+                  <Text
+                    className={`catds-badge catds-badge--origin ${
+                      detailCat.is_default ? "catds-badge--default" : "catds-badge--custom"
+                    }`}
+                  >
+                    {detailCat.is_default ? "默认" : "自定义"}
+                  </Text>
+                </View>
               </View>
             </View>
 
             {/* 分隔线 */}
             <View className="catds-divider" />
 
-            {/* 信息字段 */}
-            <View className="catds-fields">
-              <View className="catds-field">
-                <Text className="catds-field__label">分类 ID</Text>
-                <Text className="catds-field__value catds-field__value--mono">
-                  {detailCat.id}
+            {/* 信息字段（PC 同款 2 列网格） */}
+            <View className="catds-grid">
+              <View className="catds-item">
+                <Text className="catds-item__label">分类 ID</Text>
+                <Text className="catds-item__value catds-item__value--mono">{detailCat.id}</Text>
+              </View>
+              <View className="catds-item">
+                <Text className="catds-item__label">排序</Text>
+                <Text className="catds-item__value">
+                  第 {detailCat.sort_order + 1} 位
                 </Text>
               </View>
-              <View className="catds-field">
-                <Text className="catds-field__label">排序</Text>
-                <Text className="catds-field__value">
-                  第{" "}
-                  {(filtered.findIndex((c) => c.id === detailCat.id) + 1) ||
-                    detailCat.sort_order + 1}{" "}
-                  位
+              <View className="catds-item">
+                <Text className="catds-item__label">创建时间</Text>
+                <Text className="catds-item__value">
+                  {detailCat.created_at ? detailCat.created_at.slice(0, 16) : "-"}
                 </Text>
               </View>
-              <View className="catds-field">
-                <Text className="catds-field__label">创建时间</Text>
-                <Text className="catds-field__value">
-                  {detailCat.created_at
-                    ? detailCat.created_at.slice(0, 16).replace("T", " ")
-                    : "-"}
-                </Text>
-              </View>
-              <View className="catds-field">
-                <Text className="catds-field__label">更新时间</Text>
-                <Text className="catds-field__value">
-                  {detailCat.updated_at
-                    ? detailCat.updated_at.slice(0, 16).replace("T", " ")
-                    : "-"}
+              <View className="catds-item">
+                <Text className="catds-item__label">更新时间</Text>
+                <Text className="catds-item__value">
+                  {detailCat.updated_at ? detailCat.updated_at.slice(0, 16) : "-"}
                 </Text>
               </View>
             </View>
@@ -522,10 +457,10 @@ export default function CategoriesPage() {
           footer={
             <View className="catfs-footer">
               <Text
-                className={`catfs-footer-btn ${saving ? "catfs-footer-btn--disabled" : ""}`}
-                onClick={saving ? undefined : handleFormSubmit}
+                className="catfs-footer-btn"
+                onClick={handleFormSubmit}
               >
-                {saving ? "保存中..." : "确认"}
+                确认
               </Text>
             </View>
           }
@@ -575,18 +510,34 @@ export default function CategoriesPage() {
         visible={showDeleteConfirm}
         title="确认删除"
         message={
-          detailCat
-            ? `确定删除自定义分类「${detailCat.name}」吗？删除后不可恢复。`
+          deletingCat
+            ? `确定删除自定义分类「${deletingCat.name}」吗？删除后不可恢复。`
             : "确定要删除这个分类吗？"
         }
         confirmText="确认删除"
         danger
-        confirmLoading={deleteMut.isPending}
-        onCancel={() => setShowDeleteConfirm(false)}
+        confirmLoading={false}
+        onCancel={() => {
+          setShowDeleteConfirm(false);
+          setDeletingCat(null);
+        }}
         onConfirm={() => {
-          if (detailCat) deleteMut.mutate(detailCat.id);
+          if (!deletingCat) return;
+          run(async () => {
+            await deleteCategory(deletingCat.id);
+            qc.invalidateQueries({ queryKey: ["categories"] });
+            Taro.showToast({ title: "已删除", icon: "success" });
+            setShowDeleteConfirm(false);
+            setDetailCat(null);
+            setDeletingCat(null);
+            refetch();
+          }, "删除中…").catch((err: any) => {
+            Taro.showToast({ title: err?.message || "删除失败", icon: "none" });
+            setShowDeleteConfirm(false);
+            setDeletingCat(null);
+          });
         }}
       />
-    </PageLayout>
+    </PageContainer>
   );
 }

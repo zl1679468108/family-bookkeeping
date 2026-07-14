@@ -8,10 +8,10 @@
 import { useState, useEffect } from "react";
 import { View, Text, Input, Image } from "@tarojs/components";
 import Taro, { getCurrentInstance } from "@tarojs/taro";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import PageLayout from "../../components/PageLayout";
+import { useQueryClient } from "@tanstack/react-query";
+import PageContainer from "../../components/PageContainer";
 import ConfirmDialog from "../../components/ConfirmDialog";
-import { AppSection, MenuList, Spinner } from "../../components/ui";
+import { AppSection, MenuList } from "../../components/ui";
 import SheetHeader from "../../components/SheetHeader";
 import { BOOK_ICONS, renderBookIconSvg } from "../../utils/bookIcons";
 import {
@@ -24,7 +24,16 @@ import {
   transferOwner,
 } from "../../services/booksApi";
 import { uploadIcon, fetchCustomIcons, deleteIcon } from "../../services/iconsApi";
+import { useManualQuery } from "../../hooks/useManualQuery";
+import { useSubmit } from "../../hooks/useSubmit";
 import "./index.scss";
+
+interface Member {
+  id: string;
+  email: string;
+  username?: string;
+  role: "owner" | "member";
+}
 
 export default function BookSettings() {
   const router = getCurrentInstance().router;
@@ -50,6 +59,9 @@ export default function BookSettings() {
   // 删除确认（从更多菜单触发）
   const [showDelete, setShowDelete] = useState(false);
 
+  // 提交类 loading 由 useSubmit 统一处理
+  const { run } = useSubmit();
+
   // 更多菜单（仅 owner 可见）
   const [showMoreMenu, setShowMoreMenu] = useState(false);
 
@@ -70,8 +82,8 @@ export default function BookSettings() {
   }, []);
 
   // fallback 数据源
-  const { data: books = [] } = useQuery({
-    queryKey: ["books"],
+  const { data: books = [], isLoading: booksLoading } = useManualQuery<any[]>({
+    key: "books",
     queryFn: fetchBooks,
   });
 
@@ -87,62 +99,23 @@ export default function BookSettings() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentBook?.id]);
 
-  const { data: ownerCheck } = useQuery({
-    queryKey: ["books", bookId, "owner"],
+  const { data: ownerCheck } = useManualQuery({
+    key: `bookOwner-${bookId}`,
     queryFn: () => checkOwner(bookId),
     enabled: !!bookId,
   });
   const isOwner = ownerCheck?.isOwner ?? false;
 
-  const { data: members = [] } = useQuery({
-    queryKey: ["books", bookId, "members"],
+  const { data: members = [] } = useManualQuery<Member[]>({
+    key: `bookMembers-${bookId}`,
     queryFn: () => fetchBookMembers(bookId),
     enabled: !!bookId && isOwner,
   });
 
-  // ===== Mutations =====
-  const updateMut = useMutation({
-    mutationFn: (data: { name?: string; description?: string; icon?: string }) =>
-      updateBook(bookId, data),
-    onSuccess: () => {
-      Taro.showToast({ title: "更新成功", icon: "success" });
-      qc.invalidateQueries({ queryKey: ["books"] });
-      setTimeout(() => Taro.navigateBack(), 500);
-    },
-    onError: (err: any) => {
-      Taro.showToast({ title: err?.message || "保存失败", icon: "none" });
-    },
-  });
-
-  const transferMut = useMutation({
-    mutationFn: ({ email, password }: { email: string; password: string }) =>
-      transferOwner(bookId, email, password),
-    onSuccess: () => {
-      Taro.showToast({ title: "所有权已转移", icon: "success" });
-      setShowTransfer(false);
-      qc.invalidateQueries({ queryKey: ["books"] });
-    },
-    onError: (err: any) => {
-      Taro.showToast({ title: err?.message || "转移失败", icon: "none" });
-      setShowTransfer(false);
-    },
-  });
-
-  const deleteMut = useMutation({
-    mutationFn: () => deleteBook(bookId),
-    onSuccess: () => {
-      Taro.showToast({ title: "账本已删除", icon: "success" });
-      qc.invalidateQueries({ queryKey: ["books"] });
-      setTimeout(() => Taro.navigateBack(), 500);
-    },
-    onError: (err: any) => {
-      Taro.showToast({ title: err?.message || "删除失败", icon: "none" });
-    },
-  });
+  // ===== Mutations（已移除 useMutation，改用手动 Promise 链，见下方 handle*）=====
 
   // ===== 自定义图标（上传 / 列表） =====
   const [customIcons, setCustomIcons] = useState<any[]>([]);
-  const [uploadingIcon, setUploadingIcon] = useState(false);
 
   const refreshCustomIcons = () => {
     fetchCustomIcons("book")
@@ -163,21 +136,17 @@ export default function BookSettings() {
       .then((res) => {
         const path = res.tempFilePaths && res.tempFilePaths[0];
         if (!path) return;
-        setUploadingIcon(true);
-        uploadIcon(path, "book")
-          .then((result: any) => {
-            const iconUrl = result?.icon_url || result?.url || "";
-            if (iconUrl) {
-              if (isAdd) setAddIcon(iconUrl);
-              else setEditIcon(iconUrl);
-              refreshCustomIcons();
-              Taro.showToast({ title: "已添加自定义图标", icon: "success" });
-            } else {
-              Taro.showToast({ title: "上传失败", icon: "none" });
-            }
-          })
-          .catch(() => Taro.showToast({ title: "上传失败", icon: "none" }))
-          .finally(() => setUploadingIcon(false));
+        run(async () => {
+          const result: any = await uploadIcon(path, "book");
+          const iconUrl = result?.icon_url || result?.url || "";
+          if (!iconUrl) throw new Error("上传失败");
+          if (isAdd) setAddIcon(iconUrl);
+          else setEditIcon(iconUrl);
+          refreshCustomIcons();
+          Taro.showToast({ title: "已添加自定义图标", icon: "success" });
+        }, "上传中…").catch((err: any) => {
+          Taro.showToast({ title: err?.message || "上传失败", icon: "none" });
+        });
       })
       .catch(() => {});
   };
@@ -197,19 +166,6 @@ export default function BookSettings() {
   const [addDescription, setAddDescription] = useState("");
   const [addIcon, setAddIcon] = useState("default");
 
-  const createMut = useMutation({
-    mutationFn: (data: { name: string; description?: string; icon?: string }) =>
-      createBook(data),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["books"] });
-      Taro.showToast({ title: "账本创建成功", icon: "success" });
-      setTimeout(() => Taro.navigateBack(), 500);
-    },
-    onError: (err: any) => {
-      Taro.showToast({ title: err?.message || "创建失败", icon: "none" });
-    },
-  });
-
   const handleCreate = () => {
     if (!addName.trim()) {
       Taro.showToast({ title: "请输入名称", icon: "none" });
@@ -220,7 +176,14 @@ export default function BookSettings() {
       icon: addIcon || "default",
     };
     if (addDescription.trim()) data.description = addDescription.trim();
-    createMut.mutate(data);
+    run(async () => {
+      await createBook(data);
+      qc.invalidateQueries({ queryKey: ["books"] });
+      Taro.showToast({ title: "账本创建成功", icon: "success" });
+      setTimeout(() => Taro.navigateBack(), 500);
+    }, "创建中…").catch((err: any) => {
+      Taro.showToast({ title: err?.message || "创建失败", icon: "none" });
+    });
   };
 
   // ===== 编辑模式：提交 =====
@@ -229,10 +192,17 @@ export default function BookSettings() {
       Taro.showToast({ title: "请输入名称", icon: "none" });
       return;
     }
-    updateMut.mutate({
-      name: editName.trim(),
-      description: editDescription.trim(),
-      icon: editIcon,
+    run(async () => {
+      await updateBook(bookId, {
+        name: editName.trim(),
+        description: editDescription.trim(),
+        icon: editIcon,
+      });
+      qc.invalidateQueries({ queryKey: ["books"] });
+      Taro.showToast({ title: "更新成功", icon: "success" });
+      setTimeout(() => Taro.navigateBack(), 500);
+    }, "保存中…").catch((err: any) => {
+      Taro.showToast({ title: err?.message || "保存失败", icon: "none" });
     });
   };
 
@@ -245,27 +215,43 @@ export default function BookSettings() {
       Taro.showToast({ title: "请输入密码验证", icon: "none" });
       return;
     }
-    transferMut.mutate({
-      email: transferEmail.trim(),
-      password: transferPassword,
+    run(async () => {
+      await transferOwner(bookId, transferEmail.trim(), transferPassword);
+      qc.invalidateQueries({ queryKey: ["books"] });
+      Taro.showToast({ title: "所有权已转移", icon: "success" });
+      setShowTransfer(false);
+    }, "转移中…").catch((err: any) => {
+      Taro.showToast({ title: err?.message || "转移失败", icon: "none" });
+      setShowTransfer(false);
+    });
+  };
+
+  const handleDelete = () => {
+    run(async () => {
+      await deleteBook(bookId);
+      qc.invalidateQueries({ queryKey: ["books"] });
+      Taro.showToast({ title: "账本已删除", icon: "success" });
+      setTimeout(() => Taro.navigateBack(), 500);
+    }, "删除中…").catch((err: any) => {
+      Taro.showToast({ title: err?.message || "删除失败", icon: "none" });
     });
   };
 
   // ===== 渲染守卫 =====
   if (!isAdd && !currentBook) {
     return (
-      <PageLayout contentClassName="bs-content">
+      <PageContainer loading={booksLoading} loadingText="加载中…">
         <View className="bs-empty">
           <Text>账本不存在</Text>
         </View>
-      </PageLayout>
+      </PageContainer>
     );
   }
 
   // ===== 新增模式：新建账本表单 =====
   if (isAdd) {
     return (
-      <PageLayout contentClassName="bs-content">
+      <PageContainer>
         <AppSection compact>
           {/* 名称 */}
           <View className="bs-form-row">
@@ -334,12 +320,10 @@ export default function BookSettings() {
             <Text className="bs-form-label">自定义</Text>
             <View className="bs-custom-icons">
               <View
-                className={`bs-custom-icon-upload ${
-                  uploadingIcon ? "bs-custom-icon-upload--loading" : ""
-                }`}
+                className="bs-custom-icon-upload"
                 onClick={handleUploadCustomIcon}
               >
-                <Text>{uploadingIcon ? "上传中…" : "＋ 上传图标"}</Text>
+                <Text>＋ 上传图标</Text>
               </View>
               {customIcons.map((item: any) => (
                 <View
@@ -368,22 +352,19 @@ export default function BookSettings() {
 
         <View className="bs-actions">
           <View
-            className={`bs-actions__save ${
-              createMut.isPending ? "bs-actions__save--disabled ui-spin-row" : ""
-            }`}
-            onClick={createMut.isPending ? undefined : handleCreate}
+            className="bs-actions__save"
+            onClick={handleCreate}
           >
-            {createMut.isPending && <Spinner />}
-            <Text>{createMut.isPending ? "创建中…" : "创建账本"}</Text>
+            <Text>创建账本</Text>
           </View>
         </View>
-      </PageLayout>
+      </PageContainer>
     );
   }
 
   // ===== 编辑模式：编辑表单（主视图） =====
   return (
-    <PageLayout contentClassName="bs-content">
+    <PageContainer>
       <AppSection compact>
         {/* 名称 */}
           <View className="bs-form-row">
@@ -452,12 +433,10 @@ export default function BookSettings() {
             <Text className="bs-form-label">自定义</Text>
             <View className="bs-custom-icons">
               <View
-                className={`bs-custom-icon-upload ${
-                  uploadingIcon ? "bs-custom-icon-upload--loading" : ""
-                }`}
+                className="bs-custom-icon-upload"
                 onClick={handleUploadCustomIcon}
               >
-                <Text>{uploadingIcon ? "上传中…" : "＋ 上传图标"}</Text>
+                <Text>＋ 上传图标</Text>
               </View>
               {customIcons.map((item: any) => (
                 <View
@@ -545,13 +524,10 @@ export default function BookSettings() {
             <Text>取消</Text>
           </View>
           <View
-            className={`bs-actions__save ${
-              updateMut.isPending ? "bs-actions__save--disabled ui-spin-row" : ""
-            }`}
-            onClick={updateMut.isPending ? undefined : handleSubmitEdit}
+            className="bs-actions__save"
+            onClick={handleSubmitEdit}
           >
-            {updateMut.isPending && <Spinner />}
-            <Text>{updateMut.isPending ? "保存中…" : "保存"}</Text>
+            <Text>保存</Text>
           </View>
         </View>
       </View>
@@ -592,10 +568,10 @@ export default function BookSettings() {
 
               <View className="bs-sheet__footer">
                 <Text
-                  className={`bs-sheet__footer-btn ${transferMut.isPending ? "bs-sheet__footer-btn--disabled" : ""}`}
-                  onClick={transferMut.isPending ? undefined : handleSubmitTransfer}
+                  className="bs-sheet__footer-btn"
+                  onClick={handleSubmitTransfer}
                 >
-                  {transferMut.isPending ? "提交中…" : "确认转移"}
+                  确认转移
                 </Text>
               </View>
             </View>
@@ -611,10 +587,9 @@ export default function BookSettings() {
         title="确认删除"
         message="确定要删除该账本吗？账本内所有交易记录将被清除，此操作不可恢复。"
         confirmText="确认删除"
-        confirmLoading={deleteMut.isPending}
         onCancel={() => setShowDelete(false)}
-        onConfirm={() => deleteMut.mutate()}
+        onConfirm={handleDelete}
       />
-    </PageLayout>
+    </PageContainer>
   );
 }

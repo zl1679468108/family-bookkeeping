@@ -7,12 +7,12 @@
  *   · 保存按钮：大号绿色渐变 + 白色文字 + 阴影
  * ========================================================= */
 
+/* 作为 PageContainer 的 contentClassName 落在内层 .page-layout-content 上，
+   仅负责内容卡片的纵向 flex 布局与间距；页面上下左右 padding 由 PageContainer 统一提供，
+   避免与默认 padding 叠加（之前用 className 落在外层导致双重 padding）。 */
 .edit-profile-page {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
-  background-color: var(--bg, #f6f7f4);
-  padding: calc(16rpx + env(safe-area-inset-top, 0)) 32rpx calc(48rpx + env(safe-area-inset-bottom, 0));
   gap: 24rpx;
 }
 

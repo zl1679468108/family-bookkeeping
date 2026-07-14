@@ -31,7 +31,7 @@ export const renderCategoryIcon = (
 ) => {
   if (!icon) return null;
 
-  const { size = 20, className = "", fontScale = 1 } = options;
+  const { size = 24, className = "", fontScale = 1 } = options;
 
   // 1. URL → <Image>
   if (icon.startsWith("http://") || icon.startsWith("https://")) {

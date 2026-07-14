@@ -1,13 +1,11 @@
-.bdg-content {
-  padding-top: calc(12rpx + env(safe-area-inset-top, 0));
-}
-
 /* ── 工具栏（月份 + 保存）── 与 cats-tabs-card 统一风格 ── */
+/* header 插槽在 ScrollView 外部，不受 PageLayout 默认 32rpx 水平 padding 管辖，
+   需自行补齐以与下方内容区对齐（同 Transactions filter-card 做法） */
 .bdg-toolbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16rpx 0;
+  padding: 16rpx 32rpx;
 }
 
 /* 保存按钮 — 小胶囊形（对齐 PC Button variant="primary"） */

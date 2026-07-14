@@ -57,12 +57,13 @@ export const BookProvider: React.FC<{ children: React.ReactNode }> = ({
   useEffect(() => {
     if (!user) return;
     setLoading(true);
+    // ⚠️ 用 .then() 兜底复位而非 .finally()，规避微信 regenerator 下 .finally 偶发不执行导致全屏 loading 卡死
     fetchBooks()
       .then((data) => {
         setBooks(data);
       })
       .catch(() => setBooks([]))
-      .finally(() => setLoading(false));
+      .then(() => setLoading(false));
   }, [user]);
 
   // 初始化：优先使用服务端 current_book_id，其次本地 storage，最后默认账本

@@ -23,10 +23,11 @@ export function useCategories() {
     }
     setIsLoading(true);
     // 一次性拉取全部分类，前端再按 type 过滤
+    // ⚠️ 用 .then() 兜底复位而非 .finally()，规避微信 regenerator 下 .finally 偶发不执行导致 loading 卡死
     fetchCategories()
       .then(setData)
       .catch(() => setData([]))
-      .finally(() => setIsLoading(false));
+      .then(() => setIsLoading(false));
   }, [user]);
 
   return { data, isLoading };

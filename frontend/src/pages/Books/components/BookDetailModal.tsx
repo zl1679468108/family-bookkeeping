@@ -12,6 +12,7 @@ interface BookDetailModalProps {
   selectedBook: any;
   currentBook: any;
   members: any[];
+  loadingMembers?: boolean;
   inviteCodeMutationPending: boolean;
   onClose: () => void;
   onInviteMember: () => void;
@@ -27,6 +28,7 @@ export const BookDetailModal: React.FC<BookDetailModalProps> = ({
   selectedBook,
   currentBook,
   members,
+  loadingMembers,
   inviteCodeMutationPending,
   onClose,
   onInviteMember,
@@ -95,7 +97,12 @@ export const BookDetailModal: React.FC<BookDetailModalProps> = ({
         )}
         {selectedBook.owner_id && <DetailItem label="账主 ID" value={selectedBook.owner_id} />}
       </div>
-      <BookMemberList members={members} onRemoveMember={onRemoveMember} />
+      <BookMemberList
+        members={members}
+        loading={loadingMembers}
+        onRemoveMember={onRemoveMember}
+        onInvite={onInviteMember}
+      />
     </GlobalModal>
   );
 };

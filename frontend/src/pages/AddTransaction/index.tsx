@@ -16,7 +16,7 @@ const AddTransaction: React.FC = () => {
     savedImageUrls, pendingImages, allImageUrls,
     showTemplateSelector, setShowTemplateSelector,
     ocrProcessing, canAddMore,
-    templates, categoryOptions,
+    templates, templatesLoading, categoryOptions,
     isSubmitting, fileInputRef, ocrFileInputRef,
     handleSubmit, handleTemplateConfirm, handleLocationConfirm,
     handleFileSelect, handleOcrSelect, handleRemoveSavedImage, handleRemovePendingImage, handleClearAllImages, handleReset,
@@ -130,6 +130,7 @@ const AddTransaction: React.FC = () => {
 
       <TemplateSelector
         visible={showTemplateSelector}
+        loading={templatesLoading}
         onClose={() => setShowTemplateSelector(false)}
         onConfirm={handleTemplateConfirm}
         templates={templates}

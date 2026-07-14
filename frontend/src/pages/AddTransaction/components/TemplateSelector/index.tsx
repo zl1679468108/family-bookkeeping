@@ -1,8 +1,11 @@
 import React, { useState } from 'react'
+import { ListRowsSkeleton } from '../../../../components/ui/Skeleton'
+import { EmptyState } from '../../../../components/ui/EmptyState'
 import './index.scss'
 
 interface TemplateSelectorProps {
   visible: boolean
+  loading?: boolean
   onClose: () => void
   onConfirm: (template: any) => void
   templates: any[]
@@ -10,6 +13,7 @@ interface TemplateSelectorProps {
 
 export const TemplateSelector: React.FC<TemplateSelectorProps> = ({
   visible,
+  loading,
   onClose,
   onConfirm,
   templates,
@@ -41,12 +45,14 @@ export const TemplateSelector: React.FC<TemplateSelectorProps> = ({
         </div>
 
         <div className="template-selector-body">
-          {templates.length === 0 ? (
-            <div className="template-selector-empty">
-              <div className="empty-icon">📋</div>
-              <p>暂无模板</p>
-              <p className="empty-hint">请先在「模板管理」中创建模板</p>
-            </div>
+          {loading ? (
+            <ListRowsSkeleton rows={4} showIcon showAmount={false} />
+          ) : templates.length === 0 ? (
+            <EmptyState
+              variant="compact"
+              title="暂无模板"
+              description="请先在「模板管理」中创建模板"
+            />
           ) : (
             <div className="template-list">
               {templates.map((tpl) => {

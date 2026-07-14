@@ -3,14 +3,14 @@
  *
  * 结构（从上到下）:
  *   .metric-grid--3  — 本月结余 / 本月收入 / 本月支出（三列统计）
+ *   .txn-list        — 最近交易（卡片式列表）
  *   .budget-card     — 本月预算（大卡片 + 分类进度条）
- *   .txn-list        — 最近交易（精美列表）
  */
 import { useEffect, useMemo, useState, useCallback } from "react";
 import { View, Text } from "@tarojs/components";
 import Taro from "@tarojs/taro";
-import PageLayout from "../../components/PageLayout";
-import { AppSection, MetricGrid, EmptyState } from "../../components/ui";
+import PageContainer from "../../components/PageContainer";
+import { AppSection, MetricGrid, EmptyState, Button } from "../../components/ui";
 import { getTransactions } from "../../services/transactionsApi";
 import { fetchSummary } from "../../services/statisticsApi";
 import { fetchBudgetStatus } from "../../services/budgetsApi";
@@ -78,16 +78,21 @@ export default function Home() {
     if (!user) return;
     setInitialLoading(true);
     loadData()
-      .catch(() => {})
-      .finally(() => setInitialLoading(false));
+      .then(() => setInitialLoading(false))
+      .catch(() => {
+        setInitialLoading(false);
+      });
   }, [loading, user, loadData, currentBook]);
 
   const handleRefresh = useCallback(() => {
     return new Promise<void>((resolve) => {
       setRefreshing(true);
       loadData()
-        .catch(() => {})
-        .finally(() => {
+        .then(() => {
+          setRefreshing(false);
+          resolve();
+        })
+        .catch(() => {
           setRefreshing(false);
           resolve();
         });
@@ -133,8 +138,7 @@ export default function Home() {
   ];
 
   return (
-    <PageLayout
-      contentClassName="home-content"
+      <PageContainer
       loading={initialLoading}
       loadingText="加载中…"
       onRefresh={handleRefresh}
@@ -142,6 +146,67 @@ export default function Home() {
     >
       {/* ── 三列统计：本月结余 / 本月收入 / 本月支出 ── */}
       <MetricGrid items={metricItems} columns={3} className="home-metrics" />
+
+      {/* ── 最近交易（卡片式） ── */}
+      <AppSection
+        title="本月最近交易"
+        actionText="全部 ›"
+        onAction={() => Taro.switchTab({ url: "/pages/Transactions/index" })}
+      >
+        {txn.length === 0 ? (
+          <EmptyState
+            title="暂无交易记录"
+            description="记录每一笔交易，掌握家庭收支"
+            action={
+              <Button
+                variant="primary"
+                onClick={() => Taro.navigateTo({ url: "/pages/AddTransaction/index?type=expense" })}
+              >
+                添加第一笔交易
+              </Button>
+            }
+          />
+        ) : (
+          <View className="home-txn-list">
+            {txn.map((t: any) => {
+              const catName = getCategoryName(t.category) || "其他";
+              const catIcon = getCategoryIcon(t.category) || "";
+              const isExpense = t.type === "expense";
+              return (
+                <View
+                  key={t.id}
+                  className="home-txn-row"
+                  onClick={() => {
+                    Taro.navigateTo({ url: `/pages/AddTransaction/index?edit=${t.id}` });
+                  }}
+                >
+                  {/* 图标容器：圆角方形背景 */}
+                  <View className={`home-txn-icon ${isExpense ? "home-txn-icon--exp" : "home-txn-icon--inc"}`}>
+                    {catIcon ? (
+                      renderCategoryIcon(catIcon, { size: 32, fontScale: 0.85 })
+                    ) : (
+                      <Text className="home-txn-icon__fallback">
+                        {isExpense ? "支" : "收"}
+                      </Text>
+                    )}
+                  </View>
+
+                  {/* 文字信息 */}
+                  <View className="home-txn-body">
+                    <Text className="home-txn-name">{t.description || catName}</Text>
+                    <Text className="home-txn-meta">{catName} · {(t.date || "").slice(5, 10)}</Text>
+                  </View>
+
+                  {/* 金额 */}
+                  <Text className={`home-txn-amt ${isExpense ? "home-txn-amt--exp" : "home-txn-amt--inc"}`}>
+                    {isExpense ? "−" : "+"}¥{fmtAmount(t.amount)}
+                  </Text>
+                </View>
+              );
+            })}
+          </View>
+        )}
+      </AppSection>
 
       {/* ── 预算大卡片 ── */}
       <View className="budget-card">
@@ -200,72 +265,18 @@ export default function Home() {
         ) : (
           <EmptyState
             title="暂无预算设置"
-            variant="compact"
+            description="设置预算可以更好地控制支出"
             action={
-              <Text
-                className="budget-card__empty-link"
+              <Button
+                variant="primary"
                 onClick={() => Taro.navigateTo({ url: "/pages/Budgets/index" })}
               >
-                去设置 ›
-              </Text>
+                去设置
+              </Button>
             }
           />
         )}
       </View>
-
-      {/* ── 最近交易（卡片式） ── */}
-      <AppSection
-        title="本月最近交易"
-        actionText="全部 ›"
-        onAction={() => Taro.switchTab({ url: "/pages/Transactions/index" })}
-      >
-        {txn.length === 0 ? (
-          <EmptyState
-            title="暂无交易记录"
-            description="记录每一笔交易，掌握家庭收支"
-            variant="compact"
-          />
-        ) : (
-          <View className="home-txn-list">
-            {txn.map((t: any) => {
-              const catName = getCategoryName(t.category) || "其他";
-              const catIcon = getCategoryIcon(t.category) || "";
-              const isExpense = t.type === "expense";
-              return (
-                <View
-                  key={t.id}
-                  className="home-txn-row"
-                  onClick={() => {
-                    Taro.navigateTo({ url: `/pages/AddTransaction/index?edit=${t.id}` });
-                  }}
-                >
-                  {/* 图标容器：圆角方形背景 */}
-                  <View className={`home-txn-icon ${isExpense ? "home-txn-icon--exp" : "home-txn-icon--inc"}`}>
-                    {catIcon ? (
-                      renderCategoryIcon(catIcon, { size: 28, fontScale: 0.85 })
-                    ) : (
-                      <Text className="home-txn-icon__fallback">
-                        {isExpense ? "支" : "收"}
-                      </Text>
-                    )}
-                  </View>
-
-                  {/* 文字信息 */}
-                  <View className="home-txn-body">
-                    <Text className="home-txn-name">{t.description || catName}</Text>
-                    <Text className="home-txn-meta">{catName} · {(t.date || "").slice(5, 10)}</Text>
-                  </View>
-
-                  {/* 金额 */}
-                  <Text className={`home-txn-amt ${isExpense ? "home-txn-amt--exp" : "home-txn-amt--inc"}`}>
-                    {isExpense ? "−" : "+"}¥{fmtAmount(t.amount)}
-                  </Text>
-                </View>
-              );
-            })}
-          </View>
-        )}
-      </AppSection>
-    </PageLayout>
+    </PageContainer>
   );
 }

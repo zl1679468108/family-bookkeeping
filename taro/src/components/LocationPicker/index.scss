@@ -87,6 +87,20 @@
   display: block;
 }
 
+/* 搜索中 / 无结果 提示态 */
+.lp-results--hint {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12rpx;
+  padding: 32rpx;
+}
+
+.lp-results-tip {
+  font-size: 26rpx;
+  color: var(--fg3);
+}
+
 /* ========== Map ========== */
 .lp-map-wrap {
   flex: 1;

@@ -1,6 +1,7 @@
 import React from 'react';
 import { GlobalModal } from '../../../components/ui';
 import { Skeleton } from '../../../components/ui/Skeleton';
+import { EmptyState } from '../../../components/ui/EmptyState';
 import { useCategoryLookup } from '../../../hooks/useCategories';
 import { formatAmountWithType } from '../../../utils/common';
 import { getLunarInfo, formatAmount } from '../utils/lunarUtils';
@@ -77,7 +78,7 @@ export const DateDetailModal: React.FC<DateDetailModalProps> = ({
                   ))}
                 </div>
               ) : dayTransactions.length === 0 ? (
-                <div className="calendar-empty">当天暂无交易记录</div>
+                <EmptyState variant="compact" title="当天暂无交易记录" />
               ) : (
                 <div className="cal-detail-txn-list txn-list">
                   {dayTransactions.map((item) => {

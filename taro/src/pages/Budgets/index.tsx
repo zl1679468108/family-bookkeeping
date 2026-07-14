@@ -5,15 +5,15 @@
 import { useState, useEffect, useRef } from "react";
 import Taro, { useDidShow } from "@tarojs/taro";
 import { View, Text, Input } from "@tarojs/components";
-import { useMutation } from "@tanstack/react-query";
 import MonthPicker from "../../components/MonthPicker";
-import PageLayout from "../../components/PageLayout";
+import PageContainer from "../../components/PageContainer";
 import CategoryIcon from "../../components/CategoryIcon";
-import { EmptyState, Spinner } from "../../components/ui";
+import { EmptyState } from "../../components/ui";
 import ConfirmDialog from "../../components/ConfirmDialog";
 import BottomSheet from "../../components/BottomSheet";
 import { useMonthSelector } from "../../hooks/useMonthSelector";
 import { useManualQuery } from "../../hooks/useManualQuery";
+import { useSubmit } from "../../hooks/useSubmit";
 import { fetchBudgets, fetchBudgetStatus, upsertBudgets } from "../../services/budgetsApi";
 import { fetchCategories } from "../../services/categoriesApi";
 import "./index.scss";
@@ -48,7 +48,7 @@ export default function BudgetsPage() {
     key: `budgets-${monthKey}`,
     queryFn: () => fetchBudgets(monthKey),
   });
-  const { data: bs, refetch: refetchStatus } = useManualQuery({
+  const { data: bs, isLoading: statusLoading, refetch: refetchStatus } = useManualQuery({
     key: `budgets-status-${monthKey}`,
     queryFn: () => fetchBudgetStatus(monthKey),
   });
@@ -103,29 +103,27 @@ export default function BudgetsPage() {
   const [editFormAmount, setEditFormAmount] = useState("");
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
-  /* ---- Mutations ---- */
-  const saveMut = useMutation({
-    mutationFn: (items: Array<{ category: string; amount: number }>) =>
-      upsertBudgets({ month: monthKey, budgets: items }),
-    onSuccess: () => {
+  const { run } = useSubmit();
+
+  /** 手动 Promise 链保存预算（替代 useMutation） */
+  const handleUpsert = (items: Array<{ category: string; amount: number }>) => {
+    run(async () => {
+      await upsertBudgets({ month: monthKey, budgets: items });
       Taro.showToast({ title: "预算保存成功", icon: "success" });
       refetchBudgets();
       refetchStatus();
-    },
-    onError: (err: any) => {
-      Taro.showToast({ title: err?.message || "预算保存失败", icon: "none" });
-    },
-    // 无论成功失败，退出行内编辑态，避免 UI 卡在编辑中
-    onSettled: () => {
       setEditingId(null);
-    },
-  });
+    }, "保存中…").catch((err: any) => {
+      Taro.showToast({ title: err?.message || "预算保存失败", icon: "none" });
+      setEditingId(null);
+    });
+  };
 
   const handleSave = () => {
     const items = expenseCats
       .filter((c) => (editValues[c.id] || 0) > 0)
       .map((c) => ({ category: c.id, amount: editValues[c.id] || 0 }));
-    if (items.length > 0) saveMut.mutate(items);
+    if (items.length > 0) handleUpsert(items);
     else Taro.showToast({ title: "请至少设置一个分类的预算金额", icon: "none" });
   };
 
@@ -186,7 +184,7 @@ export default function BudgetsPage() {
     if (!detailCat) return;
     // 设为 0 并立即提交
     const items = [{ category: detailCat.category.id, amount: 0 }];
-    saveMut.mutate(items);
+    handleUpsert(items);
     // 关闭弹窗
     setShowDeleteConfirm(false);
     setDetailCat(null);
@@ -198,7 +196,7 @@ export default function BudgetsPage() {
     const num = parseFloat(editFormAmount);
     const amount = isNaN(num) ? 0 : Math.max(0, num);
     const items = [{ category: detailCat.category.id, amount }];
-    saveMut.mutate(items);
+    handleUpsert(items);
     setShowEditForm(false);
     setDetailCat(null);
   };
@@ -219,32 +217,33 @@ export default function BudgetsPage() {
   const closeDetail = () => setDetailCat(null);
   const closeEditForm = () => setShowEditForm(false);
 
-  const saving = saveMut.isPending;
-
   /* ======================== 渲染 ======================== */
   return (
-    <PageLayout contentClassName="bdg-content" loading={isLoading} loadingText="加载中…">
-      {/* 头部工具栏：月份选择 + 保存 */}
-      <View className="bdg-toolbar">
-        <MonthPicker
-          year={year}
-          month={month}
-          onChange={(y, m) => {
-            setYear(y);
-            setMonth(m);
-          }}
-        />
-        <View
-          className={`bdg-save-btn ${saveMut.isPending ? "bdg-save-btn--disabled ui-spin-row" : ""}`}
-          onClick={saveMut.isPending ? undefined : handleSave}
-        >
-          {saveMut.isPending && <Spinner />}
-          <Text className="bdg-save-btn__text">
-            {saveMut.isPending ? "保存中..." : "保存"}
-          </Text>
+    <PageContainer
+      loading={isLoading || statusLoading}
+      loadingText="加载中…"
+      header={
+        /* 头部工具栏：月份选择 + 保存（作为 header 传入，loading 时常驻不消失） */
+        <View className="bdg-toolbar">
+          <MonthPicker
+            year={year}
+            month={month}
+            onChange={(y, m) => {
+              setYear(y);
+              setMonth(m);
+            }}
+          />
+          <View
+            className="bdg-save-btn"
+            onClick={handleSave}
+          >
+            <Text className="bdg-save-btn__text">
+              保存
+            </Text>
+          </View>
         </View>
-      </View>
-
+      }
+    >
       {/* 卡片列表 */}
       {expenseCats.length === 0 ? (
         <View className="bdg-empty">
@@ -272,7 +271,7 @@ export default function BudgetsPage() {
                 {/* 主行：图标 + 名称 | 金额 */}
                 <View className="bdg-card__main">
                   <View className="bdg-card__left">
-                    <CategoryIcon icon={cat.icon} />
+                    <CategoryIcon icon={cat.icon} size={32} />
                     <Text className="bdg-card__name">{cat.name}</Text>
                   </View>
                   <View
@@ -374,6 +373,7 @@ export default function BudgetsPage() {
               <View className="bgds-hero__icon-wrap">
                 <CategoryIcon
                   icon={detailCat.category.icon}
+                  size={44}
                   className="bgds-hero__icon"
                 />
               </View>
@@ -456,10 +456,10 @@ export default function BudgetsPage() {
           footer={
             <View className="bgfs-footer">
               <Text
-                className={`bgfs-footer-btn ${saving ? "bgfs-footer-btn--disabled" : ""}`}
-                onClick={saving ? undefined : handleEditFormSubmit}
+                className="bgfs-footer-btn"
+                onClick={handleEditFormSubmit}
               >
-                {saving ? "保存中..." : "保存"}
+                保存
               </Text>
             </View>
           }
@@ -491,10 +491,10 @@ export default function BudgetsPage() {
         message="确定要删除这个预算吗？"
         confirmText="确认删除"
         danger
-        confirmLoading={saving}
+        confirmLoading={false}
         onCancel={() => setShowDeleteConfirm(false)}
         onConfirm={handleDetailDelete}
       />
-    </PageLayout>
+    </PageContainer>
   );
 }

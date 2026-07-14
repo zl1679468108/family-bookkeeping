@@ -7,12 +7,12 @@
 import { useState, useEffect, useMemo } from "react";
 import { View, Text, Input, Picker } from "@tarojs/components";
 import Taro, { getCurrentInstance } from "@tarojs/taro";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import PageLayout from "../../components/PageLayout";
+import { useQueryClient } from "@tanstack/react-query";
+import PageContainer from "../../components/PageContainer";
 import ConfirmDialog from "../../components/ConfirmDialog";
 import CategoryIcon from "../../components/CategoryIcon";
 import LocationPicker, { LocationResult } from "../../components/LocationPicker";
-import { AppSection, PageHero, Spinner } from "../../components/ui";
+import { AppSection, PageHero } from "../../components/ui";
 import {
   getTemplates,
   createTemplate,
@@ -20,6 +20,8 @@ import {
   deleteTemplate,
 } from "../../services/templatesApi";
 import { useCategories } from "../../hooks/useCategories";
+import { useManualQuery } from "../../hooks/useManualQuery";
+import { useSubmit } from "../../hooks/useSubmit";
 import { isIconUrl } from "../../utils/renderCategoryIcon";
 import "./index.scss";
 
@@ -31,11 +33,12 @@ export default function TemplateEdit() {
   const typeParam = (router?.params?.type as TplType) || "expense";
   const isEdit = !!id;
   const qc = useQueryClient();
+  const { run } = useSubmit();
 
   const { data: cats } = useCategories();
 
-  const { data: templates = [] } = useQuery({
-    queryKey: ["templates"],
+  const { data: templates = [], isLoading } = useManualQuery<any[]>({
+    key: "templates",
     queryFn: getTemplates,
   });
   const existing = useMemo(
@@ -79,40 +82,7 @@ export default function TemplateEdit() {
     }
   }, [isEdit, existing, typeParam]);
 
-  // --- Mutations ---
-  const createMut = useMutation({
-    mutationFn: (data: any) => createTemplate(data),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["templates"] });
-      Taro.showToast({ title: "模板已创建", icon: "success" });
-      setTimeout(() => Taro.navigateBack(), 500);
-    },
-    onError: (err: any) => Taro.showToast({ title: err?.message || "创建失败", icon: "none" }),
-  });
-
-  const updateMut = useMutation({
-    mutationFn: ({ id, data }: any) => updateTemplate(id, data),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["templates"] });
-      Taro.showToast({ title: "模板已更新", icon: "success" });
-      setTimeout(() => Taro.navigateBack(), 500);
-    },
-    onError: (err: any) => Taro.showToast({ title: err?.message || "更新失败", icon: "none" }),
-  });
-
-  const deleteMut = useMutation({
-    mutationFn: (id: string) => deleteTemplate(id),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["templates"] });
-      Taro.showToast({ title: "模板已删除", icon: "success" });
-      setTimeout(() => Taro.navigateBack(), 500);
-    },
-    onError: (err: any) => {
-      Taro.showToast({ title: err?.message || "删除失败", icon: "none" });
-      setShowDelete(false);
-    },
-  });
-
+  // --- 保存/删除 ---
   const handleSave = () => {
     if (!form.name.trim()) {
       Taro.showToast({ title: "请输入模板名称", icon: "none" });
@@ -132,11 +102,30 @@ export default function TemplateEdit() {
     if (form.latitude) data.latitude = parseFloat(form.latitude);
     if (form.longitude) data.longitude = parseFloat(form.longitude);
 
-    if (isEdit) {
-      updateMut.mutate({ id, data });
-    } else {
-      createMut.mutate(data);
-    }
+    run(async () => {
+      if (isEdit) {
+        await updateTemplate(id, data);
+      } else {
+        await createTemplate(data);
+      }
+      qc.invalidateQueries({ queryKey: ["templates"] });
+      Taro.showToast({ title: isEdit ? "模板已更新" : "模板已创建", icon: "success" });
+      setTimeout(() => Taro.navigateBack(), 500);
+    }, "保存中…").catch((err: any) => {
+      Taro.showToast({ title: err?.message || (isEdit ? "更新失败" : "创建失败"), icon: "none" });
+    });
+  };
+
+  const handleDelete = () => {
+    run(async () => {
+      await deleteTemplate(id);
+      qc.invalidateQueries({ queryKey: ["templates"] });
+      Taro.showToast({ title: "模板已删除", icon: "success" });
+      setTimeout(() => Taro.navigateBack(), 500);
+    }, "删除中…").catch((err: any) => {
+      Taro.showToast({ title: err?.message || "删除失败", icon: "none" });
+      setShowDelete(false);
+    });
   };
 
   const typeOpts = ["expense", "income"];
@@ -165,11 +154,10 @@ export default function TemplateEdit() {
     setShowLocationPicker(false);
   };
 
-  const saving = createMut.isPending || updateMut.isPending;
   const title = isEdit ? "编辑模板" : "新建模板";
 
   return (
-    <PageLayout contentClassName="tpledit-content">
+    <PageContainer bottomSpace={180} loading={isLoading} loadingText="加载中…">
       <PageHero
         eyebrow={form.type === "expense" ? "支出模板" : "收入模板"}
         title={title}
@@ -255,7 +243,7 @@ export default function TemplateEdit() {
 
         {selectedCat && (
           <View className="tpledit-cat-preview">
-            <CategoryIcon icon={selectedCat.icon} className="tpledit-cat-preview__icon" />
+            <CategoryIcon icon={selectedCat.icon} size={24} className="tpledit-cat-preview__icon" />
             <Text className="tpledit-cat-preview__name">{selectedCat.name}</Text>
           </View>
         )}
@@ -328,20 +316,19 @@ export default function TemplateEdit() {
       <View className="tpledit-actions">
         {isEdit && (
           <View
-            className={`tpledit-actions__delete ${deleteMut.isPending ? "tpledit-actions__delete--pending" : ""}`}
+            className="tpledit-actions__delete"
             onClick={() => setShowDelete(true)}
           >
             <Text>删除</Text>
           </View>
         )}
         <View
-          className={`tpledit-actions__save ${saving ? "tpledit-actions__save--disabled ui-spin-row" : ""} ${
+          className={`tpledit-actions__save ${
             isEdit ? "" : "tpledit-actions__save--full"
           }`}
-          onClick={saving ? undefined : handleSave}
+          onClick={handleSave}
         >
-          {saving && <Spinner />}
-          <Text>{saving ? "保存中..." : isEdit ? "更新" : "创建"}</Text>
+          <Text>{isEdit ? "更新" : "创建"}</Text>
         </View>
       </View>
 
@@ -361,10 +348,10 @@ export default function TemplateEdit() {
         message="确定要删除这个模板吗？"
         confirmText="确认删除"
         danger
-        confirmLoading={deleteMut.isPending}
+        confirmLoading={false}
         onCancel={() => setShowDelete(false)}
-        onConfirm={() => deleteMut.mutate(id)}
+        onConfirm={handleDelete}
       />
-    </PageLayout>
+    </PageContainer>
   );
 }

@@ -1,10 +1,15 @@
 /**
  * Workbench — 工作台
- * 四大管理入口：账本 / 分类 / 模板 / 预算
+ * 五大入口与 PC 端保持一致：
+ *   1. 记一笔 —— 对应 PC 侧边栏主菜单「记一笔」
+ *   2. 账本    —— 对应 PC 侧边栏「更多」组「账本」
+ *   3. 分类    —— 对应 PC 侧边栏「更多」组「分类」
+ *   4. 模板    —— 对应 PC 侧边栏「更多」组「模板」
+ *   5. 预算    —— 对应 PC 侧边栏「更多」组「预算」
  */
 import { Text } from "@tarojs/components";
 import Taro from "@tarojs/taro";
-import PageLayout from "../../components/PageLayout";
+import PageContainer from "../../components/PageContainer";
 import { MenuList } from "../../components/ui";
 import "./index.scss";
 
@@ -43,7 +48,7 @@ export default function Workbench() {
   ];
 
   return (
-    <PageLayout contentClassName="wb-content">
+    <PageContainer>
       <MenuList
         items={entries.map((item) => ({
           key: item.label,
@@ -53,6 +58,6 @@ export default function Workbench() {
           onClick: () => Taro.navigateTo({ url: item.url }),
         }))}
       />
-    </PageLayout>
+    </PageContainer>
   );
 }

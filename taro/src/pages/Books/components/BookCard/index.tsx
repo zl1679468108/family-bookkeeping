@@ -5,7 +5,6 @@
 import { useState } from "react";
 import { View, Text, Input } from "@tarojs/components";
 import Taro from "@tarojs/taro";
-import { useMutation } from "@tanstack/react-query";
 import { fetchBookMembers, inviteMember } from "../../../../services/booksApi";
 import { useManualQuery } from "../../../../hooks/useManualQuery";
 import type { Book } from "../../../../types";
@@ -43,22 +42,29 @@ export default function BookCard({
     enabled: showMembers,
   });
 
-  const inviteMut = useMutation({
-    mutationFn: ({ email }: { email: string }) => inviteMember(book.id, email),
-    onSuccess: () => {
-      setInviteEmail("");
-      Taro.showToast({ title: "邀请已发送", icon: "success" });
-    },
-    onError: (err: any) => {
-      Taro.showToast({
-        title: err?.message || "邀请失败",
-        icon: "error",
+  const [inviting, setInviting] = useState(false);
+  const handleInvite = () => {
+    if (!inviteEmail.trim() || inviting) return;
+    Taro.hideKeyboard();
+    setInviting(true);
+    inviteMember(book.id, inviteEmail.trim())
+      .then(() => {
+        setInviteEmail("");
+        setInviting(false);
+        Taro.showToast({ title: "邀请已发送", icon: "success" });
+      })
+      .catch((err: any) => {
+        Taro.showToast({
+          title: err?.message || "邀请失败",
+          icon: "error",
+        });
+        // 失败时关闭邀请输入，避免卡住
+        setShowInvite(false);
+        setInviteEmail("");
+        setInviting(false);
       });
-      // 失败时关闭邀请输入，避免卡住
-      setShowInvite(false);
-      setInviteEmail("");
-    },
-  });
+    setTimeout(() => { setInviting(false); setShowInvite(false); setInviteEmail(""); }, 4000);
+  };
 
   return (
     <View className={`book-card ${isActive ? "book-card--active" : ""}`}>
@@ -198,16 +204,12 @@ export default function BookCard({
                   focus
                 />
                 <View
-                  className={`book-card__invite-btn ${inviteMut.isPending ? "ui-spin-row" : ""}`}
-                  onClick={() => {
-                    if (inviteMut.isPending) return;
-                    if (inviteEmail.trim())
-                      inviteMut.mutate({ email: inviteEmail.trim() });
-                  }}
+                  className={`book-card__invite-btn ${inviting ? "ui-spin-row" : ""}`}
+                  onClick={handleInvite}
                 >
-                  {inviteMut.isPending && <Spinner />}
+                  {inviting && <Spinner />}
                   <Text className="book-card__invite-btn-text">
-                    {inviteMut.isPending ? "添加中" : "添加"}
+                    {inviting ? "添加中" : "添加"}
                   </Text>
                 </View>
                 <View

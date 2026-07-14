@@ -7,37 +7,35 @@
  *  3. 用户名 / 邮箱输入框
  *  4. 修改密码入口：点击后弹出对话框，输入当前密码 + 新密码（至少 6 位，含大小写字母和数字）+ 确认密码
  *  5. 保存按钮：调用 updateProfile → toast 成功 → 刷新用户信息 → 延迟后 navigateBack
- *  6. loading 状态：isSaving / isPwdSaving，按钮禁用时显示 "..." 或 "保存中..."
+ *  6. 提交类 loading 由 useSubmit 统一处理（Taro.showLoading + 防重复）
  */
 
 import { useState, useEffect, useCallback } from "react";
 import { View, Text, Input, Image } from "@tarojs/components";
 import Taro from "@tarojs/taro";
-import PageLayout from "../../components/PageLayout";
+import PageContainer from "../../components/PageContainer";
 import { useAuth } from "../../context/AuthContext";
 import {
   updateProfile as apiUpdateProfile,
   changePassword as apiChangePassword,
   getProfile,
 } from "../../services/authApi";
+import { useSubmit } from "../../hooks/useSubmit";
 import "./index.scss";
 
 export default function EditProfile() {
   const { user, refreshUser } = useAuth();
+  const { run } = useSubmit();
 
   const [username, setUsername] = useState(user?.username || "");
   const [email, setEmail] = useState(user?.email || "");
   const [avatarUrl, setAvatarUrl] = useState(user?.avatar_url || "");
   const [avatarPreview, setAvatarPreview] = useState(user?.avatar_url || "");
-  const [avatarUploading, setAvatarUploading] = useState(false);
 
   const [showPwd, setShowPwd] = useState(false);
   const [oldPwd, setOldPwd] = useState("");
   const [newPwd, setNewPwd] = useState("");
   const [confirmPwd, setConfirmPwd] = useState("");
-
-  const [isSaving, setIsSaving] = useState(false);
-  const [isPwdSaving, setIsPwdSaving] = useState(false);
 
   // 首字母占位：取 username 首字母大写；如果没有 username 取 email 首字母大写。
   const initial = (user?.username || user?.email || "U")
@@ -68,33 +66,28 @@ export default function EditProfile() {
         if (!path) return;
         setAvatarPreview(path);
         // 使用 custom icons 上传接口获取正式 URL
-        setAvatarUploading(true);
-        import("../../services/iconsApi")
-          .then(({ uploadIcon }) => uploadIcon(path, "avatar"))
-          .then((result: any) => {
-            const iconUrl = result?.icon_url || result?.url || "";
-            if (iconUrl) {
-              setAvatarUrl(iconUrl);
-              setAvatarPreview(iconUrl);
-              Taro.showToast({ title: "头像已更新", icon: "success" });
-            } else {
-              setAvatarUrl(path); // fallback：临时路径
-              Taro.showToast({ title: "已选择图片", icon: "success" });
-            }
-          })
-          .catch(() => {
-            setAvatarUrl(path); // fallback
+        run(async () => {
+          const { uploadIcon } = await import("../../services/iconsApi");
+          const result: any = await uploadIcon(path, "avatar");
+          const iconUrl = result?.icon_url || result?.url || "";
+          if (iconUrl) {
+            setAvatarUrl(iconUrl);
+            setAvatarPreview(iconUrl);
+            Taro.showToast({ title: "头像已更新", icon: "success" });
+          } else {
+            setAvatarUrl(path); // fallback：临时路径
             Taro.showToast({ title: "已选择图片", icon: "success" });
-          })
-          .finally(() => setAvatarUploading(false));
+          }
+        }, "上传中…").catch(() => {
+          setAvatarUrl(path); // fallback
+          Taro.showToast({ title: "已选择图片", icon: "success" });
+        });
       })
       .catch(() => {});
   }, []);
 
   // ---- 保存资料 ----
   const handleSave = useCallback(() => {
-    if (isSaving) return;
-
     if (!username.trim()) {
       return Taro.showToast({ title: "用户名不能为空", icon: "none" });
     }
@@ -104,27 +97,24 @@ export default function EditProfile() {
       return Taro.showToast({ title: "邮箱格式不正确", icon: "none" });
     }
 
-    setIsSaving(true);
-    apiUpdateProfile({
-      username: username.trim(),
-      email: email.trim(),
-      avatar_url: avatarUrl && avatarUrl.startsWith("http")
-        ? undefined
-        : avatarUrl,
-    })
-      .then(() => refreshUser?.())
-      .then(() => {
-        Taro.showToast({ title: "保存成功", icon: "success" });
-        setTimeout(() => Taro.navigateBack(), 600);
-      })
-      .catch((err: any) =>
-        Taro.showToast({
-          title: err?.message || "保存失败，请重试",
-          icon: "none",
-        }),
-      )
-      .finally(() => setIsSaving(false));
-  }, [isSaving, username, email, avatarUrl, refreshUser]);
+    run(async () => {
+      await apiUpdateProfile({
+        username: username.trim(),
+        email: email.trim(),
+        avatar_url: avatarUrl && avatarUrl.startsWith("http")
+          ? undefined
+          : avatarUrl,
+      });
+      await refreshUser?.();
+      Taro.showToast({ title: "保存成功", icon: "success" });
+      setTimeout(() => Taro.navigateBack(), 600);
+    }, "保存中…").catch((err: any) => {
+      Taro.showToast({
+        title: err?.message || "保存失败，请重试",
+        icon: "none",
+      });
+    });
+  }, [username, email, avatarUrl, refreshUser]);
 
   // ---- 修改密码 ----
   const openChangePwd = useCallback(() => {
@@ -135,13 +125,10 @@ export default function EditProfile() {
   }, []);
 
   const closeChangePwd = useCallback(() => {
-    if (isPwdSaving) return;
     setShowPwd(false);
-  }, [isPwdSaving]);
+  }, []);
 
   const handleChangePwd = useCallback(() => {
-    if (isPwdSaving) return;
-
     if (!oldPwd) {
       return Taro.showToast({ title: "请输入当前密码", icon: "none" });
     }
@@ -158,30 +145,27 @@ export default function EditProfile() {
       });
     }
 
-    setIsPwdSaving(true);
-    apiChangePassword({
-      oldPassword: oldPwd,
-      newPassword: newPwd,
-      confirmPassword: confirmPwd,
-    })
-      .then(() => {
-        Taro.showToast({ title: "密码修改成功", icon: "success" });
-        setShowPwd(false);
-        setOldPwd("");
-        setNewPwd("");
-        setConfirmPwd("");
-      })
-      .catch((err: any) =>
-        Taro.showToast({
-          title: err?.message || "修改失败，请重试",
-          icon: "none",
-        }),
-      )
-      .finally(() => setIsPwdSaving(false));
-  }, [isPwdSaving, oldPwd, newPwd, confirmPwd]);
+    run(async () => {
+      await apiChangePassword({
+        oldPassword: oldPwd,
+        newPassword: newPwd,
+        confirmPassword: confirmPwd,
+      });
+      Taro.showToast({ title: "密码修改成功", icon: "success" });
+      setShowPwd(false);
+      setOldPwd("");
+      setNewPwd("");
+      setConfirmPwd("");
+    }, "提交中…").catch((err: any) => {
+      Taro.showToast({
+        title: err?.message || "修改失败，请重试",
+        icon: "none",
+      });
+    });
+  }, [oldPwd, newPwd, confirmPwd]);
 
   return (
-    <PageLayout className="edit-profile-page">
+    <PageContainer contentClassName="edit-profile-page">
       {/* ===== 头像区 ===== */}
       <View className="edit-avatar-wrap" onClick={handleChangeAvatar}>
         <View className="edit-avatar-container">
@@ -196,15 +180,8 @@ export default function EditProfile() {
               <Text className="edit-avatar-placeholder-text">{initial}</Text>
             </View>
           )}
-          {avatarUploading && (
-            <View className="edit-avatar-loading">
-              <Text className="edit-avatar-loading-text">上传中…</Text>
-            </View>
-          )}
         </View>
-        <Text className="edit-avatar-tip">
-          {avatarUploading ? "正在上传头像…" : "点击更换头像"}
-        </Text>
+        <Text className="edit-avatar-tip">点击更换头像</Text>
       </View>
 
       {/* ===== 资料表单 ===== */}
@@ -243,12 +220,10 @@ export default function EditProfile() {
       {/* ===== 保存按钮 ===== */}
       <View className="edit-save-wrap">
         <View
-          className={`edit-save-btn ${isSaving ? "disabled" : ""}`}
+          className="edit-save-btn"
           onClick={handleSave}
         >
-          <Text className="edit-save-text">
-            {isSaving ? "更新中..." : "更新信息"}
-          </Text>
+          <Text className="edit-save-text">更新信息</Text>
         </View>
       </View>
 
@@ -299,21 +274,21 @@ export default function EditProfile() {
 
             <View className="pwd-actions">
               <View
-                className={`pwd-btn pwd-cancel ${isPwdSaving ? "disabled" : ""}`}
+                className="pwd-btn pwd-cancel"
                 onClick={closeChangePwd}
               >
                 <Text>取消</Text>
               </View>
               <View
-                className={`pwd-btn pwd-ok ${isPwdSaving ? "disabled" : ""}`}
+                className="pwd-btn pwd-ok"
                 onClick={handleChangePwd}
               >
-                <Text>{isPwdSaving ? "提交中..." : "确认"}</Text>
+                <Text>确认</Text>
               </View>
             </View>
           </View>
         </View>
       )}
-    </PageLayout>
+    </PageContainer>
   );
 }

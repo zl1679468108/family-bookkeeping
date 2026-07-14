@@ -82,12 +82,20 @@
   background: var(--prBg);
 }
 
+.cal-cell.has-data {
+  border-color: var(--pr);
+}
+
+.cal-cell.has-data:hover {
+  border-color: var(--prH);
+}
+
 /* 左侧内容 */
 .cd-left {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  width: 80px;
+  min-width: 48px;
 }
 
 .cd-date {
@@ -99,15 +107,6 @@
 
 .cal-cell.today .cd-date {
   color: var(--pr);
-}
-
-/* 右上角红点 */
-.cd-dot {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background: var(--exp);
-  flex-shrink: 0;
 }
 
 /* 第二行：农历或节日名 */
@@ -123,21 +122,26 @@
   font-weight: 500;
 }
 
-/* 支出/收入/笔数统计 */
-.cd-mid{
+/* 右侧统计 */
+.cd-mid {
   flex: 1;
+  display: flex;
+  justify-content: flex-end;
 }
+
 .cd-stats {
   font-size: 12px;
   color: var(--fg2);
   display: flex;
   flex-direction: column;
   gap: 2px;
+  align-items: flex-end;
 }
 
 .cd-stat-row {
   display: flex;
   align-items: center;
+  justify-content: flex-end;
   gap: 4px;
 }
 
@@ -263,11 +267,12 @@
   flex-direction: column;
   gap: 6px;
   min-width: 160px;
+  align-items: flex-end;
 }
 
 .cal-detail-stat-row {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: center;
   gap: 16px;
   font-size: 14px;

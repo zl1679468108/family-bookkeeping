@@ -14,7 +14,7 @@
 }
 
 .sheet-header__side {
-  width: 80rpx;
+  width: 92rpx;
   display: flex;
   align-items: center;
   flex-shrink: 0;
@@ -29,8 +29,8 @@
 }
 
 .sheet-header__icon {
-  width: 56rpx;
-  height: 56rpx;
+  width: 64rpx;
+  height: 64rpx;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -45,7 +45,7 @@
 }
 
 .sheet-header__icon Text {
-  font-size: 36rpx;
+  font-size: 44rpx;
   color: var(--fg-2, #5a5d58);
   line-height: 1;
   font-weight: 300;

@@ -3,25 +3,24 @@
  * 列表 + 账本详情 Sheet（成员/邀请/邀请码/编辑/删除）+ 新建 + 使用邀请码加入
  * 点击账本卡片 → 弹出底部详情 Sheet（含所有管理操作）
  */
-import { useState, useCallback, useMemo, useRef, useEffect } from "react";
+import { useState, useCallback, useMemo, useEffect } from "react";
 import { View, Text, Input, Image } from "@tarojs/components";
 import Taro, { useDidShow } from "@tarojs/taro";
-import { useMutation } from "@tanstack/react-query";
-import PageLayout from "../../components/PageLayout";
-import { EmptyState, Spinner } from "../../components/ui";
+import PageContainer from "../../components/PageContainer";
+import { EmptyState } from "../../components/ui";
 import ConfirmDialog from "../../components/ConfirmDialog";
 import SheetHeader from "../../components/SheetHeader";
 import {
   fetchBooks,
-  joinByInvitation,
   fetchBookMembers,
   inviteMember,
   createInvitation,
   deleteBook,
   removeMember,
+  joinByInvitation,
 } from "../../services/booksApi";
-import { ApiError } from "../../services/api";
 import { useManualQuery } from "../../hooks/useManualQuery";
+import { useSubmit } from "../../hooks/useSubmit";
 import { useBookContext } from "../../context/BookContext";
 import { useAuth } from "../../context/AuthContext";
 import { renderBookIconSvg } from "../../utils/bookIcons";
@@ -59,20 +58,13 @@ const fmtDate = (s: string) => {
 export default function BooksPage() {
   const { currentBook, switchBook } = useBookContext();
   const { user } = useAuth();
+  const { run } = useSubmit();
 
   // --- 使用邀请码加入 ---
-  const __BUILD_MARKER__ = "BUILD_MARKER_2026_07_13_V3_TEST";
   const [showJoinSheet, setShowJoinSheet] = useState(false);
   const [joinCode, setJoinCode] = useState("");
-  const [joining, setJoining] = useState(false);
-  const joiningRef = useRef(false);
   // 键盘高度：输入框聚焦时软键盘会盖住底部页脚，需把弹窗抬到键盘上方
   const [kbdHeight, setKbdHeight] = useState(0);
-
-  const resetJoining = () => {
-    joiningRef.current = false;
-    setJoining(false);
-  };
 
   const handleJoinSubmit = () => {
     const code = joinCode.trim();
@@ -80,47 +72,26 @@ export default function BooksPage() {
       Taro.showToast({ title: "邀请码至少需要4位", icon: "none" });
       return;
     }
-    if (joiningRef.current) return;
-    joiningRef.current = true;
-    setJoining(true);
-
-    let safetyTimer: any;
-    const done = () => {
-      if (safetyTimer) clearTimeout(safetyTimer);
-      safetyTimer = undefined;
-      joiningRef.current = false;
-      setJoining(false);
-    };
-
-    safetyTimer = setTimeout(() => {
-      joiningRef.current = false;
-      setJoining(false);
-    }, 3000);
-
-    joinByInvitation(code.toUpperCase())
-      .then(() => {
-        Taro.showToast({ title: "加入成功", icon: "success" });
-        setShowJoinSheet(false);
-        setJoinCode("");
-        refetch();
-      })
-      .catch((err: any) => {
-        const msg = err instanceof ApiError ? err.message : err?.message;
-        try {
-          Taro.showToast({ title: (msg || "加入失败，请重试").slice(0, 20), icon: "none" });
-        } catch {}
-      })
-      .then(() => {
-        done();
-      });
+    run(async () => {
+      await joinByInvitation(code.toUpperCase());
+      setShowJoinSheet(false);
+      setJoinCode("");
+      Taro.showToast({ title: "加入成功", icon: "success" });
+      refetch();
+    }, "加入中…").catch((err: any) => {
+      Taro.showToast({ title: err?.message || "加入失败", icon: "none" });
+    });
   };
+
+  const closeJoinSheet = useCallback(() => {
+    setShowJoinSheet(false);
+    setJoinCode("");
+  }, []);
 
   // 打开 sheet 时强制重置状态，防止上次异常残留；并监听键盘高度把页脚抬到键盘上方
   useEffect(() => {
     if (!showJoinSheet) return;
     setJoinCode("");
-    setJoining(false);
-    joiningRef.current = false;
     const onKbd = (res: any) => setKbdHeight(res?.height || 0);
     Taro.onKeyboardHeightChange(onKbd);
     return () => {
@@ -176,30 +147,24 @@ export default function BooksPage() {
   // --- 邀请成员 ---
   const [inviteEmail, setInviteEmail] = useState("");
 
-  const inviteMut = useMutation({
-    mutationFn: ({ bookId, email }: { bookId: string; email: string }) =>
-      inviteMember(bookId, email),
-    onSuccess: () => {
-      Taro.showToast({ title: "邀请已发送", icon: "success" });
-      setInviteEmail("");
-      setDetailMode("info");
-      refetchMembers();
-      refetch(); // 刷新列表（成员数可能变化）
-    },
-    onError: (err: any) => {
-      Taro.showToast({ title: err?.message || "邀请失败，请检查邮箱", icon: "none" });
-      setInviteEmail("");
-      setDetailMode("info");
-    },
-  });
-
   const handleInviteSubmit = () => {
     const email = inviteEmail.trim();
     if (!email) {
       Taro.showToast({ title: "请输入邮箱地址", icon: "none" });
       return;
     }
-    inviteMut.mutate({ bookId: detailBook!.id, email });
+    run(async () => {
+      await inviteMember(detailBook!.id, email);
+      Taro.showToast({ title: "邀请已发送", icon: "success" });
+      setInviteEmail("");
+      setDetailMode("info");
+      refetchMembers();
+      refetch(); // 刷新列表（成员数可能变化）
+    }, "发送中…").catch((err: any) => {
+      Taro.showToast({ title: err?.message || "邀请失败，请检查邮箱", icon: "none" });
+      setInviteEmail("");
+      setDetailMode("info");
+    });
   };
 
   // --- 生成邀请码 ---
@@ -209,18 +174,13 @@ export default function BooksPage() {
     book_name: string;
   } | null>(null);
 
-  const inviteCodeMut = useMutation({
-    mutationFn: (bookId: string) => createInvitation(bookId),
-    onSuccess: (data) => {
-      setInviteCodeData(data as any);
-    },
-    onError: (err: any) => {
-      Taro.showToast({ title: err?.message || "生成失败", icon: "none" });
-    },
-  });
-
   const handleGenerateCode = () => {
-    inviteCodeMut.mutate(detailBook!.id);
+    run(async () => {
+      const data = await createInvitation(detailBook!.id);
+      setInviteCodeData(data);
+    }, "生成中…").catch((err: any) => {
+      Taro.showToast({ title: err?.message || "生成失败", icon: "none" });
+    });
   };
 
   const handleCopyCode = async () => {
@@ -236,36 +196,36 @@ export default function BooksPage() {
   const [switchTarget, setSwitchTarget] = useState<BookRow | null>(null);
   const [removingMember, setRemovingMember] = useState<Member | null>(null);
   const [showRemoveConfirm, setShowRemoveConfirm] = useState(false);
-  const deleteMut = useMutation({
-    mutationFn: (bookId: string) => deleteBook(bookId),
-    onSuccess: () => {
+  const handleDelete = () => {
+    const target = deletingBook || detailBook;
+    if (!target) return;
+    run(async () => {
+      await deleteBook(target.id);
       Taro.showToast({ title: "账本已删除", icon: "success" });
       setDeletingBook(null);
       closeDetail();
       refetch();
-    },
-    onError: (err: any) => {
+    }, "删除中…").catch((err: any) => {
       Taro.showToast({ title: err?.message || "删除失败", icon: "none" });
       setDeletingBook(null);
-    },
-  });
+    });
+  };
 
-  const removeMemberMut = useMutation({
-    mutationFn: ({ bookId, userId }: { bookId: string; userId: string }) =>
-      removeMember(bookId, userId),
-    onSuccess: () => {
+  const handleRemoveMember = () => {
+    if (!removingMember || !detailBook) return;
+    run(async () => {
+      await removeMember(detailBook.id, removingMember.id);
       Taro.showToast({ title: "成员已移除", icon: "success" });
       setRemovingMember(null);
       setShowRemoveConfirm(false);
       refetchMembers();
       refetch();
-    },
-    onError: (err: any) => {
+    }, "移除中…").catch((err: any) => {
       Taro.showToast({ title: err?.message || "移除失败", icon: "none" });
       setRemovingMember(null);
       setShowRemoveConfirm(false);
-    },
-  });
+    });
+  };
 
   // --- 切换 / 新建 ---
   const handleSwitch = (book: BookRow) => {
@@ -304,7 +264,7 @@ export default function BooksPage() {
   const currentId = currentBook?.id;
 
   return (
-    <PageLayout contentClassName="bk-content" loading={isLoading} loadingText="加载中…">
+    <PageContainer contentClassName="bk-content" loading={isLoading} loadingText="加载中…">
       {/* ====== 页面顶部栏 ====== */}
       <View className="bk-page-header">
         <View /> {/* 左侧占位 */}
@@ -369,25 +329,13 @@ export default function BooksPage() {
 
       {/* ====== 使用邀请码加入 Sheet ====== */}
       {showJoinSheet && (
-        <View
-          className="bk-mask"
-          onClick={() => {
-            resetJoining();
-            setShowJoinSheet(false);
-          }}
-        >
+        <View className="bk-mask" onClick={closeJoinSheet}>
           <View
             className="bk-sheet"
             style={kbdHeight ? { paddingBottom: `${kbdHeight}px` } : undefined}
             onClick={(e: any) => e.stopPropagation()}
           >
-            <SheetHeader
-              title="使用邀请码加入TESTZ9"
-              onClose={() => {
-                resetJoining();
-                setShowJoinSheet(false);
-              }}
-            />
+            <SheetHeader title="使用邀请码加入账本" onClose={closeJoinSheet} />
 
             <View className="bk-sheet__body">
               <View className="bk-form-row">
@@ -411,18 +359,15 @@ export default function BooksPage() {
             <View className="bk-sheet__footer bk-sheet__footer--dual">
               <Text
                 className="bk-sheet__footer-btn bk-sheet__footer-btn--secondary"
-                onClick={() => {
-                  resetJoining();
-                  setShowJoinSheet(false);
-                }}
+                onClick={closeJoinSheet}
               >
                 取消
               </Text>
               <Text
-                className={`bk-sheet__footer-btn ${joining ? "bk-sheet__footer-btn--disabled" : ""}`}
-                onClick={joining ? undefined : handleJoinSubmit}
+                className="bk-sheet__footer-btn"
+                onClick={handleJoinSubmit}
               >
-                {joining ? "加入中…" : "加入账本"}
+                加入账本
               </Text>
             </View>
 
@@ -580,11 +525,10 @@ export default function BooksPage() {
                         将以下邀请码分享给他人，对方在「加入账本」中输入邀请码即可加入账本
                       </Text>
                       <View
-                        className={`bk-detail-btn bk-detail-btn--primary bk-invite-generate__btn ${inviteCodeMut.isPending ? "bk-detail-btn--pending ui-spin-row" : ""}`}
-                        onClick={inviteCodeMut.isPending ? undefined : handleGenerateCode}
+                        className="bk-detail-btn bk-detail-btn--primary bk-invite-generate__btn"
+                        onClick={handleGenerateCode}
                       >
-                        {inviteCodeMut.isPending && <Spinner />}
-                        <Text>{inviteCodeMut.isPending ? "生成中…" : "生成邀请码"}</Text>
+                        <Text>生成邀请码</Text>
                       </View>
                     </View>
                   ) : (
@@ -666,11 +610,10 @@ export default function BooksPage() {
             {detailMode === "invite" && (
               <View className="bk-detail-actions bk-detail-actions--sticky bk-detail-actions--single">
                 <View
-                  className={`bk-detail-btn bk-detail-btn--primary ${inviteMut.isPending ? "bk-detail-btn--pending ui-spin-row" : ""}`}
-                  onClick={inviteMut.isPending ? undefined : handleInviteSubmit}
+                  className="bk-detail-btn bk-detail-btn--primary"
+                  onClick={handleInviteSubmit}
                 >
-                  {inviteMut.isPending && <Spinner />}
-                  <Text>{inviteMut.isPending ? "发送中…" : "发送邀请"}</Text>
+                  <Text>发送邀请</Text>
                 </View>
               </View>
             )}
@@ -751,11 +694,7 @@ export default function BooksPage() {
         message={`确定要删除「${deletingBook?.name || detailBook?.name || ""}」吗？此操作不可恢复，所有数据将被永久删除。`}
         confirmText="删除"
         danger
-        confirmLoading={deleteMut.isPending}
-        onConfirm={() => {
-          const target = deletingBook || detailBook;
-          if (target) deleteMut.mutate(target.id);
-        }}
+        onConfirm={handleDelete}
         onCancel={() => {
           setShowDeleteConfirm(false);
           setDeletingBook(null);
@@ -769,17 +708,12 @@ export default function BooksPage() {
         message={`确定要移除成员 ${removingMember?.username || removingMember?.email} 吗？`}
         confirmText="移除"
         danger
-        confirmLoading={removeMemberMut.isPending}
-        onConfirm={() => {
-          if (removingMember && detailBook) {
-            removeMemberMut.mutate({ bookId: detailBook.id, userId: removingMember.id });
-          }
-        }}
+        onConfirm={handleRemoveMember}
         onCancel={() => {
           setShowRemoveConfirm(false);
           setRemovingMember(null);
         }}
       />
-    </PageLayout>
+    </PageContainer>
   );
 }

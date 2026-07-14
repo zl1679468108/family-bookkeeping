@@ -48,7 +48,7 @@ export function useBooksPage() {
     setGeneratedInviteCode(null);
   }, []);
 
-  const { data: members = [] } = useQuery({
+  const { data: members = [], isLoading: membersLoading } = useQuery({
     queryKey: ['book-members', selectedBook?.id],
     queryFn: () => (selectedBook?.id ? fetchBookMembers(selectedBook.id) : []),
     enabled: !!selectedBook?.id && showDetail,
@@ -145,6 +145,7 @@ export function useBooksPage() {
     showInviteCodeModal,
     setShowInviteCodeModal,
     members,
+    membersLoading,
     inviteMutation,
     inviteCodeMutation,
     deleteMutation,

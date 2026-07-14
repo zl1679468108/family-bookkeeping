@@ -7,11 +7,11 @@
 import { useState, useEffect, useMemo } from "react";
 import { View, Text, Input, Image } from "@tarojs/components";
 import Taro, { getCurrentInstance } from "@tarojs/taro";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import PageLayout from "../../components/PageLayout";
+import { useQueryClient } from "@tanstack/react-query";
+import PageContainer from "../../components/PageContainer";
 import ConfirmDialog from "../../components/ConfirmDialog";
 import CategoryIcon from "../../components/CategoryIcon";
-import { AppSection, PageHero, Spinner } from "../../components/ui";
+import { AppSection, PageHero } from "../../components/ui";
 import {
   fetchCategories,
   createCategory,
@@ -24,6 +24,8 @@ import {
   SHOPPING_PLATFORM_ICONS,
   renderPlatformIconSvg,
 } from "../../utils/platformIcons";
+import { useManualQuery } from "../../hooks/useManualQuery";
+import { useSubmit } from "../../hooks/useSubmit";
 import "./index.scss";
 
 interface CustomIconItem {
@@ -41,8 +43,8 @@ export default function CategoryEdit() {
   const isEdit = !!id;
   const qc = useQueryClient();
 
-  const { data: categories = [] } = useQuery({
-    queryKey: ["categories"],
+  const { data: categories = [], isLoading } = useManualQuery<any[]>({
+    key: "categories",
     queryFn: () => fetchCategories(),
   });
   const existing = useMemo(
@@ -53,8 +55,8 @@ export default function CategoryEdit() {
   const [form, setForm] = useState({ name: "", icon: "📌" });
   const [catType, setCatType] = useState<CatType>(typeParam);
   const [customIcons, setCustomIcons] = useState<CustomIconItem[]>([]);
-  const [uploadingIcon, setUploadingIcon] = useState(false);
   const [showDelete, setShowDelete] = useState(false);
+  const { run } = useSubmit();
 
   // 初始化表单（编辑模式）
   useEffect(() => {
@@ -84,20 +86,19 @@ export default function CategoryEdit() {
       .then((res) => {
         const path = res.tempFilePaths && res.tempFilePaths[0];
         if (!path) return;
-        setUploadingIcon(true);
-        uploadIcon(path, "category")
-          .then((result: any) => {
-            const iconUrl = result?.icon_url || result?.url || "";
-            if (iconUrl) {
-              setForm({ ...form, icon: iconUrl });
-              refreshCustomIcons();
-              Taro.showToast({ title: "已添加到自定义", icon: "success" });
-            } else {
-              Taro.showToast({ title: "上传失败", icon: "none" });
-            }
-          })
-          .catch(() => Taro.showToast({ title: "上传失败", icon: "none" }))
-          .finally(() => setUploadingIcon(false));
+        run(async () => {
+          const result: any = await uploadIcon(path, "category");
+          const iconUrl = result?.icon_url || result?.url || "";
+          if (iconUrl) {
+            setForm({ ...form, icon: iconUrl });
+            refreshCustomIcons();
+            Taro.showToast({ title: "已添加到自定义", icon: "success" });
+          } else {
+            Taro.showToast({ title: "上传失败", icon: "none" });
+          }
+        }, "上传中…").catch((err: any) => {
+          Taro.showToast({ title: err?.message || "上传失败", icon: "none" });
+        });
       })
       .catch(() => {});
   };
@@ -112,66 +113,42 @@ export default function CategoryEdit() {
       .catch(() => Taro.showToast({ title: "删除失败", icon: "none" }));
   };
 
-  // --- Mutations ---
-  const createMut = useMutation({
-    mutationFn: (data: { name: string; icon: string; type: CatType }) =>
-      createCategory(data),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["categories"] });
-      Taro.showToast({ title: "分类已创建", icon: "success" });
-      setTimeout(() => Taro.navigateBack(), 500);
-    },
-    onError: (err: any) => Taro.showToast({ title: err?.message || "创建失败", icon: "none" }),
-  });
-
-  const updateMut = useMutation({
-    mutationFn: ({ id, data }: { id: string; data: { name: string; icon: string } }) =>
-      updateCategory(id, data),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["categories"] });
-      Taro.showToast({ title: "分类已更新", icon: "success" });
-      setTimeout(() => Taro.navigateBack(), 500);
-    },
-    onError: (err: any) => Taro.showToast({ title: err?.message || "更新失败", icon: "none" }),
-  });
-
-  const deleteMut = useMutation({
-    mutationFn: (id: string) => deleteCategory(id),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["categories"] });
-      Taro.showToast({ title: "已删除", icon: "success" });
-      setTimeout(() => Taro.navigateBack(), 500);
-    },
-    onError: (err: any) => {
-      Taro.showToast({ title: err?.message || "删除失败", icon: "none" });
-      setShowDelete(false);
-    },
-  });
-
+  // --- 提交/删除（手动 Promise 链，规避 Taro 下 useMutation 卡死）---
   const handleSave = () => {
     if (!form.name.trim()) {
       Taro.showToast({ title: "请输入名称", icon: "none" });
       return;
     }
-    if (isEdit) {
-      updateMut.mutate({
-        id,
-        data: { name: form.name.trim(), icon: form.icon },
-      });
-    } else {
-      createMut.mutate({
-        name: form.name.trim(),
-        icon: form.icon,
-        type: catType,
-      });
-    }
+    const payload = { name: form.name.trim(), icon: form.icon };
+    run(async () => {
+      const apiCall = isEdit
+        ? updateCategory(id, payload)
+        : createCategory({ ...payload, type: catType });
+      await apiCall;
+      qc.invalidateQueries({ queryKey: ["categories"] });
+      Taro.showToast({ title: isEdit ? "分类已更新" : "分类已创建", icon: "success" });
+      setTimeout(() => Taro.navigateBack(), 500);
+    }, "保存中…").catch((err: any) => {
+      Taro.showToast({ title: err?.message || (isEdit ? "更新失败" : "创建失败"), icon: "none" });
+    });
   };
 
-  const saving = createMut.isPending || updateMut.isPending;
+  const handleDelete = () => {
+    run(async () => {
+      await deleteCategory(id);
+      qc.invalidateQueries({ queryKey: ["categories"] });
+      Taro.showToast({ title: "已删除", icon: "success" });
+      setTimeout(() => Taro.navigateBack(), 500);
+    }, "删除中…").catch((err: any) => {
+      Taro.showToast({ title: err?.message || "删除失败", icon: "none" });
+      setShowDelete(false);
+    });
+  };
+
   const title = isEdit ? "编辑分类" : "新建分类";
 
   return (
-    <PageLayout contentClassName="catedit-content">
+    <PageContainer bottomSpace={180} loading={isLoading} loadingText="加载中…">
       <PageHero
         eyebrow={catType === "expense" ? "支出分类" : "收入分类"}
         title={title}
@@ -211,7 +188,7 @@ export default function CategoryEdit() {
         <View className="catedit-form-row catedit-form-row--icon">
           <Text className="catedit-form-label">图标</Text>
           <View className="catedit-form-emoji-current">
-            <CategoryIcon icon={form.icon} className="catedit-form-emoji-current__icon" />
+            <CategoryIcon icon={form.icon} size={28} className="catedit-form-emoji-current__icon" />
           </View>
         </View>
       </AppSection>
@@ -267,10 +244,10 @@ export default function CategoryEdit() {
       <AppSection title="自定义图标" compact>
         <View className="catedit-custom-icons">
           <View
-            className={`catedit-custom-icon-upload ${uploadingIcon ? "catedit-custom-icon-upload--loading" : ""}`}
+            className="catedit-custom-icon-upload"
             onClick={handleUploadCustomIcon}
           >
-            <Text>{uploadingIcon ? "上传中…" : "＋ 上传图标"}</Text>
+            <Text>＋ 上传图标</Text>
           </View>
           {customIcons.map((item) => (
             <View
@@ -287,7 +264,7 @@ export default function CategoryEdit() {
               </View>
             </View>
           ))}
-          {customIcons.length === 0 && !uploadingIcon && (
+          {customIcons.length === 0 && (
             <View className="catedit-custom-empty">
               <Text>还没有自定义图标，点击「＋ 上传图标」添加</Text>
             </View>
@@ -299,20 +276,19 @@ export default function CategoryEdit() {
       <View className="catedit-actions">
         {isEdit && (
           <View
-            className={`catedit-actions__delete ${deleteMut.isPending ? "catedit-actions__delete--pending" : ""}`}
+            className="catedit-actions__delete"
             onClick={() => setShowDelete(true)}
           >
             <Text>删除</Text>
           </View>
         )}
         <View
-          className={`catedit-actions__save ${saving ? "catedit-actions__save--disabled ui-spin-row" : ""} ${
+          className={`catedit-actions__save ${
             isEdit ? "" : "catedit-actions__save--full"
           }`}
-          onClick={saving ? undefined : handleSave}
+          onClick={handleSave}
         >
-          {saving && <Spinner />}
-          <Text>{saving ? "保存中…" : isEdit ? "保存修改" : "创建分类"}</Text>
+          <Text>{isEdit ? "保存修改" : "创建分类"}</Text>
         </View>
       </View>
 
@@ -322,10 +298,10 @@ export default function CategoryEdit() {
         message="确定要删除这个分类吗？"
         confirmText="确认删除"
         danger
-        confirmLoading={deleteMut.isPending}
+        confirmLoading={false}
         onCancel={() => setShowDelete(false)}
-        onConfirm={() => deleteMut.mutate(id)}
+        onConfirm={handleDelete}
       />
-    </PageLayout>
+    </PageContainer>
   );
 }

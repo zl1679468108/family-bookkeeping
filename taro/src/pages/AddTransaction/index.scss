@@ -1,15 +1,6 @@
 /* ========== AddTransaction — 页面级样式 ========== */
-
-.addtx {
-  min-height: 100vh;
-  background: var(--bg);
-  padding-top: calc(20rpx + env(safe-area-inset-top, 0));
-  padding-bottom: calc(40rpx + env(safe-area-inset-bottom, 0));
-}
-
-.addtx-safe {
-  height: 60rpx;
-}
+/* 页面间距由 PageContainer 统一提供（横向 32rpx / 上 18rpx+安全区 / 下 32rpx+安全区），
+   迁移后不再需要 .addtx 自定义 padding。 */
 
 /* ========== 模板选择弹窗 ========== */
 .template-mask {

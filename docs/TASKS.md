@@ -85,6 +85,20 @@
 
 ### ✅ 已完成
 
+#### 2026-07-13 对齐 Taro 分类详情与 PC 端
+- **分类详情 BottomSheet**：从上下居中布局改为 PC 同款左右布局（图标居左、名称/标签居右），信息字段改为 2 列网格（label 在上 value 在下），颜色与 PC 一致（支出红、收入绿、默认灰、自定义绿）。
+- **工作台入口确认**：Taro 工作台 5 个入口（记一笔 / 账本 / 分类 / 模板 / 预算）均可在 PC 端找到对应功能（记一笔对应主菜单，其余 4 项对应「更多」组），已在注释中明确映射关系。
+- **验证**：`taro npx tsc --noEmit` 零错误；`npm run build:weapp` 通过。
+
+#### 2026-07-13 修复 Taro 邀请码加入账本 loading 卡死
+- **问题**：接口返回（含 404）后「加入中…」loading 未停止，取消/关闭按钮无响应。
+- **根因**：Books / Onboarding 中手动维护 `joining`/`submitting` 状态 + `joiningRef` + 安全定时器，在 Taro 微信运行时偶发状态不同步；且取消/关闭按钮每次渲染生成新内联函数，事件处理不稳定。
+- **修复**：
+  - 两处均改用 `@tanstack/react-query` 的 `useMutation` 管理 `isPending`，由 React Query 内部保证 loading 随 Promise settle 正确复位。
+  - Books 的取消/关闭抽出 `closeJoinSheet` 稳定 `useCallback`，关闭时调用 `joinMut.reset()` 清除可能残留的 pending 状态。
+  - 移除 `joiningRef`/`safetyTimer`/`setJoining` 等手动样板。
+- **验证**：`taro npx tsc --noEmit` 零错误；`npm run build:weapp` 通过。
+
 #### T1. 清理 tsc 报错与孤儿文件 — 完成
 #### T2. 双平台构建验证 — 完成（weapp + h5 均通过）
 #### T3. 工作台四模块对齐核查 — 完成
@@ -103,7 +117,7 @@
 ### ⏳ 待处理（低优先级，非阻断，可延后）
 
 - **Budgets**：清零单条预算无确认弹窗（易误触）；月份选择范围窄（2020~今、无搜索、不可选未来月）—— 因预算为「整月批量保存」流程，加单条确认较脆，暂延后
-- **详情弹窗交互差异**：Categories / Templates / Books 采用「点卡片直接进编辑」而非 PC 的独立只读详情弹窗（展示 ID/创建时间等元数据）—— 属交互差异，非阻断
+- **详情弹窗交互差异**：Templates 仍采用「点卡片直接进编辑」而非 PC 的独立只读详情弹窗（展示 ID/创建时间等元数据）—— 属交互差异，非阻断；**Categories 已对齐 PC 详情弹窗（2026-07-13）**
 - **Profile 主题切换**：PC 有深色模式切换，Taro 端无 —— 小程序端暂不需要，可标注为产品决策
 
 ### ✅ PC Web 自动化测试发现项（2026-07-07 已修复）

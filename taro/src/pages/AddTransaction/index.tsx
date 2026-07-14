@@ -6,19 +6,17 @@
 import { useState, useEffect } from "react";
 import { View, ScrollView, Picker, Text } from "@tarojs/components";
 import Taro from "@tarojs/taro";
-import { useTheme } from "../../context/ThemeContext";
-import { useNavBarTheme } from "../../hooks/useNavBarTheme";
+import PageContainer from "../../components/PageContainer";
 import {
   getTransaction,
   uploadReceipt,
   deleteTransaction,
+  createTransaction,
+  updateTransaction,
 } from "../../services/transactionsApi";
 import { getTemplates } from "../../services/templatesApi";
 import { useCategoryList } from "../../hooks/useCategories";
-import {
-  useCreateTransaction,
-  useUpdateTransaction,
-} from "../../hooks/useTransactions";
+import { useSubmit } from "../../hooks/useSubmit";
 import FieldRow from "../../components/form/FieldRow";
 import SectionCard from "../../components/form/SectionCard";
 import NoteField from "../../components/form/NoteField";
@@ -71,8 +69,6 @@ const parseImageList = (tx: any): string[] => {
 };
 
 export default function AddTransaction() {
-  const { isDark } = useTheme();
-  useNavBarTheme();
   const router = Taro.useRouter();
   const params = router.params as Record<string, string | undefined>;
   const editId = params.edit || "";
@@ -84,9 +80,6 @@ export default function AddTransaction() {
   useEffect(() => {
     Taro.removeStorageSync("edit_tx_id");
   }, []);
-
-  const createMut = useCreateTransaction();
-  const updateMut = useUpdateTransaction();
 
   const [type, setType] = useState<"expense" | "income">(urlType);
   const [amount, setAmount] = useState("");
@@ -109,28 +102,35 @@ export default function AddTransaction() {
   // 加载编辑数据
   useEffect(() => {
     if (isEdit) {
-      getTransaction(Number(editId)).then((data: any) => {
-        if (!data) return;
-        setAmount(String(data.amount ?? ""));
-        setCategoryId(
-          typeof data.category === "object" && data.category
-            ? data.category.id
-            : (data.category ?? data.category_id ?? ""),
-        );
-        setType(data.type ?? "expense");
-        const dateStr = data.date || "";
-        setDate(dateStr.slice(0, 10));
-        setBrand(data.brand || "");
-        setNote(data.description || "");
-        if (data.location_name || data.latitude) {
-          setLocation({
-            name: data.location_name || "",
-            latitude: data.latitude,
-            longitude: data.longitude,
-          });
-        }
-        setSavedImages(parseImageList(data));
-      });
+      Taro.showLoading({ title: "加载中…", mask: true });
+      getTransaction(Number(editId))
+        .then((data: any) => {
+          if (!data) return;
+          setAmount(String(data.amount ?? ""));
+          setCategoryId(
+            typeof data.category === "object" && data.category
+              ? data.category.id
+              : (data.category ?? data.category_id ?? ""),
+          );
+          setType(data.type ?? "expense");
+          const dateStr = data.date || "";
+          setDate(dateStr.slice(0, 10));
+          setBrand(data.brand || "");
+          setNote(data.description || "");
+          if (data.location_name || data.latitude) {
+            setLocation({
+              name: data.location_name || "",
+              latitude: data.latitude,
+              longitude: data.longitude,
+            });
+          }
+          setSavedImages(parseImageList(data));
+        })
+        .catch(() => {})
+        .then(() => {
+          // 用 .then 兜底替代 .finally，规避微信 regenerator 下偶发卡死
+          Taro.hideLoading();
+        });
     }
   }, [isEdit, editId]);
 
@@ -167,7 +167,7 @@ export default function AddTransaction() {
     }
   }, [type, categories, isEdit]); // eslint-disable-line
 
-  const isSubmitting = createMut.isPending || updateMut.isPending;
+  const { run } = useSubmit();
 
   // 分类选择
   const handlePickCategory = () => {
@@ -226,7 +226,7 @@ export default function AddTransaction() {
   };
 
   // 提交
-  const handleSubmit = async () => {
+  const handleSubmit = () => {
     if (!amount || parseFloat(amount) <= 0) {
       Taro.showToast({ title: "请输入有效金额", icon: "none" });
       return;
@@ -253,20 +253,18 @@ export default function AddTransaction() {
       payload.image_urls = JSON.stringify(savedImages);
     }
 
-    Taro.showLoading({ title: "保存中..." });
-
-    try {
+    run(async () => {
       // 1. 创建/更新交易
       let transactionId: number;
       if (isEdit) {
-        await updateMut.mutateAsync({ id: Number(editId), input: payload });
+        await updateTransaction(Number(editId), payload);
         transactionId = Number(editId);
       } else {
-        const result = await createMut.mutateAsync(payload);
+        const result = await createTransaction(payload);
         transactionId = (result as any)?.id ?? 0;
       }
 
-      // 2. 上传新图片
+      // 2. 上传新图片（保留图片上传进度的 showLoading）
       let uploadedUrls: string[] = [];
       let failedCount = 0;
       if (pendingImages.length > 0 && transactionId) {
@@ -301,9 +299,8 @@ export default function AddTransaction() {
       // 3. 合并图片 URL 并更新交易
       if (uploadedUrls.length > 0) {
         const mergedUrls = [...savedImages, ...uploadedUrls];
-        await updateMut.mutateAsync({
-          id: transactionId,
-          input: { image_urls: JSON.stringify(mergedUrls) },
+        await updateTransaction(transactionId, {
+          image_urls: JSON.stringify(mergedUrls),
         });
         setSavedImages(mergedUrls);
         setPendingImages([]);
@@ -318,24 +315,22 @@ export default function AddTransaction() {
         setPendingImages([]);
       }
 
-      Taro.hideLoading();
       Taro.showToast({
         title: isEdit ? "交易已更新" : "交易已保存",
         icon: "success",
       });
       setTimeout(() => Taro.navigateBack(), 600);
-    } catch (err: any) {
-      Taro.hideLoading();
+    }, "保存中…").catch((err: any) => {
       Taro.showToast({
         title: err?.message || "保存失败",
         icon: "none",
       });
-    }
+    });
   };
 
   return (
     <>
-    <ScrollView className={`addtx ${isDark ? "theme-dark" : ""}`} scrollY>
+    <PageContainer>
       {/* 快捷方式 — 置顶 */}
       <SectionCard title="快捷方式">
         <FieldRow
@@ -421,15 +416,13 @@ export default function AddTransaction() {
       <ActionButtons
         primaryText={isEdit ? "保存修改" : "确认添加"}
         secondaryText="取消"
-        primaryLoading={isSubmitting}
+        primaryLoading={false}
         onPrimary={handleSubmit}
         onSecondary={() => Taro.navigateBack()}
         dangerText={isEdit ? "删除此笔" : undefined}
         onDanger={isEdit ? handleDelete : undefined}
       />
-
-      <View className="addtx-safe" style="height: 60rpx;" />
-    </ScrollView>
+    </PageContainer>
 
     {/* 模板选择弹窗 */}
     {showTemplates && (

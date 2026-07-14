@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import AdminLayout from '../AdminLayout';
 import { getAdminStats, PlatformStats } from '../../../services/adminApi';
 import { StatCardsSkeleton, TableRowsSkeleton } from '../../../components/ui/Skeleton';
+import { EmptyState } from '../../../components/ui/EmptyState';
 
 const AdminDashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -90,6 +91,8 @@ const AdminDashboard: React.FC = () => {
         <div className="card__body">
           {isLoading ? (
             <TableRowsSkeleton columns={5} rows={5} />
+          ) : (stats?.recentUsers || []).length === 0 ? (
+            <EmptyState variant="compact" title="暂无注册用户" description="平台还没有用户注册" />
           ) : (
             <table className="data-table">
               <thead>

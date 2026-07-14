@@ -4,6 +4,10 @@
  * 不再渲染自定义 NavHeader，由微信系统导航栏承担标题显示。
  * 负责：下拉刷新、上拉加载、骨架屏 loading、内容容器，支持 header（吸顶插槽）。
  *
+ * 统一间距标准（对齐首页）：
+ *   横向 32rpx，顶部 calc(18rpx + safe-area-inset-top)，底部 calc(32rpx + safe-area-inset-bottom)。
+ * 子页面无需再各自定义 content padding。需要底部额外留白（固定操作栏）时用 bottomSpace。
+ *
  * Usage:
  *   <PageLayout>{content}</PageLayout>
  *   <PageLayout onRefresh={handleRefresh} refreshing={refreshing}>
@@ -14,7 +18,7 @@
  *   </PageLayout>
  *   <PageLayout header={<FilterBar/>}>{content}</PageLayout>
  */
-import { ReactNode, useCallback } from "react";
+import { ReactNode, useCallback, CSSProperties } from "react";
 import { View, Text, ScrollView } from "@tarojs/components";
 import Taro, { useDidShow } from "@tarojs/taro";
 import LoadingOverlay from "../ui/LoadingOverlay";
@@ -32,7 +36,7 @@ interface PageLayoutProps {
   loadingText?: string;
   /** 外层容器 className */
   className?: string;
-  /** 内容区 className */
+  /** 内容区 className（逃生舱，一般无需设置——间距已由 PageLayout 统一） */
   contentClassName?: string;
   /** 是否使用 flex-1 + overflow 的滚动布局（默认 true） */
   scrollable?: boolean;
@@ -50,6 +54,8 @@ interface PageLayoutProps {
   lowerThreshold?: number;
   /** 滚动回调（透传 ScrollView 的 scrollTop，用于吸顶阴影等） */
   onScroll?: (scrollTop: number) => void;
+  /** 底部额外留白（rpx），用于页面底部有固定操作栏的场景 */
+  bottomSpace?: number;
 }
 
 export default function PageLayout({
@@ -67,6 +73,7 @@ export default function PageLayout({
   loadingMore: loadingMoreProp,
   lowerThreshold = 100,
   onScroll,
+  bottomSpace,
 }: PageLayoutProps) {
   const { isDark } = useTheme();
   const themeClass = isDark ? "theme-dark" : "";
@@ -83,6 +90,11 @@ export default function PageLayout({
     // 页面显示时钩子预留
   });
 
+  // 底部额外留白（固定操作栏场景）：inline style 覆盖默认 padding-bottom
+  const contentStyle: CSSProperties | undefined = bottomSpace
+    ? { paddingBottom: `calc(${bottomSpace}rpx + env(safe-area-inset-bottom, 0))` }
+    : undefined;
+
   const enableRefresh = Boolean(onRefresh);
 
   // Loading 态（遮罩覆盖内容区，保留吸顶 header）
@@ -90,7 +102,10 @@ export default function PageLayout({
     return (
       <View className={`min-h-screen bg-bg flex flex-col page-layout ${themeClass} ${className}`}>
         {header}
-        <View className={`page-layout-content page-layout-content--overlay ${contentClassName}`}>
+        <View
+          className={`page-layout-content page-layout-content--overlay ${contentClassName}`}
+          style={contentStyle}
+        >
           <LoadingOverlay tip={loadingText || "加载中…"} />
         </View>
       </View>
@@ -104,6 +119,7 @@ export default function PageLayout({
         {header}
         <ScrollView
           className={`flex-1 overflow-y-auto page-layout-scroll ${contentClassName}`}
+          style={contentStyle}
           scrollY
           showScrollbar={false}
           refresherEnabled={enableRefresh}
@@ -114,10 +130,12 @@ export default function PageLayout({
           onRefresherRefresh={() => {
             if (onRefresh) {
               const r = onRefresh();
-              if (r && typeof (r as Promise<any>).finally === "function") {
-                (r as Promise<any>).finally(() => {
+              // ⚠️ 用 .then(成功, 失败) 双分支停转，规避微信 regenerator 下 .finally 偶发不执行导致刷新转圈卡死
+              if (r && typeof (r as Promise<any>).then === "function") {
+                const stopPD = () => {
                   if (Taro.stopPullDownRefresh) Taro.stopPullDownRefresh();
-                });
+                };
+                (r as Promise<any>).then(stopPD, stopPD);
               }
             }
           }}
@@ -149,7 +167,10 @@ export default function PageLayout({
     return (
       <View className={`min-h-screen bg-bg flex flex-col page-layout ${themeClass} ${className}`}>
         {header}
-        <View className={`flex-1 overflow-y-auto page-layout-content ${contentClassName}`}>
+        <View
+          className={`flex-1 overflow-y-auto page-layout-content ${contentClassName}`}
+          style={contentStyle}
+        >
           {children}
         </View>
       </View>
@@ -159,7 +180,9 @@ export default function PageLayout({
   return (
     <View className={`min-h-screen bg-bg flex flex-col page-layout ${themeClass} ${className}`}>
       {header}
-      <View className={`page-layout-content ${contentClassName}`}>{children}</View>
+      <View className={`page-layout-content ${contentClassName}`} style={contentStyle}>
+        {children}
+      </View>
     </View>
   );
 }

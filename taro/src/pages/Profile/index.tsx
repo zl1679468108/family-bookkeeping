@@ -9,7 +9,7 @@ import Taro from "@tarojs/taro";
 import { useAuth } from "../../context/AuthContext";
 import { useTheme } from "../../context/ThemeContext";
 import { getCaptcha } from "../../services/authApi";
-import PageLayout from "../../components/PageLayout";
+import PageContainer from "../../components/PageContainer";
 import { MenuList } from "../../components/ui";
 import {
   getSavedAccounts,
@@ -145,7 +145,7 @@ export default function Profile() {
   };
 
   return (
-    <PageLayout contentClassName="profile-content">
+    <PageContainer contentClassName="profile-content">
       {/* ===== 用户 Header ===== */}
       <View
         className="profile-header"
@@ -170,7 +170,7 @@ export default function Profile() {
         items={[
           {
             label: "切换主题",
-            icon: "settings",
+            icon: isDark ? "moon" : "sun",
             right: (
               <View className="theme-toggle" onClick={(e) => { e.stopPropagation(); toggleTheme(); }}>
                 <Text className={`theme-toggle__label ${isDark ? "theme-toggle__label--dark" : ""}`}>
@@ -185,12 +185,12 @@ export default function Profile() {
           },
           {
             label: "切换账号",
-            icon: "profile",
+            icon: "switch-account",
             onClick: handleOpenSwitch,
           },
           {
             label: "关于静记",
-            icon: "settings",
+            icon: "info",
             onClick: () => Taro.navigateTo({ url: "/pages/About/index" }),
           },
           {
@@ -348,6 +348,6 @@ export default function Profile() {
           </View>
         </View>
       )}
-    </PageLayout>
+    </PageContainer>
   );
 }

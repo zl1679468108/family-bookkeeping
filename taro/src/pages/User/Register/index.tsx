@@ -7,7 +7,7 @@ import Taro from "@tarojs/taro";
 import { useAuth } from "../../../context/AuthContext";
 import { useTheme } from "../../../context/ThemeContext";
 import { useNavBarTheme } from "../../../hooks/useNavBarTheme";
-import { ApiError } from "../../../services/api";
+import { useSubmit } from "../../../hooks/useSubmit";
 import "./index.scss";
 
 export default function Register() {
@@ -18,10 +18,10 @@ export default function Register() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
-  const [submitting, setSubmitting] = useState(false);
   const { signUp } = useAuth();
+  const { run } = useSubmit();
 
-  const handleSubmit = async () => {
+  const handleSubmit = () => {
     if (!username.trim() || !email.trim() || !password) {
       setError("请填写所有必填项");
       return;
@@ -35,15 +35,12 @@ export default function Register() {
       return;
     }
     setError("");
-    setSubmitting(true);
-    try {
+    run(async () => {
       await signUp(email.trim(), password, username.trim());
       Taro.reLaunch({ url: "/pages/Home/index" });
-    } catch (err) {
-      setError(err instanceof ApiError ? err.message : "注册失败，请稍后重试");
-    } finally {
-      setSubmitting(false);
-    }
+    }, "注册中…").catch((err: any) => {
+      Taro.showToast({ title: err?.message || "注册失败", icon: "none" });
+    });
   };
 
   return (
@@ -111,11 +108,8 @@ export default function Register() {
 
         {error ? <Text className="register-error">{error}</Text> : null}
 
-        <View
-          className={`register-submit ${submitting ? "opacity-60" : ""}`}
-          onClick={() => !submitting && handleSubmit()}
-        >
-          <Text>{submitting ? "注册中..." : "注册"}</Text>
+        <View className="register-submit" onClick={handleSubmit}>
+          <Text>注册</Text>
         </View>
 
         <View className="register-footer">

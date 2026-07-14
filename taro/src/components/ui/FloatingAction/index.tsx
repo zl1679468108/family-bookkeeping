@@ -18,7 +18,7 @@ export default function FloatingAction({
 }: FloatingActionProps) {
   return (
     <View className="floating-action" onClick={onClick}>
-      {children || <Icon name={icon} size={38} />}
+      {children || <Icon name={icon} size={48} />}
       {label ? <Text className="floating-action__label">{label}</Text> : null}
     </View>
   );

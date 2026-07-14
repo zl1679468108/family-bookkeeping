@@ -5,6 +5,7 @@ import { formatAmountWithType } from '../../../../utils/common';
 import { useCategoryLookup } from '../../../../hooks/useCategories';
 import { fetchMerchantTransactions } from '../../../../services/mapApi';
 import { Skeleton } from '../../../../components/ui/Skeleton';
+import { EmptyState } from '../../../../components/ui/EmptyState';
 import './index.scss';
 
 interface TransactionHistoryModalProps {
@@ -77,7 +78,7 @@ export const TransactionHistoryModal: React.FC<TransactionHistoryModalProps> = (
               ))}
             </div>
           ) : filtered.length === 0 ? (
-            <div className="merchant-history-empty">暂无交易记录</div>
+            <EmptyState variant="compact" title="暂无交易记录" />
           ) : (
             filtered.map((tx) => (
               <div key={tx.id} className={`merchant-history-item ${tx.type}`}>

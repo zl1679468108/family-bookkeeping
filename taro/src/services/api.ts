@@ -93,9 +93,16 @@ const tryRefresh = (): Promise<{ accessToken: string; refreshToken: string }> =>
       );
       storeTokens(data.accessToken, data.refreshToken);
       return data;
-    })().finally(() => {
-      refreshPromise = null;
-    });
+    })().then(
+      (v) => {
+        refreshPromise = null;
+        return v;
+      },
+      (e) => {
+        refreshPromise = null;
+        throw e;
+      },
+    );
   }
   return refreshPromise;
 };

@@ -22,7 +22,10 @@
   width: 100%;
   flex: 1;
   overflow-y: auto;
-  padding: calc(24rpx + env(safe-area-inset-top, 0)) 32rpx calc(140rpx + env(safe-area-inset-bottom, 0));
+  /* 统一页面间距标准（对齐首页）：
+     横向 32rpx，顶部 calc(18rpx + 安全区)，底部 calc(32rpx + 安全区)。
+     子页面不再各自定义 content padding，需额外底部留白时用 PageLayout 的 bottomSpace。 */
+  padding: calc(18rpx + env(safe-area-inset-top, 0)) 32rpx calc(32rpx + env(safe-area-inset-bottom, 0));
   box-sizing: border-box;
 }
 

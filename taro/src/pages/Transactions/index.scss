@@ -1,15 +1,12 @@
 /* ═══════════════ 流水页 Transactions ═══════════════ */
 
-.txns-content {
-  padding-top: env(safe-area-inset-top, 0);
-}
-
 /* ========== 筛选区：搜索(第1行) + Picker(第2行) + 统计摘要(第3行) ========== */
-/* 整体卡片左右内缩 32rpx，与下方交易列表卡片的左右间距保持一致（对齐首页标准） */
 .filter-card {
   z-index: 10;
-  margin: 0 32rpx;
-  padding: 16rpx 0 0;
+  margin: 0;
+  /* header 插槽在 ScrollView 外部，不受 PageLayout 默认 32rpx 水平 padding 管辖，
+     需自行补齐以与下方内容区对齐 */
+  padding: 16rpx 32rpx 0;
   transition: box-shadow 0.2s ease;
 
   &.scrolled {
@@ -124,7 +121,7 @@
   background: var(--surface, #fff);
   border-radius: 24rpx;
   padding: 28rpx 24rpx;
-  margin: 20rpx 32rpx 0;
+  margin: 20rpx 0 0;
 }
 
 /* ========== 日期分组标题 ========== */
@@ -167,7 +164,7 @@
 /* ========== 列表底部提示 ========== */
 .list-footer {
   text-align: center;
-  padding: 36rpx 32rpx 48rpx;
+  padding: 36rpx 0 48rpx;
 }
 
 .footer-text {

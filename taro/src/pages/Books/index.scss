@@ -9,7 +9,6 @@
  * ========================================================= */
 
 .bk-content {
-  padding: calc(16rpx + env(safe-area-inset-top, 0)) 32rpx calc(24rpx + env(safe-area-inset-bottom, 0)) !important;
   display: flex;
   flex-direction: column;
   gap: 16rpx;

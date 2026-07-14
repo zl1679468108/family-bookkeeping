@@ -2,6 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import type { MerchantSummary } from '../../../../types/map';
 import { SearchInput } from '../../../../components/ui/Input';
 import { Skeleton } from '../../../../components/ui/Skeleton';
+import { EmptyState } from '../../../../components/ui/EmptyState';
 import './index.scss';
 
 interface MerchantDrawerProps {
@@ -173,13 +174,11 @@ export const MerchantDrawer: React.FC<MerchantDrawerProps> = ({
             ))}
           </div>
         ) : filtered.length === 0 ? (
-          <div className="merchant-drawer__empty">
-            <div className="merchant-drawer__empty-icon">🏪</div>
-            <div className="merchant-drawer__empty-title">暂无商户数据</div>
-            <div className="merchant-drawer__empty-desc">
-              {search ? '未找到匹配的商户，试试其他关键词' : '记一笔时添加位置信息，系统会自动按商户聚合'}
-            </div>
-          </div>
+          <EmptyState
+            variant="compact"
+            title="暂无商户数据"
+            description={search ? '未找到匹配的商户，试试其他关键词' : '记一笔时添加位置信息，系统会自动按商户聚合'}
+          />
         ) : (
           pageItems.map((m, idx) => {
             const key = getKey(m);

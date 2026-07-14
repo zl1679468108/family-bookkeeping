@@ -11,6 +11,7 @@ import Taro from "@tarojs/taro";
 import { apiGet } from "../../services/api";
 import { useManualQuery } from "../../hooks/useManualQuery";
 import SheetHeader from "../SheetHeader";
+import { Spinner } from "../ui";
 import "./index.scss";
 
 export interface LocationResult {
@@ -166,7 +167,7 @@ export default function LocationPicker({
   };
 
   // POI 搜索
-  const { data: searchResults } = useManualQuery<
+  const { data: searchResults, isLoading: searching } = useManualQuery<
     Array<{
       name: string;
       address: string;
@@ -254,9 +255,13 @@ export default function LocationPicker({
         </View>
 
         {/* Search Results */}
-        {searchResults &&
-          searchResults.length > 0 &&
-          searchText.length >= 2 && (
+        {searchText.length >= 2 &&
+          (searching ? (
+            <View className="lp-results lp-results--hint">
+              <Spinner />
+              <Text className="lp-results-tip">搜索中…</Text>
+            </View>
+          ) : searchResults && searchResults.length > 0 ? (
             <View className="lp-results">
               {searchResults.slice(0, 8).map((item: any, i: number) => (
                 <View
@@ -269,7 +274,11 @@ export default function LocationPicker({
                 </View>
               ))}
             </View>
-          )}
+          ) : (
+            <View className="lp-results lp-results--hint">
+              <Text className="lp-results-tip">无搜索结果</Text>
+            </View>
+          ))}
 
         {/* Map */}
         <View className="lp-map-wrap">

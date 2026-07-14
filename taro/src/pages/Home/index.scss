@@ -4,10 +4,6 @@
    ═════════════════════════════════ */
 
 /* ── 主内容区间距 ── */
-.home-content {
-  padding: calc(18rpx + env(safe-area-inset-top, 0)) 32rpx calc(32rpx + env(safe-area-inset-bottom, 0));
-}
-
 /* 三列指标 — 统一视觉 */
 .home-metrics {
   margin-bottom: 24rpx;
@@ -226,13 +222,6 @@
   display: flex;
   align-items: center;
   gap: 10rpx;
-}
-
-/* budget-card__empty-link 仍被 EmptyState action 复用 */
-.budget-card__empty-link {
-  font-size: 25rpx;
-  color: var(--pr, #2d9d8a);
-  font-weight: 600;
 }
 
 /* ═════════════════════════════════

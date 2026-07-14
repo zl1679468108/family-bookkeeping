@@ -24,6 +24,7 @@ const BooksPage: React.FC = () => {
     inviteEmail, setInviteEmail,
     generatedInviteCode, showInviteCodeModal, setShowInviteCodeModal,
     members,
+    membersLoading,
     inviteMutation, inviteCodeMutation,
     deleteMutation, removeMemberMutation,
     handleCreateSuccess,
@@ -84,6 +85,7 @@ const BooksPage: React.FC = () => {
         selectedBook={selectedBook}
         currentBook={currentBook}
         members={members}
+        loadingMembers={membersLoading}
         inviteCodeMutationPending={inviteCodeMutation.isPending}
         onClose={() => { setShowDetail(false); setSelectedBook(null); }}
         onInviteMember={() => setShowInviteMemberModal(true)}

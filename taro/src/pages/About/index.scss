@@ -1,8 +1,7 @@
 /* ═══ About 关于页面样式 ═══ */
 
-/* 内容区 */
+/* 内容区（间距由 PageContainer 统一提供，这里只保留布局属性） */
 .about-content {
-  padding: calc(24rpx + env(safe-area-inset-top, 0)) 32rpx calc(32rpx + env(safe-area-inset-bottom, 0));
   display: flex;
   flex-direction: column;
   gap: 20rpx;
@@ -88,7 +87,7 @@
 
 /* ========== 卡片通用 ========== */
 .about-card {
-  background: var(--srfSoft);
+  background: var(--srf);
   border: 1rpx solid var(--bd);
   border-radius: 28rpx;
   box-shadow: 0 10rpx 28rpx rgba(36, 49, 45, 0.035);
@@ -141,7 +140,7 @@
   height: 18rpx;
   border-radius: 50%;
   background: var(--fg3);
-  border: 3rpx solid var(--srfSoft);
+  border: 3rpx solid var(--srf);
   z-index: 1;
 }
 

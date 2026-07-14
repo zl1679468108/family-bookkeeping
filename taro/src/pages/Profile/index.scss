@@ -10,7 +10,6 @@
 
 /* ========== 主内容区 ========== */
 .profile-content {
-  padding: calc(24rpx + env(safe-area-inset-top, 0)) 32rpx calc(48rpx + env(safe-area-inset-bottom, 0));
   display: flex;
   flex-direction: column;
   gap: 28rpx;

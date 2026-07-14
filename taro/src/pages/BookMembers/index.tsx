@@ -4,7 +4,9 @@
 import { useState } from "react";
 import { View, Text, Input } from "@tarojs/components";
 import Taro, { getCurrentInstance } from "@tarojs/taro";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
+import { useManualQuery } from "../../hooks/useManualQuery";
+import { useSubmit } from "../../hooks/useSubmit";
 import {
   fetchBookMembers,
   removeMember,
@@ -12,14 +14,21 @@ import {
   checkOwner,
   createInvitation,
 } from "../../services/booksApi";
-import { Spinner } from "../../components/ui";
 import ConfirmDialog from "../../components/ConfirmDialog";
-import PageLayout from "../../components/PageLayout";
+import PageContainer from "../../components/PageContainer";
+
+interface Member {
+  id: string;
+  email: string;
+  username?: string;
+  role: "owner" | "member";
+}
 
 export default function BookMembers() {
   const router = getCurrentInstance().router;
   const bookId = (router?.params?.id as string) || "";
   const qc = useQueryClient();
+  const { run } = useSubmit();
 
   const [removeTarget, setRemoveTarget] = useState<{
     userId: string;
@@ -29,61 +38,60 @@ export default function BookMembers() {
   const [showInvite, setShowInvite] = useState(false);
   const [inviteCode, setInviteCode] = useState<string | null>(null);
 
-  const inviteCodeMut = useMutation({
-    mutationFn: () => createInvitation(bookId),
-    onSuccess: (res) => {
+  const handleGenerateCode = () => {
+    run(async () => {
+      const res = await createInvitation(bookId);
       setInviteCode(res.code);
       Taro.setClipboardData({ data: res.code });
       Taro.showToast({ title: "邀请码已复制", icon: "success" });
-    },
-    onError: (err: any) => {
-      Taro.showToast({ title: err.message || "生成失败", icon: "none" });
-    },
-  });
+    }, "生成中…").catch((err: any) => {
+      Taro.showToast({ title: err?.message || "生成失败", icon: "none" });
+    });
+  };
 
-  const { data: members = [], isLoading } = useQuery({
-    queryKey: ["books", bookId, "members"],
+  const { data: members = [], isLoading } = useManualQuery<Member[]>({
+    key: `bookMembers-${bookId}`,
     queryFn: () => fetchBookMembers(bookId),
     enabled: !!bookId,
   });
 
-  const { data: ownerCheck } = useQuery({
-    queryKey: ["books", bookId, "owner"],
+  const { data: ownerCheck, isLoading: ownerLoading } = useManualQuery({
+    key: `bookOwner-${bookId}`,
     queryFn: () => checkOwner(bookId),
     enabled: !!bookId,
   });
   const isOwner = ownerCheck?.isOwner ?? false;
 
-  const removeMut = useMutation({
-    mutationFn: (userId: string) => removeMember(bookId, userId),
-    onSuccess: () => {
+  const handleRemove = () => {
+    if (!removeTarget) return;
+    run(async () => {
+      await removeMember(bookId, removeTarget.userId);
       Taro.showToast({ title: "成员已移除", icon: "success" });
       setRemoveTarget(null);
       qc.invalidateQueries({ queryKey: ["books", bookId, "members"] });
-    },
-    onError: (err: any) => {
-      Taro.showToast({ title: err.message || "移除失败", icon: "none" });
+    }, "移除中…").catch((err: any) => {
+      Taro.showToast({ title: err?.message || "移除失败", icon: "none" });
       setRemoveTarget(null);
-    },
-  });
+    });
+  };
 
-  const inviteMut = useMutation({
-    mutationFn: (email: string) => inviteMember(bookId, email),
-    onSuccess: () => {
+  const handleInvite = () => {
+    if (!inviteEmail.trim()) return;
+    run(async () => {
+      await inviteMember(bookId, inviteEmail.trim());
       Taro.showToast({ title: "邀请已发送", icon: "success" });
       setInviteEmail("");
       setShowInvite(false);
       qc.invalidateQueries({ queryKey: ["books", bookId, "members"] });
-    },
-    onError: (err: any) => {
-      Taro.showToast({ title: err.message || "邀请失败", icon: "none" });
+    }, "发送中…").catch((err: any) => {
+      Taro.showToast({ title: err?.message || "邀请失败", icon: "none" });
       setShowInvite(false);
-    },
-  });
+    });
+  };
 
   return (
-    <PageLayout contentClassName="bm-content" loading={isLoading} loadingText="加载中…">
-      <View style={{ padding: "24rpx 32rpx" }}>
+    <PageContainer loading={isLoading || ownerLoading} loadingText="加载中…">
+      <View style={{ padding: "0" }}>
         {/* Invite section */}
         {isOwner && (
           <View
@@ -147,15 +155,9 @@ export default function BookMembers() {
                     gap: "12rpx",
                     borderRadius: "16rpx",
                     backgroundColor: "var(--pr)",
-                    opacity: inviteMut.isPending ? 0.6 : 1,
                   }}
-                  onClick={() => {
-                    if (inviteMut.isPending) return;
-                    if (inviteEmail.trim())
-                      inviteMut.mutate(inviteEmail.trim());
-                  }}
+                  onClick={handleInvite}
                 >
-                    {inviteMut.isPending && <Spinner />}
                     <Text
                       style={{
                         fontSize: "28rpx",
@@ -163,7 +165,7 @@ export default function BookMembers() {
                         fontWeight: 500,
                       }}
                     >
-                      {inviteMut.isPending ? "发送中..." : "发送邀请"}
+                      发送邀请
                     </Text>
                   </View>
                 </View>
@@ -202,12 +204,8 @@ export default function BookMembers() {
                     borderRadius: "16rpx",
                     backgroundColor: "var(--prBg)",
                   }}
-                  onClick={() => {
-                    if (inviteCodeMut.isPending) return;
-                    inviteCodeMut.mutate();
-                  }}
+                  onClick={handleGenerateCode}
                 >
-                  {inviteCodeMut.isPending && <Spinner />}
                   <Text
                     style={{
                       fontSize: "28rpx",
@@ -215,7 +213,7 @@ export default function BookMembers() {
                       fontWeight: 500,
                     }}
                   >
-                    {inviteCodeMut.isPending ? "生成中..." : "🔗 生成邀请码"}
+                    🔗 生成邀请码
                   </Text>
                 </View>
 
@@ -399,10 +397,9 @@ export default function BookMembers() {
         title="确认移除"
         message={`确定要移除成员「${removeTarget?.name}」吗？`}
         confirmText="确认移除"
-        confirmLoading={removeMut.isPending}
         onCancel={() => setRemoveTarget(null)}
-        onConfirm={() => removeTarget && removeMut.mutate(removeTarget.userId)}
+        onConfirm={handleRemove}
       />
-    </PageLayout>
+    </PageContainer>
   );
 }

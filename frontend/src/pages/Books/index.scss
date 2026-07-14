@@ -177,6 +177,14 @@
   color: var(--fg);
 }
 
+.member-section-count {
+  font-size: 12px;
+  color: var(--fg3);
+  background: var(--bg-soft, var(--srf));
+  padding: 2px 10px;
+  border-radius: 999px;
+}
+
 .member-list {
   display: flex;
   flex-direction: column;

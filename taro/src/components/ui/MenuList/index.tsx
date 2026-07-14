@@ -31,7 +31,7 @@ export default function MenuList({ items, className = "" }: MenuListProps) {
         >
           {item.icon ? (
             <View className="menu-list__icon">
-              <Icon name={item.icon} size={40} />
+              <Icon name={item.icon} size={48} />
             </View>
           ) : null}
           <Text className="menu-list__label">{item.label}</Text>

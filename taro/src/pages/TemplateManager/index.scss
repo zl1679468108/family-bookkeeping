@@ -5,11 +5,6 @@
  * ========================================================= */
 
 /* ========== 页面容器 ========== */
-.tpl-content {
-  min-height: 100vh;
-  background-color: var(--bg, #f6f7f4);
-}
-
 /* ========== 顶部工具栏（对齐 cats-tabs-card / bdg-toolbar：无外层卡片） ========== */
 .tpl-toolbar {
   display: flex;
