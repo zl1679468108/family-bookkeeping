@@ -117,3 +117,41 @@ body {
   background: var(--bd);
   border-radius: 3px;
 }
+
+/* ════════════════════════════════════════════════════
+   统一数据表格面板
+   表头固定(sticky) + 内容滚动 + 底部分页固定
+   用法：
+   <div className="data-table-panel [data-table-panel--xxx]">
+     <div className="data-table-panel__scroll"><table className="data-table">…</table></div>
+     <div className="data-table-panel__footer"><Pagination … /></div>
+   </div>
+   ════════════════════════════════════════════════════ */
+.data-table-panel {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--srf);
+  border: 1px solid var(--bd);
+  border-radius: var(--rm);
+}
+
+.data-table-panel__scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+}
+
+.data-table-panel__footer {
+  flex: 0 0 auto;
+  padding: 10px 16px;
+  background: var(--srf);
+}
+
+/* 面板内表格：表头吸顶 */
+.data-table-panel__scroll .data-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-5);
+  background: var(--srf);
+}

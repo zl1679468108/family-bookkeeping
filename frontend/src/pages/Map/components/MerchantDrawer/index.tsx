@@ -3,6 +3,7 @@ import type { MerchantSummary } from '../../../../types/map';
 import { SearchInput } from '../../../../components/ui/Input';
 import { Skeleton } from '../../../../components/ui/Skeleton';
 import { EmptyState } from '../../../../components/ui/EmptyState';
+import { Pagination } from '../../../../components/ui/Pagination';
 import './index.scss';
 
 interface MerchantDrawerProps {
@@ -24,6 +25,7 @@ export const MerchantDrawer: React.FC<MerchantDrawerProps> = ({
 }) => {
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(PAGE_SIZE);
   const [selectedKeys, setSelectedKeys] = useState<Set<string>>(new Set());
 
   // 搜索变化时重置页码
@@ -39,11 +41,11 @@ export const MerchantDrawer: React.FC<MerchantDrawerProps> = ({
   }, [merchants, search]);
 
   // 分页切片
-  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
   const currentPage = Math.min(page, totalPages);
   const pageItems = filtered.slice(
-    (currentPage - 1) * PAGE_SIZE,
-    currentPage * PAGE_SIZE
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize
   );
 
   // 汇总统计
@@ -240,27 +242,16 @@ export const MerchantDrawer: React.FC<MerchantDrawerProps> = ({
       </div>
 
       {/* 分页 */}
-      {filtered.length > PAGE_SIZE && (
-        <div className="merchant-drawer__pagination">
-          <button
-            className="merchant-drawer__page-btn"
-            disabled={currentPage === 1}
-            onClick={() => setPage((p) => Math.max(1, p - 1))}
-          >
-            上一页
-          </button>
-          <span className="merchant-drawer__page-info">
-            第 <strong>{currentPage}</strong> / {totalPages} 页
-          </span>
-          <button
-            className="merchant-drawer__page-btn"
-            disabled={currentPage === totalPages}
-            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-          >
-            下一页
-          </button>
-        </div>
-      )}
+      <Pagination
+        page={currentPage}
+        pageSize={pageSize}
+        total={filtered.length}
+        onChange={setPage}
+        onPageSizeChange={setPageSize}
+        pageSizeOptions={[10, 20, 50]}
+        showSizeChanger={filtered.length > PAGE_SIZE}
+        align="center"
+      />
     </div>
   );
 };

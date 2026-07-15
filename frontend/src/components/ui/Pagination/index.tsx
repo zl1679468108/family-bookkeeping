@@ -1,20 +1,46 @@
 import React from 'react'
+import { DropdownSelect } from '../Dropdown'
+
+/** 默认每页条数 */
+export const DEFAULT_PAGE_SIZE = 20
+/** 默认每页条数可选项 */
+export const DEFAULT_PAGE_SIZE_OPTIONS = [20, 50, 100]
 
 /**
- * 通用分页器组件
+ * 通用分页器组件（全局）
  *
- * 用法：
+ * 两种用法：
+ *
+ * ① 旧式（仅上下页，传总页数）：
+ *  <Pagination page={page} totalPages={totalPages} onChange={setPage} />
+ *
+ * ② 新式（带每页条数下拉，传总条数）：
  *  <Pagination
  *    page={page}
- *    totalPages={totalPages}
+ *    pageSize={pageSize}            // 默认 20
+ *    total={total}                 // 总条数（传了即启用 20/50/100 下拉）
  *    onChange={setPage}
- *    info={`第 ${page} / ${totalPages} 页 · 共 ${total} 条`}
+ *    onPageSizeChange={setPageSize} // 切换条数后会自动回到第 1 页
  *  />
  */
 interface PaginationProps {
+  /** 当前页码（1-based） */
   page: number
-  totalPages: number
+  /** 当前每页条数，默认 20 */
+  pageSize?: number
+  /** 总条数：传入即启用「每页条数」下拉并自动计算总页数 */
+  total?: number
+  /** 兼容旧用法：直接传总页数（无 total 时生效） */
+  totalPages?: number
+  /** 页码变化回调 */
   onChange: (page: number) => void
+  /** 每页条数变化回调（切换条数后会自动回到第 1 页） */
+  onPageSizeChange?: (size: number) => void
+  /** 是否显示「每页条数」下拉，默认：传了 total 即为 true */
+  showSizeChanger?: boolean
+  /** 每页条数可选项，默认 [20, 50, 100] */
+  pageSizeOptions?: number[]
+  /** 自定义信息文案，缺省时按 total 自动生成「共 X 条」 */
   info?: React.ReactNode
   className?: string
   style?: React.CSSProperties
@@ -23,35 +49,84 @@ interface PaginationProps {
 
 export const Pagination: React.FC<PaginationProps> = ({
   page,
+  pageSize = DEFAULT_PAGE_SIZE,
+  total,
   totalPages,
   onChange,
+  onPageSizeChange,
+  showSizeChanger,
+  pageSizeOptions = DEFAULT_PAGE_SIZE_OPTIONS,
   info,
   className = '',
   style,
   align = 'right',
 }) => {
-  if (totalPages <= 1 && !info) return null
+  // 总页数：优先用 total 计算，否则回退到 totalPages
+  const computedTotalPages = total !== undefined
+    ? Math.max(1, Math.ceil(total / pageSize))
+    : (totalPages ?? 1)
+
+  // 每页条数下拉：传了 total 默认显示，可显式关闭
+  const showSize = showSizeChanger !== false && total !== undefined
+
+  const needShow = computedTotalPages > 1 || showSize || !!info
+  if (!needShow) return null
+
+  const sizeOptions = pageSizeOptions.map((s) => ({
+    key: String(s),
+    label: `${s} 条/页`,
+  }))
+
+  const handleSizeChange = (key: string) => {
+    const size = Number(key)
+    onPageSizeChange?.(size)
+    onChange(1) // 切换每页条数后回到第一页
+  }
+
+  const defaultInfo = total !== undefined ? `共 ${total} 条` : null
 
   return (
     <div
       className={`pagination-bar pagination-bar--${align} ${className}`.trim()}
       style={style}
     >
-      <button
-        className="pagination-btn"
-        disabled={page <= 1}
-        onClick={() => onChange(Math.max(1, page - 1))}
-      >
-        上一页
-      </button>
-      {info && <span className="pagination-info">{info}</span>}
-      <button
-        className="pagination-btn"
-        disabled={page >= totalPages}
-        onClick={() => onChange(Math.min(totalPages, page + 1))}
-      >
-        下一页
-      </button>
+      {info !== undefined ? info : defaultInfo}
+
+      <div className="pagination-controls">
+        <button
+          className="pagination-btn"
+          disabled={page <= 1}
+          onClick={() => onChange(Math.max(1, page - 1))}
+        >
+          上一页
+        </button>
+
+        {total !== undefined && (
+          <span className="pagination-current">第 {page} / {computedTotalPages} 页</span>
+        )}
+
+        <button
+          className="pagination-btn"
+          disabled={page >= computedTotalPages}
+          onClick={() => onChange(Math.min(computedTotalPages, page + 1))}
+        >
+          下一页
+        </button>
+
+        {showSize && (
+          <div className="pagination-size">
+            <span className="pagination-size__label">每页</span>
+            <DropdownSelect
+              options={sizeOptions}
+              value={String(pageSize)}
+              onChange={handleSizeChange}
+              allowClear={false}
+              width={108}
+              align="right"
+            />
+          </div>
+        )}
+      </div>
     </div>
   )
 }

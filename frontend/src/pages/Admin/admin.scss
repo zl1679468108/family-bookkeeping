@@ -232,6 +232,11 @@
   display: block;
 }
 
+/* 统一表格面板高度（管理后台，视口减去顶部栏/筛选高度） */
+.data-table-panel--admin {
+  max-height: calc(100vh - 220px);
+}
+
 /* ============ 操作按钮组 ============ */
 .action-buttons {
   display: flex;

@@ -3,7 +3,7 @@
 .pagination-bar {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 16px;
   padding: 16px 0;
 }
 
@@ -17,6 +17,35 @@
 
 .pagination-bar--left {
   justify-content: flex-start;
+}
+
+/* 右侧操作组：上/下页 + 当前页 + 每页条数 */
+.pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pagination-current {
+  font-size: 12px;
+  color: var(--fg3);
+  font-family: var(--fm);
+  white-space: nowrap;
+}
+
+.pagination-size {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: 8px;
+  padding-left: 12px;
+  border-left: 1px solid var(--bd);
+}
+
+.pagination-size__label {
+  font-size: 12px;
+  color: var(--fg3);
+  white-space: nowrap;
 }
 
 .pagination-btn {

@@ -28,7 +28,7 @@ const AdminTransactions: React.FC = () => {
   const [typeFilter, setTypeFilter] = useState('');
   const [bookFilter, setBookFilter] = useState('');
   const [userFilter, setUserFilter] = useState('');
-  const pageSize = 20;
+  const [pageSize, setPageSize] = useState(20);
 
   const [previewImages, setPreviewImages] = useState<string[]>([]);
   const [showPreview, setShowPreview] = useState(false);
@@ -48,7 +48,7 @@ const AdminTransactions: React.FC = () => {
   const booksForSelect = booksData?.books || [];
 
   const { data, isLoading, error } = useQuery<AdminTransactionsResponse>({
-    queryKey: ['admin', 'transactions', page, debouncedSearch, typeFilter, bookFilter, userFilter],
+    queryKey: ['admin', 'transactions', page, debouncedSearch, typeFilter, bookFilter, userFilter, pageSize],
     queryFn: () =>
       getAdminTransactions({
         page,
@@ -70,7 +70,6 @@ const AdminTransactions: React.FC = () => {
     window.open(url, '_blank');
   };
 
-  const totalPages = data?.totalPages || 1;
   const total = data?.total || 0;
 
   const bookOptions = booksForSelect.map((b) => ({ key: b.id, label: b.name }));
@@ -130,7 +129,7 @@ const AdminTransactions: React.FC = () => {
         </FilterBar>
       </div>
 
-      <Card padding="none">
+      <Card padding="none" className="data-table-panel data-table-panel--admin">
         {isLoading ? (
           <div className="data-table-wrapper">
             <TableRowsSkeleton columns={9} rows={10} />
@@ -141,7 +140,7 @@ const AdminTransactions: React.FC = () => {
           <EmptyState title="暂无交易记录" variant="compact" />
         ) : (
           <>
-            <div className="data-table-wrapper">
+            <div className="data-table-panel__scroll">
               <table className="data-table">
                 <thead>
                   <tr>
@@ -217,12 +216,15 @@ const AdminTransactions: React.FC = () => {
               </table>
             </div>
 
-            <Pagination
-              page={page}
-              totalPages={totalPages}
-              onChange={setPage}
-              info={`第 ${page} / ${totalPages} 页 · 共 ${total} 条`}
-            />
+            <div className="data-table-panel__footer">
+              <Pagination
+                page={page}
+                pageSize={pageSize}
+                total={total}
+                onChange={setPage}
+                onPageSizeChange={setPageSize}
+              />
+            </div>
           </>
         )}
       </Card>

@@ -36,10 +36,10 @@ const AdminUsers: React.FC = () => {
   const [password, setPassword] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
 
-  const pageSize = 20;
+  const [pageSize, setPageSize] = useState(20);
 
   const { data, isLoading } = useQuery({
-    queryKey: ['admin', 'users', page, debouncedSearch, roleFilter, statusFilter],
+    queryKey: ['admin', 'users', page, debouncedSearch, roleFilter, statusFilter, pageSize],
     queryFn: () =>
       getAdminUsers({
         page,
@@ -98,7 +98,6 @@ const AdminUsers: React.FC = () => {
     setActionType('status');
   };
 
-  const totalPages = data?.totalPages || 1;
   const total = data?.total || 0;
 
   const roleOptions = [
@@ -234,9 +233,10 @@ const AdminUsers: React.FC = () => {
 
             <Pagination
               page={page}
-              totalPages={totalPages}
+              pageSize={pageSize}
+              total={total}
               onChange={setPage}
-              info={`第 ${page} / ${totalPages} 页 · 共 ${total} 条`}
+              onPageSizeChange={setPageSize}
             />
           </>
         )}

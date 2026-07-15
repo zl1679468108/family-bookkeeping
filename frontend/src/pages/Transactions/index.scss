@@ -255,3 +255,8 @@
   color: var(--accent);
   font-weight: 600;
 }
+
+/* 统一表格面板高度（视口减去筛选栏与页面内边距） */
+.data-table-panel--txn {
+  max-height: calc(100vh - 100px);
+}

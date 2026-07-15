@@ -49,6 +49,7 @@ const Transactions: React.FC = () => {
   const [categoryFilter, setCategoryFilter] = useState<string>('')
   const [search, setSearch] = useState('')
   const [page, setPage] = useState(1)
+  const [pageSize, setPageSize] = useState(PAGE_SIZE)
   const debouncedSearch = useDebounce(search, 800)
 
   const categoryOptions: DropdownOption[] = useMemo(() => {
@@ -113,7 +114,7 @@ const Transactions: React.FC = () => {
   }, [dateFilter, monthStart])
 
   const { data: paginated, isLoading } = useQuery({
-    queryKey: ['transactions', typeFilter, categoryFilter, effectiveStartDate, todayStr, debouncedSearch, page],
+    queryKey: ['transactions', typeFilter, categoryFilter, effectiveStartDate, todayStr, debouncedSearch, page, pageSize],
     queryFn: () => getTransactions({
       type: (typeFilter || undefined) as 'income' | 'expense' | undefined,
       category: categoryFilter || undefined,
@@ -121,13 +122,12 @@ const Transactions: React.FC = () => {
       endDate: todayStr,
       search: debouncedSearch || undefined,
       page,
-      pageSize: PAGE_SIZE,
+      pageSize,
     }),
   })
 
   const transactions = paginated?.data || []
   const total = paginated?.total || 0
-  const totalPages = Math.ceil(total / PAGE_SIZE)
   const totalExpense = transactions
     .filter(t => t.type === 'expense')
     .reduce((sum, t) => sum + Number(t.amount), 0)
@@ -231,8 +231,8 @@ const Transactions: React.FC = () => {
           />
         </Card>
       ) : (
-        <>
-          <Card>
+        <div className="data-table-panel data-table-panel--txn">
+          <div className="data-table-panel__scroll">
             <table className="data-table txn-table">
               <thead>
                 <tr>
@@ -284,17 +284,18 @@ const Transactions: React.FC = () => {
                 })}
               </tbody>
             </table>
-          </Card>
+          </div>
 
-          {totalPages > 1 && (
+          <div className="data-table-panel__footer">
             <Pagination
               page={page}
-              totalPages={totalPages}
-              info={`第 ${page} / ${totalPages} 页 · 共 ${total} 条`}
+              pageSize={pageSize}
+              total={total}
               onChange={setPage}
+              onPageSizeChange={setPageSize}
             />
-          )}
-        </>
+          </div>
+        </div>
       )}
 
       {selectedTransaction && (
