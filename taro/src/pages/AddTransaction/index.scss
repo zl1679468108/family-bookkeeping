@@ -2,6 +2,51 @@
 /* 页面间距由 PageContainer 统一提供（横向 32rpx / 上 18rpx+安全区 / 下 32rpx+安全区），
    迁移后不再需要 .addtx 自定义 padding。 */
 
+/* ========== 底部操作栏（固定吸底，与分类/模板编辑页一致：品牌绿主按钮 + 编辑态删除 + 无取消） ========== */
+.addtx-actions {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  gap: 16rpx;
+  padding: 16rpx 32rpx calc(16rpx + env(safe-area-inset-bottom));
+  background: var(--surface);
+  border-top: 2rpx solid var(--bd);
+  z-index: 50;
+}
+
+.addtx-actions__save {
+  flex: 1;
+  height: 88rpx;
+  border-radius: 20rpx;
+  background: var(--pr);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 30rpx;
+  font-weight: 600;
+}
+
+.addtx-actions__save--full {
+  flex: 1;
+}
+
+.addtx-actions__delete {
+  width: 200rpx;
+  height: 88rpx;
+  border-radius: 20rpx;
+  background: var(--bg);
+  border: 2rpx solid var(--danger, #ef5350);
+  color: var(--danger, #ef5350);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 30rpx;
+  font-weight: 600;
+}
+
 /* ========== 模板选择弹窗 ========== */
 .template-mask {
   position: fixed;

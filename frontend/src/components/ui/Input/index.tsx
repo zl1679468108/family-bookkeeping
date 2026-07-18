@@ -151,6 +151,8 @@ export const SearchInput: React.FC<SearchInputProps> = ({
         placeholder={placeholder}
         value={value}
         onChange={handleChange}
+        autoComplete="off"
+        name="search-field"
       />
       {allowClear && value && (
         <span className="ui-search-clear" onClick={handleClear} role="button" aria-label="清空">

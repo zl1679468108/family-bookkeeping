@@ -24,7 +24,6 @@ import LocationField, {
   LocationResult,
 } from "../../components/form/LocationField";
 import ImageUpload from "../../components/form/ImageUpload";
-import ActionButtons from "../../components/form/ActionButtons";
 import { todayBeijing } from "../../utils/format";
 import "./index.scss";
 
@@ -330,7 +329,7 @@ export default function AddTransaction() {
 
   return (
     <>
-    <PageContainer>
+    <PageContainer bottomSpace={180}>
       {/* 快捷方式 — 置顶 */}
       <SectionCard title="快捷方式">
         <FieldRow
@@ -413,15 +412,20 @@ export default function AddTransaction() {
         maxImages={MAX_IMAGES}
       />
 
-      <ActionButtons
-        primaryText={isEdit ? "保存修改" : "确认添加"}
-        secondaryText="取消"
-        primaryLoading={false}
-        onPrimary={handleSubmit}
-        onSecondary={() => Taro.navigateBack()}
-        dangerText={isEdit ? "删除此笔" : undefined}
-        onDanger={isEdit ? handleDelete : undefined}
-      />
+      {/* 底部操作栏：固定吸底，与工作台其它模块（分类/模板编辑）保持一致；有返回即无需取消按钮 */}
+      <View className="addtx-actions">
+        {isEdit && (
+          <View className="addtx-actions__delete" onClick={handleDelete}>
+            <Text>删除此笔</Text>
+          </View>
+        )}
+        <View
+          className={`addtx-actions__save ${isEdit ? "" : "addtx-actions__save--full"}`}
+          onClick={handleSubmit}
+        >
+          <Text>{isEdit ? "保存修改" : "确认添加"}</Text>
+        </View>
+      </View>
     </PageContainer>
 
     {/* 模板选择弹窗 */}

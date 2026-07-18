@@ -199,6 +199,184 @@
   color: #ffffff;
 }
 
+/* ========== 联系客服按钮（仿 MenuList item 风格） ========== */
+.contact-btn {
+  /* 重置 button 默认样式 */
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  background: var(--surface, #ffffff);
+  border: 1rpx solid var(--border, #e0e2dd);
+  border-radius: 28rpx;
+  box-shadow: 0 10rpx 28rpx rgba(36, 49, 45, 0.035);
+  overflow: hidden;
+  line-height: normal;
+
+  /* 清除微信小程序 button 默认 padding 和 ::after 边框 */
+  &::after {
+    border: none;
+  }
+}
+
+.contact-btn__inner {
+  min-height: 96rpx;
+  display: flex;
+  align-items: center;
+  gap: 18rpx;
+  padding: 20rpx 26rpx;
+}
+
+.contact-btn__icon {
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 20rpx;
+  background: var(--bg, #f6f7f4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.contact-btn__label {
+  flex: 1;
+  min-width: 0;
+  color: var(--fg, #1a1c19);
+  font-size: 28rpx;
+  font-weight: 650;
+  text-align: left;
+}
+
+.contact-btn__arrow {
+  color: var(--fg-3, #8b8e89);
+  font-size: 34rpx;
+  font-weight: 300;
+  flex-shrink: 0;
+  margin-left: 8rpx;
+}
+
+/* ========== 注销账号弹窗 ========== */
+.deactivate-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: logoutFadeIn 0.2s ease;
+}
+
+.deactivate-dialog {
+  width: 600rpx;
+  background-color: var(--surface, #ffffff);
+  border-radius: var(--radius-lg, 32rpx);
+  padding: 40rpx 32rpx 24rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  box-shadow: 0 20rpx 60rpx rgba(0, 0, 0, 0.2);
+  animation: logoutScale 0.2s cubic-bezier(0.25, 0, 0.2, 1);
+}
+
+.deactivate-title {
+  font-size: 32rpx;
+  font-weight: 700;
+  color: var(--expense, #e06055);
+  text-align: center;
+  margin-bottom: 16rpx;
+}
+
+.deactivate-warning {
+  font-size: 26rpx;
+  color: var(--fg-2, #4b5563);
+  text-align: center;
+  line-height: 1.6;
+  margin-bottom: 28rpx;
+  padding: 20rpx;
+  background-color: rgba(224, 96, 85, 0.08);
+  border-radius: var(--radius-sm, 16rpx);
+}
+
+.deactivate-field {
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+  margin-bottom: 16rpx;
+}
+
+.deactivate-label {
+  font-size: 24rpx;
+  font-weight: 500;
+  color: var(--fg-2, #4b5563);
+}
+
+.deactivate-input {
+  width: 100%;
+  box-sizing: border-box;
+  height: 84rpx;
+  padding: 0 24rpx;
+  border: 2rpx solid var(--border, #e0e2dd);
+  border-radius: var(--radius-sm, 16rpx);
+  background-color: var(--bg, #f6f7f4);
+  font-size: 28rpx;
+  color: var(--fg, #1a1c19);
+}
+
+.deactivate-error {
+  display: block;
+  font-size: 24rpx;
+  color: var(--expense, #e06055);
+  margin-bottom: 8rpx;
+  text-align: center;
+}
+
+.deactivate-actions {
+  width: 100%;
+  display: flex;
+  gap: 16rpx;
+  border-top: 1rpx solid var(--border-light, #edeee9);
+  padding-top: 20rpx;
+  margin-top: 8rpx;
+}
+
+.deactivate-btn {
+  flex: 1;
+  height: 84rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm, 16rpx);
+  font-size: 28rpx;
+  font-weight: 600;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+
+  &:active {
+    opacity: 0.85;
+    transform: scale(0.98);
+  }
+
+  &.disabled {
+    opacity: 0.5;
+  }
+}
+
+.deactivate-cancel {
+  background-color: var(--bg, #f6f7f4);
+  color: var(--fg, #1a1c19);
+}
+
+.deactivate-ok {
+  background-color: var(--expense, #e06055);
+  color: #ffffff;
+
+  &.loading {
+    opacity: 0.7;
+  }
+}
+
 /* ========== 主题切换开关 ========== */
 .theme-toggle {
   display: flex;

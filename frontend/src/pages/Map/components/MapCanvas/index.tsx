@@ -96,6 +96,8 @@ const _MapCanvas: React.ForwardRefRenderFunction<MapCanvasHandle, MapCanvasProps
   const [, setActiveInfo] = useState<{ merchant: MerchantSummary; pos: [number, number] } | null>(null);
   const [historyMerchant, setHistoryMerchant] = useState<MerchantSummary | null>(null);
   const [locateError, setLocateError] = useState('');
+  // 地图容器是否可见。定位完成或数据加载前隐藏，避免 AMap 默认 IP 定位（吉安）闪现。
+  const [mapVisible, setMapVisible] = useState(false);
 
   // ---- Map instance via pool ----
   const { mapContainerRef, map: rawMap, ready } = useMapInstance('map-canvas', {
@@ -251,12 +253,16 @@ const _MapCanvas: React.ForwardRefRenderFunction<MapCanvasHandle, MapCanvasProps
 
     if (allPoints.length === 0) {
       setLocateError('');
-      dataFittedRef.current = true;
+      // ⚠️ 不设置 dataFittedRef.current = true
+      // 空数据时没有"已拟合"的视口，应让下面的兜底定位（AMap.Geolocation）正常触发，
+      // 用浏览器原生高精度定位获取用户当前位置，而不是停在 AMap 默认的 IP 定位结果上。
       return;
     }
 
     setLocateError('');
     dataFittedRef.current = true;
+    // 数据已就绪并拟合视口，立即显示地图（不再等定位）
+    setMapVisible(true);
 
     // 确保 map 容器尺寸已就绪后再定位
     if (sizeChanged || w === 0 || h === 0) {
@@ -284,30 +290,48 @@ const _MapCanvas: React.ForwardRefRenderFunction<MapCanvasHandle, MapCanvasProps
     }
   }, [allPoints, map, viewMode, merchants.length, data.length]);
 
-  /* ====== 超时无数据 → 定位当前位置 ====== */
+  /* ====== 立即定位当前位置（无数据时直接显示用户所在城市，不闪现 IP 定位） ====== */
   useEffect(() => {
     if (!map) return;
 
-    const timer = setTimeout(() => {
-      if (dataFittedRef.current || locateDone.current) return;
-      const AMap = AmapManager.getInstance().AMap;
-      if (!AMap?.Geolocation) {
-        setLocateError('定位功能不可用');
-        locateDone.current = true;
+    // 数据已加载，无需定位兜底
+    if (dataFittedRef.current) {
+      setMapVisible(true);
+      return;
+    }
+
+    const AMap = AmapManager.getInstance().AMap;
+    if (!AMap?.Geolocation) {
+      setLocateError('定位功能不可用');
+      setMapVisible(true);
+      locateDone.current = true;
+      return;
+    }
+
+    const geo = new AMap.Geolocation({ enableHighAccuracy: true, timeout: 8000 });
+    geo.getCurrentPosition((status: string, result: any) => {
+      locateDone.current = true;
+      // 定位返回前，如果数据已经加载并被拟合到视口，则不再用定位结果覆盖
+      if (dataFittedRef.current) {
+        setMapVisible(true);
         return;
       }
-      const geo = new AMap.Geolocation({ enableHighAccuracy: true, timeout: 8000 });
-      geo.getCurrentPosition((status: string, result: any) => {
-        locateDone.current = true;
-        if (status === 'complete' && result.position) {
-          map.setCenter([result.position.lng, result.position.lat]);
-          map.setZoom(15);
-        } else {
-          setLocateError('无法获取当前位置，请确认已授权位置权限');
-        }
-      });
-    }, 3000);
-    return () => clearTimeout(timer);
+      if (status === 'complete' && result.position) {
+        map.setCenter([result.position.lng, result.position.lat]);
+        map.setZoom(12);
+      } else {
+        setLocateError('无法获取当前位置，请确认已授权位置权限');
+      }
+      setMapVisible(true);
+    });
+
+    // 超时兜底：定位 SDK 异常未回调时，10s 后强制显示地图
+    const fallback = setTimeout(() => {
+      if (!locateDone.current) {
+        setMapVisible(true);
+      }
+    }, 10000);
+    return () => clearTimeout(fallback);
   }, [map]);
 
   /* ====== 热力图 — 只管理自己的图层，切换筛选时先清后建 ====== */
@@ -422,9 +446,24 @@ const _MapCanvas: React.ForwardRefRenderFunction<MapCanvasHandle, MapCanvasProps
       <div className="map-canvas-wrapper">
         {locateError && <div className="map-locate-error">{locateError}</div>}
 
-        {/* Map container — managed by useMapInstance via callback ref */}
-        <div ref={mapContainerRef} style={{ width: '100%', height: '100%' }} />
+        {/* 定位中遮罩：定位完成前隐藏地图，避免 AMap 默认 IP 定位（吉安）闪现 */}
+        {!mapVisible && !locateError && (
+          <div className="map-locating-overlay">
+            <div className="map-locating-spinner" />
+            <div className="map-locating-text">正在定位当前位置…</div>
+          </div>
+        )}
 
+        {/* Map container — managed by useMapInstance via callback ref */}
+        <div
+          ref={mapContainerRef}
+          style={{
+            width: '100%',
+            height: '100%',
+            opacity: mapVisible ? 1 : 0,
+            transition: 'opacity 0.3s ease',
+          }}
+        />
       </div>
 
       {historyMerchant && (

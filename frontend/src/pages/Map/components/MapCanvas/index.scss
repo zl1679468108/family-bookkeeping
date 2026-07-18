@@ -43,6 +43,53 @@
   box-shadow: 0 2px 8px rgba(0,0,0,0.08);
 }
 
+/* 定位中遮罩：定位完成前隐藏地图，避免 AMap 默认 IP 定位闪现 */
+.map-locating-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: var(--z-10);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+}
+
+.map-locating-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid #e5e7eb;
+  border-top-color: #2d9d8a;
+  border-radius: 50%;
+  animation: map-locating-spin 0.8s linear infinite;
+}
+
+.map-locating-text {
+  font-size: 13px;
+  color: #4b5563;
+  font-weight: 500;
+}
+
+@keyframes map-locating-spin {
+  to { transform: rotate(360deg); }
+}
+
+[data-theme="dark"] .map-locating-overlay {
+  background: rgba(17, 24, 39, 0.85);
+}
+
+[data-theme="dark"] .map-locating-text {
+  color: #d1d5db;
+}
+
+[data-theme="dark"] .map-locating-spinner {
+  border-color: rgba(255, 255, 255, 0.15);
+  border-top-color: #2d9d8a;
+}
+
 /* POI 搜索覆盖层 */
 .map-search-overlay {
   position: absolute;

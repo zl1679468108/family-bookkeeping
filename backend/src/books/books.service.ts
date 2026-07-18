@@ -6,6 +6,7 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { SupabaseService } from '../supabase/supabase.service';
+import { WechatService } from '../wechat/wechat.service';
 import { randomInt } from 'crypto';
 
 export interface Book {
@@ -29,7 +30,10 @@ export interface BookMember {
 
 @Injectable()
 export class BooksService {
-  constructor(private readonly supabaseService: SupabaseService) {}
+  constructor(
+    private readonly supabaseService: SupabaseService,
+    private readonly wechatService: WechatService,
+  ) {}
 
   private getClient() {
     return this.supabaseService.getClient();
@@ -47,6 +51,12 @@ export class BooksService {
 
   /** 创建账本 */
   async create(userId: string, name: string, description?: string, icon?: string, iconId?: string): Promise<Book> {
+    // UGC 内容安全检测（账本名称 + 描述）
+    await this.wechatService.checkText(name, 1);
+    if (description) {
+      await this.wechatService.checkText(description, 1);
+    }
+
     const supabase = this.getClient();
 
     // 处理 icon_id：如果传的是 iconId（自定义图标），需要转换为 URL
@@ -203,6 +213,14 @@ export class BooksService {
     const book = await this.getById(bookId);
     if (book.owner_id !== userId) {
       throw new ForbiddenException('只有账主可以修改账本信息');
+    }
+
+    // UGC 内容安全检测（仅当字段被实际更新时检测）
+    if (name !== undefined) {
+      await this.wechatService.checkText(name, 1);
+    }
+    if (description !== undefined && description) {
+      await this.wechatService.checkText(description, 1);
     }
 
     const supabase = this.getClient();
@@ -633,6 +651,11 @@ export class BooksService {
     const book = await this.getById(bookId);
     if (book.owner_id !== userId) {
       throw new ForbiddenException('只有账主可以修改描述');
+    }
+
+    // UGC 内容安全检测
+    if (description) {
+      await this.wechatService.checkText(description, 1);
     }
 
     const supabase = this.getClient();

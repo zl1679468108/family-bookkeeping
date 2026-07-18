@@ -26,6 +26,7 @@ export type IconName =
   | "search"
   | "edit"
   | "delete"
+  | "delete-red"
   | "book"
   | "books"
   | "budget"
@@ -79,6 +80,7 @@ function getIconFile(name: IconName): string {
     search: "search",
     edit: "edit",
     delete: "delete",
+    "delete-red": "delete-red",
     book: "book",
     books: "books",
     budget: "budget",

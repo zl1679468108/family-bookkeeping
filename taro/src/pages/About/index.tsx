@@ -4,6 +4,7 @@
  */
 import { useState } from "react";
 import { View, Text } from "@tarojs/components";
+import Taro from "@tarojs/taro";
 import PageContainer from "../../components/PageContainer";
 import Icon from "../../components/Icon";
 import {
@@ -129,6 +130,31 @@ export default function About() {
           <View className="about-info-row">
             <Text className="about-info-label">运行环境</Text>
             <Text className="about-info-value">小程序</Text>
+          </View>
+        </View>
+      </View>
+
+      {/* 法律文档 */}
+      <View className="about-card">
+        <View className="about-card-title">
+          <Icon name="lock" size={40} />
+          <Text>法律与协议</Text>
+        </View>
+
+        <View className="about-info-list">
+          <View
+            className="about-info-row about-info-row--link"
+            onClick={() => Taro.navigateTo({ url: "/pages/Terms/index" })}
+          >
+            <Text className="about-info-label">用户协议</Text>
+            <Text className="about-info-arrow">›</Text>
+          </View>
+          <View
+            className="about-info-row about-info-row--link"
+            onClick={() => Taro.navigateTo({ url: "/pages/Privacy/index" })}
+          >
+            <Text className="about-info-label">隐私政策</Text>
+            <Text className="about-info-arrow">›</Text>
           </View>
         </View>
       </View>

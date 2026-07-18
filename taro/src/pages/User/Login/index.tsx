@@ -151,6 +151,25 @@ export default function Login() {
             忘记密码？
           </Text>
         </View>
+
+        <View className="login-legal">
+          <Text className="login-legal-text">
+            登录即表示同意
+            <Text
+              className="login-legal-link"
+              onClick={() => Taro.navigateTo({ url: "/pages/Terms/index" })}
+            >
+              《用户协议》
+            </Text>
+            和
+            <Text
+              className="login-legal-link"
+              onClick={() => Taro.navigateTo({ url: "/pages/Privacy/index" })}
+            >
+              《隐私政策》
+            </Text>
+          </Text>
+        </View>
       </View>
     </View>
   );

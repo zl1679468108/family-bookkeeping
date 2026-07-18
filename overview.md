@@ -1,32 +1,38 @@
-# Taro 端 loading 反馈统一补全
+# TemplateEdit 小程序端对齐 PC 端
 
 ## 概述
 
-按用户要求对 Taro 小程序端所有「选择 / 切换 / 筛选后请求列表」的场景做了一次全面检查，补全了缺失或覆盖不全的 loading 反馈，并把部分仍用 `useQuery` 的读操作改为项目规范的 `useManualQuery`。
+按用户截图要求，将 Taro 小程序 `TemplateEdit` 页的字段样式与功能逻辑与 PC 端 `TemplateFormModal` 保持一致。
 
 ## 改动文件
 
 | 文件 | 改动 |
 |---|---|
-| `taro/src/pages/Budgets/index.tsx` | 月份切换时会同时请求 budgets + status，现在把 `statusLoading` 合并到 `PageContainer.loading`，避免 status 接口慢时提前解除 loading。 |
-| `taro/src/pages/BookSettings/index.tsx` | 把 3 个 `useQuery` 读操作改为 `useManualQuery`；编辑模式下从 fallback 加载账本数据时，渲染守卫会显示 loading，而不是直接展示「账本不存在」。 |
-| `taro/src/pages/BookMembers/index.tsx` | 把 `useQuery` 改为 `useManualQuery`，并合并成员/owner 的 loading 状态到 `PageContainer.loading`。 |
-| `taro/src/pages/CategoryEdit/index.tsx` | 把分类列表 `useQuery` 改为 `useManualQuery`，并给 `PageContainer` 加 `loading={isLoading}`。 |
-| `taro/src/pages/TemplateEdit/index.tsx` | 把模板列表 `useQuery` 改为 `useManualQuery`，并给 `PageContainer` 加 `loading={isLoading}`。 |
-| `taro/src/pages/AddTransaction/index.tsx` | 编辑模式下加载交易详情时，使用 `Taro.showLoading` + `.then` 兜底隐藏，避免空白表单闪烁。 |
+| `taro/src/pages/TemplateEdit/index.tsx` | 重写表单结构：标签置顶、类型与分类同排、金额增加 `¥` 前缀、位置信息改为虚线按钮 + 选中卡片、移除「商户」字段、排序仅在新建时显示、必填项加 `*` 标记。 |
+| `taro/src/pages/TemplateEdit/index.scss` | 同步重写样式：垂直字段布局、选择器卡片、金额前缀、虚线位置按钮、位置卡片、底部操作栏。 |
 
-## 已检查无需改动的页面
+## 主要差异
 
-- `Transactions`：筛选 Picker 切换时已通过 `setLoading(true)` 触发 `PageContainer` loading。
-- `Home`：初始加载与下拉刷新已覆盖 `initialLoading` / `refreshing`。
-- `Categories` / `TemplateManager` / `Books`：主列表已绑定 `isLoading`；`Books` 弹窗内的成员列表已有 skeleton loading。
+- **移除字段**：`merchant_name`（PC 端表单不含此字段）。
+- **布局对齐**：从「标签在左 / 输入在右」改为「标签在上 / 输入在下」，与 PC 端表单一致。
+- **类型 / 分类**：改为同排两个选择框，类型值按支出/收入显示红/绿色。
+- **金额**：左侧显示 `¥` 前缀，placeholder `0.00`。
+- **位置信息**：未选时显示虚线边框按钮 `📍 选择位置`；选中后展示名称 + 坐标 + 修改/清除操作。
+- **排序**：仅在新建模式显示（编辑模式下隐藏），与 PC 端逻辑一致。
+- **分类图标预览**：已移除，PC 端表单无此元素。
+- **必填标记**：模板名称、类型、分类加红色 `*`。
 
 ## 验证结果
 
 - `npx tsc --noEmit`（Taro）通过，无类型错误。
-- `npm run build:weapp` 产物已生成到 `dist-prod/`。
+- 生产构建过程耗时较长，已停止；SCSS/TSX 改动以 TypeScript 类型检查为准。
 
-## 注意点
+## 后续布局修复补充
 
-- 所有写操作（保存/删除/转移等）保持手动 `setSaving` + `.then/.catch` + `setTimeout` 兜底模式，未引入 `useMutation`。
-- 读操作统一走 `useManualQuery`，规避 Taro/微信 regenerator 下 `useQuery` enabled 激活不可靠的问题。
+针对用户反馈的「布局没对齐」问题，进一步修复以下细节：
+
+- **排序字段**：`type="number"` 的 Input 在 iOS/小程序中默认右对齐，已显式设置 `text-align: left`，使 `0` 与其他输入框左对齐保持一致。
+- **金额字段**：给 `¥` 前缀和金额 Input 统一 `line-height`，消除 `¥` 与 `0.00` 之间的上下偏移。
+- **选择器基线**：给 `.tpl-picker-value`、`.tpl-picker-chevron`、`.tpl-picker-clear` 统一 `line-height: 1`，避免类型/分类两个选择框内的文字上下浮动。
+- **选择器内边距**：统一 `.tpl-picker` 与 `.tpl-input` 的左右 padding 为 `24rpx`，保证视觉左右边距一致。
+- **PC 端清除按钮对齐**：PC 端 `DropdownSelect` 默认有 `allowClear` 清除按钮，小程序端类型/分类选择器已补充清除按钮（有值时显示 `×`），并支持点击清除（`catchClick` 阻止 Picker 弹窗）。

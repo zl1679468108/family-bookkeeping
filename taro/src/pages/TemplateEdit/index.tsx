@@ -1,6 +1,6 @@
 /**
  * TemplateEdit — 模板新增/编辑页
- * 对齐 PC：名称 / 类型 / 分类 / 金额 / 备注 / 商户 / 位置（高德坐标）
+ * 对齐 PC：名称 / 类型 / 分类 / 金额 / 备注 / 位置（高德坐标）
  * 列表点击 → 本页（带 id=编辑；不带 id=新增）
  * 编辑模式下底部含「删除」按钮（ConfirmDialog 确认）
  */
@@ -10,8 +10,6 @@ import Taro, { getCurrentInstance } from "@tarojs/taro";
 import { useQueryClient } from "@tanstack/react-query";
 import PageContainer from "../../components/PageContainer";
 import ConfirmDialog from "../../components/ConfirmDialog";
-import CategoryIcon from "../../components/CategoryIcon";
-import LocationPicker, { LocationResult } from "../../components/LocationPicker";
 import { AppSection, PageHero } from "../../components/ui";
 import {
   getTemplates,
@@ -23,6 +21,7 @@ import { useCategories } from "../../hooks/useCategories";
 import { useManualQuery } from "../../hooks/useManualQuery";
 import { useSubmit } from "../../hooks/useSubmit";
 import { isIconUrl } from "../../utils/renderCategoryIcon";
+import LocationPicker, { LocationResult } from "../../components/LocationPicker";
 import "./index.scss";
 
 type TplType = "expense" | "income";
@@ -52,7 +51,6 @@ export default function TemplateEdit() {
     category_id: "",
     amount: "",
     note: "",
-    merchant_name: "",
     latitude: "",
     longitude: "",
     location_name: "",
@@ -70,7 +68,6 @@ export default function TemplateEdit() {
         category_id: existing.category_id || "",
         amount: existing.amount ? String(existing.amount) : "",
         note: existing.note || "",
-        merchant_name: existing.merchant_name || "",
         latitude: existing.latitude ? String(existing.latitude) : "",
         longitude: existing.longitude ? String(existing.longitude) : "",
         location_name: existing.location_name || "",
@@ -78,9 +75,14 @@ export default function TemplateEdit() {
         sort_order: existing.sort_order || 0,
       });
     } else {
-      setForm((p) => ({ ...p, type: typeParam }));
+      const sameTypeCount = (templates || []).filter((t: any) => t.type === typeParam).length;
+      setForm((p) => ({
+        ...p,
+        type: typeParam,
+        sort_order: sameTypeCount + 1,
+      }));
     }
-  }, [isEdit, existing, typeParam]);
+  }, [isEdit, existing, typeParam, templates]);
 
   // --- 保存/删除 ---
   const handleSave = () => {
@@ -88,15 +90,18 @@ export default function TemplateEdit() {
       Taro.showToast({ title: "请输入模板名称", icon: "none" });
       return;
     }
+    if (!form.category_id) {
+      Taro.showToast({ title: "请选择分类", icon: "none" });
+      return;
+    }
     const data: any = {
       name: form.name.trim(),
       type: form.type,
+      category_id: form.category_id,
       sort_order: form.sort_order,
     };
-    if (form.category_id) data.category_id = form.category_id;
     if (form.amount) data.amount = parseFloat(form.amount);
     if (form.note.trim()) data.note = form.note.trim();
-    if (form.merchant_name.trim()) data.merchant_name = form.merchant_name.trim();
     if (form.location_name.trim()) data.location_name = form.location_name.trim();
     if (form.poi_id) data.poi_id = form.poi_id;
     if (form.latitude) data.latitude = parseFloat(form.latitude);
@@ -129,19 +134,9 @@ export default function TemplateEdit() {
   };
 
   const typeOpts = ["expense", "income"];
+  const typeDisplayRange = ["选择类型", ...typeOpts.map((t) => (t === "expense" ? "支出" : "收入"))];
   const catOpts = (cats || []).filter((c: any) => c.type === form.type);
   const selectedCat = (cats || []).find((c: any) => c.id === form.category_id);
-
-  const initialLocation =
-    form.latitude && form.longitude
-      ? {
-          latitude: parseFloat(form.latitude),
-          longitude: parseFloat(form.longitude),
-          locationName: form.location_name || "",
-          address: form.location_name || "",
-          poiId: form.poi_id || null,
-        }
-      : null;
 
   const handleLocationConfirm = (result: LocationResult) => {
     setForm((p) => ({
@@ -154,22 +149,44 @@ export default function TemplateEdit() {
     setShowLocationPicker(false);
   };
 
+  const clearLocation = () =>
+    setForm((p) => ({
+      ...p,
+      location_name: "",
+      latitude: "",
+      longitude: "",
+      poi_id: "",
+    }));
+
   const title = isEdit ? "编辑模板" : "新建模板";
+
+  const formatCategoryLabel = (cat: any) => {
+    if (!cat) return "选择分类";
+    const icon = cat.icon || "";
+    const displayIcon = isIconUrl(icon) ? "📌" : icon;
+    return `${displayIcon} ${cat.name}`;
+  };
+
+  const formatTypeLabel = (type: string) => {
+    if (type === "expense") return "支出";
+    if (type === "income") return "收入";
+    return "选择类型";
+  };
 
   return (
     <PageContainer bottomSpace={180} loading={isLoading} loadingText="加载中…">
       <PageHero
-        eyebrow={form.type === "expense" ? "支出模板" : "收入模板"}
+        eyebrow={form.type === "expense" ? "支出模板" : form.type === "income" ? "收入模板" : "模板"}
         title={title}
         meta={isEdit ? "修改后保存" : "填写模板信息"}
         tone="surface"
       />
 
       <AppSection title="模板信息" compact>
-        <View className="tpledit-form-row">
-          <Text className="tpledit-form-label">模板名称</Text>
+        <View className="tpl-field">
+          <Text className="tpl-label tpl-label--required">模板名称</Text>
           <Input
-            className="tpledit-form-input"
+            className="tpl-input"
             placeholder="如：公司食堂午餐"
             maxlength={20}
             value={form.name}
@@ -177,137 +194,164 @@ export default function TemplateEdit() {
           />
         </View>
 
-        <View className="tpledit-picker-row">
-          <Text className="tpledit-picker-label">类型</Text>
-          <Picker
-            mode="selector"
-            range={typeOpts.map((t) => (t === "expense" ? "支出" : "收入"))}
-            value={typeOpts.indexOf(form.type)}
-            onChange={(e: any) =>
-              setForm((p) => ({
-                ...p,
-                type: typeOpts[e.detail.value] as TplType,
-                category_id: "",
-              }))
-            }
-          >
-            <View className="tpledit-picker-item">
-              <Text
-                className={`tpledit-picker-value tpledit-picker-value--${
-                  form.type === "expense" ? "expense" : "income"
-                }`}
-              >
-                {form.type === "expense" ? "支出" : "收入"}
-              </Text>
-              <Text className="tpledit-picker-arrow">▸</Text>
-            </View>
-          </Picker>
-        </View>
-
-        <View className="tpledit-picker-row">
-          <Text className="tpledit-picker-label">分类</Text>
-          <Picker
-            mode="selector"
-            range={
-              catOpts.length > 0
-                ? catOpts.map((c: any) => {
-                    const ic = c.icon || "";
-                    const displayIcon = isIconUrl(ic) ? "📌" : ic;
-                    return `${displayIcon} ${c.name}`;
-                  })
-                : ["暂无分类"]
-            }
-            value={
-              catOpts.length > 0
-                ? catOpts.findIndex((c: any) => c.id === form.category_id)
-                : 0
-            }
-            onChange={(e: any) => {
-              if (catOpts.length > 0) {
+        <View className="tpl-row">
+          <View className="tpl-field tpl-field--half">
+            <Text className="tpl-label tpl-label--required">类型</Text>
+            <Picker
+              mode="selector"
+              range={typeDisplayRange}
+              value={form.type ? typeOpts.indexOf(form.type) + 1 : 0}
+              onChange={(e: any) => {
                 const idx = Number(e.detail.value);
                 setForm((p) => ({
                   ...p,
-                  category_id: catOpts[idx]?.id || "",
+                  type: idx === 0 ? ("" as TplType) : (typeOpts[idx - 1] as TplType),
+                  category_id: "",
                 }));
-              }
-            }}
-          >
-            <View className="tpledit-picker-item">
-              <Text className="tpledit-picker-value">
-                {selectedCat ? selectedCat.name : "选择分类"}
-              </Text>
-              <Text className="tpledit-picker-arrow">▸</Text>
-            </View>
-          </Picker>
-        </View>
-
-        {selectedCat && (
-          <View className="tpledit-cat-preview">
-            <CategoryIcon icon={selectedCat.icon} size={24} className="tpledit-cat-preview__icon" />
-            <Text className="tpledit-cat-preview__name">{selectedCat.name}</Text>
+              }}
+            >
+              <View className="tpl-picker">
+                <View className="tpl-picker-value-wrap">
+                  <Text
+                    className={`tpl-picker-value ${
+                      form.type
+                        ? `tpl-picker-value--${form.type}`
+                        : "tpl-picker-value--placeholder"
+                    }`}
+                  >
+                    {formatTypeLabel(form.type)}
+                  </Text>
+                </View>
+                {!!form.type && (
+                  <View
+                    className="tpl-picker-clear"
+                    // @ts-ignore
+                    catchClick={() =>
+                      setForm((p) => ({ ...p, type: "" as TplType, category_id: "" }))
+                    }
+                  >
+                    <Text>×</Text>
+                  </View>
+                )}
+                <Text className="tpl-picker-chevron">▾</Text>
+              </View>
+            </Picker>
           </View>
-        )}
 
-        <View className="tpledit-form-row">
-          <Text className="tpledit-form-label">金额</Text>
-          <Input
-            className="tpledit-form-input"
-            placeholder="0.00"
-            type="digit"
-            value={form.amount}
-            onInput={(e: any) => setForm((p) => ({ ...p, amount: e.detail.value }))}
-          />
+          <View className="tpl-field tpl-field--half">
+            <Text className="tpl-label tpl-label--required">分类</Text>
+            <Picker
+              mode="selector"
+              range={
+                catOpts.length > 0
+                  ? catOpts.map((c: any) => formatCategoryLabel(c))
+                  : ["暂无分类"]
+              }
+              value={
+                catOpts.length > 0
+                  ? catOpts.findIndex((c: any) => c.id === form.category_id)
+                  : 0
+              }
+              onChange={(e: any) => {
+                if (catOpts.length > 0) {
+                  const idx = Number(e.detail.value);
+                  setForm((p) => ({
+                    ...p,
+                    category_id: catOpts[idx]?.id || "",
+                  }));
+                }
+              }}
+            >
+              <View className="tpl-picker">
+                <View className="tpl-picker-value-wrap">
+                  <Text
+                    className={`tpl-picker-value ${
+                      selectedCat ? "" : "tpl-picker-value--placeholder"
+                    }`}
+                  >
+                    {formatCategoryLabel(selectedCat)}
+                  </Text>
+                </View>
+                {!!selectedCat && (
+                  <View
+                    className="tpl-picker-clear"
+                    // @ts-ignore
+                    catchClick={() => setForm((p) => ({ ...p, category_id: "" }))}
+                  >
+                    <Text>×</Text>
+                  </View>
+                )}
+                <Text className="tpl-picker-chevron">▾</Text>
+              </View>
+            </Picker>
+          </View>
         </View>
 
-        <View className="tpledit-form-row">
-          <Text className="tpledit-form-label">备注</Text>
+        <View className="tpl-field">
+          <Text className="tpl-label">金额</Text>
+          <View className="tpl-input-wrap">
+            <Text className="tpl-input-prefix">¥</Text>
+            <Input
+              className="tpl-input--amount"
+              placeholder="0.00"
+              type="digit"
+              value={form.amount}
+              onInput={(e: any) => setForm((p) => ({ ...p, amount: e.detail.value }))}
+            />
+          </View>
+        </View>
+
+        <View className="tpl-field">
+          <Text className="tpl-label">备注</Text>
           <Input
-            className="tpledit-form-input"
+            className="tpl-input"
             placeholder="添加备注（可选）"
             value={form.note}
             onInput={(e: any) => setForm((p) => ({ ...p, note: e.detail.value }))}
           />
         </View>
 
-        <View className="tpledit-form-row">
-          <Text className="tpledit-form-label">商户</Text>
-          <Input
-            className="tpledit-form-input"
-            placeholder="如：星巴克（可选）"
-            value={form.merchant_name}
-            onInput={(e: any) => setForm((p) => ({ ...p, merchant_name: e.detail.value }))}
-          />
+        <View className="tpl-field">
+          <Text className="tpl-label">位置信息</Text>
+          {form.location_name ? (
+            <View className="tpl-location-card">
+              <Text className="tpl-location-card__name">{form.location_name}</Text>
+              <Text className="tpl-location-card__coords">
+                {form.latitude}, {form.longitude}
+              </Text>
+              <View className="tpl-location-card__actions">
+                <Text
+                  className="tpl-location-card__action"
+                  onClick={() => setShowLocationPicker(true)}
+                >
+                  修改
+                </Text>
+                <Text className="tpl-location-card__divider">|</Text>
+                <Text className="tpl-location-card__action tpl-location-card__action--danger" onClick={clearLocation}>
+                  清除
+                </Text>
+              </View>
+            </View>
+          ) : (
+            <View className="tpl-location-btn" onClick={() => setShowLocationPicker(true)}>
+              <Text className="tpl-location-btn__icon">📍</Text>
+              <Text className="tpl-location-btn__text">选择位置</Text>
+            </View>
+          )}
         </View>
 
-        <View className="tpledit-form-row tpledit-form-row--location">
-          <Text className="tpledit-form-label">位置信息</Text>
-          <View className="tpledit-location-picker" onClick={() => setShowLocationPicker(true)}>
-            <Text className="tpledit-location-text">
-              {form.location_name || "点击选择位置"}
-            </Text>
-            <Text className="tpledit-location-arrow">›</Text>
-          </View>
-        </View>
-
-        {form.location_name && (
-          <View className="tpledit-location-coords">
-            <Text>
-              坐标：{form.latitude}, {form.longitude}
-            </Text>
-            <Text
-              className="tpledit-location-clear"
-              onClick={() =>
-                setForm((p) => ({
-                  ...p,
-                  location_name: "",
-                  latitude: "",
-                  longitude: "",
-                  poi_id: "",
-                }))
+        {!isEdit && (
+          <View className="tpl-field">
+            <Text className="tpl-label">排序</Text>
+            <Input
+              className="tpl-input tpl-input--num"
+              placeholder="0"
+              type="digit"
+              value={String(form.sort_order)}
+              onInput={(e: any) =>
+                setForm((p) => ({ ...p, sort_order: parseInt(e.detail.value, 10) || 0 }))
               }
-            >
-              清除
-            </Text>
+            />
           </View>
         )}
       </AppSection>
@@ -315,17 +359,12 @@ export default function TemplateEdit() {
       {/* 底部操作栏 */}
       <View className="tpledit-actions">
         {isEdit && (
-          <View
-            className="tpledit-actions__delete"
-            onClick={() => setShowDelete(true)}
-          >
+          <View className="tpledit-actions__delete" onClick={() => setShowDelete(true)}>
             <Text>删除</Text>
           </View>
         )}
         <View
-          className={`tpledit-actions__save ${
-            isEdit ? "" : "tpledit-actions__save--full"
-          }`}
+          className={`tpledit-actions__save ${isEdit ? "" : "tpledit-actions__save--full"}`}
           onClick={handleSave}
         >
           <Text>{isEdit ? "更新" : "创建"}</Text>
@@ -336,7 +375,17 @@ export default function TemplateEdit() {
       {showLocationPicker && (
         <LocationPicker
           visible={showLocationPicker}
-          initialLocation={initialLocation}
+          initialLocation={
+            form.latitude && form.longitude
+              ? {
+                  latitude: parseFloat(form.latitude),
+                  longitude: parseFloat(form.longitude),
+                  locationName: form.location_name || "",
+                  address: form.location_name || "",
+                  poiId: form.poi_id || null,
+                }
+              : null
+          }
           onClose={() => setShowLocationPicker(false)}
           onConfirm={handleLocationConfirm}
         />

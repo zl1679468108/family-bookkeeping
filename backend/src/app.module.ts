@@ -14,6 +14,7 @@ import { ReportsModule } from './reports/reports.module';
 import { AdminModule } from './admin/admin.module';
 import { IconsModule } from './icons/icons.module';
 import { OcrModule } from './ocr/ocr.module';
+import { WechatModule } from './wechat/wechat.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { OcrModule } from './ocr/ocr.module';
       ],
     }),
     SupabaseModule,
+    WechatModule,
     AuthModule,
     TransactionModule,
     ExportModule,

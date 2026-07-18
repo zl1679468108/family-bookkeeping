@@ -9,6 +9,7 @@ import {
   forwardRef,
 } from '@nestjs/common';
 import { SupabaseService } from '../supabase/supabase.service';
+import { WechatService } from '../wechat/wechat.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { ExportService } from '../export/export.service';
@@ -36,6 +37,7 @@ export class CategoriesService {
     private readonly supabaseService: SupabaseService,
     @Inject(forwardRef(() => ExportService))
     private readonly exportService: ExportService,
+    private readonly wechatService: WechatService,
   ) {}
 
   /**
@@ -76,6 +78,9 @@ export class CategoriesService {
 
   async create(dto: CreateCategoryDto, userId: string): Promise<Category> {
     if (!userId) throw new ForbiddenException('需要登录才能创建分类');
+
+    // UGC 内容安全检测（分类名称）
+    await this.wechatService.checkText(dto.name, 1);
 
     const supabase = this.supabaseService.getClient();
 
@@ -127,6 +132,11 @@ export class CategoriesService {
     const existing = await this.findById(id, userId);
     if (existing.is_default) {
       throw new BadRequestException('默认分类不可修改');
+    }
+
+    // UGC 内容安全检测（仅当 name 字段被实际更新时检测）
+    if (dto.name !== undefined) {
+      await this.wechatService.checkText(dto.name, 1);
     }
 
     const supabase = this.supabaseService.getClient();

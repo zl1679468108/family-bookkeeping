@@ -1,15 +1,16 @@
 /**
  * Profile — 我的
- * 菜单：切换主题 / 切换账号 / 关于静记 / 退出登录
+ * 菜单：切换主题 / 切换账号 / 关于静记 / 注销账号 / 退出登录
  * （个人信息入口 = 顶部 Header 卡片点击）
  */
 import { useState, useEffect } from "react";
-import { View, Text, Image, Input } from "@tarojs/components";
+import { View, Text, Image, Input, Button } from "@tarojs/components";
 import Taro from "@tarojs/taro";
 import { useAuth } from "../../context/AuthContext";
 import { useTheme } from "../../context/ThemeContext";
-import { getCaptcha } from "../../services/authApi";
+import { getCaptcha, deactivateAccount } from "../../services/authApi";
 import PageContainer from "../../components/PageContainer";
+import Icon from "../../components/Icon";
 import { MenuList } from "../../components/ui";
 import {
   getSavedAccounts,
@@ -36,6 +37,11 @@ export default function Profile() {
   const [captchaId, setCaptchaId] = useState("");
   const [captchaCode, setCaptchaCode] = useState("");
   const [captchaSrc, setCaptchaSrc] = useState("");
+  // 注销账号相关
+  const [deactivateModal, setDeactivateModal] = useState(false);
+  const [deactivatePassword, setDeactivatePassword] = useState("");
+  const [deactivateError, setDeactivateError] = useState("");
+  const [deactivateLoading, setDeactivateLoading] = useState(false);
 
   const initial = (user?.username || "U").charAt(0).toUpperCase();
   const hasAvatar = user?.avatar_url && user.avatar_url.startsWith('data:') || user?.avatar_url?.startsWith('http');
@@ -46,6 +52,38 @@ export default function Profile() {
       Taro.navigateTo({ url: "/pages/User/Login/index" });
     } catch {
       // ignore
+    }
+  };
+
+  // 注销账号：二次确认 + 密码校验 → 调接口 → 清理本地账号 → 跳登录
+  const handleOpenDeactivate = () => {
+    setDeactivatePassword("");
+    setDeactivateError("");
+    setDeactivateModal(true);
+  };
+
+  const handleConfirmDeactivate = async () => {
+    if (!deactivatePassword) {
+      setDeactivateError("请输入密码以确认注销");
+      return;
+    }
+    setDeactivateError("");
+    setDeactivateLoading(true);
+    try {
+      await deactivateAccount(deactivatePassword);
+      // 清理本地保存的当前账号
+      if (user?.email) removeAccount(user.email);
+      Taro.showToast({ title: "账号已注销", icon: "success" });
+      // 本地清理（不再走 apiLogout，后端 session 已被清）
+      try { await signOut(); } catch {}
+      setTimeout(() => {
+        Taro.reLaunch({ url: "/pages/User/Login/index" });
+      }, 800);
+    } catch (err: unknown) {
+      const e = err as { message?: string };
+      setDeactivateError(e?.message || "注销失败，请检查密码后重试");
+    } finally {
+      setDeactivateLoading(false);
     }
   };
 
@@ -194,6 +232,12 @@ export default function Profile() {
             onClick: () => Taro.navigateTo({ url: "/pages/About/index" }),
           },
           {
+            label: "注销账号",
+            icon: "delete-red",
+            danger: true,
+            onClick: handleOpenDeactivate,
+          },
+          {
             label: "退出登录",
             icon: "logout",
             danger: true,
@@ -201,6 +245,23 @@ export default function Profile() {
           },
         ]}
       />
+
+      {/* ===== 联系客服（微信原生 Button openType=contact） ===== */}
+      <Button
+        className="contact-btn"
+        openType="contact"
+        sessionFrom="profile"
+        sendMessageTitle="静记客服"
+        sendMessagePath="/pages/Profile/index"
+      >
+        <View className="contact-btn__inner">
+          <View className="contact-btn__icon">
+            <Icon name="email" size={48} />
+          </View>
+          <Text className="contact-btn__label">联系客服</Text>
+          <Text className="contact-btn__arrow">›</Text>
+        </View>
+      </Button>
 
       {/* ===== 退出确认弹窗 ===== */}
       {logoutConfirm && (
@@ -217,6 +278,48 @@ export default function Profile() {
               </View>
               <View className="logout-btn logout-ok" onClick={handleLogout}>
                 <Text>退出</Text>
+              </View>
+            </View>
+          </View>
+        </View>
+      )}
+
+      {/* ===== 注销账号弹窗 ===== */}
+      {deactivateModal && (
+        <View className="deactivate-mask" onClick={() => !deactivateLoading && setDeactivateModal(false)}>
+          <View className="deactivate-dialog" onClick={(e) => e.stopPropagation()}>
+            <Text className="deactivate-title">注销账号</Text>
+            <Text className="deactivate-warning">
+              注销后账号将无法登录，且相关数据将无法恢复。请谨慎操作。
+            </Text>
+            <View className="deactivate-field">
+              <Text className="deactivate-label">请输入密码以确认</Text>
+              <Input
+                className="deactivate-input"
+                value={deactivatePassword}
+                onInput={(e) => setDeactivatePassword(e.detail.value)}
+                placeholder="输入登录密码"
+                placeholderClass="text-hint"
+                password
+                confirmType="done"
+                onConfirm={handleConfirmDeactivate}
+              />
+            </View>
+            {deactivateError ? (
+              <Text className="deactivate-error">{deactivateError}</Text>
+            ) : null}
+            <View className="deactivate-actions">
+              <View
+                className={`deactivate-btn deactivate-cancel ${deactivateLoading ? "disabled" : ""}`}
+                onClick={() => !deactivateLoading && setDeactivateModal(false)}
+              >
+                <Text>取消</Text>
+              </View>
+              <View
+                className={`deactivate-btn deactivate-ok ${deactivateLoading ? "loading" : ""}`}
+                onClick={() => !deactivateLoading && handleConfirmDeactivate()}
+              >
+                <Text>{deactivateLoading ? "注销中..." : "确认注销"}</Text>
               </View>
             </View>
           </View>

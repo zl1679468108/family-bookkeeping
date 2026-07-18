@@ -28,6 +28,7 @@ import { RateLimitGuard } from './rate-limit.guard';
 import { SendResetCodeDto } from './dto/send-reset-code.dto';
 import { ResetPasswordByCodeDto } from './dto/reset-password-by-code.dto';
 import { RefreshDto } from './dto/refresh.dto';
+import { DeactivateDto } from './dto/deactivate.dto';
 
 /** B-M2: DTO for setCurrentBook */
 class SetCurrentBookDto {
@@ -167,5 +168,17 @@ export class AuthController {
   ) {
     await this.authService.setCurrentBook(user.id, dto.book_id);
     return { message: '设置当前账本成功', data: { book_id: dto.book_id } };
+  }
+
+  // 注销账号（软删除）— 需二次确认密码，限流防爆破
+  @UseGuards(TokenAuthGuard, new RateLimitGuard(60_000, 3))
+  @Post('deactivate')
+  @HttpCode(HttpStatus.OK)
+  async deactivate(
+    @CurrentUser('id') userId: string,
+    @Body() dto: DeactivateDto,
+  ) {
+    await this.authService.deactivateAccount(userId, dto.password);
+    return { message: '账号已注销', data: null };
   }
 }

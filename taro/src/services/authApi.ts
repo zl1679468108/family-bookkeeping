@@ -65,6 +65,13 @@ export const changePassword = (payload: {
 export const logout = (): Promise<void> =>
   apiPost<void>("/auth/logout", { requiresAuth: true });
 
+/** 注销账号（软删除）— 需二次确认密码 */
+export const deactivateAccount = (password: string): Promise<void> =>
+  apiPost<void>("/auth/deactivate", {
+    data: { password },
+    requiresAuth: true,
+  });
+
 export const sendResetCode = (
   email: string,
 ): Promise<{ success: boolean; message: string }> =>

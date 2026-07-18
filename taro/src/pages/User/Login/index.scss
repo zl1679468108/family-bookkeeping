@@ -136,4 +136,22 @@
     color: var(--fg3);
     font-size: 26rpx;
   }
+
+  /* 协议提示 */
+  .login-legal {
+    margin-top: 24rpx;
+    text-align: center;
+    padding: 0 4rpx;
+  }
+
+  .login-legal-text {
+    font-size: 22rpx;
+    color: var(--fg3);
+    line-height: 1.6;
+  }
+
+  .login-legal-link {
+    color: var(--pr);
+    font-weight: 500;
+  }
 }

@@ -723,4 +723,59 @@ export class AuthService {
       throw new InternalServerErrorException(`设置当前账本失败：${error.message}`);
     }
   }
+
+  /**
+   * 注销账号（软删除）
+   * - 校验密码（防误操作）
+   * - status → 'deleted'
+   * - 清空 password_hash（写入随机不可逆字符串，避免后续误用）
+   * - 清除该用户全部 session（含 refresh token）
+   * - 数据保留（便于投诉/找回），但账号无法再登录
+   */
+  async deactivateAccount(userId: string, password: string): Promise<void> {
+    const supabase = this.supabaseService.getClient();
+
+    const { data: user, error } = await supabase
+      .from('jj_users')
+      .select('id, password_hash, status')
+      .eq('id', userId)
+      .single();
+
+    if (error || !user) {
+      throw new UnauthorizedException('用户不存在');
+    }
+
+    if (user.status !== 'active') {
+      throw new BadRequestException('账号已被停用，无法注销');
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, user.password_hash);
+    if (!isPasswordValid) {
+      throw new BadRequestException('密码错误，注销失败');
+    }
+
+    // 写入一个不可逆向的随机哈希作为 password_hash（不能为空，避免 bcrypt.compare 抛错）
+    const randomHash = await bcrypt.hash(Math.random().toString(36) + Date.now().toString(), 10);
+
+    const { error: updateError } = await supabase
+      .from('jj_users')
+      .update({
+        status: 'deleted',
+        password_hash: randomHash,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', userId);
+
+    if (updateError) {
+      throw new InternalServerErrorException(`注销账号失败：${updateError.message}`);
+    }
+
+    // 清除该用户所有 session（access + refresh）
+    await supabase
+      .from('jj_user_sessions')
+      .delete()
+      .eq('user_id', userId);
+
+    this.logger.log(`用户 ${userId} 已注销账号（软删除）`);
+  }
 }

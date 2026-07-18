@@ -15,19 +15,18 @@
   min-height: 0;
 }
 
-/* 左列：Hero + 应用信息 */
+/* 左列：Hero + 应用信息（占 60%） */
 .about-layout-left {
-  flex: 1;
+  flex: 6;
   display: flex;
   flex-direction: column;
   gap: 24px;
   min-width: 0;
 }
 
-/* 右列：更新日志（可滚动） */
+/* 右列：更新日志（占 40%） */
 .about-layout-right {
-  width: 380px;
-  flex-shrink: 0;
+  flex: 4;
   min-width: 0;
   display: flex;
   flex-direction: column;

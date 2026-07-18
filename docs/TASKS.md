@@ -145,3 +145,45 @@
 ### L7. 数据库 `jj_book_invitations` 主键类型不一致
 - **影响**：BIGSERIAL vs UUID 仅为风格差异，不影响功能
 - **状态**：⏳ 保留 — 后续重构邀请表时一并统一
+
+---
+
+## 微信小程序上架准备（2026-07-18 启动）
+
+> 目标：补齐小程序上架过审必需的合规功能与配置
+> 范围：Taro 端代码 + 后端注销账号接口 + 配置文件调整；平台后台配置（域名/类目/隐私指引/客服）由用户在 mp.weixin.qq.com 操作
+
+### A. 隐私政策与用户协议合规（代码层）
+
+- [x] **A1** 新增「用户协议」页面 `pages/Terms/index`（纯静态内容）
+- [x] **A2** 新增「隐私政策」页面 `pages/Privacy/index`（纯静态内容，列明收集的邮箱/密码/昵称/头像/位置/相册相机/UGC）
+- [x] **A3** `app.config.ts` 注册 Terms/Privacy 页面 + 开启 `__usePrivacyCheck__: true`
+- [x] **A4** 注册页加「我已阅读并同意《用户协议》《隐私政策》」勾选框 + 跳转链接，未勾选禁止注册
+- [x] **A5** 登录页底部加协议链接（已登录场景弱提示）
+- [x] **A6** About 页加「用户协议」「隐私政策」两个入口
+
+### B. 注销账号功能
+
+- [x] **B1** 后端新增 `POST /auth/deactivate` 接口（软删除：`status='deleted'` + 清空 `password_hash` + 清除全部 session）
+- [x] **B2** 后端 `AuthService.deactivateAccount` 实现 + DTO + controller 注册
+- [x] **B3** Taro `authApi.ts` 新增 `deactivateAccount()` 调用
+- [x] **B4** Profile 页加「注销账号」入口（二次确认弹窗 + 调用接口 + 退出登录清理）
+
+### C. 配置调整
+
+- [x] **C1** `project.config.json` 的 `urlCheck` 保持 `false`（仅影响微信开发者工具本地调试，不影响线上审核；线上由微信后台服务器域名白名单决定）— **提交审核前由用户在微信开发者工具「详情 → 本地设置」临时勾选「不校验合法域名」开关自测**，确认线上域名配置无误
+- [x] **C2** 验证：Taro `tsc --noEmit` + `build:weapp` 通过；后端 `tsc --noEmit` + `build:prod` 通过（2026-07-18）
+
+### D. 平台后台配置（用户操作，不在代码范围）
+
+- [ ] **D1** mp.weixin.qq.com「开发管理 → 开发设置 → 服务器域名」配置：request（后端 API 域名 HTTPS）、uploadFile/downloadFile（Supabase Storage 域名）
+- [ ] **D2** 小程序类目认证：建议「工具 → 效率」或「生活服务 → 便民服务」
+- [ ] **D3** 微信后台「设置 → 服务内容声明 → 用户隐私保护指引」提交
+- [ ] **D4** 客服联系方式配置（接微信客服或留邮箱）
+- [ ] **D5** UGC 内容安全检测接入（后端 `security.msgSecCheck`，审核员重点）
+
+### E. 提交审核前自检（用户操作）
+
+- [ ] **E1** 提交审核备注附测试账号（邮箱+密码，验证码审核期间可用）
+- [ ] **E2** 全量回归关键路径：注册（需勾选协议）→ Onboarding 创建账本 → 记一笔 → 注销账号
+- [ ] **E3** 检查无「测试/Demo/TODO」字样

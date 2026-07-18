@@ -20,6 +20,8 @@ export default defineAppConfig({
     "pages/About/index",
     "pages/Onboarding/index",
     "pages/MapPicker/index",
+    "pages/Terms/index",
+    "pages/Privacy/index",
   ],
   window: {
     backgroundTextStyle: "dark",
@@ -29,6 +31,8 @@ export default defineAppConfig({
     backgroundColor: "#F6F7F4",
     enablePullDownRefresh: false,
   },
+  // 开启微信隐私合规检查：调用 getLocation/chooseImage 等敏感接口前会弹授权弹窗
+  __usePrivacyCheck__: true,
   // 位置权限声明（MapPicker 的「我的位置」用到 Taro.getLocation）
   permission: {
     "scope.userLocation": {

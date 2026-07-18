@@ -1,0 +1,80 @@
+/* ═══ Terms / Privacy 协议页样式 ═══ */
+/* 与 Terms 页共用同一套类名（legal-*），样式一致 */
+
+.legal-content {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+/* ========== Hero 区域 ========== */
+.legal-hero {
+  background: var(--srf);
+  border: 1rpx solid var(--bd);
+  border-radius: var(--rl);
+  box-shadow: var(--sh2);
+  padding: 48rpx 32rpx 36rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.legal-title {
+  font-size: 40rpx;
+  font-weight: 700;
+  color: var(--fg);
+  letter-spacing: 2rpx;
+  margin-bottom: 12rpx;
+}
+
+.legal-update {
+  font-size: 24rpx;
+  color: var(--fg3);
+}
+
+/* ========== 引言 ========== */
+.legal-intro {
+  background: var(--prBg);
+  border-radius: var(--rs);
+  padding: 24rpx 28rpx;
+  font-size: 26rpx;
+  color: var(--fg2);
+  line-height: 1.7;
+}
+
+/* ========== 章节卡片 ========== */
+.legal-section {
+  background: var(--srf);
+  border: 1rpx solid var(--bd);
+  border-radius: 28rpx;
+  box-shadow: 0 10rpx 28rpx rgba(36, 49, 45, 0.035);
+  padding: 28rpx 28rpx 24rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+}
+
+.legal-section-title {
+  font-size: 30rpx;
+  font-weight: 650;
+  color: var(--fg);
+  line-height: 1.4;
+  margin-bottom: 4rpx;
+}
+
+.legal-section-text {
+  font-size: 26rpx;
+  color: var(--fg2);
+  line-height: 1.7;
+  display: block;
+}
+
+/* ========== 底部 ========== */
+.legal-footer {
+  text-align: center;
+  padding: 24rpx 32rpx 40rpx;
+  font-size: 24rpx;
+  color: var(--fg3);
+  line-height: 1.6;
+}

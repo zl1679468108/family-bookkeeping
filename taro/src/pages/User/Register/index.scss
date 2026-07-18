@@ -100,6 +100,53 @@
     opacity: 0.92;
   }
 
+  /* 协议勾选 */
+  .register-agreement {
+    margin-top: 32rpx;
+    display: flex;
+    align-items: flex-start;
+    gap: 12rpx;
+    padding: 0 4rpx;
+  }
+
+  .register-checkbox {
+    flex-shrink: 0;
+    width: 36rpx;
+    height: 36rpx;
+    border-radius: 50%;
+    border: 2rpx solid var(--bd);
+    background: var(--srf);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 4rpx;
+    transition: background 0.15s ease, border-color 0.15s ease;
+  }
+
+  .register-checkbox.checked {
+    background: var(--prGr);
+    border-color: var(--prGr);
+  }
+
+  .register-checkbox-mark {
+    color: #ffffff;
+    font-size: 22rpx;
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  .register-agreement-text {
+    flex: 1;
+    font-size: 24rpx;
+    color: var(--fg2);
+    line-height: 1.6;
+  }
+
+  .register-agreement-link {
+    color: var(--pr);
+    font-weight: 500;
+  }
+
   .register-footer {
     margin-top: 36rpx;
     text-align: center;

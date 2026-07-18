@@ -266,6 +266,25 @@
   color: var(--fg);
 }
 
+/* 可点击行 */
+.about-info-row--link {
+  cursor: pointer;
+}
+
+.about-info-row--link:active {
+  background: rgba(45, 157, 138, 0.06);
+}
+
+.about-info-row--link .about-info-label {
+  color: var(--fg);
+}
+
+.about-info-arrow {
+  font-size: 32rpx;
+  font-weight: 300;
+  color: var(--fg3);
+}
+
 /* ========== 底部签名 ========== */
 .about-footer {
   text-align: center;

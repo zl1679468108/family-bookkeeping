@@ -7,6 +7,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { SupabaseService } from '../supabase/supabase.service';
+import { WechatService } from '../wechat/wechat.service';
 import { BatchOperation, BatchTransactionDto } from './dto/batch-transaction.dto';
 
 export interface Transaction {
@@ -61,7 +62,10 @@ export interface PaginatedResponse<T> {
 export class TransactionService {
   private readonly logger = new Logger(TransactionService.name);
 
-  constructor(private supabaseService: SupabaseService) {}
+  constructor(
+    private supabaseService: SupabaseService,
+    private wechatService: WechatService,
+  ) {}
 
   /** 解析 image_urls 字段（支持 JSON 数组和逗号分隔字符串），并清理 URL 首尾可能存在的反引号/引号 */
   private parseImageUrls(imageUrls: string | null | undefined): string[] {
@@ -242,6 +246,10 @@ export class TransactionService {
       throw new BadRequestException('类型不合法，必须为 income 或 expense');
     }
 
+    // UGC 内容安全检测（交易备注 + 地点名）
+    await this.wechatService.checkText(transaction.description || '', 2);
+    await this.wechatService.checkText(transaction.location_name || '', 2);
+
     const supabase = this.supabaseService.getClient();
 
     if (!userId) {
@@ -306,6 +314,14 @@ export class TransactionService {
     }
     if (transaction.type !== undefined && !['income', 'expense'].includes(transaction.type)) {
       throw new BadRequestException('类型不合法，必须为 income 或 expense');
+    }
+
+    // UGC 内容安全检测（仅当字段被实际更新时检测）
+    if (transaction.description !== undefined) {
+      await this.wechatService.checkText(transaction.description || '', 2);
+    }
+    if (transaction.location_name !== undefined) {
+      await this.wechatService.checkText(transaction.location_name || '', 2);
     }
 
     const supabase = this.supabaseService.getClient();

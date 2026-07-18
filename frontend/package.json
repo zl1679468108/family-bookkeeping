@@ -1,6 +1,6 @@
 {
   "name": "family-bookkeeping",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
   "scripts": {
     "start": "HOST=127.0.0.1 PORT=3001 REACT_APP_ENV=development sh -c 'lsof -ti:3001 | xargs kill -15 2>/dev/null; react-scripts start'",

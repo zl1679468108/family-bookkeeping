@@ -18,6 +18,7 @@ export default function Register() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
+  const [agreed, setAgreed] = useState(false);
   const { signUp } = useAuth();
   const { run } = useSubmit();
 
@@ -32,6 +33,10 @@ export default function Register() {
     }
     if (password.length < 6) {
       setError("密码长度至少为6位");
+      return;
+    }
+    if (!agreed) {
+      setError("请先阅读并同意《用户协议》和《隐私政策》");
       return;
     }
     setError("");
@@ -107,6 +112,37 @@ export default function Register() {
         </View>
 
         {error ? <Text className="register-error">{error}</Text> : null}
+
+        <View className="register-agreement">
+          <View
+            className={`register-checkbox ${agreed ? "checked" : ""}`}
+            onClick={() => setAgreed((v) => !v)}
+          >
+            <Text className="register-checkbox-mark">{agreed ? "✓" : ""}</Text>
+          </View>
+          <Text className="register-agreement-text">
+            我已阅读并同意
+            <Text
+              className="register-agreement-link"
+              onClick={(e) => {
+                e.stopPropagation();
+                Taro.navigateTo({ url: "/pages/Terms/index" });
+              }}
+            >
+              《用户协议》
+            </Text>
+            和
+            <Text
+              className="register-agreement-link"
+              onClick={(e) => {
+                e.stopPropagation();
+                Taro.navigateTo({ url: "/pages/Privacy/index" });
+              }}
+            >
+              《隐私政策》
+            </Text>
+          </Text>
+        </View>
 
         <View className="register-submit" onClick={handleSubmit}>
           <Text>注册</Text>
