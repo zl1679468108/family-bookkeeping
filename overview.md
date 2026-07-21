@@ -1,38 +1,58 @@
-# TemplateEdit 小程序端对齐 PC 端
+# 静记小程序 · 体验版构建与域名绑定
 
-## 概述
+> 时间：2026-07-20
+> 范围：Taro 小程序体验版（dist-prod）+ 微信后台服务器域名绑定
 
-按用户截图要求，将 Taro 小程序 `TemplateEdit` 页的字段样式与功能逻辑与 PC 端 `TemplateFormModal` 保持一致。
+## 一、本次做了什么
 
-## 改动文件
+1. **构建体验版产物**：`taro/dist-prod/`（微信小程序生产构建，API 基址已固化为 `https://zlspace.site/api`）。
+2. **修正陈旧的 CloudBase 域名**：体验版原本指向已停用的 CloudBase 域名 `family-bookkeeping-api-prod-...sh.run.tcloudbase.com`，已全部改为生产域名 `zlspace.site`。涉及文件：
+   - `taro/.env.production`（生产环境变量）
+   - `taro/src/services/api.ts`（API 默认基址兜底）
+   - `docs/微信小程序上架准备清单.md`（第 3 节服务器域名 + 生产接口地址）
+   - `docs/TASKS.md`（D1 域名配置项 + 最终审核清单域名块）
+3. **验证后端可达**：`https://zlspace.site` → 200，`https://zlspace.site/api` → 404（根路径无路由，说明 Nginx 已正确转发 `/api` 到后端，后端在线）。
 
-| 文件 | 改动 |
+## 二、域名绑定清单（核心，需在微信后台粘贴）
+
+入口：**微信公众平台 mp.weixin.qq.com → 开发管理 → 开发设置 → 服务器域名**
+
+```text
+request 合法域名：
+https://zlspace.site
+
+uploadFile 合法域名：
+https://zlspace.site
+
+downloadFile 合法域名：
+https://zlspace.site
+https://fvggqgeiwewsjojargxe.supabase.co
+```
+
+说明：
+- `zlspace.site` = 生产后端（自建 CVM + Nginx），所有接口请求 / 文件上传 / 文件下载都经此后端代理。
+- `fvggqgeiwewsjojargxe.supabase.co` **必须保留**：交易小票图、自定义图标经后端 `getPublicUrl()` 返回 Supabase 公共直链，`<image>` 组件在真机显示这些图必须在 `downloadFile 合法域名` 中（request / uploadFile 不需要它）。
+- 全部 HTTPS，不填 localhost。保存后约 5–10 分钟生效。
+
+## 三、上传为体验版步骤
+
+1. 打开**微信开发者工具** → 导入项目 → 目录选 `taro/dist-prod` → AppID 填 `wx93c16508eff05096` → 导入。
+2. 工具编译预览，确认能正常拉起首页（此时若未配域名，需临时勾「详情 → 本地设置 → 不校验合法域名」自测）。
+3. 点「上传」→ 版本号如 `1.0.1-experience`、备注写功能范围 → 上传为**开发版**。
+4. 回到 mp.weixin.qq.com → 管理 → 版本管理 → 开发版本 → 选刚上传的 → **「设为体验版」**。
+5. 体验版 → 添加体验者微信号 → 对方扫码即可体验。
+
+## 四、验证结果
+
+| 项 | 结果 |
 |---|---|
-| `taro/src/pages/TemplateEdit/index.tsx` | 重写表单结构：标签置顶、类型与分类同排、金额增加 `¥` 前缀、位置信息改为虚线按钮 + 选中卡片、移除「商户」字段、排序仅在新建时显示、必填项加 `*` 标记。 |
-| `taro/src/pages/TemplateEdit/index.scss` | 同步重写样式：垂直字段布局、选择器卡片、金额前缀、虚线位置按钮、位置卡片、底部操作栏。 |
+| 产物 API 基址 | `dist-prod/common.js` 含 `https://zlspace.site/api` ✅ |
+| 主包大小 | 1.2M（上限 2MB，无需分包）✅ |
+| 旧 CloudBase 域名残留 | dist-prod 内已无残留 ✅ |
+| 生产后端 `zlspace.site` | 200 ✅ |
+| 生产接口 `zlspace.site/api` | 404（根路径无路由，代理正常）✅ |
 
-## 主要差异
+## 五、注意 / 待清理
 
-- **移除字段**：`merchant_name`（PC 端表单不含此字段）。
-- **布局对齐**：从「标签在左 / 输入在右」改为「标签在上 / 输入在下」，与 PC 端表单一致。
-- **类型 / 分类**：改为同排两个选择框，类型值按支出/收入显示红/绿色。
-- **金额**：左侧显示 `¥` 前缀，placeholder `0.00`。
-- **位置信息**：未选时显示虚线边框按钮 `📍 选择位置`；选中后展示名称 + 坐标 + 修改/清除操作。
-- **排序**：仅在新建模式显示（编辑模式下隐藏），与 PC 端逻辑一致。
-- **分类图标预览**：已移除，PC 端表单无此元素。
-- **必填标记**：模板名称、类型、分类加红色 `*`。
-
-## 验证结果
-
-- `npx tsc --noEmit`（Taro）通过，无类型错误。
-- 生产构建过程耗时较长，已停止；SCSS/TSX 改动以 TypeScript 类型检查为准。
-
-## 后续布局修复补充
-
-针对用户反馈的「布局没对齐」问题，进一步修复以下细节：
-
-- **排序字段**：`type="number"` 的 Input 在 iOS/小程序中默认右对齐，已显式设置 `text-align: left`，使 `0` 与其他输入框左对齐保持一致。
-- **金额字段**：给 `¥` 前缀和金额 Input 统一 `line-height`，消除 `¥` 与 `0.00` 之间的上下偏移。
-- **选择器基线**：给 `.tpl-picker-value`、`.tpl-picker-chevron`、`.tpl-picker-clear` 统一 `line-height: 1`，避免类型/分类两个选择框内的文字上下浮动。
-- **选择器内边距**：统一 `.tpl-picker` 与 `.tpl-input` 的左右 padding 为 `24rpx`，保证视觉左右边距一致。
-- **PC 端清除按钮对齐**：PC 端 `DropdownSelect` 默认有 `allowClear` 清除按钮，小程序端类型/分类选择器已补充清除按钮（有值时显示 `×`），并支持点击清除（`catchClick` 阻止 Picker 弹窗）。
+- 已清理全部 CloudBase 残留：删除 `cloudbaserc.json`（根 + backend 共 2 个）、`scripts/deploy-all.sh`、`config/mcporter.json`；并将 `README.md` / `backend/README.md` / `frontend/README.md` / `docs/PRD.md` / `AGENTS.md` / `docs/TASKS.md` / `backend/Dockerfile` 中的 CloudBase 描述统一改为 CVM（`zlspace.site`）。当前仓库仅保留 CVM 部署链路（`scripts/deploy-cvm.sh` 等）。
+- 提交正式审核前，仍需在微信后台完成：服务类目（工具→效率）、隐私保护指引、客服人员添加、审核备注附测试账号。

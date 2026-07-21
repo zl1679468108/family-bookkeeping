@@ -46,7 +46,7 @@ function createBubbleContent(loc: MemberLocation, isOffline: boolean): string {
 /**
  * MemberLocationLayer — 成员位置气泡图层。
  *
- * 使用 react-query 每 15s 轮询成员位置，通过原生 AMap API 在地图上
+ * 使用 react-query 每 60s 轮询成员位置，通过原生 AMap API 在地图上
  * 添加/移除 Marker。超过 2 分钟未更新的成员显示为灰色离线状态。
  * bookId 为 undefined 或 mapInstance 为 null 时不渲染任何内容。
  *
@@ -58,12 +58,13 @@ export const MemberLocationLayer: React.FC<MemberLocationLayerProps> = ({
 }) => {
   const markersRef = useRef<any[]>([]);
 
-  // 轮询成员位置，每 15s
+  // 轮询成员位置，每 60s，避免地图页长时间打开时把后端持续点亮
   const { data: locations = [] } = useQuery<MemberLocation[]>({
     queryKey: ['memberLocations', bookId],
     queryFn: fetchMemberLocations,
     enabled: !!bookId,
-    refetchInterval: 15_000,
+    refetchInterval: 60_000,
+    refetchIntervalInBackground: false,
   });
 
   // 管理原生 AMap Marker 的生命周期

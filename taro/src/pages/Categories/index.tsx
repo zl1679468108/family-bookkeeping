@@ -8,16 +8,17 @@
  *
  * 不再做页面跳转（navigateTo），全部以 Sheet 弹窗完成。
  */
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useCallback, useRef } from "react";
 import { View, Text, Input } from "@tarojs/components";
 import Taro, { useDidShow } from "@tarojs/taro";
 import { useQueryClient } from "@tanstack/react-query";
 import PageContainer from "../../components/PageContainer";
-import { EmptyState } from "../../components/ui";
+import { EmptyState, SegControl } from "../../components/ui";
 import CategoryIcon from "../../components/CategoryIcon";
 import ConfirmDialog from "../../components/ConfirmDialog";
 import { IconGrid } from "../../components/ui/IconGrid";
 import BottomSheet from "../../components/BottomSheet";
+import DragSortList from "../../components/DragSortList";
 import {
   fetchCategories,
   createCategory,
@@ -101,9 +102,26 @@ export default function CategoriesPage() {
     queryFn: () => fetchCategories(),
   });
 
+  /* 首次显示已由 useManualQuery 的 mount effect 请求过，若已拿到数据则跳过，避免重复请求 */
+  const isFirstShow = useRef(true);
   useDidShow(() => {
+    if (isFirstShow.current) {
+      isFirstShow.current = false;
+      if ((categories || []).length > 0) return;
+    }
     refetch();
   });
+
+  /* 下拉刷新 */
+  const [refreshing, setRefreshing] = useState(false);
+  const handleRefresh = useCallback(async () => {
+    setRefreshing(true);
+    try {
+      await refetch();
+    } finally {
+      setRefreshing(false);
+    }
+  }, [refetch]);
 
   // 自定义图标（打开表单时加载）
   useEffect(() => {
@@ -126,8 +144,7 @@ export default function CategoriesPage() {
     displayList,
     enter: handleEnterSortMode,
     cancel: handleCancelSortMode,
-    moveUp: handleMoveUp,
-    moveDown: handleMoveDown,
+    moveTo: handleMoveTo,
     save: handleSaveSort,
   } = useReorder<Category>({
     items: filtered,
@@ -246,29 +263,27 @@ export default function CategoriesPage() {
   const iconOptions = useMemo(() => buildIconOptions(), []);
 
   return (
-    <PageContainer loading={isLoading} loadingText="加载中…">
+    <PageContainer
+      loading={isLoading}
+      loadingText="加载中…"
+      onRefresh={handleRefresh}
+      refreshing={refreshing}
+    >
       {/* Tab 切换 + 排序 + 添加按钮 */}
       <View className="cats-tabs-card">
-        <View className="cats-pill-tabs">
-          <View
-            className={`cats-pill-tab ${tabIndex === 0 ? "cats-pill-tab--active" : ""}`}
-            onClick={() => {
-              if (sortMode) handleCancelSortMode();
-              setTabIndex(0);
-            }}
-          >
-            <Text className="cats-pill-tab__text">支出分类</Text>
-          </View>
-          <View
-            className={`cats-pill-tab ${tabIndex === 1 ? "cats-pill-tab--active" : ""}`}
-            onClick={() => {
-              if (sortMode) handleCancelSortMode();
-              setTabIndex(1);
-            }}
-          >
-            <Text className="cats-pill-tab__text">收入分类</Text>
-          </View>
-        </View>
+        <SegControl
+          size="sm"
+          variant="default"
+          value={catType}
+          onChange={(v) => {
+            if (sortMode) handleCancelSortMode();
+            setTabIndex(v === "income" ? 1 : 0);
+          }}
+          options={[
+            { value: "expense", label: "支出分类" },
+            { value: "income", label: "收入分类" },
+          ]}
+        />
         <View className="cats-actions">
           {sortMode ? (
             <>
@@ -301,7 +316,7 @@ export default function CategoriesPage() {
       {/* 排序模式提示 */}
       {sortMode && (
         <View className="cats-sort-hint">
-          <Text>点击 ↑ / ↓ 调整顺序</Text>
+          <Text>长按卡片拖动调整顺序，完成后点击保存</Text>
         </View>
       )}
 
@@ -314,19 +329,43 @@ export default function CategoriesPage() {
               description="添加第一个分类，让每一笔收支都有清晰的归类。"
             />
           </View>
+        ) : sortMode ? (
+          <View className="cats-drag-wrap">
+            <DragSortList
+              items={displayList}
+              getKey={(c) => c.id}
+              itemHeight={140}
+              onReorder={handleMoveTo}
+              renderItem={(cat) => (
+                <View className="cats-grid-card cats-grid-card--sort cats-grid-card--drag">
+                  <View className="cats-grid-card__drag-row">
+                    <View className="cats-grid-card__icon-wrap">
+                      <CategoryIcon icon={cat.icon} size={28} fill className="cats-grid-card__icon" />
+                    </View>
+                    <Text className="cats-grid-card__name">{cat.name}</Text>
+                    <Text className="cats-grid-card__drag-handle">⋮⋮</Text>
+                  </View>
+                  <View className="cats-grid-card__tags">
+                    {cat.is_default ? (
+                      <Text className="cats-tag cats-tag--default">默认</Text>
+                    ) : (
+                      <Text className="cats-tag cats-tag--custom">自定义</Text>
+                    )}
+                  </View>
+                </View>
+              )}
+            />
+          </View>
         ) : (
           <View className="cats-grid-list">
-            {displayList.map((cat, idx) => (
+            {displayList.map((cat) => (
               <View
                 key={cat.id}
-                className={`cats-grid-card ${sortMode ? "cats-grid-card--sort" : ""}`}
-                onClick={() => {
-                  if (sortMode) return;
-                  handleCardTap(cat);
-                }}
+                className="cats-grid-card"
+                onClick={() => handleCardTap(cat)}
               >
                 <View className="cats-grid-card__icon-wrap">
-                  <CategoryIcon icon={cat.icon} size={28} className="cats-grid-card__icon" />
+                  <CategoryIcon icon={cat.icon} size={28} fill className="cats-grid-card__icon" />
                 </View>
                 <Text className="cats-grid-card__name">{cat.name}</Text>
                 <View className="cats-grid-card__tags">
@@ -336,28 +375,6 @@ export default function CategoriesPage() {
                     <Text className="cats-tag cats-tag--custom">自定义</Text>
                   )}
                 </View>
-                {sortMode && (
-                  <View className="cats-grid-card__sort-ctrl">
-                    <View
-                      className={`cats-sort-arrow ${idx === 0 ? "cats-sort-arrow--disabled" : ""}`}
-                      onClick={(e: any) => {
-                        e.stopPropagation();
-                        handleMoveUp(idx);
-                      }}
-                    >
-                      <Text>↑</Text>
-                    </View>
-                    <View
-                      className={`cats-sort-arrow ${idx >= displayList.length - 1 ? "cats-sort-arrow--disabled" : ""}`}
-                      onClick={(e: any) => {
-                        e.stopPropagation();
-                        handleMoveDown(idx);
-                      }}
-                    >
-                      <Text>↓</Text>
-                    </View>
-                  </View>
-                )}
               </View>
             ))}
           </View>
@@ -390,7 +407,7 @@ export default function CategoriesPage() {
             {/* 图标 + 名称 + 标签（PC 同款左右布局） */}
             <View className="catds-hero">
               <View className="catds-hero__icon-wrap">
-                <CategoryIcon icon={detailCat.icon} size={56} className="catds-hero__icon" />
+                <CategoryIcon icon={detailCat.icon} size={56} fill className="catds-hero__icon" />
               </View>
               <View className="catds-hero__content">
                 <Text className="catds-hero__name">{detailCat.name}</Text>
@@ -478,7 +495,6 @@ export default function CategoriesPage() {
                 maxlength={10}
                 value={formName}
                 onInput={(e: any) => setFormName(e.detail.value)}
-                focus={!!formMode}
               />
             </View>
 

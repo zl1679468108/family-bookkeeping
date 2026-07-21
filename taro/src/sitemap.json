@@ -1,0 +1,25 @@
+{
+  "rules": [
+    { "action": "disallow", "page": "pages/Home/index" },
+    { "action": "disallow", "page": "pages/Transactions/index" },
+    { "action": "disallow", "page": "pages/Workbench/index" },
+    { "action": "disallow", "page": "pages/AddTransaction/index" },
+    { "action": "disallow", "page": "pages/Profile/index" },
+    { "action": "disallow", "page": "pages/EditProfile/index" },
+    { "action": "disallow", "page": "pages/User/Login/index" },
+    { "action": "disallow", "page": "pages/User/Register/index" },
+    { "action": "disallow", "page": "pages/User/ForgotPassword/index" },
+    { "action": "disallow", "page": "pages/Budgets/index" },
+    { "action": "disallow", "page": "pages/Categories/index" },
+    { "action": "disallow", "page": "pages/CategoryEdit/index" },
+    { "action": "disallow", "page": "pages/Books/index" },
+    { "action": "disallow", "page": "pages/BookMembers/index" },
+    { "action": "disallow", "page": "pages/BookSettings/index" },
+    { "action": "disallow", "page": "pages/TemplateManager/index" },
+    { "action": "disallow", "page": "pages/TemplateEdit/index" },
+    { "action": "disallow", "page": "pages/About/index" },
+    { "action": "disallow", "page": "pages/Onboarding/index" },
+    { "action": "disallow", "page": "pages/Terms/index" },
+    { "action": "disallow", "page": "pages/Privacy/index" }
+  ]
+}

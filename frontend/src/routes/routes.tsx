@@ -8,6 +8,7 @@ const AddTransaction = lazy(() => import('../pages/AddTransaction'))
 const Login = lazy(() => import('../pages/User/Login'))
 const Register = lazy(() => import('../pages/User/Register'))
 const ForgotPassword = lazy(() => import('../pages/User/ForgotPassword'))
+const ResetPassword = lazy(() => import('../pages/User/ResetPassword'))
 const Categories = lazy(() => import('../pages/Categories'))
 const Budgets = lazy(() => import('../pages/Budgets'))
 const Books = lazy(() => import('../pages/Books'))
@@ -27,6 +28,7 @@ export const routes: RouteConfig[] = [
   { path: '/login', element: <Login />, isPrivate: false },
   { path: '/register', element: <Register />, isPrivate: false },
   { path: '/forgot-password', element: <ForgotPassword />, isPrivate: false },
+  { path: '/reset-password', element: <ResetPassword />, isPrivate: false },
   { path: '/onboarding', element: <Onboarding />, isPrivate: true },
   { path: '/', element: <Dashboard />, isPrivate: true },
   { path: '/transactions', element: <Transactions />, isPrivate: true },

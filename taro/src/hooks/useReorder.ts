@@ -58,6 +58,8 @@ export interface UseReorderResult<T> {
   moveUp: (index: number) => void;
   /** 第 index 项与下一项目交换 */
   moveDown: (index: number) => void;
+  /** 将第 from 项移动到 to 位置（支持长按拖拽重排） */
+  moveTo: (from: number, to: number) => void;
   /** 保存当前顺序到后端 */
   save: () => void;
 }
@@ -107,23 +109,59 @@ export function useReorder<T>({
     [sortOrder],
   );
 
+  const moveTo = useCallback(
+    (from: number, to: number) => {
+      if (
+        from === to ||
+        from < 0 ||
+        to < 0 ||
+        from >= sortOrder.length ||
+        to >= sortOrder.length
+      )
+        return;
+      const next = [...sortOrder];
+      const [moved] = next.splice(from, 1);
+      next.splice(to, 0, moved);
+      setSortOrder(next);
+    },
+    [sortOrder],
+  );
+
   const save = useCallback(() => {
-    if (sortOrder.length === 0) return;
+    if (sortOrder.length === 0) {
+      Taro.showToast({ title: "无需保存", icon: "none" });
+      return;
+    }
     const orderedIds = sortOrder.map((item) => getKey(item));
+    // 检查顺序是否真的变化了（避免无变化的空保存请求）
+    const originalIds = items.map((item) => getKey(item));
+    const changed = orderedIds.some((id, i) => id !== originalIds[i]);
+    if (!changed) {
+      Taro.showToast({ title: "顺序未变化", icon: "none" });
+      setSortMode(false);
+      setSortOrder([]);
+      return;
+    }
+    console.log("[useReorder] 保存排序:", { from: originalIds, to: orderedIds });
     run(async () => {
       await onSave(orderedIds);
+      console.log("[useReorder] onSave 成功，开始失效缓存 + 刷新列表");
       queryClient.invalidateQueries({ queryKey });
       Taro.showToast({ title: successText, icon: "success" });
       setSortMode(false);
       setSortOrder([]);
+      // 确保先退出排序模式再刷新列表，避免 displayList 在排序模式下的特殊分支
+      await Promise.resolve();
+      console.log("[useReorder] 调用 refetch 刷新列表");
       refetch();
     }, "保存中…").catch((err: any) => {
+      console.error("[useReorder] 保存失败:", err);
       Taro.showToast({
         title: err?.message || "排序保存失败",
         icon: "none",
       });
     });
-  }, [sortOrder, getKey, onSave, queryClient, queryKey, refetch, successText, run]);
+  }, [sortOrder, items, getKey, onSave, queryClient, queryKey, refetch, successText, run]);
 
   return {
     sortMode,
@@ -133,6 +171,7 @@ export function useReorder<T>({
     cancel,
     moveUp,
     moveDown,
+    moveTo,
     save,
   };
 }

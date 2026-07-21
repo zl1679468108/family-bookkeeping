@@ -1,6 +1,6 @@
 # 静记后端
 
-基于 NestJS 10 + TypeScript 5 的家庭记账后端 API 服务，使用 Supabase (PostgreSQL) 作为数据库，部署在腾讯云 CloudBase 云托管。
+基于 NestJS 10 + TypeScript 5 的家庭记账后端 API 服务，使用 Supabase (PostgreSQL) 作为数据库，部署在腾讯云 CVM（Nginx + PM2）。
 
 ## 技术栈
 
@@ -10,7 +10,7 @@
 - **认证**: JWT
 - **文件存储**: Supabase Storage
 - **邮件服务**: 邮件模板系统
-- **部署**: Docker + 腾讯云 CloudBase 云托管
+- **部署**: Docker 容器部署于腾讯云 CVM（Nginx 反代 `zlspace.site`）
 
 ## 项目结构
 
@@ -273,28 +273,9 @@ docker run -p 3000:3000 --env-file .env family-bookkeeping-backend
 docker-compose up -d
 ```
 
-## 腾讯云 CloudBase 部署
+## 部署（腾讯云 CVM）
 
-### 环境信息
-
-- **EnvId**: `family-bookkeeping-d7c9caa78340e`
-- **CloudRun 服务名**: `family-bookkeeping-api-prod`
-- **后端 API 地址**: https://family-bookkeeping-api-prod-259958-6-1305761531.sh.run.tcloudbase.com
-- **前端访问地址**: https://family-bookkeeping-d7c9caa78340e-1305761531.tcloudbaseapp.com/
-- **CloudBase 控制台**: https://tcb.cloud.tencent.com/dev?envId=family-bookkeeping-d7c9caa78340e#/platform-run/service/detail?serverName=family-bookkeeping-api-prod&tabId=overview&envId=family-bookkeeping-d7c9caa78340e
-
-### 部署步骤
-
-```bash
-# 1. 构建前端
-cd frontend && npm run build:prod && cd ..
-
-# 2. 部署后端
-npx mcporter call --stdio 'npx' --stdio-arg '@cloudbase/cloudbase-mcp@latest' --cwd . manageCloudRun --args '{"action":"deploy","serverName":"family-bookkeeping-api-prod","targetPath":"backend"}'
-
-# 3. 部署前端
-npx mcporter call --stdio 'npx' --stdio-arg '@cloudbase/cloudbase-mcp@latest' --cwd . manageHosting --args '{"action":"upload","localPath":"frontend/build","cloudPath":"/"}'
-```
+详见 [../docs/deployment.md](../docs/deployment.md)，使用 `scripts/deploy-cvm.sh` 一键部署后端 + 前端 PC Web 到 CVM（`zlspace.site`）。
 
 ## 测试 API
 
@@ -421,43 +402,9 @@ GET /api/export/pdf                 # 导出 PDF
 
 与交易记录查询参数相同，支持筛选导出范围。
 
-## 腾讯云 CloudBase 部署
+## 部署（腾讯云 CVM）
 
-### 环境信息
-
-- **EnvId**: `family-bookkeeping-d7c9caa78340e`
-- **CloudRun 服务名**: `family-bookkeeping-api-prod`
-- **后端 API 地址**: https://family-bookkeeping-api-prod-259958-6-1305761531.sh.run.tcloudbase.com
-- **前端访问地址**: https://family-bookkeeping-d7c9caa78340e-1305761531.tcloudbaseapp.com/
-- **CloudBase 控制台**: https://tcb.cloud.tencent.com/dev?envId=family-bookkeeping-d7c9caa78340e#/platform-run/service/detail?serverName=family-bookkeeping-api-prod&tabId=overview&envId=family-bookkeeping-d7c9caa78340e
-
-### 通过 MCP 部署
-
-```bash
-# 配置 mcporter
-mkdir -p config && cat > config/mcporter.json << 'EOF'
-{
-  "mcpServers": {
-    "cloudbase": {
-      "command": "npx",
-      "args": ["@cloudbase/cloudbase-mcp@latest"],
-      "description": "CloudBase MCP",
-      "lifecycle": "keep-alive"
-    }
-  }
-}
-EOF
-
-# 登录
-npx mcporter call cloudbase.auth 'action=start_auth'
-
-# 部署后端（从项目根目录）
-npx mcporter call --stdio 'npx' --stdio-arg '@cloudbase/cloudbase-mcp@latest' --cwd . manageCloudRun --args '{"action":"deploy","serverName":"family-bookkeeping-api-prod","targetPath":"backend"}'
-
-# 构建并部署前端
-cd frontend && npm run build:prod && cd ..
-npx mcporter call --stdio 'npx' --stdio-arg '@cloudbase/cloudbase-mcp@latest' --cwd . manageHosting --args '{"action":"upload","localPath":"frontend/build","cloudPath":"/"}'
-```
+详见 [../docs/deployment.md](../docs/deployment.md)，使用 `scripts/deploy-cvm.sh` 一键部署后端 + 前端 PC Web 到 CVM（`zlspace.site`）。
 
 ## 测试 API
 

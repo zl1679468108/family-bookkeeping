@@ -118,12 +118,11 @@
   width: 44rpx;
   height: 44rpx;
   border-radius: 12rpx;
-  background-color: var(--bg, #f6f7f4);
+  background-color: transparent;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  border: 1rpx solid var(--border-light, #edeee9);
 }
 
 .bk-card__name {
@@ -507,7 +506,7 @@
   width: 88rpx;
   height: 88rpx;
   border-radius: 24rpx;
-  background-color: var(--bg, #f6f7f4);
+  background-color: transparent;
   display: inline-flex;
   align-items: center;
   justify-content: center;

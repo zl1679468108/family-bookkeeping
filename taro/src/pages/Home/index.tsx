@@ -8,9 +8,8 @@
  */
 import { useEffect, useMemo, useState, useCallback } from "react";
 import { View, Text } from "@tarojs/components";
-import Taro from "@tarojs/taro";
 import PageContainer from "../../components/PageContainer";
-import { AppSection, MetricGrid, EmptyState, Button } from "../../components/ui";
+import { AppSection, MetricGrid, EmptyState } from "../../components/ui";
 import { getTransactions } from "../../services/transactionsApi";
 import { fetchSummary } from "../../services/statisticsApi";
 import { fetchBudgetStatus } from "../../services/budgetsApi";
@@ -147,24 +146,12 @@ export default function Home() {
       {/* ── 三列统计：本月结余 / 本月收入 / 本月支出 ── */}
       <MetricGrid items={metricItems} columns={3} className="home-metrics" />
 
-      {/* ── 最近交易（卡片式） ── */}
-      <AppSection
-        title="本月最近交易"
-        actionText="全部 ›"
-        onAction={() => Taro.switchTab({ url: "/pages/Transactions/index" })}
-      >
+      {/* ── 最近交易（卡片式，仅展示，不可点击） ── */}
+      <AppSection title="本月最近交易">
         {txn.length === 0 ? (
           <EmptyState
             title="暂无交易记录"
             description="记录每一笔交易，掌握家庭收支"
-            action={
-              <Button
-                variant="primary"
-                onClick={() => Taro.navigateTo({ url: "/pages/AddTransaction/index?type=expense" })}
-              >
-                添加第一笔交易
-              </Button>
-            }
           />
         ) : (
           <View className="home-txn-list">
@@ -173,13 +160,7 @@ export default function Home() {
               const catIcon = getCategoryIcon(t.category) || "";
               const isExpense = t.type === "expense";
               return (
-                <View
-                  key={t.id}
-                  className="home-txn-row"
-                  onClick={() => {
-                    Taro.navigateTo({ url: `/pages/AddTransaction/index?edit=${t.id}` });
-                  }}
-                >
+                <View key={t.id} className="home-txn-row">
                   {/* 图标容器：圆角方形背景 */}
                   <View className={`home-txn-icon ${isExpense ? "home-txn-icon--exp" : "home-txn-icon--inc"}`}>
                     {catIcon ? (
@@ -266,14 +247,6 @@ export default function Home() {
           <EmptyState
             title="暂无预算设置"
             description="设置预算可以更好地控制支出"
-            action={
-              <Button
-                variant="primary"
-                onClick={() => Taro.navigateTo({ url: "/pages/Budgets/index" })}
-              >
-                去设置
-              </Button>
-            }
           />
         )}
       </View>

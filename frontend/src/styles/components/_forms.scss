@@ -117,3 +117,30 @@
 .form-group label.field-required::before {
   color: var(--exp);
 }
+
+/* 密码输入框包装器（展示/隐藏切换） */
+.password-wrapper {
+  position: relative;
+
+  .form-input {
+    padding-right: 44px;
+  }
+
+  .password-toggle {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--color-muted, #888);
+    padding: 4px;
+    font-size: 16px;
+    line-height: 1;
+
+    &:hover {
+      color: var(--color-fg, #1a1a2e);
+    }
+  }
+}

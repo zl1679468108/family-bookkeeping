@@ -21,6 +21,11 @@ import {
   getProfile,
 } from "../../services/authApi";
 import { useSubmit } from "../../hooks/useSubmit";
+import {
+  ensurePrivacyAuthorize,
+  isPrivacyError,
+  openPrivacySetting,
+} from "../../utils/privacy";
 import "./index.scss";
 
 export default function EditProfile() {
@@ -55,14 +60,17 @@ export default function EditProfile() {
   }, []);
 
   // ---- 头像：选择 → 上传到 custom icons 服务 → 使用返回的 URL ----
-  const handleChangeAvatar = useCallback(() => {
-    Taro.chooseImage({
+  const handleChangeAvatar = useCallback(async () => {
+    const ok = await ensurePrivacyAuthorize("选择头像需要访问您的相册");
+    if (!ok) return;
+    Taro.chooseMedia({
       count: 1,
+      mediaType: ["image"],
       sizeType: ["compressed"],
       sourceType: ["album", "camera"],
     })
       .then((res) => {
-        const path = res.tempFilePaths && res.tempFilePaths[0];
+        const path = res.tempFiles && res.tempFiles[0]?.tempFilePath;
         if (!path) return;
         setAvatarPreview(path);
         // 使用 custom icons 上传接口获取正式 URL
@@ -83,7 +91,16 @@ export default function EditProfile() {
           Taro.showToast({ title: "已选择图片", icon: "success" });
         });
       })
-      .catch(() => {});
+      .catch((err: any) => {
+        const msg = err?.errMsg || err?.message || "";
+        if (msg.indexOf("cancel") !== -1) return;
+        if (isPrivacyError(err)) {
+          Taro.showToast({ title: "请先同意隐私协议", icon: "none" });
+          openPrivacySetting();
+          return;
+        }
+        Taro.showToast({ title: msg || "选择图片失败", icon: "none" });
+      });
   }, []);
 
   // ---- 保存资料 ----

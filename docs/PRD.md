@@ -502,10 +502,10 @@ family-bookkeeping/
 - React Query 缓存：staleTime 5 分钟
 
 ### 8.6 部署约束
-- 平台：腾讯云开发 (CloudBase)
-- 后端：CloudBase CloudRun（容器服务）
-- 前端：CloudBase 静态网站托管
-- 无 CI/CD，手动部署或脚本部署
+- 平台：腾讯云 CVM（上海二区）+ Nginx + PM2
+- 后端：Docker 容器部署于 CVM，Nginx 反代 `zlspace.site/api`
+- 前端：构建产物托管于 CVM Nginx 静态目录
+- 无 CI/CD，手动或脚本部署（`scripts/deploy-cvm.sh`）
 
 ---
 

@@ -1,7 +1,7 @@
 /**
  * BookMembers — 账本成员管理
  */
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { View, Text, Input } from "@tarojs/components";
 import Taro, { getCurrentInstance } from "@tarojs/taro";
 import { useQueryClient } from "@tanstack/react-query";
@@ -49,18 +49,29 @@ export default function BookMembers() {
     });
   };
 
-  const { data: members = [], isLoading } = useManualQuery<Member[]>({
+  const { data: members = [], isLoading, refetch: refetchMembers } = useManualQuery<Member[]>({
     key: `bookMembers-${bookId}`,
     queryFn: () => fetchBookMembers(bookId),
     enabled: !!bookId,
   });
 
-  const { data: ownerCheck, isLoading: ownerLoading } = useManualQuery({
+  const { data: ownerCheck, isLoading: ownerLoading, refetch: refetchOwner } = useManualQuery({
     key: `bookOwner-${bookId}`,
     queryFn: () => checkOwner(bookId),
     enabled: !!bookId,
   });
   const isOwner = ownerCheck?.isOwner ?? false;
+
+  /* 下拉刷新 */
+  const [refreshing, setRefreshing] = useState(false);
+  const handleRefresh = useCallback(async () => {
+    setRefreshing(true);
+    try {
+      await Promise.allSettled([refetchMembers(), refetchOwner()]);
+    } finally {
+      setRefreshing(false);
+    }
+  }, [refetchMembers, refetchOwner]);
 
   const handleRemove = () => {
     if (!removeTarget) return;
@@ -90,7 +101,12 @@ export default function BookMembers() {
   };
 
   return (
-    <PageContainer loading={isLoading || ownerLoading} loadingText="加载中…">
+    <PageContainer
+      loading={isLoading || ownerLoading}
+      loadingText="加载中…"
+      onRefresh={handleRefresh}
+      refreshing={refreshing}
+    >
       <View style={{ padding: "0" }}>
         {/* Invite section */}
         {isOwner && (

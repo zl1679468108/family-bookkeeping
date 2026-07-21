@@ -17,15 +17,34 @@
     linear-gradient(180deg, #fbfbf7 0%, var(--bg, #F6F7F4) 42%);
 }
 
-.page-layout-content,
+.page-layout-content {
+  width: 100%;
+  flex: 1;
+  overflow-y: auto;
+  /* 非刷新分支：上下安全区间距直接落容器（无 refresher，无需内嵌） */
+  padding: calc(18rpx + env(safe-area-inset-top, 0)) 32rpx calc(32rpx + env(safe-area-inset-bottom, 0));
+  box-sizing: border-box;
+}
+
 .page-layout-scroll {
   width: 100%;
   flex: 1;
   overflow-y: auto;
-  /* 统一页面间距标准（对齐首页）：
-     横向 32rpx，顶部 calc(18rpx + 安全区)，底部 calc(32rpx + 安全区)。
-     子页面不再各自定义 content padding，需额外底部留白时用 PageLayout 的 bottomSpace。 */
-  padding: calc(18rpx + env(safe-area-inset-top, 0)) 32rpx calc(32rpx + env(safe-area-inset-bottom, 0));
+  /* 仅保留横向 32rpx；上下间距移交内层 .page-layout-inner，
+     让原生 refresher 紧贴首条内容（消除“悬浮在 padding 断层”的怪异感）。 */
+  padding: 0 32rpx;
+  box-sizing: border-box;
+}
+
+/* 内层内容容器：承载上下安全区间距 + contentClassName 的 flex/gap 布局。
+   必须包在 ScrollView 内部，原生 refresher 才能贴合首条内容。 */
+.page-layout-inner {
+  width: 100%;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding-top: calc(18rpx + env(safe-area-inset-top, 0));
+  padding-bottom: calc(32rpx + env(safe-area-inset-bottom, 0));
   box-sizing: border-box;
 }
 

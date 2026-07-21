@@ -1,11 +1,16 @@
 /**
  * IconGrid — 图标网格选择器（对齐 PC IconGrid）
- * 适配：document.createElement('input') 选文件 → Taro.chooseImage；
+ * 适配：document.createElement('input') 选文件 → Taro.chooseMedia；
  *       File → { tempFilePath, name, size }
  */
 import { ReactNode } from "react";
 import { View, Text, Image } from "@tarojs/components";
 import Taro from "@tarojs/taro";
+import {
+  ensurePrivacyAuthorize,
+  isPrivacyError,
+  openPrivacySetting,
+} from "../../../utils/privacy";
 import "./index.scss";
 
 export interface IconGridOption {
@@ -42,16 +47,31 @@ export function IconGrid({
   iconType = "category", columns = 5, className = "",
 }: IconGridProps) {
   const handleUpload = async () => {
+    // 先触发微信隐私授权
+    const ok = await ensurePrivacyAuthorize("选择图标需要访问您的相册");
+    if (!ok) return;
     try {
-      const res = await Taro.chooseImage({ count: 1, sourceType: ["album", "camera"] });
+      const res = await Taro.chooseMedia({
+        count: 1,
+        mediaType: ["image"],
+        sourceType: ["album", "camera"],
+      });
       const file = res.tempFiles?.[0];
       if (!file) return;
       await onUpload?.(
-        { tempFilePath: file.path, name: "icon", size: file.size },
+        { tempFilePath: file.tempFilePath, name: "icon", size: file.size },
         iconType
       );
-    } catch (e) {
-      Taro.showToast({ title: "选择失败", icon: "none" });
+    } catch (e: any) {
+      const msg = e?.errMsg || e?.message || "";
+      // 用户主动取消不提示
+      if (msg.indexOf("cancel") !== -1) return;
+      if (isPrivacyError(e)) {
+        Taro.showToast({ title: "请先同意隐私协议", icon: "none" });
+        openPrivacySetting();
+        return;
+      }
+      Taro.showToast({ title: msg || "选择失败", icon: "none" });
     }
   };
 

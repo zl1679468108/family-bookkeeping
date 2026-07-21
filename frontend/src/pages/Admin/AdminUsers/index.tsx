@@ -258,6 +258,7 @@ const AdminUsers: React.FC = () => {
           <div style={{ marginTop: '12px' }}>
             <Input
               type="password"
+              showPasswordToggle
               name="admin-confirm-password"
               autoComplete="current-password"
               placeholder="输入您的管理员密码"
@@ -285,6 +286,7 @@ const AdminUsers: React.FC = () => {
           <div style={{ marginTop: '12px' }}>
             <Input
               type="password"
+              showPasswordToggle
               name="admin-confirm-password"
               autoComplete="current-password"
               placeholder="输入您的管理员密码"

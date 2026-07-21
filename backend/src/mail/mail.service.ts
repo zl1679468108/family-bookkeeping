@@ -31,7 +31,9 @@ export class MailService {
       return;
     }
 
-    const resetUrl = `${this.configService.get('FRONTEND_URL', 'http://localhost:3001')}/reset-password?token=${resetToken}`;
+    // 子路径部署：重置链接必须包含前端子路径（默认 bookkeeping），否则邮件链接打不开页面
+    const frontendSubpath = this.configService.get('FRONTEND_SUBPATH', 'bookkeeping').replace(/^\/+|\/+$/g, '');
+    const resetUrl = `${this.configService.get('FRONTEND_URL', 'http://localhost:3001')}/${frontendSubpath}/#/reset-password?token=${resetToken}`;
 
     const mailOptions = {
       from: `"家庭记账" <${this.configService.get('MAIL_FROM')}>`,

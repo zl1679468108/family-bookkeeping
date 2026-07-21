@@ -48,8 +48,13 @@ export class BudgetsService {
   /**
    * 归一化月份字符串，统一转为 "YYYY-MM-01" 格式
    * 兼容前端传入的 "YYYY-MM"、"YYYY-MM-DD"、"YYYY-MM-01" 等格式
+   * 未传时默认取当月
    */
-  private normalizeMonth(month: string): string {
+  private normalizeMonth(month?: string): string {
+    if (!month) {
+      const now = new Date();
+      return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`;
+    }
     const parts = month.split('-');
     const y = parts[0];
     const m = (parts[1] || '01').padStart(2, '0');

@@ -2,7 +2,7 @@
  * Budgets — 预算管理（对齐 PC 端卡片式布局 + 详情弹窗）
  * 展示型列表 · 月份选择 · 点击卡片→详情弹窗 · 编辑/删除预算
  */
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import Taro, { useDidShow } from "@tarojs/taro";
 import { View, Text, Input } from "@tarojs/components";
 import MonthPicker from "../../components/MonthPicker";
@@ -53,12 +53,31 @@ export default function BudgetsPage() {
     queryFn: () => fetchBudgetStatus(monthKey),
   });
 
-  /* 页面显示时强制重取，兜底 useManualQuery 的 user 门控时序问题 */
+  /* 页面显示时刷新；首次显示已由 useManualQuery 的 mount effect 请求过，
+   * 若数据已加载则跳过，避免同一进页触发两次请求。 */
+  const isFirstShow = useRef(true);
   useDidShow(() => {
+    if (isFirstShow.current) {
+      isFirstShow.current = false;
+      const hasData =
+        categories.length > 0 || budgets.length > 0 || !!bs;
+      if (hasData) return;
+    }
     refetchCategories();
     refetchBudgets();
     refetchStatus();
   });
+
+  /* 下拉刷新 */
+  const [refreshing, setRefreshing] = useState(false);
+  const handleRefresh = useCallback(async () => {
+    setRefreshing(true);
+    try {
+      await Promise.allSettled([refetchCategories(), refetchBudgets(), refetchStatus()]);
+    } finally {
+      setRefreshing(false);
+    }
+  }, [refetchCategories, refetchBudgets, refetchStatus]);
 
   /* Build lookup maps */
   const bm = new Map<string, number>();
@@ -222,6 +241,8 @@ export default function BudgetsPage() {
     <PageContainer
       loading={isLoading || statusLoading}
       loadingText="加载中…"
+      onRefresh={handleRefresh}
+      refreshing={refreshing}
       header={
         /* 头部工具栏：月份选择 + 保存（作为 header 传入，loading 时常驻不消失） */
         <View className="bdg-toolbar">
@@ -374,6 +395,7 @@ export default function BudgetsPage() {
                 <CategoryIcon
                   icon={detailCat.category.icon}
                   size={44}
+                  fill
                   className="bgds-hero__icon"
                 />
               </View>
@@ -385,63 +407,44 @@ export default function BudgetsPage() {
             {/* 分隔线 */}
             <View className="bgds-divider" />
 
-            {/* 信息字段 */}
-            <View className="bgds-fields">
+            {/* 信息网格（对齐 PC detail-grid：2 列，每格 label 在上、value 在下） */}
+            <View className="bgds-grid">
               {/* 使用进度 */}
-              <View className="bgds-field">
-                <View className="bgds-field__row">
-                  <Text className="bgds-field__label">使用进度</Text>
-                  <Text className="bgds-field__label--right">已使用</Text>
-                </View>
-                <View className="bgds-field__row">
-                  <Text className="bgds-field__value">
-                    {Math.round(detailCat.progress)}%
-                  </Text>
-                  <Text className="bgds-field__value">
-                    ¥{detailCat.spent.toFixed(0)}
-                  </Text>
-                </View>
+              <View className="bgds-cell">
+                <Text className="bgds-cell__label">使用进度</Text>
+                <Text className="bgds-cell__value">{detailCat.progress}%</Text>
+              </View>
+
+              {/* 已使用 */}
+              <View className="bgds-cell">
+                <Text className="bgds-cell__label">已使用</Text>
+                <Text className="bgds-cell__value">
+                  ¥{detailCat.spent.toLocaleString('zh-CN')}
+                </Text>
               </View>
 
               {/* 预算 */}
-              <View className="bgds-field">
-                <View className="bgds-field__row">
-                  <Text className="bgds-field__label">预算</Text>
-                  <Text className="bgds-field__label--right">剩余</Text>
-                </View>
-                <View className="bgds-field__row">
-                  <Text className="bgds-field__value">
-                    ¥{detailCat.budget.toFixed(0)}
-                  </Text>
-                  <Text className="bgds-field__value">
-                    ¥{detailCat.remaining.toFixed(0)}
-                  </Text>
-                </View>
+              <View className="bgds-cell">
+                <Text className="bgds-cell__label">预算</Text>
+                <Text className="bgds-cell__value">
+                  ¥{detailCat.budget.toLocaleString('zh-CN')}
+                </Text>
               </View>
 
-              {/* 状态 */}
-              <View className="bgds-field">
-                <View className="bgds-field__row">
-                  <Text className="bgds-field__label">状态</Text>
-                </View>
-                <View className="bgds-field__row">
-                  <Text
-                    className="bgds-status"
-                    style={{ color: statusColor(detailCat.status) }}
-                  >
-                    {statusLabel(detailCat.status)}
-                  </Text>
-                </View>
+              {/* 剩余 */}
+              <View className="bgds-cell">
+                <Text className="bgds-cell__label">剩余</Text>
+                <Text className="bgds-cell__value">
+                  ¥{detailCat.remaining.toLocaleString('zh-CN')}
+                </Text>
               </View>
 
-              {/* 月份 */}
-              <View className="bgds-field bgds-field--last">
-                <View className="bgds-field__row">
-                  <Text className="bgds-field__label">月份</Text>
-                </View>
-                <View className="bgds-field__row">
-                  <Text className="bgds-field__value">{monthKey}</Text>
-                </View>
+              {/* 状态（对齐 PC：纯文本，不单独着色） */}
+              <View className="bgds-cell">
+                <Text className="bgds-cell__label">状态</Text>
+                <Text className="bgds-cell__value">
+                  {statusLabel(detailCat.status)}
+                </Text>
               </View>
             </View>
           </View>
@@ -476,7 +479,6 @@ export default function BudgetsPage() {
                 type="digit"
                 placeholder="0"
                 value={editFormAmount}
-                focus={!!showEditForm}
                 onInput={(e: any) => setEditFormAmount(e.detail.value)}
               />
             </View>

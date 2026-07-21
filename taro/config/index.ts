@@ -19,13 +19,16 @@ export default defineConfig({
   outputRoot: OUTPUT_ROOT,
   plugins: [],
   defineConstants: {
+    // 编译期注入 API 基址：开发连本地后端，生产连公网域名。
+    // 注意：小程序运行时无 Node process，此值必须在编译期由 defineConstants 替换为字面量字符串。
     "process.env.TARO_APP_API_BASE_URL": JSON.stringify(
-      process.env.TARO_APP_API_BASE_URL || "http://localhost:3000/api",
+      isProd ? "https://zlspace.site/api" : "http://127.0.0.1:3000/api",
     ),
   },
   copy: {
     patterns: [
       { from: "src/assets/icons/", to: `${OUTPUT_ROOT}/assets/icons/` },
+      { from: "src/sitemap.json", to: `${OUTPUT_ROOT}/sitemap.json` },
     ],
     options: {},
   },

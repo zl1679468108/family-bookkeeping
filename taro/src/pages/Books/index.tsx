@@ -3,7 +3,7 @@
  * 列表 + 账本详情 Sheet（成员/邀请/邀请码/编辑/删除）+ 新建 + 使用邀请码加入
  * 点击账本卡片 → 弹出底部详情 Sheet（含所有管理操作）
  */
-import { useState, useCallback, useMemo, useEffect } from "react";
+import { useState, useCallback, useMemo, useEffect, useRef } from "react";
 import { View, Text, Input, Image } from "@tarojs/components";
 import Taro, { useDidShow } from "@tarojs/taro";
 import PageContainer from "../../components/PageContainer";
@@ -106,9 +106,26 @@ export default function BooksPage() {
     queryFn: () => fetchBooks(),
   });
 
+  /* 首次显示已由 useManualQuery 的 mount effect 请求过，若已拿到数据则跳过，避免重复请求 */
+  const isFirstShow = useRef(true);
   useDidShow(() => {
+    if (isFirstShow.current) {
+      isFirstShow.current = false;
+      if ((books || []).length > 0) return;
+    }
     refetch();
   });
+
+  /* 下拉刷新 */
+  const [refreshing, setRefreshing] = useState(false);
+  const handleRefresh = useCallback(async () => {
+    setRefreshing(true);
+    try {
+      await refetch();
+    } finally {
+      setRefreshing(false);
+    }
+  }, [refetch]);
 
   // --- 账本详情 Sheet ---
   const [detailBook, setDetailBook] = useState<BookRow | null>(null);
@@ -264,7 +281,13 @@ export default function BooksPage() {
   const currentId = currentBook?.id;
 
   return (
-    <PageContainer contentClassName="bk-content" loading={isLoading} loadingText="加载中…">
+    <PageContainer
+      contentClassName="bk-content"
+      loading={isLoading}
+      loadingText="加载中…"
+      onRefresh={handleRefresh}
+      refreshing={refreshing}
+    >
       {/* ====== 页面顶部栏 ====== */}
       <View className="bk-page-header">
         <View /> {/* 左侧占位 */}

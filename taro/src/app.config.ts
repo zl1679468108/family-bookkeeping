@@ -19,7 +19,6 @@ export default defineAppConfig({
     "pages/TemplateEdit/index",
     "pages/About/index",
     "pages/Onboarding/index",
-    "pages/MapPicker/index",
     "pages/Terms/index",
     "pages/Privacy/index",
   ],
@@ -31,9 +30,11 @@ export default defineAppConfig({
     backgroundColor: "#F6F7F4",
     enablePullDownRefresh: false,
   },
-  // 开启微信隐私合规检查：调用 getLocation/chooseImage 等敏感接口前会弹授权弹窗
+  // 开启微信隐私合规检查：调用 getLocation/chooseMedia 等敏感接口前会弹授权弹窗
   __usePrivacyCheck__: true,
-  // 位置权限声明（MapPicker 的「我的位置」用到 Taro.getLocation）
+  // 小程序搜索索引配置：将所有页面排除在微信搜索结果之外
+  sitemapLocation: "sitemap.json",
+  // 位置权限声明（LocationPicker 的「我的位置」用到 Taro.getLocation）
   permission: {
     "scope.userLocation": {
       desc: "用于记录交易发生的地点",

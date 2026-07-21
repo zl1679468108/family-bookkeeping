@@ -233,7 +233,7 @@ export default function TemplateEdit() {
                     <Text>×</Text>
                   </View>
                 )}
-                <Text className="tpl-picker-chevron">▾</Text>
+                <Text className="tpl-picker-chevron">▼</Text>
               </View>
             </Picker>
           </View>
@@ -281,7 +281,7 @@ export default function TemplateEdit() {
                     <Text>×</Text>
                   </View>
                 )}
-                <Text className="tpl-picker-chevron">▾</Text>
+                <Text className="tpl-picker-chevron">▼</Text>
               </View>
             </Picker>
           </View>

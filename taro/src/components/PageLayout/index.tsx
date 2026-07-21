@@ -18,7 +18,7 @@
  *   </PageLayout>
  *   <PageLayout header={<FilterBar/>}>{content}</PageLayout>
  */
-import { ReactNode, useCallback, CSSProperties } from "react";
+import { ReactNode, useCallback, useEffect, useState, CSSProperties } from "react";
 import { View, Text, ScrollView } from "@tarojs/components";
 import Taro, { useDidShow } from "@tarojs/taro";
 import LoadingOverlay from "../ui/LoadingOverlay";
@@ -44,6 +44,8 @@ interface PageLayoutProps {
   onRefresh?: () => Promise<void> | void;
   /** 是否处于下拉刷新中（受控） */
   refreshing?: boolean;
+  /** 是否在下拉刷新完成时显示 toast 提示（默认 true） */
+  refreshToast?: boolean;
   /** 上拉加载更多回调；传入时开启上拉加载能力 */
   onLoadMore?: () => Promise<void> | void;
   /** 是否还有更多（无更多则不再触发 onLoadMore） */
@@ -68,6 +70,7 @@ export default function PageLayout({
   scrollable = true,
   onRefresh,
   refreshing = false,
+  refreshToast = true,
   onLoadMore,
   hasMore = true,
   loadingMore: loadingMoreProp,
@@ -97,6 +100,14 @@ export default function PageLayout({
 
   const enableRefresh = Boolean(onRefresh);
 
+  // 内部自管理 refresher 动画的「显示/收起」，不再依赖外部 refreshing 复位的精确性：
+  // - 外部 refreshing 仅作为「手动触发刷新」的可选受控信号（如切换账本后自动刷新），同步到本地
+  // - 用户下拉触发的刷新，由本组件在 onRefresh 完成后强制收起，100% 兜底，绝不会再卡成转圈/三点点
+  const [localRefreshing, setLocalRefreshing] = useState(refreshing);
+  useEffect(() => {
+    setLocalRefreshing(refreshing);
+  }, [refreshing]);
+
   // Loading 态（遮罩覆盖内容区，保留吸顶 header）
   if (loading) {
     return (
@@ -118,45 +129,76 @@ export default function PageLayout({
       <View className={`min-h-screen bg-bg flex flex-col page-layout ${themeClass} ${className}`}>
         {header}
         <ScrollView
-          className={`flex-1 overflow-y-auto page-layout-scroll ${contentClassName}`}
-          style={contentStyle}
+          className="flex-1 overflow-y-auto page-layout-scroll"
           scrollY
           showScrollbar={false}
           refresherEnabled={enableRefresh}
-          refresherTriggered={refreshing}
+          refresherTriggered={localRefreshing}
+          refresherBackground={isDark ? "#1A1C19" : "#F6F7F4"}
+          refresherDefaultStyle={isDark ? "white" : "black"}
           onScroll={(e) => {
             if (onScroll) onScroll(e.detail.scrollTop);
           }}
           onRefresherRefresh={() => {
-            if (onRefresh) {
-              const r = onRefresh();
-              // ⚠️ 用 .then(成功, 失败) 双分支停转，规避微信 regenerator 下 .finally 偶发不执行导致刷新转圈卡死
-              if (r && typeof (r as Promise<any>).then === "function") {
-                const stopPD = () => {
-                  if (Taro.stopPullDownRefresh) Taro.stopPullDownRefresh();
-                };
-                (r as Promise<any>).then(stopPD, stopPD);
+            if (!onRefresh) return;
+            // 立即进入刷新态，让微信原生层渲染出刷新动画（refresher-triggered=true）
+            setLocalRefreshing(true);
+            // 兜底收起：极端情况下（接口挂死 / Promise 不结算 / 微信时序异常）
+            // 8s 后强制收起，绝不永久卡成三点点
+            let guard: ReturnType<typeof setTimeout> | undefined;
+            const finish = (ok: boolean) => {
+              if (guard) clearTimeout(guard);
+              setLocalRefreshing(false);
+              if (refreshToast) {
+                Taro.showToast({
+                  title: ok ? "刷新成功" : "刷新失败",
+                  icon: ok ? "success" : "none",
+                  duration: 1200,
+                });
               }
-            }
+            };
+            guard = setTimeout(() => finish(false), 8000);
+            // ⚠️ 关键修复：先让刷新动画渲染至少一帧（~300ms）再发起请求。
+            // 微信 ScrollView 的 refresher 若在 refresher-triggered 变 true 后极快收到 false，
+            // 会因动画尚未真正渲染而丢弃该 false，导致三点点永久卡住不收起。
+            // 延迟发起可彻底规避「快接口」下的不收起问题。
+            setTimeout(() => {
+              try {
+                const r = onRefresh();
+                if (r && typeof (r as Promise<void>).then === "function") {
+                  // 双分支，规避微信 regenerator 下 .finally 偶发不执行导致转圈卡死
+                  (r as Promise<void>).then(
+                    () => finish(true),
+                    () => finish(false),
+                  );
+                } else {
+                  finish(true);
+                }
+              } catch (e) {
+                finish(false);
+              }
+            }, 300);
           }}
           onScrollToLower={onLoadMore ? handleScrollToLower : undefined}
           lowerThreshold={lowerThreshold}
         >
-          {children}
-          {onLoadMore && (
-            <View className="page-loadmore">
-              {loadingMoreProp ? (
-                <View className="page-loadmore-inner">
-                  <View className="page-loadmore-spinner" />
-                  <Text className="page-loadmore-text">加载中…</Text>
-                </View>
-              ) : hasMore ? (
-                <Text className="page-loadmore-text page-loadmore-text--hint">上拉加载更多</Text>
-              ) : (
-                <Text className="page-loadmore-text page-loadmore-text--end">— 已经到底了 —</Text>
-              )}
-            </View>
-          )}
+          <View className={`page-layout-inner ${contentClassName}`} style={contentStyle}>
+            {children}
+            {onLoadMore && (
+              <View className="page-loadmore">
+                {loadingMoreProp ? (
+                  <View className="page-loadmore-inner">
+                    <View className="page-loadmore-spinner" />
+                    <Text className="page-loadmore-text">加载中…</Text>
+                  </View>
+                ) : hasMore ? (
+                  <Text className="page-loadmore-text page-loadmore-text--hint">上拉加载更多</Text>
+                ) : (
+                  <Text className="page-loadmore-text page-loadmore-text--end">— 已经到底了 —</Text>
+                )}
+              </View>
+            )}
+          </View>
         </ScrollView>
       </View>
     );

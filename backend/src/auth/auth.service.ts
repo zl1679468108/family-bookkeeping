@@ -10,6 +10,7 @@ import * as bcrypt from 'bcryptjs';
 import { randomInt } from 'crypto';
 import { SupabaseService } from '../supabase/supabase.service';
 import { MailService } from '../mail/mail.service';
+import { WechatService } from '../wechat/wechat.service';
 import { LoginDto } from './dto/login.dto';
 import { SwitchAccountDto } from './dto/switch-account.dto';
 import { RegisterDto } from './dto/register.dto';
@@ -53,12 +54,16 @@ export class AuthService {
     private readonly mailService: MailService,
     private readonly tokenService: TokenService,
     private readonly captchaService: CaptchaService,
+    private readonly wechatService: WechatService,
   ) {}
 
   async register(
     dto: RegisterDto,
   ): Promise<{ user: SafeUser; accessToken: string; refreshToken: string }> {
     const supabase = this.supabaseService.getClient();
+
+    // UGC 内容安全检测（用户昵称）
+    await this.wechatService.checkText(dto.username, 1);
 
     // 检查邮箱是否已注册
     const { data: existingUser } = await supabase
@@ -274,6 +279,11 @@ export class AuthService {
 
   async updateProfile(userId: string, dto: UpdateProfileDto): Promise<SafeUser | null> {
     const supabase = this.supabaseService.getClient();
+
+    // UGC 内容安全检测（用户昵称）
+    if (dto.username !== undefined) {
+      await this.wechatService.checkText(dto.username, 1);
+    }
 
     if (dto.email) {
       const { data: existingUser } = await supabase

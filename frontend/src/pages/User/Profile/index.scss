@@ -271,28 +271,3 @@
   from { opacity: 0; transform: translateY(12px); }
   to { opacity: 1; transform: translateY(0); }
 }
-
-/* 密码输入框包装器 */
-.password-wrapper {
-  position: relative;
-
-  .form-input {
-    padding-right: 44px;
-  }
-
-  .password-toggle {
-    position: absolute;
-    right: 12px;
-    top: 50%;
-    transform: translateY(-50%);
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: var(--color-muted, #888);
-    padding: 4px;
-
-    &:hover {
-      color: var(--color-fg, #1a1a2e);
-    }
-  }
-}

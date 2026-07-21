@@ -1,25 +1,35 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../utils/auth';
+import { useBook } from '../../hooks/useBook';
 import { BookCreateModal } from '../Books/BookCreateModal';
 import { BookInviteModal } from '../Books/BookInviteModal';
 import './index.scss';
 
 const OnboardingPage: React.FC = () => {
   const navigate = useNavigate();
-  const { signOut } = useAuth();
+  const { signOut, refreshUser } = useAuth();
+  const { refetchBooks } = useBook();
 
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showJoinModal, setShowJoinModal] = useState(false);
 
+  const handleBookReady = async () => {
+    // 后端已更新 current_book_id；在进入首页前同步本地资料与账本缓存，
+    // 防止首批统计请求仍读取创建前的空账本状态。
+    await refreshUser();
+    await refetchBooks();
+    navigate('/', { replace: true });
+  };
+
   const handleCreateSuccess = () => {
     setShowCreateModal(false);
-    navigate('/', { replace: true });
+    void handleBookReady();
   };
 
   const handleJoinSuccess = () => {
     setShowJoinModal(false);
-    navigate('/', { replace: true });
+    void handleBookReady();
   };
 
   const handleLogout = async () => {

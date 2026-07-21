@@ -173,17 +173,74 @@
 
 - [x] **C1** `project.config.json` 的 `urlCheck` 保持 `false`（仅影响微信开发者工具本地调试，不影响线上审核；线上由微信后台服务器域名白名单决定）— **提交审核前由用户在微信开发者工具「详情 → 本地设置」临时勾选「不校验合法域名」开关自测**，确认线上域名配置无误
 - [x] **C2** 验证：Taro `tsc --noEmit` + `build:weapp` 通过；后端 `tsc --noEmit` + `build:prod` 通过（2026-07-18）
+- [x] **C3** 新增 `sitemap.json` 并在 `app.config.ts` 中配置 `sitemapLocation`，将全部页面排除在微信搜索索引之外
 
 ### D. 平台后台配置（用户操作，不在代码范围）
 
-- [ ] **D1** mp.weixin.qq.com「开发管理 → 开发设置 → 服务器域名」配置：request（后端 API 域名 HTTPS）、uploadFile/downloadFile（Supabase Storage 域名）
+- [ ] **D1** mp.weixin.qq.com「开发管理 → 开发设置 → 服务器域名」配置：request/uploadFile 填 `https://zlspace.site`，downloadFile 填 `https://zlspace.site` + `https://fvggqgeiwewsjojargxe.supabase.co`（域名已在上架清单回填，后台粘贴仍需用户操作）
 - [ ] **D2** 小程序类目认证：建议「工具 → 效率」或「生活服务 → 便民服务」
 - [ ] **D3** 微信后台「设置 → 服务内容声明 → 用户隐私保护指引」提交
-- [ ] **D4** 客服联系方式配置（接微信客服或留邮箱）
-- [ ] **D5** UGC 内容安全检测接入（后端 `security.msgSecCheck`，审核员重点）
+- [x] **D4** 客服联系方式配置 — 已在 Taro Profile 页接入微信原生客服按钮（`<Button openType="contact">`），**用户需在 mp.weixin.qq.com「功能 → 客服」添加客服人员**
+- [x] **D5** UGC 内容安全检测接入（后端 `security.msgSecCheck`）— 已实现 WechatService（`backend/src/wechat/`），接入 5 个 UGC 入口（交易备注/账本名称描述/分类名称/模板字段/用户昵称）。**启用步骤**：在 `backend/.env.production` 配置 `WECHAT_APPID` + `WECHAT_SECRET` + `WECHAT_MSG_SEC_CHECK_ENABLED=true`
 
 ### E. 提交审核前自检（用户操作）
 
 - [ ] **E1** 提交审核备注附测试账号（邮箱+密码，验证码审核期间可用）
 - [ ] **E2** 全量回归关键路径：注册（需勾选协议）→ Onboarding 创建账本 → 记一笔 → 注销账号
-- [ ] **E3** 检查无「测试/Demo/TODO」字样
+- [x] **E3** 检查无「测试/Demo/TODO」字样 — grep `taro/src` 无匹配（2026-07-18）
+- [x] **E4** 主包大小检查 — `dist-prod/` 总计 1.2M，远低于 2MB 主包上限，无需分包（2026-07-18）
+- [x] **E5** 启动加载 — 微信系统启动屏处理，无需自定义 splash；`__usePrivacyCheck__:true` 开启后敏感接口由微信自动弹原生隐私授权弹窗，无需显式实现 `wx.onNeedPrivacyAuthorization`
+- [x] **E6** 生产部署与域名回填 — PC Web 与 CVM 后端已重新部署；`taro/.env.production` 已指向生产后端 `/api`；[微信小程序上架准备清单.md](./微信小程序上架准备清单.md) 已回填 request/uploadFile/downloadFile 域名（2026-07-19）
+
+---
+
+## 微信小程序上架准备 — 最终提交审核清单（2026-07-18）
+
+> 审核备注、隐私指引、域名配置等可复制模板见 [微信小程序上架准备清单.md](./微信小程序上架准备清单.md)。
+
+### 代码侧（已完成）
+
+- ✅ 隐私政策页 + 用户协议页（`pages/Terms`、`pages/Privacy`）
+- ✅ `__usePrivacyCheck__: true` 已开启
+- ✅ 注册页协议勾选框 + 登录页协议链接 + About 入口
+- ✅ 注销账号功能（后端 `POST /auth/deactivate` + Profile 页弹窗）
+- ✅ 客服按钮（`<Button openType="contact">`）
+- ✅ UGC 内容安全检测（WechatService，5 个入口接入）
+- ✅ 主包 1.2M，无 TODO/测试字样
+
+### 用户在 mp.weixin.qq.com 必做（按顺序）
+
+1. **登录后台** → 「设置 → 基本设置」
+   - 填写小程序名称、简介、服务描述（审核员会看）
+   - 主体认证（个人主体即可）
+2. **「设置 → 基本设置 → 服务类目」**
+   - 添加类目：建议「工具 → 效率」（记账类一般不需金融资质）
+3. **「设置 → 服务内容声明 → 用户隐私保护指引」**
+   - 收集的信息：邮箱、密码、昵称、头像、地理位置、相册/相机、UGC 文本
+   - 内容可参考 `taro/src/pages/Privacy/index.tsx` 的章节
+   - 提交后等待审核（通常 1-3 天）
+4. **「开发管理 → 开发设置 → 服务器域名」**
+   - request 合法域名：`https://zlspace.site`
+   - uploadFile 合法域名：`https://zlspace.site`
+   - downloadFile 合法域名：`https://zlspace.site`、`https://fvggqgeiwewsjojargxe.supabase.co`
+5. **「功能 → 客服」**
+   - 添加客服人员微信号（否则点客服按钮提示"暂无客服"）
+6. **「管理 → 版本管理」**
+   - 上传代码（微信开发者工具 → 上传 → 填版本号和备注）
+   - 提交审核：备注附测试账号邮箱+密码，说明验证码审核期间可用
+
+### 用户在后端环境必做
+
+- 编辑 `backend/.env.production`，添加：
+  ```
+  WECHAT_APPID=小程序AppID
+  WECHAT_SECRET=小程序AppSecret
+  WECHAT_MSG_SEC_CHECK_ENABLED=true
+  ```
+- 重新部署后端（脚本 `scripts/deploy-cvm.sh`）
+
+### 提交审核前最终自测
+
+- 在微信开发者工具「详情 → 本地设置」取消勾选「不校验合法域名」，确认线上域名配置无误
+- 跑通完整路径：注册（勾选协议）→ Onboarding 创建账本 → 记一笔（含备注/地点）→ 编辑资料 → 切换账号 → 退出登录 → 重新登录 → 注销账号
+- 测试敏感词拦截：尝试在交易备注输入违规词，确认提示「内容含违规信息」

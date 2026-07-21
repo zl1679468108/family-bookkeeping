@@ -5,6 +5,11 @@
  */
 import { View, Text, Image } from "@tarojs/components";
 import Taro from "@tarojs/taro";
+import {
+  ensurePrivacyAuthorize,
+  isPrivacyError,
+  openPrivacySetting,
+} from "../../../utils/privacy";
 import "./index.scss";
 
 export interface ImageUploadProps {
@@ -37,26 +42,40 @@ export default function ImageUpload({
   const maxCount = maxImages;
   const totalCount = allSaved.length + allPending.length;
 
-  const handleSelect = () => {
+  const handleSelect = async () => {
     const remaining = maxCount - totalCount;
     if (remaining <= 0) {
       Taro.showToast({ title: `最多上传 ${maxCount} 张`, icon: "none" });
       return;
     }
-    Taro.chooseImage({
+    // 先触发微信隐私授权（开启 __usePrivacyCheck__ 时必须）
+    const ok = await ensurePrivacyAuthorize("选择图片需要访问您的相册");
+    if (!ok) return;
+    Taro.chooseMedia({
       count: remaining,
+      mediaType: ["image"],
       sizeType: ["compressed"],
       sourceType: ["album", "camera"],
     })
       .then((res) => {
-        const paths = res.tempFilePaths || [];
+        const paths = (res.tempFiles || []).map((f) => f.tempFilePath);
         if (legacyOnChange) {
           legacyOnChange([...allSaved, ...paths]);
         } else if (onPendingChange) {
           onPendingChange([...allPending, ...paths]);
         }
       })
-      .catch(() => {});
+      .catch((err: any) => {
+        const msg = err?.errMsg || err?.message || "";
+        // 用户主动取消不提示
+        if (msg.indexOf("cancel") !== -1) return;
+        if (isPrivacyError(err)) {
+          Taro.showToast({ title: "请先同意隐私协议", icon: "none" });
+          openPrivacySetting();
+          return;
+        }
+        Taro.showToast({ title: msg || "选择图片失败", icon: "none" });
+      });
   };
 
   const handleRemoveSaved = (idx: number) => {

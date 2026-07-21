@@ -4,7 +4,7 @@
  * 对齐 PC 端功能：
  *   列表页 + 详情弹窗（完整信息+执行/编辑/复制/删除）+ 表单弹窗（PC风格边框输入框）
  */
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback, useRef } from "react";
 import { View, Text, Input, Picker } from "@tarojs/components";
 import Taro, { useDidShow } from "@tarojs/taro";
 import { useQueryClient } from "@tanstack/react-query";
@@ -12,6 +12,7 @@ import PageContainer from "../../components/PageContainer";
 import ConfirmDialog from "../../components/ConfirmDialog";
 import CategoryIcon from "../../components/CategoryIcon";
 import BottomSheet from "../../components/BottomSheet";
+import DragSortList from "../../components/DragSortList";
 import LocationPicker, { LocationResult } from "../../components/LocationPicker";
 import { EmptyState } from "../../components/ui";
 import {
@@ -56,25 +57,42 @@ export default function TemplateManager() {
     queryFn: () => getTemplates(),
   });
 
-  useDidShow(() => { refetch(); });
+  /* 首次显示已由 useManualQuery 的 mount effect 请求过，若已拿到数据则跳过，避免重复请求 */
+  const isFirstShow = useRef(true);
+  useDidShow(() => {
+    if (isFirstShow.current) {
+      isFirstShow.current = false;
+      if ((templates || []).length > 0) return;
+    }
+    refetch();
+  });
+
+  /* 下拉刷新 */
+  const [refreshing, setRefreshing] = useState(false);
+  const handleRefresh = useCallback(async () => {
+    setRefreshing(true);
+    try {
+      await refetch();
+    } finally {
+      setRefreshing(false);
+    }
+  }, [refetch]);
 
   const orderedTemplates = useMemo(() => {
-    return (templates || []).sort((a, b) => {
-      const tA = a.type === "expense" ? 0 : 1;
-      const tB = b.type === "expense" ? 0 : 1;
-      return tA - tB || (a.sort_order || 0) - (b.sort_order || 0);
-    });
+    // 纯按 sort_order 升序排列（1 在前、2 在后），不按 type 分组
+    // 后端 reorder 接口按 ids 顺序分配 sort_order(0,1,2...)，此处保持一致
+    return (templates || [])
+      .slice()
+      .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
   }, [templates]);
 
   /* ---- 排序（useReorder 共享 Hook）---- */
   const {
     sortMode,
-    sortOrder,
     displayList,
     enter: handleEnterSortMode,
     cancel: handleCancelSortMode,
-    moveUp: handleMoveUp,
-    moveDown: handleMoveDown,
+    moveTo: handleMoveTo,
     save: handleSaveSort,
   } = useReorder<Template>({
     items: orderedTemplates,
@@ -256,7 +274,12 @@ export default function TemplateManager() {
   /* ==================== 渲染 ==================== */
 
   return (
-    <PageContainer loading={isLoading} loadingText="加载中…">
+    <PageContainer
+      loading={isLoading}
+      loadingText="加载中…"
+      onRefresh={handleRefresh}
+      refreshing={refreshing}
+    >
 
       {/* ====== 顶部工具栏（对齐 Categories/Budgets：无外层卡片） ====== */}
       <View className="tpl-toolbar">
@@ -277,7 +300,7 @@ export default function TemplateManager() {
       {/* 排序提示 */}
       {sortMode && (
         <View className="tpl-sort-hint">
-          <Text>拖动调整顺序，完成后点击保存</Text>
+          <Text>长按卡片拖动调整顺序，完成后点击保存</Text>
             <View
               className="tpl-sort-save"
               onClick={handleSaveSort}
@@ -295,15 +318,49 @@ export default function TemplateManager() {
             description="创建模板后，记账时可一键套用，省去重复填写。"
           />
         </View>
+      ) : sortMode ? (
+        <View className="tpl-drag-wrap">
+          <DragSortList
+            items={displayList}
+            getKey={(t) => t.id}
+            itemHeight={200}
+            onReorder={handleMoveTo}
+            renderItem={(t) => {
+              const cat = findCat(t.category_id);
+              return (
+                <View className="tpl-card tpl-card--sort tpl-card--drag">
+                  <View className="tpl-card__head">
+                    <CategoryIcon icon={cat?.icon} size={28} className="tpl-card__icon" />
+                    <Text className="tpl-card__name">{t.name}</Text>
+                    <Text className="tpl-card__drag-handle">⋮⋮</Text>
+                  </View>
+                  <View className="tpl-card__body">
+                    <View className={`tpl-card__type tpl-card__type--${t.type}`}>
+                      <Text>{t.type === "expense" ? "支出" : "收入"}</Text>
+                    </View>
+                    {cat && (
+                      <Text className="tpl-card__cat">{cat.name}</Text>
+                    )}
+                    {t.amount != null && t.amount > 0 && (
+                      <Text className={`tpl-card__amount tpl-card__amount--${t.type}`}>
+                        ¥{Number(t.amount).toFixed(2)}
+                      </Text>
+                    )}
+                  </View>
+                </View>
+              );
+            }}
+          />
+        </View>
       ) : (
         <View className="tpl-grid">
-          {displayList.map((t, idx) => {
+          {displayList.map((t) => {
               const cat = findCat(t.category_id);
               return (
                 <View
                   key={t.id}
-                  className={`tpl-card ${sortMode ? "tpl-card--sort" : ""}`}
-                  onClick={() => !sortMode && openDetail(t)}
+                  className="tpl-card"
+                  onClick={() => openDetail(t)}
                 >
                   {/* 卡片头部：图标 + 名称 */}
                   <View className="tpl-card__head">
@@ -324,24 +381,6 @@ export default function TemplateManager() {
                       </Text>
                     )}
                   </View>
-
-                  {/* 排序模式的操作按钮 */}
-                  {sortMode && (
-                    <View className="tpl-card__sort-actions">
-                      <View
-                        className={`tpl-pill tpl-pill--sort ${idx === 0 ? "tpl-pill--disabled" : ""}`}
-                        onClick={(e: any) => { e.stopPropagation(); handleMoveUp(idx); }}
-                      >
-                        <Text>↑</Text>
-                      </View>
-                      <View
-                        className={`tpl-pill tpl-pill--sort ${idx === sortOrder.length - 1 ? "tpl-pill--disabled" : ""}`}
-                        onClick={(e: any) => { e.stopPropagation(); handleMoveDown(idx); }}
-                      >
-                        <Text>↓</Text>
-                      </View>
-                    </View>
-                  )}
                 </View>
               );
             })}

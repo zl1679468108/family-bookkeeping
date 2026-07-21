@@ -4,6 +4,7 @@ import {
   ConflictException,
   ForbiddenException,
   BadRequestException,
+  InternalServerErrorException,
 } from '@nestjs/common';
 import { SupabaseService } from '../supabase/supabase.service';
 import { WechatService } from '../wechat/wechat.service';
@@ -86,11 +87,25 @@ export class BooksService {
     }
 
     // 自动将创建者添加为 owner 成员
-    await supabase.from('jj_book_members').insert({
+    const { error: memberError } = await supabase.from('jj_book_members').insert({
       book_id: book.id,
       user_id: userId,
       role: 'owner',
     });
+
+    if (memberError) {
+      throw new InternalServerErrorException(`创建账本成员关系失败：${memberError.message}`);
+    }
+
+    // 创建后的首个账本必须成为当前账本，否则后续账本范围接口会因缺少 bookId 被拒绝。
+    const { error: currentBookError } = await supabase
+      .from('jj_users')
+      .update({ current_book_id: book.id })
+      .eq('id', userId);
+
+    if (currentBookError) {
+      throw new InternalServerErrorException(`设置当前账本失败：${currentBookError.message}`);
+    }
 
     return book as Book;
   }
@@ -123,6 +138,20 @@ export class BooksService {
 
     if (error) {
       throw new Error(`查询账本失败：${error.message}`);
+    }
+
+    // 兼容早期创建/加入账本时未写入 current_book_id 的用户。
+    // 条件更新不会覆盖用户已经主动选择的账本。
+    if (data && data.length > 0) {
+      const { error: currentBookError } = await supabase
+        .from('jj_users')
+        .update({ current_book_id: data[0].id })
+        .eq('id', userId)
+        .is('current_book_id', null);
+
+      if (currentBookError) {
+        throw new InternalServerErrorException(`初始化当前账本失败：${currentBookError.message}`);
+      }
     }
 
     // T-M3: 按 book_id 分组计数交易
@@ -640,6 +669,15 @@ export class BooksService {
 
     if (memberError) {
       throw new ConflictException(`加入账本失败：${memberError.message}`);
+    }
+
+    const { error: currentBookError } = await supabase
+      .from('jj_users')
+      .update({ current_book_id: invitation.book_id })
+      .eq('id', userId);
+
+    if (currentBookError) {
+      throw new InternalServerErrorException(`设置当前账本失败：${currentBookError.message}`);
     }
 
     const book = await this.getById(invitation.book_id);

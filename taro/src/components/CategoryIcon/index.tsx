@@ -16,24 +16,31 @@ import {
 
 interface CategoryIconProps {
   icon?: string;
-  size?: number; // 单位：px（不是 rpx）
+  /** 单位：px（不是 rpx）；若设置 fill=true 则忽略 size，撑满父容器 */
+  size?: number;
   className?: string;
   background?: string;
   border?: string;
   borderRadius?: number;
   color?: string;
+  /** 撑满父容器（width/height: 100%），优先级高于 size */
+  fill?: boolean;
 }
 
 export default function CategoryIcon({
   icon,
   size = 24,
   className = "",
-  background = "#f6f7f4",
-  border = "1rpx solid #e9ecef",
+  background = "transparent",
+  border = "none",
   borderRadius = 8,
   color = "#1a1c19",
+  fill = false,
 }: CategoryIconProps) {
   if (!icon) return null;
+
+  const boxSize = fill ? "100%" : `${size}px`;
+  const innerSize = fill ? "100%" : `${Math.max(size - 4, 12)}px`;
 
   // 1. URL（自定义上传图标）
   if (icon.startsWith("http://") || icon.startsWith("https://")) {
@@ -41,8 +48,8 @@ export default function CategoryIcon({
       <View
         className={className}
         style={{
-          width: `${size}px`,
-          height: `${size}px`,
+          width: boxSize,
+          height: boxSize,
           borderRadius: `${borderRadius}px`,
           background,
           border,
@@ -57,8 +64,8 @@ export default function CategoryIcon({
           src={icon}
           mode="aspectFit"
           style={{
-            width: `${Math.max(size - 4, 12)}px`,
-            height: `${Math.max(size - 4, 12)}px`,
+            width: innerSize,
+            height: innerSize,
             display: "block",
           }}
         />
@@ -69,12 +76,13 @@ export default function CategoryIcon({
   // 2. platform_xxx（购物平台图标）
   if (isPlatformIcon(icon)) {
     const key = icon.replace("platform_", "");
+    const innerPx = fill ? "100%" : Math.round(size * 0.75);
     return (
       <View
         className={className}
         style={{
-          width: `${size}px`,
-          height: `${size}px`,
+          width: boxSize,
+          height: boxSize,
           borderRadius: `${borderRadius}px`,
           background,
           border,
@@ -86,11 +94,11 @@ export default function CategoryIcon({
         }}
       >
         <Image
-          src={renderPlatformIconSvg(key, Math.round(size * 0.75), color)}
+          src={renderPlatformIconSvg(key, fill ? 0 : (innerPx as number), color)}
           mode="aspectFit"
           style={{
-            width: `${Math.round(size * 0.75)}px`,
-            height: `${Math.round(size * 0.75)}px`,
+            width: innerPx,
+            height: innerPx,
             display: "block",
           }}
         />
@@ -100,12 +108,13 @@ export default function CategoryIcon({
 
   // 3. 账本图标 key（default/home/work ...）
   if (isBookIconKey(icon)) {
+    const innerPx = fill ? "100%" : Math.round(size * 0.75);
     return (
       <View
         className={className}
         style={{
-          width: `${size}px`,
-          height: `${size}px`,
+          width: boxSize,
+          height: boxSize,
           borderRadius: `${borderRadius}px`,
           background,
           border,
@@ -117,11 +126,11 @@ export default function CategoryIcon({
         }}
       >
         <Image
-          src={renderBookIconSvg(icon, Math.round(size * 0.75), color)}
+          src={renderBookIconSvg(icon, fill ? 0 : (innerPx as number), color)}
           mode="aspectFit"
           style={{
-            width: `${Math.round(size * 0.75)}px`,
-            height: `${Math.round(size * 0.75)}px`,
+            width: innerPx,
+            height: innerPx,
             display: "block",
           }}
         />
@@ -134,8 +143,8 @@ export default function CategoryIcon({
     <View
       className={className}
       style={{
-        width: `${size}px`,
-        height: `${size}px`,
+        width: boxSize,
+        height: boxSize,
         borderRadius: `${borderRadius}px`,
         background,
         border,
@@ -148,7 +157,7 @@ export default function CategoryIcon({
     >
       <Text
         style={{
-          fontSize: `${Math.round(size * 0.55)}px`,
+          fontSize: fill ? "inherit" : `${Math.round(size * 0.55)}px`,
           lineHeight: 1,
           color,
         }}

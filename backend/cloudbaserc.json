@@ -1,6 +1,0 @@
-{
-  "envId": "family-bookkeeping-d7c9caa78340e",
-  "cloudrun": {
-    "name": "family-bookkeeping-api-prod"
-  }
-}

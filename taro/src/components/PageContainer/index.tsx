@@ -43,6 +43,8 @@ interface PageContainerProps {
   onRefresh?: () => Promise<void> | void;
   /** 是否处于下拉刷新中（受控） */
   refreshing?: boolean;
+  /** 是否在下拉刷新完成时显示 toast 提示（默认 true） */
+  refreshToast?: boolean;
   /** 上拉加载更多回调；传入时开启上拉加载 */
   onLoadMore?: () => Promise<void> | void;
   /** 是否还有更多 */
@@ -79,6 +81,7 @@ export default function PageContainer({
   scrollable = true,
   onRefresh,
   refreshing = false,
+  refreshToast = true,
   onLoadMore,
   hasMore = true,
   loadingMore = false,
@@ -104,6 +107,7 @@ export default function PageContainer({
       scrollable={scrollable}
       onRefresh={onRefresh}
       refreshing={refreshing}
+      refreshToast={refreshToast}
       onLoadMore={onLoadMore}
       hasMore={hasMore}
       loadingMore={loadingMore}

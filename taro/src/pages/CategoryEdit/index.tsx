@@ -19,6 +19,11 @@ import {
   deleteCategory,
 } from "../../services/categoriesApi";
 import { uploadIcon, fetchCustomIcons, deleteIcon } from "../../services/iconsApi";
+import {
+  ensurePrivacyAuthorize,
+  isPrivacyError,
+  openPrivacySetting,
+} from "../../utils/privacy";
 import { EMOJI_PRESETS } from "../../utils/emojiPresets";
 import {
   SHOPPING_PLATFORM_ICONS,
@@ -77,14 +82,17 @@ export default function CategoryEdit() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isEdit, existing]);
 
-  const handleUploadCustomIcon = () => {
-    Taro.chooseImage({
+  const handleUploadCustomIcon = async () => {
+    const ok = await ensurePrivacyAuthorize("选择图标需要访问您的相册");
+    if (!ok) return;
+    Taro.chooseMedia({
       count: 1,
+      mediaType: ["image"],
       sizeType: ["compressed"],
       sourceType: ["album", "camera"],
     })
       .then((res) => {
-        const path = res.tempFilePaths && res.tempFilePaths[0];
+        const path = res.tempFiles && res.tempFiles[0]?.tempFilePath;
         if (!path) return;
         run(async () => {
           const result: any = await uploadIcon(path, "category");
@@ -100,7 +108,16 @@ export default function CategoryEdit() {
           Taro.showToast({ title: err?.message || "上传失败", icon: "none" });
         });
       })
-      .catch(() => {});
+      .catch((err: any) => {
+        const msg = err?.errMsg || err?.message || "";
+        if (msg.indexOf("cancel") !== -1) return;
+        if (isPrivacyError(err)) {
+          Taro.showToast({ title: "请先同意隐私协议", icon: "none" });
+          openPrivacySetting();
+          return;
+        }
+        Taro.showToast({ title: msg || "选择图片失败", icon: "none" });
+      });
   };
 
   const handleDeleteCustomIcon = (iconId: string, e?: any) => {

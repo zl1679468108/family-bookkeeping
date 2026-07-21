@@ -5,7 +5,7 @@
 ## 技术栈
 
 - **前端**: React 18 + TypeScript + Tailwind CSS + SCSS
-- **后端**: NestJS（部署在腾讯云开发 CloudBase CloudRun）
+- **后端**: NestJS（部署在腾讯云 CVM，域名 `zlspace.site`）
 - **数据库访问**: 通过 NestJS REST API（非直连数据库）
 - **数据管理**: React Query（@tanstack/react-query）
 - **图表**: ECharts
@@ -153,4 +153,4 @@ npm run test          # 运行测试
 
 ## 部署
 
-项目前端构建后部署到 CloudBase CloudRun，后端 NestJS 服务同样部署在 CloudBase 平台。
+项目前端构建后通过 Nginx 托管于腾讯云 CVM（详见 `docs/deployment.md`），后端 NestJS 服务同样部署在 CVM。

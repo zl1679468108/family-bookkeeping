@@ -291,17 +291,21 @@ docs/
 
 ## 14. 部署
 
-**平台**：腾讯云开发 (CloudBase)
+**生产平台**：腾讯云 CVM（上海二区，公网 `121.4.84.120`）+ Nginx + PM2。CloudBase 体验版已弃用（资源点限制跑不动常驻后端）。
 
-- 后端：CloudBase CloudRun（容器服务），服务名 `family-bookkeeping-api-prod`
-- 前端：CloudBase 静态网站托管
+- **访问地址**（域名 / IP / API / 数据库 / DNS）：见根目录 **[README.md](./README.md)** 的「访问地址」章节——agent 改地址前先看那里，不要凭记忆写死。
+- **完整部署流程**（三端步骤、服务器初始化、HTTPS 续期、验证清单）：见 **[docs/deployment.md](./docs/deployment.md)**。本文件不复制长篇部署步骤（规则见第 1 节）。
 
-**部署脚本**（在 `scripts/` 目录）：
-- `deploy-backend.sh` — 构建 + 部署后端
-- `deploy-frontend.sh` — 构建 + 部署前端
-- `deploy-all.sh` — 全量部署
+**部署脚本**（`scripts/` 目录）：
+- `cvm-setup.sh` — 服务器初始化（nginx / node / pm2 / certbot）
+- `deploy-cvm.sh` — 一键部署**后端 + 前端 PC Web** 到 CVM
+- `deploy-taro.sh` — 一键构建**小程序**（微信 `dist-prod/` + 可选 H5 上传 CVM）
+- `renew-cert.sh` — Let's Encrypt 证书续期（DNS-01 验证，绕过 ICP 拦截）
 
-也可通过 CloudBase MCP (`@cloudbase/cloudbase-mcp`) 进行自动化部署。
+**关键约定**：
+- 前端 API 基址用相对路径 `/api`（同源，IP / 域名通用）；不要写死域名。
+- Taro 的 `TARO_APP_API_BASE_URL` 在构建时固化，生产需设为 `https://zlspace.site/api`。
+- 后端 `.env` 真相源是 `backend/.env.production`，部署时复制为 `/opt/family-bookkeeping/backend/.env`。
 
 **无 CI/CD**：无 GitHub Actions 或其他自动化流水线。
 

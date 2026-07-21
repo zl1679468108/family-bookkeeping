@@ -511,6 +511,16 @@ export const resetPasswordByCode = async (
   })
 }
 
+export const resetPasswordByToken = async (
+  token: string,
+  password: string,
+): Promise<void> => {
+  await request<null>('/auth/reset-password', {
+    method: 'POST',
+    body: { token, password },
+  })
+}
+
 export const getProfile = async (): Promise<UserProfile> => {
   return request<UserProfile>('/auth/profile', { requiresAuth: true })
 }

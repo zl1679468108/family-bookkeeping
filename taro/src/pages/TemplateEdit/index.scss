@@ -103,6 +103,7 @@
 .tpl-picker {
   display: flex;
   align-items: center;
+  gap: 8rpx;
   width: 100%;
   height: 88rpx;
   padding: 0 24rpx;
@@ -114,9 +115,9 @@
 .tpl-picker-value-wrap {
   flex: 1;
   min-width: 0;
+  overflow: hidden;
   display: flex;
   align-items: center;
-  overflow: hidden;
 }
 .tpl-picker-value {
   font-size: 28rpx;
@@ -125,10 +126,9 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  line-height: 1.3;
-  flex: 1;
-  min-width: 0;
+  line-height: 1;
   text-align: left;
+  width: 100%;
 }
 .tpl-picker-value--placeholder {
   color: var(--fg3);
@@ -142,9 +142,8 @@
 }
 .tpl-picker-chevron {
   flex-shrink: 0;
-  font-size: 24rpx;
+  font-size: 28rpx;
   color: var(--fg3);
-  margin-left: 8rpx;
   line-height: 1;
 }
 
@@ -153,8 +152,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0 6rpx;
-  margin-left: 4rpx;
+  width: 36rpx;
+  height: 36rpx;
+  padding: 0;
+  margin: 0;
 }
 .tpl-picker-clear > Text {
   font-size: 28rpx;

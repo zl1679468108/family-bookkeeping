@@ -30,7 +30,10 @@ export interface Template {
 
 @Injectable()
 export class TemplatesService {
-  constructor(private readonly supabaseService: SupabaseService) {}
+  constructor(
+    private readonly supabaseService: SupabaseService,
+    private readonly wechatService: WechatService,
+  ) {}
 
   /**
    * GET /templates — 获取当前用户的模板列表，按 sort_order 升序排列。
@@ -70,6 +73,12 @@ export class TemplatesService {
     bookId: string | undefined,
     dto: CreateTemplateDto,
   ): Promise<Template> {
+    // UGC 内容安全检测（模板名称、备注、地点名、商家名）
+    await this.wechatService.checkText(dto.name, 1);
+    if (dto.note !== undefined) await this.wechatService.checkText(dto.note, 2);
+    if (dto.location_name !== undefined) await this.wechatService.checkText(dto.location_name, 2);
+    if (dto.merchant_name !== undefined) await this.wechatService.checkText(dto.merchant_name, 2);
+
     const supabase = this.supabaseService.getClient();
 
     const insertData: Record<string, any> = {
@@ -114,6 +123,12 @@ export class TemplatesService {
     userId: string,
     dto: UpdateTemplateDto,
   ): Promise<Template> {
+    // UGC 内容安全检测（仅当字段被实际更新时检测）
+    if (dto.name !== undefined) await this.wechatService.checkText(dto.name, 1);
+    if (dto.note !== undefined) await this.wechatService.checkText(dto.note, 2);
+    if (dto.location_name !== undefined) await this.wechatService.checkText(dto.location_name, 2);
+    if (dto.merchant_name !== undefined) await this.wechatService.checkText(dto.merchant_name, 2);
+
     const supabase = this.supabaseService.getClient();
 
     // 校验归属

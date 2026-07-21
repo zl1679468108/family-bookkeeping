@@ -38,16 +38,15 @@
   width: 68rpx;
   height: 68rpx;
   border-radius: 18rpx;
-  background-color: var(--primary-bg, #e7f5f2);
+  background-color: transparent;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .cats-grid-card__icon {
-  font-size: 36rpx;
-  width: 40rpx;
-  height: 40rpx;
+  width: 100%;
+  height: 100%;
 }
 
 .cats-grid-card__name {
@@ -109,6 +108,39 @@
 
 .cats-sort-arrow--disabled {
   opacity: 0.3;
+}
+
+/* ========== 拖拽排序容器 ========== */
+.cats-drag-wrap {
+  padding: 4rpx 0 0;
+}
+
+.cats-grid-card--drag {
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  margin: 0;
+}
+
+.cats-grid-card__drag-row {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  width: 100%;
+}
+
+.cats-grid-card__drag-row .cats-grid-card__name {
+  flex: 1;
+  min-width: 0;
+}
+
+.cats-grid-card__drag-handle {
+  color: var(--fg-3, #8b8e89);
+  font-size: 32rpx;
+  line-height: 1;
+  padding: 0 4rpx;
+  letter-spacing: -2rpx;
+  flex-shrink: 0;
 }
 
 /* ========== 列表/Tab/排序/新建 ========== */
@@ -257,18 +289,16 @@
   width: 112rpx;
   height: 112rpx;
   border-radius: 28rpx;
-  background: var(--bg, #f6f7f4);
+  background: transparent;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  border: 2rpx solid var(--border-light, #edeee9);
 }
 
 .catds-hero__icon {
-  font-size: 56rpx;
-  width: 60rpx;
-  height: 60rpx;
+  width: 100%;
+  height: 100%;
 }
 
 .catds-hero__content {

@@ -2,14 +2,15 @@
  * LocationPicker — 地图位置选择组件
  * 基于高德坐标（与后端、PC端一致）
  * 使用微信小程序原生 Map 组件 + 后端逆地理编码 / POI搜索 API
- * 定位策略（3 层降级）：持续采样 → 单次高精度 → 单次普通精度
+ * 定位策略：Taro.getLocation 单次定位（高精度 → 普通精度降级）
  * z-index: 2000，确保高于其他 sheet/modal
  */
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { View, Text, Input, Map } from "@tarojs/components";
 import Taro from "@tarojs/taro";
 import { apiGet } from "../../services/api";
 import { useManualQuery } from "../../hooks/useManualQuery";
+import { ensurePrivacyAuthorize, isPrivacyError } from "../../utils/privacy";
 import SheetHeader from "../SheetHeader";
 import { Spinner } from "../ui";
 import "./index.scss";
@@ -41,6 +42,125 @@ export default function LocationPicker({
   const [searchText, setSearchText] = useState("");
   const [locating, setLocating] = useState(false);
   const [locAccuracy, setLocAccuracy] = useState<number | null>(null);
+  // 用 ref 保存逆地理编码函数，避免 useCallback 依赖顺序问题
+  const reverseGeocodeRef = useRef<(lat: number, lng: number) => Promise<void>>(async () => {});
+
+  // 逆地理编码：通过后端接口（高德）
+  const reverseGeocode = useCallback(async (lat: number, lng: number) => {
+    try {
+      const res = await apiGet<{
+        address: string;
+        poiName?: string;
+        poiId?: string;
+      }>(`/map/reverse-geocode?latitude=${lat}&longitude=${lng}`);
+      setAddress(res.poiName ? `${res.poiName} · ${res.address}` : res.address);
+      setPoiId(res.poiId || null);
+    } catch (err) {
+      console.warn("[LocationPicker] 逆地理编码失败:", err);
+      setAddress(`${lat.toFixed(6)}, ${lng.toFixed(6)}`);
+    }
+  }, []);
+
+  // 同步到 ref，供 handleLocate 等闭包使用
+  reverseGeocodeRef.current = reverseGeocode;
+
+  // 定位（先尝试高精度，失败降级为普通精度）
+  const handleLocate = useCallback(async () => {
+    console.log("[LocationPicker] 开始定位...");
+    setLocating(true);
+    setLocAccuracy(null);
+
+    // 先触发隐私授权（getLocation 是隐私接口）
+    const ok = await ensurePrivacyAuthorize("获取位置需要访问您的地理位置");
+    if (!ok) {
+      console.warn("[LocationPicker] 隐私授权未通过");
+      setLocating(false);
+      Taro.showToast({
+        title: "请先同意隐私协议后使用定位",
+        icon: "none",
+      });
+      return;
+    }
+
+    // 检查位置权限
+    try {
+      const setting = await Taro.getSetting();
+      const auth = setting.authSetting["scope.userLocation"];
+      console.log("[LocationPicker] 位置权限状态:", auth);
+      if (auth === false) {
+        // 明确拒绝过，引导去设置
+        Taro.showModal({
+          title: "位置权限提示",
+          content: "需要您授权位置权限才能定位，是否前往设置开启？",
+          confirmText: "去设置",
+          cancelText: "不了",
+          success: (res) => {
+            if (res.confirm) {
+              Taro.openSetting();
+            }
+          },
+        });
+        setLocating(false);
+        return;
+      }
+    } catch (e) {
+      console.warn("[LocationPicker] getSetting 失败:", e);
+    }
+
+    // 单次定位：先高精度，失败降级为普通精度
+    const singleLocate = async (highAccuracy: boolean) => {
+      console.log(`[LocationPicker] 调用 getLocation(highAccuracy=${highAccuracy})`);
+      const res: any = await Taro.getLocation({
+        type: "gcj02",
+        isHighAccuracy: highAccuracy,
+        highAccuracyExpireTime: 8000,
+      });
+      console.log("[LocationPicker] getLocation 成功:", res);
+      return {
+        lat: res.latitude,
+        lng: res.longitude,
+        acc: res.accuracy ?? 9999,
+      };
+    };
+
+    try {
+      let newPos;
+      try {
+        newPos = await singleLocate(true);
+      } catch (e1: any) {
+        console.warn("[LocationPicker] 高精度定位失败，降级普通精度:", e1);
+        if (isPrivacyError(e1)) {
+          throw e1; // 隐私错误不降级，直接抛出
+        }
+        newPos = await singleLocate(false);
+      }
+
+      console.log("[LocationPicker] 定位结果:", newPos);
+      setPos(newPos);
+      setLocAccuracy(newPos.acc);
+      await reverseGeocodeRef.current(newPos.lat, newPos.lng);
+    } catch (e: any) {
+      console.error("[LocationPicker] 定位失败:", e);
+      const msg = e?.errMsg || e?.message || "";
+      let title = "无法获取当前位置";
+      if (msg.indexOf("auth deny") !== -1 || msg.indexOf("authDeny") !== -1) {
+        title = "位置权限被拒绝，请在设置中开启";
+      } else if (msg.indexOf("privacy") !== -1) {
+        title = "请先同意隐私协议";
+      } else if (msg.indexOf("timeout") !== -1) {
+        title = "定位超时，请检查网络或到开阔处重试";
+      } else if (msg) {
+        title = msg.slice(0, 50);
+      }
+      Taro.showToast({
+        title: title + "，可手动搜索或点击地图选择",
+        icon: "none",
+        duration: 2500,
+      });
+    } finally {
+      setLocating(false);
+    }
+  }, []);
 
   // 打开时：如果有 initialLocation 则显示该位置，否则自动定位
   useEffect(() => {
@@ -53,118 +173,40 @@ export default function LocationPicker({
       setAddress(initialLocation.locationName || "");
       setPoiId(initialLocation.poiId || null);
     } else {
-      handleLocate();
+      // 延迟一点触发定位，避免弹窗动画期间发起请求
+      const timer = setTimeout(() => {
+        handleLocate();
+      }, 300);
+      return () => clearTimeout(timer);
     }
-  }, [visible, initialLocation]);
-
-  // 定位（3 层降级：持续采样 → 单次高精度 → 单次普通精度）
-  const handleLocate = useCallback(async () => {
-    setLocating(true);
-    setLocAccuracy(null);
-
-    // Layer 1: 持续定位采样 — 连续监听位置变化，取 8s 内 accuracy 最优的点
-    const tryContinuous = (): Promise<{ lat: number; lng: number; acc: number }> =>
-      new Promise((resolve, reject) => {
-        let best: { lat: number; lng: number; acc: number } | null = null;
-        let rejected = false;
-        const SAMPLE_MS = 8000;
-
-        const onChange = (res: any) => {
-          if (rejected) return;
-          const acc = res.accuracy ?? 9999;
-          if (!best || acc < best.acc) {
-            best = { lat: res.latitude, lng: res.longitude, acc };
-          }
-        };
-
-        Taro.onLocationChange(onChange);
-
-        setTimeout(() => {
-          rejected = true;
-          Taro.offLocationChange(onChange);
-          Taro.stopLocationUpdate();
-          if (best && best.acc < 500) {
-            resolve({ lat: best.lat, lng: best.lng, acc: best.acc });
-          } else {
-            reject(new Error("no_good_sample"));
-          }
-        }, SAMPLE_MS);
-
-        Taro.startLocationUpdate({ type: "gcj02" });
-      });
-
-    // Layer 2/3: 单次定位 fallback
-    const singleLocate = (highAccuracy: boolean) =>
-      Taro.getLocation({
-        type: "gcj02",
-        isHighAccuracy: highAccuracy,
-        highAccuracyExpireTime: 10000,
-      }).then((res: any) => ({
-        lat: res.latitude,
-        lng: res.longitude,
-        acc: res.accuracy ?? 9999,
-      }));
-
-    try {
-      let newPos = await tryContinuous().catch(() =>
-        singleLocate(true).catch(() => singleLocate(false)),
-      );
-      setPos(newPos);
-      setLocAccuracy(newPos.acc);
-      await reverseGeocode(newPos.lat, newPos.lng);
-    } catch (e: any) {
-      Taro.showToast({
-        title: e?.errMsg || "无法获取当前位置，请确认已授权位置权限后手动搜索或点击地图选择位置",
-        icon: "none",
-      });
-    } finally {
-      setLocating(false);
-    }
-  }, []);
-
-  // 使用微信原生选择位置API（地址转坐标）
-  const handleChooseLocation = useCallback(async () => {
-    try {
-      const res = await Taro.chooseLocation({});
-      const newPos = { lat: res.latitude, lng: res.longitude };
-      setPos(newPos);
-      setAddress(res.name ? `${res.name} · ${res.address}` : res.address);
-      setPoiId(null);
-    } catch (e: any) {
-      // 用户取消选择时也会触发错误，这里忽略
-      if (e?.errMsg !== 'chooseLocation:fail cancel') {
-        Taro.showToast({
-          title: e?.errMsg || '选择位置失败',
-          icon: 'none',
-        });
-      }
-    }
-  }, []);
+  }, [visible, initialLocation, handleLocate]);
 
   // 地图点击选点
-  const handleMapTap = useCallback((e: any) => {
-    const { latitude, longitude } = e.detail;
-    const newPos = { lat: latitude, lng: longitude };
-    setPos(newPos);
-    reverseGeocode(latitude, longitude);
-  }, []);
+  const handleMapTap = useCallback(
+    (e: any) => {
+      const { latitude, longitude } = e.detail;
+      console.log("[LocationPicker] 地图点击:", latitude, longitude);
+      const newPos = { lat: latitude, lng: longitude };
+      setPos(newPos);
+      reverseGeocodeRef.current(latitude, longitude);
+    },
+    [],
+  );
 
-  // 逆地理编码：通过后端接口（高德）
-  const reverseGeocode = async (lat: number, lng: number) => {
-    try {
-      const res = await apiGet<{
-        address: string;
-        poiName?: string;
-        poiId?: string;
-      }>(`/map/reverse-geocode?latitude=${lat}&longitude=${lng}`);
-      setAddress(
-        res.poiName ? `${res.poiName} · ${res.address}` : res.address,
-      );
-      setPoiId(res.poiId || null);
-    } catch {
-      setAddress(`${lat.toFixed(6)}, ${lng.toFixed(6)}`);
+  // 地图拖动结束选点（与 PC 端一致：拖动地图后取中心点位置）
+  const handleRegionChange = useCallback((e: any) => {
+    // 微信 onRegionChange 事件：e.type === 'end' 表示拖动/缩放结束
+    if (e?.type !== "end") return;
+    // 不同版本字段名不一，做兼容处理
+    const lat = e?.detail?.latitude ?? e?.detail?.centerLatitude;
+    const lng = e?.detail?.longitude ?? e?.detail?.centerLongitude;
+    console.log("[LocationPicker] 地图拖动结束:", lat, lng, e?.detail);
+    if (typeof lat === "number" && typeof lng === "number") {
+      const newPos = { lat, lng };
+      setPos(newPos);
+      reverseGeocodeRef.current(lat, lng);
     }
-  };
+  }, []);
 
   // POI 搜索
   const { data: searchResults, isLoading: searching } = useManualQuery<
@@ -216,7 +258,7 @@ export default function LocationPicker({
     });
   };
 
-  // 清除（不回传任何东西，只关弹窗）
+  // 清除位置
   const handleClear = () => {
     onConfirm({
       latitude: 0,
@@ -246,11 +288,11 @@ export default function LocationPicker({
             value={searchText}
             onInput={(e: any) => setSearchText(e.detail.value)}
           />
-          <Text className="lp-locate" onClick={handleLocate}>
-            {locating ? "···" : "定位"}
-          </Text>
-          <Text className="lp-choose" onClick={handleChooseLocation}>
-            选择
+          <Text
+            className={`lp-locate ${locating ? "lp-locate--loading" : ""}`}
+            onClick={handleLocate}
+          >
+            {locating ? "定位中" : "定位"}
           </Text>
         </View>
 
@@ -289,20 +331,32 @@ export default function LocationPicker({
             scale={16}
             markers={
               pos
-                ? [
+                ? ([
                     {
                       id: 1,
                       latitude: pos.lat,
                       longitude: pos.lng,
-                      width: 48,
-                      height: 48,
+                      width: 32,
+                      height: 32,
                       iconPath: "/assets/icons-png/location.png",
+                      callout: {
+                        content: address || "已选择位置",
+                        color: "#1a1c19",
+                        fontSize: 12,
+                        borderRadius: 8,
+                        borderWidth: 0,
+                        bgColor: "#ffffff",
+                        padding: 6,
+                        display: "ALWAYS",
+                        textAlign: "center",
+                      },
                     },
-                  ]
+                  ] as any)
                 : []
             }
             onTap={handleMapTap}
-            onError={(e: any) => console.log("map error", e)}
+            onRegionChange={handleRegionChange}
+            onError={(e: any) => console.warn("[LocationPicker] map error", e)}
             showLocation
             enable3D={false}
             showCompass={false}
@@ -319,7 +373,7 @@ export default function LocationPicker({
 
         {/* Selected Address */}
         <View className="lp-address">
-          <Text className="lp-addr-icon">位置</Text>
+          <Text className="lp-addr-icon">📍</Text>
           <Text className="lp-addr-text">
             {address || "在地图上点击选择位置，或使用搜索查找地址"}
           </Text>
