@@ -1,90 +1,21 @@
 /* ═══ Books —— 账本管理模块样式 ═══ */
 
-/* 账本页面核心样式 —— 与JSX中使用的类名精确匹配 */
+/* 使用统一卡片样式 .list-card-grid / .list-card，仅需补充账本专属内容 */
 
 .page-container {
-  .bk-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 16px;
-  }
-
-  .bk-card {
-    background: var(--srf);
-    border: 1px solid var(--bd);
-    border-radius: var(--rm);
-    padding: 14px;
-    cursor: pointer;
-    transition: all var(--df) ease;
-
-    &:hover {
-      border-color: var(--pr);
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-    }
-
-    &.active {
-      border-color: var(--pr);
-      background: var(--prBg);
-    }
-
-    .bk-header {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 12px;
-    }
-
-    .bk-icon {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 32px;
-      height: 32px;
-      border-radius: 8px;
-      background: var(--bg);
-      font-size: 18px;
-      flex-shrink: 0;
-    }
-
-    .bk-name {
-      font-size: 15px;
-      font-weight: 600;
-      color: var(--fg);
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      flex: 1;
-    }
-
-    .bk-tags {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-    }
-
-    .bk-tag {
-      padding: 2px 8px;
-      border-radius: 4px;
-      font-size: 11px;
-      font-weight: 500;
-      background: var(--bg);
-      color: var(--fg2);
-    }
-
-    .bk-desc {
-      font-size: 12px;
-      color: var(--fg2);
-      margin-top: 10px;
-      padding-top: 10px;
-      border-top: 1px solid var(--bd);
-      line-height: 1.4;
-    }
-  }
-
-  .bk-header-actions {
+  .list-card-grid__header-actions {
     display: flex;
-    gap: 10px;
+    gap: 8px;
     align-items: center;
+  }
+
+  .list-card__desc {
+    font-size: 12px;
+    color: var(--fg3);
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid var(--bd);
+    line-height: 1.4;
   }
 }
 

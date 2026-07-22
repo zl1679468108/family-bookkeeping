@@ -27,19 +27,23 @@ export const BookGrid: React.FC<BookGridProps> = ({
   if (loading) {
     return (
       <Card>
-        <CardHeader title={<Skeleton width="80px" height="14px" />} />
-        <div className="bk-grid">
+        <div className="card-header">
+          <Skeleton width="60px" height="14px" borderRadius="var(--rs)" />
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <Skeleton width="80px" height="24px" borderRadius="6px" />
+            <Skeleton width="70px" height="24px" borderRadius="6px" />
+          </div>
+        </div>
+        <div className="list-card-grid">
           {[0, 1, 2, 3, 4, 5].map((i) => (
-            <div key={i} className="bk-card" style={{ pointerEvents: 'none' }}>
-              <h4 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Skeleton width="16px" height="16px" borderRadius="4px" />
-                <Skeleton width="60%" height="13px" />
-              </h4>
-              <div className="bk-meta">
-                <Skeleton width="50%" height="11px" />
+            <div key={i} className="list-card" style={{ pointerEvents: 'none' }}>
+              <div className="list-card__header">
+                <Skeleton width="22px" height="22px" borderRadius="6px" />
+                <Skeleton width="50%" height="14px" />
               </div>
-              <div className="bk-meta" style={{ marginTop: '3px' }}>
-                <Skeleton width="30%" height="11px" />
+              <div className="list-card__content">
+                <Skeleton width="60px" height="18px" borderRadius="4px" />
+                <Skeleton width="70px" height="18px" borderRadius="4px" />
               </div>
             </div>
           ))}
@@ -53,7 +57,7 @@ export const BookGrid: React.FC<BookGridProps> = ({
       <CardHeader
         title="我的账本"
         action={
-          <div className="bk-header-actions">
+          <div className="list-card-grid__header-actions">
             <Button variant="secondary" size="sm" onClick={onJoinByCode}>
               使用邀请码加入
             </Button>
@@ -63,37 +67,38 @@ export const BookGrid: React.FC<BookGridProps> = ({
           </div>
         }
       />
-      <div className="bk-grid">
-        {books.length === 0 && (
-          <EmptyState
-            title="还没有任何账本"
-            description="创建你的第一个账本，或等待他人邀请你加入。"
-          />
-        )}
-        {books.map((book: any) => {
-          const isActive = currentBook?.id === book.id;
-          return (
-            <div
-              key={book.id}
-              className={`bk-card ${isActive ? ' active' : ''}`}
-              onClick={() => onSelectBook(book)}
-              style={{ cursor: 'pointer' }}
-            >
-              <div className="bk-header">
-                <span className="bk-icon">{getIconNode(book.icon)}</span>
-                <div className="bk-name">{book.name}</div>
+      {books.length === 0 ? (
+        <EmptyState
+          title="还没有任何账本"
+          description="创建你的第一个账本，或等待他人邀请你加入。"
+        />
+      ) : (
+        <div className="list-card-grid">
+          {books.map((book: any) => {
+            const isActive = currentBook?.id === book.id;
+            return (
+              <div
+                key={book.id}
+                className={`list-card${isActive ? ' is-active' : ''}`}
+                onClick={() => onSelectBook(book)}
+                style={{ cursor: 'pointer' }}
+              >
+                <div className="list-card__header">
+                  <span className="list-card__icon">{getIconNode(book.icon)}</span>
+                  <span className="list-card__title">{book.name}</span>
+                </div>
+                <div className="list-card__content">
+                  <span className="list-card__badge">{book.member_count || 1} 成员</span>
+                  <span className="list-card__badge">{book.txn_count || 0} 笔交易</span>
+                </div>
+                {book.description && (
+                  <div className="list-card__desc">{book.description}</div>
+                )}
               </div>
-              <div className="bk-tags">
-                <span className="bk-tag">{book.member_count || 1} 成员</span>
-                <span className="bk-tag">{book.txn_count || 0} 笔交易</span>
-              </div>
-              {book.description && (
-                <div className="bk-desc">{book.description}</div>
-              )}
-            </div>
-          );
-        })}
-      </div>
+            );
+          })}
+        </div>
+      )}
     </Card>
   );
 };

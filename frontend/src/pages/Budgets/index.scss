@@ -1,38 +1,74 @@
-/* ═══ Budgets 预算模块样式 —— 嵌套写法实现样式隔离 ═══ */
+/* ═══ Budgets 预算模块样式 ═══ */
 
+/* 卡片网格 — 使用统一 .list-card-grid / .list-card */
 .page-container {
-  .card-header-left {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-
-  .budget-item {
-    margin-bottom: 10px;
-    padding: 12px 16px;
-    background: var(--srf);
-    border: 1px solid var(--bd);
-    border-radius: var(--rm);
-    transition: all var(--df) ease;
-    cursor: pointer;
-
-    &:hover {
-      border-color: var(--prBd);
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  .budget-card {
+    &__amount {
+      font-size: 12px;
+      color: var(--fg2);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
     }
 
-    &.budget-item--over {
+    &__remaining {
+      color: var(--fg3);
+    }
+
+    &__unset {
+      color: var(--fg3);
+      font-style: italic;
+    }
+
+    &__progress {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    &__bar {
+      flex: 1;
+      height: 6px;
+      background: var(--bg);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    &__fill {
+      height: 100%;
+      border-radius: 3px;
+      transition: width var(--df) ease;
+    }
+
+    &__fill--safe {
+      background: var(--inc);
+    }
+
+    &__fill--warn {
+      background: linear-gradient(90deg, var(--warn), #F0C040);
+    }
+
+    &__fill--danger {
+      background: var(--exp);
+    }
+
+    &__percent {
+      font-size: 11px;
+      color: var(--fg3);
+      min-width: 32px;
+      text-align: right;
+    }
+
+    /* 状态修饰 */
+    &.budget-card--over {
       border-left: 3px solid var(--exp);
       background: linear-gradient(90deg, rgba(220, 38, 38, 0.03) 0%, var(--srf) 100%);
     }
 
-    &.budget-item--warn {
-      border-left: 3px solid #e8a838;
+    &.budget-card--warn {
+      border-left: 3px solid var(--warn);
       background: linear-gradient(90deg, rgba(232, 168, 56, 0.03) 0%, var(--srf) 100%);
-    }
-
-    .rank-row {
-      padding: 0;
     }
   }
 }

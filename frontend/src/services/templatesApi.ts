@@ -18,3 +18,6 @@ export const executeTemplate = (id: string, data?: ExecuteTemplateInput): Promis
 
 export const reorderTemplates = (data: ReorderInput): Promise<void> =>
   request<void>('/templates/reorder', { method: 'PUT', requiresAuth: true, body: data });
+
+export const executeRecurring = (): Promise<{ executed: number; skipped: number }> =>
+  request<{ executed: number; skipped: number }>('/templates/execute-recurring', { method: 'POST', requiresAuth: true });

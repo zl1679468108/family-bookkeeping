@@ -5,6 +5,7 @@ import {
   IsIn,
   IsInt,
   Length,
+  IsISO8601,
 } from 'class-validator';
 
 export class CreateTemplateDto {
@@ -55,4 +56,18 @@ export class CreateTemplateDto {
   @IsOptional()
   @IsInt()
   sort_order?: number;
+
+  // 周期交易字段
+  @IsOptional()
+  @IsString()
+  @IsIn(['daily', 'weekly', 'monthly', 'quarterly', 'yearly'])
+  frequency?: string;
+
+  @IsOptional()
+  @IsISO8601({ strict: false })
+  start_date?: string;
+
+  @IsOptional()
+  @IsISO8601({ strict: false })
+  end_date?: string;
 }

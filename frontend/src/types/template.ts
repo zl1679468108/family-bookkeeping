@@ -14,6 +14,11 @@ export interface Template {
   book_id?: string;
   sort_order: number;
   created_at: string;
+  // 週期交易欄位
+  frequency?: string;
+  start_date?: string;
+  end_date?: string;
+  last_executed_at?: string;
 }
 
 export interface CreateTemplateInput {
@@ -28,6 +33,9 @@ export interface CreateTemplateInput {
   poi_id?: string;
   book_id?: string;
   sort_order?: number;
+  frequency?: string;
+  start_date?: string;
+  end_date?: string;
 }
 
 export interface ExecuteTemplateInput {

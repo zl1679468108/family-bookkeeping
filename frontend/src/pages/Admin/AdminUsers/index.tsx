@@ -1,14 +1,10 @@
-import React, { useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import AdminLayout from '../AdminLayout';
-import {
-  getAdminUsers,
-  updateUserRole,
-  updateUserStatus,
-  UsersListResponse,
-} from '../../../services/adminApi';
-import { GlobalModal } from '../../../components/ui';
-import { useDebounce } from '../../../hooks/useDebounce';
+import React, { useState } from 'react'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { getAdminUsers, updateUserRole, updateUserStatus, UsersListResponse } from '../../../services/adminApi'
+import AdminLayout from '../AdminLayout'
+import { GlobalModal } from '../../../components/ui'
+import { useMutationAction } from '../../../hooks/useMutationAction'
+import { useDebounce } from '../../../hooks/useDebounce'
 import { FilterBar } from '../../../components/ui/FilterBar'
 import { SearchInput, Input } from '../../../components/ui/Input'
 import { DropdownSelect } from '../../../components/ui/Dropdown'
@@ -50,38 +46,44 @@ const AdminUsers: React.FC = () => {
       }),
   });
 
-  const roleMutation = useMutation({
-    mutationFn: ({ userId, role, pwd }: { userId: string; role: string; pwd: string }) =>
+  const roleMutation = useMutationAction(
+    ({ userId, role, pwd }: { userId: string; role: string; pwd: string }) =>
       updateUserRole(userId, role, pwd),
-    onSuccess: () => {
-      setActionType(null);
-      setPassword('');
-      setErrorMsg('');
-      queryClient.invalidateQueries({ queryKey: ['admin', 'users'] });
+    {
+      invalidateKeys: [['admin', 'users']],
+      errorMessage: '修改角色失败',
+      onSuccess: () => {
+        setActionType(null);
+        setPassword('');
+        setErrorMsg('');
+      },
+      onError: (err: Error) => setErrorMsg(err.message),
     },
-    onError: (err: Error) => setErrorMsg(err.message),
-  });
+  );
 
-  const statusMutation = useMutation({
-    mutationFn: ({ userId, status, pwd }: { userId: string; status: string; pwd: string }) =>
+  const statusMutation = useMutationAction(
+    ({ userId, status, pwd }: { userId: string; status: string; pwd: string }) =>
       updateUserStatus(userId, status, pwd),
-    onSuccess: () => {
-      setActionType(null);
-      setPassword('');
-      setErrorMsg('');
-      queryClient.invalidateQueries({ queryKey: ['admin', 'users'] });
+    {
+      invalidateKeys: [['admin', 'users']],
+      errorMessage: '修改状态失败',
+      onSuccess: () => {
+        setActionType(null);
+        setPassword('');
+        setErrorMsg('');
+      },
+      onError: (err: Error) => setErrorMsg(err.message),
     },
-    onError: (err: Error) => setErrorMsg(err.message),
-  });
+  );
 
   const handleRoleSubmit = () => {
     if (!selectedUserId || !password) return;
-    roleMutation.mutate({ userId: selectedUserId, role: selectedUserRole, pwd: password });
+    roleMutation.run({ userId: selectedUserId, role: selectedUserRole, pwd: password });
   };
 
   const handleStatusSubmit = () => {
     if (!selectedUserId || !password) return;
-    statusMutation.mutate({ userId: selectedUserId, status: selectedUserStatus, pwd: password });
+    statusMutation.run({ userId: selectedUserId, status: selectedUserStatus, pwd: password });
   };
 
   const openRoleDialog = (user: UsersListResponse['users'][number]) => {
@@ -89,6 +91,7 @@ const AdminUsers: React.FC = () => {
     setSelectedUserName(user.username);
     setSelectedUserRole(user.role === 'admin' ? 'user' : 'admin');
     setActionType('role');
+    setErrorMsg('');
   };
 
   const openStatusDialog = (user: UsersListResponse['users'][number]) => {
@@ -96,6 +99,7 @@ const AdminUsers: React.FC = () => {
     setSelectedUserName(user.username);
     setSelectedUserStatus(user.status === 'active' ? 'suspended' : 'active');
     setActionType('status');
+    setErrorMsg('');
   };
 
   const total = data?.total || 0;

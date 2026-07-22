@@ -21,6 +21,9 @@ interface TemplateFormProps {
     location_name: string
     poi_id: string
     sort_order: number
+    frequency: string
+    start_date: string
+    end_date: string
   }
   setForm: React.Dispatch<React.SetStateAction<any>>
   categories: any[]
@@ -139,6 +142,41 @@ export const TemplateFormModal: React.FC<TemplateFormProps> = ({
               />
             </div>
           )}
+          <div className="tpl-form-recurring">
+            <label className="tpl-form-label">周期记账（可选）</label>
+            <div className="tpl-form-row">
+              <DropdownSelect
+                label="频率"
+                value={form.frequency || ''}
+                onChange={(v) => setForm((prev: any) => ({ ...prev, frequency: v || undefined }))}
+                options={[
+                  { key: '', label: '不重复' },
+                  { key: 'daily', label: '每天' },
+                  { key: 'weekly', label: '每周' },
+                  { key: 'monthly', label: '每月' },
+                  { key: 'quarterly', label: '每季度' },
+                  { key: 'yearly', label: '每年' },
+                ]}
+                placeholder="选择频率"
+              />
+            </div>
+            {form.frequency && (
+              <div className="tpl-form-row">
+                <Input
+                  label="开始日期"
+                  type="date"
+                  value={form.start_date || ''}
+                  onChange={(e) => setForm((prev: any) => ({ ...prev, start_date: e.target.value }))}
+                />
+                <Input
+                  label="结束日期（可选）"
+                  type="date"
+                  value={form.end_date || ''}
+                  onChange={(e) => setForm((prev: any) => ({ ...prev, end_date: e.target.value }))}
+                />
+              </div>
+            )}
+          </div>
         </div>
       </GlobalModal>
 

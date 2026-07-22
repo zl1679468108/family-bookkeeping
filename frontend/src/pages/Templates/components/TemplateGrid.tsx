@@ -43,26 +43,23 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
     return (
       <>
         <div className="card-header">
-          <Skeleton width="80px" height="14px" />
-          <Skeleton width="90px" height="24px" borderRadius="6px" />
+          <Skeleton width="60px" height="14px" />
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <Skeleton width="80px" height="24px" borderRadius="6px" />
+            <Skeleton width="70px" height="24px" borderRadius="6px" />
+          </div>
         </div>
-        <div className="tpl-grid">
+        <div className="list-card-grid">
           {[0, 1, 2, 3, 4, 5].map((i) => (
-            <div key={i} className="tpl-card" style={{ pointerEvents: 'none' }}>
-              <div className="tpl-header">
-                <div className="tpl-e">
-                  <Skeleton width="24px" height="24px" borderRadius="6px" />
-                </div>
-                <div className="tpl-n">
-                  <Skeleton width="100%" height="14px" />
-                </div>
+            <div key={i} className="list-card" style={{ pointerEvents: 'none' }}>
+              <div className="list-card__header">
+                <Skeleton width="22px" height="22px" borderRadius="6px" />
+                <Skeleton width="50%" height="14px" />
               </div>
-              <div className="tpl-content">
-                <div className="tpl-meta">
-                  <Skeleton width="32px" height="18px" borderRadius="6px" />
-                  <Skeleton width="40px" height="12px" />
-                  <Skeleton width="50px" height="12px" />
-                </div>
+              <div className="list-card__content">
+                <Skeleton width="32px" height="18px" borderRadius="6px" />
+                <Skeleton width="40px" height="12px" />
+                <Skeleton width="50px" height="12px" />
               </div>
             </div>
           ))}
@@ -76,7 +73,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
       <CardHeader
         title="交易模板"
         action={
-          <div className="tpl-header-actions">
+          <div className="list-card-grid__header-actions">
             <Button
               variant={sortingMode ? 'outline' : 'secondary'}
               size="sm"
@@ -97,14 +94,14 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
           description="创建模板后，记账时可一键套用，省去重复填写。"
         />
       ) : (
-        <div className={`tpl-grid${sortingMode ? ' sort-mode' : ''}`}>
+        <div className={`list-card-grid${sortingMode ? ' sort-mode' : ''}`}>
           {orderedList.map((t, idx) => {
           const cat = getCategoryInfo(t.category_id)
           const isDragging = dragIndex === idx
           return (
             <div
               key={t.id}
-              className={`tpl-card${isDragging ? ' dragging' : ''}`}
+              className={`list-card${isDragging ? ' dragging' : ''}`}
               draggable={sortingMode}
               onDragStart={() => onDragStart(idx)}
               onDragOver={(e) => onDragOver(e, idx)}
@@ -117,17 +114,19 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
               }}
               style={{ cursor: sortingMode ? 'grab' : 'pointer' }}
             >
-              <span className="tpl-handle">⋮⋮</span>
-              <div className="tpl-header">
-                <div className="tpl-e">{renderCategoryIcon(cat.icon, { size: 18 })}</div>
-                <div className="tpl-n">{t.name}</div>
+              {sortingMode && (
+                <span className="list-card__handle">⋮⋮</span>
+              )}
+              <div className="list-card__header">
+                <span className="list-card__icon">{renderCategoryIcon(cat.icon, { size: 18 })}</span>
+                <span className="list-card__title">{t.name}</span>
               </div>
-              <div className="tpl-content">
-                <div className="tpl-meta">
-                  <span className={`tpl-type ${t.type}`}>{t.type === 'expense' ? '支出' : '收入'}</span>
-                  <span className="tpl-cat">{cat.name}</span>
-                  {t.amount && <span className={`tpl-amt tpl-amt-${t.type}`}>{formatAmount(t.amount)}</span>}
-                </div>
+              <div className="list-card__content">
+                <span className={`list-card__badge list-card__badge--${t.type}`}>{t.type === 'expense' ? '支出' : '收入'}</span>
+                <span className="list-card__cat">{cat.name}</span>
+                {t.amount && (
+                  <span className={`list-card__amt list-card__amt--${t.type}`}>{formatAmount(t.amount)}</span>
+                )}
               </div>
             </div>
           )

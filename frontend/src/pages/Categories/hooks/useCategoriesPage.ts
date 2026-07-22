@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { createCategory, updateCategory, deleteCategory, reorderCategories } from '../../../services/categoriesApi'
 import { fetchCustomIcons, uploadIcon, deleteIcon } from '../../../services/iconsApi'
 import { EMOJI_PRESETS } from '../../../utils/emojiPresets'
@@ -7,6 +7,7 @@ import { SHOPPING_PLATFORM_ICONS, getPlatformIconByKey } from '../../../utils/sh
 import { notify } from '../../../utils/notifications'
 import { useSort } from '../../../hooks/useSort'
 import { useCategories } from '../../../hooks/useCategories'
+import { useMutationAction } from '../../../hooks/useMutationAction'
 import type { Category, CreateCategoryInput } from '../../../types/category'
 import type { CustomIconItem } from '../../../components/ui/IconGrid'
 
@@ -68,48 +69,46 @@ export function useCategoriesPage() {
     isSaving: boolean
   }
 
-  // Mutations
-  const createMutation = useMutation({
-    mutationFn: (input: CreateCategoryInput) => createCategory(input),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['categories'] })
-      notify({ type: 'success', message: '分类已创建' })
-      setModalOpen(false)
+  // Mutations — 使用 useMutationAction 统一防抖 + loading 状态
+  const createMutation = useMutationAction(
+    (input: CreateCategoryInput) => createCategory(input),
+    {
+      invalidateKeys: [['categories']],
+      successMessage: '分类已创建',
+      errorMessage: '创建失败',
+      onSuccess: () => setModalOpen(false),
     },
-    onError: (err: any) => {
-      notify({ type: 'error', message: err?.message || '创建失败' })
-    },
-  })
+  )
 
-  const updateMutation = useMutation({
-    mutationFn: ({ id, name, icon, icon_id }: { id: string; name: string; icon?: string; icon_id?: string }) =>
+  const updateMutation = useMutationAction(
+    ({ id, name, icon, icon_id }: { id: string; name: string; icon?: string; icon_id?: string }) =>
       updateCategory(id, { name, icon, icon_id }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['categories'] })
-      notify({ type: 'success', message: '分类已更新' })
-      setModalOpen(false)
-      setShowDetail(false)
-      setEditingCategory(null)
-      setSelectedCategory(null)
+    {
+      invalidateKeys: [['categories']],
+      successMessage: '分类已更新',
+      errorMessage: '更新失败',
+      onSuccess: () => {
+        setModalOpen(false)
+        setShowDetail(false)
+        setEditingCategory(null)
+        setSelectedCategory(null)
+      },
     },
-    onError: (err: any) => {
-      notify({ type: 'error', message: err?.message || '更新失败' })
-    },
-  })
+  )
 
-  const deleteMutation = useMutation({
-    mutationFn: (id: string) => deleteCategory(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['categories'] })
-      notify({ type: 'success', message: '已删除' })
-      setDeleteTarget(null)
-      setShowDetail(false)
-      setSelectedCategory(null)
+  const deleteMutation = useMutationAction(
+    (id: string) => deleteCategory(id),
+    {
+      invalidateKeys: [['categories']],
+      successMessage: '已删除',
+      errorMessage: '删除失败',
+      onSuccess: () => {
+        setDeleteTarget(null)
+        setShowDetail(false)
+        setSelectedCategory(null)
+      },
     },
-    onError: (err: any) => {
-      notify({ type: 'error', message: err?.message || '删除失败' })
-    },
-  })
+  )
 
   // Event handlers
   const handleOpenAdd = useCallback(() => {
@@ -128,7 +127,7 @@ export function useCategoriesPage() {
     setModalOpen(true)
   }, [])
 
-  const handleModalConfirm = useCallback(() => {
+  const handleModalConfirm = useCallback(async () => {
     const trimmedName = modalName.trim()
     if (!trimmedName || !modalIcon) return
 
@@ -137,22 +136,22 @@ export function useCategoriesPage() {
 
     if (modalMode === 'add') {
       if (isCustomIcon) {
-        createMutation.mutate({ name: trimmedName, icon_id: modalIcon, type: activeTab })
+        await createMutation.run({ name: trimmedName, icon_id: modalIcon, type: activeTab })
       } else {
-        createMutation.mutate({ name: trimmedName, icon: modalIcon, type: activeTab })
+        await createMutation.run({ name: trimmedName, icon: modalIcon, type: activeTab })
       }
     } else if (modalMode === 'edit' && editingCategory) {
       if (isCustomIcon) {
-        updateMutation.mutate({ id: editingCategory.id, name: trimmedName, icon_id: modalIcon })
+        await updateMutation.run({ id: editingCategory.id, name: trimmedName, icon_id: modalIcon })
       } else {
-        updateMutation.mutate({ id: editingCategory.id, name: trimmedName, icon: modalIcon })
+        await updateMutation.run({ id: editingCategory.id, name: trimmedName, icon: modalIcon })
       }
     }
   }, [modalMode, modalName, modalIcon, editingCategory, activeTab, createMutation, updateMutation])
 
-  const handleDeleteConfirm = useCallback(() => {
+  const handleDeleteConfirm = useCallback(async () => {
     if (deleteTarget) {
-      deleteMutation.mutate(deleteTarget.id)
+      await deleteMutation.run(deleteTarget.id)
     }
   }, [deleteTarget, deleteMutation])
 

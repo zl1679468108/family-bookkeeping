@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useBook } from '../../../hooks/useBook';
 import {
   deleteBook,
@@ -9,6 +9,7 @@ import {
   createInvitation,
 } from '../../../services/booksApi';
 import { notify } from '../../../utils/notifications';
+import { useMutationAction } from '../../../hooks/useMutationAction';
 
 export interface InviteCodeData {
   code: string;
@@ -55,57 +56,63 @@ export function useBooksPage() {
     staleTime: 30 * 1000,
   });
 
-  const inviteMutation = useMutation({
-    mutationFn: ({ bookId, email }: { bookId: string; email: string }) =>
+  const inviteMutation = useMutationAction(
+    ({ bookId, email }: { bookId: string; email: string }) =>
       inviteMember(bookId, email),
-    onSuccess: () => {
-      notify({ type: 'success', message: '邀请已发送' });
-      closeAllDialogs();
-      queryClient.invalidateQueries({ queryKey: ['book-members'] });
+    {
+      invalidateKeys: [['book-members']],
+      successMessage: '邀请已发送',
+      errorMessage: '邀请失败，请检查邮箱',
+      onSuccess: closeAllDialogs,
     },
-    onError: (err: any) => {
-      notify({ type: 'error', message: err?.message || '邀请失败，请检查邮箱' });
-    },
-  });
+  );
 
-  const inviteCodeMutation = useMutation({
-    mutationFn: (bookId: string) => createInvitation(bookId),
-    onSuccess: (data) => {
-      setGeneratedInviteCode(data);
-      setShowInviteCodeModal(true);
+  const inviteCodeMutation = useMutationAction(
+    (bookId: string) => createInvitation(bookId),
+    {
+      successMessage: '邀请码已生成',
+      errorMessage: '生成邀请码失败',
     },
-    onError: (err: any) => {
-      notify({ type: 'error', message: err?.message || '生成邀请码失败' });
-    },
-  });
+  )
 
-  const deleteMutation = useMutation({
-    mutationFn: deleteBook,
-    onSuccess: () => {
-      notify({ type: 'success', message: '账本已删除' });
-      closeAllDialogs();
-      refetchBooks();
-    },
-    onError: (err: any) => {
-      notify({ type: 'error', message: err?.message || '删除失败' });
-    },
-  });
+  // 包装生成邀请码（需要拿到返回数据）
+  const handleGenerateInviteCode = useCallback(async (bookId: string) => {
+    try {
+      const data = await inviteCodeMutation.run(bookId)
+      if (data) {
+        setGeneratedInviteCode(data)
+        setShowInviteCodeModal(true)
+      }
+    } catch {
+      // 错误已由 useMutationAction 内部 notify
+    }
+  }, [inviteCodeMutation])
 
-  const removeMemberMutation = useMutation({
-    mutationFn: ({ bookId, userId }: { bookId: string; userId: string }) =>
+  const deleteMutation = useMutationAction(
+    (bookId: string) => deleteBook(bookId),
+    {
+      successMessage: '账本已删除',
+      errorMessage: '删除失败',
+      onSuccess: () => {
+        closeAllDialogs();
+        refetchBooks();
+      },
+    },
+  );
+
+  const removeMemberMutation = useMutationAction(
+    ({ bookId, userId }: { bookId: string; userId: string }) =>
       removeMember(bookId, userId),
-    onSuccess: () => {
-      notify({ type: 'success', message: '成员已移除' });
-      queryClient.invalidateQueries({ queryKey: ['book-members'] });
-      setShowMemberConfirm(false);
-      setRemovingMember(null);
+    {
+      invalidateKeys: [['book-members']],
+      successMessage: '成员已移除',
+      errorMessage: '移除失败',
+      onSuccess: () => {
+        setShowMemberConfirm(false);
+        setRemovingMember(null);
+      },
     },
-    onError: (err: any) => {
-      notify({ type: 'error', message: err?.message || '移除失败' });
-      setShowMemberConfirm(false);
-      setRemovingMember(null);
-    },
-  });
+  );
 
   const handleCreateSuccess = useCallback(() => {
     refetchBooks();
@@ -151,6 +158,7 @@ export function useBooksPage() {
     deleteMutation,
     removeMemberMutation,
     handleCreateSuccess,
+    handleGenerateInviteCode,
     closeAllDialogs,
   };
 }

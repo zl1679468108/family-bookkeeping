@@ -1,55 +1,53 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query'
+import { useMutationAction } from './useMutationAction'
 import {
   fetchTemplates, createTemplate, updateTemplate,
-  deleteTemplate, executeTemplate, reorderTemplates,
-} from '../services/templatesApi';
-import type { CreateTemplateInput, ExecuteTemplateInput, ReorderInput } from '../types/template';
+  deleteTemplate, executeTemplate, reorderTemplates, executeRecurring,
+} from '../services/templatesApi'
+import type { CreateTemplateInput, ExecuteTemplateInput, ReorderInput } from '../types/template'
 
 export const useTemplates = () => {
-  return useQuery({ queryKey: ['templates'], queryFn: fetchTemplates });
-};
+  return useQuery({ queryKey: ['templates'], queryFn: fetchTemplates })
+}
 
 export const useCreateTemplate = () => {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: (data: CreateTemplateInput) => createTemplate(data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['templates'] }),
-  });
-};
+  return useMutationAction(
+    (data: CreateTemplateInput) => createTemplate(data),
+    { invalidateKeys: [['templates']], successMessage: '模板已创建' },
+  )
+}
 
 export const useUpdateTemplate = () => {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: Partial<CreateTemplateInput> }) =>
-      updateTemplate(id, data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['templates'] }),
-  });
-};
+  return useMutationAction(
+    ({ id, data }: { id: string; data: Partial<CreateTemplateInput> }) => updateTemplate(id, data),
+    { invalidateKeys: [['templates']], successMessage: '模板已更新' },
+  )
+}
 
 export const useDeleteTemplate = () => {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: (id: string) => deleteTemplate(id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['templates'] }),
-  });
-};
+  return useMutationAction(
+    (id: string) => deleteTemplate(id),
+    { invalidateKeys: [['templates']], successMessage: '模板已删除' },
+  )
+}
 
 export const useExecuteTemplate = () => {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: ({ id, data }: { id: string; data?: ExecuteTemplateInput }) =>
-      executeTemplate(id, data),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['transactions'] });
-      qc.invalidateQueries({ queryKey: ['templates'] });
-    },
-  });
-};
+  return useMutationAction(
+    ({ id, data }: { id: string; data?: ExecuteTemplateInput }) => executeTemplate(id, data),
+    { invalidateKeys: [['transactions'], ['templates']] },
+  )
+}
 
 export const useReorderTemplates = () => {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: (data: ReorderInput) => reorderTemplates(data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['templates'] }),
-  });
-};
+  return useMutationAction(
+    (data: ReorderInput) => reorderTemplates(data),
+    { invalidateKeys: [['templates']] },
+  )
+}
+
+export const useExecuteRecurring = () => {
+  return useMutationAction(
+    () => executeRecurring(),
+    { invalidateKeys: [['transactions'], ['templates']] },
+  )
+}

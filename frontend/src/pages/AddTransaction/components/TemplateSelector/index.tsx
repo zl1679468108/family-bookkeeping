@@ -75,6 +75,11 @@ export const TemplateSelector: React.FC<TemplateSelectorProps> = ({
                       <div className="template-item-bottom">
                         <span className="template-note">{tpl.note || tpl.category_name || ''}</span>
                         {tpl.amount && <span className="template-amount">¥{tpl.amount}</span>}
+                        {tpl.frequency && (
+                          <span className="template-recurring-badge">
+                            {tpl.frequency === 'daily' ? '每日' : tpl.frequency === 'weekly' ? '每周' : tpl.frequency === 'monthly' ? '每月' : tpl.frequency === 'quarterly' ? '每季' : '每年'}
+                          </span>
+                        )}
                       </div>
                     </div>
                     <div className={`template-radio ${isSelected ? 'checked' : ''}`}>

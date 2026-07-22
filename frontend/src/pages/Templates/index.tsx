@@ -1,10 +1,13 @@
 import React from 'react'
 import { GlobalModal } from '../../components/ui'
 import { Card } from '../../components/ui/Card'
+import { Button } from '../../components/ui/Button'
 import { useTemplatesPage } from './hooks/useTemplatesPage'
 import { TemplateGrid } from './components/TemplateGrid'
 import { TemplateDetailModal } from './components/TemplateDetailModal'
 import { TemplateFormModal } from './components/TemplateFormModal'
+import { useExecuteRecurring } from '../../hooks/useTemplates'
+import { notify } from '../../utils/notifications'
 
 const Templates: React.FC = () => {
   const {
@@ -44,6 +47,52 @@ const Templates: React.FC = () => {
     getCategoryInfo,
   } = useTemplatesPage()
 
+  const executeRecurringMutation = useExecuteRecurring()
+
+  const getNextExecutionDate = (t: any): string => {
+    const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Shanghai' })
+    // 从末执行过且今天已到开始日期：当日可执行
+    if (!t.last_executed_at && t.start_date && t.start_date <= today) return today
+    if (t.last_executed_at) {
+      const base = new Date(t.last_executed_at)
+      const monthMap: Record<string, number> = { daily: 0, weekly: 0, monthly: 1, quarterly: 3, yearly: 12 }
+      const addMonths = monthMap[t.frequency as string] ?? 1
+      if (addMonths === 0) {
+        base.setDate(base.getDate() + (t.frequency === 'weekly' ? 7 : 1))
+      } else {
+        base.setMonth(base.getMonth() + addMonths)
+      }
+      return base.toLocaleDateString('en-CA', { timeZone: 'Asia/Shanghai' })
+    }
+    return t.start_date || today
+  }
+
+  const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Shanghai' })
+
+  const hasRecurring = orderedList.some((t: any) => {
+    if (!t.frequency) return false
+    if (t.end_date && t.end_date < today) return false
+    const nextDate = getNextExecutionDate(t)
+    return nextDate <= today
+  })
+
+  const getRecurringCount = () => orderedList.filter((t: any) => {
+    if (!t.frequency) return false
+    if (t.end_date && t.end_date < today) return false
+    const nextDate = getNextExecutionDate(t)
+    return nextDate <= today
+  }).length
+
+  const handleExecuteRecurring = async () => {
+    try {
+      const result = await executeRecurringMutation.mutateAsync()
+      const { executed, skipped } = result as { executed: number; skipped: number }
+      notify({ type: 'success', message: `周期模板执行完成：成功 ${executed} 个，跳过 ${skipped} 个` })
+    } catch (err: any) {
+      notify({ type: 'error', message: err?.message || '执行周期模板失败' })
+    }
+  }
+
   return (
     <div className="page-container">
       <Card>
@@ -64,6 +113,20 @@ const Templates: React.FC = () => {
           getCategoryInfo={getCategoryInfo}
         />
       </Card>
+
+      {hasRecurring && (
+        <div className="tpl-recurring-bar">
+          <span className="tpl-recurring-hint">有 {getRecurringCount()} 个周期模板待执行</span>
+          <Button
+            variant="primary"
+            size="sm"
+            onClick={handleExecuteRecurring}
+            disabled={executeRecurringMutation.isPending}
+          >
+            执行周期模板
+          </Button>
+        </div>
+      )}
 
       <TemplateDetailModal
         template={selectedTemplate}

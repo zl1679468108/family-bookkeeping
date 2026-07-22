@@ -14,7 +14,6 @@ import { GlobalModal, DetailItem, Space } from '../../components/ui'
 import { Card } from '../../components/ui/Card'
 import { Button } from '../../components/ui/Button'
 import { NumberInput } from '../../components/ui/Input'
-import { RankRow } from '../../components/ui/RankList'
 import { EmptyState } from '../../components/ui/EmptyState'
 import { DropdownSelect } from '../../components/ui/Dropdown'
 
@@ -23,15 +22,28 @@ const formatMonthToDisplay = (monthStr: string): string => {
   return format(date, 'yyyy 年 MM 月')
 }
 
+const getStatusVariant = (status: string): 'safe' | 'warn' | 'danger' => {
+  switch (status) {
+    case 'over': return 'danger'
+    case 'warning': return 'warn'
+    default: return 'safe'
+  }
+}
+
+const progressFillClass = (variant: 'safe' | 'warn' | 'danger'): string => {
+  switch (variant) {
+    case 'danger': return 'progress-fill--danger'
+    case 'warn': return 'progress-fill--warn'
+    default: return 'progress-fill--safe'
+  }
+}
+
 const Budgets: React.FC = () => {
   const queryClient = useQueryClient()
   const { categories } = useCategoryLookup()
 
   const { focusId, hasFocus } = useFocusItem()
-
-  // 使用月份范围 hook，前后5年
   const { monthOptions, currentMonthKey } = useMonthRangeOptions()
-
   const [selectedMonth, setSelectedMonth] = useState<string>(currentMonthKey)
 
   const expenseCategories = categories.filter((c) => c.type === 'expense')
@@ -136,17 +148,6 @@ const Budgets: React.FC = () => {
     })
   })
 
-  const getStatusVariant = (status: string): 'safe' | 'warn' | 'danger' => {
-    switch (status) {
-      case 'over':
-        return 'danger'
-      case 'warning':
-        return 'warn'
-      default:
-        return 'safe'
-    }
-  }
-
   const handleOpenEditForm = (budget: any) => {
     setEditFormValues({
       budget: String(budget.budget),
@@ -205,36 +206,31 @@ const Budgets: React.FC = () => {
         </div>
 
         {budgetsLoading ? (
-          <>
+          <div className="list-card-grid">
             {[0, 1, 2, 3, 4].map((i) => (
-              <div key={i} className="budget-item" style={{ pointerEvents: 'none' }}>
-                <div className="budget-info">
-                  <span className="budget-name">
-                    <Skeleton width="12px" height="12px" borderRadius="3px" />
-                    <span style={{ marginLeft: '6px', display: 'inline-block', verticalAlign: 'middle' }}>
-                      <Skeleton width="80px" height="13px" />
-                    </span>
-                  </span>
-                  <span className="budget-amount">
-                    <Skeleton width="120px" height="12px" />
-                  </span>
+              <div key={i} className="list-card" style={{ pointerEvents: 'none' }}>
+                <div className="list-card__header">
+                  <Skeleton width="18px" height="18px" borderRadius="4px" />
+                  <Skeleton width="60%" height="14px" />
                 </div>
-                <div className="budget-bar">
-                  <div className="fill" style={{ width: [60, 85, 45, 70, 30][i] + '%' }} />
+                <div className="budget-card__amount">
+                  <Skeleton width="120px" height="13px" />
                 </div>
-                <div className="budget-percent">
-                  <Skeleton width="40%" height="11px" />
+                <div className="budget-card__progress">
+                  <div className="budget-card__bar">
+                    <div className="fill" style={{ width: [60, 85, 45, 70, 30][i] + '%' }} />
+                  </div>
                 </div>
               </div>
             ))}
-          </>
+          </div>
         ) : expenseCategories.length === 0 ? (
           <EmptyState
             title="暂无支出分类"
             description="请先在分类管理中添加支出分类"
           />
         ) : (
-          <>
+          <div className="list-card-grid">
             {expenseCategories.map((cat) => {
               const catKey = cat.id
               const catStatus = statusMap.get(cat.id)
@@ -244,32 +240,49 @@ const Budgets: React.FC = () => {
               const status = catStatus?.status || 'safe'
               const isFocused = hasFocus && focusId === catKey
               const remaining = budget - spent
-              const statusClass = status === 'over' ? ' budget-item--over' : status === 'warning' ? ' budget-item--warn' : ''
+              const variant = getStatusVariant(status)
+              const fillCls = progressFillClass(variant)
+              const statusClass = status === 'over' ? ' budget-card--over' : status === 'warning' ? ' budget-card--warn' : ''
 
               return (
                 <div
                   key={cat.name}
                   data-focus={catKey}
-                  className={`budget-item${statusClass}${isFocused ? ' spotlight--focused' : ''}`}
+                  className={`list-card${statusClass}${isFocused ? ' spotlight--focused' : ''}`}
                   onClick={() => {
                     setSelectedBudget({ category: cat, spent, budget, progress, status, remaining })
                     setShowDetail(true)
                   }}
                 >
-                  <RankRow
-                    id={cat.id}
-                    icon={renderCategoryIcon(cat.icon, { size: 18 })}
-                    label={cat.name}
-                    amount={spent}
-                    totalAmount={budget > 0 ? budget : undefined}
-                    progress={budget > 0 ? progress : undefined}
-                    status={getStatusVariant(status)}
-                    meta={<span className="budget-percent">{budget > 0 ? `剩余 ¥${remaining.toLocaleString('zh-CN')}` : '未设置预算'}</span>}
-                  />
+                  <div className="list-card__header">
+                    <span className="list-card__icon">{renderCategoryIcon(cat.icon, { size: 18 })}</span>
+                    <span className="list-card__title">{cat.name}</span>
+                  </div>
+                  <div className="budget-card__amount">
+                    {budget > 0 ? (
+                      <>
+                        <span>¥{spent.toLocaleString('zh-CN')} / ¥{budget.toLocaleString('zh-CN')}</span>
+                        <span className="budget-card__remaining">剩余 ¥{remaining.toLocaleString('zh-CN')}</span>
+                      </>
+                    ) : (
+                      <span className="budget-card__unset">未设置预算</span>
+                    )}
+                  </div>
+                  {budget > 0 && (
+                    <div className="budget-card__progress">
+                      <div className="budget-card__bar">
+                        <div
+                          className={`budget-card__fill ${fillCls}`}
+                          style={{ width: `${Math.min(progress, 100)}%` }}
+                        />
+                      </div>
+                      <span className="budget-card__percent">{progress}%</span>
+                    </div>
+                  )}
                 </div>
               )
             })}
-          </>
+          </div>
         )}
       </Card>
 

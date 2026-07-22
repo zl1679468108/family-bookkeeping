@@ -1,123 +1,39 @@
 /* ═══ Templates —— 模板管理模块样式 ═══ */
 
+/* 使用统一卡片样式 .list-card-grid / .list-card */
+
 .page-container {
-  .tpl-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-    gap: 12px;
-    margin-top: 12px;
-
-    &.sort-mode .tpl-handle {
-      display: inline-flex;
-    }
-  }
-
-  .tpl-card {
-    background: var(--srf);
-    border: 1px solid var(--bd);
-    border-radius: var(--rm);
-    padding: 14px;
-    cursor: pointer;
-    transition: all var(--df) ease;
-
-    &:hover {
-      border-color: var(--pr);
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-    }
-
-    &.dragging {
-      opacity: 0.5;
-      border-style: dashed;
-    }
-
-    .tpl-handle {
-      display: none;
-      cursor: grab;
-      color: var(--fg2);
-      font-size: 14px;
-      padding: 4px;
-      border-radius: 4px;
-      line-height: 1;
-      flex-shrink: 0;
-      user-select: none;
-
-      &:hover {
-        color: var(--fg);
-      }
-
-      &:active {
-        cursor: grabbing;
-      }
-    }
-
-    .tpl-header {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 10px;
-    }
-
-    .tpl-e {
-      font-size: 22px;
-      flex-shrink: 0;
-    }
-
-    .tpl-n {
-      font-size: 14px;
-      font-weight: 600;
-      color: var(--fg);
-    }
-
-    .tpl-content {
-      margin-left: 0;
-    }
-
-    .tpl-meta {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 12px;
-      color: var(--fg3);
-
-      .tpl-type {
-        padding: 2px 8px;
-        border-radius: 4px;
-        font-size: 11px;
-        font-weight: 500;
-      }
-
-      .tpl-type.expense {
-        color: var(--exp);
-        background: var(--expBg);
-      }
-
-      .tpl-type.income {
-        color: var(--inc);
-        background: var(--incBg);
-      }
-
-      .tpl-cat {
-        color: var(--fg2);
-      }
-
-      .tpl-amt {
-        font-weight: 600;
-      }
-
-      .tpl-amt-expense {
-        color: var(--exp);
-      }
-
-      .tpl-amt-income {
-        color: var(--inc);
-      }
-    }
-  }
-
-  .tpl-header-actions {
+  .list-card-grid__header-actions {
     display: flex;
-    gap: 10px;
+    gap: 8px;
     align-items: center;
+  }
+
+  .list-card__badge--expense {
+    color: var(--exp);
+    background: var(--expBg);
+  }
+
+  .list-card__badge--income {
+    color: var(--inc);
+    background: var(--incBg);
+  }
+
+  .list-card__cat {
+    color: var(--fg2);
+  }
+
+  .list-card__amt {
+    font-weight: 600;
+    margin-left: auto;
+  }
+
+  .list-card__amt--expense {
+    color: var(--exp);
+  }
+
+  .list-card__amt--income {
+    color: var(--inc);
   }
 
   /* 模板表单样式 */
@@ -309,4 +225,20 @@
   font-size: 13px;
   color: var(--fg);
   word-break: break-all;
+}
+
+.tpl-recurring-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 16px;
+  padding: 12px 16px;
+  background: var(--bg-elevated);
+  border-radius: 8px;
+  border: 1px solid var(--border);
+}
+
+.tpl-recurring-hint {
+  font-size: 13px;
+  color: var(--fg2);
 }

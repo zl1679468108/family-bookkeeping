@@ -84,6 +84,18 @@ export const TemplateDetailModal: React.FC<TemplateDetailModalProps> = ({
         {template.sort_order !== undefined && (
           <DetailItem label="排序" value={`第 ${template.sort_order + 1} 位`} />
         )}
+        {template.frequency && (
+          <DetailItem label="周期" value={`${template.frequency === 'daily' ? '每天' : template.frequency === 'weekly' ? '每周' : template.frequency === 'monthly' ? '每月' : template.frequency === 'quarterly' ? '每季度' : '每年'}`} />
+        )}
+        {template.start_date && (
+          <DetailItem label="开始日期" value={template.start_date} />
+        )}
+        {template.end_date && (
+          <DetailItem label="结束日期" value={template.end_date} />
+        )}
+        {template.last_executed_at && (
+          <DetailItem label="上次执行" value={template.last_executed_at} />
+        )}
         {template.created_at && (
           <DetailItem label="创建时间" value={format(new Date(template.created_at), 'yyyy-MM-dd HH:mm')} />
         )}

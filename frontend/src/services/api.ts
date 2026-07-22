@@ -587,3 +587,18 @@ export const ocrReceipt = async (file: Blob): Promise<OcrResult> => {
     notifyOnError: true,
   })
 }
+
+export interface CategorySuggestion {
+  category_id: string;
+  category_name: string;
+  icon: string;
+  confidence: number;
+}
+
+export const suggestCategory = async (params: { brand?: string; note?: string; amount?: number }): Promise<CategorySuggestion[]> => {
+  const queryParams = new URLSearchParams();
+  if (params.brand) queryParams.set('brand', params.brand);
+  if (params.note) queryParams.set('note', params.note);
+  if (params.amount) queryParams.set('amount', String(params.amount));
+  return request<CategorySuggestion[]>(`/transactions/suggest-category?${queryParams.toString()}`, { requiresAuth: true });
+}

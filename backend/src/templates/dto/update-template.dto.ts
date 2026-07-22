@@ -13,4 +13,9 @@ export class UpdateTemplateDto {
   @IsOptional() @IsString() @MaxLength(100) merchant_name?: string;
   @IsOptional() @IsString() book_id?: string;
   @IsOptional() @IsInt() sort_order?: number;
+
+  // 周期交易字段
+  @IsOptional() @IsString() @IsIn(['daily', 'weekly', 'monthly', 'quarterly', 'yearly']) frequency?: string;
+  @IsOptional() @IsString() start_date?: string;
+  @IsOptional() @IsString() end_date?: string;
 }

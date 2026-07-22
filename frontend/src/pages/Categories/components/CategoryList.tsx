@@ -46,13 +46,13 @@ export const CategoryList: React.FC<CategoryListProps> = ({
   }
 
   return (
-    <div className={`cat-grid${sortingMode ? ' sort-mode' : ''}`}>
+    <div className="list-card-grid">
       {orderedList.map((cat, idx) => {
         const isDragging = dragIndex === idx
         return (
           <div
             key={cat.id}
-            className={`cat-card${isDragging ? ' dragging' : ''}`}
+            className={`list-card${isDragging ? ' dragging' : ''}`}
             draggable={sortingMode}
             onDragStart={() => handleDragStart(idx)}
             onDragOver={(e) => handleDragOver(e, idx)}
@@ -66,16 +66,16 @@ export const CategoryList: React.FC<CategoryListProps> = ({
             }}
             style={{ cursor: sortingMode ? 'grab' : 'pointer' }}
           >
-            <span className="cat-handle">⋮⋮</span>
-            <div className="cat-header">
-              <span className="cat-e">{renderCategoryIcon(cat.icon, { size: 18 })}</span>
-              <div className="cat-content">
-                <div className="cat-n">{cat.name}</div>
-              </div>
+            {sortingMode && (
+              <span className="list-card__handle">⋮⋮</span>
+            )}
+            <div className="list-card__header">
+              <span className="list-card__icon">{renderCategoryIcon(cat.icon, { size: 18 })}</span>
+              <span className="list-card__title">{cat.name}</span>
             </div>
-            <div className="cat-badges">
-              {cat.is_default && <span className="cat-badge-default">默认</span>}
-              {!cat.is_default && <span className="cat-badge-custom">自定义</span>}
+            <div className="list-card__content">
+              {cat.is_default && <span className="list-card__badge list-card__badge--default">默认</span>}
+              {!cat.is_default && <span className="list-card__badge list-card__badge--custom">自定义</span>}
             </div>
           </div>
         )

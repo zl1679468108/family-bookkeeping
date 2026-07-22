@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
+import { useMutationAction } from '../../../hooks/useMutationAction';
 import { createBook, updateBook } from '../../../services/booksApi';
 import { fetchCustomIcons, uploadIcon, deleteIcon } from '../../../services/iconsApi';
 import { BOOK_ICONS, getBookIconByKey } from '../../../utils/bookIcons';
@@ -42,8 +43,8 @@ export const BookCreateModal: React.FC<BookCreateModalProps> = ({ open, onClose,
     enabled: open, // 仅弹窗打开时请求
   });
 
-  const mutation = useMutation({
-    mutationFn: () => {
+  const mutation = useMutationAction(
+    () => {
       const isCustomIcon = bookIconKey.length === 36 && bookIconKey.includes('-');
       const payload = {
         name: bookName.trim(),
@@ -52,22 +53,22 @@ export const BookCreateModal: React.FC<BookCreateModalProps> = ({ open, onClose,
       };
       return isEdit && editTarget ? updateBook({ ...payload, id: editTarget.id }) : createBook(payload);
     },
-    onSuccess: () => {
-      notify({ type: 'success', message: isEdit ? '更新成功' : '账本创建成功' });
-      onClose();
-      onSuccess?.();
+    {
+      successMessage: isEdit ? '更新成功' : '账本创建成功',
+      errorMessage: isEdit ? '更新失败' : '创建失败',
+      onSuccess: () => {
+        onClose();
+        onSuccess?.();
+      },
     },
-    onError: (err: any) => {
-      notify({ type: 'error', message: err?.message || (isEdit ? '更新失败' : '创建失败') });
-    },
-  });
+  );
 
   const handleSubmit = () => {
     if (!bookName.trim()) {
       notify({ type: 'error', message: '请输入名称' });
       return;
     }
-    mutation.mutate();
+    mutation.run();
   };
 
   const iconOptions = BOOK_ICONS.map((item) => ({

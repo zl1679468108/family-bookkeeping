@@ -13,7 +13,7 @@ interface BookDetailModalProps {
   currentBook: any;
   members: any[];
   loadingMembers?: boolean;
-  inviteCodeMutationPending: boolean;
+  isGenerateInviteCodePending: boolean;
   onClose: () => void;
   onInviteMember: () => void;
   onGenerateInviteCode: () => void;
@@ -29,7 +29,7 @@ export const BookDetailModal: React.FC<BookDetailModalProps> = ({
   currentBook,
   members,
   loadingMembers,
-  inviteCodeMutationPending,
+  isGenerateInviteCodePending,
   onClose,
   onInviteMember,
   onGenerateInviteCode,
@@ -57,9 +57,9 @@ export const BookDetailModal: React.FC<BookDetailModalProps> = ({
           <Button
             variant="secondary"
             onClick={onGenerateInviteCode}
-            disabled={inviteCodeMutationPending}
+            disabled={isGenerateInviteCodePending}
           >
-            {inviteCodeMutationPending ? '生成中...' : '生成邀请码'}
+            {isGenerateInviteCodePending ? '生成中...' : '生成邀请码'}
           </Button>
           <Button variant="secondary" onClick={onEdit}>
             编辑

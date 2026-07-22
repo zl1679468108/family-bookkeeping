@@ -162,4 +162,17 @@ export class TransactionController {
     await this.transactionService.deleteReceipt(+id, userId);
     return { message: '收据已删除', data: null };
   }
+
+  /** GET /transactions/suggest-category — 智能分类建议 */
+  @Get('suggest-category')
+  async suggestCategory(
+    @CurrentUser('id') userId: string,
+    @Query('brand') brand?: string,
+    @Query('note') note?: string,
+    @Query('amount') amount?: string,
+  ) {
+    const amountNum = amount ? parseFloat(amount) : undefined;
+    const data = await this.transactionService.suggestCategory(userId, brand, note, amountNum);
+    return { message: '獲取分類建議成功', data };
+  }
 }

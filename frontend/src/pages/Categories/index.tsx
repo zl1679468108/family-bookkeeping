@@ -61,7 +61,7 @@ const Categories: React.FC = () => {
       <Card>
         {isLoading || !customCategories ? (
           <>
-            <div className="cat-header-actions">
+            <div className="list-card-grid__header-actions">
               <Skeleton width="90px" height="24px" borderRadius="6px" />
               <Skeleton width="90px" height="24px" borderRadius="6px" />
             </div>
@@ -71,18 +71,15 @@ const Categories: React.FC = () => {
                 <Skeleton width="70px" height="14px" />
               </div>
             </div>
-            <div className="cat-grid">
+            <div className="list-card-grid">
               {[0, 1, 2, 3, 4, 5].map((i) => (
-                <div key={i} className="cat-card" style={{ pointerEvents: 'none' }}>
-                  <div className="cat-header">
-                    <div className="cat-e">
-                      <Skeleton width="16px" height="16px" borderRadius="4px" />
-                    </div>
-                    <div className="cat-content">
-                      <div className="cat-n">
-                        <Skeleton width="70%" height="13px" />
-                      </div>
-                    </div>
+                <div key={i} className="list-card" style={{ pointerEvents: 'none' }}>
+                  <div className="list-card__header">
+                    <Skeleton width="18px" height="18px" borderRadius="4px" />
+                    <Skeleton width="60%" height="14px" />
+                  </div>
+                  <div className="list-card__content">
+                    <Skeleton width="40px" height="18px" borderRadius="4px" />
                   </div>
                 </div>
               ))}

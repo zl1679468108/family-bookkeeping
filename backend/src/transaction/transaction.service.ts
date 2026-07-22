@@ -680,4 +680,86 @@ export class TransactionService {
       image_url_list: resolved,
     };
   }
+
+  /**
+   * 根據品牌/備註/金額推薦分類
+   */
+  async suggestCategory(userId: string, brand?: string, note?: string, amount?: number): Promise<any[]> {
+    const supabase = this.supabaseService.getClient();
+    const suggestions = new Map<string, { count: number; name: string; icon: string }>();
+
+    // 1. 品牌精確匹配
+    if (brand && brand.trim()) {
+      const { data } = await supabase
+        .from('jj_transactions')
+        .select('category')
+        .eq('user_id', userId)
+        .eq('brand', brand.trim())
+        .not('category', 'is', null)
+        .limit(20);
+
+      (data || []).forEach((row: any) => {
+        const cur = suggestions.get(row.category) || { count: 0, name: '', icon: '' };
+        cur.count += 3; // 品牌匹配权重更高
+        suggestions.set(row.category, cur);
+      });
+    }
+
+    // 2. 備註關鍵詞匹配
+    if (note && note.trim()) {
+      const keywords = note.trim().split(/\s+/).filter((w) => w.length >= 2);
+      for (const kw of keywords.slice(0, 5)) {
+        const { data } = await supabase
+          .from('jj_transactions')
+          .select('category')
+          .eq('user_id', userId)
+          .ilike('description', `%${kw}%`)
+          .not('category', 'is', null)
+          .limit(20);
+
+        (data || []).forEach((row: any) => {
+          const cur = suggestions.get(row.category) || { count: 0, name: '', icon: '' };
+          cur.count += 1;
+          suggestions.set(row.category, cur);
+        });
+      }
+    }
+
+    // 3. 金額區間匹配（兜底）
+    if (amount && amount > 0) {
+      const { data } = await supabase
+        .from('jj_transactions')
+        .select('category')
+        .eq('user_id', userId)
+        .gte('amount', amount * 0.8)
+        .lte('amount', amount * 1.2)
+        .not('category', 'is', null)
+        .limit(10);
+
+      (data || []).forEach((row: any) => {
+        const cur = suggestions.get(row.category) || { count: 0, name: '', icon: '' };
+        cur.count += 0.5;
+        suggestions.set(row.category, cur);
+      });
+    }
+
+    // 加載分類名稱和圖標
+    const categoryIds = [...suggestions.keys()];
+    const categoryInfoMap = await this.supabaseService.loadCategoryInfo(categoryIds);
+
+    // 構建結果
+    const results: any[] = [];
+    suggestions.forEach((val, catId) => {
+      const info = categoryInfoMap.get(catId);
+      results.push({
+        category_id: catId,
+        category_name: info?.name || '未知',
+        icon: info?.icon || '📌',
+        confidence: val.count,
+      });
+    });
+
+    // 按置信度排序，返回前 3
+    return results.sort((a, b) => b.confidence - a.confidence).slice(0, 3);
+  }
 }

@@ -22,7 +22,7 @@ export const CategoryHeader: React.FC<CategoryHeaderProps> = ({
     <CardHeader
       title="分类管理"
       action={
-        <div className="cat-header-actions">
+        <div className="list-card-grid__header-actions">
           <Button
             variant={sortingMode ? 'outline' : 'secondary'}
             size="sm"

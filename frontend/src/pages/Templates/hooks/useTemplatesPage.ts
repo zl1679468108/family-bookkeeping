@@ -1,9 +1,9 @@
-import { useState } from 'react'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { fetchTemplates, createTemplate, updateTemplate, deleteTemplate, reorderTemplates } from '../../../services/templatesApi'
+import { useState, useCallback } from 'react'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { fetchTemplates, createTemplate, updateTemplate, deleteTemplate, reorderTemplates, executeRecurring } from '../../../services/templatesApi'
 import { useCategories } from '../../../hooks/useCategories'
 import { useSort } from '../../../hooks/useSort'
-import { useDebouncedAction } from '../../../hooks/useDebouncedAction'
+import { useMutationAction } from '../../../hooks/useMutationAction'
 import { notify } from '../../../utils/notifications'
 import type { CreateTemplateInput } from '../../../types/template'
 import type { LocationResult } from '../../../types/map'
@@ -28,6 +28,9 @@ export function useTemplatesPage() {
     location_name: '',
     poi_id: '',
     sort_order: 0,
+    frequency: '',
+    start_date: '',
+    end_date: '',
   })
 
   const { data: templates = [], isLoading } = useQuery({
@@ -53,53 +56,52 @@ export function useTemplatesPage() {
     return reorderTemplates({ ids })
   })
 
-  const { run: handleDeleteTemplate, isRunning: deleteLoading } = useDebouncedAction(async () => {
-    try {
-      await deleteTemplate(selectedTemplate.id)
-      queryClient.invalidateQueries({ queryKey: ['templates'] })
-      setShowDetail(false)
-      setShowDeleteConfirm(false)
-      setSelectedTemplate(null)
-      notify({ type: 'success', message: '模板已删除' })
-    } catch (err: any) {
-      notify({ type: 'error', message: err?.message || '删除失败' })
-    }
-  })
+  const { run: handleDeleteTemplate, isRunning: deleteLoading } = useMutationAction(
+    () => deleteTemplate(selectedTemplate.id),
+    {
+      invalidateKeys: [['templates']],
+      successMessage: '模板已删除',
+      errorMessage: '删除失败',
+      onSuccess: () => {
+        setShowDetail(false)
+        setShowDeleteConfirm(false)
+        setSelectedTemplate(null)
+      },
+    },
+  )
 
-  const createMutation = useMutation({
-    mutationFn: (data: CreateTemplateInput) => createTemplate(data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['templates'] })
-      notify({ type: 'success', message: '模板已创建' })
+  const createMutation = useMutationAction(
+    (data: CreateTemplateInput) => createTemplate(data),
+    {
+      invalidateKeys: [['templates']],
+      successMessage: '模板已创建',
+      errorMessage: '创建失败',
     },
-    onError: (err: any) => {
-      notify({ type: 'error', message: err?.message || '创建失败' })
-    },
-  })
+  )
 
-  const updateMutation = useMutation({
-    mutationFn: ({ id, data }: { id: string; data: Partial<CreateTemplateInput> }) => updateTemplate(id, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['templates'] })
-      notify({ type: 'success', message: '模板已更新' })
-      setShowForm(false)
-      setShowDetail(false)
-      setSelectedTemplate(null)
+  const updateMutation = useMutationAction(
+    ({ id, data }: { id: string; data: Partial<CreateTemplateInput> }) => updateTemplate(id, data),
+    {
+      invalidateKeys: [['templates']],
+      successMessage: '模板已更新',
+      errorMessage: '更新失败',
+      onSuccess: () => {
+        setShowForm(false)
+        setShowDetail(false)
+        setSelectedTemplate(null)
+      },
     },
-    onError: (err: any) => {
-      notify({ type: 'error', message: err?.message || '更新失败' })
-    },
-  })
+  )
 
   const resetForm = () => {
     const currentTypeTemplates = templates.filter(t => t.type === form.type)
     const nextSortOrder = currentTypeTemplates.length + 1
-    setForm({ name: '', type: 'expense', category_id: '', amount: '', note: '', latitude: '', longitude: '', location_name: '', poi_id: '', sort_order: nextSortOrder })
+    setForm({ name: '', type: 'expense', category_id: '', amount: '', note: '', latitude: '', longitude: '', location_name: '', poi_id: '', sort_order: nextSortOrder, frequency: '', start_date: '', end_date: '' })
     setShowForm(false)
     setEditingId(null)
   }
 
-  const { run: handleSave, isRunning: saveLoading } = useDebouncedAction(async () => {
+  const { run: handleSave, isRunning: saveLoading } = useMutationAction(async () => {
     if (!form.name.trim()) {
       notify({ type: 'error', message: '请输入模板名称' })
       return
@@ -115,12 +117,16 @@ export function useTemplatesPage() {
       location_name: form.location_name || undefined,
       poi_id: form.poi_id || undefined,
       sort_order: form.sort_order || 0,
+      frequency: form.frequency || undefined,
+      start_date: form.start_date || undefined,
+      end_date: form.end_date || undefined,
     }
     if (editingId) {
-      updateMutation.mutate({ id: editingId, data }, { onSuccess: resetForm })
+      await updateMutation.run({ id: editingId, data })
     } else {
-      createMutation.mutate(data, { onSuccess: resetForm })
+      await createMutation.run(data)
     }
+    resetForm()
   })
 
   const handleEdit = (t: any) => {
@@ -135,6 +141,9 @@ export function useTemplatesPage() {
       location_name: t.location_name || '',
       poi_id: t.poi_id || '',
       sort_order: t.sort_order || 0,
+      frequency: t.frequency || '',
+      start_date: t.start_date || '',
+      end_date: t.end_date || '',
     })
     setEditingId(t.id)
     setShowForm(true)
@@ -152,6 +161,9 @@ export function useTemplatesPage() {
       location_name: t.location_name || '',
       poi_id: t.poi_id || '',
       sort_order: t.sort_order || 0,
+      frequency: '',
+      start_date: '',
+      end_date: '',
     })
     setEditingId(null)
     setShowForm(true)

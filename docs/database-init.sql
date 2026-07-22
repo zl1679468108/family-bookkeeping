@@ -313,6 +313,20 @@ COMMENT ON COLUMN jj_transaction_templates.merchant_name IS '商户名称，如�
 COMMENT ON COLUMN jj_transaction_templates.book_id IS '所属账本 ID，外键引用 books 表，删除账本时设为 NULL';
 COMMENT ON COLUMN jj_transaction_templates.sort_order IS '模板排序序号，数值越小越靠前';
 COMMENT ON COLUMN jj_transaction_templates.created_at IS '模板创建时间';
+-- 交易模板周期字段迁移（已有数据库增量）
+ALTER TABLE jj_transaction_templates ADD COLUMN IF NOT EXISTS frequency VARCHAR(10) CHECK (frequency IN ('daily','weekly','monthly','quarterly','yearly'));
+ALTER TABLE jj_transaction_templates ADD COLUMN IF NOT EXISTS start_date DATE;
+ALTER TABLE jj_transaction_templates ADD COLUMN IF NOT EXISTS end_date DATE;
+ALTER TABLE jj_transaction_templates ADD COLUMN IF NOT EXISTS last_executed_at DATE;
+
+COMMENT ON COLUMN jj_transaction_templates.frequency IS '周期频率：daily/weekly/monthly/quarterly/yearly，NULL=非周期模板';
+COMMENT ON COLUMN jj_transaction_templates.start_date IS '周期开始日期';
+COMMENT ON COLUMN jj_transaction_templates.end_date IS '周期结束日期，NULL=无限期';
+COMMENT ON COLUMN jj_transaction_templates.last_executed_at IS '上次执行日期，用于计算下次执行时间';
+
+CREATE INDEX IF NOT EXISTS idx_jj_transaction_templates_frequency
+  ON jj_transaction_templates(user_id, frequency)
+  WHERE frequency IS NOT NULL;
 
 -- ==============================================
 -- 10. 成员位置共享表

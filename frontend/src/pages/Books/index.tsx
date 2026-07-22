@@ -27,7 +27,7 @@ const BooksPage: React.FC = () => {
     membersLoading,
     inviteMutation, inviteCodeMutation,
     deleteMutation, removeMemberMutation,
-    handleCreateSuccess,
+    handleCreateSuccess, handleGenerateInviteCode,
   } = useBooksPage();
 
   const [switchTarget, setSwitchTarget] = useState<any>(null);
@@ -57,7 +57,7 @@ const BooksPage: React.FC = () => {
         open={!!deleteTarget}
         title="确认删除"
         children="确定删除？"
-        onConfirm={() => deleteTarget && deleteMutation.mutate(deleteTarget)}
+        onConfirm={() => deleteTarget && deleteMutation.run(deleteTarget)}
         onClose={() => setDeleteTarget(null)}
         loading={deleteMutation.isPending}
         confirmText="确认删除"
@@ -71,7 +71,7 @@ const BooksPage: React.FC = () => {
         children={`确定要移除成员 ${removingMember?.username || removingMember?.email}？`}
         onConfirm={() => {
           if (removingMember && selectedBook) {
-            removeMemberMutation.mutate({ bookId: selectedBook.id, userId: removingMember.id });
+            removeMemberMutation.run({ bookId: selectedBook.id, userId: removingMember.id });
           }
         }}
         onClose={() => { setShowMemberConfirm(false); setRemovingMember(null); }}
@@ -86,10 +86,10 @@ const BooksPage: React.FC = () => {
         currentBook={currentBook}
         members={members}
         loadingMembers={membersLoading}
-        inviteCodeMutationPending={inviteCodeMutation.isPending}
+        isGenerateInviteCodePending={inviteCodeMutation.isPending}
         onClose={() => { setShowDetail(false); setSelectedBook(null); }}
         onInviteMember={() => setShowInviteMemberModal(true)}
-        onGenerateInviteCode={() => selectedBook?.id && inviteCodeMutation.mutate(selectedBook.id)}
+        onGenerateInviteCode={() => selectedBook?.id && handleGenerateInviteCode(selectedBook.id)}
         onEdit={() => setEditTarget(selectedBook)}
         onDelete={() => setDeleteTarget(selectedBook?.id)}
         onSwitchBook={() => { setSwitchTarget(selectedBook); setShowDetail(false); setSelectedBook(null); }}
@@ -127,7 +127,7 @@ const BooksPage: React.FC = () => {
         inviteEmail={inviteEmail}
         onEmailChange={setInviteEmail}
         onClose={() => setShowInviteMemberModal(false)}
-        onInvite={(bookId, email) => inviteMutation.mutate({ bookId, email })}
+        onInvite={(bookId, email) => inviteMutation.run({ bookId, email })}
         isPending={inviteMutation.isPending}
       />
 
