@@ -83,7 +83,10 @@ export class OcrService {
     url.searchParams.set('client_secret', secretKey);
 
     try {
-      const response = await fetch(url.toString(), { method: 'POST' });
+      const response = await fetch(url.toString(), {
+        method: 'POST',
+        signal: AbortSignal.timeout(10000),
+      });
       const data: BaiduTokenResponse = await response.json();
 
       if (data.error || !data.access_token) {
@@ -121,6 +124,7 @@ export class OcrService {
           method: 'POST',
           headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
           body: new URLSearchParams({ image: imageBase64 }),
+          signal: AbortSignal.timeout(15000),
         },
       );
 

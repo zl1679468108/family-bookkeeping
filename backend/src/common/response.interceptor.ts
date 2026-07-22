@@ -17,26 +17,6 @@ const ISO_DATE_REGEX =
   /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,6})?(?:Z|[+-]\d{2}:?\d{2})$/;
 const TIMESTAMPTZ_REGEX =
   /^\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}:\d{2}(?:\.\d{1,6})?(?:[+-]\d{2})$/;
-const TIME_KEYS = new Set([
-  'created_at',
-  'updated_at',
-  'expires_at',
-  'used_at',
-  'joined_at',
-  'start_time',
-  'end_time',
-  'login_time',
-  'last_login',
-  'deleted_at',
-  'date',
-  'time',
-  'datetime',
-  'timestamp',
-  'last_active',
-  'last_used',
-  'expire_at',
-  'issued_at',
-]);
 
 function toBeijingTime(isoString: string): string {
   const date = new Date(isoString);

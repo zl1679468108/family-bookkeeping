@@ -42,7 +42,6 @@ export class AdminService {
       .gte('created_at', today.toISOString());
 
     // T-H2: 使用数据库侧聚合 RPC 替代全量拉取到内存
-    const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1).toISOString();
     const { data: monthStats, error: statsError } = await supabase
       .rpc('fn_monthly_transaction_totals', {
         p_year: today.getFullYear(),
@@ -247,7 +246,9 @@ export class AdminService {
       );
 
     if (filters.search) {
-      query = query.ilike('description', `%${filters.search}%`);
+      // 与 getUsers 统一：转义 PostgREST/LIKE 特殊字符，防止过滤语法注入
+      const sanitized = filters.search.replace(/[,.%()]/g, '\\$&');
+      query = query.ilike('description', `%${sanitized}%`);
     }
     if (filters.type) {
       query = query.eq('type', filters.type);

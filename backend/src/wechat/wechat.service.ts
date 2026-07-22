@@ -114,6 +114,7 @@ export class WechatService {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
+        signal: AbortSignal.timeout(8000),
       });
 
       if (!res.ok) {
@@ -164,7 +165,7 @@ export class WechatService {
 
     try {
       const url = `https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=${this.appid}&secret=${this.secret}`;
-      const res = await fetch(url);
+      const res = await fetch(url, { signal: AbortSignal.timeout(8000) });
       if (!res.ok) {
         this.logger.warn(`获取 access_token HTTP ${res.status}`);
         return null;

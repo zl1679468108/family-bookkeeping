@@ -205,9 +205,13 @@ export class BooksService {
       .from('jj_books')
       .select('*')
       .eq('id', bookId)
-      .single();
+      .maybeSingle();
 
+    // 区分「查询本身失败（网络/超时等）」与「记录不存在」，避免所有错误都误报 404
     if (error) {
+      throw new InternalServerErrorException(`获取账本失败: ${error.message}`);
+    }
+    if (!data) {
       throw new NotFoundException(`账本不存在：${bookId}`);
     }
 
@@ -542,7 +546,7 @@ export class BooksService {
       .gt('expires_at', now)
       .is('used_at', null)
       .limit(1)
-      .single();
+      .maybeSingle();
 
     if (existing) {
       return { code: existing.code, book_name: book.name, expires_at: existing.expires_at };
@@ -582,7 +586,7 @@ export class BooksService {
       .gt('expires_at', now)
       .is('used_at', null)
       .limit(1)
-      .single();
+      .maybeSingle();
 
     if (error || !data) {
       return null;
@@ -611,7 +615,7 @@ export class BooksService {
       .gt('expires_at', now)
       .is('used_at', null)
       .limit(1)
-      .single();
+      .maybeSingle();
 
     if (inviteError || !invitation) {
       throw new NotFoundException('邀请码无效或已过期');
@@ -629,7 +633,7 @@ export class BooksService {
       .eq('book_id', invitation.book_id)
       .eq('user_id', userId)
       .limit(1)
-      .single();
+      .maybeSingle();
 
     if (existingMember) {
       const msg =

@@ -45,6 +45,9 @@ export interface TokenPair {
 
 type SafeUser = Omit<User, 'password_hash'>;
 
+/** bcrypt 哈希成本因子（统一口径，避免散落硬编码） */
+const BCRYPT_COST = 10;
+
 @Injectable()
 export class AuthService {
   private readonly logger = new Logger(AuthService.name);
@@ -77,7 +80,7 @@ export class AuthService {
     }
 
     // 加密密码
-    const passwordHash = await bcrypt.hash(dto.password, 10);
+    const passwordHash = await bcrypt.hash(dto.password, BCRYPT_COST);
 
     // 插入用户
     const { data: newUser, error } = await supabase
@@ -250,7 +253,7 @@ export class AuthService {
       throw new BadRequestException('无效或已过期的重置令牌');
     }
 
-    const passwordHash = await bcrypt.hash(newPassword, 10);
+    const passwordHash = await bcrypt.hash(newPassword, BCRYPT_COST);
 
     const { error: userUpdateError } = await supabase
       .from('jj_users')
@@ -356,7 +359,7 @@ export class AuthService {
       .insert({
         user_id: user.id,
         token: this.tokenService.hashToken(resetToken),
-        code: code,
+        code: this.tokenService.hashToken(code),
         expires_at: this.tokenService.getResetCodeExpiresAt(),
       });
 
@@ -432,7 +435,7 @@ export class AuthService {
       throw new BadRequestException('请先获取验证码或验证码已过期');
     }
 
-    if (resetRecord.code !== trimmedCode) {
+    if (resetRecord.code !== this.tokenService.hashToken(trimmedCode)) {
       // T-M17: 记录失败次数
       this.recordResetCodeFailure(trimmedEmail);
       throw new BadRequestException('验证码错误');
@@ -441,7 +444,7 @@ export class AuthService {
     // T-M17: 验证码正确，清除失败记录
     this.clearResetCodeAttempts(trimmedEmail);
 
-    const passwordHash = await bcrypt.hash(newPassword, 10);
+    const passwordHash = await bcrypt.hash(newPassword, BCRYPT_COST);
 
     const { error: userUpdateError } = await supabase
       .from('jj_users')
@@ -671,7 +674,7 @@ export class AuthService {
       throw new BadRequestException('当前密码错误');
     }
 
-    const newHash = await bcrypt.hash(dto.newPassword, 10);
+    const newHash = await bcrypt.hash(dto.newPassword, BCRYPT_COST);
     const { error: updateError } = await supabase
       .from('jj_users')
       .update({ password_hash: newHash })
@@ -765,7 +768,7 @@ export class AuthService {
     }
 
     // 写入一个不可逆向的随机哈希作为 password_hash（不能为空，避免 bcrypt.compare 抛错）
-    const randomHash = await bcrypt.hash(Math.random().toString(36) + Date.now().toString(), 10);
+    const randomHash = await bcrypt.hash(Math.random().toString(36) + Date.now().toString(), BCRYPT_COST);
 
     const { error: updateError } = await supabase
       .from('jj_users')

@@ -148,6 +148,17 @@ export class StatisticsService {
   }
 
   /**
+   * 将 Date 转为本地时区的 "YYYY-MM-DD" 字符串。
+   * 不能用 toISOString()（东八区午夜转 UTC 会回退一天，导致日期边界漏数据）。
+   */
+  private formatLocalDate(date: Date): string {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  }
+
+  /**
    * Aggregate a list of transactions into totalIncome / totalExpense / counts.
    */
   private aggregate(transactions: Transaction[]): {
@@ -263,10 +274,11 @@ export class StatisticsService {
       ? new Date(endDate)
       : new Date();
     // Set to the last day of that month to include the full month
+    // 注意：用本地年月日拼接，不能用 toISOString()（东八区午夜转 UTC 会回退一天，导致边界漏数据）
     const refEnd = new Date(referenceDate.getFullYear(), referenceDate.getMonth() + 1, 0);
-    const endDateStr = refEnd.toISOString().slice(0, 10);
+    const endDateStr = this.formatLocalDate(refEnd);
     const rangeStart = new Date(refEnd.getFullYear(), refEnd.getMonth() - (months - 1), 1);
-    const startDateStr = rangeStart.toISOString().slice(0, 10);
+    const startDateStr = this.formatLocalDate(rangeStart);
 
     // Query all transactions (both income and expense)
     const allTransactions = await this.queryTransactions(
@@ -412,8 +424,10 @@ export class StatisticsService {
     const [ty, tm] = dto.month_to.split('-').map(Number);
     const startDate = `${String(fy).padStart(4, '0')}-${String(fm).padStart(2, '0')}-01`;
     // endDate 为 month_to 的下一个月第一天（左闭右开）
-    const endMonth = new Date(ty, tm, 1); // tm is 1-indexed, so this gives the next month's 1st
-    const endDate = endMonth.toISOString().slice(0, 10);
+    // 注意：不能用 new Date(...).toISOString()，东八区午夜转 UTC 会回退一天导致漏当天数据
+    const nextMonthYear = tm >= 12 ? ty + 1 : ty;
+    const nextMonth = tm >= 12 ? 1 : tm + 1;
+    const endDate = `${String(nextMonthYear).padStart(4, '0')}-${String(nextMonth).padStart(2, '0')}-01`;
 
     // 1. 查询指定账本下的所有支出交易
     const { data: transactions, error } = await supabase

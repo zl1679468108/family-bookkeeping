@@ -1,4 +1,4 @@
-import React, { InputHTMLAttributes, useState, useEffect, useRef } from 'react'
+import React, { InputHTMLAttributes, useState, useEffect, useRef, useId } from 'react'
 
 /**
  * 通用输入框组件 —— 取代各页面手写的 `<input>` + `<div className="form-input">` 结构
@@ -32,7 +32,8 @@ export const Input: React.FC<InputProps> = ({
   showPasswordToggle = false,
   ...props
 }) => {
-  const inputId = id || `input-${Math.random().toString(36).substr(2, 9)}`
+  const generatedId = useId()
+  const inputId = id || generatedId
   const isControlled = value !== undefined
   const [internalValue, setInternalValue] = useState<string>(
     isControlled ? (value as string) ?? '' : (defaultValue as string) ?? ''

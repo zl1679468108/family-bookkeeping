@@ -8,9 +8,9 @@ export class ResetPasswordByCodeDto {
   code: string;
 
   @IsString()
-  @MinLength(6, { message: '密码至少需要6位' })
-  @Matches(/^(?=.*[a-zA-Z])(?=.*\d)/, {
-    message: '密码必须包含字母和数字',
+  @MinLength(8, { message: '密码至少 8 位' })
+  @Matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/, {
+    message: '密码必须包含大小写字母和数字',
   })
   password: string;
 

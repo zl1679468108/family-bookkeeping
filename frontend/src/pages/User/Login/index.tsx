@@ -115,7 +115,7 @@ const LoginPage: React.FC = () => {
             {captchaSvg && (
               <img
                 className="captcha-img"
-                src={`data:image/svg+xml;base64,${btoa(captchaSvg)}`}
+                src={`data:image/svg+xml;utf8,${encodeURIComponent(captchaSvg)}`}
                 alt="验证码"
                 onClick={refreshCaptcha}
                 title="点击刷新验证码"

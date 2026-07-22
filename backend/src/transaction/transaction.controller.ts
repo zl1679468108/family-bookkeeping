@@ -22,7 +22,7 @@ import { CurrentUser } from '../auth/current-user.decorator';
 import { BookId } from '../books/book-id.decorator';
 import { FileValidationPipe } from '../common/pipes/file-validation.pipe';
 import { TransactionService, TransactionFilters } from './transaction.service';
-import { BatchTransactionDto, BatchOperation } from './dto/batch-transaction.dto';
+import { BatchTransactionDto } from './dto/batch-transaction.dto';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { UpdateTransactionDto } from './dto/update-transaction.dto';
 

@@ -1,4 +1,4 @@
-import React, { TextareaHTMLAttributes, useState, useEffect, useRef } from 'react'
+import React, { TextareaHTMLAttributes, useState, useEffect, useRef, useId } from 'react'
 
 /**
  * 通用文本域组件 —— 取代各页面手写的 `<textarea>` 结构
@@ -32,7 +32,8 @@ export const Textarea: React.FC<TextareaProps> = ({
   required,
   ...props
 }) => {
-  const textareaId = id || `textarea-${Math.random().toString(36).substr(2, 9)}`
+  const generatedId = useId()
+  const textareaId = id || generatedId
   const isControlled = value !== undefined
   const [internalValue, setInternalValue] = useState<string>(
     isControlled ? (value as string) ?? '' : (defaultValue as string) ?? ''

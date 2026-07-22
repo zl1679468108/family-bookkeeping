@@ -107,6 +107,31 @@ export class TransactionService {
   }
 
   /**
+   * 校验 category 归属：分类是用户级的（jj_categories.user_id），
+   * 交易只能挂在交易所有者本人的分类上。传入 null/undefined 视为不设分类，直接放行。
+   * 防止越权把交易挂到他人分类 ID 上（IDOR）。
+   */
+  private async assertCategoryOwnership(
+    category: string | null | undefined,
+    userId: string,
+  ): Promise<void> {
+    if (!category) return;
+    const supabase = this.supabaseService.getClient();
+    const { data, error } = await supabase
+      .from('jj_categories')
+      .select('id')
+      .eq('id', category)
+      .eq('user_id', userId)
+      .maybeSingle();
+    if (error) {
+      throw new InternalServerErrorException(`校验分类归属失败: ${error.message}`);
+    }
+    if (!data) {
+      throw new ForbiddenException('分类不存在或不属于当前用户');
+    }
+  }
+
+  /**
      * 构建公共查询条件（B-L5: 提取公共函数避免 countQuery/baseQuery 条件重复）
      * 接受一个 query builder 并应用所有筛选条件，可用于数据查询和 count 查询
      */
@@ -142,11 +167,10 @@ export class TransactionService {
     }
 
   async findAll(filters?: TransactionFilters): Promise<PaginatedResponse<Transaction>> {
-    const supabase = this.supabaseService.getClient();
-
     if (!filters?.userId) {
       throw new ForbiddenException('需要登录才能访问交易记录');
     }
+    const userId = filters.userId;
 
     const page = filters?.page || 1;
     // T-M19: 限制 pageSize 最大值为 100
@@ -157,37 +181,34 @@ export class TransactionService {
 
     let isOwner = false;
     if (filters?.bookId) {
-      isOwner = await this.isBookOwner(filters.userId, filters.bookId);
+      isOwner = await this.isBookOwner(userId, filters.bookId);
     }
 
     const shouldViewAll = isOwner && filters?.view === 'all';
 
-    // 构建数据查询 + count 查询，共用一个 applyFilters 以避免条件重复
-    const { query: baseQuery } = this.applyFilters(
-      supabase.from('jj_transactions').select('*'),
-      filters, shouldViewAll, filters.userId,
-    );
+    // B-H1: 只读查询接入 withRetry（幂等，重试安全），Supabase 冷启动/抖动时自动退避重试。
+    // fn 内用传入的 client 重建 query，确保重试（含 JWT 重建）生效。
+    const { data, count } = await this.supabaseService.withRetry(async (client) => {
+      const { query: baseQuery } = this.applyFilters(
+        client.from('jj_transactions').select('*'),
+        filters, shouldViewAll, userId,
+      );
+      const { query: countQuery } = this.applyFilters(
+        client.from('jj_transactions').select('*', { count: 'exact', head: true }),
+        filters, shouldViewAll, userId,
+      );
 
-    const { query: countQuery } = this.applyFilters(
-      supabase.from('jj_transactions').select('*', { count: 'exact', head: true }),
-      filters, shouldViewAll, filters.userId,
-    );
+      const { count, error: countError } = await countQuery;
+      if (countError) throw countError;
 
-    const { count, error: countError } = await countQuery;
+      const { data, error } = await baseQuery
+        .order(sortBy, { ascending: sortOrder === 'asc' })
+        .order('id', { ascending: false })
+        .range(offset, offset + pageSize - 1);
+      if (error) throw error;
 
-    if (countError) {
-      throw new InternalServerErrorException(`获取交易记录计数失败: ${countError.message}`);
-    }
-
-    // 再查数据（带 range 分页）
-    const { data, error } = await baseQuery
-      .order(sortBy, { ascending: sortOrder === 'asc' })
-      .order('id', { ascending: false })
-      .range(offset, offset + pageSize - 1);
-
-    if (error) {
-      throw new InternalServerErrorException(`获取交易记录失败: ${error.message}`);
-    }
+      return { data, count };
+    });
 
     return {
       data: (data || []).map((t: any) => this.resolveImageUrl(t)),
@@ -269,6 +290,9 @@ export class TransactionService {
       }
     }
 
+    // 校验 category 归属，防止越权挂靠他人分类
+    await this.assertCategoryOwnership(transaction.category, userId);
+
     const transactionData: Record<string, unknown> = {
       amount: transaction.amount,
       category: transaction.category,
@@ -333,6 +357,11 @@ export class TransactionService {
     const existing = await this.findOne(id, userId, bookId);
     if (!existing) {
       throw new ForbiddenException('无权修改此交易记录');
+    }
+
+    // 仅当 category 被更新时校验归属，防止越权挂靠他人分类
+    if (transaction.category !== undefined) {
+      await this.assertCategoryOwnership(transaction.category, userId);
     }
 
     // 白名单字段，防止批量赋值
@@ -479,6 +508,8 @@ export class TransactionService {
 
       switch (operation) {
         case BatchOperation.UPDATE_CATEGORY:
+          // T-H3: 校验目标分类归属，防止挂到他人分类
+          await this.assertCategoryOwnership(payload!.category_id, userId);
           // 数据库列名为 category（与现有代码保持一致）
           updateData.category = payload!.category_id;
           break;
@@ -616,11 +647,13 @@ export class TransactionService {
       this.logger.warn(`删除收据存储文件失败: ${removeErr.message}`);
     }
 
-    // 清空 image_urls 字段
+    // 清空 image_urls 字段（B-M4 纵深防御：用交易自身 user_id 约束，
+    // 兼容 Owner 操作成员交易的场景——findOne 已完成归属/权限校验）
     const { error: updateErr } = await supabase
       .from('jj_transactions')
       .update({ image_urls: null })
-      .eq('id', id);
+      .eq('id', id)
+      .eq('user_id', transaction.user_id);
 
     if (updateErr) {
       throw new InternalServerErrorException('更新交易记录失败: ' + updateErr.message);
