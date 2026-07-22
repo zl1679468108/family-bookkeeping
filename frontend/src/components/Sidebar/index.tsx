@@ -97,10 +97,10 @@ const NAV_ITEMS = [
   { id: 'calendar', name: '日历', path: '/calendar', type: 'normal', group: 'main' as const },
   { id: 'map', name: '地图', path: '/map', type: 'normal', group: 'main' as const },
   { id: 'annual-report', name: '年报', path: '/annual-report', type: 'normal', group: 'main' as const },
-  { id: 'books', name: '账本', path: '/books', type: 'normal', group: 'more' as const },
-  { id: 'categories', name: '分类', path: '/categories', type: 'normal', group: 'more' as const },
-  { id: 'templates', name: '模板', path: '/templates', type: 'normal', group: 'more' as const },
-  { id: 'budgets', name: '预算', path: '/budgets', type: 'normal', group: 'more' as const },
+  { id: 'books', name: '账本', path: '/books', type: 'normal', group: 'main' as const },
+  { id: 'categories', name: '分类', path: '/categories', type: 'normal', group: 'main' as const },
+  { id: 'templates', name: '模板', path: '/templates', type: 'normal', group: 'main' as const },
+  { id: 'budgets', name: '预算', path: '/budgets', type: 'normal', group: 'main' as const },
 ];
 
 const ADMIN_ITEMS = [
@@ -204,9 +204,8 @@ export const Sidebar: React.FC = () => {
 
       {/* 导航 */}
       <nav className="sidebar-nav">
-        {/* 主菜单：通过 group 字段筛选，避免硬编码切片（F-L8） */}
         {!collapsed && <div className="sidebar-nav-sep">主菜单</div>}
-        {NAV_ITEMS.filter((item) => item.group === 'main').map((item) => (
+        {NAV_ITEMS.map((item) => (
           <button key={item.id}
             className={`sidebar-nav-item${activeId === item.id ? ' active' : ''}${item.type === 'add' ? ' sidebar-nav-item--add' : ''}`}
             onClick={() => navigate(item.path)}
@@ -220,20 +219,6 @@ export const Sidebar: React.FC = () => {
             )}
           </button>
         ))}
-        {/* 更多：通过 group 字段筛选 */}
-        {!collapsed && <div className="sidebar-nav-sep">更多</div>}
-        {NAV_ITEMS.filter((item) => item.group === 'more').map((item) => (
-          <button key={item.id}
-            className={`sidebar-nav-item${activeId === item.id ? ' active' : ''}`}
-            onClick={() => navigate(item.path)}
-            title={collapsed ? item.name : undefined}>
-            <span className="sidebar-nav-icon">
-              {Icons[item.id as keyof typeof Icons]}
-            </span>
-            {!collapsed && <span className="sidebar-nav-label">{item.name}</span>}
-          </button>
-        ))}
-
         {/* 管理员菜单 */}
         {user?.role === 'admin' && (
           <>

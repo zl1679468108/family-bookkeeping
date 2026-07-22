@@ -85,6 +85,33 @@
   white-space: nowrap;
 }
 
+/* 金额区间筛选 */
+.filter-amount-range {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.filter-amount-sep {
+  color: var(--fg3);
+  font-size: 12px;
+  line-height: 1;
+}
+
+.filter-amount-input {
+  width: 110px;
+
+  .ui-input {
+    height: 32px;
+  }
+
+  .ui-number-field {
+    font-size: 12px;
+    padding: 4px 8px;
+  }
+}
+
 .load-more {
   text-align: center;
   padding: 14px;

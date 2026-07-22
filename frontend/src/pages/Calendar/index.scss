@@ -86,8 +86,19 @@
   border-color: var(--pr);
 }
 
-.cal-cell.has-data:hover {
-  border-color: var(--prH);
+.cal-cell.has-data::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 8px;
+  right: 8px;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--pr);
+}
+
+.cal-cell.has-data:hover::after {
+  background: var(--prH);
 }
 
 /* 左侧内容 */

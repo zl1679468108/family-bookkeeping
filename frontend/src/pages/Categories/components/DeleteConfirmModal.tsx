@@ -1,6 +1,6 @@
 import React from 'react'
 import { GlobalModal } from '../../../components/ui'
-import type { Category } from '../../../types/category'
+import type { Category } from '@family-bookkeeping/shared-types'
 
 interface DeleteConfirmModalProps {
   deleteTarget: Category | null

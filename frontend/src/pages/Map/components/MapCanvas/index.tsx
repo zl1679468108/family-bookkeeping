@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useCallback, useEffect, useRef, useImperativeHandle, forwardRef } from 'react';
-import type { MapTransaction, MerchantSummary, MapMember } from '../../../../types/map';
+import type { MapTransaction, MerchantSummary, MapMember } from '@family-bookkeeping/shared-types'
 import { TransactionHistoryModal } from '../TransactionHistoryModal';
 import { useMapInstance } from '../../../../hooks/useMapInstance';
 import { AmapManager } from '../../../../services/amapManager';
@@ -96,11 +96,10 @@ const _MapCanvas: React.ForwardRefRenderFunction<MapCanvasHandle, MapCanvasProps
   const [, setActiveInfo] = useState<{ merchant: MerchantSummary; pos: [number, number] } | null>(null);
   const [historyMerchant, setHistoryMerchant] = useState<MerchantSummary | null>(null);
   const [locateError, setLocateError] = useState('');
-  // 地图容器是否可见。定位完成或数据加载前隐藏，避免 AMap 默认 IP 定位（吉安）闪现。
   const [mapVisible, setMapVisible] = useState(false);
 
   // ---- Map instance via pool ----
-  const { mapContainerRef, map: rawMap, ready } = useMapInstance('map-canvas', {
+  const { mapContainerRef, map: rawMap, ready, error: mapError } = useMapInstance('map-canvas', {
     skipResizeObserver: true,
   });
   const map = rawMap as any;
@@ -444,10 +443,18 @@ const _MapCanvas: React.ForwardRefRenderFunction<MapCanvasHandle, MapCanvasProps
   return (
     <>
       <div className="map-canvas-wrapper">
-        {locateError && <div className="map-locate-error">{locateError}</div>}
+        {mapError && (
+          <div className="map-error-fallback">
+            <div className="map-error-icon">🗺️</div>
+            <div className="map-error-title">地图功能暂不可用</div>
+            <div className="map-error-desc">地图服务需要网络环境，请检查网络连接后刷新页面</div>
+          </div>
+        )}
+
+        {locateError && !mapError && <div className="map-locate-error">{locateError}</div>}
 
         {/* 定位中遮罩：定位完成前隐藏地图，避免 AMap 默认 IP 定位（吉安）闪现 */}
-        {!mapVisible && !locateError && (
+        {!mapVisible && !locateError && !mapError && (
           <div className="map-locating-overlay">
             <div className="map-locating-spinner" />
             <div className="map-locating-text">正在定位当前位置…</div>
@@ -455,15 +462,17 @@ const _MapCanvas: React.ForwardRefRenderFunction<MapCanvasHandle, MapCanvasProps
         )}
 
         {/* Map container — managed by useMapInstance via callback ref */}
-        <div
-          ref={mapContainerRef}
-          style={{
-            width: '100%',
-            height: '100%',
-            opacity: mapVisible ? 1 : 0,
-            transition: 'opacity 0.3s ease',
-          }}
-        />
+        {!mapError && (
+          <div
+            ref={mapContainerRef}
+            style={{
+              width: '100%',
+              height: '100%',
+              opacity: mapVisible ? 1 : 0,
+              transition: 'opacity 0.3s ease',
+            }}
+          />
+        )}
       </div>
 
       {historyMerchant && (

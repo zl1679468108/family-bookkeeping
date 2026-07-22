@@ -8,7 +8,7 @@ import { notify } from '../../../utils/notifications'
 import { useSort } from '../../../hooks/useSort'
 import { useCategories } from '../../../hooks/useCategories'
 import { useMutationAction } from '../../../hooks/useMutationAction'
-import type { Category, CreateCategoryInput } from '../../../types/category'
+import type { Category, CreateCategoryInput } from '@family-bookkeeping/shared-types'
 import type { CustomIconItem } from '../../../components/ui/IconGrid'
 
 export function useCategoriesPage() {

@@ -15,6 +15,7 @@ export interface DropdownOption {
   label: string
   icon?: React.ReactNode
   color?: string
+  isHeader?: boolean
 }
 
 interface DropdownSelectProps {
@@ -177,6 +178,13 @@ export const DropdownSelect: React.FC<DropdownSelectProps> = ({
             </div>
           )}
           {filteredOptions.map((opt) => {
+            if (opt.isHeader) {
+              return (
+                <div key={opt.key} className="dd-select__group-header" role="presentation">
+                  <span>{opt.label}</span>
+                </div>
+              )
+            }
             const active = opt.key === internalValue
             return (
               <div

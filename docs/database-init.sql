@@ -195,7 +195,7 @@ COMMENT ON COLUMN jj_book_members.joined_at IS '加入账本的时间';
 -- 7. 交易记录表
 -- ==============================================
 CREATE TABLE IF NOT EXISTS jj_transactions (
-  id            SERIAL PRIMARY KEY,
+  id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   amount        DECIMAL(10, 2) NOT NULL,
   category      UUID REFERENCES jj_categories(id) ON DELETE SET NULL,
   type          VARCHAR(10) NOT NULL CHECK (type IN ('income', 'expense')),
@@ -362,7 +362,7 @@ CREATE TRIGGER trigger_jj_member_locations_updated_at BEFORE UPDATE ON jj_member
 -- 11. 账本邀请码表
 -- ==============================================
 CREATE TABLE IF NOT EXISTS jj_book_invitations (
-  id          BIGSERIAL PRIMARY KEY,
+  id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   book_id     UUID NOT NULL REFERENCES jj_books(id) ON DELETE CASCADE,
   code        VARCHAR(32) NOT NULL UNIQUE,
   created_by  UUID NOT NULL REFERENCES jj_users(id) ON DELETE CASCADE,
@@ -377,7 +377,7 @@ CREATE INDEX IF NOT EXISTS idx_jj_book_invitations_book_id ON jj_book_invitation
 CREATE INDEX IF NOT EXISTS idx_jj_book_invitations_active ON jj_book_invitations(code, expires_at, used_at);
 
 COMMENT ON TABLE jj_book_invitations IS '账本邀请码表 - 存储账本邀请码，支持他人通过邀请码加入账本';
-COMMENT ON COLUMN jj_book_invitations.id IS '邀请记录唯一自增 ID';
+COMMENT ON COLUMN jj_book_invitations.id IS '邀请记录唯一 ID';
 COMMENT ON COLUMN jj_book_invitations.book_id IS '关联的账本 ID，外键引用 books 表';
 COMMENT ON COLUMN jj_book_invitations.code IS '邀请码，6 位大写字母+数字，全局唯一';
 COMMENT ON COLUMN jj_book_invitations.created_by IS '邀请码创建者用户 ID，外键引用 users 表';

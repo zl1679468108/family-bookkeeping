@@ -3,35 +3,32 @@
   "version": "1.0.1",
   "private": true,
   "homepage": "/bookkeeping/",
+  "type": "module",
   "scripts": {
-    "start": "HOST=127.0.0.1 PORT=3001 REACT_APP_ENV=development sh -c 'lsof -ti:3001 | xargs kill -15 2>/dev/null; react-scripts start'",
-    "start:prod": "HOST=127.0.0.1 PORT=3002 REACT_APP_ENV=production sh -c 'lsof -ti:3002 | xargs kill -15 2>/dev/null; react-scripts start'",
-    "build": "CI=false REACT_APP_ENV=development react-scripts build",
-    "build:prod": "CI=false REACT_APP_ENV=production react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject",
+    "dev": "vite --host 127.0.0.1 --port 3001",
+    "start": "vite --host 127.0.0.1 --port 3001",
+    "build": "tsc && vite build",
+    "build:prod": "cross-env NODE_ENV=production tsc && vite build",
+    "preview": "vite preview --host 127.0.0.1 --port 3002",
+    "start:prod": "vite preview --host 127.0.0.1 --port 3002",
     "lint": "eslint src --ext .js,.jsx,.ts,.tsx",
     "lint:fix": "eslint src --ext .js,.jsx,.ts,.tsx --fix",
+    "test": "vitest",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:debug": "playwright test --debug"
   },
-  "eslintConfig": {
-    "extends": [
-      "react-app"
-    ],
-    "rules": {
-      "react-hooks/exhaustive-deps": "warn"
-    }
-  },
   "dependencies": {
+    "@family-bookkeeping/shared-types": "file:../shared-types",
     "@fontsource/dm-mono": "^5.2.7",
     "@fontsource/dm-sans": "^5.2.8",
     "@tanstack/react-query": "^5.20.3",
     "@uiw/react-amap": "^7.1.15",
     "date-fns": "^2.30.0",
+    "echarts": "^6.1.0",
     "html-to-image": "^1.11.13",
     "lucide-react": "^0.382.0",
+    "lunar-javascript": "^1.7.7",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
     "react-router-dom": "^6.22.3"
@@ -42,29 +39,15 @@
     "@types/node": "^20.11.0",
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.0",
+    "@vitejs/plugin-react": "^4.3.0",
     "autoprefixer": "^10.4.15",
     "eslint": "^8.45.0",
     "eslint-plugin-react": "^7.33.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "postcss": "^8.4.24",
-    "react-scripts": "5.0.1",
     "sass": "^1.100.0",
     "tailwindcss": "^3.3.3",
-    "typescript": "^5.3.3"
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
-  },
-  "engines": {
-    "node": ">=20.0.0"
+    "typescript": "^5.3.3",
+    "vite": "^5.3.0"
   }
 }

@@ -7,7 +7,7 @@ import { useCategoryLookup } from '../../hooks/useCategories'
 import { renderCategoryIcon } from '../../utils/renderCategoryIcon'
 import { useFocusItem } from '../../hooks/useFocusItem'
 import { useMonthRangeOptions } from '../../hooks/useMonthRangeOptions'
-import type { BudgetRecord, UpsertBudgetInput } from '../../types/budget'
+import type { BudgetRecord, UpsertBudgetInput } from '@family-bookkeeping/shared-types';
 import { notify } from '../../utils/notifications'
 import { Skeleton } from '../../components/ui/Skeleton'
 import { GlobalModal, DetailItem, Space } from '../../components/ui'
@@ -189,8 +189,6 @@ const Budgets: React.FC = () => {
                 onChange={(key) => key && setSelectedMonth(key)}
                 allowClear={false}
                 width="auto"
-                showSearch
-                searchPlaceholder="搜索月份..."
               />
             )}
           </div>

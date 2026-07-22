@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { fetchMemberLocations } from '../../../services/mapApi';
-import type { MemberLocation } from '../../../types/map';
+import type { MemberLocation } from '@family-bookkeeping/shared-types'
 
 /** 离线判定阈值：2 分钟 */
 const OFFLINE_THRESHOLD_MS = 120_000;

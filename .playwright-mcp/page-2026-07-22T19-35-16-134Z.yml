@@ -1,0 +1,295 @@
+- generic [ref=e175]:
+  - complementary [ref=e176]:
+    - generic [ref=e177]:
+      - generic [ref=e178]: 静
+      - generic [ref=e179]: 静记
+    - button "折叠" [ref=e180] [cursor=pointer]:
+      - img [ref=e181]
+    - navigation [ref=e183]:
+      - generic [ref=e184]: 主菜单
+      - button "首页" [ref=e185] [cursor=pointer]:
+        - img [ref=e187]
+        - generic [ref=e192]: 首页
+      - button "流水" [active] [ref=e193] [cursor=pointer]:
+        - img [ref=e195]
+        - generic [ref=e196]: 流水
+      - button "记一笔" [ref=e197] [cursor=pointer]:
+        - img [ref=e199]
+        - generic [ref=e200]: 记一笔
+      - button "报表" [ref=e201] [cursor=pointer]:
+        - img [ref=e203]
+        - generic [ref=e206]: 报表
+      - button "日历" [ref=e207] [cursor=pointer]:
+        - img [ref=e209]
+        - generic [ref=e211]: 日历
+      - button "地图" [ref=e212] [cursor=pointer]:
+        - img [ref=e214]
+        - generic [ref=e216]: 地图
+      - button "年报" [ref=e217] [cursor=pointer]:
+        - img [ref=e219]
+        - generic [ref=e222]: 年报
+      - generic [ref=e223]: 更多
+      - button "账本" [ref=e224] [cursor=pointer]:
+        - img [ref=e226]
+        - generic [ref=e229]: 账本
+      - button "分类" [ref=e230] [cursor=pointer]:
+        - img [ref=e232]
+        - generic [ref=e235]: 分类
+      - button "模板" [ref=e236] [cursor=pointer]:
+        - img [ref=e238]
+        - generic [ref=e240]: 模板
+      - button "预算" [ref=e241] [cursor=pointer]:
+        - img [ref=e243]
+        - generic [ref=e246]: 预算
+      - generic [ref=e247]: 管理后台
+      - button "数据看板" [ref=e248] [cursor=pointer]:
+        - img [ref=e250]
+        - generic [ref=e255]: 数据看板
+      - button "用户管理" [ref=e256] [cursor=pointer]:
+        - img [ref=e258]
+        - generic [ref=e261]: 用户管理
+      - button "交易监控" [ref=e262] [cursor=pointer]:
+        - img [ref=e264]
+        - generic [ref=e265]: 交易监控
+    - button "zhaolong" [ref=e267] [cursor=pointer]:
+      - generic [ref=e269]: zhaolong
+      - img [ref=e270]
+  - main [ref=e272]:
+    - generic [ref=e348]:
+      - generic [ref=e350]:
+        - generic [ref=e351]:
+          - generic [ref=e352]:
+            - img [ref=e354]
+            - textbox "搜索描述/品牌..." [ref=e357]
+          - button "全部类型 ▾" [ref=e359] [cursor=pointer]:
+            - generic [ref=e360]: 全部类型
+            - generic [ref=e361]: ▾
+          - button "全部分类 ▾" [ref=e363] [cursor=pointer]:
+            - generic [ref=e364]: 全部分类
+            - generic [ref=e365]: ▾
+          - button "全部时间 ▾" [ref=e367] [cursor=pointer]:
+            - generic [ref=e368]: 全部时间
+            - generic [ref=e369]: ▾
+        - generic [ref=e371]: 本页20笔 · 支出¥ 2,398.00 · 收入¥ 9,550.00
+      - generic [ref=e372]:
+        - table [ref=e374]:
+          - rowgroup [ref=e375]:
+            - row "日期 分类 品牌 描述 金额" [ref=e376]:
+              - columnheader "日期" [ref=e377]
+              - columnheader "分类" [ref=e378]
+              - columnheader "品牌" [ref=e379]
+              - columnheader "描述" [ref=e380]
+              - columnheader "金额" [ref=e381]
+          - rowgroup [ref=e382]:
+            - button "查看交易详情：电费 -¥ 50.00" [ref=e383] [cursor=pointer]:
+              - cell "2026-07-23" [ref=e384]
+              - cell "💡 生活缴费" [ref=e385]:
+                - generic [ref=e386]:
+                  - generic [ref=e387]: 💡
+                  - text: 生活缴费
+              - cell "—" [ref=e388]
+              - cell "电费" [ref=e389]:
+                - generic "电费" [ref=e390]
+              - cell "-¥ 50.00" [ref=e391]
+            - button "查看交易详情：房租 -¥ 750.00" [ref=e392] [cursor=pointer]:
+              - cell "2026-07-22" [ref=e393]
+              - cell "💡 生活缴费" [ref=e394]:
+                - generic [ref=e395]:
+                  - generic [ref=e396]: 💡
+                  - text: 生活缴费
+              - cell "—" [ref=e397]
+              - cell "房租" [ref=e398]:
+                - generic "房租" [ref=e399]
+              - cell "-¥ 750.00" [ref=e400]
+            - button "查看交易详情：翠苑路烤鸭腿2个 -¥ 10.00" [ref=e401] [cursor=pointer]:
+              - cell "2026-07-21" [ref=e402]
+              - cell "📌 12313" [ref=e403]:
+                - generic [ref=e404]:
+                  - generic [ref=e405]: 📌
+                  - text: "12313"
+              - cell "烤鸭腿" [ref=e406]:
+                - generic [ref=e407]: 烤鸭腿
+              - cell "翠苑路烤鸭腿2个" [ref=e408]:
+                - generic "翠苑路烤鸭腿2个" [ref=e409]
+              - cell "-¥ 10.00" [ref=e410]
+            - button "查看交易详情：买水啊 -¥ 15.00" [ref=e411] [cursor=pointer]:
+              - cell "2026-06-15" [ref=e412]
+              - cell "🛒 购物" [ref=e413]:
+                - generic [ref=e414]:
+                  - generic [ref=e415]: 🛒
+                  - text: 购物
+              - cell "翠润峰" [ref=e416]:
+                - generic [ref=e417]: 翠润峰
+              - cell "买水啊" [ref=e418]:
+                - generic "买水啊" [ref=e419]
+              - cell "-¥ 15.00" [ref=e420]
+            - button "查看交易详情：工资到账好开心 +¥ 9,000.00" [ref=e421] [cursor=pointer]:
+              - cell "2026-06-15" [ref=e422]
+              - cell "💼 工资" [ref=e423]:
+                - generic [ref=e424]:
+                  - generic [ref=e425]: 💼
+                  - text: 工资
+              - cell "—" [ref=e426]
+              - cell "工资到账好开心" [ref=e427]:
+                - generic "工资到账好开心" [ref=e428]
+              - cell "+¥ 9,000.00" [ref=e429]
+            - button "查看交易详情：1. 干皮亲妈款 本人混干皮，秋冬用这款粉底液完全不拔干！上脸是很自然的柔光妆效，不是那种死白的假面感，N01自然色和我的肤色融合得特别好，自带磨皮感。持妆一天下来也不怎么卡粉，送的粉底刷上妆又快又服帖，爱了！ 2. 性价比种草款 两瓶粉底液加一把刷子，这个价格真的太香了！上脸水润又轻薄，流动性很好，用刷子刷开一点粉痕都没有。妆效是清透的伪素颜感，日常通勤用完全够了，干皮姐妹闭眼冲！ 3. 妆效惊艳款 终于找到适合我小麦肤色的粉底液了！N01自然色上脸就是妈生好皮的感觉，完全不会假白。质地水润润的，拍开之后是很高级的柔光妆效，显得皮肤质感特别好，持妆力也在线，越夜越美丽！ -¥ 59.00" [ref=e430] [cursor=pointer]:
+              - cell "2026-06-14" [ref=e431]
+              - cell "化妆品" [ref=e432]:
+                - generic [ref=e433]: 化妆品
+              - cell "花间颂" [ref=e434]:
+                - generic [ref=e435]: 花间颂
+              - cell "1. 干皮亲妈款 本人混干皮，秋冬用这款粉底液完全不拔干！上脸是很自然的柔光妆效，不是那种死白的假面感，N01自然色和我的肤色融合得特别好，自带磨皮感。持妆一天下来也不怎么卡粉，送的粉底刷上妆又快又服帖，爱了！ 2. 性价比种草款 两瓶粉底液加一把刷子，这个价格真的太香了！上脸水润又轻薄，流动性很好，用刷子刷开一点粉痕都没有。妆效是清透的伪素颜感，日常通勤用完全够了，干皮姐妹闭眼冲！ 3. 妆效惊艳款 终于找到适合我小麦肤色的粉底液了！N01自然色上脸就是妈生好皮的感觉，完全不会假白。质地水润润的，拍开之后是很高级的柔光妆效，显得皮肤质感特别好，持妆力也在线，越夜越美丽！" [ref=e436]:
+                - generic "1. 干皮亲妈款 本人混干皮，秋冬用这款粉底液完全不拔干！上脸是很自然的柔光妆效，不是那种死白的假面感，N01自然色和我的肤色融合得特别好，自带磨皮感。持妆一天下来也不怎么卡粉，送的粉底刷上妆又快又服帖，爱了！ 2. 性价比种草款 两瓶粉底液加一把刷子，这个价格真的太香了！上脸水润又轻薄，流动性很好，用刷子刷开一点粉痕都没有。妆效是清透的伪素颜感，日常通勤用完全够了，干皮姐妹闭眼冲！ 3. 妆效惊艳款 终于找到适合我小麦肤色的粉底液了！N01自然色上脸就是妈生好皮的感觉，完全不会假白。质地水润润的，拍开之后是很高级的柔光妆效，显得皮肤质感特别好，持妆力也在线，越夜越美丽！" [ref=e437]
+              - cell "-¥ 59.00" [ref=e438]
+            - button "查看交易详情：买衣服 -¥ 89.00" [ref=e439] [cursor=pointer]:
+              - cell "2026-06-11" [ref=e440]
+              - cell "🛒 购物" [ref=e441]:
+                - generic [ref=e442]:
+                  - generic [ref=e443]: 🛒
+                  - text: 购物
+              - cell "—" [ref=e444]
+              - cell "买衣服" [ref=e445]:
+                - generic "买衣服" [ref=e446]
+              - cell "-¥ 89.00" [ref=e447]
+            - button "查看交易详情：买菜 -¥ 80.00" [ref=e448] [cursor=pointer]:
+              - cell "2026-06-11" [ref=e449]
+              - cell "🛒 购物" [ref=e450]:
+                - generic [ref=e451]:
+                  - generic [ref=e452]: 🛒
+                  - text: 购物
+              - cell "—" [ref=e453]
+              - cell "买菜" [ref=e454]:
+                - generic "买菜" [ref=e455]
+              - cell "-¥ 80.00" [ref=e456]
+            - button "查看交易详情：缴纳电费 -¥ 50.00" [ref=e457] [cursor=pointer]:
+              - cell "2026-06-11" [ref=e458]
+              - cell "💡 生活缴费" [ref=e459]:
+                - generic [ref=e460]:
+                  - generic [ref=e461]: 💡
+                  - text: 生活缴费
+              - cell "—" [ref=e462]
+              - cell "缴纳电费" [ref=e463]:
+                - generic "缴纳电费" [ref=e464]
+              - cell "-¥ 50.00" [ref=e465]
+            - button "查看交易详情：房租 -¥ 700.00" [ref=e466] [cursor=pointer]:
+              - cell "2026-06-09" [ref=e467]
+              - cell "💡 生活缴费" [ref=e468]:
+                - generic [ref=e469]:
+                  - generic [ref=e470]: 💡
+                  - text: 生活缴费
+              - cell "—" [ref=e471]
+              - cell "房租" [ref=e472]:
+                - generic "房租" [ref=e473]
+              - cell "-¥ 700.00" [ref=e474]
+            - button "查看交易详情：缴纳电费 -¥ 50.00" [ref=e475] [cursor=pointer]:
+              - cell "2026-06-09" [ref=e476]
+              - cell "💡 生活缴费" [ref=e477]:
+                - generic [ref=e478]:
+                  - generic [ref=e479]: 💡
+                  - text: 生活缴费
+              - cell "—" [ref=e480]
+              - cell "缴纳电费" [ref=e481]:
+                - generic "缴纳电费" [ref=e482]
+              - cell "-¥ 50.00" [ref=e483]
+            - button "查看交易详情：工资 +¥ 500.00" [ref=e484] [cursor=pointer]:
+              - cell "2026-06-07" [ref=e485]
+              - cell "💼 工资" [ref=e486]:
+                - generic [ref=e487]:
+                  - generic [ref=e488]: 💼
+                  - text: 工资
+              - cell "—" [ref=e489]
+              - cell "工资" [ref=e490]:
+                - generic "工资" [ref=e491]
+              - cell "+¥ 500.00" [ref=e492]
+            - button "查看交易详情：吃饭消费 -¥ 22.00" [ref=e493] [cursor=pointer]:
+              - cell "2026-06-02" [ref=e494]
+              - cell "🍜 吃饭" [ref=e495]:
+                - generic [ref=e496]:
+                  - generic [ref=e497]: 🍜
+                  - text: 吃饭
+              - cell "—" [ref=e498]
+              - cell "吃饭消费" [ref=e499]:
+                - generic "吃饭消费" [ref=e500]
+              - cell "-¥ 22.00" [ref=e501]
+            - button "查看交易详情：电费 -¥ 100.00" [ref=e502] [cursor=pointer]:
+              - cell "2026-06-01" [ref=e503]
+              - cell "💡 生活缴费" [ref=e504]:
+                - generic [ref=e505]:
+                  - generic [ref=e506]: 💡
+                  - text: 生活缴费
+              - cell "—" [ref=e507]
+              - cell "电费" [ref=e508]:
+                - generic "电费" [ref=e509]
+              - cell "-¥ 100.00" [ref=e510]
+            - button "查看交易详情：交电费 -¥ 50.00" [ref=e511] [cursor=pointer]:
+              - cell "2026-05-31" [ref=e512]
+              - cell "💡 生活缴费" [ref=e513]:
+                - generic [ref=e514]:
+                  - generic [ref=e515]: 💡
+                  - text: 生活缴费
+              - cell "—" [ref=e516]
+              - cell "交电费" [ref=e517]:
+                - generic "交电费" [ref=e518]
+              - cell "-¥ 50.00" [ref=e519]
+            - button "查看交易详情：猪贝贝自助 -¥ 99.00" [ref=e520] [cursor=pointer]:
+              - cell "2026-05-29" [ref=e521]
+              - cell "🍜 吃饭" [ref=e522]:
+                - generic [ref=e523]:
+                  - generic [ref=e524]: 🍜
+                  - text: 吃饭
+              - cell "—" [ref=e525]
+              - cell "猪贝贝自助" [ref=e526]:
+                - generic "猪贝贝自助" [ref=e527]
+              - cell "-¥ 99.00" [ref=e528]
+            - button "查看交易详情：猪贝贝自助 -¥ 89.00" [ref=e529] [cursor=pointer]:
+              - cell "2026-05-29" [ref=e530]
+              - cell "🍜 吃饭" [ref=e531]:
+                - generic [ref=e532]:
+                  - generic [ref=e533]: 🍜
+                  - text: 吃饭
+              - cell "—" [ref=e534]
+              - cell "猪贝贝自助" [ref=e535]:
+                - generic "猪贝贝自助" [ref=e536]
+              - cell "-¥ 89.00" [ref=e537]
+            - button "查看交易详情：发传单赚的 +¥ 50.00" [ref=e538] [cursor=pointer]:
+              - cell "2026-05-26" [ref=e539]
+              - cell "💼 工资" [ref=e540]:
+                - generic [ref=e541]:
+                  - generic [ref=e542]: 💼
+                  - text: 工资
+              - cell "—" [ref=e543]
+              - cell "发传单赚的" [ref=e544]:
+                - generic "发传单赚的" [ref=e545]
+              - cell "+¥ 50.00" [ref=e546]
+            - button "查看交易详情：交话费 -¥ 100.00" [ref=e547] [cursor=pointer]:
+              - cell "2026-05-26" [ref=e548]
+              - cell "💡 生活缴费" [ref=e549]:
+                - generic [ref=e550]:
+                  - generic [ref=e551]: 💡
+                  - text: 生活缴费
+              - cell "—" [ref=e552]
+              - cell "交话费" [ref=e553]:
+                - generic "交话费" [ref=e554]
+              - cell "-¥ 100.00" [ref=e555]
+            - button "查看交易详情：盒马买菜85 -¥ 85.00" [ref=e556] [cursor=pointer]:
+              - cell "2026-05-26" [ref=e557]
+              - cell "🛒 购物" [ref=e558]:
+                - generic [ref=e559]:
+                  - generic [ref=e560]: 🛒
+                  - text: 购物
+              - cell "—" [ref=e561]
+              - cell "盒马买菜85" [ref=e562]:
+                - generic "盒马买菜85" [ref=e563]
+              - cell "-¥ 85.00" [ref=e564]
+        - generic [ref=e566]:
+          - text: 共 27 条
+          - generic [ref=e567]:
+            - button "上一页" [disabled] [ref=e568]
+            - generic [ref=e569]: 第 1 / 2 页
+            - button "下一页" [ref=e570] [cursor=pointer]
+            - generic [ref=e571]:
+              - generic [ref=e572]: 每页
+              - button "20 条/页 ▾" [ref=e574] [cursor=pointer]:
+                - generic [ref=e575]: 20 条/页
+                - generic [ref=e576]: ▾

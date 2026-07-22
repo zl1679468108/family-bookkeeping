@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { fetchMemberComparison } from '../services/statisticsApi';
-import type { MemberComparisonParams } from '../types/memberComparison';
+import type { MemberComparisonParams } from '@family-bookkeeping/shared-types';
 
 export const useMemberComparison = (params: MemberComparisonParams | null) => {
   return useQuery({

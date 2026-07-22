@@ -1,0 +1,102 @@
+- generic [ref=e577]:
+  - complementary [ref=e578]:
+    - generic [ref=e579]:
+      - generic [ref=e580]: 静
+      - generic [ref=e581]: 静记
+    - button "折叠" [ref=e582] [cursor=pointer]:
+      - img [ref=e583]
+    - navigation [ref=e585]:
+      - generic [ref=e586]: 主菜单
+      - button "首页" [ref=e587] [cursor=pointer]:
+        - img [ref=e589]
+        - generic [ref=e594]: 首页
+      - button "流水" [ref=e595] [cursor=pointer]:
+        - img [ref=e597]
+        - generic [ref=e598]: 流水
+      - button "记一笔" [active] [ref=e599] [cursor=pointer]:
+        - img [ref=e601]
+        - generic [ref=e602]: 记一笔
+      - button "报表" [ref=e603] [cursor=pointer]:
+        - img [ref=e605]
+        - generic [ref=e608]: 报表
+      - button "日历" [ref=e609] [cursor=pointer]:
+        - img [ref=e611]
+        - generic [ref=e613]: 日历
+      - button "地图" [ref=e614] [cursor=pointer]:
+        - img [ref=e616]
+        - generic [ref=e618]: 地图
+      - button "年报" [ref=e619] [cursor=pointer]:
+        - img [ref=e621]
+        - generic [ref=e624]: 年报
+      - generic [ref=e625]: 更多
+      - button "账本" [ref=e626] [cursor=pointer]:
+        - img [ref=e628]
+        - generic [ref=e631]: 账本
+      - button "分类" [ref=e632] [cursor=pointer]:
+        - img [ref=e634]
+        - generic [ref=e637]: 分类
+      - button "模板" [ref=e638] [cursor=pointer]:
+        - img [ref=e640]
+        - generic [ref=e642]: 模板
+      - button "预算" [ref=e643] [cursor=pointer]:
+        - img [ref=e645]
+        - generic [ref=e648]: 预算
+      - generic [ref=e649]: 管理后台
+      - button "数据看板" [ref=e650] [cursor=pointer]:
+        - img [ref=e652]
+        - generic [ref=e657]: 数据看板
+      - button "用户管理" [ref=e658] [cursor=pointer]:
+        - img [ref=e660]
+        - generic [ref=e663]: 用户管理
+      - button "交易监控" [ref=e664] [cursor=pointer]:
+        - img [ref=e666]
+        - generic [ref=e667]: 交易监控
+    - button "zhaolong" [ref=e669] [cursor=pointer]:
+      - generic [ref=e671]: zhaolong
+      - img [ref=e672]
+  - main [ref=e674]:
+    - generic [ref=e1418]:
+      - generic [ref=e1419]:
+        - generic [ref=e1420]:
+          - button "支出" [ref=e1421] [cursor=pointer]
+          - button "收入" [ref=e1422] [cursor=pointer]
+        - generic [ref=e1423]:
+          - generic [ref=e1424]: "*金额"
+          - textbox "0.00" [ref=e1425]
+        - generic [ref=e1426]:
+          - generic [ref=e1427]:
+            - generic [ref=e1428]: "*分类"
+            - button "* 分类 选择分类 ▾" [ref=e1430] [cursor=pointer]:
+              - generic [ref=e1431]: "* 分类"
+              - generic [ref=e1432]: 选择分类
+              - generic [ref=e1433]: ▾
+          - generic [ref=e1434]:
+            - generic [ref=e1435]: "*日期"
+            - textbox [ref=e1436]: 2026-07-23
+        - generic [ref=e1437]:
+          - generic [ref=e1438]: 品牌
+          - textbox "例如：雅诗兰黛、苹果" [ref=e1439]
+        - generic [ref=e1440]:
+          - generic [ref=e1441]: 备注
+          - textbox "例如：小棕瓶 50ml，给妈妈买的礼物" [ref=e1442]
+          - generic [ref=e1443]: 0 / 500
+        - generic [ref=e1444]:
+          - generic [ref=e1446]: 附件 (0 / 10)
+          - generic [ref=e1448] [cursor=pointer]:
+            - generic [ref=e1449]: +
+            - generic [ref=e1450]: 添加图片
+        - button "选择地点" [ref=e1452] [cursor=pointer]
+        - generic [ref=e1453]:
+          - button "确认添加" [ref=e1454] [cursor=pointer]
+          - button "重置" [ref=e1455] [cursor=pointer]
+      - generic [ref=e1456]:
+        - heading "快捷方式" [level=4] [ref=e1457]
+        - generic [ref=e1458]:
+          - generic [ref=e1459] [cursor=pointer]:
+            - generic [ref=e1460]: 📋
+            - generic [ref=e1461]: 选择模板
+            - generic [ref=e1462]: 一键填充表单
+          - generic [ref=e1463] [cursor=pointer]:
+            - generic [ref=e1464]: 📷
+            - generic [ref=e1465]: OCR识别
+            - generic [ref=e1466]: 拍照识别票据

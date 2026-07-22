@@ -1,7 +1,4 @@
-// 设计令牌
-@use './design-tokens.css';
-
-// 导入组件样式
+// 导入组件样式（@use 必须在文件最前面）
 @use './components/buttons';
 @use './components/forms';
 @use './components/modals';
@@ -42,6 +39,9 @@
 @use '../pages/AddTransaction';
 @use '../pages/Map';
 @use '../pages/About';
+
+// 设计令牌（纯 CSS 文件）
+@import './design-tokens.css';
 
 // Tailwind CSS
 @tailwind base;

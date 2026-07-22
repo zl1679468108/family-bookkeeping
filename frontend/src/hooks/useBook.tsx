@@ -5,16 +5,7 @@ import { setCurrentBook as setCurrentBookApi } from '../services/api';
 import { fetchBooks } from '../services/booksApi';
 import { notify } from '../utils/notifications';
 
-export interface Book {
-  id: string;
-  name: string;
-  owner_id: string;
-  created_at: string;
-  updated_at: string;
-  role?: string;
-  icon?: string;
-  description?: string;
-}
+import { Book } from '@family-bookkeeping/shared-types';
 
 interface BookContextType {
   currentBook: Book | null;

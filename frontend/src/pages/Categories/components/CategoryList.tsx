@@ -2,7 +2,7 @@ import React from 'react'
 import { renderCategoryIcon } from '../../../utils/renderCategoryIcon'
 import { EmptyState } from '../../../components/ui/EmptyState'
 import { Button } from '../../../components/ui/Button'
-import type { Category } from '../../../types/category'
+import type { Category } from '@family-bookkeeping/shared-types'
 
 interface CategoryListProps {
   orderedList: Category[]

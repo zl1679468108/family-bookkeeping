@@ -16,6 +16,7 @@ export const CategoryTabs: React.FC<CategoryTabsProps> = ({
 }) => {
   return (
     <SegControl
+      variant="pill"
       options={[
         { value: 'expense', label: '支出分类' },
         { value: 'income', label: '收入分类' },

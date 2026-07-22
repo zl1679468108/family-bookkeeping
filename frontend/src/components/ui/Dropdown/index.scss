@@ -192,3 +192,14 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+/* 年份分组头 */
+.dd-select__group-header {
+  padding: 8px 10px 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--fg3);
+  cursor: default;
+  user-select: none;
+  letter-spacing: 0.02em;
+}

@@ -30,6 +30,7 @@ interface UseMapInstanceReturn {
   mapContainerRef: React.RefCallback<HTMLDivElement>;
   map: unknown | null;
   ready: boolean;
+  error: string | null;
 }
 
 /* ------------------------------------------------------------------ */
@@ -52,6 +53,7 @@ export function useMapInstance(
   // ---- Map instance ----
   const [map, setMap] = useState<unknown | null>(null);
   const [ready, setReady] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const acquiredRef = useRef(false);
 
   /* ---- Load AMap SDK once ---- */
@@ -63,7 +65,12 @@ export function useMapInstance(
     let cancelled = false;
     manager.ensureLoaded()
       .then(() => { if (!cancelled) setSdkReady(true); })
-      .catch((err) => { if (!cancelled) console.error('[useMapInstance] SDK load failed:', err); });
+      .catch((err) => {
+        if (!cancelled) {
+          console.error('[useMapInstance] SDK load failed:', err)
+          setError(err instanceof Error ? err.message : '地图 SDK 加载失败')
+        }
+      });
     return () => { cancelled = true; };
   }, [manager]);
 
@@ -86,6 +93,7 @@ export function useMapInstance(
     if (!active || !sdkReady || !parentEl) return;
 
     let cancelled = false;
+    setError(null);
 
     manager
       .acquire(id, parentEl, resolvedOptions)
@@ -115,11 +123,16 @@ export function useMapInstance(
         }
       })
       .catch((err: any) => {
-        if (!cancelled) console.error('[useMapInstance] acquire failed:', err);
+        if (!cancelled) {
+          const msg = err instanceof Error ? err.message : String(err)
+          console.error('[useMapInstance] acquire failed:', err)
+          setError(msg)
+        }
       });
 
     return () => {
       cancelled = true;
+      setError(null);
       if (parentEl && (parentEl as any).__amapResizeObserver) {
         (parentEl as any).__amapResizeObserver.disconnect();
         delete (parentEl as any).__amapResizeObserver;
@@ -145,7 +158,7 @@ export function useMapInstance(
     [],
   );
 
-  return { mapContainerRef, map, ready };
+  return { mapContainerRef, map, ready, error };
 }
 
 export type { UseMapInstanceOptions, UseMapInstanceReturn };

@@ -1,0 +1,90 @@
+- generic [ref=e577]:
+  - complementary [ref=e578]:
+    - generic [ref=e579]:
+      - generic [ref=e580]: 静
+      - generic [ref=e581]: 静记
+    - button "折叠" [ref=e582] [cursor=pointer]:
+      - img [ref=e583]
+    - navigation [ref=e585]:
+      - generic [ref=e586]: 主菜单
+      - button "首页" [ref=e587] [cursor=pointer]:
+        - img [ref=e589]
+        - generic [ref=e594]: 首页
+      - button "流水" [ref=e595] [cursor=pointer]:
+        - img [ref=e597]
+        - generic [ref=e598]: 流水
+      - button "记一笔" [ref=e599] [cursor=pointer]:
+        - img [ref=e601]
+        - generic [ref=e602]: 记一笔
+      - button "报表" [ref=e603] [cursor=pointer]:
+        - img [ref=e605]
+        - generic [ref=e608]: 报表
+      - button "日历" [ref=e609] [cursor=pointer]:
+        - img [ref=e611]
+        - generic [ref=e613]: 日历
+      - button "地图" [ref=e614] [cursor=pointer]:
+        - img [ref=e616]
+        - generic [ref=e618]: 地图
+      - button "年报" [ref=e619] [cursor=pointer]:
+        - img [ref=e621]
+        - generic [ref=e624]: 年报
+      - generic [ref=e625]: 更多
+      - button "账本" [active] [ref=e626] [cursor=pointer]:
+        - img [ref=e628]
+        - generic [ref=e631]: 账本
+      - button "分类" [ref=e632] [cursor=pointer]:
+        - img [ref=e634]
+        - generic [ref=e637]: 分类
+      - button "模板" [ref=e638] [cursor=pointer]:
+        - img [ref=e640]
+        - generic [ref=e642]: 模板
+      - button "预算" [ref=e643] [cursor=pointer]:
+        - img [ref=e645]
+        - generic [ref=e648]: 预算
+      - generic [ref=e649]: 管理后台
+      - button "数据看板" [ref=e650] [cursor=pointer]:
+        - img [ref=e652]
+        - generic [ref=e657]: 数据看板
+      - button "用户管理" [ref=e658] [cursor=pointer]:
+        - img [ref=e660]
+        - generic [ref=e663]: 用户管理
+      - button "交易监控" [ref=e664] [cursor=pointer]:
+        - img [ref=e666]
+        - generic [ref=e667]: 交易监控
+    - button "zhaolong" [ref=e669] [cursor=pointer]:
+      - generic [ref=e671]: zhaolong
+      - img [ref=e672]
+  - main [ref=e674]:
+    - generic [ref=e1567]:
+      - generic [ref=e1568]:
+        - heading "我的账本" [level=3] [ref=e1570]
+        - generic [ref=e1572]:
+          - button "使用邀请码加入" [ref=e1573] [cursor=pointer]:
+            - generic [ref=e1574]: 使用邀请码加入
+          - button "+ 新建账本" [ref=e1575] [cursor=pointer]:
+            - generic [ref=e1576]: + 新建账本
+      - generic [ref=e1577]:
+        - generic [ref=e1578] [cursor=pointer]:
+          - generic [ref=e1579]:
+            - img [ref=e1581]
+            - generic [ref=e1584]: "1121"
+          - generic [ref=e1585]:
+            - generic [ref=e1586]: 1 成员
+            - generic [ref=e1587]: 0 笔交易
+          - generic [ref=e1588]: "1231312222"
+        - generic [ref=e1589] [cursor=pointer]:
+          - generic [ref=e1590]:
+            - img [ref=e1592]
+            - generic [ref=e1595]: 赵龙个人主账本
+          - generic [ref=e1596]:
+            - generic [ref=e1597]: 1 成员
+            - generic [ref=e1598]: 27 笔交易
+          - generic [ref=e1599]: 日常家庭开支
+        - generic [ref=e1600] [cursor=pointer]:
+          - generic [ref=e1601]:
+            - img [ref=e1603]
+            - generic [ref=e1607]: 赵龙共享的账本
+          - generic [ref=e1608]:
+            - generic [ref=e1609]: 1 成员
+            - generic [ref=e1610]: 0 笔交易
+          - generic [ref=e1611]: 共享成员账本

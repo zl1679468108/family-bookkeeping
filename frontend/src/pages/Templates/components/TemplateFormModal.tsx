@@ -5,7 +5,7 @@ import { Input, NumberInput } from '../../../components/ui/Input'
 import { DropdownSelect } from '../../../components/ui/Dropdown'
 import { LocationDisplay } from '../../../components/ui/LocationDisplay'
 import { LocationPicker } from '../../AddTransaction/components/LocationPicker'
-import type { LocationResult } from '../../../types/map'
+import type { LocationResult } from '@family-bookkeeping/shared-types'
 
 interface TemplateFormProps {
   open: boolean

@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useCallback, useMemo } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { UserProfile } from '@family-bookkeeping/shared-types';
 import {
   clearStoredToken,
   getProfile,
@@ -9,7 +10,6 @@ import {
   register as apiRegister,
   request,
   storeTokens,
-  UserProfile,
   ApiError,
 } from '../services/api';
 import { saveAccount, updateAccountInfo } from './savedAccounts';

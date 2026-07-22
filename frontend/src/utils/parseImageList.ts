@@ -1,4 +1,4 @@
-import type { Transaction } from '../services/api';
+import type { Transaction } from '@family-bookkeeping/shared-types';
 
 /**
  * 清理 URL 字符串：去除首尾的反引号、空格、引号等异常字符

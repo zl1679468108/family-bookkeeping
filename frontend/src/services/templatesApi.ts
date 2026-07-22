@@ -1,5 +1,5 @@
 import { request } from './api';
-import type { Template, CreateTemplateInput, ExecuteTemplateInput, ReorderInput } from '../types/template';
+import type { Template, CreateTemplateInput, ExecuteTemplateInput, ReorderInput } from '@family-bookkeeping/shared-types';
 
 export const fetchTemplates = (): Promise<Template[]> =>
   request<Template[]>('/templates', { requiresAuth: true });

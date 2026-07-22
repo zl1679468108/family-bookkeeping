@@ -13,18 +13,10 @@
     "noUnusedParameters": true,
     "strictNullChecks": true,
     "sourceMap": true,
-    "baseUrl": ".",
-    "rootDir": ".",
     "jsx": "react-jsx",
-    "allowJs": true,
-    "resolveJsonModule": true,
-    "typeRoots": ["node_modules/@types"],
-    "paths": {
-      "@/*": ["./src/*"]
-    },
-    "esModuleInterop": true,
-    "skipLibCheck": true
+    "baseUrl": ".",
+    "skipLibCheck": true,
   },
-  "include": ["src/**/*", "types/**/*", "config/**/*"],
+  "include": ["src/**/*", "types/**/*", "config/**/*", "../shared-types/src/**/*"],
   "exclude": ["node_modules", "dist"]
 }

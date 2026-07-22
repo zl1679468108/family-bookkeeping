@@ -7,7 +7,7 @@ import { useCategoryLookup, useCategories } from '../../hooks/useCategories'
 import { renderCategoryIcon } from '../../utils/renderCategoryIcon'
 import type { DropdownOption } from '../../components/ui/Dropdown'
 import type { Transaction } from '../../services/api'
-import type { Category } from '../../types/category'
+import type { Category } from '@family-bookkeeping/shared-types';
 import { useDebounce } from '../../hooks/useDebounce'
 import { useDebouncedAction } from '../../hooks/useDebouncedAction'
 import { useFocusItem } from '../../hooks/useFocusItem'
@@ -19,7 +19,7 @@ import { DropdownSelect } from '../../components/ui/Dropdown'
 import { Pagination } from '../../components/ui/Pagination'
 import { EmptyState } from '../../components/ui/EmptyState'
 import { FilterBar } from '../../components/ui/FilterBar'
-import { SearchInput } from '../../components/ui/Input'
+import { SearchInput, NumberInput } from '../../components/ui/Input'
 import { notify } from '../../utils/notifications'
 import { useQueryClient } from '@tanstack/react-query'
 import { parseImageList } from '../../utils/parseImageList'
@@ -48,6 +48,8 @@ const Transactions: React.FC = () => {
   const [dateFilter, setDateFilter] = useState<string>('')
   const [categoryFilter, setCategoryFilter] = useState<string>('')
   const [search, setSearch] = useState('')
+  const [minAmount, setMinAmount] = useState('')
+  const [maxAmount, setMaxAmount] = useState('')
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(PAGE_SIZE)
   const debouncedSearch = useDebounce(search, 800)
@@ -89,6 +91,10 @@ const Transactions: React.FC = () => {
     setPage(1)
   }
 
+  const handleAmountFilterChange = () => {
+    setPage(1)
+  }
+
   const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null)
   const [showDetail, setShowDetail] = useState(false)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
@@ -114,13 +120,15 @@ const Transactions: React.FC = () => {
   }, [dateFilter, monthStart])
 
   const { data: paginated, isLoading } = useQuery({
-    queryKey: ['transactions', typeFilter, categoryFilter, effectiveStartDate, todayStr, debouncedSearch, page, pageSize],
+    queryKey: ['transactions', typeFilter, categoryFilter, effectiveStartDate, todayStr, debouncedSearch, minAmount, maxAmount, page, pageSize],
     queryFn: () => getTransactions({
       type: (typeFilter || undefined) as 'income' | 'expense' | undefined,
       category: categoryFilter || undefined,
       startDate: effectiveStartDate || undefined,
       endDate: todayStr,
       search: debouncedSearch || undefined,
+      min_amount: minAmount ? Number(minAmount) : undefined,
+      max_amount: maxAmount ? Number(maxAmount) : undefined,
       page,
       pageSize,
     }),
@@ -177,6 +185,24 @@ const Transactions: React.FC = () => {
                 placeholder="全部时间"
                 onChange={handleDateChange}
               />
+
+              <span className="filter-amount-range">
+                <NumberInput
+                  value={minAmount}
+                  onChange={(v) => { setMinAmount(v); handleAmountFilterChange() }}
+                  placeholder="最小金额"
+                  prefix="¥"
+                  wrapperClassName="filter-amount-input"
+                />
+                <span className="filter-amount-sep">-</span>
+                <NumberInput
+                  value={maxAmount}
+                  onChange={(v) => { setMaxAmount(v); handleAmountFilterChange() }}
+                  placeholder="最大金额"
+                  prefix="¥"
+                  wrapperClassName="filter-amount-input"
+                />
+              </span>
             </>
           }
           right={

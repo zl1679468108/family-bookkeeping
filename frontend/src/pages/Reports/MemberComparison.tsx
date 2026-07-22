@@ -2,7 +2,7 @@ import React, { useMemo, useRef, useEffect } from 'react';
 import { echarts } from '../../utils/echarts';
 import type { ECharts, EChartsOption } from '../../utils/echarts';
 import { useMemberComparison } from '../../hooks/useMemberComparison';
-import type { MemberComparisonItem } from '../../types/memberComparison';
+import type { MemberComparisonItem } from '@family-bookkeeping/shared-types';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { EmptyState } from '../../components/ui/EmptyState';
 import { Card, CardHeader } from '../../components/ui/Card';

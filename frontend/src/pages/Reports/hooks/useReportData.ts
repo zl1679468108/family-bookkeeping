@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { startOfMonth, endOfMonth, format, subMonths, parseISO } from 'date-fns'
 import { fetchMonthlyTrend, fetchCategoryBreakdown, fetchDailySummary, fetchYearOverYear } from '../../../services/statisticsApi'
-import type { CategoryBreakdownItem } from '../../../types/statistics'
+import type { CategoryBreakdownItem } from '@family-bookkeeping/shared-types'
 
 export enum PeriodType {
   Month = 'month',

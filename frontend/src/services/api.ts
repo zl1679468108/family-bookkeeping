@@ -5,86 +5,26 @@
 
 import { notify } from '../utils/notifications'
 import { trackRequest } from '../utils/progress'
+import type {
+  Transaction,
+  TransactionFilters,
+  PaginatedResponse,
+  UserProfile,
+  TokenPair,
+  OcrResult,
+  CategorySuggestion,
+  ApiEnvelope,
+  ApiErrorPayload,
+} from '@family-bookkeeping/shared-types'
 
-const API_BASE = process.env.REACT_APP_API_BASE_URL || 'http://localhost:3000/api'
+// 兼容：重新导出常用类型（供已有 import 使用）
+export type { Transaction, TransactionFilters, PaginatedResponse, UserProfile, TokenPair, OcrResult, CategorySuggestion, ApiEnvelope, ApiErrorPayload } from '@family-bookkeeping/shared-types'
+
+const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api'
 
 // 双 Token 存储键
 const ACCESS_TOKEN_KEY = 'auth_access_token'
 const REFRESH_TOKEN_KEY = 'auth_refresh_token'
-
-export interface Transaction {
-  id: number
-  amount: number
-  category: string
-  type: 'income' | 'expense'
-  date: string
-  time?: string
-  description?: string
-  brand?: string
-  image_urls?: string
-  image_url_list?: string[]
-  location_name?: string
-  latitude?: number
-  longitude?: number
-  poi_id?: string | null
-  created_at: string
-}
-
-export interface TransactionFilters {
-  type?: 'income' | 'expense'
-  category?: string
-  startDate?: string
-  endDate?: string
-  /** 查看范围：'own' 只看自己，'all' 查看账本内所有（需是 Owner） */
-  view?: 'own' | 'all'
-  bookId?: string
-  page?: number
-  pageSize?: number
-  sortBy?: 'amount' | 'date'
-  sortOrder?: 'asc' | 'desc'
-  search?: string
-  min_amount?: number
-  max_amount?: number
-  date_from?: string
-  date_to?: string
-}
-
-export interface PaginatedResponse<T> {
-  data: T[]
-  total: number
-  page: number
-  pageSize: number
-}
-
-export interface UserProfile {
-  id: string
-  email: string
-  username: string
-  avatar_url?: string
-  role?: 'user' | 'admin'
-  status?: 'active' | 'suspended' | 'deleted'
-  current_book_id?: string
-  created_at: string
-}
-
-/** 双 Token：访问令牌（短，请求携带）+ 刷新令牌（长，仅用于换发） */
-export interface TokenPair {
-  accessToken: string
-  refreshToken: string
-}
-
-interface ApiEnvelope<T> {
-  success: true
-  message: string
-  data: T
-}
-
-interface ApiErrorPayload {
-  success?: false
-  message?: string
-  statusCode?: number
-  code?: string
-}
 
 export class ApiError extends Error {
   statusCode: number
@@ -193,10 +133,14 @@ const handleUnauthorized = (notifyOnError: boolean): void => {
 
 const parseErrorPayload = async (response: Response): Promise<ApiErrorPayload> => {
   try {
-    return (await response.json()) as ApiErrorPayload
+    const data = await response.json()
+    if (data && typeof data.message === 'string') {
+      return data as ApiErrorPayload
+    }
   } catch {
-    return {}
+    // 解析失败，返回默认错误
   }
+  return { message: response.statusText || '请求失败' }
 }
 
 export const request = async <T>(path: string, options: RequestOptions = {}): Promise<T> => {
@@ -564,14 +508,6 @@ export const setCurrentBook = async (bookId: string): Promise<{ book_id: string 
  * POST /api/ocr/receipt
  * 免费额度用完时后端返回 503，ApiError 会以错误通知显示
  */
-export interface OcrResult {
-  rawText: string
-  amount?: string
-  date?: string
-  type?: 'expense' | 'income'
-  note?: string
-}
-
 export const ocrReceipt = async (file: Blob): Promise<OcrResult> => {
   const formData = new FormData()
   // compressImage 输出的 Blob 可能是 image/jpeg 或 image/png，
@@ -586,13 +522,6 @@ export const ocrReceipt = async (file: Blob): Promise<OcrResult> => {
     // OCR 失败时不需要前端额外通知（后端已经有中文提示）
     notifyOnError: true,
   })
-}
-
-export interface CategorySuggestion {
-  category_id: string;
-  category_name: string;
-  icon: string;
-  confidence: number;
 }
 
 export const suggestCategory = async (params: { brand?: string; note?: string; amount?: number }): Promise<CategorySuggestion[]> => {

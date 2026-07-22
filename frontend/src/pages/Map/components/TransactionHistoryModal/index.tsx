@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import type { MerchantSummary } from '../../../../types/map';
+import type { MerchantSummary } from '@family-bookkeeping/shared-types'
 import { formatAmountWithType } from '../../../../utils/common';
 import { useCategoryLookup } from '../../../../hooks/useCategories';
 import { fetchMerchantTransactions } from '../../../../services/mapApi';

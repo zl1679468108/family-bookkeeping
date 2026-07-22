@@ -1,7 +1,7 @@
 import { useMemo, useCallback } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { fetchCategories } from '../services/categoriesApi'
-import type { Category } from '../types/category'
+import type { Category } from '@family-bookkeeping/shared-types'
 import { renderCategoryIcon } from '../utils/renderCategoryIcon'
 
 /**

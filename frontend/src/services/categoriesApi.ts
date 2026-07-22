@@ -8,7 +8,7 @@ import type {
   Category,
   CreateCategoryInput,
   UpdateCategoryInput,
-} from '../types/category';
+} from '@family-bookkeeping/shared-types';
 
 /**
  * 获取分类列表

@@ -97,6 +97,11 @@
   grid-template-columns: 1.5fr 1fr;
   gap: 14px;
   margin-bottom: 14px;
+  min-height: 320px;
+}
+
+.dash-grid > .dash-card {
+  min-height: 320px;
 }
 
 .dash-card {

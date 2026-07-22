@@ -1,0 +1,153 @@
+- generic [ref=e577]:
+  - complementary [ref=e578]:
+    - generic [ref=e579]:
+      - generic [ref=e580]: 静
+      - generic [ref=e581]: 静记
+    - button "折叠" [ref=e582] [cursor=pointer]:
+      - img [ref=e583]
+    - navigation [ref=e585]:
+      - generic [ref=e586]: 主菜单
+      - button "首页" [ref=e587] [cursor=pointer]:
+        - img [ref=e589]
+        - generic [ref=e594]: 首页
+      - button "流水" [ref=e595] [cursor=pointer]:
+        - img [ref=e597]
+        - generic [ref=e598]: 流水
+      - button "记一笔" [ref=e599] [cursor=pointer]:
+        - img [ref=e601]
+        - generic [ref=e602]: 记一笔
+      - button "报表" [ref=e603] [cursor=pointer]:
+        - img [ref=e605]
+        - generic [ref=e608]: 报表
+      - button "日历" [ref=e609] [cursor=pointer]:
+        - img [ref=e611]
+        - generic [ref=e613]: 日历
+      - button "地图" [ref=e614] [cursor=pointer]:
+        - img [ref=e616]
+        - generic [ref=e618]: 地图
+      - button "年报" [ref=e619] [cursor=pointer]:
+        - img [ref=e621]
+        - generic [ref=e624]: 年报
+      - generic [ref=e625]: 更多
+      - button "账本" [ref=e626] [cursor=pointer]:
+        - img [ref=e628]
+        - generic [ref=e631]: 账本
+      - button "分类" [ref=e632] [cursor=pointer]:
+        - img [ref=e634]
+        - generic [ref=e637]: 分类
+      - button "模板" [ref=e638] [cursor=pointer]:
+        - img [ref=e640]
+        - generic [ref=e642]: 模板
+      - button "预算" [ref=e643] [cursor=pointer]:
+        - img [ref=e645]
+        - generic [ref=e648]: 预算
+      - generic [ref=e649]: 管理后台
+      - button "数据看板" [ref=e650] [cursor=pointer]:
+        - img [ref=e652]
+        - generic [ref=e657]: 数据看板
+      - button "用户管理" [active] [ref=e658] [cursor=pointer]:
+        - img [ref=e660]
+        - generic [ref=e663]: 用户管理
+      - button "交易监控" [ref=e664] [cursor=pointer]:
+        - img [ref=e666]
+        - generic [ref=e667]: 交易监控
+    - button "zhaolong" [ref=e669] [cursor=pointer]:
+      - generic [ref=e671]: zhaolong
+      - img [ref=e672]
+  - main [ref=e674]:
+    - generic [ref=e2008]:
+      - generic [ref=e2010]:
+        - button "全部角色 ▾" [ref=e2012] [cursor=pointer]:
+          - generic [ref=e2013]: 全部角色
+          - generic [ref=e2014]: ▾
+        - button "全部状态 ▾" [ref=e2016] [cursor=pointer]:
+          - generic [ref=e2017]: 全部状态
+          - generic [ref=e2018]: ▾
+        - generic [ref=e2019]:
+          - img [ref=e2021]
+          - textbox "搜索用户名/邮箱..." [ref=e2024]
+      - generic [ref=e2025]:
+        - table [ref=e2027]:
+          - rowgroup [ref=e2028]:
+            - row "ID 头像 用户名 邮箱 角色 状态 注册时间 操作" [ref=e2029]:
+              - columnheader "ID" [ref=e2030]
+              - columnheader "头像" [ref=e2031]
+              - columnheader "用户名" [ref=e2032]
+              - columnheader "邮箱" [ref=e2033]
+              - columnheader "角色" [ref=e2034]
+              - columnheader "状态" [ref=e2035]
+              - columnheader "注册时间" [ref=e2036]
+              - columnheader "操作" [ref=e2037]
+          - rowgroup [ref=e2038]:
+            - row "ec0bae49-69c2-496f-bc1e-2ffa4826e66b 无 AutoTester test-auto-1784484251@test.com 普通用户 正常 2026/7/20 02:04:14 升级 停用" [ref=e2039] [cursor=pointer]:
+              - cell "ec0bae49-69c2-496f-bc1e-2ffa4826e66b" [ref=e2040]
+              - cell "无" [ref=e2041]
+              - cell "AutoTester" [ref=e2042]
+              - cell "test-auto-1784484251@test.com" [ref=e2043]
+              - cell "普通用户" [ref=e2044]:
+                - generic [ref=e2045]: 普通用户
+              - cell "正常" [ref=e2046]
+              - cell "2026/7/20 02:04:14" [ref=e2047]
+              - cell "升级 停用" [ref=e2048]:
+                - generic [ref=e2049]:
+                  - button "升级" [ref=e2050]:
+                    - generic [ref=e2051]: 升级
+                  - button "停用" [ref=e2052]:
+                    - generic [ref=e2053]: 停用
+            - row "20410094-837b-478f-8730-6e88fe531673 无 test123 test123@qq.com 普通用户 正常 2026/6/13 04:09:35 升级 停用" [ref=e2054] [cursor=pointer]:
+              - cell "20410094-837b-478f-8730-6e88fe531673" [ref=e2055]
+              - cell "无" [ref=e2056]
+              - cell "test123" [ref=e2057]
+              - cell "test123@qq.com" [ref=e2058]
+              - cell "普通用户" [ref=e2059]:
+                - generic [ref=e2060]: 普通用户
+              - cell "正常" [ref=e2061]
+              - cell "2026/6/13 04:09:35" [ref=e2062]
+              - cell "升级 停用" [ref=e2063]:
+                - generic [ref=e2064]:
+                  - button "升级" [ref=e2065]:
+                    - generic [ref=e2066]: 升级
+                  - button "停用" [ref=e2067]:
+                    - generic [ref=e2068]: 停用
+            - row "11b86e05-2fe6-486e-bd48-f1c1d7b5fc76 无 wtt11 2029390286@qq.com 管理员 正常 2026/5/28 23:10:17 降级 停用" [ref=e2069] [cursor=pointer]:
+              - cell "11b86e05-2fe6-486e-bd48-f1c1d7b5fc76" [ref=e2070]
+              - cell "无" [ref=e2071]
+              - cell "wtt11" [ref=e2072]
+              - cell "2029390286@qq.com" [ref=e2073]
+              - cell "管理员" [ref=e2074]:
+                - generic [ref=e2075]: 管理员
+              - cell "正常" [ref=e2076]
+              - cell "2026/5/28 23:10:17" [ref=e2077]
+              - cell "降级 停用" [ref=e2078]:
+                - generic [ref=e2079]:
+                  - button "降级" [ref=e2080]:
+                    - generic [ref=e2081]: 降级
+                  - button "停用" [ref=e2082]:
+                    - generic [ref=e2083]: 停用
+            - row "c89269e8-4773-40c2-b977-01d41e382d51 zhaolong zhaolong 1679468108@qq.com 管理员 正常 2026/5/22 15:23:19 降级 停用" [ref=e2084] [cursor=pointer]:
+              - cell "c89269e8-4773-40c2-b977-01d41e382d51" [ref=e2085]
+              - cell "zhaolong" [ref=e2086]:
+                - img "zhaolong" [ref=e2087]
+              - cell "zhaolong" [ref=e2088]
+              - cell "1679468108@qq.com" [ref=e2089]
+              - cell "管理员" [ref=e2090]:
+                - generic [ref=e2091]: 管理员
+              - cell "正常" [ref=e2092]
+              - cell "2026/5/22 15:23:19" [ref=e2093]
+              - cell "降级 停用" [ref=e2094]:
+                - generic [ref=e2095]:
+                  - button "降级" [ref=e2096]:
+                    - generic [ref=e2097]: 降级
+                  - button "停用" [ref=e2098]:
+                    - generic [ref=e2099]: 停用
+        - generic [ref=e2100]:
+          - text: 共 4 条
+          - generic [ref=e2101]:
+            - button "上一页" [disabled] [ref=e2102]
+            - generic [ref=e2103]: 第 1 / 1 页
+            - button "下一页" [disabled] [ref=e2104]
+            - generic [ref=e2105]:
+              - generic [ref=e2106]: 每页
+              - button "20 条/页 ▾" [ref=e2108] [cursor=pointer]:
+                - generic [ref=e2109]: 20 条/页
+                - generic [ref=e2110]: ▾

@@ -6,7 +6,7 @@ import type {
   MapMember,
   MemberLocation,
   LocationUpdateRequest,
-} from '../types/map';
+} from '@family-bookkeeping/shared-types';
 
 /**
  * 获取带位置信息的交易列表（P1 扩展：支持 memberIds 多成员筛选）

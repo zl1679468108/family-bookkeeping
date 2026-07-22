@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { Button } from '../../../../components/ui/Button';
 import { GlobalModal } from '../../../../components/GlobalModal';
-import type { LocationResult } from '../../../../types/map';
+import type { LocationResult } from '@family-bookkeeping/shared-types'
 import { useMapInstance } from '../../../../hooks/useMapInstance';
 import { AmapManager } from '../../../../services/amapManager';
 import './index.scss';

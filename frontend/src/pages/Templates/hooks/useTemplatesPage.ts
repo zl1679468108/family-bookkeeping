@@ -5,8 +5,8 @@ import { useCategories } from '../../../hooks/useCategories'
 import { useSort } from '../../../hooks/useSort'
 import { useMutationAction } from '../../../hooks/useMutationAction'
 import { notify } from '../../../utils/notifications'
-import type { CreateTemplateInput } from '../../../types/template'
-import type { LocationResult } from '../../../types/map'
+import type { CreateTemplateInput } from '@family-bookkeeping/shared-types';
+import type { LocationResult } from '@family-bookkeeping/shared-types'
 
 export function useTemplatesPage() {
   const queryClient = useQueryClient()

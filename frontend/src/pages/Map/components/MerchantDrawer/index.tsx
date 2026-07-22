@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import type { MerchantSummary } from '../../../../types/map';
+import type { MerchantSummary } from '@family-bookkeeping/shared-types'
 import { SearchInput } from '../../../../components/ui/Input';
 import { Skeleton } from '../../../../components/ui/Skeleton';
 import { EmptyState } from '../../../../components/ui/EmptyState';

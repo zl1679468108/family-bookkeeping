@@ -6,7 +6,7 @@ import { useCategoryLookup } from '../../../hooks/useCategories';
 import { formatAmountWithType } from '../../../utils/common';
 import { getLunarInfo, formatAmount } from '../utils/lunarUtils';
 import type { Transaction } from '../../../services/api';
-import type { DailySummaryItem } from '../../../types/statistics';
+import type { DailySummaryItem } from '@family-bookkeeping/shared-types';
 
 interface DateDetailModalProps {
   open: boolean;

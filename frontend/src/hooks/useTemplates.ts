@@ -4,7 +4,7 @@ import {
   fetchTemplates, createTemplate, updateTemplate,
   deleteTemplate, executeTemplate, reorderTemplates, executeRecurring,
 } from '../services/templatesApi'
-import type { CreateTemplateInput, ExecuteTemplateInput, ReorderInput } from '../types/template'
+import type { CreateTemplateInput, ExecuteTemplateInput, ReorderInput } from '@family-bookkeeping/shared-types'
 
 export const useTemplates = () => {
   return useQuery({ queryKey: ['templates'], queryFn: fetchTemplates })

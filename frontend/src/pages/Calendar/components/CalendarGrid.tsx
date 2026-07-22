@@ -1,7 +1,7 @@
 import React from 'react';
 import { Skeleton } from '../../../components/ui/Skeleton';
 import { getLunarInfo, formatAmount, WEEKDAY_LABELS } from '../utils/lunarUtils';
-import type { DailySummaryItem } from '../../../types/statistics';
+import type { DailySummaryItem } from '@family-bookkeeping/shared-types';
 
 interface CalendarGridProps {
   cells: (DailySummaryItem | null)[];

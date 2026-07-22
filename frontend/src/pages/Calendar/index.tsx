@@ -6,7 +6,7 @@ import { Skeleton, DropdownSelect } from '../../components/ui';
 import { CalendarGrid } from './components/CalendarGrid';
 import { DateDetailModal } from './components/DateDetailModal';
 import { daysInMonth, firstDayOfWeek, toMonthKey, generateMonthOptions } from './utils/lunarUtils';
-import type { DailySummaryItem } from '../../types/statistics';
+import type { DailySummaryItem } from '@family-bookkeeping/shared-types';
 
 const Calendar: React.FC = () => {
   const now = new Date();

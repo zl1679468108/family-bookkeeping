@@ -13,7 +13,7 @@ import { useMonthRangeOptions } from '../../hooks/useMonthRangeOptions';
 import { useBook } from '../../hooks/useBook';
 import { renderCategoryIcon } from '../../utils/renderCategoryIcon';
 import { fetchMapTransactions, fetchMerchantSummary } from '../../services/mapApi';
-import type { MapFilters, MerchantSummary } from '../../types/map';
+import type { MapFilters, MerchantSummary } from '@family-bookkeeping/shared-types'
 import { format, startOfMonth, endOfMonth } from 'date-fns';
 import './index.scss';
 
@@ -24,8 +24,6 @@ const MapPage: React.FC = () => {
   const { currentBook } = useBook();
   const bookId = currentBook?.id;
   const { members, colorMap, isMultiMember } = useMemberColors(bookId);
-
-
 
   // ---- 地图实例引用 ----
   const mapCanvasRef = useRef<MapCanvasHandle>(null);
@@ -238,7 +236,7 @@ const MapPage: React.FC = () => {
           {/* 年月选择器（与预算模块一致） */}
           <DropdownSelect
             label="月份"
-            options={monthOptions.map((o) => ({ key: o.key, label: o.label, icon: '📅' }))}
+            options={monthOptions.map((o) => ({ key: o.key, label: o.label, isHeader: o.isHeader, icon: o.isHeader ? undefined : '📅' }))}
             value={selectedMonth}
             onChange={(key) => key && setSelectedMonth(key)}
             placeholder="选择月份"

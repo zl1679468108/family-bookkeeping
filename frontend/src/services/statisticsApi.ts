@@ -15,8 +15,8 @@ import type {
   CategoryBreakdownParams,
   DailySummaryParams,
   YoYComparisonParams,
-} from '../types/statistics';
-import type { MemberComparisonItem, MemberComparisonParams } from '../types/memberComparison';
+} from '@family-bookkeeping/shared-types';
+import type { MemberComparisonItem, MemberComparisonParams } from '@family-bookkeeping/shared-types';
 
 /**
  * 获取统计概览

@@ -1,0 +1,73 @@
+- generic [ref=e577]:
+  - complementary [ref=e578]:
+    - generic [ref=e579]:
+      - generic [ref=e580]: 静
+      - generic [ref=e581]: 静记
+    - button "折叠" [ref=e582] [cursor=pointer]:
+      - img [ref=e583]
+    - navigation [ref=e585]:
+      - generic [ref=e586]: 主菜单
+      - button "首页" [ref=e587] [cursor=pointer]:
+        - img [ref=e589]
+        - generic [ref=e594]: 首页
+      - button "流水" [ref=e595] [cursor=pointer]:
+        - img [ref=e597]
+        - generic [ref=e598]: 流水
+      - button "记一笔" [ref=e599] [cursor=pointer]:
+        - img [ref=e601]
+        - generic [ref=e602]: 记一笔
+      - button "报表" [ref=e603] [cursor=pointer]:
+        - img [ref=e605]
+        - generic [ref=e608]: 报表
+      - button "日历" [ref=e609] [cursor=pointer]:
+        - img [ref=e611]
+        - generic [ref=e613]: 日历
+      - button "地图" [ref=e614] [cursor=pointer]:
+        - img [ref=e616]
+        - generic [ref=e618]: 地图
+      - button "年报" [ref=e619] [cursor=pointer]:
+        - img [ref=e621]
+        - generic [ref=e624]: 年报
+      - generic [ref=e625]: 更多
+      - button "账本" [ref=e626] [cursor=pointer]:
+        - img [ref=e628]
+        - generic [ref=e631]: 账本
+      - button "分类" [ref=e632] [cursor=pointer]:
+        - img [ref=e634]
+        - generic [ref=e637]: 分类
+      - button "模板" [ref=e638] [cursor=pointer]:
+        - img [ref=e640]
+        - generic [ref=e642]: 模板
+      - button "预算" [ref=e643] [cursor=pointer]:
+        - img [ref=e645]
+        - generic [ref=e648]: 预算
+      - generic [ref=e649]: 管理后台
+      - button "数据看板" [ref=e650] [cursor=pointer]:
+        - img [ref=e652]
+        - generic [ref=e657]: 数据看板
+      - button "用户管理" [ref=e658] [cursor=pointer]:
+        - img [ref=e660]
+        - generic [ref=e663]: 用户管理
+      - button "交易监控" [ref=e664] [cursor=pointer]:
+        - img [ref=e666]
+        - generic [ref=e667]: 交易监控
+    - button "zhaolong" [ref=e669] [cursor=pointer]:
+      - generic [ref=e671]: zhaolong
+      - img [ref=e672]
+  - main [ref=e674]:
+    - generic [ref=e2554]:
+      - generic [ref=e2555]:
+        - generic [ref=e2556] [cursor=pointer]:
+          - img "头像" [ref=e2557]
+          - generic [ref=e2559]: 更换
+        - paragraph [ref=e2560]: 点击上传头像，建议使用正方形图片
+      - generic [ref=e2562]:
+        - generic [ref=e2563]:
+          - generic [ref=e2564]: "*用户名"
+          - textbox "请输入用户名" [ref=e2565]: zhaolong
+        - generic [ref=e2566]:
+          - generic [ref=e2567]: "*邮箱"
+          - textbox "请输入邮箱" [ref=e2568]: 1679468108@qq.com
+        - generic [ref=e2569]:
+          - button "修改密码" [ref=e2570] [cursor=pointer]
+          - button "更新信息" [ref=e2571] [cursor=pointer]

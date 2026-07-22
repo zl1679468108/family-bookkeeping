@@ -3,7 +3,7 @@ import { format } from 'date-fns'
 import { GlobalModal, DetailItem, Space } from '../../../components/ui'
 import { Button } from '../../../components/ui/Button'
 import { renderCategoryIcon } from '../../../utils/renderCategoryIcon'
-import type { Category } from '../../../types/category'
+import type { Category } from '@family-bookkeeping/shared-types'
 
 interface CategoryDetailModalProps {
   selectedCategory: Category | null

@@ -11,8 +11,8 @@ import { useDebouncedAction } from '../../../hooks/useDebouncedAction'
 import { notify } from '../../../utils/notifications'
 import { parseImageList } from '../../../utils/parseImageList'
 import { compressImage } from '../../../utils/imageCompress'
-import type { LocationResult } from '../../../types/map'
-import type { Template } from '../../../types/template'
+import type { LocationResult } from '@family-bookkeeping/shared-types'
+import type { Template } from '@family-bookkeeping/shared-types'
 
 export const MAX_NOTE_LENGTH = 500
 export const MAX_IMAGES = 10

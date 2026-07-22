@@ -1,5 +1,5 @@
 import { request } from './api';
-import type { Book } from '../hooks/useBook';
+import type { Book } from '@family-bookkeeping/shared-types';
 
 /** 获取当前用户的账本列表 */
 export const fetchBooks = async (): Promise<Book[]> => {

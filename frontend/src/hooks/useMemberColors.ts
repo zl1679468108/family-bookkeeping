@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { fetchBookMembers } from '../services/mapApi';
-import type { MapMember } from '../types/map';
+import type { MapMember } from '@family-bookkeeping/shared-types'
 
 /**
  * useMemberColors — 获取账本成员列表并构建 userId → color 映射。

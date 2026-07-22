@@ -87,12 +87,12 @@ class AmapManager {
     if (this.loaded) return;
     if (this.loadingPromise) return this.loadingPromise;
 
-    const key = process.env.REACT_APP_AMAP_KEY ?? '';
+    const key = import.meta.env.VITE_AMAP_KEY ?? '';
 
     this.loadingPromise = new Promise<void>((resolve, reject) => {
       try {
         // Security config MUST be set before the SDK script loads
-        const scode = process.env.REACT_APP_AMAP_SECRET;
+        const scode = import.meta.env.VITE_AMAP_SECRET;
         if (scode && typeof window !== 'undefined') {
           (window as any)._AMapSecurityConfig = { securityJsCode: scode };
         }
