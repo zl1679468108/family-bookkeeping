@@ -121,6 +121,12 @@
 - **平台上架配置（用户操作）**：D1 域名 / D2 类目 / D3 隐私指引 / E1 审核备注 / E2 全量回归 — 见上架清单
 
 
+### ✅ 已完成（2026-07-23 图标与按钮收口）
+
+- **Icon 体系**：支持 `color` + CSS mask 动态着色；导出 `ICON_COLOR`；TabBar 单资源着色（去掉双套 Image）
+- **MenuList**：danger 用 danger 色，默认 primary 着色
+- **手写按钮收口**：登录/注册/忘记密码/Onboarding/账本顶栏/Profile 弹窗/分类预算模板详情与表单脚、编辑资料密码弹窗 → `Button`
+
 ### ✅ 已完成（2026-07-23 UI 体验二轮）
 
 - **骨架屏统一**：`PageContainer/PageLayout` 支持 `loadingVariant=list|cards|home|overlay`；首页/流水/账本/分类/模板/预算/成员改用骨架

@@ -414,15 +414,12 @@ export default function BudgetsPage() {
           onClose={closeDetail}
           footer={
             <View className="bgds-footer">
-              <View className="bgds-btn bgds-btn--edit" onClick={handleDetailEdit}>
-                <Text>编辑预算</Text>
-              </View>
-              <View
-                className="bgds-btn bgds-btn--delete"
-                onClick={() => setShowDeleteConfirm(true)}
-              >
-                <Text>删除预算</Text>
-              </View>
+              <Button variant="secondary" size="md" onClick={handleDetailEdit}>
+                编辑预算
+              </Button>
+              <Button variant="danger" size="md" onClick={() => setShowDeleteConfirm(true)}>
+                删除预算
+              </Button>
             </View>
           }
         >
@@ -497,12 +494,9 @@ export default function BudgetsPage() {
           onClose={closeEditForm}
           footer={
             <View className="bgfs-footer">
-              <Text
-                className="bgfs-footer-btn"
-                onClick={handleEditFormSubmit}
-              >
+              <Button variant="primary" block size="md" onClick={handleEditFormSubmit}>
                 保存
-              </Text>
+              </Button>
             </View>
           }
         >

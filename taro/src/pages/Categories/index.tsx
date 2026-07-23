@@ -386,15 +386,12 @@ export default function CategoriesPage() {
           footer={
             !detailCat.is_default ? (
               <View className="catds-footer">
-                <View className="catds-btn catds-btn--edit" onClick={handleDetailEdit}>
-                  <Text>编辑</Text>
-                </View>
-                <View
-                  className="catds-btn catds-btn--delete"
-                  onClick={handleDetailDelete}
-                >
-                  <Text>删除</Text>
-                </View>
+                <Button variant="secondary" size="md" onClick={handleDetailEdit}>
+                  编辑
+                </Button>
+                <Button variant="danger" size="md" onClick={handleDetailDelete}>
+                  删除
+                </Button>
               </View>
             ) : null
           }
@@ -470,12 +467,9 @@ export default function CategoriesPage() {
           onClose={closeForm}
           footer={
             <View className="catfs-footer">
-              <Text
-                className="catfs-footer-btn"
-                onClick={handleFormSubmit}
-              >
+              <Button variant="primary" block size="md" onClick={handleFormSubmit}>
                 确认
-              </Text>
+              </Button>
             </View>
           }
         >

@@ -288,18 +288,12 @@ export default function EditProfile() {
             </View>
 
             <View className="pwd-actions">
-              <View
-                className="pwd-btn pwd-cancel"
-                onClick={closeChangePwd}
-              >
-                <Text>取消</Text>
-              </View>
-              <View
-                className="pwd-btn pwd-ok"
-                onClick={handleChangePwd}
-              >
-                <Text>确认</Text>
-              </View>
+              <Button variant="ghost" size="md" onClick={closeChangePwd}>
+                取消
+              </Button>
+              <Button variant="primary" size="md" onClick={handleChangePwd}>
+                确认
+              </Button>
             </View>
           </View>
         </View>

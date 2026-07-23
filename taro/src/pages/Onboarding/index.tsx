@@ -7,6 +7,7 @@
  */
 import { useState } from "react";
 import { View, Text, Input, Image } from "@tarojs/components";
+import { Button } from "../../components/ui";
 import Taro from "@tarojs/taro";
 import { createBook, joinByInvitation } from "../../services/booksApi";
 import { useBookContext } from "../../context/BookContext";
@@ -183,12 +184,9 @@ export default function Onboarding() {
             })}
           </View>
 
-          <View
-            className="ob-submit"
-            onClick={handleCreate}
-          >
-            <Text>创建账本</Text>
-          </View>
+          <Button variant="primary" block size="lg" onClick={handleCreate}>
+            创建账本
+          </Button>
         </View>
       )}
 
@@ -217,12 +215,9 @@ export default function Onboarding() {
             邀请码获取方式：由账主在「账本详情 → 生成邀请码」中生成，有效期为 7 天。
           </Text>
 
-          <View
-            className="ob-submit"
-            onClick={handleJoin}
-          >
-            <Text>加入账本</Text>
-          </View>
+          <Button variant="primary" block size="lg" onClick={handleJoin}>
+            加入账本
+          </Button>
         </View>
       )}
     </View>

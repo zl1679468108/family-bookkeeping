@@ -3,7 +3,7 @@
  */
 import { ReactNode } from "react";
 import { View, Text } from "@tarojs/components";
-import Icon, { IconName } from "../../Icon";
+import Icon, { IconName, ICON_COLOR } from "../../Icon";
 import "./index.scss";
 
 export interface MenuListItem {
@@ -31,7 +31,7 @@ export default function MenuList({ items, className = "" }: MenuListProps) {
         >
           {item.icon ? (
             <View className="menu-list__icon">
-              <Icon name={item.icon} size={48} />
+              <Icon name={item.icon} size={48} color={item.danger ? ICON_COLOR.danger : ICON_COLOR.primary} />
             </View>
           ) : null}
           <Text className="menu-list__label">{item.label}</Text>

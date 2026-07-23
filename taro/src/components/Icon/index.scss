@@ -1,0 +1,18 @@
+.ui-icon {
+  flex-shrink: 0;
+}
+
+/* mask 着色：SVG 的不透明描边作为遮罩，backgroundColor 即图标色 */
+.ui-icon--mask {
+  display: inline-block;
+  flex-shrink: 0;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+}

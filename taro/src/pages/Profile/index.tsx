@@ -4,7 +4,8 @@
  * （个人信息入口 = 顶部 Header 卡片点击）
  */
 import { useState, useEffect } from "react";
-import { View, Text, Image, Input, Button } from "@tarojs/components";
+import { View, Text, Image, Input, Button as WxButton } from "@tarojs/components";
+import { Button } from "../../components/ui";
 import Taro from "@tarojs/taro";
 import { useAuth } from "../../context/AuthContext";
 import { useTheme } from "../../context/ThemeContext";
@@ -247,7 +248,7 @@ export default function Profile() {
       />
 
       {/* ===== 联系客服（微信原生 Button openType=contact） ===== */}
-      <Button
+      <WxButton
         className="contact-btn"
         openType="contact"
         sessionFrom="profile"
@@ -256,12 +257,12 @@ export default function Profile() {
       >
         <View className="contact-btn__inner">
           <View className="contact-btn__icon">
-            <Icon name="email" size={48} />
+            <Icon name="email" size={48} color="var(--pr)" />
           </View>
           <Text className="contact-btn__label">联系客服</Text>
           <Text className="contact-btn__arrow">›</Text>
         </View>
-      </Button>
+      </WxButton>
 
       {/* ===== 退出确认弹窗 ===== */}
       {logoutConfirm && (
@@ -270,15 +271,12 @@ export default function Profile() {
             <Text className="logout-title">确认退出</Text>
             <Text className="logout-desc">确定要退出当前账号吗？</Text>
             <View className="logout-actions">
-              <View
-                className="logout-btn logout-cancel"
-                onClick={() => setLogoutConfirm(false)}
-              >
-                <Text>取消</Text>
-              </View>
-              <View className="logout-btn logout-ok" onClick={handleLogout}>
-                <Text>退出</Text>
-              </View>
+              <Button variant="ghost" size="md" onClick={() => setLogoutConfirm(false)}>
+                取消
+              </Button>
+              <Button variant="danger" size="md" onClick={handleLogout}>
+                退出
+              </Button>
             </View>
           </View>
         </View>
@@ -309,18 +307,22 @@ export default function Profile() {
               <Text className="deactivate-error">{deactivateError}</Text>
             ) : null}
             <View className="deactivate-actions">
-              <View
-                className={`deactivate-btn deactivate-cancel ${deactivateLoading ? "disabled" : ""}`}
+              <Button
+                variant="ghost"
+                size="md"
+                disabled={deactivateLoading}
                 onClick={() => !deactivateLoading && setDeactivateModal(false)}
               >
-                <Text>取消</Text>
-              </View>
-              <View
-                className={`deactivate-btn deactivate-ok ${deactivateLoading ? "loading" : ""}`}
+                取消
+              </Button>
+              <Button
+                variant="danger"
+                size="md"
+                loading={deactivateLoading}
                 onClick={() => !deactivateLoading && handleConfirmDeactivate()}
               >
-                <Text>{deactivateLoading ? "注销中..." : "确认注销"}</Text>
-              </View>
+                {deactivateLoading ? "注销中..." : "确认注销"}
+              </Button>
             </View>
           </View>
         </View>
@@ -378,12 +380,13 @@ export default function Profile() {
                   </View>
                 )}
 
-                <View
-                  className="switch-add-btn"
+                <Button
+                  variant="outline"
+                  size="sm"
                   onClick={() => { setShowLoginForm(true); setLoginEmail(""); setLoginPassword(""); setLoginError(""); }}
                 >
-                  <Text className="switch-add-btn-text">+ 添加账号</Text>
-                </View>
+                  + 添加账号
+                </Button>
               </>
             ) : (
               <>
@@ -432,18 +435,21 @@ export default function Profile() {
                     <Text className="switch-login-error">{loginError}</Text>
                   ) : null}
                   <View className="switch-login-actions">
-                    <View
-                      className="switch-login-btn switch-login-cancel"
+                    <Button
+                      variant="ghost"
+                      size="md"
                       onClick={() => { setShowLoginForm(false); setLoginError(""); setTokenExpiredEmail(null); }}
                     >
-                      <Text>返回</Text>
-                    </View>
-                    <View
-                      className={`switch-login-btn switch-login-ok${loginLoading ? " loading" : ""}`}
+                      返回
+                    </Button>
+                    <Button
+                      variant="primary"
+                      size="md"
+                      loading={loginLoading}
                       onClick={() => !loginLoading && handleLogin()}
                     >
-                      <Text>{loginLoading ? "登录中..." : "登录"}</Text>
-                    </View>
+                      {loginLoading ? "登录中..." : "登录"}
+                    </Button>
                   </View>
                 </View>
               </>

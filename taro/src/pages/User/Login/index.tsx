@@ -3,6 +3,7 @@
  */
 import { useState, useEffect, useRef } from "react";
 import { View, Text, Input, Image } from "@tarojs/components";
+import { Button } from "../../../components/ui";
 import Taro from "@tarojs/taro";
 import { useAuth } from "../../../context/AuthContext";
 import { useTheme } from "../../../context/ThemeContext";
@@ -136,9 +137,9 @@ export default function Login() {
 
         {error ? <Text className="login-error">{error}</Text> : null}
 
-        <View className="login-submit" onClick={handleSubmit}>
-          <Text>登录</Text>
-        </View>
+        <Button variant="primary" block size="lg" className="login-submit" onClick={handleSubmit}>
+          登录
+        </Button>
 
         <View className="login-links">
           <Text

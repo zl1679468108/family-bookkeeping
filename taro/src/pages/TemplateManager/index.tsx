@@ -404,18 +404,18 @@ export default function TemplateManager() {
           bodyClassName="tpl-detail-pad"
           footer={
             <View className="tpl-detail-footer">
-              <View className="tpl-detail-btn tpl-detail-btn--execute" onClick={() => selectedTemplate && handleExecute(selectedTemplate)}>
-                <Text>执行</Text>
-              </View>
-              <View className="tpl-detail-btn tpl-detail-btn--edit" onClick={handleEditFromDetail}>
-                <Text>编辑</Text>
-              </View>
-              <View className="tpl-detail-btn tpl-detail-btn--copy" onClick={handleCopyFromDetail}>
-                <Text>复制</Text>
-              </View>
-              <View className="tpl-detail-btn tpl-detail-btn--delete" onClick={handleDeleteFromDetail}>
-                <Text>删除</Text>
-              </View>
+              <Button variant="primary" size="sm" onClick={() => selectedTemplate && handleExecute(selectedTemplate)}>
+                执行
+              </Button>
+              <Button variant="secondary" size="sm" onClick={handleEditFromDetail}>
+                编辑
+              </Button>
+              <Button variant="outline" size="sm" onClick={handleCopyFromDetail}>
+                复制
+              </Button>
+              <Button variant="danger" size="sm" onClick={handleDeleteFromDetail}>
+                删除
+              </Button>
             </View>
           }
         >
@@ -537,12 +537,7 @@ export default function TemplateManager() {
           bodyClassName="tpl-form-pad"
           footer={
             <View className="tpl-form-footer tpl-form-footer--single">
-              <View
-              className="tpl-form-btn tpl-form-btn--submit"
-              onClick={handleFormSave}
-            >
-              <Text>{editingId ? "更新" : "创建"}</Text>
-            </View>
+              <Button variant="primary" block size="md" onClick={handleFormSave}>{editingId ? "更新" : "创建"}</Button>
             </View>
           }
         >

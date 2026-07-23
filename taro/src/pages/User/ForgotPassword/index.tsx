@@ -3,6 +3,7 @@
  */
 import { useState, useEffect, useCallback, useRef } from "react";
 import { View, Text, Input } from "@tarojs/components";
+import { Button } from "../../../components/ui";
 import Taro from "@tarojs/taro";
 import { sendResetCode, resetPasswordByCode } from "../../../services/authApi";
 import { useTheme } from "../../../context/ThemeContext";
@@ -157,9 +158,9 @@ export default function ForgotPassword() {
 
             {error ? <Text className="forgot-error">{error}</Text> : null}
 
-            <View className="forgot-submit" onClick={handleSendCode}>
-              <Text>发送验证码</Text>
-            </View>
+            <Button variant="primary" block size="lg" className="forgot-submit" onClick={handleSendCode}>
+              发送验证码
+            </Button>
 
             <View className="forgot-back" onClick={handleGoBack}>
               <Text className="link-muted">← 返回登录</Text>
@@ -188,12 +189,14 @@ export default function ForgotPassword() {
                   maxlength={6}
                   type="number"
                 />
-                <View
-                  className={`forgot-code-btn ${countdown > 0 ? "disabled" : ""}`}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={countdown > 0}
                   onClick={() => countdown === 0 && handleResendCode()}
                 >
-                  <Text>{countdown > 0 ? `${countdown}s` : "重新发送"}</Text>
-                </View>
+                  {countdown > 0 ? `${countdown}s` : "重新发送"}
+                </Button>
               </View>
             </View>
 
@@ -224,12 +227,9 @@ export default function ForgotPassword() {
 
             {error ? <Text className="forgot-error">{error}</Text> : null}
 
-            <View
-              className="forgot-submit"
-              onClick={handleReset}
-            >
-              <Text>重置密码</Text>
-            </View>
+            <Button variant="primary" block size="lg" className="forgot-submit" onClick={handleReset}>
+              重置密码
+            </Button>
 
             <View className="forgot-back" onClick={handleGoBack}>
               <Text className="link-muted">← 返回</Text>
@@ -244,12 +244,15 @@ export default function ForgotPassword() {
               <Text className="forgot-success-title">密码已重置</Text>
               <Text className="forgot-success-desc">请用新密码登录账户</Text>
             </View>
-            <View
+            <Button
+              variant="primary"
+              block
+              size="lg"
               className="forgot-submit"
               onClick={() => Taro.navigateTo({ url: "/pages/User/Login/index" })}
             >
-              <Text>返回登录</Text>
-            </View>
+              返回登录
+            </Button>
           </View>
         )}
       </View>

@@ -3,6 +3,7 @@
  */
 import { useState } from "react";
 import { View, Text, Input } from "@tarojs/components";
+import { Button } from "../../../components/ui";
 import Taro from "@tarojs/taro";
 import { useAuth } from "../../../context/AuthContext";
 import { useTheme } from "../../../context/ThemeContext";
@@ -145,9 +146,9 @@ export default function Register() {
           </Text>
         </View>
 
-        <View className="register-submit" onClick={handleSubmit}>
-          <Text>注册</Text>
-        </View>
+        <Button variant="primary" block size="lg" className="register-submit" onClick={handleSubmit}>
+          注册
+        </Button>
 
         <View className="register-footer">
           <Text

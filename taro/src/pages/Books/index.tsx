@@ -7,7 +7,7 @@ import { useState, useCallback, useMemo, useEffect, useRef } from "react";
 import { View, Text, Input, Image } from "@tarojs/components";
 import Taro, { useDidShow } from "@tarojs/taro";
 import PageContainer from "../../components/PageContainer";
-import { EmptyState } from "../../components/ui";
+import { Button, EmptyState } from "../../components/ui";
 import ConfirmDialog from "../../components/ConfirmDialog";
 import SheetHeader from "../../components/SheetHeader";
 import {
@@ -294,12 +294,12 @@ export default function BooksPage() {
       <View className="bk-page-header">
         <View /> {/* 左侧占位 */}
         <View className="bk-page-actions">
-          <View className="bk-page-btn bk-page-btn--outline" onClick={() => setShowJoinSheet(true)}>
-            <Text>使用邀请码加入</Text>
-          </View>
-          <View className="bk-page-btn bk-page-btn--primary" onClick={handleAdd}>
-            <Text>+ 新建账本</Text>
-          </View>
+          <Button variant="outline" size="sm" onClick={() => setShowJoinSheet(true)}>
+            使用邀请码加入
+          </Button>
+          <Button variant="primary" size="sm" onClick={handleAdd}>
+            + 新建账本
+          </Button>
         </View>
       </View>
 
