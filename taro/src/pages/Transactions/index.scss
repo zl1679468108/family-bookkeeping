@@ -11,7 +11,7 @@
 
   &.scrolled {
     box-shadow: 0 4rpx 14rpx rgba(0, 0, 0, 0.08);
-    background-color: var(--bg, #f6f7f4);
+    background-color: var(--bg, var(--bg));
   }
 }
 
@@ -35,14 +35,14 @@
   height: 72rpx;
   padding: 0 56rpx 0 28rpx;
   font-size: 26rpx;
-  color: var(--fg, #1a1c19);
+  color: var(--fg, var(--fg));
   background-color: transparent;
   border-radius: 22rpx;
-  border: 2rpx solid var(--bdL, #edeee9);
+  border: 2rpx solid var(--bdL, var(--bdL));
   transition: border-color 0.2s ease;
 
   &:focus {
-    border-color: var(--primary, #2D9D8A);
+    border-color: var(--primary, var(--pr));
   }
 }
 
@@ -54,7 +54,7 @@
   line-height: 36rpx;
   text-align: center;
   font-size: 22rpx;
-  color: var(--fg-3, #8b8e89);
+  color: var(--fg-3, var(--fg3));
   background-color: var(--border-light, #f0f1ee);
   border-radius: 50%;
 }
@@ -87,7 +87,7 @@
 .picker-chip-text {
   font-size: 25rpx;
   font-weight: 600;
-  color: var(--fg, #1a1c19);
+  color: var(--fg, var(--fg));
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -95,7 +95,7 @@
 
 .picker-arrow {
   font-size: 18rpx;
-  color: var(--fg-3, #8b8e89);
+  color: var(--fg-3, var(--fg3));
   flex-shrink: 0;
 }
 
@@ -109,7 +109,7 @@
 
 .stats-text {
   font-size: 22rpx;
-  color: var(--fg-3, #8b8e89);
+  color: var(--fg-3, var(--fg3));
   font-weight: 500;
   letter-spacing: 0.5rpx;
 }
@@ -137,12 +137,12 @@
 .date-label {
   font-size: 28rpx;
   font-weight: 700;
-  color: var(--fg, #1a1c19);
+  color: var(--fg, var(--fg));
 }
 
 .date-full {
   font-size: 22rpx;
-  color: var(--fg-3, #8b8e89);
+  color: var(--fg-3, var(--fg3));
   font-weight: 500;
 }
 

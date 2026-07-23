@@ -17,7 +17,7 @@
 }
 
 .ft-tab--active {
-  background: #ffffff;
+  background: var(--srf);
   box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.06);
 }
 
@@ -32,5 +32,5 @@
 }
 
 .ft-tab--active.ft-tab--income .ft-tab-text {
-  color: #2d9d8a;
+  color: var(--pr);
 }

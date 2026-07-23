@@ -21,7 +21,7 @@
   width: 72px;
   height: 72px;
   border-radius: 20px;
-  background: linear-gradient(135deg, #34b39c 0%, #2d9d8a 100%);
+  background: linear-gradient(135deg, var(--pr) 0%, var(--pr) 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -31,7 +31,7 @@
 .ob-logo-text {
   font-size: 34px;
   font-weight: 700;
-  color: #ffffff;
+  color: #fff;
   font-family: -apple-system, "PingFang SC", sans-serif;
 }
 
@@ -39,13 +39,13 @@
   margin-top: 20px;
   font-size: 24px;
   font-weight: 700;
-  color: #1a1c19;
+  color: var(--fg);
 }
 
 .ob-subtitle {
   margin-top: 10px;
   font-size: 14px;
-  color: #8b8e89;
+  color: var(--fg3);
   text-align: center;
 }
 
@@ -90,7 +90,7 @@
 .ob-opt__invite {
   font-size: 20px;
   font-weight: 700;
-  color: #2d9d8a;
+  color: var(--pr);
 }
 
 .ob-opt__text {
@@ -102,13 +102,13 @@
 .ob-opt__title {
   font-size: 16px;
   font-weight: 600;
-  color: #1a1c19;
+  color: var(--fg);
 }
 
 .ob-opt__desc {
   margin-top: 4px;
   font-size: 13px;
-  color: #8b8e89;
+  color: var(--fg3);
 }
 
 /* 表单 */
@@ -126,7 +126,7 @@
 
 .ob-nav__back {
   font-size: 15px;
-  color: #2d9d8a;
+  color: var(--pr);
   width: 56px;
 }
 
@@ -135,7 +135,7 @@
   text-align: center;
   font-size: 17px;
   font-weight: 600;
-  color: #1a1c19;
+  color: var(--fg);
 }
 
 .ob-nav__spacer {
@@ -149,7 +149,7 @@
 .ob-label {
   font-size: 13px;
   font-weight: 600;
-  color: #55585a;
+  color: var(--fg2);
   display: block;
   margin-bottom: 8px;
 }
@@ -161,9 +161,9 @@
   border-radius: 12px;
   padding: 0 16px;
   font-size: 15px;
-  color: #1a1c19;
+  color: var(--fg);
   box-sizing: border-box;
-  box-shadow: inset 0 0 0 1px #eceeea;
+  box-shadow: inset 0 0 0 1px var(--bdL);
 }
 
 .ob-input--code {
@@ -175,7 +175,7 @@
 .ob-section-label {
   font-size: 13px;
   font-weight: 600;
-  color: #55585a;
+  color: var(--fg2);
   display: block;
   margin: 8px 0 12px;
 }
@@ -195,28 +195,28 @@
   padding: 10px 0;
   border-radius: 12px;
   background: var(--surface);
-  box-shadow: inset 0 0 0 1px #eceeea;
+  box-shadow: inset 0 0 0 1px var(--bdL);
 }
 
 .ob-grid__item--selected {
   background: rgba(45, 157, 138, 0.08);
-  box-shadow: inset 0 0 0 1.5px #2d9d8a;
+  box-shadow: inset 0 0 0 1.5px var(--pr);
 }
 
 .ob-grid__label {
   margin-top: 6px;
   font-size: 10px;
-  color: #8b8e89;
+  color: var(--fg3);
 }
 
 .ob-grid__label--selected {
-  color: #2d9d8a;
+  color: var(--pr);
   font-weight: 600;
 }
 
 .ob-hint {
   font-size: 13px;
-  color: #8b8e89;
+  color: var(--fg3);
   line-height: 1.6;
   margin: 4px 0 32px;
 }
@@ -224,7 +224,7 @@
 .ob-submit {
   height: 50px;
   border-radius: 14px;
-  background: #2d9d8a;
+  background: var(--pr);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -234,7 +234,7 @@
 .ob-submit Text {
   font-size: 16px;
   font-weight: 600;
-  color: #ffffff;
+  color: #fff;
 }
 
 .ob-submit:active {

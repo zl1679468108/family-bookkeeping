@@ -3,11 +3,11 @@
 .cd-mask {
   position: fixed;
   inset: 0;
-  z-index: 999;
+  z-index: var(--z-critical, 2500);
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: rgba(0, 0, 0, 0.45);
+  background-color: var(--ov);
   animation: cdFadeIn 0.2s ease;
 }
 
@@ -19,7 +19,7 @@
 .cd-dialog {
   width: 560rpx;
   background-color: var(--surface);
-  border-radius: 24rpx;
+  border-radius: var(--rm);
   padding: 40rpx 32rpx 24rpx;
   display: flex;
   flex-direction: column;
@@ -36,14 +36,14 @@
 .cd-title {
   font-size: 32rpx;
   font-weight: 700;
-  color: #1a1c19;
+  color: var(--fg);
   margin-bottom: 16rpx;
   text-align: center;
 }
 
 .cd-message {
   font-size: 26rpx;
-  color: #8b8e89;
+  color: var(--fg3);
   text-align: center;
   margin-bottom: 32rpx;
   line-height: 1.5;
@@ -54,7 +54,7 @@
   display: flex;
   gap: 16rpx;
   padding-top: 20rpx;
-  border-top: 1rpx solid #edeee9;
+  border-top: 1rpx solid var(--bdL);
 }
 
 .cd-btn {
@@ -63,7 +63,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 16rpx;
+  border-radius: var(--rs);
   font-size: 28rpx;
   font-weight: 600;
   transition: opacity 0.15s ease, transform 0.15s ease;
@@ -74,18 +74,18 @@
 }
 
 .cd-btn--cancel {
-  background-color: #f6f7f4;
-  color: #1a1c19;
+  background-color: var(--bg);
+  color: var(--fg);
 }
 
 .cd-btn--danger {
-  background-color: #e06055;
-  color: #ffffff;
+  background-color: var(--exp);
+  color: #fff;
 }
 
 .cd-btn--primary {
-  background-color: #2d9d8a;
-  color: #ffffff;
+  background-color: var(--pr);
+  color: #fff;
 }
 
 .cd-btn--loading {
@@ -98,9 +98,9 @@
 }
 
 .cd-btn-text--cancel {
-  color: #1a1c19;
+  color: var(--fg);
 }
 
 .cd-btn-text--confirm {
-  color: #ffffff;
+  color: #fff;
 }

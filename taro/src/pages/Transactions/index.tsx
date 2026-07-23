@@ -7,7 +7,7 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import { View, Text, Input, Picker } from "@tarojs/components";
 import Taro from "@tarojs/taro";
 import PageContainer from "../../components/PageContainer";
-import { EmptyState } from "../../components/ui";
+import { EmptyState, Button } from "../../components/ui";
 import TransactionItem from "../../components/TransactionItem";
 import { getTransactions } from "../../services/transactionsApi";
 import { useCategoryLookup } from "../../hooks/useCategories";
@@ -323,7 +323,19 @@ export default function Transactions() {
         {/* 交易列表（卡片形式） */}
         <View className="txn-list">
           {txn.length === 0 ? (
-            <EmptyState title="暂无交易记录" description="调整筛选条件或新增一笔账单" />
+            <EmptyState
+              title="暂无交易记录"
+              description="调整筛选条件或新增一笔账单"
+              action={
+                <Button
+                  variant="primary"
+                  size="sm"
+                  onClick={() => Taro.navigateTo({ url: "/pages/AddTransaction/index" })}
+                >
+                  去记一笔
+                </Button>
+              }
+            />
           ) : (
             <View>
               {dates.map((date) => (

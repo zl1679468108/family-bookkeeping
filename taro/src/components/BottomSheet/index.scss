@@ -5,7 +5,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.45);
+  background-color: var(--ov);
   z-index: 1000;
   display: flex;
   align-items: flex-end;
@@ -44,7 +44,7 @@
   gap: 14rpx;
   padding: 20rpx 32rpx;
   padding-bottom: calc(20rpx + env(safe-area-inset-bottom, 0));
-  border-top: 1rpx solid var(--border-light, #edeee9);
+  border-top: 1rpx solid var(--border-light, var(--bdL));
   background-color: var(--surface, #ffffff);
 }
 
@@ -66,5 +66,5 @@
 
 .bs-sheet__loading-text {
   font-size: 26rpx;
-  color: var(--fg-3, #8b8e89);
+  color: var(--fg-3, var(--fg3));
 }

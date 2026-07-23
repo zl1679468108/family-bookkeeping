@@ -81,7 +81,7 @@ page {
   --primary-grad: var(--prGr);
   --surface:      var(--srf);
   --surface-soft: var(--srfSoft);
-  --bg-secondary: #f6f7f4;
+  --bg-secondary: var(--bg);
   --fg-2:         var(--fg2);
   --fg-3:         var(--fg3);
   --border:       var(--bd);
@@ -119,7 +119,7 @@ view, text, image, input, button, scroll-view { box-sizing: border-box; }
 /* =========================================================
    Tailwind-style utility classes
    ========================================================= */
-.bg-white { background-color: #ffffff; }
+.bg-white { background-color: var(--srf); }
 .bg-black { background-color: #000000; }
 .text-primary { color: var(--pr); }
 .text-secondary { color: var(--fg2); }
@@ -289,7 +289,7 @@ view, text, image, input, button, scroll-view { box-sizing: border-box; }
 
 /* =========================================================
    Stat Card — 结余 / 收入 / 支出
-   设计稿: border-radius 16px, border 1px #e0e2dd, padding 16px
+   设计稿: border-radius 16px, border 1px var(--bd), padding 16px
    ========================================================= */
 .stat-card {
   background-color: var(--surface-soft);
@@ -351,7 +351,7 @@ view, text, image, input, button, scroll-view { box-sizing: border-box; }
 
 /* =========================================================
    Section Card — 卡片容器（账单列表、快捷记账等）
-   设计稿: border-radius 16px, border 1px #e0e2dd, padding 16px
+   设计稿: border-radius 16px, border 1px var(--bd), padding 16px
    ========================================================= */
 .section-card {
   background-color: var(--surface-soft);
@@ -791,7 +791,7 @@ view, text, image, input, button, scroll-view { box-sizing: border-box; }
 
 /* =========================================================
    Menu Section / Menu Item — Profile 菜单项
-   设计稿: icon-wrap 32×32, 圆角 8px, 背景 #f6f7f4
+   设计稿: icon-wrap 32×32, 圆角 8px, 背景 var(--bg)
    ========================================================= */
 .menu-section {
   margin: 0 32rpx 16rpx;

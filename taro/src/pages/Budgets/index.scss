@@ -18,7 +18,7 @@
 
 /* 保存按钮 — 小胶囊形（对齐 PC Button variant="primary"） */
 .bdg-save-btn {
-  background: #2D9D8A; /* --primary 硬编码，对齐 PC */
+  background: var(--pr); /* --primary 硬编码，对齐 PC */
   border-radius: 20rpx;
   padding: 10rpx 28rpx;
   display: flex;
@@ -32,11 +32,11 @@
 
 .bdg-save-btn--ghost {
   background: transparent;
-  border: 2rpx solid var(--primary, #2D9D8A);
+  border: 2rpx solid var(--primary, var(--pr));
 }
 
 .bdg-save-btn__text--ghost {
-  color: var(--primary, #2D9D8A);
+  color: var(--primary, var(--pr));
 }
 
 .bdg-save-btn__text {
@@ -57,7 +57,7 @@
 /* ── 卡片行（对标 PC budget-item 卡片 + RankRow）── */
 .bdg-card {
   background: var(--surface, #ffffff);
-  border: 2rpx solid var(--border-light, #edeee9);
+  border: 2rpx solid var(--border-light, var(--bdL));
   border-radius: 20rpx; /* 对齐 PC --rm */
   padding: 28rpx 32rpx; /* 对齐 PC padding:12px 16px */
 }
@@ -79,7 +79,7 @@
 }
 
 .bdg-card__name {
-  color: var(--fg, #24312d);
+  color: var(--fg, var(--fg));
   font-size: 28rpx;
   font-weight: 600; /* 对齐 PC font-weight:600 */
   overflow: hidden;
@@ -97,13 +97,13 @@
 }
 
 .bdg-card__currency {
-  color: var(--fg-3, #8B8E89); /* 对齐 PC fg3=#6E716C */
+  color: var(--fg-3, var(--fg3)); /* 对齐 PC fg3=#6E716C */
   font-size: 24rpx;
   font-weight: 500;
 }
 
 .bdg-card__value {
-  color: var(--fg, #24312d);
+  color: var(--fg, var(--fg));
   font-size: 26rpx;
   font-weight: 600;
   font-variant-numeric: tabular-nums; /* 对齐 PC */
@@ -113,10 +113,10 @@
 .bdg-card__input {
   width: 200rpx;
   height: 56rpx;
-  border: 2rpx solid #2D9D8A; /* --primary */
+  border: 2rpx solid var(--pr); /* --primary */
   border-radius: 16rpx;
   background: var(--surface, #ffffff);
-  color: var(--fg, #24312d);
+  color: var(--fg, var(--fg));
   font-size: 26rpx;
   font-weight: 600;
   text-align: right;
@@ -150,7 +150,7 @@
   flex: 3; /* 对齐 PC flex:3 */
   font-size: 22rpx; /* 对应 PC 12px */
   font-weight: 500; /* 对齐 PC 默认 */
-  color: var(--fg-3, #8B8E89); /* 对齐 PC var(--fg3) */
+  color: var(--fg-3, var(--fg3)); /* 对齐 PC var(--fg3) */
   white-space: nowrap;
   display: flex;
   align-items: center;
@@ -213,13 +213,13 @@
 .bgds-hero__name {
   font-size: 36rpx; /* 对齐 PC detail-title 18px */
   font-weight: 600;
-  color: var(--fg, #1a1c19);
+  color: var(--fg, var(--fg));
 }
 
 /* 分隔线 */
 .bgds-divider {
   height: 2rpx;
-  background-color: var(--border-light, #edeee9);
+  background-color: var(--border-light, var(--bdL));
   margin: 0 0 8rpx;
 }
 
@@ -239,13 +239,13 @@
 
 .bgds-cell__label {
   font-size: 24rpx; /* 对齐 PC detail-item-label 13px */
-  color: var(--fg-3, #8b8e89);
+  color: var(--fg-3, var(--fg3));
   font-weight: 500;
 }
 
 .bgds-cell__value {
   font-size: 30rpx; /* 对齐 PC detail-item-value 14px */
-  color: var(--fg, #1a1c19);
+  color: var(--fg, var(--fg));
   font-weight: 600;
   font-variant-numeric: tabular-nums;
 }
@@ -275,14 +275,14 @@
 
 .bgds-btn--edit {
   background-color: var(--surface, #ffffff);
-  border: 2rpx solid var(--primary, #2d9d8a);
-  color: var(--primary, #2d9d8a);
+  border: 2rpx solid var(--primary, var(--pr));
+  color: var(--primary, var(--pr));
 }
 
 .bgds-btn--delete {
   background-color: var(--surface, #ffffff);
-  border: 2rpx solid var(--expense, #e06055);
-  color: var(--expense, #e06055);
+  border: 2rpx solid var(--expense, var(--exp));
+  color: var(--expense, var(--exp));
 }
 
 /* =========================================================
@@ -300,13 +300,13 @@
 .bgfs-label {
   display: block;
   font-size: 26rpx;
-  color: var(--fg-2, #5a5d58);
+  color: var(--fg-2, var(--fg2));
   font-weight: 600;
   margin-bottom: 16rpx;
 }
 
 .bgfs-label__req {
-  color: var(--expense, #e06055);
+  color: var(--expense, var(--exp));
   margin-right: 4rpx;
 }
 
@@ -314,8 +314,8 @@
   width: 100%;
   height: 88rpx;
   font-size: 32rpx;
-  color: var(--fg, #1a1c19);
-  border: 2rpx solid var(--border, #e0e2dd);
+  color: var(--fg, var(--fg));
+  border: 2rpx solid var(--border, var(--bd));
   border-radius: var(--radius-md, 16rpx);
   padding: 0 24rpx;
   box-sizing: border-box;
@@ -323,7 +323,7 @@
 }
 
 .bgfs-input::placeholder {
-  color: var(--fg-3, #8b8e89);
+  color: var(--fg-3, var(--fg3));
 }
 
 /* 安全区 */
@@ -337,8 +337,8 @@
   justify-content: center;
   height: 84rpx;
   border-radius: 20rpx;
-  background: var(--primary, #2d9d8a);
-  color: #ffffff;
+  background: var(--primary, var(--pr));
+  color: #fff;
   font-size: 30rpx;
   font-weight: 700;
 }

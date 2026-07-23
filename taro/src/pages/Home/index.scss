@@ -24,7 +24,7 @@
 
 /* ── 本月结余：品牌绿实心背景 + 白字 ── */
 .home-metrics .metric-card--default {
-  background: linear-gradient(135deg, #42b8a3 0%, #2d9d8a 100%);
+  background: linear-gradient(135deg, var(--pr) 0%, var(--pr) 100%);
 }
 
 .home-metrics .metric-card--default .metric-card__label {
@@ -32,7 +32,7 @@
 }
 
 .home-metrics .metric-card--default .metric-card__value {
-  color: #ffffff;
+  color: #fff;
   font-size: 40rpx;
 }
 
@@ -43,22 +43,22 @@
 /* ── 本月收入：白底 + 绿色顶边 ── */
 .home-metrics .metric-card--income {
   background: var(--surface);
-  border-top: 5rpx solid var(--inc, #3ba272);
+  border-top: 5rpx solid var(--inc, var(--inc));
 }
 
 .home-metrics .metric-card--income .metric-card__value {
-  color: var(--inc, #3ba272);
+  color: var(--inc, var(--inc));
   font-size: 36rpx;
 }
 
 /* ── 本月支出：白底 + 红色顶边 ── */
 .home-metrics .metric-card--expense {
   background: var(--surface);
-  border-top: 5rpx solid var(--exp, #e06055);
+  border-top: 5rpx solid var(--exp, var(--exp));
 }
 
 .home-metrics .metric-card--expense .metric-card__value {
-  color: var(--exp, #e06055);
+  color: var(--exp, var(--exp));
   font-size: 36rpx;
 }
 
@@ -80,7 +80,7 @@
    ═════════════════════════════════ */
 .budget-card {
   background: var(--surface);
-  border: 1rpx solid var(--bd, #e0e2dd);
+  border: 1rpx solid var(--bd, var(--bd));
   border-radius: 24rpx;
   padding: 28rpx 28rpx 20rpx;
   margin-bottom: 24rpx;
@@ -98,24 +98,24 @@
 .budget-card__title {
   font-size: 28rpx;
   font-weight: 700;
-  color: var(--fg, #1a1c19);
+  color: var(--fg, var(--fg));
 }
 
 .budget-card__total {
   font-size: 26rpx;
   font-weight: 600;
-  color: var(--pr, #2d9d8a);
+  color: var(--pr, var(--pr));
 }
 
 .budget-card__total-sep {
-  color: var(--fg-3, #8b8e89);
+  color: var(--fg-3, var(--fg3));
   font-weight: 400;
 }
 
 /* 总进度条 */
 .budget-card__bar-wrap {
   height: 12rpx;
-  background: var(--bdL, #f0f0ec);
+  background: var(--bdL, var(--bdL));
   border-radius: 6rpx;
   overflow: hidden;
   margin-bottom: 20rpx;
@@ -123,13 +123,13 @@
 
 .budget-card__bar {
   height: 100%;
-  background: linear-gradient(90deg, #2d9d8a, #45b7a7);
+  background: linear-gradient(90deg, var(--pr), var(--pr));
   border-radius: 6rpx;
   transition: width 0.4s ease;
 }
 
 .budget-card__bar--over {
-  background: linear-gradient(90deg, #e06055, #f08075);
+  background: linear-gradient(90deg, var(--exp), var(--exp));
 }
 
 /* 分类明细列表 */
@@ -149,7 +149,7 @@
   width: 48rpx;
   height: 48rpx;
   border-radius: 14rpx;
-  background: var(--bg, #f6f7f4);
+  background: var(--bg, var(--bg));
   display: flex;
   align-items: center;
   justify-content: center;
@@ -167,7 +167,7 @@
 .budget-card__row-name {
   font-size: 25rpx;
   font-weight: 600;
-  color: var(--fg, #1a1c19);
+  color: var(--fg, var(--fg));
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -175,18 +175,18 @@
 
 .budget-card__row-amt {
   font-size: 22rpx;
-  color: var(--fg-3, #8b8e89);
+  color: var(--fg-3, var(--fg3));
 }
 
 .budget-card__row-amt--over {
-  color: var(--exp, #e06055);
+  color: var(--exp, var(--exp));
   font-weight: 600;
 }
 
 .budget-card__row-bar-wrap {
   width: 100rpx;
   height: 8rpx;
-  background: var(--bdL, #f0f0ec);
+  background: var(--bdL, var(--bdL));
   border-radius: 4rpx;
   overflow: hidden;
   flex-shrink: 0;
@@ -194,25 +194,25 @@
 
 .budget-card__row-bar {
   height: 100%;
-  background: var(--pr, #2d9d8a);
+  background: var(--pr, var(--pr));
   border-radius: 4rpx;
   transition: width 0.3s ease;
 }
 
 .budget-card__row-bar--over {
-  background: var(--exp, #e06055);
+  background: var(--exp, var(--exp));
 }
 
 .budget-card__row-pct {
   width: 56rpx;
   text-align: right;
   font-size: 21rpx;
-  color: var(--fg-3, #8b8e89);
+  color: var(--fg-3, var(--fg3));
   flex-shrink: 0;
 }
 
 .budget-card__row-pct--over {
-  color: var(--exp, #e06055);
+  color: var(--exp, var(--exp));
   font-weight: 600;
 }
 
@@ -240,7 +240,7 @@
   align-items: center;
   gap: 20rpx;
   padding: 18rpx 0;
-  border-bottom: 1rpx solid var(--bdL, #f0f0ec);
+  border-bottom: 1rpx solid var(--bdL, var(--bdL));
 
   &:last-child {
     border-bottom: none;
@@ -284,7 +284,7 @@
 .home-txn-icon__fallback {
   font-size: 26rpx;
   font-weight: 700;
-  color: var(--fg-2, #6e716c);
+  color: var(--fg-2, var(--fg2));
 }
 
 /* 图标内容填满容器（图片按 aspectFit = contain 居中，emoji 放大到容器比例） */
@@ -313,7 +313,7 @@
 .home-txn-name {
   font-size: 28rpx;
   font-weight: 600;
-  color: var(--fg, #1a1c19);
+  color: var(--fg, var(--fg));
   line-height: 1.4;
 
   /* 两行截断 */
@@ -327,7 +327,7 @@
 /* 分类 · 日期 */
 .home-txn-meta {
   font-size: 23rpx;
-  color: var(--fg-3, #a5a8a3);
+  color: var(--fg-3, var(--fg3));
   line-height: 1.4;
   margin-top: 2rpx;
 }
@@ -342,9 +342,14 @@
 }
 
 .home-txn-amt--exp {
-  color: var(--exp, #e06055);
+  color: var(--exp, var(--exp));
 }
 
 .home-txn-amt--inc {
-  color: var(--inc, #3ba272);
+  color: var(--inc, var(--inc));
+}
+
+/* 点击反馈：最近交易可点进编辑 */
+.home-txn-row:active {
+  opacity: 0.72;
 }

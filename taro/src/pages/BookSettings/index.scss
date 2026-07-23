@@ -3,9 +3,9 @@
  * 优化：表单层次 / 触区尺寸 / 视觉节奏 / 底部栏质感
  *
  * 设计令牌：
- *   · 背景：var(--bg) #f6f7f4
+ *   · 背景：var(--bg) var(--bg)
  *   · 卡片：var(--surface) #ffffff + 24rpx 圆角 + 轻边框
- *   · 主色：var(--primary) #2d9d8a
+ *   · 主色：var(--primary) var(--pr)
  * ========================================================= */
 
 /* ========== 页面容器 ========== */
@@ -15,7 +15,7 @@
   align-items: center;
   gap: 20rpx;
   padding: 28rpx 0;
-  border-bottom: 1rpx solid var(--border-light, #edeee9);
+  border-bottom: 1rpx solid var(--border-light, var(--bdL));
 }
 
 .bs-form-row:last-of-type {
@@ -34,7 +34,7 @@
 /* 标签：加粗，无左侧竖线 */
 .bs-form-label {
   font-size: 27rpx;
-  color: var(--fg-2, #5a5d58);
+  color: var(--fg-2, var(--fg2));
   width: auto;
   flex-shrink: 0;
   font-weight: 600;
@@ -43,7 +43,7 @@
 
 /* 必填星号 */
 .bs-required {
-  color: var(--expense, #e06055);
+  color: var(--expense, var(--exp));
   margin-right: 6rpx;
 }
 
@@ -51,7 +51,7 @@
 .bs-form-input {
   flex: 1;
   font-size: 29rpx;
-  color: var(--fg, #1a1c19);
+  color: var(--fg, var(--fg));
   padding: 12rpx 0;
   border: none;
   background: transparent;
@@ -62,7 +62,7 @@
 }
 
 .bs-form-input::placeholder {
-  color: var(--fg-3, #8b8e89);
+  color: var(--fg-3, var(--fg3));
   font-size: 26rpx;
 }
 
@@ -72,11 +72,11 @@
   text-align: left !important;
   width: 100%;
   line-height: 1.6;
-  background-color: var(--bg, #f6f7f4) !important;
+  background-color: var(--bg, var(--bg)) !important;
   border-radius: 16rpx;
   padding: 18rpx 22rpx !important;
   box-sizing: border-box !important;
-  border: 1rpx solid var(--border-light, #edeee9) !important;
+  border: 1rpx solid var(--border-light, var(--bdL)) !important;
 }
 
 /* ========== 图标选择网格 ========== */
@@ -85,7 +85,7 @@
   grid-template-columns: repeat(5, 1fr);
   gap: 14rpx;
   padding: 20rpx;
-  background-color: var(--bg, #f6f7f4);
+  background-color: var(--bg, var(--bg));
   border-radius: 24rpx;
   margin: 8rpx 0 4rpx;
   width: 100%;
@@ -115,7 +115,7 @@
 
 /* 选中态 — 绿色边框 + 浅绿底 */
 .bs-emoji-item--selected {
-  border-color: var(--primary, #2d9d8a);
+  border-color: var(--primary, var(--pr));
   background-color: rgba(45, 157, 138, 0.06);
   box-shadow: 0 2rpx 12rpx rgba(45, 157, 138, 0.15);
 }
@@ -132,13 +132,13 @@
 /* 标签文字 */
 .bs-emoji-item__label {
   font-size: 21rpx;
-  color: var(--fg-3, #8b8e89);
+  color: var(--fg-3, var(--fg3));
   line-height: 1;
   letter-spacing: 0.5rpx;
 }
 
 .bs-emoji-item__label--selected {
-  color: var(--primary, #2d9d8a);
+  color: var(--primary, var(--pr));
   font-weight: 700;
 }
 
@@ -159,11 +159,11 @@
   width: 120rpx;
   height: 120rpx;
   border-radius: 18rpx;
-  border: 2rpx dashed var(--border, #e0e2dd);
+  border: 2rpx dashed var(--border, var(--bd));
   background-color: rgba(45, 157, 138, 0.03);
   font-size: 21rpx;
   font-weight: 700;
-  color: var(--primary, #2d9d8a);
+  color: var(--primary, var(--pr));
   text-align: center;
   transition: all 0.15s ease;
   padding: 0 8rpx;
@@ -198,7 +198,7 @@
 }
 
 .bs-custom-icon-item--selected {
-  border-color: var(--primary, #2d9d8a);
+  border-color: var(--primary, var(--pr));
   box-shadow: 0 2rpx 12rpx rgba(45, 157, 138, 0.18);
 }
 
@@ -215,7 +215,7 @@
   width: 38rpx;
   height: 38rpx;
   background-color: rgba(26, 28, 25, 0.55);
-  color: #ffffff;
+  color: #fff;
   font-size: 24rpx;
   font-weight: 300;
   line-height: 38rpx;
@@ -233,7 +233,7 @@
   background: rgba(255, 255, 255, 0.92);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border-top: 1rpx solid var(--border-light, #edeee9);
+  border-top: 1rpx solid var(--border-light, var(--bdL));
   z-index: 50;
 }
 
@@ -241,7 +241,7 @@
 .bs-actions__save {
   height: 92rpx;
   border-radius: 46rpx;
-  background: linear-gradient(135deg, #2d9d8a 0%, #45b7a7 100%);
+  background: linear-gradient(135deg, var(--pr) 0%, var(--pr) 100%);
   color: #fff;
   display: flex;
   align-items: center;
@@ -274,9 +274,9 @@
   flex: 1;
   height: 92rpx;
   border-radius: 46rpx;
-  border: 2rpx solid var(--border, #e0e2dd);
+  border: 2rpx solid var(--border, var(--bd));
   background: transparent;
-  color: var(--fg-2, #5a5d58);
+  color: var(--fg-2, var(--fg2));
   display: flex;
   align-items: center;
   justify-content: center;
@@ -285,7 +285,7 @@
 }
 
 .bs-actions__cancel:active {
-  background-color: var(--bg, #f6f7f4);
+  background-color: var(--bg, var(--bg));
 }
 
 .bs-actions__row .bs-actions__save {
@@ -295,7 +295,7 @@
 /* ========== 编辑模式：分隔线 ========== */
 .bs-divider {
   height: 1rpx;
-  background-color: var(--border-light, #edeee9);
+  background-color: var(--border-light, var(--bdL));
   margin: 8rpx 0;
 }
 
@@ -310,13 +310,13 @@
 
 .bs-more-row__text {
   font-size: 28rpx;
-  color: var(--fg, #1a1c19);
+  color: var(--fg, var(--fg));
   font-weight: 600;
 }
 
 .bs-more-row__arrow {
   font-size: 34rpx;
-  color: var(--fg-3, #8b8e89);
+  color: var(--fg-3, var(--fg3));
   transition: transform 0.2s ease;
   line-height: 1;
 }
@@ -337,7 +337,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.45);
+  background-color: var(--ov);
   z-index: 1000;
   display: flex;
   align-items: flex-end;
@@ -378,7 +378,7 @@
 
 .bs-sheet__footer {
   padding: 20rpx 32rpx;
-  border-top: 1rpx solid var(--border-light, #edeee9);
+  border-top: 1rpx solid var(--border-light, var(--bdL));
 }
 
 .bs-sheet__footer-btn {
@@ -387,8 +387,8 @@
   justify-content: center;
   height: 84rpx;
   border-radius: 20rpx;
-  background: var(--primary, #2d9d8a);
-  color: #ffffff;
+  background: var(--primary, var(--pr));
+  color: #fff;
   font-size: 30rpx;
   font-weight: 700;
 }
@@ -403,18 +403,18 @@
   padding: 20rpx 24rpx;
   background-color: rgba(249, 168, 37, 0.1);
   border-radius: 16rpx;
-  border-left: 4rpx solid #f9a825;
+  border-left: 4rpx solid var(--warn);
 }
 
 .bs-warn-box__text {
   font-size: 24rpx;
-  color: #b9791b;
+  color: var(--warn);
   line-height: 1.6;
 }
 
 /* ========== 信息行辅助 ========== */
 .bs-info-row__value {
-  color: var(--fg-3, #8b8e89);
+  color: var(--fg-3, var(--fg3));
   font-size: 26rpx;
   font-weight: 700;
 }
@@ -430,5 +430,5 @@
 .bs-empty Text,
 .bs-empty text {
   font-size: 28rpx;
-  color: var(--fg-3, #8b8e89);
+  color: var(--fg-3, var(--fg3));
 }

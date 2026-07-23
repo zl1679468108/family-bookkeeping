@@ -8,7 +8,7 @@ import { View, Text, Input } from "@tarojs/components";
 import MonthPicker from "../../components/MonthPicker";
 import PageContainer from "../../components/PageContainer";
 import CategoryIcon from "../../components/CategoryIcon";
-import { EmptyState } from "../../components/ui";
+import { EmptyState, Button } from "../../components/ui";
 import ConfirmDialog from "../../components/ConfirmDialog";
 import BottomSheet from "../../components/BottomSheet";
 import { useMonthSelector } from "../../hooks/useMonthSelector";
@@ -300,7 +300,19 @@ export default function BudgetsPage() {
       {/* 卡片列表 */}
       {expenseCats.length === 0 ? (
         <View className="bdg-empty">
-          <EmptyState title="暂无支出分类" />
+          <EmptyState
+            title="暂无支出分类"
+            description="先添加支出分类，再设置本月预算"
+            action={
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={() => Taro.navigateTo({ url: "/pages/Categories/index" })}
+              >
+                去添加分类
+              </Button>
+            }
+          />
         </View>
       ) : (
         <View className="bdg-list">

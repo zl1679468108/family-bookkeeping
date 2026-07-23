@@ -7,14 +7,14 @@
 .book-card {
   background-color: var(--surface);
   border-radius: var(--radius-lg, 32rpx);
-  border: 1rpx solid var(--border, #e0e2dd);
+  border: 1rpx solid var(--border, var(--bd));
   padding: 24rpx 28rpx;
   display: flex;
   flex-direction: column;
   transition: background-color 0.15s ease, border-color 0.15s ease;
 
   &--active {
-    border-color: #2d9d8a;
+    border-color: var(--pr);
     background-color: rgba(45, 157, 138, 0.08);
   }
 }
@@ -58,12 +58,12 @@
 .book-card__title {
   font-size: 30rpx;
   font-weight: 700;
-  color: var(--fg, #1a1c19);
+  color: var(--fg, var(--fg));
 }
 
 .book-card__date {
   font-size: 22rpx;
-  color: var(--fg-3, #8b8e89);
+  color: var(--fg-3, var(--fg3));
 }
 
 /* ========== 徽章 ========== */
@@ -79,18 +79,18 @@
   }
 
   &--current {
-    background-color: #2d9d8a;
+    background-color: var(--pr);
 
     .book-card__badge-text {
-      color: #ffffff;
+      color: #fff;
     }
   }
 
   &--default {
-    background-color: #f0f1ee;
+    background-color: var(--bdL);
 
     .book-card__badge-text {
-      color: #8b8e89;
+      color: var(--fg3);
     }
   }
 }
@@ -127,7 +127,7 @@
     background-color: rgba(45, 157, 138, 0.12);
 
     .book-card__action-text {
-      color: #2d9d8a;
+      color: var(--pr);
     }
   }
 }
@@ -147,9 +147,9 @@
   padding: 0 20rpx;
   border-radius: 12rpx;
   background-color: var(--surface);
-  border: 1rpx solid var(--border, #e0e2dd);
+  border: 1rpx solid var(--border, var(--bd));
   font-size: 28rpx;
-  color: var(--fg, #1a1c19);
+  color: var(--fg, var(--fg));
   outline: none;
   box-sizing: border-box;
   min-width: 0;
@@ -158,13 +158,13 @@
 .book-card__rename-save {
   font-size: 24rpx;
   font-weight: 600;
-  color: #2d9d8a;
+  color: var(--pr);
   padding: 8rpx 12rpx;
 }
 
 .book-card__rename-cancel {
   font-size: 24rpx;
-  color: var(--fg-3, #8b8e89);
+  color: var(--fg-3, var(--fg3));
   padding: 8rpx 12rpx;
 }
 
@@ -172,7 +172,7 @@
 .book-card__members {
   margin-top: 24rpx;
   padding-top: 24rpx;
-  border-top: 1rpx solid var(--border, #e0e2dd);
+  border-top: 1rpx solid var(--border, var(--bd));
   display: flex;
   flex-direction: column;
   gap: 20rpx;
@@ -180,7 +180,7 @@
 
 .book-card__members-empty {
   font-size: 24rpx;
-  color: var(--fg-3, #8b8e89);
+  color: var(--fg-3, var(--fg3));
 }
 
 .book-card__member {
@@ -192,7 +192,7 @@
 
   &-name {
     font-size: 26rpx;
-    color: var(--fg, #1a1c19);
+    color: var(--fg, var(--fg));
   }
 }
 
@@ -214,15 +214,15 @@
     padding: 0 20rpx;
     border-radius: 12rpx;
     background-color: var(--surface);
-    border: 1rpx solid var(--border, #e0e2dd);
+    border: 1rpx solid var(--border, var(--bd));
     font-size: 24rpx;
-    color: var(--fg, #1a1c19);
+    color: var(--fg, var(--fg));
     outline: none;
     box-sizing: border-box;
     min-width: 0;
 
     &-placeholder {
-      color: var(--fg-3, #8b8e89);
+      color: var(--fg-3, var(--fg3));
     }
   }
 
@@ -230,7 +230,7 @@
     padding: 0 22rpx;
     height: 60rpx;
     border-radius: 12rpx;
-    background-color: #2d9d8a;
+    background-color: var(--pr);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -245,7 +245,7 @@
     &-text {
       font-size: 24rpx;
       font-weight: 600;
-      color: #ffffff;
+      color: #fff;
     }
   }
 }
@@ -253,7 +253,7 @@
 /* ========== 退出账本 ========== */
 .book-card__leave {
   font-size: 24rpx;
-  color: #d9534f;
+  color: var(--exp);
   padding: 8rpx 4rpx;
   margin-top: 4rpx;
 }

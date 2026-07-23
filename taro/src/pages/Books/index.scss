@@ -3,16 +3,16 @@
  * 对齐 PC 端：页面顶栏 + 双列网格卡片 + 底部详情 Sheet
  *
  * 设计令牌：
- *   · 背景：var(--bg) #f6f7f4
+ *   · 背景：var(--bg) var(--bg)
  *   · 卡片：var(--surface) #ffffff + 20rpx 圆角 + 边框
- *   · 主色：var(--primary) #2d9d8a
+ *   · 主色：var(--primary) var(--pr)
  * ========================================================= */
 
 .bk-content {
   display: flex;
   flex-direction: column;
   gap: 16rpx;
-  background-color: var(--bg, #f6f7f4);
+  background-color: var(--bg, var(--bg));
   box-sizing: border-box;
 }
 
@@ -28,7 +28,7 @@
 .bk-page-title {
   font-size: 34rpx;
   font-weight: 800;
-  color: var(--fg, #1a1c19);
+  color: var(--fg, var(--fg));
 }
 
 .bk-page-actions {
@@ -51,14 +51,14 @@
 
 .bk-page-btn--outline {
   background-color: transparent;
-  border: 1rpx solid var(--border, #e0e2dd);
-  color: var(--fg-2, #5a5d58);
+  border: 1rpx solid var(--border, var(--bd));
+  color: var(--fg-2, var(--fg2));
 }
 
 .bk-page-btn--primary {
-  background-color: var(--primary, #2d9d8a);
-  border: 1rpx solid var(--primary, #2d9d8a);
-  color: #ffffff;
+  background-color: var(--primary, var(--pr));
+  border: 1rpx solid var(--primary, var(--pr));
+  color: #fff;
 }
 
 .bk-page-btn:active {
@@ -83,7 +83,7 @@
 .bk-card {
   background-color: var(--surface, #ffffff);
   border-radius: 20rpx;
-  border: 1rpx solid var(--border, #e0e2dd);
+  border: 1rpx solid var(--border, var(--bd));
   padding: 20rpx;
   display: flex;
   flex-direction: column;
@@ -92,13 +92,13 @@
 }
 
 .bk-card:active {
-  background-color: var(--bg, #f6f7f4);
+  background-color: var(--bg, var(--bg));
   transform: scale(0.98);
 }
 
 /* 当前选中账本：绿色高亮边框 */
 .bk-card--active {
-  border-color: var(--primary, #2d9d8a);
+  border-color: var(--primary, var(--pr));
   background-color: rgba(45, 157, 138, 0.04);
   box-shadow: 0 2rpx 12rpx rgba(45, 157, 138, 0.1);
 }
@@ -129,7 +129,7 @@
   flex: 1;
   font-size: 26rpx;
   font-weight: 700;
-  color: var(--fg, #1a1c19);
+  color: var(--fg, var(--fg));
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -146,14 +146,14 @@
 /* 卡片内分割线（统计与描述之间） */
 .bk-card__divider {
   height: 1rpx;
-  background-color: var(--border-light, #edeee9);
+  background-color: var(--border-light, var(--bdL));
   margin: 4rpx 0;
 }
 
 .bk-card__stat {
   font-size: 22rpx;
-  color: var(--fg-3, #8b8e89);
-  background-color: var(--bg, #f6f7f4);
+  color: var(--fg-3, var(--fg3));
+  background-color: var(--bg, var(--bg));
   padding: 6rpx 16rpx;
   border-radius: 100rpx;
   line-height: 1.4;
@@ -162,7 +162,7 @@
 /* 卡片描述文字 */
 .bk-card__meta-line {
   font-size: 22rpx;
-  color: var(--fg-3, #8b8e89);
+  color: var(--fg-3, var(--fg3));
   line-height: 1.35;
 }
 
@@ -174,7 +174,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.45);
+  background-color: var(--ov);
   z-index: 1000;
   display: flex;
   align-items: flex-end;
@@ -210,7 +210,7 @@
 
 .bk-sheet__footer {
   padding: 20rpx 32rpx;
-  border-top: 1rpx solid var(--border-light, #edeee9);
+  border-top: 1rpx solid var(--border-light, var(--bdL));
   background-color: var(--surface, #ffffff);
   flex-shrink: 0;
 }
@@ -228,16 +228,16 @@
   justify-content: center;
   height: 84rpx;
   border-radius: 20rpx;
-  background: var(--primary, #2d9d8a);
-  color: #ffffff;
+  background: var(--primary, var(--pr));
+  color: #fff;
   font-size: 30rpx;
   font-weight: 700;
   flex: 1;
 }
 
 .bk-sheet__footer-btn--secondary {
-  background: var(--bg, #f6f7f4);
-  color: var(--fg, #1a1c19);
+  background: var(--bg, var(--bg));
+  color: var(--fg, var(--fg));
 }
 
 .bk-sheet__footer-btn--disabled {
@@ -250,7 +250,7 @@
   align-items: center;
   gap: 20rpx;
   padding: 28rpx 0;
-  border-bottom: 1rpx solid var(--border-light, #edeee9);
+  border-bottom: 1rpx solid var(--border-light, var(--bdL));
 }
 
 .bk-form-row:last-of-type {
@@ -259,7 +259,7 @@
 
 .bk-form-label {
   font-size: 28rpx;
-  color: var(--fg, #1a1c19);
+  color: var(--fg, var(--fg));
   width: 120rpx;
   flex-shrink: 0;
   font-weight: 600;
@@ -268,7 +268,7 @@
 .bk-form-input {
   flex: 1;
   font-size: 28rpx;
-  color: var(--fg, #1a1c19);
+  color: var(--fg, var(--fg));
   padding: 8rpx 0;
   border: none;
   background: transparent;
@@ -277,7 +277,7 @@
 }
 
 .bk-form-input::placeholder {
-  color: var(--fg-3, #8b8e89);
+  color: var(--fg-3, var(--fg3));
 }
 
 .bk-form-emoji-current {
@@ -289,13 +289,13 @@
 .bk-join-hint {
   margin-top: 20rpx;
   padding: 20rpx 24rpx;
-  background-color: var(--bg, #f6f7f4);
+  background-color: var(--bg, var(--bg));
   border-radius: var(--radius-sm, 16rpx);
 }
 
 .bk-join-hint Text {
   font-size: 24rpx;
-  color: var(--fg-3, #8b8e89);
+  color: var(--fg-3, var(--fg3));
   line-height: 1.6;
 }
 
@@ -309,7 +309,7 @@
   grid-template-columns: repeat(5, 1fr);
   gap: 16rpx;
   padding: 16rpx;
-  background-color: var(--bg, #f6f7f4);
+  background-color: var(--bg, var(--bg));
   border-radius: var(--radius-md, 24rpx);
   margin: 20rpx 0;
 }
@@ -332,7 +332,7 @@
 }
 
 .bk-emoji-item--selected {
-  border-color: var(--primary, #2d9d8a);
+  border-color: var(--primary, var(--pr));
   background-color: rgba(45, 157, 138, 0.08);
 }
 
@@ -343,7 +343,7 @@
 
 .bk-emoji-item__label {
   font-size: 20rpx;
-  color: var(--fg-3, #8b8e89);
+  color: var(--fg-3, var(--fg3));
   line-height: 1;
 }
 
@@ -356,13 +356,13 @@
   padding: 16rpx 8rpx;
   background-color: var(--surface, #ffffff);
   border-radius: var(--radius-sm, 16rpx);
-  border: 2rpx dashed var(--border, #e0e2dd);
+  border: 2rpx dashed var(--border, var(--bd));
   transition: all 0.15s ease;
   gap: 6rpx;
 }
 
 .bk-custom-icon-item--selected {
-  border-color: var(--primary, #2d9d8a);
+  border-color: var(--primary, var(--pr));
   border-style: solid;
   background-color: rgba(45, 157, 138, 0.08);
 }
@@ -387,7 +387,7 @@
 .bk-custom-icon-item__upload {
   font-size: 24rpx;
   font-weight: 600;
-  color: var(--primary, #2d9d8a);
+  color: var(--primary, var(--pr));
   line-height: 1;
 }
 
@@ -417,7 +417,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 28rpx 32rpx;
-  border-bottom: 1rpx solid var(--border-light, #edeee9);
+  border-bottom: 1rpx solid var(--border-light, var(--bdL));
   background-color: var(--surface, #ffffff);
   flex-shrink: 0;
 }
@@ -437,7 +437,7 @@
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  background: var(--bg, #f6f7f4);
+  background: var(--bg, var(--bg));
   transition: opacity 0.15s ease, transform 0.15s ease;
 }
 
@@ -448,14 +448,14 @@
 
 .bk-detail-header__back Text {
   font-size: 36rpx;
-  color: var(--fg-2, #5a5d58);
+  color: var(--fg-2, var(--fg2));
   line-height: 1;
   font-weight: 300;
 }
 
 .bk-detail-header__title {
   font-size: 30rpx;
-  color: var(--fg, #1a1c19);
+  color: var(--fg, var(--fg));
   font-weight: 700;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -469,7 +469,7 @@
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  background: var(--bg, #f6f7f4);
+  background: var(--bg, var(--bg));
   transition: opacity 0.15s ease, transform 0.15s ease;
 }
 
@@ -480,7 +480,7 @@
 
 .bk-detail-header__close Text {
   font-size: 36rpx;
-  color: var(--fg-2, #5a5d58);
+  color: var(--fg-2, var(--fg2));
   line-height: 1;
   font-weight: 300;
 }
@@ -497,7 +497,7 @@
   align-items: flex-start;
   gap: 24rpx;
   padding-bottom: 28rpx;
-  border-bottom: 1rpx solid var(--border-light, #edeee9);
+  border-bottom: 1rpx solid var(--border-light, var(--bdL));
   margin-bottom: 24rpx;
 }
 
@@ -511,7 +511,7 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  border: 1rpx solid var(--border-light, #edeee9);
+  border: 1rpx solid var(--border-light, var(--bdL));
 }
 
 .bk-detail-meta {
@@ -525,18 +525,18 @@
 .bk-detail-name {
   font-size: 34rpx;
   font-weight: 700;
-  color: var(--fg, #1a1c19);
+  color: var(--fg, var(--fg));
 }
 
 .bk-detail-desc {
   font-size: 26rpx;
-  color: var(--fg-3, #8b8e89);
+  color: var(--fg-3, var(--fg3));
   line-height: 1.45;
 }
 
 .bk-detail-sub {
   font-size: 22rpx;
-  color: var(--fg-3, #8b8e89);
+  color: var(--fg-3, var(--fg3));
   margin-top: 4rpx;
 }
 
@@ -556,13 +556,13 @@
 }
 
 .bk-detail-tag--archived {
-  color: var(--warning, #c8881a);
+  color: var(--warn);
   background-color: var(--warning-bg, #fbf0db);
 }
 
 .bk-detail-tag--muted {
-  color: var(--fg-3, #8b8e89);
-  background-color: var(--bg, #f6f7f4);
+  color: var(--fg-3, var(--fg3));
+  background-color: var(--bg, var(--bg));
 }
 
 /* 操作按钮区 */
@@ -571,8 +571,8 @@
   flex-wrap: wrap;
   gap: 14rpx;
   padding: 20rpx 32rpx;
-  border-top: 1rpx solid var(--border-light, #edeee9);
-  background-color: var(--bg, #f6f7f4);
+  border-top: 1rpx solid var(--border-light, var(--bdL));
+  background-color: var(--bg, var(--bg));
 }
 
 .bk-detail-btn {
@@ -583,10 +583,10 @@
   padding: 0 24rpx;
   border-radius: var(--radius-md, 24rpx);
   background-color: var(--surface, #ffffff);
-  border: 1rpx solid var(--border, #e0e2dd);
+  border: 1rpx solid var(--border, var(--bd));
   font-size: 24rpx;
   font-weight: 700;
-  color: var(--fg, #1a1c19);
+  color: var(--fg, var(--fg));
   text-align: center;
   transition: opacity 0.15s ease, transform 0.15s ease, background-color 0.15s ease;
   flex: 0 0 auto;
@@ -602,28 +602,28 @@
 }
 
 .bk-detail-btn--primary {
-  background-color: var(--primary, #2d9d8a);
-  color: #ffffff;
-  border-color: var(--primary, #2d9d8a);
+  background-color: var(--primary, var(--pr));
+  color: #fff;
+  border-color: var(--primary, var(--pr));
 }
 
 .bk-detail-btn--secondary {
   background-color: var(--surface, #ffffff);
-  color: var(--fg, #1a1c19);
-  border-color: var(--border, #e0e2dd);
+  color: var(--fg, var(--fg));
+  border-color: var(--border, var(--bd));
 }
 
 .bk-detail-btn--danger {
-  background-color: var(--expense, #e06055);
-  color: #ffffff;
-  border-color: var(--expense, #e06055);
+  background-color: var(--expense, var(--exp));
+  color: #fff;
+  border-color: var(--expense, var(--exp));
 }
 
 /* 切换到此账本按钮（主色填充） */
 .bk-detail-btn--switch {
-  background-color: var(--primary, #2d9d8a);
-  color: #ffffff;
-  border-color: var(--primary, #2d9d8a);
+  background-color: var(--primary, var(--pr));
+  color: #fff;
+  border-color: var(--primary, var(--pr));
 }
 
 /* 禁用态 */
@@ -640,14 +640,14 @@
 .bk-detail-section-title {
   font-size: 26rpx;
   font-weight: 700;
-  color: var(--fg, #1a1c19);
+  color: var(--fg, var(--fg));
   margin-bottom: 16rpx;
 }
 
 .bk-detail-loading,
 .bk-detail-empty {
   font-size: 24rpx;
-  color: var(--fg-3, #8b8e89);
+  color: var(--fg-3, var(--fg3));
   padding: 16rpx 0;
 }
 
@@ -661,7 +661,7 @@
 .bk-member-skeleton__item {
   height: 80rpx;
   border-radius: var(--radius-sm, 16rpx);
-  background-color: var(--bg, #f6f7f4);
+  background-color: var(--bg, var(--bg));
   position: relative;
   overflow: hidden;
 }
@@ -690,7 +690,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 18rpx 22rpx;
-  background-color: var(--bg, #f6f7f4);
+  background-color: var(--bg, var(--bg));
   border-radius: var(--radius-sm, 16rpx);
 }
 
@@ -708,7 +708,7 @@
 .bk-member-name {
   font-size: 26rpx;
   font-weight: 700;
-  color: var(--fg, #1a1c19);
+  color: var(--fg, var(--fg));
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -717,7 +717,7 @@
 
 .bk-member-email {
   font-size: 20rpx;
-  color: var(--fg-3, #8b8e89);
+  color: var(--fg-3, var(--fg3));
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -737,7 +737,7 @@
   background-color: rgba(224, 96, 85, 0.1);
   font-size: 22rpx;
   font-weight: 700;
-  color: var(--expense, #e06055);
+  color: var(--expense, var(--exp));
 }
 
 .bk-detail-safe {
@@ -768,13 +768,13 @@
 
 .bk-detail-stat-label {
   font-size: 22rpx;
-  color: var(--fg-3, #8b8e89);
+  color: var(--fg-3, var(--fg3));
   line-height: 1.3;
 }
 
 .bk-detail-stat-value {
   font-size: 26rpx;
-  color: var(--fg, #1a1c19);
+  color: var(--fg, var(--fg));
   font-weight: 700;
   line-height: 1.3;
 }
@@ -788,7 +788,7 @@
 /* 分隔线 */
 .bk-detail-divider {
   height: 1rpx;
-  background-color: var(--border-light, #edeee9);
+  background-color: var(--border-light, var(--bdL));
   margin: 20rpx 0;
 }
 
@@ -799,13 +799,13 @@
   border-radius: 100rpx;
   font-weight: 700;
   flex-shrink: 0;
-  background-color: var(--bg, #f6f7f4);
-  color: var(--fg-3, #8b8e89);
+  background-color: var(--bg, var(--bg));
+  color: var(--fg-3, var(--fg3));
 }
 
 .bk-member-role-tag--owner {
   background-color: rgba(45, 157, 138, 0.1);
-  color: var(--primary, #2d9d8a);
+  color: var(--primary, var(--pr));
 }
 
 /* 操作按钮区粘性底部 */
@@ -830,20 +830,20 @@
 
 .bk-form-label--required::before {
   content: "*";
-  color: var(--expense, #e06055);
+  color: var(--expense, var(--exp));
   margin-right: 6rpx;
 }
 
 .bk-form-input--underlined {
   border: none;
-  border-bottom: 2rpx solid var(--border, #e0e2dd);
+  border-bottom: 2rpx solid var(--border, var(--bd));
   border-radius: 0;
   padding: 12rpx 0 8rpx;
   background: transparent;
 }
 
 .bk-form-input--underlined:focus {
-  border-bottom-color: var(--primary, #2d9d8a);
+  border-bottom-color: var(--primary, var(--pr));
 }
 
 /* 邀请成员模式下表单标签更宽 */
@@ -863,7 +863,7 @@
 
 .bk-invite-generate__hint {
   font-size: 26rpx;
-  color: var(--fg-3, #8b8e89);
+  color: var(--fg-3, var(--fg3));
   text-align: center;
   line-height: 1.5;
 }
@@ -886,7 +886,7 @@
 .bk-invite-code-card {
   width: 100%;
   background-color: var(--surface, #ffffff);
-  border: 1rpx solid var(--border-light, #edeee9);
+  border: 1rpx solid var(--border-light, var(--bdL));
   border-radius: var(--radius-md, 24rpx);
   padding: 28rpx;
   display: flex;
@@ -904,16 +904,16 @@
   justify-content: space-between;
   gap: 20rpx;
   padding: 28rpx 24rpx;
-  background-color: var(--bg, #f6f7f4);
+  background-color: var(--bg, var(--bg));
   border-radius: var(--radius-sm, 16rpx);
-  border: 2rpx dashed var(--primary, #2d9d8a);
+  border: 2rpx dashed var(--primary, var(--pr));
   box-sizing: border-box;
 }
 
 .bk-invite-code {
   font-size: 44rpx;
   font-weight: 800;
-  color: var(--primary, #2d9d8a);
+  color: var(--primary, var(--pr));
   letter-spacing: 6rpx;
   font-family: monospace;
   line-height: 1;
@@ -927,7 +927,7 @@
   justify-content: center;
   padding: 14rpx 32rpx;
   border-radius: 100rpx;
-  background: var(--primary, #2d9d8a);
+  background: var(--primary, var(--pr));
   box-shadow: 0 4rpx 14rpx rgba(45, 157, 138, 0.25);
   transition: transform 0.15s ease, opacity 0.15s ease, box-shadow 0.15s ease;
 }
@@ -941,20 +941,20 @@
 .bk-invite-code-copy__label {
   font-size: 24rpx;
   font-weight: 700;
-  color: #ffffff;
+  color: #fff;
   line-height: 1;
 }
 
 .bk-invite-hint {
   font-size: 24rpx;
-  color: var(--fg-2, #5a5d58);
+  color: var(--fg-2, var(--fg2));
   text-align: center;
   line-height: 1.5;
 }
 
 .bk-invite-tip {
   font-size: 22rpx;
-  color: var(--fg-3, #8b8e89);
+  color: var(--fg-3, var(--fg3));
   text-align: center;
   line-height: 1.5;
   padding: 0 12rpx;
@@ -977,7 +977,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: rgba(0, 0, 0, 0.45);
+  background-color: var(--ov);
   animation: bkSwitchFadeIn 0.2s ease;
 }
 
@@ -1008,21 +1008,21 @@
 .bk-switch-title {
   font-size: 34rpx;
   font-weight: 800;
-  color: var(--fg, #1a1c19);
+  color: var(--fg, var(--fg));
   margin-bottom: 20rpx;
   line-height: 1.3;
 }
 
 .bk-switch-desc {
   font-size: 26rpx;
-  color: var(--fg-2, #5a5d58);
+  color: var(--fg-2, var(--fg2));
   line-height: 1.6;
   margin-bottom: 20rpx;
 }
 
 .bk-switch-name {
   font-weight: 800;
-  color: var(--fg, #1a1c19);
+  color: var(--fg, var(--fg));
 }
 
 .bk-switch-list {
@@ -1030,7 +1030,7 @@
   flex-direction: column;
   gap: 14rpx;
   padding: 20rpx 24rpx;
-  background-color: var(--bg, #f6f7f4);
+  background-color: var(--bg, var(--bg));
   border-radius: var(--radius-md, 24rpx);
   margin-bottom: 20rpx;
   overflow-y: auto;
@@ -1047,18 +1047,18 @@
 
 .bk-switch-label {
   font-weight: 800;
-  color: var(--fg, #1a1c19);
+  color: var(--fg, var(--fg));
   flex-shrink: 0;
 }
 
 .bk-switch-text {
-  color: var(--fg-2, #5a5d58);
+  color: var(--fg-2, var(--fg2));
   flex: 1;
 }
 
 .bk-switch-current {
   font-size: 24rpx;
-  color: var(--fg-3, #8b8e89);
+  color: var(--fg-3, var(--fg3));
   margin-bottom: 28rpx;
   line-height: 1.4;
 }
@@ -1067,7 +1067,7 @@
   display: flex;
   gap: 16rpx;
   padding-top: 20rpx;
-  border-top: 1rpx solid var(--border-light, #edeee9);
+  border-top: 1rpx solid var(--border-light, var(--bdL));
 }
 
 .bk-switch-btn {
@@ -1088,12 +1088,12 @@
 }
 
 .bk-switch-btn--cancel {
-  background-color: var(--bg, #f6f7f4);
-  color: var(--fg, #1a1c19);
+  background-color: var(--bg, var(--bg));
+  color: var(--fg, var(--fg));
 }
 
 .bk-switch-btn--confirm {
-  background-color: var(--primary, #2d9d8a);
-  color: #ffffff;
+  background-color: var(--primary, var(--pr));
+  color: #fff;
 }
 

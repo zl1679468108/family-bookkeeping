@@ -16,7 +16,7 @@
 
 .ft-field-label {
   font-size: 28rpx;
-  color: var(--fg, #24312d);
+  color: var(--fg, var(--fg));
   font-weight: 700;
 }
 
@@ -36,7 +36,7 @@
 
 .ft-field-value {
   font-size: 28rpx;
-  color: var(--fg, #24312d);
+  color: var(--fg, var(--fg));
   font-weight: 650;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -45,7 +45,7 @@
 
 .ft-field-placeholder {
   font-size: 28rpx;
-  color: var(--fg-3, #8b8e89);
+  color: var(--fg-3, var(--fg3));
 }
 
 .ft-field-arrow {
@@ -58,7 +58,7 @@
   flex: 1;
   text-align: right;
   font-size: 28rpx;
-  color: var(--fg, #24312d);
+  color: var(--fg, var(--fg));
   font-weight: 650;
   padding-left: 20rpx;
 }

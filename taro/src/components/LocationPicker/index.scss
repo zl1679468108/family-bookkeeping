@@ -148,12 +148,12 @@
   display: block;
   padding: 10rpx 32rpx 16rpx;
   font-size: 22rpx;
-  color: #2d9d8a;
+  color: var(--pr);
   background-color: var(--prBg);
 }
 
 .lp-accuracy--low {
-  color: #e06055;
+  color: var(--exp);
 }
 
 .lp-addr-icon {

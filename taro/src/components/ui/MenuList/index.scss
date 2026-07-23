@@ -1,6 +1,6 @@
 .menu-list {
   border-radius: 28rpx;
-  border: 1rpx solid var(--border, #e0e2dd);
+  border: 1rpx solid var(--border, var(--bd));
   background: var(--surface);
   overflow: hidden;
   margin-bottom: 18rpx;
@@ -13,7 +13,7 @@
   align-items: center;
   gap: 18rpx;
   padding: 20rpx 26rpx;
-  border-bottom: 1rpx solid var(--border-light, #edeee9);
+  border-bottom: 1rpx solid var(--border-light, var(--bdL));
 }
 
 .menu-list__item:last-child {
@@ -38,7 +38,7 @@
 .menu-list__label {
   flex: 1;
   min-width: 0;
-  color: var(--fg, #1a1c19);
+  color: var(--fg, var(--fg));
   font-size: 28rpx;
   font-weight: 650;
 }
@@ -52,11 +52,11 @@
 }
 
 .menu-list__arrow {
-  color: var(--fg-3, #8b8e89);
+  color: var(--fg-3, var(--fg3));
   font-size: 34rpx;
   font-weight: 300;
 }
 
 .menu-list__item--danger .menu-list__label {
-  color: var(--expense, #e06055);
+  color: var(--expense, var(--exp));
 }

@@ -1,6 +1,6 @@
 .app-section {
   background: var(--surface);
-  border: 1rpx solid var(--border, #e0e2dd);
+  border: 1rpx solid var(--border, var(--bd));
   border-radius: 28rpx;
   padding: 28rpx;
   margin-bottom: 20rpx;
@@ -35,13 +35,13 @@
 .app-section__title {
   font-size: 30rpx;
   font-weight: 700;
-  color: var(--fg, #1a1c19);
+  color: var(--fg, var(--fg));
   line-height: 1.25;
 }
 
 .app-section__subtitle {
   font-size: 22rpx;
-  color: var(--fg-3, #8b8e89);
+  color: var(--fg-3, var(--fg3));
   line-height: 1.35;
 }
 
@@ -55,7 +55,7 @@
 .app-section__action {
   flex-shrink: 0;
   font-size: 24rpx;
-  color: var(--primary, #2d9d8a);
+  color: var(--primary, var(--pr));
   font-weight: 700;
   line-height: 1.4;
   padding-top: 2rpx;

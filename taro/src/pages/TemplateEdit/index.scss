@@ -32,7 +32,7 @@
 }
 .tpl-label--required::before {
   content: "*";
-  color: var(--expense, #e85d5d);
+  color: var(--exp);
   margin-right: 4rpx;
   font-weight: 700;
   line-height: 1.2;
@@ -135,10 +135,10 @@
   font-weight: 400;
 }
 .tpl-picker-value--expense {
-  color: var(--expense, #e85d5d);
+  color: var(--exp);
 }
 .tpl-picker-value--income {
-  color: var(--income, #4caf50);
+  color: var(--inc);
 }
 .tpl-picker-chevron {
   flex-shrink: 0;
@@ -219,7 +219,7 @@
   font-weight: 600;
 }
 .tpl-location-card__action--danger {
-  color: var(--expense, #e85d5d);
+  color: var(--exp);
 }
 .tpl-location-card__divider {
   font-size: 22rpx;
@@ -262,8 +262,8 @@
   height: 88rpx;
   border-radius: 16rpx;
   background: var(--bg);
-  border: 2rpx solid var(--danger, #ef5350);
-  color: var(--danger, #ef5350);
+  border: 2rpx solid var(--exp);
+  color: var(--exp);
   display: flex;
   align-items: center;
   justify-content: center;

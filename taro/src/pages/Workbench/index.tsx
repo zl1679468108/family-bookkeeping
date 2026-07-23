@@ -10,7 +10,7 @@
 import { Text } from "@tarojs/components";
 import Taro from "@tarojs/taro";
 import PageContainer from "../../components/PageContainer";
-import { MenuList } from "../../components/ui";
+import { MenuList, PageHero } from "../../components/ui";
 import "./index.scss";
 
 export default function Workbench() {
@@ -49,6 +49,11 @@ export default function Workbench() {
 
   return (
     <PageContainer>
+      <PageHero
+        title="工作台"
+        meta="账本、分类、模板与预算，一站管理"
+        tone="surface"
+      />
       <MenuList
         items={entries.map((item) => ({
           key: item.label,

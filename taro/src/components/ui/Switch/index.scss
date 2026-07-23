@@ -14,7 +14,7 @@
     top: 4rpx; left: 4rpx;
     width: 44rpx; height: 44rpx;
     border-radius: 50%;
-    background: #fff;
+    background: var(--srf);
     box-shadow: var(--sh1);
     transition: transform var(--df) var(--ease);
   }

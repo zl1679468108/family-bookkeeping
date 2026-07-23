@@ -14,7 +14,7 @@
 .cats-grid-card {
   background-color: var(--surface, #ffffff);
   border-radius: var(--radius-lg, 24rpx);
-  border: 2rpx solid var(--border, #e0e2dd);
+  border: 2rpx solid var(--border, var(--bd));
   padding: 20rpx 18rpx;
   display: flex;
   flex-direction: column;
@@ -27,7 +27,7 @@
 
 .cats-grid-card:active {
   transform: scale(0.97);
-  border-color: var(--primary, #2d9d8a);
+  border-color: var(--primary, var(--pr));
 }
 
 .cats-grid-card--sort {
@@ -52,7 +52,7 @@
 .cats-grid-card__name {
   font-size: 28rpx;
   font-weight: 700;
-  color: var(--fg, #1a1c19);
+  color: var(--fg, var(--fg));
   line-height: 1.3;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -74,13 +74,13 @@
 }
 
 .cats-tag--default {
-  color: var(--fg-3, #8b8e89);
-  background-color: var(--bg, #f6f7f4);
-  border: 1rpx solid var(--border-light, #edeee9);
+  color: var(--fg-3, var(--fg3));
+  background-color: var(--bg, var(--bg));
+  border: 1rpx solid var(--border-light, var(--bdL));
 }
 
 .cats-tag--custom {
-  color: var(--primary, #2d9d8a);
+  color: var(--primary, var(--pr));
   background-color: rgba(45, 157, 138, 0.08);
 }
 
@@ -99,10 +99,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--bg, #f6f7f4);
+  background: var(--bg, var(--bg));
   border-radius: 8rpx;
   font-size: 22rpx;
-  color: var(--fg-2, #5a5d58);
+  color: var(--fg-2, var(--fg2));
   font-weight: 700;
 }
 
@@ -135,7 +135,7 @@
 }
 
 .cats-grid-card__drag-handle {
-  color: var(--fg-3, #8b8e89);
+  color: var(--fg-3, var(--fg3));
   font-size: 32rpx;
   line-height: 1;
   padding: 0 4rpx;
@@ -164,31 +164,31 @@
 .cats-pill-tab {
   padding: 14rpx 32rpx;
   border-radius: 32rpx;
-  background-color: var(--bg, #f6f7f4);
+  background-color: var(--bg, var(--bg));
   transition: all 0.15s ease;
 }
 
 .cats-pill-tab--active {
-  background: linear-gradient(135deg, #2d9d8a 0%, #45b7a7 100%);
+  background: linear-gradient(135deg, var(--pr) 0%, var(--pr) 100%);
   box-shadow: 0 4rpx 12rpx rgba(45, 157, 138, 0.2);
 }
 
 .cats-pill-tab--active .cats-pill-tab__text {
-  color: #ffffff;
+  color: #fff;
 }
 
 .cats-pill-tab__text {
   font-size: 26rpx;
   font-weight: 700;
-  color: var(--fg-2, #5a5d58);
+  color: var(--fg-2, var(--fg2));
 }
 
 .cats-sort-btn {
   padding: 12rpx 24rpx;
   border-radius: 32rpx;
-  border: 2rpx solid var(--border, #e0e2dd);
+  border: 2rpx solid var(--border, var(--bd));
   font-size: 24rpx;
-  color: var(--fg-2, #5a5d58);
+  color: var(--fg-2, var(--fg2));
   font-weight: 600;
 }
 
@@ -205,9 +205,9 @@
   gap: 8rpx;
   padding: 12rpx 28rpx;
   border-radius: 32rpx;
-  background: linear-gradient(135deg, #2d9d8a 0%, #45b7a7 100%);
+  background: linear-gradient(135deg, var(--pr) 0%, var(--pr) 100%);
   font-size: 24rpx;
-  color: #ffffff;
+  color: #fff;
   font-weight: 700;
   box-shadow: 0 4rpx 12rpx rgba(45, 157, 138, 0.25);
 }
@@ -236,14 +236,14 @@
 
 .cats-sort-hint text {
   font-size: 24rpx;
-  color: var(--primary, #2d9d8a);
+  color: var(--primary, var(--pr));
 }
 
 .cats-sort-save {
   padding: 12rpx 28rpx;
   border-radius: 32rpx;
-  background: linear-gradient(135deg, #2d9d8a 0%, #45b7a7 100%);
-  color: #ffffff;
+  background: linear-gradient(135deg, var(--pr) 0%, var(--pr) 100%);
+  color: #fff;
   font-size: 24rpx;
   font-weight: 700;
   box-shadow: 0 4rpx 12rpx rgba(45, 157, 138, 0.25);
@@ -312,7 +312,7 @@
 .catds-hero__name {
   font-size: 34rpx;
   font-weight: 700;
-  color: var(--fg, #1a1c19);
+  color: var(--fg, var(--fg));
   line-height: 1.2;
 }
 
@@ -331,29 +331,29 @@
 }
 
 .catds-badge--expense {
-  color: #dc2626;
-  background-color: #fee2e2;
+  color: var(--exp);
+  background-color: var(--expBg);
 }
 
 .catds-badge--income {
-  color: #059669;
-  background-color: #d1fae5;
+  color: var(--inc);
+  background-color: var(--incBg);
 }
 
 .catds-badge--default {
-  color: var(--fg-2, #5a5d58);
-  background-color: var(--bg, #f6f7f4);
-  border: 2rpx solid var(--border-light, #edeee9);
+  color: var(--fg-2, var(--fg2));
+  background-color: var(--bg, var(--bg));
+  border: 2rpx solid var(--border-light, var(--bdL));
 }
 
 .catds-badge--custom {
-  color: var(--primary, #2d9d8a);
-  background-color: var(--primary-bg, #e7f5f2);
+  color: var(--primary, var(--pr));
+  background-color: var(--primary-bg, var(--prBg));
 }
 
 .catds-divider {
   height: 2rpx;
-  background-color: var(--border-light, #edeee9);
+  background-color: var(--border-light, var(--bdL));
   margin: 0 0 24rpx;
 }
 
@@ -374,13 +374,13 @@
 
 .catds-item__label {
   font-size: 24rpx;
-  color: var(--fg-3, #8b8e89);
+  color: var(--fg-3, var(--fg3));
   line-height: 1.3;
 }
 
 .catds-item__value {
   font-size: 26rpx;
-  color: var(--fg, #1a1c19);
+  color: var(--fg, var(--fg));
   font-weight: 500;
   word-break: break-all;
   line-height: 1.4;
@@ -420,14 +420,14 @@
 
 .catds-btn--edit {
   background-color: var(--surface, #ffffff);
-  border: 2rpx solid var(--primary, #2d9d8a);
-  color: var(--primary, #2d9d8a);
+  border: 2rpx solid var(--primary, var(--pr));
+  color: var(--primary, var(--pr));
 }
 
 .catds-btn--delete {
   background-color: var(--surface, #ffffff);
-  border: 2rpx solid var(--expense, #e06055);
-  color: var(--expense, #e06055);
+  border: 2rpx solid var(--expense, var(--exp));
+  color: var(--expense, var(--exp));
 }
 
 /* =========================================================
@@ -441,7 +441,7 @@
 /* 表单组 */
 .catfs-form-group {
   padding: 20rpx 0;
-  border-bottom: 2rpx solid var(--border-light, #edeee9);
+  border-bottom: 2rpx solid var(--border-light, var(--bdL));
 }
 
 .catfs-form-group:last-child {
@@ -451,13 +451,13 @@
 .catfs-label {
   display: block;
   font-size: 26rpx;
-  color: var(--fg-2, #5a5d58);
+  color: var(--fg-2, var(--fg2));
   font-weight: 600;
   margin-bottom: 16rpx;
 }
 
 .catfs-label__req {
-  color: var(--expense, #e06055);
+  color: var(--expense, var(--exp));
   margin-right: 4rpx;
 }
 
@@ -465,8 +465,8 @@
   width: 100%;
   height: 80rpx;
   font-size: 30rpx;
-  color: var(--fg, #1a1c19);
-  border: 2rpx solid var(--border, #e0e2dd);
+  color: var(--fg, var(--fg));
+  border: 2rpx solid var(--border, var(--bd));
   border-radius: var(--radius-md, 16rpx);
   padding: 0 24rpx;
   box-sizing: border-box;
@@ -474,7 +474,7 @@
 }
 
 .catfs-input::placeholder {
-  color: var(--fg-3, #8b8e89);
+  color: var(--fg-3, var(--fg3));
 }
 
 /* 图标选择器容器 */
@@ -501,8 +501,8 @@
   justify-content: center;
   height: 84rpx;
   border-radius: 20rpx;
-  background: var(--primary, #2d9d8a);
-  color: #ffffff;
+  background: var(--primary, var(--pr));
+  color: #fff;
   font-size: 30rpx;
   font-weight: 700;
 }

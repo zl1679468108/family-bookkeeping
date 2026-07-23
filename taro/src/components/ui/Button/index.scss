@@ -49,8 +49,8 @@
 
   /* pressed（替代 hover） */
   &--pressed { opacity: 0.82; }
-  &--primary.ui-btn--pressed,
-  &--danger.ui-btn--pressed { background: var(--prD); }
+  &--primary.ui-btn--pressed { background: var(--prD); }
+  &--danger.ui-btn--pressed { background: var(--exp); filter: brightness(0.92); }
 
   &--disabled,
   &--loading {

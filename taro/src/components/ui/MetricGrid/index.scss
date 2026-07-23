@@ -36,7 +36,7 @@
   min-width: 0;
   padding: 24rpx;
   border-radius: 26rpx;
-  border: 1rpx solid var(--border, #e0e2dd);
+  border: 1rpx solid var(--border, var(--bd));
   background: var(--surface);
   box-shadow: 0 8rpx 24rpx rgba(36, 49, 45, 0.035);
 }
@@ -44,7 +44,7 @@
 .metric-card__label {
   display: block;
   font-size: 22rpx;
-  color: var(--fg-3, #8b8e89);
+  color: var(--fg-3, var(--fg3));
   font-weight: 700;
   margin-bottom: 10rpx;
 }
@@ -54,7 +54,7 @@
   font-size: 34rpx;
   line-height: 1.15;
   font-weight: 800;
-  color: var(--fg, #1a1c19);
+  color: var(--fg, var(--fg));
   word-break: break-all;
 }
 
@@ -62,15 +62,15 @@
   display: block;
   margin-top: 8rpx;
   font-size: 21rpx;
-  color: var(--fg-3, #8b8e89);
+  color: var(--fg-3, var(--fg3));
 }
 
 .metric-card--income .metric-card__value {
-  color: var(--income, #3ba272);
+  color: var(--income, var(--inc));
 }
 
 .metric-card--expense .metric-card__value {
-  color: var(--expense, #e06055);
+  color: var(--expense, var(--exp));
 }
 
 .metric-card--accent .metric-card__value {

@@ -40,7 +40,7 @@
   width: 200rpx;
   height: 200rpx;
   border-radius: 50%;
-  background-color: var(--primary-bg, #e7f5f2);
+  background-color: var(--primary-bg, var(--prBg));
   overflow: hidden;
   transition: all 0.2s ease;
   box-shadow: 0 8rpx 32rpx rgba(45, 157, 138, 0.2);
@@ -51,7 +51,7 @@
   width: 200rpx;
   height: 200rpx;
   border-radius: 50%;
-  background: var(--primary-grad, linear-gradient(135deg, #2d9d8a 0%, #45b7a7 100%));
+  background: var(--primary-grad, linear-gradient(135deg, var(--pr) 0%, var(--pr) 100%));
   display: flex;
   align-items: center;
   justify-content: center;
@@ -61,7 +61,7 @@
 }
 
 .edit-avatar-placeholder-text {
-  color: #ffffff;
+  color: #fff;
   font-size: 80rpx;
   font-weight: 700;
   line-height: 1;
@@ -79,14 +79,14 @@
 
 .edit-avatar-loading-text {
   font-size: 24rpx;
-  color: var(--primary, #2d9d8a);
+  color: var(--primary, var(--pr));
   font-weight: 600;
 }
 
 .edit-avatar-tip {
   margin-top: 20rpx;
   font-size: 26rpx;
-  color: var(--fg-3, #8b8e89);
+  color: var(--fg-3, var(--fg3));
   font-weight: 500;
 }
 
@@ -94,7 +94,7 @@
 .edit-form {
   background-color: var(--surface, #ffffff);
   border-radius: var(--radius-lg, 32rpx);
-  border: 1rpx solid var(--border, #e0e2dd);
+  border: 1rpx solid var(--border, var(--bd));
   overflow: hidden;
   box-shadow: 0 4rpx 20rpx rgba(26, 28, 25, 0.04);
 }
@@ -103,7 +103,7 @@
   display: flex;
   align-items: center;
   padding: 32rpx 28rpx;
-  border-bottom: 1rpx solid var(--border-light, #edeee9);
+  border-bottom: 1rpx solid var(--border-light, var(--bdL));
   min-height: 100rpx;
 }
 
@@ -116,20 +116,20 @@
   width: 140rpx;
   font-size: 28rpx;
   font-weight: 600;
-  color: var(--fg, #1a1c19);
+  color: var(--fg, var(--fg));
 }
 
 .edit-input {
   flex: 1;
   font-size: 28rpx;
-  color: var(--fg, #1a1c19);
+  color: var(--fg, var(--fg));
   text-align: right;
   font-family: inherit;
   line-height: 1.4;
 }
 
 .edit-input-placeholder {
-  color: var(--fg-3, #8b8e89);
+  color: var(--fg-3, var(--fg3));
 }
 
 /* ========== 修改密码入口 ========== */
@@ -144,25 +144,25 @@
   padding: 32rpx 28rpx;
   background-color: var(--surface, #ffffff);
   border-radius: var(--radius-lg, 32rpx);
-  border: 1rpx solid var(--border, #e0e2dd);
+  border: 1rpx solid var(--border, var(--bd));
   box-shadow: 0 4rpx 20rpx rgba(26, 28, 25, 0.04);
   transition: background-color 0.15s ease;
 }
 
 .edit-pwd-entry:active {
-  background-color: var(--bg, #f6f7f4);
+  background-color: var(--bg, var(--bg));
 }
 
 .edit-pwd-text {
   font-size: 28rpx;
   font-weight: 600;
-  color: var(--fg, #1a1c19);
+  color: var(--fg, var(--fg));
 }
 
 .edit-pwd-arrow {
   font-size: 36rpx;
   font-weight: 300;
-  color: var(--fg-3, #8b8e89);
+  color: var(--fg-3, var(--fg3));
 }
 
 /* ========== 保存按钮 ========== */
@@ -176,7 +176,7 @@
   justify-content: center;
   height: 96rpx;
   border-radius: var(--radius-md, 24rpx);
-  background: var(--primary-grad, linear-gradient(135deg, #2d9d8a 0%, #45b7a7 100%));
+  background: var(--primary-grad, linear-gradient(135deg, var(--pr) 0%, var(--pr) 100%));
   box-shadow: 0 8rpx 24rpx rgba(45, 157, 138, 0.25);
   transition: opacity 0.15s ease, transform 0.15s ease;
 }
@@ -187,20 +187,20 @@
 }
 
 .edit-save-btn.disabled {
-  background-color: var(--primary-bg, #e7f5f2);
+  background-color: var(--primary-bg, var(--prBg));
   background-image: none;
   opacity: 0.6;
   pointer-events: none;
 }
 
 .edit-save-btn.disabled .edit-save-text {
-  color: var(--primary, #2d9d8a);
+  color: var(--primary, var(--pr));
 }
 
 .edit-save-text {
   font-size: 32rpx;
   font-weight: 700;
-  color: #ffffff;
+  color: #fff;
   letter-spacing: 2rpx;
 }
 
@@ -211,7 +211,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.45);
+  background-color: var(--ov);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -245,7 +245,7 @@
 .pwd-title {
   font-size: 34rpx;
   font-weight: 700;
-  color: var(--fg, #1a1c19);
+  color: var(--fg, var(--fg));
   text-align: center;
   margin-bottom: 24rpx;
 }
@@ -254,7 +254,7 @@
   display: flex;
   align-items: center;
   padding: 24rpx 0;
-  border-bottom: 1rpx solid var(--border-light, #edeee9);
+  border-bottom: 1rpx solid var(--border-light, var(--bdL));
 }
 
 .pwd-row:last-of-type {
@@ -266,19 +266,19 @@
   width: 180rpx;
   font-size: 26rpx;
   font-weight: 600;
-  color: var(--fg-2, #5a5d58);
+  color: var(--fg-2, var(--fg2));
 }
 
 .pwd-input {
   flex: 1;
   font-size: 28rpx;
-  color: var(--fg, #1a1c19);
+  color: var(--fg, var(--fg));
   font-family: inherit;
   line-height: 1.4;
 }
 
 .pwd-input-placeholder {
-  color: var(--fg-3, #8b8e89);
+  color: var(--fg-3, var(--fg3));
   font-size: 24rpx;
 }
 
@@ -287,7 +287,7 @@
   gap: 20rpx;
   margin-top: 32rpx;
   padding-top: 24rpx;
-  border-top: 1rpx solid var(--border-light, #edeee9);
+  border-top: 1rpx solid var(--border-light, var(--bdL));
 }
 
 .pwd-btn {
@@ -313,12 +313,12 @@
 }
 
 .pwd-cancel {
-  background-color: var(--bg, #f6f7f4);
-  color: var(--fg, #1a1c19);
+  background-color: var(--bg, var(--bg));
+  color: var(--fg, var(--fg));
 }
 
 .pwd-ok {
-  background: var(--primary-grad, linear-gradient(135deg, #2d9d8a 0%, #45b7a7 100%));
-  color: #ffffff;
+  background: var(--primary-grad, linear-gradient(135deg, var(--pr) 0%, var(--pr) 100%));
+  color: #fff;
   box-shadow: 0 4rpx 16rpx rgba(45, 157, 138, 0.25);
 }
