@@ -90,3 +90,8 @@
   position: relative;
   overflow: hidden;
 }
+
+/* 骨架屏内容区（非遮罩模式） */
+.page-layout-skeleton {
+  padding-top: 8rpx;
+}

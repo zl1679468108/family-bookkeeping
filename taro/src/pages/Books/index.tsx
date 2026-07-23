@@ -286,6 +286,7 @@ export default function BooksPage() {
       contentClassName="bk-content"
       loading={isLoading}
       loadingText="加载中…"
+      loadingVariant="cards"
       onRefresh={handleRefresh}
       refreshing={refreshing}
     >

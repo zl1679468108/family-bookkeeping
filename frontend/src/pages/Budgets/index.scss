@@ -46,7 +46,7 @@
     }
 
     &__fill--warn {
-      background: linear-gradient(90deg, var(--warn), #F0C040);
+      background: linear-gradient(90deg, var(--warn), var(--warn));
     }
 
     &__fill--danger {

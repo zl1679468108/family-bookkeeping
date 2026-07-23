@@ -1,4 +1,5 @@
 import React, { useMemo, useState, useRef } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { format } from 'date-fns'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { fetchBudgets, fetchBudgetStatus, upsertBudgets, copyBudgets } from '../../services/budgetsApi'
@@ -39,6 +40,7 @@ const progressFillClass = (variant: 'safe' | 'warn' | 'danger'): string => {
 }
 
 const Budgets: React.FC = () => {
+  const navigate = useNavigate()
   const queryClient = useQueryClient()
   const { categories } = useCategoryLookup()
 
@@ -307,6 +309,11 @@ const Budgets: React.FC = () => {
           <EmptyState
             title="暂无支出分类"
             description="请先在分类管理中添加支出分类"
+            action={
+              <Button variant="primary" size="sm" onClick={() => navigate('/categories')}>
+                去添加分类
+              </Button>
+            }
           />
         ) : (
           <div className="list-card-grid">

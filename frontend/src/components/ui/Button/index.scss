@@ -75,13 +75,15 @@
   }
 
   &--secondary {
-    background: var(--bg);
-    color: var(--fg);
-    border-color: var(--bd);
+    /* 对齐 Taro：品牌浅绿底 + 主色字，作为次主操作 */
+    background: var(--prBg);
+    color: var(--pr);
+    border-color: var(--prBd);
 
     &:hover:not(:disabled) {
-      background: var(--srf);
-      border-color: var(--bdH);
+      background: var(--prBg);
+      border-color: var(--pr);
+      opacity: 0.92;
     }
   }
 

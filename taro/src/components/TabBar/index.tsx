@@ -34,8 +34,8 @@ function containerStyle(isDark: boolean): React.CSSProperties {
 /** 根据主题返回 tab item 文字颜色 */
 function labelStyle(isActive: boolean, isDark: boolean): React.CSSProperties {
   if (isActive) {
-    // active 色不随主题变（主色绿）
-    return { color: "#2D9D8A" };
+    // 对齐 design tokens：亮色 --pr，暗色更亮一档 --pr(#45B7A7)
+    return { color: isDark ? "#45B7A7" : "#2D9D8A" };
   }
   return { color: isDark ? "#6E716C" : "#8B8E89" };
 }

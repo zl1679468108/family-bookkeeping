@@ -270,6 +270,7 @@ export default function BudgetsPage() {
     <PageContainer
       loading={isLoading || statusLoading}
       loadingText="加载中…"
+      loadingVariant="list"
       onRefresh={handleRefresh}
       refreshing={refreshing}
       header={
@@ -284,15 +285,12 @@ export default function BudgetsPage() {
             }}
           />
           <View className="bdg-toolbar__actions">
-            <View
-              className="bdg-save-btn bdg-save-btn--ghost"
-              onClick={() => setShowCopyConfirm(true)}
-            >
-              <Text className="bdg-save-btn__text bdg-save-btn__text--ghost">复制上月</Text>
-            </View>
-            <View className="bdg-save-btn" onClick={handleSave}>
-              <Text className="bdg-save-btn__text">保存</Text>
-            </View>
+            <Button variant="outline" size="sm" onClick={() => setShowCopyConfirm(true)}>
+              复制上月
+            </Button>
+            <Button variant="primary" size="sm" onClick={handleSave}>
+              保存
+            </Button>
           </View>
         </View>
       }

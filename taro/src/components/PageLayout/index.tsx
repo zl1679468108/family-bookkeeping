@@ -22,6 +22,7 @@ import { ReactNode, useCallback, useEffect, useState, CSSProperties } from "reac
 import { View, Text, ScrollView } from "@tarojs/components";
 import Taro, { useDidShow } from "@tarojs/taro";
 import LoadingOverlay from "../ui/LoadingOverlay";
+import { TableRowsSkeleton, CardGridSkeleton, StatCardsSkeleton } from "../ui/Skeleton";
 import { useTheme } from "../../context/ThemeContext";
 import { useNavBarTheme } from "../../hooks/useNavBarTheme";
 import "./index.scss";
@@ -34,6 +35,14 @@ interface PageLayoutProps {
   loading?: boolean;
   /** 加载中提示文字 */
   loadingText?: string;
+  /**
+   * loading 展示形态：
+   * - overlay：全屏遮罩（默认，兼容旧行为）
+   * - list：列表行骨架
+   * - cards：双列卡片骨架
+   * - home：统计卡 + 列表骨架
+   */
+  loadingVariant?: "overlay" | "list" | "cards" | "home";
   /** 外层容器 className */
   className?: string;
   /** 内容区 className（逃生舱，一般无需设置——间距已由 PageLayout 统一） */
@@ -65,6 +74,7 @@ export default function PageLayout({
   header,
   loading = false,
   loadingText,
+  loadingVariant = "overlay",
   className = "",
   contentClassName = "",
   scrollable = true,
@@ -108,16 +118,39 @@ export default function PageLayout({
     setLocalRefreshing(refreshing);
   }, [refreshing]);
 
-  // Loading 态（遮罩覆盖内容区，保留吸顶 header）
+  // Loading 态（遮罩或骨架；保留吸顶 header）
   if (loading) {
+    const skeletonBody =
+      loadingVariant === "home" ? (
+        <View className="page-layout-skeleton">
+          <StatCardsSkeleton count={3} />
+          <View style={{ height: "24rpx" }} />
+          <TableRowsSkeleton rows={4} />
+        </View>
+      ) : loadingVariant === "cards" ? (
+        <View className="page-layout-skeleton">
+          <CardGridSkeleton count={4} />
+        </View>
+      ) : loadingVariant === "list" ? (
+        <View className="page-layout-skeleton">
+          <TableRowsSkeleton rows={6} />
+        </View>
+      ) : null;
+
     return (
       <View className={`min-h-screen bg-bg flex flex-col page-layout ${themeClass} ${className}`}>
         {header}
         <View
-          className={`page-layout-content page-layout-content--overlay ${contentClassName}`}
+          className={`page-layout-content ${
+            loadingVariant === "overlay" ? "page-layout-content--overlay" : ""
+          } ${contentClassName}`}
           style={contentStyle}
         >
-          <LoadingOverlay tip={loadingText || "加载中…"} />
+          {loadingVariant === "overlay" || !skeletonBody ? (
+            <LoadingOverlay tip={loadingText || "加载中…"} />
+          ) : (
+            skeletonBody
+          )}
         </View>
       </View>
     );

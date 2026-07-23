@@ -13,7 +13,7 @@ import { View, Text, Input } from "@tarojs/components";
 import Taro, { useDidShow } from "@tarojs/taro";
 import { useQueryClient } from "@tanstack/react-query";
 import PageContainer from "../../components/PageContainer";
-import { EmptyState, SegControl } from "../../components/ui";
+import { Button, EmptyState, SegControl } from "../../components/ui";
 import CategoryIcon from "../../components/CategoryIcon";
 import ConfirmDialog from "../../components/ConfirmDialog";
 import { IconGrid } from "../../components/ui/IconGrid";
@@ -266,6 +266,7 @@ export default function CategoriesPage() {
     <PageContainer
       loading={isLoading}
       loadingText="加载中…"
+      loadingVariant="list"
       onRefresh={handleRefresh}
       refreshing={refreshing}
     >
@@ -287,27 +288,23 @@ export default function CategoriesPage() {
         <View className="cats-actions">
           {sortMode ? (
             <>
-              <View className="cats-sort-btn" onClick={handleCancelSortMode}>
-                <Text>取消</Text>
-              </View>
-              <View
-                className="cats-sort-save"
-                onClick={handleSaveSort}
-              >
-                <Text>完成排序</Text>
-              </View>
+              <Button variant="ghost" size="sm" onClick={handleCancelSortMode}>
+                取消
+              </Button>
+              <Button variant="primary" size="sm" onClick={handleSaveSort}>
+                完成排序
+              </Button>
             </>
           ) : (
             <>
               {!isLoading && filtered.length > 1 && (
-                <View className="cats-sort-btn" onClick={handleEnterSortMode}>
-                  <Text>编辑排序</Text>
-                </View>
+                <Button variant="outline" size="sm" onClick={handleEnterSortMode}>
+                  编辑排序
+                </Button>
               )}
-              <View className="cats-add-btn" onClick={handleAdd}>
-                <Text className="cats-add-btn__icon">＋</Text>
-                <Text className="cats-add-btn__text">新建分类</Text>
-              </View>
+              <Button variant="primary" size="sm" onClick={handleAdd}>
+                ＋ 新建分类
+              </Button>
             </>
           )}
         </View>

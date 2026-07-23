@@ -33,6 +33,8 @@ interface PageContainerProps {
   loading?: boolean;
   /** 加载中提示文字 */
   loadingText?: string;
+  /** 见 PageLayout.loadingVariant */
+  loadingVariant?: "overlay" | "list" | "cards" | "home";
   /** 外层容器 className */
   className?: string;
   /** 内容区 className（用于非 padding 的布局微调，如 flex/gap；间距由 PageContainer 统一提供） */
@@ -76,6 +78,7 @@ export default function PageContainer({
   header,
   loading = false,
   loadingText,
+  loadingVariant = "overlay",
   className = "",
   contentClassName,
   scrollable = true,
@@ -102,6 +105,7 @@ export default function PageContainer({
       header={header}
       loading={loading}
       loadingText={loadingText}
+      loadingVariant={loadingVariant}
       className={className}
       contentClassName={contentClassName}
       scrollable={scrollable}

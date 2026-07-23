@@ -14,7 +14,7 @@ import CategoryIcon from "../../components/CategoryIcon";
 import BottomSheet from "../../components/BottomSheet";
 import DragSortList from "../../components/DragSortList";
 import LocationPicker, { LocationResult } from "../../components/LocationPicker";
-import { EmptyState } from "../../components/ui";
+import { Button, EmptyState } from "../../components/ui";
 import {
   getTemplates,
   createTemplate,
@@ -287,6 +287,7 @@ export default function TemplateManager() {
     <PageContainer
       loading={isLoading}
       loadingText="加载中…"
+      loadingVariant="list"
       onRefresh={handleRefresh}
       refreshing={refreshing}
     >
@@ -294,29 +295,26 @@ export default function TemplateManager() {
       {/* ====== 顶部工具栏（对齐 Categories/Budgets：无外层卡片） ====== */}
       <View className="tpl-toolbar">
         {!isLoading && orderedTemplates.length > 1 && (
-          <View
-            className={`tpl-sort-btn ${sortMode ? "tpl-sort-btn--active" : ""}`}
+          <Button
+            variant={sortMode ? "primary" : "outline"}
+            size="sm"
             onClick={sortMode ? handleCancelSortMode : handleEnterSortMode}
           >
-            <Text>{sortMode ? "完成排序" : "编辑排序"}</Text>
-          </View>
+            {sortMode ? "完成排序" : "编辑排序"}
+          </Button>
         )}
-        <View className="tpl-add-btn" onClick={openCreateForm}>
-          <Text className="tpl-add-btn__icon">＋</Text>
-          <Text className="tpl-add-btn__text">新建模板</Text>
-        </View>
+        <Button variant="primary" size="sm" onClick={openCreateForm}>
+          ＋ 新建模板
+        </Button>
       </View>
 
       {/* 排序提示 */}
       {sortMode && (
         <View className="tpl-sort-hint">
           <Text>长按卡片拖动调整顺序，完成后点击保存</Text>
-            <View
-              className="tpl-sort-save"
-              onClick={handleSaveSort}
-            >
-              <Text>保存排序</Text>
-            </View>
+          <Button variant="primary" size="sm" onClick={handleSaveSort}>
+            保存排序
+          </Button>
         </View>
       )}
 

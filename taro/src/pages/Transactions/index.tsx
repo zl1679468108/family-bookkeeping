@@ -263,6 +263,7 @@ export default function Transactions() {
       <PageContainer
         loading={loading}
         loadingText="加载中…"
+      loadingVariant="list"
         onRefresh={handleRefresh}
         refreshing={refreshing}
         onLoadMore={handleLoadMore}

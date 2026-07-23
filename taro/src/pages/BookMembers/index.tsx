@@ -104,6 +104,7 @@ export default function BookMembers() {
     <PageContainer
       loading={isLoading || ownerLoading}
       loadingText="加载中…"
+      loadingVariant="list"
       onRefresh={handleRefresh}
       refreshing={refreshing}
     >

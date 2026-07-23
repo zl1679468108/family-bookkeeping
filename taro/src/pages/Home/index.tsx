@@ -141,6 +141,7 @@ export default function Home() {
       <PageContainer
       loading={initialLoading}
       loadingText="加载中…"
+      loadingVariant="home"
       onRefresh={handleRefresh}
       refreshing={refreshing}
     >

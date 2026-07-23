@@ -14,6 +14,7 @@ import { useState, useEffect, useCallback } from "react";
 import { View, Text, Input, Image } from "@tarojs/components";
 import Taro from "@tarojs/taro";
 import PageContainer from "../../components/PageContainer";
+import { Button } from "../../components/ui";
 import { useAuth } from "../../context/AuthContext";
 import {
   updateProfile as apiUpdateProfile,
@@ -236,12 +237,9 @@ export default function EditProfile() {
 
       {/* ===== 保存按钮 ===== */}
       <View className="edit-save-wrap">
-        <View
-          className="edit-save-btn"
-          onClick={handleSave}
-        >
-          <Text className="edit-save-text">更新信息</Text>
-        </View>
+        <Button variant="primary" block size="lg" onClick={handleSave}>
+          更新信息
+        </Button>
       </View>
 
       {/* ===== 修改密码弹窗 ===== */}
