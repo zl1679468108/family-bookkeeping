@@ -12,9 +12,9 @@ import { EmptyState } from "../../components/ui";
 import ConfirmDialog from "../../components/ConfirmDialog";
 import BottomSheet from "../../components/BottomSheet";
 import { useMonthSelector } from "../../hooks/useMonthSelector";
-import { useManualQuery } from "../../hooks/useManualQuery";
+import { useManualQuery, invalidateManualQuery } from "../../hooks/useManualQuery";
 import { useSubmit } from "../../hooks/useSubmit";
-import { fetchBudgets, fetchBudgetStatus, upsertBudgets } from "../../services/budgetsApi";
+import { fetchBudgets, fetchBudgetStatus, upsertBudgets, copyBudgets } from "../../services/budgetsApi";
 import { fetchCategories } from "../../services/categoriesApi";
 import "./index.scss";
 
@@ -128,6 +128,7 @@ export default function BudgetsPage() {
   const handleUpsert = (items: Array<{ category: string; amount: number }>) => {
     run(async () => {
       await upsertBudgets({ month: monthKey, budgets: items });
+      invalidateManualQuery(`budgets-`);
       Taro.showToast({ title: "预算保存成功", icon: "success" });
       refetchBudgets();
       refetchStatus();
@@ -138,12 +139,35 @@ export default function BudgetsPage() {
     });
   };
 
+  /** 正数全量 + 原先有预算现为 0 的分类一并提交，确保清零可落库 */
   const handleSave = () => {
     const items = expenseCats
-      .filter((c) => (editValues[c.id] || 0) > 0)
-      .map((c) => ({ category: c.id, amount: editValues[c.id] || 0 }));
+      .map((c) => {
+        const amount = editValues[c.id] || 0;
+        const prev = bm.get(c.id) || 0;
+        if (amount > 0 || prev > 0) return { category: c.id, amount };
+        return null;
+      })
+      .filter(Boolean) as Array<{ category: string; amount: number }>;
     if (items.length > 0) handleUpsert(items);
     else Taro.showToast({ title: "请至少设置一个分类的预算金额", icon: "none" });
+  };
+
+  const [showCopyConfirm, setShowCopyConfirm] = useState(false);
+
+  const handleCopyLastMonth = () => {
+    run(async () => {
+      const result = await copyBudgets({ targetMonth: monthKey });
+      if (!result || result.length === 0) {
+        Taro.showToast({ title: "上月暂无预算可复制", icon: "none" });
+        return;
+      }
+      Taro.showToast({ title: `已复制 ${result.length} 条`, icon: "success" });
+      refetchBudgets();
+      refetchStatus();
+    }, "复制中…").catch((err: any) => {
+      Taro.showToast({ title: err?.message || "复制失败", icon: "none" });
+    });
   };
 
   /** 点击卡片 → 打开详情弹窗 */
@@ -259,13 +283,16 @@ export default function BudgetsPage() {
               setMonth(m);
             }}
           />
-          <View
-            className="bdg-save-btn"
-            onClick={handleSave}
-          >
-            <Text className="bdg-save-btn__text">
-              保存
-            </Text>
+          <View className="bdg-toolbar__actions">
+            <View
+              className="bdg-save-btn bdg-save-btn--ghost"
+              onClick={() => setShowCopyConfirm(true)}
+            >
+              <Text className="bdg-save-btn__text bdg-save-btn__text--ghost">复制上月</Text>
+            </View>
+            <View className="bdg-save-btn" onClick={handleSave}>
+              <Text className="bdg-save-btn__text">保存</Text>
+            </View>
           </View>
         </View>
       }
@@ -502,6 +529,20 @@ export default function BudgetsPage() {
         confirmLoading={false}
         onCancel={() => setShowDeleteConfirm(false)}
         onConfirm={handleDetailDelete}
+      />
+
+      <ConfirmDialog
+        visible={showCopyConfirm}
+        title="复制上月预算"
+        message="将上月预算复制到当前月份（已有金额会被覆盖），是否继续？"
+        confirmText="确认复制"
+        danger={false}
+        confirmLoading={false}
+        onCancel={() => setShowCopyConfirm(false)}
+        onConfirm={() => {
+          setShowCopyConfirm(false);
+          handleCopyLastMonth();
+        }}
       />
     </PageContainer>
   );

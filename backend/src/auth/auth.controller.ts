@@ -77,11 +77,21 @@ export class AuthController {
 
   // 双 Token：用长令牌（refresh）换发新的访问令牌（access）
   // 不挂 TokenAuthGuard（否则无法在 access 过期时调用）
-  @UseGuards(new RateLimitGuard(60_000, 20))
+  // S2：收紧限流（5 次/分钟/IP）+ 透传 UA/IP 做审计
+  @UseGuards(new RateLimitGuard(60_000, 5))
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
-  async refresh(@Body() dto: RefreshDto) {
-    const data = await this.authService.refreshAuth(dto.refreshToken);
+  async refresh(@Body() dto: RefreshDto, @Req() req: Request) {
+    const forwarded = req.headers['x-forwarded-for'];
+    const ip =
+      typeof forwarded === 'string'
+        ? forwarded.split(',')[0].trim()
+        : req.ip || '';
+    const userAgent = String(req.headers['user-agent'] || '');
+    const data = await this.authService.refreshAuth(dto.refreshToken, {
+      ip,
+      userAgent,
+    });
     return { message: '刷新成功', data };
   }
 

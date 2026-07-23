@@ -11,25 +11,47 @@
  * 替代 useQuery，提供相同的数据获取能力：
  *   - key 变化时自动重新请求（类似 queryKey）
  *   - 认证完成（user 不为 null）后才发起请求
+ *   - 可选短 TTL 内存缓存，减少页间来回重复请求
  *   - 返回 data / isLoading / isFetching / refetch
  *
  * 【使用方式】
  *   const { data, isLoading } = useManualQuery({
- *     key: `summary-${month}`,        // 变化时自动重新请求
- *     queryFn: () => fetchSummary(),   // 实际的 API 调用
- *     enabled: true,                   // 可选，默认 true
+ *     key: `summary-${month}`,
+ *     queryFn: () => fetchSummary(),
+ *     enabled: true,
+ *     staleTime: 30_000, // 可选，默认 30s；0 表示不缓存
  *   });
  *
- * 【与 React Query 的区别】
- *   - 不缓存数据（每次 key 变化都重新请求）
- *   - 不支持 staleTime（每次都发请求）
- *   - 不支持请求去重（同时多个组件会发多次）
- *
- * 小程序数据量小，这些限制不影响使用。
+ * 写操作成功后请手动 refetch()，或调用 invalidateManualQuery(prefix)。
  * ============================================================
  */
-import { useState, useEffect, useRef, useMemo } from "react";
+import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { useAuth } from "../context/AuthContext";
+
+interface CacheEntry {
+  data: unknown;
+  at: number;
+  userId: string;
+}
+
+/** 模块级短缓存：key → entry（按 user 隔离） */
+const queryCache = new Map<string, CacheEntry>();
+
+const DEFAULT_STALE_TIME = 30_000;
+
+/** 使缓存失效：prefix 匹配 key 前缀，不传则清空当前用户相关全部 */
+export function invalidateManualQuery(prefix?: string): void {
+  if (!prefix) {
+    queryCache.clear();
+    return;
+  }
+  for (const k of Array.from(queryCache.keys())) {
+    // 支持完整 key / 前缀 / 业务 key 片段（缓存 key 形态为 `${userId}::${key}`）
+    if (k === prefix || k.startsWith(prefix) || k.includes(`::${prefix}`) || k.includes(prefix)) {
+      queryCache.delete(k);
+    }
+  }
+}
 
 interface UseManualQueryOptions<T> {
   /** 查询标识，变化时重新请求（类似 queryKey 序列化后的字符串） */
@@ -38,6 +60,11 @@ interface UseManualQueryOptions<T> {
   queryFn: () => Promise<T>;
   /** 是否启用（默认 true，但需等认证完成） */
   enabled?: boolean;
+  /**
+   * 新鲜度窗口（ms）。在窗口内同 key 复用缓存，避免页间来回重复打接口。
+   * 设为 0 关闭缓存。默认 30s。
+   */
+  staleTime?: number;
 }
 
 interface UseManualQueryResult<T> {
@@ -52,60 +79,103 @@ export function useManualQuery<T>({
   key,
   queryFn,
   enabled = true,
+  staleTime = DEFAULT_STALE_TIME,
 }: UseManualQueryOptions<T>): UseManualQueryResult<T> {
-  // 从 AuthContext 获取用户状态，确保认证完成后才发请求
   const { user } = useAuth();
-  const [data, setData] = useState<T | undefined>(undefined);
+  const userId = user?.id || "";
+  const cacheKey = userId ? `${userId}::${key}` : key;
+
+  const [data, setData] = useState<T | undefined>(() => {
+    if (!userId || staleTime <= 0) return undefined;
+    const hit = queryCache.get(cacheKey);
+    if (hit && hit.userId === userId && Date.now() - hit.at < staleTime) {
+      return hit.data as T;
+    }
+    return undefined;
+  });
   const [isLoading, setIsLoading] = useState(true);
   const [isFetching, setIsFetching] = useState(false);
   const [error, setError] = useState<Error | null>(null);
   const lastKey = useRef("");
+  const queryFnRef = useRef(queryFn);
+  queryFnRef.current = queryFn;
 
-  const fetch = () => {
-    // T-L13: user 为 null 时关闭 loading，避免卡住
-    if (!enabled || !user) {
-      setIsLoading(false);
-      return;
-    }
-    setIsFetching(true);
-    setError(null);
-    if (!data) setIsLoading(true);
-    queryFn()
-      .then((res) => {
-        setData(res);
-      })
-      .catch((err) => {
-        // T-M9: 暴露错误状态，不再静默吞掉
-        setError(err instanceof Error ? err : new Error(String(err)));
-      })
-      .then(() => {
-        // 注意：用 .then() 兜底而非 .finally()，规避 Taro/微信 regenerator 下
-        // .finally 偶发不执行的隐患，确保 isLoading 一定复位（否则全屏遮罩会卡死拦截点击）
+  const fetch = useCallback(
+    (opts?: { force?: boolean }) => {
+      if (!enabled || !user) {
         setIsLoading(false);
-        setIsFetching(false);
-      });
-  };
+        return;
+      }
+
+      if (!opts?.force && staleTime > 0) {
+        const hit = queryCache.get(cacheKey);
+        if (hit && hit.userId === userId && Date.now() - hit.at < staleTime) {
+          setData(hit.data as T);
+          setIsLoading(false);
+          setIsFetching(false);
+          setError(null);
+          return;
+        }
+      }
+
+      setIsFetching(true);
+      setError(null);
+      setIsLoading((prev) => (data === undefined ? true : prev));
+
+      queryFnRef
+        .current()
+        .then((res) => {
+          setData(res);
+          if (staleTime > 0 && userId) {
+            queryCache.set(cacheKey, { data: res, at: Date.now(), userId });
+          }
+        })
+        .catch((err) => {
+          setError(err instanceof Error ? err : new Error(String(err)));
+        })
+        .then(() => {
+          setIsLoading(false);
+          setIsFetching(false);
+        });
+    },
+    // data used only for loading flag; intentionally not full dep of queryFn
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [enabled, user, userId, cacheKey, staleTime],
+  );
 
   useEffect(() => {
-    // key 变化时清空旧数据，重新请求
-    // 注意：fetch() 内 `if (!data) setIsLoading(true)` 依赖闭包中的 data，
-    // 但 setData(undefined) 是异步的，本轮闭包里 data 仍是旧值，
-    // 会导致切换月份/账本等 key 变化场景下 isLoading 不变 true、loading 遮罩不显示。
-    // 因此在 key 变化分支显式 setIsLoading(true)。
     if (key !== lastKey.current) {
       lastKey.current = key;
-      setData(undefined);
-      setIsLoading(true);
+      // 切换 key：先尝试读缓存再请求
+      let cached: T | undefined;
+      if (userId && staleTime > 0) {
+        const hit = queryCache.get(cacheKey);
+        if (hit && hit.userId === userId && Date.now() - hit.at < staleTime) {
+          cached = hit.data as T;
+        }
+      }
+      setData(cached);
+      setIsLoading(cached === undefined);
+      if (cached !== undefined) {
+        setIsFetching(false);
+        setError(null);
+        return;
+      }
     }
     fetch();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [key, user, enabled]);
+  }, [key, user, enabled, cacheKey]);
 
-  // 关键：缓存返回值，避免每次渲染都生成新对象触发子组件重渲染
+  const refetch = useCallback(() => {
+    if (userId) {
+      queryCache.delete(cacheKey);
+    }
+    fetch({ force: true });
+  }, [fetch, cacheKey, userId]);
+
   const result = useMemo<UseManualQueryResult<T>>(
-    () => ({ data, isLoading, isFetching, error, refetch: fetch }),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [data, isLoading, isFetching, error],
+    () => ({ data, isLoading, isFetching, error, refetch }),
+    [data, isLoading, isFetching, error, refetch],
   );
 
   return result;

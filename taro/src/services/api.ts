@@ -262,7 +262,12 @@ async function request<T>(
 
     const taroErr = err as { errMsg?: string };
     if (taroErr?.errMsg) {
-      throw new ApiError(taroErr.errMsg, 0);
+      const msg = taroErr.errMsg;
+      // 超时/失败时提示可能冷启动，避免用户以为卡死
+      if (/timeout|超时|fail/i.test(msg)) {
+        throw new ApiError("请求超时，服务可能正在冷启动，请稍后重试", 0);
+      }
+      throw new ApiError(msg, 0);
     }
     throw new ApiError("网络错误，请检查网络连接", 0);
   }

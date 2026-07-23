@@ -583,9 +583,12 @@ export class AuthService {
    */
   async refreshAuth(
     refreshToken: string,
+    meta?: { ip?: string; userAgent?: string },
   ): Promise<{ user: SafeUser; accessToken: string; refreshToken: string }> {
     const supabase = this.supabaseService.getClient();
     const refreshHash = this.tokenService.hashToken(refreshToken);
+    const ip = meta?.ip || '-';
+    const ua = (meta?.userAgent || '-').slice(0, 200);
 
     const { data: session, error } = await supabase
       .from('jj_user_sessions')
@@ -595,8 +598,13 @@ export class AuthService {
       .single();
 
     if (error || !session) {
+      this.logger.warn(`refresh rejected: invalid/expired token ip=${ip} ua=${ua}`);
       throw new UnauthorizedException('刷新令牌无效或已过期，请重新登录');
     }
+
+    this.logger.log(
+      `refresh ok user=${session.user_id} ip=${ip} ua=${ua}`,
+    );
 
     const { data: user, error: userError } = await supabase
       .from('jj_users')

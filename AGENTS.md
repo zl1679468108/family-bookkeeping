@@ -310,7 +310,7 @@ docs/
 - Taro 的 `TARO_APP_API_BASE_URL` 在构建时固化，生产需设为 `https://zlspace.site/api`。
 - 后端 `.env` 真相源是 `backend/.env.production`，部署时复制为 `/opt/family-bookkeeping/backend/.env`。
 
-**无 CI/CD**：无 GitHub Actions 或其他自动化流水线。
+**CI**：`.github/workflows/ci.yml` 对 backend/frontend/taro 跑 `tsc --noEmit` + 生产构建；**无自动部署**（部署仍走 `scripts/deploy-*.sh`）。
 
 ## 15. 重要注意事项（Gotchas）
 

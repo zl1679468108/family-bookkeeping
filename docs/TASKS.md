@@ -75,11 +75,11 @@
 - **X3. 三端校验**：`npx tsc --noEmit`（前端/后端/Taro）、`npm run build:prod`（前端）、`npm run build:weapp`（Taro）。
 - **X4. 上线协同**：后端与两前端必须同批次发布（返回结构 breaking）；灰度顺序建议 后端 → 前端 PC → Taro。
 
-### 安全加固（可选 / 后续，S 系列）⏳ 未做
+### 安全加固（S 系列）部分完成（2026-07-23）
 
-- **S1. Refresh Token 改存 httpOnly + Secure Cookie**（PC Web），降低 XSS 窃取风险（需后端 `Set-Cookie` + CSRF 防护；Taro 端 Cookie 支持需评估）。
-- **S2. Refresh 端点严格限流 + 审计日志（记录设备/IP/UA）**。
-- **S3. Refresh Token 绑定设备/UA（可选）**。
+- **S1.** ✅ 折中：PC refresh 改存 `sessionStorage`（关标签失效）；完整 httpOnly Cookie 待评估多账号。
+- **S2.** ✅ `/auth/refresh` 限流 5 次/分钟 + IP/UA 审计日志。
+- **S3.** ✅ 轻量：刷新时记录 UA/IP 日志（不做硬绑定，避免误杀）。
 
 ---
 
@@ -116,8 +116,22 @@
 
 ### ⏳ 待处理（低优先级，非阻断，可延后）
 
-- **Profile 主题切换**：PC 有深色模式切换，Taro 端无 —— 小程序端暂不需要，可标注为产品决策
 - **Budgets 月份选择搜索**：MonthPicker 已扩展可选未来月（至次年 12 月）与更早历史（2018 起）；仍无搜索框（原生 Picker 限制，可接受）
+- **S1 完整 httpOnly Cookie**：PC refresh 已改为 sessionStorage 折中方案；完整 Cookie + CSRF 与多账号切换冲突，专项评估后再做
+- **平台上架配置（用户操作）**：D1 域名 / D2 类目 / D3 隐私指引 / E1 审核备注 / E2 全量回归 — 见上架清单
+
+
+### ✅ 已完成（2026-07-23 优化全量）
+
+- **PC 预算落库**：单条编辑 / 删除改为立即 `upsertBudgets`；批量保存包含清零项；新增「复制上月」
+- **Taro 预算**：批量保存支持清零落库；「复制上月」确认弹窗；月份范围已扩展
+- **useManualQuery**：30s 内存缓存 + `invalidateManualQuery`；写后可主动失效
+- **Profile 主题**：Taro 已有暗色切换（此前 TASKS 过时）
+- **安全 S2/S3 轻量落地**：`/auth/refresh` 限流 5/min + IP/UA 审计日志；S1 折中为 refresh→sessionStorage
+- **冷启动文案**：前后端超时提示「服务可能正在冷启动」
+- **CI**：`.github/workflows/ci.yml` 三端 tsc + build
+- **L7 邀请表主键**：`database-init.sql` 已是 UUID，历史遗留关闭
+- **UGC**：`.env.example` 标注生产需开启 `WECHAT_MSG_SEC_CHECK_ENABLED`
 
 ### ✅ 已完成（2026-07-23 体验收尾）
 
@@ -148,8 +162,7 @@
 - **状态**：✅ 主体完成 — 新增字段时优先改 `shared-types`，再同步后端 DTO
 
 ### L7. 数据库 `jj_book_invitations` 主键类型不一致
-- **影响**：BIGSERIAL vs UUID 仅为风格差异，不影响功能
-- **状态**：⏳ 保留 — 后续重构邀请表时一并统一
+- **状态**：✅ 已统一为 UUID（见 `docs/database-init.sql`）
 
 ---
 

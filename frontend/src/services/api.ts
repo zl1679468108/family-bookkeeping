@@ -59,14 +59,30 @@ const getToken = (): string | null => localStorage.getItem(ACCESS_TOKEN_KEY)
 
 export const getAccessToken = (): string | null => localStorage.getItem(ACCESS_TOKEN_KEY)
 
-export const getRefreshToken = (): string | null => localStorage.getItem(REFRESH_TOKEN_KEY)
+/**
+ * Refresh 存 sessionStorage（S1 折中）：关闭标签即失效，降低 XSS 长期窃取窗口。
+ * Access 仍在 localStorage 以便同域多页读取；完整 httpOnly Cookie 方案与多账号切换冲突，后续专项评估。
+ * 兼容：若 sessionStorage 无值，回退读取 localStorage 旧键并迁移。
+ */
+export const getRefreshToken = (): string | null => {
+  const fromSession = sessionStorage.getItem(REFRESH_TOKEN_KEY)
+  if (fromSession) return fromSession
+  const legacy = localStorage.getItem(REFRESH_TOKEN_KEY)
+  if (legacy) {
+    sessionStorage.setItem(REFRESH_TOKEN_KEY, legacy)
+    localStorage.removeItem(REFRESH_TOKEN_KEY)
+    return legacy
+  }
+  return null
+}
 
 export const hasToken = (): boolean => Boolean(getToken())
 
 /** 持久化访问令牌 + 刷新令牌（登录/注册/刷新成功后调用） */
 export const storeTokens = (accessToken: string, refreshToken: string): void => {
   localStorage.setItem(ACCESS_TOKEN_KEY, accessToken.trim())
-  localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken.trim())
+  sessionStorage.setItem(REFRESH_TOKEN_KEY, refreshToken.trim())
+  localStorage.removeItem(REFRESH_TOKEN_KEY)
 }
 
 /** 仅更新访问令牌（刷新后调用） */
@@ -82,6 +98,7 @@ export const storeToken = (token: string): void => {
 export const clearStoredToken = (): void => {
   localStorage.removeItem(ACCESS_TOKEN_KEY)
   localStorage.removeItem(REFRESH_TOKEN_KEY)
+  sessionStorage.removeItem(REFRESH_TOKEN_KEY)
 }
 
 // ---- 自动刷新（single-flight）----
@@ -218,7 +235,7 @@ export const request = async <T>(path: string, options: RequestOptions = {}): Pr
       if (status === 503) {
         message = '服务暂不可用，请稍后重试'
       } else if (status === 504) {
-        message = '请求超时，请稍后重试'
+        message = '请求超时，服务可能正在冷启动，请稍后重试'
       } else if (status >= 500) {
         message = '服务器异常，请稍后重试'
       }
@@ -259,13 +276,13 @@ export const request = async <T>(path: string, options: RequestOptions = {}): Pr
       let message = err instanceof Error ? err.message : '请求失败'
       // AbortController 触发的 abort 错误
       if (err instanceof Error && (err.name === 'AbortError' || /aborted|timeout/i.test(message))) {
-        message = '请求超时，请稍后重试'
+        message = '请求超时，服务可能正在冷启动，请稍后重试'
       } else if (message === 'Failed to fetch') {
         message = '网络请求失败，请检查网络连接'
       } else if (message.includes('NetworkError')) {
         message = '网络错误，请检查网络连接'
       } else if (message.includes('timeout') || message.includes('Timeout')) {
-        message = '请求超时，请稍后重试'
+        message = '请求超时，服务可能正在冷启动，请稍后重试'
       }
       notify({ type: 'error', message })
     }

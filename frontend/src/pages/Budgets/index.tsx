@@ -1,7 +1,7 @@
 import React, { useMemo, useState, useRef } from 'react'
 import { format } from 'date-fns'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { fetchBudgets, fetchBudgetStatus, upsertBudgets } from '../../services/budgetsApi'
+import { fetchBudgets, fetchBudgetStatus, upsertBudgets, copyBudgets } from '../../services/budgetsApi'
 import { useDebouncedAction } from '../../hooks/useDebouncedAction'
 import { useCategoryLookup } from '../../hooks/useCategories'
 import { renderCategoryIcon } from '../../utils/renderCategoryIcon'
@@ -54,12 +54,6 @@ const Budgets: React.FC = () => {
   const [showEditForm, setShowEditForm] = useState(false)
   const [editFormValues, setEditFormValues] = useState<Record<string, string>>({})
 
-  const handleDeleteBudget = () => {
-    handleAmountChange(selectedBudget.category.name, '0')
-    setShowDetail(false)
-    setShowDeleteConfirm(false)
-    notify({ type: 'success', message: '预算已删除' })
-  }
 
   const { data: budgets = [], isLoading: budgetsLoading } = useQuery<BudgetRecord[]>({
     queryKey: ['budgets', selectedMonth],
@@ -119,8 +113,13 @@ const Budgets: React.FC = () => {
 
   const saveMutation = useMutation({
     mutationFn: (input: UpsertBudgetInput) => upsertBudgets(input),
-    onSuccess: () => {
-      notify({ type: 'success', message: '预算保存成功' })
+    onSuccess: (_data, variables) => {
+      // 单条清零不在这里 toast，由调用方提示「已删除」
+      const isSingleClear =
+        variables.budgets.length === 1 && variables.budgets[0].amount === 0
+      if (!isSingleClear) {
+        notify({ type: 'success', message: '预算保存成功' })
+      }
       queryClient.invalidateQueries({ queryKey: ['budgets', selectedMonth] })
       queryClient.invalidateQueries({ queryKey: ['budgets', 'status', selectedMonth] })
     },
@@ -129,13 +128,22 @@ const Budgets: React.FC = () => {
     },
   })
 
+  /** 构建需提交的预算列表：正数全量 + 原先有预算现清零的分类（amount=0 以落库） */
+  const buildBudgetPayload = (values: Record<string, number>) => {
+    return expenseCategories
+      .map((cat) => {
+        const amount = values[cat.name] || 0
+        const prev = budgetMap.get(cat.id) || 0
+        if (amount > 0 || prev > 0) {
+          return { category: cat.id, amount }
+        }
+        return null
+      })
+      .filter(Boolean) as { category: string; amount: number }[]
+  }
+
   const { run: handleSave, isRunning: saveLoading } = useDebouncedAction(async () => {
-    const budgetsArray = expenseCategories
-      .filter((cat) => (editValues[cat.name] || 0) > 0)
-      .map((cat) => ({
-        category: cat.id,
-        amount: editValues[cat.name] || 0,
-      }))
+    const budgetsArray = buildBudgetPayload(editValues)
 
     if (budgetsArray.length === 0) {
       notify({ type: 'error', message: '请至少设置一个分类的预算金额' })
@@ -146,6 +154,21 @@ const Budgets: React.FC = () => {
       month: selectedMonth,
       budgets: budgetsArray,
     })
+  })
+
+  const { run: handleCopyLastMonth, isRunning: copyLoading } = useDebouncedAction(async () => {
+    try {
+      const result = await copyBudgets({ targetMonth: selectedMonth })
+      if (!result || result.length === 0) {
+        notify({ type: 'error', message: '上月暂无预算可复制' })
+        return
+      }
+      notify({ type: 'success', message: `已复制上月 ${result.length} 条预算` })
+      queryClient.invalidateQueries({ queryKey: ['budgets', selectedMonth] })
+      queryClient.invalidateQueries({ queryKey: ['budgets', 'status', selectedMonth] })
+    } catch (err: any) {
+      notify({ type: 'error', message: err?.message || '复制上月预算失败' })
+    }
   })
 
   const handleOpenEditForm = (budget: any) => {
@@ -161,17 +184,65 @@ const Budgets: React.FC = () => {
     })
   }
 
+  /** 单条编辑立即落库（含清零） */
   const handleEditFormSave = () => {
+    if (!selectedBudget) return
     const num = parseFloat(editFormValues.budget)
     const newAmount = isNaN(num) ? 0 : Math.max(0, num)
-    handleAmountChange(selectedBudget.category.name, String(newAmount))
-    setSelectedBudget((prev: any) => ({
-      ...prev,
-      budget: newAmount,
-      remaining: newAmount - prev.spent,
-    }))
-    setShowEditForm(false)
-    setShowDetail(false)
+    const catName = selectedBudget.category.name as string
+    const catId = selectedBudget.category.id as string
+
+    if (newAmount === 0 && (selectedBudget.budget || 0) > 0) {
+      // 走删除确认，避免误清零
+      setShowEditForm(false)
+      setShowDeleteConfirm(true)
+      return
+    }
+
+    handleAmountChange(catName, String(newAmount))
+    saveMutation.mutate(
+      {
+        month: selectedMonth,
+        budgets: [{ category: catId, amount: newAmount }],
+      },
+      {
+        onSuccess: () => {
+          setSelectedBudget((prev: any) =>
+            prev
+              ? {
+                  ...prev,
+                  budget: newAmount,
+                  remaining: newAmount - (prev.spent || 0),
+                }
+              : prev,
+          )
+          setShowEditForm(false)
+          setShowDetail(false)
+        },
+      },
+    )
+  }
+
+  /** 删除/清零：立即 upsert amount=0 */
+  const handleDeleteBudget = () => {
+    if (!selectedBudget) return
+    const catId = selectedBudget.category.id as string
+    const catName = selectedBudget.category.name as string
+    handleAmountChange(catName, '0')
+    saveMutation.mutate(
+      {
+        month: selectedMonth,
+        budgets: [{ category: catId, amount: 0 }],
+      },
+      {
+        onSuccess: () => {
+          notify({ type: 'success', message: '预算已删除' })
+          setShowDetail(false)
+          setShowDeleteConfirm(false)
+          setSelectedBudget(null)
+        },
+      },
+    )
   }
 
   return (
@@ -192,13 +263,23 @@ const Budgets: React.FC = () => {
               />
             )}
           </div>
-          <div className="card-header-action">
+          <div className="card-header-action" style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
             {budgetsLoading ? (
               <Skeleton width="60px" height="28px" borderRadius="var(--rs)" />
             ) : (
-              <Button variant="primary" size="sm" onClick={handleSave} disabled={saveLoading}>
-                {saveLoading ? '保存中...' : '保存'}
-              </Button>
+              <>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={handleCopyLastMonth}
+                  disabled={copyLoading || saveLoading}
+                >
+                  {copyLoading ? '复制中...' : '复制上月'}
+                </Button>
+                <Button variant="primary" size="sm" onClick={handleSave} disabled={saveLoading || copyLoading}>
+                  {saveLoading ? '保存中...' : '保存'}
+                </Button>
+              </>
             )}
           </div>
         </div>
@@ -362,7 +443,7 @@ const Budgets: React.FC = () => {
         type="confirm"
         open={showDeleteConfirm}
         title="确认删除"
-        children="确定要删除这个预算吗？"
+        children={selectedBudget ? `确定删除「${selectedBudget.category.name}」本月预算吗？删除后该分类预算将清零。` : "确定要删除这个预算吗？"}
         onConfirm={handleDeleteBudget}
         onClose={() => setShowDeleteConfirm(false)}
         confirmText="确认删除"

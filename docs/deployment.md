@@ -237,3 +237,16 @@ CVM 在上海（大陆机房），**HTTP-01 验证被腾讯云「域名未备案
 | 证书过期 / 失效 | 跑 `./scripts/renew-cert.sh` |
 | 前端白屏 | `curl http://121.4.84.120/` 看是否返回 HTML；查 Nginx `error.log` |
 | DNS 不生效 | `dig +short zlspace.site` 确认指向 `121.4.84.120` |
+
+
+## 微信内容安全（上架前）
+
+生产 `backend/.env` 需配置：
+
+```
+WECHAT_APPID=...
+WECHAT_SECRET=...
+WECHAT_MSG_SEC_CHECK_ENABLED=true
+```
+
+配置后重新部署后端。未开启时 UGC 检测会被跳过。

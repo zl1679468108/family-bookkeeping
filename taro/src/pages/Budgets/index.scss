@@ -6,6 +6,14 @@
   align-items: center;
   justify-content: space-between;
   padding: 16rpx 32rpx;
+  gap: 16rpx;
+}
+
+.bdg-toolbar__actions {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  flex-shrink: 0;
 }
 
 /* 保存按钮 — 小胶囊形（对齐 PC Button variant="primary"） */
@@ -20,6 +28,15 @@
 
 .bdg-save-btn--disabled {
   opacity: 0.6;
+}
+
+.bdg-save-btn--ghost {
+  background: transparent;
+  border: 2rpx solid var(--primary, #2D9D8A);
+}
+
+.bdg-save-btn__text--ghost {
+  color: var(--primary, #2D9D8A);
 }
 
 .bdg-save-btn__text {
