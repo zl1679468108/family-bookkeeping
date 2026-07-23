@@ -20,7 +20,7 @@ interface PrivacySetting {
 }
 
 interface WxAPI {
-  getPrivacySetting?(opts: { success?: (res: PrivacySetting) => void; fail?: () => void }): void;
+  getPrivacySetting?(opts: { success?: (res: PrivacySetting) => void; fail?: (err: any) => void }): void;
   requirePrivacyAuthorize?(opts: { success?: () => void; fail?: (err: any) => void }): void;
   openPrivacySetting?(opts: { success?: () => void; fail?: () => void }): void;
   showToast?(opts: { title: string; icon?: string; duration?: number }): void;

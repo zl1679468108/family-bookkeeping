@@ -1,6 +1,6 @@
 # TASKS.md — 任务清单
 
-> 更新日期：2026-07-07
+> 更新日期：2026-07-23
 > 状态说明：🔄 进行中 / ⏳ 待处理 / ✅ 已完成 / ❌ 阻塞
 > 当前重心：Taro 微信小程序功能完善与质量收尾。
 
@@ -116,9 +116,14 @@
 
 ### ⏳ 待处理（低优先级，非阻断，可延后）
 
-- **Budgets**：清零单条预算无确认弹窗（易误触）；月份选择范围窄（2020~今、无搜索、不可选未来月）—— 因预算为「整月批量保存」流程，加单条确认较脆，暂延后
-- **详情弹窗交互差异**：Templates 仍采用「点卡片直接进编辑」而非 PC 的独立只读详情弹窗（展示 ID/创建时间等元数据）—— 属交互差异，非阻断；**Categories 已对齐 PC 详情弹窗（2026-07-13）**
 - **Profile 主题切换**：PC 有深色模式切换，Taro 端无 —— 小程序端暂不需要，可标注为产品决策
+- **Budgets 月份选择搜索**：MonthPicker 已扩展可选未来月（至次年 12 月）与更早历史（2018 起）；仍无搜索框（原生 Picker 限制，可接受）
+
+### ✅ 已完成（2026-07-23 体验收尾）
+
+- **Budgets 清零确认**：详情「删除预算」与编辑金额置 0 共用确认弹窗；修复确认前误清空 `detailCat` 导致删除失效的问题
+- **Template 详情交互对齐 PC**：列表点卡片 → 只读详情（含商户/周期/起止日期/上次执行/创建时间等元数据）→ 执行/编辑/复制/删除；非直接进编辑
+- **Taro 体验补丁**：登录/注册/Onboarding/模板执行等成功 toast；流水页去掉不可用的 AbortController，改请求序列号竞态兜底；协议页加入 Auth 白名单；自定义图标选中值对齐 `icon_url`
 
 ### ✅ PC Web 自动化测试发现项（2026-07-07 已修复）
 
@@ -130,17 +135,17 @@
 
 ## 历史遗留（跨项目、非阻塞、主动延后项）
 
-### H2. 前端 CRA (react-scripts 5.0.1) 已停止维护
-- **路径**：`frontend/package.json`
-- **状态**：⏳ Medium — CRA 仍可正常工作。待资源充裕时迁移到 Vite
+### H2. 前端 CRA → Vite 迁移
+- **路径**：`frontend/`（`vite.config.ts`、`package.json` scripts）
+- **状态**：✅ 已完成（2026-07，commit `978ea79`）— React 18 + Vite 5，环境变量前缀 `VITE_`，三端类型收口至 `@family-bookkeeping/shared-types`
 
 ### H3. PC Web 生产构建 warning 清理
 - **状态**：✅ 已完成 — 已清理 `mini-css-extract-plugin` CSS chunk 顺序冲突、Sass `@import` deprecation、以及项目代码 eslint warnings；`build:prod` 显示 `Compiled successfully`。
-- **备注**：命令行仍可能出现用户级 npm 配置提示（`electron_mirror` 来自 `/Users/zhaolong/.npmrc`）和 `react-scripts` 内部 Node deprecation（如 `fs.F_OK`），不属于项目源码 warning。
+- **备注**：命令行仍可能出现用户级 npm 配置提示（`electron_mirror` 来自 `/Users/zhaolong/.npmrc`）（历史备注；迁移 Vite 后相关 CRA 内部 warning 已消失）。
 
 ### M8. 三端 TypeScript 类型定义独立维护
-- **现状**：前端 / Taro / 后端各有一套独立类型定义，修改需同步三处
-- **状态**：⏳ Low — 后续引入 `openapi-typescript` 或共享包
+- **现状**：业务实体类型已收口到 `shared-types/`（`@family-bookkeeping/shared-types`）；后端 DTO / 部分响应形状仍可能本地定义
+- **状态**：✅ 主体完成 — 新增字段时优先改 `shared-types`，再同步后端 DTO
 
 ### L7. 数据库 `jj_book_invitations` 主键类型不一致
 - **影响**：BIGSERIAL vs UUID 仅为风格差异，不影响功能

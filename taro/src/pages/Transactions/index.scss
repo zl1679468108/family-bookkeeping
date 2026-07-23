@@ -73,16 +73,14 @@
   flex: 1;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 6rpx;
   height: 64rpx;
+  padding-left: 28rpx;
   background-color: transparent;
-  border-radius: 20rpx;
-  border: 2rpx solid var(--bdL, #edeee9);
-  transition: border-color 0.2s ease;
 
   &:active {
-    border-color: var(--primary, #2D9D8A);
+    opacity: 0.6;
   }
 }
 
@@ -159,16 +157,4 @@
   &:active {
     opacity: 0.85;
   }
-}
-
-/* ========== 列表底部提示 ========== */
-.list-footer {
-  text-align: center;
-  padding: 36rpx 0 48rpx;
-}
-
-.footer-text {
-  font-size: 24rpx;
-  color: var(--fg-3, #8b8e89);
-  letter-spacing: 2rpx;
 }

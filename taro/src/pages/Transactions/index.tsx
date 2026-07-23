@@ -22,7 +22,9 @@ const TIME_OPTIONS = ["全部时间", "近 7 天", "近 30 天"];
 
 const PAGE_SIZE = 20;
 
-let currentAbortController: AbortController | null = null;
+// 请求序列号：并发/快速切换筛选时，只采用最新一次请求的结果，丢弃过期响应。
+// 小程序运行时无 AbortController，故用序列号做竞态兜底而非取消请求。
+let reqSeq = 0;
 
 function dateRange(timeIdx: number): { start?: string; end?: string } {
   const now = new Date();
@@ -125,7 +127,7 @@ export default function Transactions() {
       timeIdx?: number;
       catIdx?: number;
       searchKeyword?: string;
-    }, signal?: AbortSignal) => {
+    }) => {
       const ti = overrides?.typeIdx ?? typeIdx;
       const tmi = overrides?.timeIdx ?? timeIdx;
       const ci = overrides?.catIdx ?? catIdx;
@@ -137,6 +139,7 @@ export default function Transactions() {
         ? filteredCategoriesForSelection[ci - 1].id
         : undefined;
 
+      const seq = ++reqSeq; // 本次请求序列号
       if (replace) setLoading(true);
       else setLoadingMore(true);
 
@@ -150,7 +153,9 @@ export default function Transactions() {
           page: targetPage,
           pageSize: PAGE_SIZE,
           view: "own",
-        }, signal);
+        });
+        // 已被更新的请求取代，丢弃过期响应（不动 loading 态，交给最新请求收口）
+        if (seq !== reqSeq) return replace ? [] : currentList;
         const list: any[] = res?.data || [];
         const next = replace ? list : [...currentList, ...list];
         setTxn(next);
@@ -160,6 +165,7 @@ export default function Transactions() {
         setLoadingMore(false);
         return next;
       } catch {
+        if (seq !== reqSeq) return replace ? [] : currentList;
         if (replace) setTxn([]);
         setHasMore(false);
         setLoading(false);
@@ -179,10 +185,7 @@ export default function Transactions() {
   const handleRefresh = useCallback(() =>
     new Promise<void>((resolve) => {
       setRefreshing(true);
-      if (currentAbortController) currentAbortController.abort();
-      const ac = new AbortController();
-      currentAbortController = ac;
-      doFetch(1, [], true, undefined, ac.signal)
+      doFetch(1, [], true)
         .then(() => {
           setRefreshing(false);
           resolve();
@@ -197,27 +200,18 @@ export default function Transactions() {
 
   const handleLoadMore = useCallback(() => {
     if (loadingMore || !hasMore) return;
-    if (currentAbortController) currentAbortController.abort();
-    const ac = new AbortController();
-    currentAbortController = ac;
-    doFetch(page + 1, txn, false, undefined, ac.signal);
+    doFetch(page + 1, txn, false);
   }, [loadingMore, hasMore, page, txn, doFetch]);
 
   const handleSearch = useCallback(() => {
     setPage(1);
-    if (currentAbortController) currentAbortController.abort();
-    const ac = new AbortController();
-    currentAbortController = ac;
-    doFetch(1, [], true, { searchKeyword }, ac.signal);
+    doFetch(1, [], true, { searchKeyword });
   }, [doFetch, searchKeyword]);
 
   const handleClearSearch = useCallback(() => {
     setSearchKeyword("");
     setPage(1);
-    if (currentAbortController) currentAbortController.abort();
-    const ac = new AbortController();
-    currentAbortController = ac;
-    doFetch(1, [], true, { searchKeyword: "" }, ac.signal);
+    doFetch(1, [], true, { searchKeyword: "" });
   }, [doFetch]);
 
   const handleTypeChange = useCallback((e: any) => {
@@ -225,30 +219,21 @@ export default function Transactions() {
     setTypeIdx(idx);
     setCatIdx(0);
     setPage(1);
-    if (currentAbortController) currentAbortController.abort();
-    const ac = new AbortController();
-    currentAbortController = ac;
-    doFetch(1, [], true, { typeIdx: idx, catIdx: 0 }, ac.signal);
+    doFetch(1, [], true, { typeIdx: idx, catIdx: 0 });
   }, [doFetch]);
 
   const handleTimeChange = useCallback((e: any) => {
     const idx = Number(e.detail.value);
     setTimeIdx(idx);
     setPage(1);
-    if (currentAbortController) currentAbortController.abort();
-    const ac = new AbortController();
-    currentAbortController = ac;
-    doFetch(1, [], true, { timeIdx: idx }, ac.signal);
+    doFetch(1, [], true, { timeIdx: idx });
   }, [doFetch]);
 
   const handleCatChange = useCallback((e: any) => {
     const idx = Number(e.detail.value);
     setCatIdx(idx);
     setPage(1);
-    if (currentAbortController) currentAbortController.abort();
-    const ac = new AbortController();
-    currentAbortController = ac;
-    doFetch(1, [], true, { catIdx: idx }, ac.signal);
+    doFetch(1, [], true, { catIdx: idx });
   }, [doFetch]);
 
   // 条目点击 → 直接跳转编辑页
@@ -369,14 +354,6 @@ export default function Transactions() {
             </View>
           )}
         </View>
-
-        {/* 底部提示 */}
-        {!hasMore && txn.length > 0 && (
-          <View className="list-footer">
-            <Text className="footer-text">— 已经到底了 —</Text>
-          </View>
-        )}
-
       </PageContainer>
     </>
   );

@@ -50,7 +50,8 @@ export default function Onboarding() {
       const list = await refetchBooks();
       const target = list.find((b) => b.id === newBook.id) || newBook;
       switchBook(target);
-      Taro.reLaunch({ url: "/pages/Home/index" });
+      Taro.showToast({ title: "创建成功", icon: "success" });
+      setTimeout(() => Taro.reLaunch({ url: "/pages/Home/index" }), 600);
     }, "创建中…").catch((err: any) => {
       Taro.showToast({ title: err?.message || "创建失败，请重试", icon: "none" });
     });
@@ -67,7 +68,8 @@ export default function Onboarding() {
       const list = await refetchBooks();
       const target = list.find((b) => b.id === joined.book_id) || list[0] || null;
       if (target) switchBook(target);
-      Taro.reLaunch({ url: "/pages/Home/index" });
+      Taro.showToast({ title: "加入成功", icon: "success" });
+      setTimeout(() => Taro.reLaunch({ url: "/pages/Home/index" }), 600);
     }, "加入中…").catch((err: any) => {
       Taro.showToast({ title: err?.message || "邀请码无效或已过期", icon: "none" });
     });

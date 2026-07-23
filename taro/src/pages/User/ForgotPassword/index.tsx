@@ -56,6 +56,7 @@ export default function ForgotPassword() {
     setError("");
     run(async () => {
       await sendResetCode(email.trim());
+      Taro.showToast({ title: "验证码已发送", icon: "success" });
       setSuccess(`验证码已发送至 ${email.trim()}`);
       setStep("code");
       startCountdown();
@@ -80,6 +81,7 @@ export default function ForgotPassword() {
     setError("");
     run(async () => {
       await resetPasswordByCode(email.trim(), code.trim(), password, confirmPassword);
+      Taro.showToast({ title: "密码重置成功", icon: "success" });
       setStep("success");
     }, "重置中…").catch((err: any) => {
       Taro.showToast({ title: err?.message || "重置失败", icon: "none" });
@@ -95,9 +97,12 @@ export default function ForgotPassword() {
     try {
       await sendResetCode(email.trim());
       setSuccess("验证码已重新发送");
+      Taro.showToast({ title: "验证码已重新发送", icon: "success" });
       startCountdown();
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "发送失败，请检查邮箱地址");
+      const msg = err instanceof ApiError ? err.message : "发送失败，请检查邮箱地址";
+      setError(msg);
+      Taro.showToast({ title: msg, icon: "none" });
     }
   }, [email]);
 

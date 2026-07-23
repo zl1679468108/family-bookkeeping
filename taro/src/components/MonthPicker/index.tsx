@@ -19,12 +19,12 @@ export default function MonthPicker({
   className = "",
 }: MonthPickerProps) {
   const now = new Date();
-  const currentYear = now.getFullYear();
-  const currentMonth = now.getMonth() + 1;
+  // 对齐 PC：支持选未来月份（默认允许到次年 12 月），便于提前规划预算
+  const endYear = now.getFullYear() + 1;
 
   // Format for Picker (fields="month" expects "YYYY-MM")
   const pickerValue = `${year}-${String(month).padStart(2, "0")}`;
-  const maxDate = `${currentYear}-${String(currentMonth).padStart(2, "0")}`;
+  const maxDate = `${endYear}-12`;
 
   const handlePickerChange = (e: { detail: { value: string } }) => {
     const [sy, sm] = e.detail.value.split("-");
@@ -38,7 +38,7 @@ export default function MonthPicker({
         mode="date"
         fields="month"
         value={pickerValue}
-        start="2020-01"
+        start="2018-01"
         end={maxDate}
         onChange={handlePickerChange}
       >

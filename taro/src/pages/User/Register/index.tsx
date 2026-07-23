@@ -42,7 +42,8 @@ export default function Register() {
     setError("");
     run(async () => {
       await signUp(email.trim(), password, username.trim());
-      Taro.reLaunch({ url: "/pages/Home/index" });
+      Taro.showToast({ title: "注册成功", icon: "success" });
+      setTimeout(() => Taro.reLaunch({ url: "/pages/Home/index" }), 600);
     }, "注册中…").catch((err: any) => {
       Taro.showToast({ title: err?.message || "注册失败", icon: "none" });
     });

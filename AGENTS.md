@@ -21,7 +21,7 @@
 
 | 子项目 | 路径 | 技术栈 | 开发端口 |
 |--------|------|--------|----------|
-| **frontend** | `frontend/` | React 18 + CRA + TypeScript + Tailwind + SCSS | 3001 |
+| **frontend** | `frontend/` | React 18 + Vite + TypeScript + Tailwind + SCSS | 3001 |
 | **backend** | `backend/` | NestJS 10 + TypeScript + Supabase JS SDK | 3000 |
 | **taro** | `taro/` | Taro 4 + React 18 + TypeScript + SCSS + weapp-tailwindcss | weapp/H5 |
 
@@ -51,13 +51,13 @@
 
 ### 认证机制
 
-**不是 JWT**，是自定义 token session 系统：
+**不是 JWT**，是自定义双 token session 系统：
 
+- Access Token（请求携带，~2h）+ Refresh Token（仅 `/auth/refresh`，~14d）
 - Token：`crypto.randomBytes(32).toString('hex')` 生成 64 字符 hex
 - 存储：SHA-256 hash 存入 `user_sessions` 表，原始 token 发给客户端
-- TTL：3 天
-- 客户端用 `Authorization: Bearer <token>` 传递
-- 后端 `TokenAuthGuard` 校验，通过后 `@CurrentUser()` 装饰器取用户信息
+- 客户端用 `Authorization: Bearer <accessToken>` 传递；401 时用 refresh 换发（single-flight）
+- 后端 `TokenAuthGuard` 校验 access token，通过后 `@CurrentUser()` 装饰器取用户信息
 
 ### 账本（Book）多租户
 
@@ -144,6 +144,9 @@ taro/
     types/           TypeScript 类型
     utils/           工具函数
 
+shared-types/
+  src/               三端共享 TypeScript 类型（@family-bookkeeping/shared-types）
+
 docs/
   PRD.md             产品需求文档
   TASKS.md           任务看板（仅未完成任务）
@@ -167,7 +170,7 @@ docs/
 | 改动范围 | 需要修改的文件 |
 |---|---|
 | 新增/修改后端 API | controller + service + module + 注册到 app.module.ts |
-| 新增/修改数据库字段 | database-init.sql + 前端 types/ + 后端 service/controller + 前端 API |
+| 新增/修改数据库字段 | database-init.sql + `shared-types/` + 后端 service/controller + 前端/Taro API |
 | 新增/修改前端页面 | 页面文件 + routes/routes.tsx + services/ API 文件 |
 | 新增/修改 Taro 页面 | 页面文件 + app.config.ts 注册 + services/ API 文件 |
 | 新增/修改 UI 组件 | components/ui/ |
@@ -200,7 +203,7 @@ docs/
 - API 层：`src/services/api.ts` 导出 `request<T>()` 函数（基于原生 fetch），无 Axios。
 - 样式：SCSS + Tailwind CSS + CSS 设计令牌（`design-tokens.css`）。非 CSS Modules，所有样式为全局类名。主色调 green `#2D9D8A`。
 - 组件：全自研 UI 库（无 antd/MUI），在 `src/components/ui/`。
-- 环境变量前缀：`REACT_APP_`（CRA 约定）。
+- 环境变量前缀：`VITE_`（Vite 约定）；共享类型包 `@family-bookkeeping/shared-types`（`shared-types/`）。
 
 ## 7. Taro（小程序）规则
 
@@ -313,7 +316,7 @@ docs/
 
 1. **数据库变更不能自动化**：无 migration 工具，DDL 必须手动在 Supabase SQL Editor 执行。修改 `docs/database-init.sql` 后提醒用户手动同步。
 
-2. **前端类型不共享**：三端的 TypeScript 类型各自独立定义，改了一处需手动同步其他两处。
+2. **类型共享包**：实体类型优先改 `shared-types/`；后端 DTO 与端侧局部 UI 类型仍可能独立，改接口形状时检查三端调用处。
 
 3. **Taro 的 React Query 不完全兼容**：读操作用 `useManualQuery`（无缓存、无自动重取），写操作 `useMutation` 需在 `onSuccess` 手动调 `refetch()`。
 

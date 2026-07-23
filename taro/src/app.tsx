@@ -52,6 +52,8 @@ const AUTH_PAGE_PREFIXES = [
   "pages/User/Login",
   "pages/User/Register",
   "pages/User/ForgotPassword",
+  "pages/Terms",
+  "pages/Privacy",
 ];
 
 /**

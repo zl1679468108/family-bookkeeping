@@ -19,7 +19,6 @@ import type {
 
 export const getTransactions = (
   filters?: TransactionFilters,
-  signal?: AbortSignal, // T-M10: 支持 AbortController signal
 ): Promise<PaginatedResponse<Transaction>> => {
   const parts: string[] = [];
   if (filters) {
@@ -34,7 +33,7 @@ export const getTransactions = (
   const query = parts.join("&");
   return apiGet<PaginatedResponse<Transaction>>(
     `/transactions${query ? "?" + query : ""}`,
-    { requiresAuth: true, signal },
+    { requiresAuth: true },
   );
 };
 

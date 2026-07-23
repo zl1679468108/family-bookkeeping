@@ -469,7 +469,8 @@
 
 ```
 family-bookkeeping/
-├── frontend/              # PC Web 前端（React 18 + CRA + TypeScript）
+├── frontend/              # PC Web 前端（React 18 + Vite + TypeScript）
+├── shared-types/          # 三端共享 TypeScript 类型包
 ├── backend/               # 后端服务（NestJS 10 + Supabase）
 ├── taro/                  # 微信小程序（Taro 4 + React）
 ├── config/                # 配置文件
@@ -485,9 +486,8 @@ family-bookkeeping/
 - DDL 变更需手动在 Supabase SQL Editor 执行
 
 ### 8.3 认证机制
-- 自定义 Token Session（非 JWT）
+- 自定义双 Token Session（非 JWT）：Access Token（~2h）+ Refresh Token（~14d）
 - Token：64 字符 hex，SHA-256 hash 存入 `user_sessions` 表
-- TTL：3 天
 - 客户端用 `Authorization: Bearer <token>` 传递
 
 ### 8.4 API 约束

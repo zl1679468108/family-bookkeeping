@@ -54,17 +54,20 @@ export default function Login() {
     setError("");
     run(async () => {
       await signIn(email.trim(), password, captchaId, captchaCode);
-      try {
-        const pages = Taro.getCurrentPages();
-        if (pages.length > 1) {
-          Taro.navigateBack();
-        } else {
+      Taro.showToast({ title: "登录成功", icon: "success" });
+      setTimeout(() => {
+        try {
+          const pages = Taro.getCurrentPages();
+          if (pages.length > 1) {
+            Taro.navigateBack();
+          } else {
+            Taro.reLaunch({ url: "/pages/Home/index" });
+          }
+        } catch (navErr) {
+          console.warn("[Login] navigation failed, retrying reLaunch:", navErr);
           Taro.reLaunch({ url: "/pages/Home/index" });
         }
-      } catch (navErr) {
-        console.warn("[Login] navigation failed, retrying reLaunch:", navErr);
-        Taro.reLaunch({ url: "/pages/Home/index" });
-      }
+      }, 600);
     }, "登录中…").catch((err: any) => {
       console.error("[Login] signIn failed:", err);
       Taro.showToast({ title: err?.message || "登录失败", icon: "none" });

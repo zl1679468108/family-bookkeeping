@@ -129,8 +129,6 @@ interface RequestOptions {
   silent?: boolean;
   /** 是否需要认证（默认 true，token 不存在时静默返回 401） */
   requiresAuth?: boolean;
-  /** T-M10: AbortController signal，用于取消请求 */
-  signal?: AbortSignal;
   /** 内部：标记刷新请求本身，避免 401 时递归触发自动刷新 */
   _internalRefresh?: boolean;
 }
@@ -146,7 +144,6 @@ async function request<T>(
   let data: unknown = undefined;
   let silent = false;
   let requiresAuth = false; // 默认不需要认证（与PC端保持一致），需要认证的接口显式指定
-  let signal: AbortSignal | undefined;
   let internalRefresh = false; // 内部：标记刷新请求本身，避免递归触发自动刷新
 
   if (arg2 !== undefined) {
@@ -160,7 +157,6 @@ async function request<T>(
       data = opts.data;
       silent = opts.silent ?? false;
       requiresAuth = opts.requiresAuth ?? requiresAuth;
-      signal = opts.signal;
       internalRefresh = opts._internalRefresh ?? false;
     } else {
       // 直接作为请求体 data
@@ -193,8 +189,6 @@ async function request<T>(
       header,
       data,
       timeout,
-      // T-M10: 传入 signal 以支持取消请求
-      ...(signal ? { signal } : {}),
     });
 
     if (res.statusCode >= 200 && res.statusCode < 300) {

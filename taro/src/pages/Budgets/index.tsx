@@ -209,11 +209,16 @@ export default function BudgetsPage() {
     setDetailCat(null);
   };
 
-  /** 编辑表单提交 */
+  /** 编辑表单提交；金额为 0 且原有预算时走删除确认，避免误清零 */
   const handleEditFormSubmit = () => {
     if (!detailCat) return;
     const num = parseFloat(editFormAmount);
     const amount = isNaN(num) ? 0 : Math.max(0, num);
+    if (amount === 0 && detailCat.budget > 0) {
+      setShowEditForm(false);
+      setShowDeleteConfirm(true);
+      return;
+    }
     const items = [{ category: detailCat.category.id, amount }];
     handleUpsert(items);
     setShowEditForm(false);
@@ -366,7 +371,7 @@ export default function BudgetsPage() {
       )}
 
       {/* ========== 预算详情弹窗（对齐 PC 截图）========== */}
-      {!!detailCat && !showEditForm && (
+      {!!detailCat && !showEditForm && !showDeleteConfirm && (
         <BottomSheet
           title="预算详情"
           onClose={closeDetail}
@@ -377,10 +382,7 @@ export default function BudgetsPage() {
               </View>
               <View
                 className="bgds-btn bgds-btn--delete"
-                onClick={() => {
-                  closeDetail();
-                  setShowDeleteConfirm(true);
-                }}
+                onClick={() => setShowDeleteConfirm(true)}
               >
                 <Text>删除预算</Text>
               </View>
@@ -486,11 +488,15 @@ export default function BudgetsPage() {
         </BottomSheet>
       )}
 
-      {/* 删除确认弹窗 */}
+      {/* 删除/清零确认弹窗（详情删除 & 编辑金额置 0 共用） */}
       <ConfirmDialog
         visible={showDeleteConfirm}
-        title="确认删除"
-        message="确定要删除这个预算吗？"
+        title="确认删除预算"
+        message={
+          detailCat
+            ? `确定删除「${detailCat.category.name}」本月预算吗？删除后该分类预算将清零。`
+            : "确定要删除这个预算吗？"
+        }
         confirmText="确认删除"
         danger
         confirmLoading={false}

@@ -4,10 +4,10 @@
  *
  * 覆盖范围：
  *   阶段1  启动 & 首屏渲染（验证 DevTools 连接 + 编译 + 小程序启动）
- *   阶段2  全页面可达性 & 渲染健康度扫描（23 个页面逐个打开、截图、断言根节点渲染）
+ *   阶段2  全页面可达性 & 渲染健康度扫描（21 个页面逐个打开、截图、断言根节点渲染）
  *   阶段3  TabBar 交互切换（4 个 tab 互相切换，验证自定义 tabBar 可用性）
  *
- * 运行： node e2e/smoke.js   （需先确保 taro/dist 已构建 & DevTools 已登录）
+ * 运行： node e2e/smoke.js   （需先确保 taro/dist 或 taro/dist-prod 已构建 & DevTools 已登录）
  * 依赖：  miniprogram-automator
  */
 const path = require('path')
@@ -16,9 +16,10 @@ const { launch, waitFor, sleep, PROJECT_PATH } = require('./lib/runner')
 
 // 前置检查
 const distApp = path.resolve(PROJECT_PATH, 'dist', 'app.js')
-if (!fs.existsSync(distApp)) {
+const prodApp = path.resolve(PROJECT_PATH, 'dist-prod', 'app.js')
+if (!fs.existsSync(distApp) && !fs.existsSync(prodApp)) {
   console.error(
-    '[错误] 未找到 dist/app.js。请先运行 `npm run build:weapp` 或一次性 `taro build --type weapp` 生成构建产物。',
+    '[错误] 未找到 dist/app.js 或 dist-prod/app.js。请先运行 `npm run start:weapp` 生成 dist，或 `npm run build:weapp` 生成 dist-prod。',
   )
   process.exit(3)
 }
@@ -51,7 +52,6 @@ const SUB_PAGES = [
   'pages/TemplateEdit/index',
   'pages/About/index',
   'pages/Onboarding/index',
-  'pages/MapPicker/index',
   'pages/Terms/index',
   'pages/Privacy/index',
 ]

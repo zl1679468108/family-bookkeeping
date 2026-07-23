@@ -104,12 +104,12 @@ export function IconGrid({
       {customIcons.length > 0 || onUpload ? (
         <View className="ui-icon-grid__section ui-icon-grid__custom" style={colStyle}>
           {customIcons.map((c) => {
-            const active = c.id === value;
+            const active = c.icon_url === value;
             return (
               <View
                 key={c.id}
                 className={`ui-icon-grid__item ${active ? "ui-icon-grid__item--active" : ""}`}
-                onClick={() => onChange?.(c.id)}
+                onClick={() => onChange?.(c.icon_url)}
               >
                 <Image className="ui-icon-grid__img" src={c.icon_url} mode="aspectFit" />
                 {onDelete ? (

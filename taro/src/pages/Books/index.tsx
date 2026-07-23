@@ -195,6 +195,7 @@ export default function BooksPage() {
     run(async () => {
       const data = await createInvitation(detailBook!.id);
       setInviteCodeData(data);
+      Taro.showToast({ title: "邀请码已生成", icon: "success" });
     }, "生成中…").catch((err: any) => {
       Taro.showToast({ title: err?.message || "生成失败", icon: "none" });
     });

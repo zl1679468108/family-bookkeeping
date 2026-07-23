@@ -2,7 +2,7 @@
  * TemplateManager — 模板管理（内嵌弹窗模式）
  *
  * 对齐 PC 端功能：
- *   列表页 + 详情弹窗（完整信息+执行/编辑/复制/删除）+ 表单弹窗（PC风格边框输入框）
+ *   列表页 → 点卡片打开只读详情（元数据+执行/编辑/复制/删除）→ 表单弹窗编辑
  */
 import { useState, useMemo, useCallback, useRef } from "react";
 import { View, Text, Input, Picker } from "@tarojs/components";
@@ -44,6 +44,15 @@ const EMPTY_FORM = {
   location_name: "",
   poi_id: "",
   sort_order: 0,
+};
+
+
+const FREQ_LABEL: Record<string, string> = {
+  daily: "每天",
+  weekly: "每周",
+  monthly: "每月",
+  quarterly: "每季度",
+  yearly: "每年",
 };
 
 export default function TemplateManager() {
@@ -111,7 +120,7 @@ export default function TemplateManager() {
   const [showDelete, setShowDelete] = useState(false);
 
   /* ---- 分类查找 ---- */
-  const findCat = (cid?: string) => (cats || []).find((c) => c.id === cid);
+  const findCat = (cid?: string | null) => (cats || []).find((c) => c.id === cid);
   const catOpts = useMemo(
     () => (cats || []).filter((c: any) => c.type === form.type),
     [cats, form.type],
@@ -264,7 +273,8 @@ export default function TemplateManager() {
         merchant_name: result.merchant_name || "",
         type: result.type,
       });
-      Taro.navigateTo({ url: "/pages/AddTransaction/index" });
+      Taro.showToast({ title: "模板已应用", icon: "success" });
+      setTimeout(() => Taro.navigateTo({ url: "/pages/AddTransaction/index" }), 600);
     } catch (err: any) {
       Taro.hideLoading();
       Taro.showToast({ title: err?.message || "执行失败", icon: "none" });
@@ -464,6 +474,12 @@ export default function TemplateManager() {
                 <Text className="tpl-detail-item__value">{selectedTemplate.poi_id}</Text>
               </View>
             )}
+            {selectedTemplate.merchant_name && (
+              <View className="tpl-detail-item">
+                <Text className="tpl-detail-item__label">商户名称</Text>
+                <Text className="tpl-detail-item__value">{selectedTemplate.merchant_name}</Text>
+              </View>
+            )}
             {selectedTemplate.book_id && (
               <View className="tpl-detail-item">
                 <Text className="tpl-detail-item__label">账本 ID</Text>
@@ -474,6 +490,34 @@ export default function TemplateManager() {
               <View className="tpl-detail-item">
                 <Text className="tpl-detail-item__label">排序</Text>
                 <Text className="tpl-detail-item__value">第 {(selectedTemplate.sort_order ?? 0) + 1} 位</Text>
+              </View>
+            )}
+            {selectedTemplate.frequency && (
+              <View className="tpl-detail-item">
+                <Text className="tpl-detail-item__label">周期</Text>
+                <Text className="tpl-detail-item__value">
+                  {FREQ_LABEL[selectedTemplate.frequency] || selectedTemplate.frequency}
+                </Text>
+              </View>
+            )}
+            {selectedTemplate.start_date && (
+              <View className="tpl-detail-item">
+                <Text className="tpl-detail-item__label">开始日期</Text>
+                <Text className="tpl-detail-item__value">{selectedTemplate.start_date}</Text>
+              </View>
+            )}
+            {selectedTemplate.end_date && (
+              <View className="tpl-detail-item">
+                <Text className="tpl-detail-item__label">结束日期</Text>
+                <Text className="tpl-detail-item__value">{selectedTemplate.end_date}</Text>
+              </View>
+            )}
+            {selectedTemplate.last_executed_at && (
+              <View className="tpl-detail-item">
+                <Text className="tpl-detail-item__label">上次执行</Text>
+                <Text className="tpl-detail-item__value">
+                  {String(selectedTemplate.last_executed_at).slice(0, 16).replace("T", " ")}
+                </Text>
               </View>
             )}
             {selectedTemplate.created_at && (

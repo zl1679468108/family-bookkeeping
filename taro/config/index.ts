@@ -28,6 +28,7 @@ export default defineConfig({
   copy: {
     patterns: [
       { from: "src/assets/icons/", to: `${OUTPUT_ROOT}/assets/icons/` },
+      { from: "src/assets/icons-png/", to: `${OUTPUT_ROOT}/assets/icons-png/` },
       { from: "src/sitemap.json", to: `${OUTPUT_ROOT}/sitemap.json` },
     ],
     options: {},
