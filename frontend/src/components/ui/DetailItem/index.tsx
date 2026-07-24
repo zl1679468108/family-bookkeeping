@@ -1,4 +1,5 @@
 import React from 'react';
+import { buildDetailItemClassName } from '../../../utils/detailItem';
 
 interface DetailItemProps {
   label: React.ReactNode;
@@ -8,7 +9,7 @@ interface DetailItemProps {
 
 export const DetailItem: React.FC<DetailItemProps> = ({ label, value, className = '' }) => {
   return (
-    <div className={`detail-item ${className}`}>
+    <div className={buildDetailItemClassName({ className })}>
       <span className="detail-item-label">{label}</span>
       <span className="detail-item-value">{value}</span>
     </div>

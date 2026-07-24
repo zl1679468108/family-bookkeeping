@@ -3,6 +3,7 @@
  * 职责：可滚动长内容操作面板（筛选/批量/向导），区别于 GlobalModal 的模态内容展示。
  */
 import { ReactNode } from "react";
+import { buildDrawerSheetClassName } from "../../../utils/drawer";
 import { View, ScrollView } from "@tarojs/components";
 import { useModalZIndex } from "../GlobalModal/useModalZIndex";
 import SheetHeader from "../../SheetHeader";
@@ -35,7 +36,7 @@ export function Drawer({
   if (!open) return null;
 
   return (
-    <View className={`ui-drawer ${className}`} style={{ zIndex: z }} catchMove>
+    <View className={buildDrawerSheetClassName({ className })} style={{ zIndex: z }} catchMove>
       <View className="ui-drawer__mask" onClick={() => closeOnMask && onClose()} />
       <View
         className="ui-drawer__panel"

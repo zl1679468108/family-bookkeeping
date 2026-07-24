@@ -3,11 +3,16 @@
  * padding: sm(24rpx)/md(40rpx)/lg(56rpx)/none
  */
 import { ReactNode } from "react";
-import { cx } from "../../../utils/cx";
+import {
+  buildCardClassName,
+  buildCardHeaderClassName,
+  buildCardContentClassName,
+  type CardPadding,
+} from "../../../utils/card";
 import { View, Text } from "@tarojs/components";
 import "./index.scss";
 
-export type CardPadding = "sm" | "md" | "lg" | "none";
+export type { CardPadding };
 
 export interface CardProps {
   padding?: CardPadding;
@@ -19,7 +24,7 @@ export interface CardProps {
 export function Card({ padding = "md", children, className = "", onClick }: CardProps) {
   return (
     <View
-      className={cx("ui-card", `ui-card--pad-${padding}`, className)}
+      className={buildCardClassName({ padding, className, mode: "bem" })}
       hoverClass={onClick ? "ui-card--pressed" : ""}
       hoverStayTime={100}
       onClick={onClick}
@@ -38,7 +43,7 @@ export interface CardHeaderProps {
 
 export function CardHeader({ title, subTitle, action, className = "" }: CardHeaderProps) {
   return (
-    <View className={cx("ui-card__header", className)}>
+    <View className={buildCardHeaderClassName({ className, mode: "bem" })}>
       <View className="ui-card__header-text">
         {title ? <Text className="ui-card__title">{title}</Text> : null}
         {subTitle ? <Text className="ui-card__subtitle">{subTitle}</Text> : null}
@@ -49,5 +54,5 @@ export function CardHeader({ title, subTitle, action, className = "" }: CardHead
 }
 
 export function CardContent({ children, className = "" }: { children?: ReactNode; className?: string }) {
-  return <View className={`ui-card__content ${className}`}>{children}</View>;
+  return <View className={buildCardContentClassName({ className, mode: "bem" })}>{children}</View>;
 }

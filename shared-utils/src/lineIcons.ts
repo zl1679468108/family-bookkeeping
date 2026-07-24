@@ -5,21 +5,30 @@
 
 export type LineIconName =
   | 'dashboard'
+  | 'home'
   | 'transactions'
   | 'add'
   | 'budgets'
   | 'reports'
   | 'annual-report'
+  | 'note'
   | 'books'
   | 'calendar'
   | 'templates'
   | 'categories'
   | 'map'
+  | 'location'
   | 'user'
   | 'users'
+  | 'switch-account'
   | 'info'
   | 'logout'
   | 'close'
+  | 'edit'
+  | 'delete'
+  | 'email'
+  | 'lock'
+  | 'clock'
   | 'eye'
   | 'eye-off'
   | 'chevron-left'
@@ -280,7 +289,75 @@ export const LINE_ICON_SVG_MAP: Record<LineIconName, LineIconSpec> = {
       { tag: 'line', attrs: { x1: 12, y1: 17, x2: 12, y2: 21 } },
     ],
   },
+  'home': {
+    ...VB,
+    children: [
+      { tag: 'path', attrs: { d: 'M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z' } },
+      { tag: 'polyline', attrs: { points: '9 22 9 12 15 12 15 22' } },
+    ],
+  },
+  'note': {
+    ...VB,
+    children: [
+      { tag: 'path', attrs: { d: 'M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z' } },
+      { tag: 'polyline', attrs: { points: '14 2 14 8 20 8' } },
+      { tag: 'line', attrs: { x1: 16, y1: 13, x2: 8, y2: 13 } },
+      { tag: 'line', attrs: { x1: 16, y1: 17, x2: 8, y2: 17 } },
+    ],
+  },
+  'location': {
+    ...VB,
+    children: [
+      { tag: 'path', attrs: { d: 'M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z' } },
+      { tag: 'circle', attrs: { cx: 12, cy: 10, r: 3 } },
+    ],
+  },
+  'switch-account': {
+    ...VB,
+    children: [
+      { tag: 'path', attrs: { d: 'M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2' } },
+      { tag: 'circle', attrs: { cx: 9, cy: 7, r: 4 } },
+      { tag: 'line', attrs: { x1: 19, y1: 8, x2: 19, y2: 14 } },
+      { tag: 'line', attrs: { x1: 22, y1: 11, x2: 16, y2: 11 } },
+    ],
+  },
+  'edit': {
+    ...VB,
+    children: [
+      { tag: 'path', attrs: { d: 'M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7' } },
+      { tag: 'path', attrs: { d: 'M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z' } },
+    ],
+  },
+  'delete': {
+    ...VB,
+    children: [
+      { tag: 'polyline', attrs: { points: '3 6 5 6 21 6' } },
+      { tag: 'path', attrs: { d: 'M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2' } },
+    ],
+  },
+  'email': {
+    ...VB,
+    children: [
+      { tag: 'path', attrs: { d: 'M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z' } },
+      { tag: 'polyline', attrs: { points: '22 6 12 13 2 6' } },
+    ],
+  },
+  'lock': {
+    ...VB,
+    children: [
+      { tag: 'rect', attrs: { x: 3, y: 11, width: 18, height: 11, rx: 2, ry: 2 } },
+      { tag: 'path', attrs: { d: 'M7 11V7a5 5 0 0 1 10 0v4' } },
+    ],
+  },
+  'clock': {
+    ...VB,
+    children: [
+      { tag: 'circle', attrs: { cx: 12, cy: 12, r: 10 } },
+      { tag: 'polyline', attrs: { points: '12 8 12 12 14 14' } },
+    ],
+  },
 }
+
 
 export function isLineIconName(name: string): name is LineIconName {
   return Object.prototype.hasOwnProperty.call(LINE_ICON_SVG_MAP, name)
@@ -332,7 +409,7 @@ export function getLineIconSvgDataUrl(
 
 /**
  * Taro IconName → LineIconName 别名（仅几何可复用的线框图标）
- * 不映射 home/workbench/clock 等小程序专用资产
+ * workbench 等 Tab 专用资产仍走端侧本地 SVG
  */
 export const TARO_LINE_ICON_ALIASES: Record<string, LineIconName> = {
   statistics: 'reports',

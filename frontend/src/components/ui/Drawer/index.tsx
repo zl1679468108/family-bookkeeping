@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { Icon } from '../Icon';
 import { ACTION_CLOSE } from '../../../utils/actionCopy'
-import { DRAWER_DEFAULT_WIDTH_PX, DRAWER_DEFAULT_PLACEMENT } from '../../../utils/drawer'
+import { DRAWER_DEFAULT_WIDTH_PX, DRAWER_DEFAULT_PLACEMENT, buildDrawerRootClassName } from '../../../utils/drawer'
 
 export interface DrawerHandle {
   close: () => void;
@@ -59,7 +59,7 @@ export const Drawer: React.FC<DrawerProps> = ({
 
   return (
     <div
-      className={`ui-drawer-root ${open ? 'is-open' : ''} ${placement === 'left' ? 'ui-drawer--left' : ''}`}
+      className={buildDrawerRootClassName({ open, placement })}
       ref={drawerRef}
     >
       {mask && <div className="ui-drawer-mask" onClick={handleMaskClick} />}

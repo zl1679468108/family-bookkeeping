@@ -1,5 +1,5 @@
 import React from 'react'
-import { cx } from '../../../utils/cx'
+import { buildSpinnerClassName } from '../../../utils/spinner'
 import './index.scss'
 import { ACTION_LOADING } from '../../../utils/actionCopy'
 
@@ -18,7 +18,7 @@ export const Spinner: React.FC<SpinnerProps> = ({
   className = '',
   label = ACTION_LOADING,
 }) => {
-  const cls = cx('ui-spinner', className)
+  const cls = buildSpinnerClassName({ className })
   return (
     <svg
       className={cls}

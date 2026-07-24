@@ -5,7 +5,7 @@
  * 1. 可映射到 shared lineIcons 的名称 → data URL（与 PC 几何一致）
  *    - 传入 color：CSS mask + backgroundColor（支持主题色/暗色）
  *    - 未传 color：Image 渲染描边色 SVG
- * 2. 小程序专用图标（home/workbench/clock 等）→ /assets/icons/*.svg
+ * 2. 无法映射的专用图标（workbench 等 Tab 资产）→ /assets/icons/*.svg
  */
 import { View, Image } from "@tarojs/components";
 import "./index.scss";

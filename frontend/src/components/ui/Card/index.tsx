@@ -1,5 +1,10 @@
 import React from 'react'
-import { cx } from '../../../utils/cx'
+import {
+  buildCardClassName,
+  buildCardHeaderClassName,
+  buildCardContentClassName,
+  type CardPadding,
+} from '../../../utils/card'
 
 /**
  * 通用卡片容器
@@ -13,10 +18,10 @@ export function Card({
   children?: React.ReactNode
   className?: string
   style?: React.CSSProperties
-  padding?: 'sm' | 'md' | 'lg' | 'none'
+  padding?: CardPadding
 }) {
   return (
-    <div className={cx('dash-card', `dash-card--${padding}`, className)} style={style}>
+    <div className={buildCardClassName({ padding, className, mode: 'pc' })} style={style}>
       {children}
     </div>
   )
@@ -36,7 +41,7 @@ export function CardHeader({
   style?: React.CSSProperties
 }) {
   return (
-    <div className={cx('card-header', className)} style={style}>
+    <div className={buildCardHeaderClassName({ className, mode: 'pc' })} style={style}>
       <div className="card-header-text">
         {title && <h3 className="card-title">{title}</h3>}
         {subTitle && <span className="card-subtitle">{subTitle}</span>}
@@ -56,7 +61,7 @@ export function CardContent({
   style?: React.CSSProperties
 }) {
   return (
-    <div className={cx('card-content', className)} style={style}>
+    <div className={buildCardContentClassName({ className, mode: 'pc' })} style={style}>
       {children}
     </div>
   )

@@ -85,6 +85,12 @@
 
 ### ✅ 已完成
 
+#### 2026-07-24 线框图标扩容 + Card/Badge/Drawer class shared
+- `lineIcons` 新增 home/note/location/edit/delete/email/lock/clock/switch-account；Taro 更多图标走 dataURL
+- `card` / `badge` / `spinner` / `detailItem` / `drawer` class 构建；双端 Card/Badge/Spinner/DetailItem/Drawer 接线
+- PC 暗色硬编码色再扫：业务 SCSS/TSX 无剩余 hex（仅 `AVATAR_JPEG_BG` 导出底与 design-tokens 合法）
+- 验证：frontend / taro `tsc --noEmit`
+
 #### 2026-07-24 Pagination/RankRow/Sticky/EmptyState class shared 化
 - `pagination`：computeTotalPages / pageSize 文案 / bar·btn class 构建；双端 Pagination 接线
 - `rankRow.buildRankRowClassName`：RankType/RankStatus 复用 `rankProgress`；双端 RankList 接线

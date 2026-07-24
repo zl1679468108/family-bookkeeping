@@ -4,20 +4,25 @@
  */
 import { ReactNode } from "react";
 import { View, Text } from "@tarojs/components";
+import {
+  buildBadgeClassName,
+  type BadgeVariant,
+  type BadgeSize,
+} from "../../../utils/badge";
 import "./index.scss";
 
-export type BadgeVariant = "default" | "primary" | "income" | "expense" | "warn" | "info";
+export type { BadgeVariant, BadgeSize };
 
 export interface BadgeProps {
   variant?: BadgeVariant;
-  size?: "sm" | "md";
+  size?: BadgeSize;
   children?: ReactNode;
   className?: string;
 }
 
 export function Badge({ variant = "default", size = "sm", children, className = "" }: BadgeProps) {
   return (
-    <View className={`ui-badge ui-badge--${variant} ui-badge--${size} ${className}`}>
+    <View className={buildBadgeClassName({ variant, size, className })}>
       <Text className="ui-badge__text">{children}</Text>
     </View>
   );
