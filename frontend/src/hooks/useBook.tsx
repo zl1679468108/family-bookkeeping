@@ -3,9 +3,10 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../utils/auth';
 import { setCurrentBook as setCurrentBookApi } from '../services/api';
 import { fetchBooks } from '../services/booksApi';
-import { notify } from '../utils/notifications';
+;
 
 import { Book } from '@family-bookkeeping/shared-types';
+import { notifyError } from '../utils/notifyError'
 
 interface BookContextType {
   currentBook: Book | null;
@@ -82,7 +83,7 @@ export const BookProvider: React.FC<{ children: React.ReactNode }> = ({ children
       try {
         await setCurrentBookApi(book.id);
       } catch {
-        notify({ type: 'error', message: '设置当前账本失败，请重试' });
+        notifyError('设置当前账本失败，请重试');
       }
     }
     // T-H6: await API 成功后再 invalidate，避免竞态

@@ -286,18 +286,14 @@ export const MemberComparison: React.FC<MemberComparisonProps> = ({
     return (
       <EmptyState
         icon="⚠️"
-        title="加载失败"
-        description={error instanceof Error ? error.message : '未知错误'}
+        description={error instanceof Error ? `加载失败：${error.message}` : '加载失败'}
       />
     );
   }
 
   if (data.length === 0) {
     return (
-      <EmptyState
-        title="暂无成员消费数据"
-        description="该时间段内还没有成员消费记录"
-      />
+      <EmptyState description="该时间段内还没有成员消费记录" />
     );
   }
 

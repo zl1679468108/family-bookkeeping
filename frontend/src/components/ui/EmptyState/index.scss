@@ -1,4 +1,4 @@
-/* ═══ EmptyState —— 通用空状态样式 ═══ */
+/* ═══ EmptyState —— 插画 + 描述 ═══ */
 
 .empty-state {
   display: flex;
@@ -24,8 +24,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--fg3);
-  font-size: 32px; /* emoji 回退字号 */
+  font-size: 32px;
   margin-bottom: 16px;
   line-height: 1;
   user-select: none;
@@ -43,24 +42,16 @@
   margin-bottom: 12px;
 }
 
-.empty-state__title {
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--fg2);
-  margin-bottom: 6px;
-  line-height: 1.5;
-  max-width: 320px;
-}
-
-.empty-state--compact .empty-state__title {
-  font-size: 13px;
-}
-
 .empty-state__desc {
-  font-size: 12px;
+  font-size: 14px;
+  font-weight: 400;
   color: var(--fg3);
-  line-height: 1.5;
+  line-height: 1.6;
   max-width: 320px;
+}
+
+.empty-state--compact .empty-state__desc {
+  font-size: 13px;
 }
 
 .empty-state__action {

@@ -4,8 +4,8 @@ import { useMutationAction } from '../../../hooks/useMutationAction';
 import { createBook, updateBook } from '../../../services/booksApi';
 import { fetchCustomIcons, uploadIcon, deleteIcon } from '../../../services/iconsApi';
 import { BOOK_ICONS, getBookIconByKey } from '../../../utils/bookIcons';
-import { notify } from '../../../utils/notifications'
-import { notifyInfo } from '../../../utils/notifyError';
+
+import { notifyInfo, notifySuccess } from '../../../utils/notifyError';
 import { GlobalModal } from '../../../components/ui';
 import { Button } from '../../../components/ui/Button';
 import { FooterActions } from '../../../components/ui/FooterActions';
@@ -90,14 +90,14 @@ export const BookCreateModal: React.FC<BookCreateModalProps> = ({ open, onClose,
   const handleIconUpload = useCallback(async (file: File, iconType: 'category' | 'book' | 'avatar') => {
     await uploadIcon(file, iconType);
     refetchIcons();
-    notify({ type: 'success', message: '图标上传成功' });
+    notifySuccess('图标上传成功');
   }, [refetchIcons]);
 
   // 删除图标处理
   const handleIconDelete = useCallback(async (iconId: string) => {
     await deleteIcon(iconId);
     refetchIcons();
-    notify({ type: 'success', message: '图标已删除' });
+    notifySuccess('图标已删除');
   }, [refetchIcons]);
 
   return (

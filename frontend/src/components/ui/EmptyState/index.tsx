@@ -2,30 +2,29 @@ import React from 'react'
 import { getEmptyIllustrationDataUrl } from './emptyIllustration'
 
 /**
- * 通用空状态组件 —— 取代各页面手写的暂无数据提示
+ * 通用空状态：统一插画 + 一段描述（无标题层级）
  *
- * 与小程序端 EmptyState 对齐（统一空状态）：
- * - 不传 icon 时自动渲染全局统一插画（人物 + 空箱子 + 问号）
- * - 文案以 title 为主（各模块自定），可选 description / action
- * - variant: default / compact / full
+ * - 不传 icon 时渲染全局插画（人物 + 空箱子 + 问号）
+ * - 文案优先用 description；未传时回退 title（兼容旧调用）
+ * - 可选 action
  *
  * 用法：
- *  <EmptyState title="暂无数据" description="添加第一笔交易开始记账" />
- *  <EmptyState icon="📭" title="暂无数据" />            // 覆盖默认插画
- *  <EmptyState variant="compact" title="暂无结果" action={<Button>重置筛选</Button>} />
+ *  <EmptyState description="暂无交易记录，记一笔开始记账" />
+ *  <EmptyState description="暂无数据" action={<Button>去添加</Button>} />
  */
 interface EmptyStateProps {
-  /** 自定义图标（emoji 或节点）；不传则使用全局统一插画 */
+  /** 自定义图标；不传则使用全局统一插画 */
   icon?: React.ReactNode
-  /** 主文案（各模块自定） */
+  /**
+   * @deprecated 请用 description。保留仅为兼容旧调用，会按描述样式渲染。
+   */
   title?: React.ReactNode
-  /** 补充说明 */
+  /** 描述文案（主文案） */
   description?: React.ReactNode
   /** 操作区（如按钮） */
   action?: React.ReactNode
-  /** 尺寸变体 */
   variant?: 'default' | 'compact' | 'full'
-  /** 默认插画尺寸（px），不传按 variant 给默认值 */
+  /** 插画尺寸（px） */
   iconSize?: number
   className?: string
   style?: React.CSSProperties
@@ -33,7 +32,6 @@ interface EmptyStateProps {
 
 const EMPTY_ILLUSTRATION_SRC = getEmptyIllustrationDataUrl()
 
-/** 全局统一空状态插画 */
 const EmptyIllustration: React.FC<{ size: number }> = ({ size }) => (
   <img
     src={EMPTY_ILLUSTRATION_SRC}
@@ -56,12 +54,18 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
   variant = 'default',
   iconSize,
 }) => {
-  // 插画默认尺寸：compact 100 / default 150 / full 180
   const resolvedIconSize =
     iconSize ?? (variant === 'compact' ? 100 : variant === 'full' ? 180 : 150)
 
-  const renderIcon =
-    icon ?? <EmptyIllustration size={resolvedIconSize} />
+  const renderIcon = icon ?? <EmptyIllustration size={resolvedIconSize} />
+  // 一段描述：优先 description，兼容旧 title
+  // 单段文案：优先 description；两者皆有且为字符串时合并，避免旧调用丢标题
+  const text =
+    description != null && title != null && description !== title
+      ? typeof description === 'string' && typeof title === 'string'
+        ? `${title}。${description}`
+        : description
+      : description ?? title
 
   return (
     <div
@@ -69,10 +73,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
       style={style}
     >
       {renderIcon ? <div className="empty-state__icon">{renderIcon}</div> : null}
-      {title ? <div className="empty-state__title">{title}</div> : null}
-      {description ? (
-        <div className="empty-state__desc">{description}</div>
-      ) : null}
+      {text ? <div className="empty-state__desc">{text}</div> : null}
       {action ? <div className="empty-state__action">{action}</div> : null}
     </div>
   )

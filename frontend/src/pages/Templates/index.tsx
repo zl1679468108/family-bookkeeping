@@ -7,8 +7,7 @@ import { TemplateGrid } from './components/TemplateGrid'
 import { TemplateDetailModal } from './components/TemplateDetailModal'
 import { TemplateFormModal } from './components/TemplateFormModal'
 import { useExecuteRecurring } from '../../hooks/useTemplates'
-import { notify } from '../../utils/notifications'
-import { notifyError } from '../../utils/notifyError'
+import { notifyError, notifySuccess } from '../../utils/notifyError'
 
 const Templates: React.FC = () => {
   const {
@@ -88,7 +87,7 @@ const Templates: React.FC = () => {
     try {
       const result = await executeRecurringMutation.mutateAsync()
       const { executed, skipped } = result as { executed: number; skipped: number }
-      notify({ type: 'success', message: `周期模板执行完成：成功 ${executed} 个，跳过 ${skipped} 个` })
+      notifySuccess(`周期模板执行完成：成功 ${executed} 个，跳过 ${skipped} 个`)
     } catch (err: any) {
       notifyError(err, '执行周期模板失败')
     }

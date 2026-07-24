@@ -5,7 +5,7 @@ import { useDebouncedAction } from '../../../hooks/useDebouncedAction'
 import { useOnceEffect } from '../../../hooks/useOnceEffect'
 import AuthLayout from '../../../components/AuthLayout'
 import { LoginIllustration } from '../../../components/AuthLayout/AuthIllustrations'
-import { notify } from '../../../utils/notifications'
+import { notifyError } from '../../../utils/notifyError'
 import { getCaptcha } from '../../../services/api'
 import { Button } from '../../../components/ui/Button'
 
@@ -43,7 +43,7 @@ const LoginPage: React.FC = () => {
       navigate(redirect)
     } catch (error) {
       const message = error instanceof Error ? error.message : '登录失败，请重试'
-      notify({ type: 'error', message })
+      notifyError(message)
       refreshCaptcha()
     }
   })

@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
-import { notify } from '../../../utils/notifications'
+
+import { notifyError } from '../../../utils/notifyError'
 
 /**
  * 通用图标网格选择器
@@ -74,13 +75,13 @@ export const IconGrid: React.FC<IconGridProps> = ({
 
       // 验证文件类型
       if (!['image/png', 'image/jpeg', 'image/webp'].includes(file.type)) {
-        notify({ type: 'error', message: '仅支持 PNG/JPG/WebP 格式' })
+        notifyError('仅支持 PNG/JPG/WebP 格式')
         return
       }
 
       // 验证文件大小 (5MB)
       if (file.size > 5 * 1024 * 1024) {
-        notify({ type: 'error', message: '文件大小不能超过 5MB' })
+        notifyError('文件大小不能超过 5MB')
         return
       }
 
@@ -88,7 +89,7 @@ export const IconGrid: React.FC<IconGridProps> = ({
       try {
         await onUpload(file, iconType)
       } catch (error) {
-        notify({ type: 'error', message: '上传失败，请重试' })
+        notifyError('上传失败，请重试')
       } finally {
         setUploading(false)
       }
@@ -105,7 +106,7 @@ export const IconGrid: React.FC<IconGridProps> = ({
     try {
       await onDelete(iconId)
     } catch (error) {
-      notify({ type: 'error', message: '删除失败，请重试' })
+      notifyError('删除失败，请重试')
     } finally {
       setDeletingId(null)
     }

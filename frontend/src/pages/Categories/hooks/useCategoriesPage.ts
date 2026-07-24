@@ -4,12 +4,13 @@ import { createCategory, updateCategory, deleteCategory, reorderCategories } fro
 import { fetchCustomIcons, uploadIcon, deleteIcon } from '../../../services/iconsApi'
 import { EMOJI_PRESETS } from '../../../utils/emojiPresets'
 import { SHOPPING_PLATFORM_ICONS, getPlatformIconByKey } from '../../../utils/shoppingPlatformIcons'
-import { notify } from '../../../utils/notifications'
+
 import { useSort } from '../../../hooks/useSort'
 import { useCategories } from '../../../hooks/useCategories'
 import { useMutationAction } from '../../../hooks/useMutationAction'
 import type { Category, CreateCategoryInput } from '@family-bookkeeping/shared-types'
 import type { CustomIconItem } from '../../../components/ui/IconGrid'
+import { notifySuccess } from '../../../utils/notifyError'
 
 export function useCategoriesPage() {
   const queryClient = useQueryClient()
@@ -186,14 +187,14 @@ export function useCategoriesPage() {
   const handleIconUpload = useCallback(async (file: File, iconType: 'category' | 'book' | 'avatar') => {
     await uploadIcon(file, iconType)
     refetchIcons()
-    notify({ type: 'success', message: '图标上传成功' })
+    notifySuccess('图标上传成功')
   }, [refetchIcons])
 
   // Icon delete handler
   const handleIconDelete = useCallback(async (iconId: string) => {
     await deleteIcon(iconId)
     refetchIcons()
-    notify({ type: 'success', message: '图标已删除' })
+    notifySuccess('图标已删除')
   }, [refetchIcons])
 
   return {

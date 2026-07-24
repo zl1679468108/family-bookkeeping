@@ -85,6 +85,12 @@
 
 ### ✅ 已完成
 
+#### 2026-07-24 notify 统一 + EmptyState 单段文案
+- PC 全站业务侧 `notify({type})` 收口到 `notifySuccess/Error/Info`（含 api request、useMutationAction）。
+- EmptyState 双端统一为插画 + 单段描述；`title` 兼容旧调用，与 description 并存时自动合并。
+- 验证：frontend/taro `tsc --noEmit` 通过。
+
+
 #### 2026-07-24 formatMoney 增强与 Admin/Taro 金额收口
 - `formatMoney` 双端新增 `wan`（≥1万 → X.X万）；负数统一 `-¥…` 语义。
 - Admin 看板/交易、PC 模板详情、Taro Home/流水/预算/模板/记一笔金额统一走 formatMoney。

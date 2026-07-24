@@ -3,10 +3,11 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../../utils/auth'
 import { updateProfile, changePassword } from '../../../services/api'
 import { useDebouncedAction } from '../../../hooks/useDebouncedAction'
-import { notify } from '../../../utils/notifications'
+
 import { Button } from '../../../components/ui/Button'
 import { FooterActions } from '../../../components/ui/FooterActions'
 import './index.scss'
+import { notifySuccess, notifyError } from '../../../utils/notifyError'
 
 const compressImage = (file: File, maxSize = 128): Promise<string> =>
   new Promise((resolve, reject) => {
@@ -71,7 +72,7 @@ const PasswordModal: React.FC<PasswordModalProps> = ({ visible, onClose }) => {
 
     try {
       await changePassword({ oldPassword, newPassword, confirmPassword })
-      notify({ type: 'success', message: '密码修改成功' })
+      notifySuccess('密码修改成功')
       setOldPassword('')
       setNewPassword('')
       setConfirmPassword('')
@@ -210,11 +211,11 @@ const ProfilePage: React.FC = () => {
     if (!file) return
 
     if (!file.type.startsWith('image/')) {
-      notify({ type: 'error', message: '请选择图片文件' })
+      notifyError('请选择图片文件')
       return
     }
     if (file.size > 5 * 1024 * 1024) {
-      notify({ type: 'error', message: '图片大小不能超过 5MB' })
+      notifyError('图片大小不能超过 5MB')
       return
     }
 
@@ -222,9 +223,9 @@ const ProfilePage: React.FC = () => {
       const base64 = await compressImage(file)
       setAvatarPreview(base64)
       setAvatarUrl(base64)
-      notify({ type: 'success', message: '头像已选择，点击保存生效' })
+      notifySuccess('头像已选择，点击保存生效')
     } catch {
-      notify({ type: 'error', message: '图片处理失败' })
+      notifyError('图片处理失败')
     } finally {
       if (fileInputRef.current) fileInputRef.current.value = ''
     }
@@ -256,7 +257,7 @@ const ProfilePage: React.FC = () => {
       }
       await updateProfile(payload)
       await refreshUser()
-      notify({ type: 'success', message: '保存成功' })
+      notifySuccess('保存成功')
       navigate(-1)
     } catch (err: unknown) {
       console.error('更新个人信息失败:', err)

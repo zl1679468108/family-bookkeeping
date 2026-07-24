@@ -22,9 +22,10 @@ import { Button } from '../../components/ui/Button'
 import { EmptyAddTransactionAction } from '../../components/ui/EmptyState/emptyActions'
 import { FilterBar } from '../../components/ui/FilterBar'
 import { SearchInput, NumberInput } from '../../components/ui/Input'
-import { notify } from '../../utils/notifications'
+
 import { useQueryClient } from '@tanstack/react-query'
 import { parseImageList } from '../../utils/parseImageList'
+import { notifySuccess } from '../../utils/notifyError'
 
 const PAGE_SIZE = 20
 
@@ -108,7 +109,7 @@ const Transactions: React.FC = () => {
     queryClient.invalidateQueries({ queryKey: ['statistics'] })
     setShowDetail(false)
     setShowDeleteConfirm(false)
-    notify({ type: 'success', message: '交易已删除' })
+    notifySuccess('交易已删除')
   })
 
   const effectiveStartDate = useMemo(() => {

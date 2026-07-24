@@ -22,12 +22,13 @@
 
 | 用途 | 地址 | 说明 |
 |---|---|---|
-| 主站点（HTTPS） | `https://zlspace.site` | 推荐，Let's Encrypt 正式证书 |
+| 主站点（HTTPS） | `https://zlspace.site` | 根路径 301 → `/portfolio/`（作品集） |
+| 静记 PC Web | `https://zlspace.site/bookkeeping/` | Hash 路由，如 `#/transactions` |
+| 静记 API | `https://zlspace.site/bookkeeping/api/` | Nginx 反代 → NestJS `/api` |
+| 兼容旧 API | `https://zlspace.site/api` | 小程序等仍可用 |
 | 带 www | `https://www.zlspace.site` | 同上 |
 | HTTP（自动 301→HTTPS） | `http://zlspace.site` | 访问即跳转 |
-| IP 直访（无域名） | `http://121.4.84.120` | 不受域名备案限制，临时验证用 |
-| IP HTTPS（自签） | `https://121.4.84.120` | 浏览器点"继续"即可 |
-| 后端 API | `https://zlspace.site/api` | 前端走同源相对路径 `/api` |
+| IP 直访（无域名） | `http://121.4.84.120/bookkeeping/` | 不受域名备案限制，临时验证用 |
 | 后端直连（调试） | `http://121.4.84.120:3000` | PM2 进程 `family-bookkeeping-api` |
 
 - **服务器**：腾讯云 CVM `ins-hrd4vrbd`，Ubuntu 24.04，SSH 用户 `ubuntu`
@@ -51,12 +52,14 @@
 
 ### 本地开发
 
-| 子项目 | 端口 | 启动命令 |
-|---|---|---|
-| 前端 PC Web | 3001 | `cd frontend && npm run start` |
-| 后端 API | 3000 | `cd backend && npm run start` |
-| 小程序（微信） | — | `cd taro && npm run dev:weapp`（微信开发者工具指向 `dist/`） |
-| 小程序（H5） | — | `cd taro && npm run dev:h5` |
+| 子项目 | 端口 | 启动命令 | 访问示例 |
+|---|---|---|---|
+| 前端 PC Web | 3001 | `cd frontend && npm run start` | `http://127.0.0.1:3001/#/transactions`（`base=/`） |
+| 后端 API | 3000 | `cd backend && npm run start` | `http://127.0.0.1:3000/api` |
+| 小程序（微信） | — | `cd taro && npm run dev:weapp`（微信开发者工具指向 `dist/`） | — |
+| 小程序（H5） | — | `cd taro && npm run dev:h5` | — |
+
+> 生产前端挂在子路径 `/bookkeeping/`，本地开发默认根路径。生产构建：`VITE_API_BASE_URL=/bookkeeping/api` + `base=/bookkeeping/`（见 `scripts/deploy-cvm.sh`）。
 
 ## 部署
 

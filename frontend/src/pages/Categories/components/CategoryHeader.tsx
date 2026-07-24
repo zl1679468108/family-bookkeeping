@@ -1,7 +1,8 @@
 import React from 'react'
 import { Button } from '../../../components/ui/Button'
 import { CardHeader } from '../../../components/ui/Card'
-import { notify } from '../../../utils/notifications'
+
+import { notifySuccess } from '../../../utils/notifyError'
 
 interface CategoryHeaderProps {
   sortingMode: boolean
@@ -29,7 +30,7 @@ export const CategoryHeader: React.FC<CategoryHeaderProps> = ({
             onClick={() => {
               if (sortingMode) {
                 handleSaveSort()
-                notify({ type: 'success', message: '排序已保存' })
+                notifySuccess('排序已保存')
               } else {
                 handleEnterSortMode()
               }

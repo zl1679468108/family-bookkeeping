@@ -16,7 +16,7 @@
   border: 1px solid var(--bd);
   border-radius: var(--rl, 16px);
   padding: 14px 18px;
-  box-shadow: var(--sh1));
+  box-shadow: var(--sh1);
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -107,7 +107,7 @@
   overflow: hidden;
   position: relative;
   border: 1px solid var(--bd);
-  box-shadow: var(--sh1));
+  box-shadow: var(--sh1);
 }
 
 /* 定位错误提示（地图内） */
@@ -123,7 +123,7 @@
   border-radius: 999px;
   padding: 6px 14px;
   font-size: 12px;
-  box-shadow: var(--sh2));
+  box-shadow: var(--sh2);
 }
 
 /* ── 加载进度条覆盖层 ── */

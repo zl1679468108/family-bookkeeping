@@ -1,8 +1,7 @@
 import { useQueryClient } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import { useDebouncedAction } from './useDebouncedAction'
-import { notify } from '../utils/notifications'
-import { getErrorMessage } from '../utils/errorMessage'
+import { notifySuccess, notifyError } from '../utils/notifyError'
 
 export interface MutationActionOptions {
   invalidateKeys?: (string | number)[][]
@@ -37,11 +36,11 @@ export function useMutationAction<T extends any[], R>(
       const result = await mutationFn(...args)
       invalidateKeys?.forEach((key) => qc.invalidateQueries({ queryKey: key }))
       onSuccess?.()
-      if (successMessage) notify({ type: 'success', message: successMessage })
+      if (successMessage) notifySuccess(successMessage)
       return result
     } catch (err: any) {
       onError?.(err)
-      if (errorMessage) notify({ type: 'error', message: getErrorMessage(err, errorMessage) })
+      if (errorMessage) notifyError(err, errorMessage)
       throw err
     }
   })

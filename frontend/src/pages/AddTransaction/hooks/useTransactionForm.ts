@@ -8,8 +8,7 @@ import { useTemplates } from '../../../hooks/useTemplates'
 import { renderCategoryIcon } from '../../../utils/renderCategoryIcon'
 import type { DropdownOption } from '../../../components/ui/Dropdown'
 import { useDebouncedAction } from '../../../hooks/useDebouncedAction'
-import { notify } from '../../../utils/notifications'
-import { notifyError, notifyInfo } from '../../../utils/notifyError'
+import { notifyError, notifyInfo, notifySuccess } from '../../../utils/notifyError'
 import { parseImageList } from '../../../utils/parseImageList'
 import { compressImage } from '../../../utils/imageCompress'
 import type { LocationResult } from '@family-bookkeeping/shared-types'
@@ -202,7 +201,7 @@ export function useTransactionForm() {
         queryClient.invalidateQueries({ queryKey: ['transactions'] })
         queryClient.invalidateQueries({ queryKey: ['statistics'] })
         queryClient.invalidateQueries({ queryKey: ['budgets'] })
-        notify({ type: 'success', message: '交易已更新' })
+        notifySuccess('交易已更新')
       } else {
         const result = await createMutation.mutateAsync()
         const newTransactionId = result?.id
@@ -221,7 +220,7 @@ export function useTransactionForm() {
         queryClient.invalidateQueries({ queryKey: ['transactions'] })
         queryClient.invalidateQueries({ queryKey: ['statistics'] })
         queryClient.invalidateQueries({ queryKey: ['budgets'] })
-        notify({ type: 'success', message: '交易已保存' })
+        notifySuccess('交易已保存')
       }
       handleReset()
       navigate('/transactions')
@@ -249,7 +248,7 @@ export function useTransactionForm() {
       })
     }
     setShowTemplateSelector(false)
-    notify({ type: 'success', message: `已应用模板：${template.name}` })
+    notifySuccess(`已应用模板：${template.name}`)
   }
 
   // Location handler
@@ -265,7 +264,7 @@ export function useTransactionForm() {
 
     const remaining = MAX_IMAGES - allImageUrls.length
     if (remaining <= 0) {
-      notify({ type: 'error', message: `最多只能上传 ${MAX_IMAGES} 张图片` })
+      notifyError(`最多只能上传 ${MAX_IMAGES} 张图片`)
       e.target.value = ''
       return
     }
@@ -281,7 +280,7 @@ export function useTransactionForm() {
       }
       setPendingImages((prev) => [...prev, ...newPending])
     } catch {
-      notify({ type: 'error', message: '图片处理失败' })
+      notifyError('图片处理失败')
     }
     e.target.value = ''
   }
@@ -307,9 +306,9 @@ export function useTransactionForm() {
           next.note = ocrResult.note || prev.note
           return next
         })
-        notify({ type: 'success', message: 'OCR 识别成功，已自动填充表单' })
+        notifySuccess('OCR 识别成功，已自动填充表单')
       } else {
-        notify({ type: 'error', message: '未能识别票据内容，请重试或手动填写' })
+        notifyError('未能识别票据内容，请重试或手动填写')
       }
     } catch {
       // 后端已返回中文错误提示（含免费额度用完的场景），前端不需要额外通知

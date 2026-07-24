@@ -139,8 +139,7 @@ const Dashboard: React.FC = () => {
             </div>
           ) : recentTransactions.length === 0 ? (
             <EmptyState
-              title="暂无交易记录"
-              description="记录每一笔交易，掌握家庭收支"
+              description="暂无交易记录，记一笔开始掌握家庭收支"
               action={
                 <EmptyAddTransactionAction
                   onClick={() => navigate('/add?type=expense')}
@@ -296,8 +295,7 @@ const Dashboard: React.FC = () => {
           <Card className="dash-budget-card">
             <CardHeader title="本月预算" />
             <EmptyState
-              title="暂无预算设置"
-              description="设置预算可以更好地控制支出"
+              description="暂未设置预算，设置后可以更好地控制支出"
               action={
                 <Button variant="primary" onClick={() => navigate('/budgets')}>
                   去设置

@@ -3,8 +3,9 @@ import { format } from 'date-fns';
 import { GlobalModal } from '../../../components/ui';
 import { Button } from '../../../components/ui/Button';
 import { FooterActions } from '../../../components/ui/FooterActions';
-import { notify } from '../../../utils/notifications';
+;
 import type { InviteCodeData } from '../hooks/useBooksPage';
+import { notifySuccess } from '../../../utils/notifyError'
 
 interface InviteCodeModalProps {
   open: boolean;
@@ -20,7 +21,7 @@ export const InviteCodeModal: React.FC<InviteCodeModalProps> = ({
   const handleCopy = () => {
     if (inviteCode) {
       navigator.clipboard?.writeText(inviteCode.code);
-      notify({ type: 'success', message: '邀请码已复制' });
+      notifySuccess('邀请码已复制');
     }
   };
 

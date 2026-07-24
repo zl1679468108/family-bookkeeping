@@ -3,7 +3,8 @@ import { GlobalModal } from '../../../components/ui';
 import { Button } from '../../../components/ui/Button';
 import { FooterActions } from '../../../components/ui/FooterActions';
 import { Input } from '../../../components/ui/Input';
-import { notify } from '../../../utils/notifications';
+;
+import { notifyError } from '../../../utils/notifyError'
 
 interface InviteMemberModalProps {
   open: boolean;
@@ -26,7 +27,7 @@ export const InviteMemberModal: React.FC<InviteMemberModalProps> = ({
 }) => {
   const handleInvite = () => {
     if (!inviteEmail.trim()) {
-      notify({ type: 'error', message: '请输入邮箱地址' });
+      notifyError('请输入邮箱地址');
       return;
     }
     if (selectedBook) {

@@ -3,7 +3,7 @@ import { useAnnualReport } from '../../hooks/useAnnualReport';
 import { useBook } from '../../hooks/useBook';
 import { useAuth } from '../../utils/auth';
 import { captureLongImage } from '../../utils/exportImage';
-import { notify } from '../../utils/notifications';
+;
 import { Skeleton } from '../../components/ui/Skeleton';
 import { DropdownSelect } from '../../components/ui/Dropdown';
 import ReportCover from './ReportCover';
@@ -15,6 +15,7 @@ import ReportBookBreakdown from './ReportBookBreakdown';
 import ReportMemberRanking from './ReportMemberRanking';
 import ReportFunFact from './ReportFunFact';
 import ReportFooter from './ReportFooter';
+import { notifySuccess, notifyError } from '../../utils/notifyError'
 
 interface AnnualOverview {
   total_income: number;
@@ -229,15 +230,15 @@ const AnnualReport: React.FC = () => {
 
   const handleSaveImage = async () => {
     if (!reportRef.current) {
-      notify({ type: 'error', message: '报告内容未加载' });
+      notifyError('报告内容未加载');
       return;
     }
     try {
       await captureLongImage(reportRef.current, `${year}年度报告.png`);
-      notify({ type: 'success', message: '年度报告已保存为图片' });
+      notifySuccess('年度报告已保存为图片');
     } catch (err) {
       console.error('AnnualReport captureLongImage error:', err);
-      notify({ type: 'error', message: '保存图片失败，请重试' });
+      notifyError('保存图片失败，请重试');
     }
   };
 

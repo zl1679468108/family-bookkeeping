@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { joinByInvitation } from '../../../services/booksApi';
-import { notify } from '../../../utils/notifications'
-import { notifyInfo } from '../../../utils/notifyError';
+
+import { notifyInfo, notifySuccess, notifyError } from '../../../utils/notifyError';
 import { GlobalModal } from '../../../components/ui';
 import { Button } from '../../../components/ui/Button';
 import { FooterActions } from '../../../components/ui/FooterActions';
@@ -53,14 +53,14 @@ export const BookInviteModal: React.FC<BookInviteModalProps> = ({ open, onClose,
 
     joinByInvitation(code.toUpperCase(), { notifyOnError: false })
       .then(() => {
-        notify({ type: 'success', message: '加入成功' });
+        notifySuccess('加入成功');
         queryClient.invalidateQueries({ queryKey: ['books'] });
         onClose();
         onSuccess?.();
       })
       .catch((err: any) => {
         const msg = getErrorMessage(err, '加入失败，请重试');
-        notify({ type: 'error', message: Array.isArray(msg) ? msg[0] : msg });
+        notifyError(Array.isArray(msg) ? msg[0] : msg);
       })
       .finally(() => {
         window.clearTimeout(safetyTimer);

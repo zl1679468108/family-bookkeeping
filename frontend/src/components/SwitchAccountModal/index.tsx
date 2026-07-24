@@ -6,7 +6,7 @@ import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../utils/auth'
 import { useDebouncedAction } from '../../hooks/useDebouncedAction'
-import { notify } from '../../utils/notifications'
+
 import {
   getSavedAccounts,
   removeAccount,
@@ -15,6 +15,7 @@ import {
 import './index.scss'
 import { Button } from '../ui/Button'
 import { FooterActions } from '../ui/FooterActions'
+import { notifySuccess, notifyInfo } from '../../utils/notifyError'
 
 interface SwitchAccountModalProps {
   visible: boolean
@@ -32,7 +33,7 @@ const SwitchAccountModal: React.FC<SwitchAccountModalProps> = ({ visible, onClos
   const { run: handleSwitch, isRunning: switchLoading } = useDebouncedAction(
     async (account: SavedAccount) => {
       if (account.email === accounts.find(a => a.email === user?.email)?.email) {
-        notify({ type: 'info', message: '当前已是该账号' })
+        notifyInfo('当前已是该账号')
         return
       }
       setSwitchingEmail(account.email)
@@ -40,7 +41,7 @@ const SwitchAccountModal: React.FC<SwitchAccountModalProps> = ({ visible, onClos
         const accessToken = account.accessToken ?? account.token
         if (accessToken) {
           await switchByToken(account.email, accessToken, account.refreshToken)
-          notify({ type: 'success', message: '账号切换成功' })
+          notifySuccess('账号切换成功')
           setAccounts(getSavedAccounts())
           onClose()
           navigate('/')

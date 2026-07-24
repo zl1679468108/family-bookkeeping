@@ -132,7 +132,7 @@ const Reports: React.FC = () => {
                   {mergedDefaultBreakdown.length > 0 ? (
                     <CategoryRankChart data={mergedDefaultBreakdown} height="280px" />
                   ) : (
-                    <EmptyState variant="compact" title="暂无分类数据" description="请等待数据加载或切换其他时间段" />
+                    <EmptyState variant="compact" description="暂无分类数据，请等待加载或切换时间段" />
                   )}
                 </>
               )}
@@ -174,7 +174,7 @@ const Reports: React.FC = () => {
                 />
                 {!chartHasData && (
                   <div style={{ position: 'relative', marginTop: '-300px', height: '300px', display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none', background: 'var(--bg-card)' }}>
-                    <EmptyState title="暂无数据" description="当前时间段内没有交易记录" action={<EmptyAddTransactionAction label="开始记账" onClick={() => navigate('/add?type=expense')} />} />
+                    <EmptyState description="当前时间段内没有交易记录" action={<EmptyAddTransactionAction label="开始记账" onClick={() => navigate('/add?type=expense')} />} />
                   </div>
                 )}
               </>
@@ -187,7 +187,7 @@ const Reports: React.FC = () => {
         <>
           {!isMultiMember ? (
             <Card>
-              <EmptyState title="单成员账本" description="成员对比功能仅在多成员账本中可用，请切换至其他账本或邀请家人加入" />
+              <EmptyState description="成员对比仅在多成员账本可用，请切换账本或邀请家人加入" />
             </Card>
           ) : (
             <>
@@ -201,7 +201,7 @@ const Reports: React.FC = () => {
                 <MemberComparison monthFrom={memberStartMonth} monthTo={memberEndMonth} />
               ) : (
                 <Card>
-                  <EmptyState title="请先选择一个账本" description="在左侧账本列表中选择要查看的账本" />
+                  <EmptyState description="请先在左侧选择要查看的账本" />
                 </Card>
               )}
             </>

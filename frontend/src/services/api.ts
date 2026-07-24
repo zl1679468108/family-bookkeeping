@@ -3,7 +3,7 @@
  * 前缀: /api
  */
 
-import { notify } from '../utils/notifications'
+import { notifyError } from '../utils/notifyError'
 import { trackRequest } from '../utils/progress'
 import type {
   Transaction,
@@ -140,10 +140,7 @@ const redirectToLogin = (): void => {
 const handleUnauthorized = (notifyOnError: boolean): void => {
   clearStoredToken()
   if (notifyOnError) {
-    notify({
-      type: 'error',
-      message: '登录状态已失效，请重新登录',
-    })
+    notifyError('登录状态已失效，请重新登录')
   }
   redirectToLogin()
 }
@@ -257,7 +254,7 @@ export const request = async <T>(path: string, options: RequestOptions = {}): Pr
           handleUnauthorized(effectiveNotify)
         }
       } else if (effectiveNotify) {
-        notify({ type: 'error', message: error.message })
+        notifyError(error.message)
       }
 
       throw error
@@ -284,7 +281,7 @@ export const request = async <T>(path: string, options: RequestOptions = {}): Pr
       } else if (message.includes('timeout') || message.includes('Timeout')) {
         message = '请求超时，服务可能正在冷启动，请稍后重试'
       }
-      notify({ type: 'error', message })
+      notifyError(message)
     }
     throw err
   } finally {

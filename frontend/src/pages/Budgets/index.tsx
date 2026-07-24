@@ -9,8 +9,7 @@ import { renderCategoryIcon } from '../../utils/renderCategoryIcon'
 import { useFocusItem } from '../../hooks/useFocusItem'
 import { useMonthRangeOptions } from '../../hooks/useMonthRangeOptions'
 import type { BudgetRecord, UpsertBudgetInput } from '@family-bookkeeping/shared-types';
-import { notify } from '../../utils/notifications'
-import { notifyError, notifyInfo } from '../../utils/notifyError'
+import { notifyError, notifyInfo, notifySuccess } from '../../utils/notifyError'
 import { Skeleton } from '../../components/ui/Skeleton'
 import { GlobalModal, DetailItem, Space } from '../../components/ui'
 import { Card } from '../../components/ui/Card'
@@ -116,7 +115,7 @@ const Budgets: React.FC = () => {
       const isSingleClear =
         variables.budgets.length === 1 && variables.budgets[0].amount === 0
       if (!isSingleClear) {
-        notify({ type: 'success', message: '预算保存成功' })
+        notifySuccess('预算保存成功')
       }
       queryClient.invalidateQueries({ queryKey: ['budgets', selectedMonth] })
       queryClient.invalidateQueries({ queryKey: ['budgets', 'status', selectedMonth] })
@@ -161,7 +160,7 @@ const Budgets: React.FC = () => {
         notifyInfo('上月暂无预算可复制')
         return
       }
-      notify({ type: 'success', message: `已复制上月 ${result.length} 条预算` })
+      notifySuccess(`已复制上月 ${result.length} 条预算`)
       queryClient.invalidateQueries({ queryKey: ['budgets', selectedMonth] })
       queryClient.invalidateQueries({ queryKey: ['budgets', 'status', selectedMonth] })
     } catch (err: any) {
@@ -234,7 +233,7 @@ const Budgets: React.FC = () => {
       },
       {
         onSuccess: () => {
-          notify({ type: 'success', message: '预算已删除' })
+          notifySuccess('预算已删除')
           setShowDetail(false)
           setShowDeleteConfirm(false)
           setSelectedBudget(null)
