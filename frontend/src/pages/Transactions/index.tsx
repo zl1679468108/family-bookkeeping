@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect, useCallback } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { keepPreviousData, useQuery, useQueryClient } from '@tanstack/react-query'
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { startOfMonth, format, parse } from 'date-fns'
 import { getTransactions, deleteTransaction } from '../../services/api'
 import { useCategoryLookup, useCategories } from '../../hooks/useCategories'
@@ -10,7 +10,7 @@ import type { DropdownOption } from '../../components/ui/Dropdown'
 import type { Transaction } from '../../services/api'
 import type { Category } from '@family-bookkeeping/shared-types';
 import { useDebounce } from '../../hooks/useDebounce'
-import { useDebouncedAction } from '../../hooks/useDebouncedAction'
+import { useMutationAction } from '../../hooks/useMutationAction'
 import { useFocusItem } from '../../hooks/useFocusItem'
 import { formatAmount, formatAmountWithType } from '../../utils/common'
 import { Skeleton } from '../../components/ui/Skeleton'
@@ -24,8 +24,7 @@ import { EmptyAddTransactionAction } from '../../components/ui/EmptyState/emptyA
 import { FilterBar } from '../../components/ui/FilterBar'
 import { SearchInput, NumberInput } from '../../components/ui/Input'
 import { parseImageList } from '../../utils/parseImageList'
-import { notifySuccess } from '../../utils/notifyError'
-import { queryKeys, TRANSACTION_IMPACT_ROOT_KEYS, invalidateQueryRoots } from '../../utils/queryKeys'
+import { queryKeys, TRANSACTION_IMPACT_ROOT_KEYS } from '../../utils/queryKeys'
 import { STALE } from '../../utils/cachePolicy'
 
 const PAGE_SIZE = 20
@@ -33,7 +32,6 @@ const PAGE_SIZE = 20
 const Transactions: React.FC = () => {
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
-  const queryClient = useQueryClient()
   const { currentBook } = useBook()
   const bookId = currentBook?.id || ''
   const { getCategoryName, getCategoryIconNode } = useCategoryLookup()
@@ -139,14 +137,24 @@ const Transactions: React.FC = () => {
   const [showDetail, setShowDetail] = useState(false)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
 
-  const { run: handleDelete, isRunning: deleteLoading } = useDebouncedAction(async () => {
-    if (!selectedTransaction) return
-    await deleteTransaction(selectedTransaction.id)
-    invalidateQueryRoots(queryClient, TRANSACTION_IMPACT_ROOT_KEYS)
-    setShowDetail(false)
-    setShowDeleteConfirm(false)
-    notifySuccess('交易已删除')
-  })
+  const { run: handleDelete, isRunning: deleteLoading } = useMutationAction(
+    async () => {
+      if (!selectedTransaction) {
+        throw new Error('未选择要删除的交易')
+      }
+      await deleteTransaction(selectedTransaction.id)
+    },
+    {
+      invalidateKeys: TRANSACTION_IMPACT_ROOT_KEYS,
+      successMessage: '交易已删除',
+      errorMessage: '删除失败',
+      onSuccess: () => {
+        setShowDetail(false)
+        setShowDeleteConfirm(false)
+        setSelectedTransaction(null)
+      },
+    },
+  )
 
   const effectiveStartDate = useMemo(() => {
     if (dateFilter === 'week') {

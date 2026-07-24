@@ -1,15 +1,15 @@
 import React, { useMemo, useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { format } from 'date-fns'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { fetchBudgets, fetchBudgetStatus, upsertBudgets, copyBudgets } from '../../services/budgetsApi'
-import { useDebouncedAction } from '../../hooks/useDebouncedAction'
+import { useMutationAction } from '../../hooks/useMutationAction'
 import { useCategoryLookup } from '../../hooks/useCategories'
 import { renderCategoryIcon } from '../../utils/renderCategoryIcon'
 import { useFocusItem } from '../../hooks/useFocusItem'
 import { useMonthRangeOptions } from '../../hooks/useMonthRangeOptions'
 import type { BudgetRecord, UpsertBudgetInput } from '@family-bookkeeping/shared-types';
-import { notifyError, notifyInfo, notifySuccess } from '../../utils/notifyError'
+import { notifyInfo, notifySuccess } from '../../utils/notifyError'
 import { Skeleton } from '../../components/ui/Skeleton'
 import { GlobalModal, DetailItem, Space } from '../../components/ui'
 import { Card } from '../../components/ui/Card'
@@ -39,7 +39,6 @@ const progressFillClass = (variant: 'safe' | 'warn' | 'danger'): string => {
 
 const Budgets: React.FC = () => {
   const navigate = useNavigate()
-  const queryClient = useQueryClient()
   const { currentBook } = useBook()
   const bookId = currentBook?.id || ''
   const { categories } = useCategoryLookup()
@@ -118,22 +117,6 @@ const Budgets: React.FC = () => {
     }))
   }
 
-  const saveMutation = useMutation({
-    mutationFn: (input: UpsertBudgetInput) => upsertBudgets(input),
-    onSuccess: (_data, variables) => {
-      // 单条清零不在这里 toast，由调用方提示「已删除」
-      const isSingleClear =
-        variables.budgets.length === 1 && variables.budgets[0].amount === 0
-      if (!isSingleClear) {
-        notifySuccess('预算保存成功')
-      }
-      queryClient.invalidateQueries({ queryKey: queryKeys.budgets.all })
-    },
-    onError: (err: any) => {
-      notifyError(err, '预算保存失败')
-    },
-  })
-
   /** 构建需提交的预算列表：正数全量 + 原先有预算现清零的分类（amount=0 以落库） */
   const buildBudgetPayload = (values: Record<string, number>) => {
     return expenseCategories
@@ -148,34 +131,50 @@ const Budgets: React.FC = () => {
       .filter(Boolean) as { category: string; amount: number }[]
   }
 
-  const { run: handleSave, isRunning: saveLoading } = useDebouncedAction(async () => {
-    const budgetsArray = buildBudgetPayload(editValues)
+  const { run: upsertBudgetRun, isRunning: upsertLoading } = useMutationAction(
+    (input: UpsertBudgetInput) => upsertBudgets(input),
+    {
+      invalidateKeys: [queryKeys.budgets.all],
+      errorMessage: '预算保存失败',
+    },
+  )
 
+  const handleSave = () => {
+    const budgetsArray = buildBudgetPayload(editValues)
     if (budgetsArray.length === 0) {
       notifyInfo('请至少设置一个分类的预算金额')
       return
     }
-
-    saveMutation.mutate({
+    void upsertBudgetRun({
       month: selectedMonth,
       budgets: budgetsArray,
     })
-  })
+      .then(() => notifySuccess('预算保存成功'))
+      .catch(() => {
+        // 错误已由 useMutationAction 通知
+      })
+  }
 
-  const { run: handleCopyLastMonth, isRunning: copyLoading } = useDebouncedAction(async () => {
-    try {
+  const { run: handleCopyLastMonth, isRunning: copyLoading } = useMutationAction(
+    async () => {
       const result = await copyBudgets({ targetMonth: selectedMonth })
       if (!result || result.length === 0) {
         notifyInfo('上月暂无预算可复制')
-        return
+        return null
       }
-      notifySuccess(`已复制上月 ${result.length} 条预算`)
-      queryClient.invalidateQueries({ queryKey: queryKeys.budgets.all })
-      setShowCopyConfirm(false)
-    } catch (err: any) {
-      notifyError(err, '复制上月预算失败')
-    }
-  })
+      return result
+    },
+    {
+      invalidateKeys: [queryKeys.budgets.all],
+      errorMessage: '复制上月预算失败',
+      shouldCommit: (result) => Array.isArray(result) && result.length > 0,
+      successMessage: (result) =>
+        result ? `已复制上月 ${result.length} 条预算` : null,
+      onSuccess: (result) => {
+        if (result) setShowCopyConfirm(false)
+      },
+    },
+  )
 
   const handleOpenEditForm = (budget: any) => {
     setEditFormValues({
@@ -206,27 +205,25 @@ const Budgets: React.FC = () => {
     }
 
     handleAmountChange(catName, String(newAmount))
-    saveMutation.mutate(
-      {
-        month: selectedMonth,
-        budgets: [{ category: catId, amount: newAmount }],
-      },
-      {
-        onSuccess: () => {
-          setSelectedBudget((prev: any) =>
-            prev
-              ? {
-                  ...prev,
-                  budget: newAmount,
-                  remaining: newAmount - (prev.spent || 0),
-                }
-              : prev,
-          )
-          setShowEditForm(false)
-          setShowDetail(false)
-        },
-      },
-    )
+    void upsertBudgetRun({
+      month: selectedMonth,
+      budgets: [{ category: catId, amount: newAmount }],
+    }).then(() => {
+      notifySuccess('预算保存成功')
+      setSelectedBudget((prev: any) =>
+        prev
+          ? {
+              ...prev,
+              budget: newAmount,
+              remaining: newAmount - (prev.spent || 0),
+            }
+          : prev,
+      )
+      setShowEditForm(false)
+      setShowDetail(false)
+    }).catch(() => {
+      // 错误已由 useMutationAction 通知
+    })
   }
 
   /** 删除/清零：立即 upsert amount=0 */
@@ -235,20 +232,17 @@ const Budgets: React.FC = () => {
     const catId = selectedBudget.category.id as string
     const catName = selectedBudget.category.name as string
     handleAmountChange(catName, '0')
-    saveMutation.mutate(
-      {
-        month: selectedMonth,
-        budgets: [{ category: catId, amount: 0 }],
-      },
-      {
-        onSuccess: () => {
-          notifySuccess('预算已删除')
-          setShowDetail(false)
-          setShowDeleteConfirm(false)
-          setSelectedBudget(null)
-        },
-      },
-    )
+    void upsertBudgetRun({
+      month: selectedMonth,
+      budgets: [{ category: catId, amount: 0 }],
+    }).then(() => {
+      notifySuccess('预算已删除')
+      setShowDetail(false)
+      setShowDeleteConfirm(false)
+      setSelectedBudget(null)
+    }).catch(() => {
+      // 错误已由 useMutationAction 通知
+    })
   }
 
   return (
@@ -278,12 +272,12 @@ const Budgets: React.FC = () => {
                   variant="secondary"
                   size="sm"
                   onClick={() => setShowCopyConfirm(true)}
-                  disabled={copyLoading || saveLoading}
+                  disabled={copyLoading || upsertLoading}
                 >
                   {copyLoading ? '复制中...' : '复制上月'}
                 </Button>
-                <Button variant="primary" size="sm" onClick={handleSave} disabled={saveLoading || copyLoading}>
-                  {saveLoading ? '保存中...' : '保存'}
+                <Button variant="primary" size="sm" onClick={handleSave} disabled={upsertLoading || copyLoading}>
+                  {upsertLoading ? '保存中...' : '保存'}
                 </Button>
               </>
             )}

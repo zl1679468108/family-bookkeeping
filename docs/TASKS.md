@@ -85,6 +85,13 @@
 
 ### ✅ 已完成
 
+#### 2026-07-24 useMutationAction 增强 + Budgets/流水/Admin 预取收口
+- `useMutationAction` 支持 `successMessage` 函数、`shouldCommit`、带 result 的 onSuccess/onError。
+- Budgets 去掉分散 `useMutation`+`useDebouncedAction`，统一 upsert/复制 mutation。
+- 流水删除改为 `useMutationAction` + `TRANSACTION_IMPACT_ROOT_KEYS`。
+- `prefetchRoute` 覆盖 Admin 三页 query + chunk；侧栏管理菜单 hover/focus 预取。
+- 验证：frontend `tsc --noEmit` 通过。
+
 #### 2026-07-24 KeepAlive / 预取 / 金额格式复用
 - 接入 `KeepAliveHost`：地图/日历访问后隐藏保留；`key={userId}` 切账号卸载；配套 SCSS。
 - 抽取 `utils/prefetchRoute.ts`：侧栏 hover/focus 统一 query 预取 + 页面 chunk 预加载。

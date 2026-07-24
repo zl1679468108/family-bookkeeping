@@ -60,7 +60,7 @@ const AdminUsers: React.FC = () => {
         setPassword('');
         setErrorMsg('');
       },
-      onError: (err: Error) => setErrorMsg(err.message),
+      onError: (err: unknown) => setErrorMsg(err instanceof Error ? err.message : String(err)),
     },
   );
 
@@ -75,7 +75,7 @@ const AdminUsers: React.FC = () => {
         setPassword('');
         setErrorMsg('');
       },
-      onError: (err: Error) => setErrorMsg(err.message),
+      onError: (err: unknown) => setErrorMsg(err instanceof Error ? err.message : String(err)),
     },
   );
 

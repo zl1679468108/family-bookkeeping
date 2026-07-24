@@ -7,12 +7,58 @@ import { queryKeys } from './queryKeys'
 import { GC_TIME_LONG, STALE } from './cachePolicy'
 import { fetchSummary } from '../services/statisticsApi'
 import { getTransactions } from '../services/api'
-import { fetchBudgetStatus } from '../services/budgetsApi'
+import { fetchBudgetStatus, fetchBudgets } from '../services/budgetsApi'
 import { fetchCategories } from '../services/categoriesApi'
 import { fetchTemplates } from '../services/templatesApi'
-import { fetchBudgets } from '../services/budgetsApi'
+import {
+  getAdminStats,
+  getAdminUsers,
+  getAdminTransactions,
+  getAdminBooks,
+} from '../services/adminApi'
 
 export function prefetchRoute(path: string, bookId: string): void {
+  const isAdminPath = path === '/admin' || path.startsWith('/admin/')
+  if (!bookId && !isAdminPath) return
+
+  // ── 管理后台（不依赖 bookId）──
+  if (isAdminPath) {
+    if (path === '/admin') {
+      void queryClient.prefetchQuery({
+        queryKey: queryKeys.admin.stats,
+        queryFn: getAdminStats,
+        staleTime: STALE.admin,
+      })
+      void import('../pages/Admin/AdminDashboard')
+    }
+    if (path === '/admin/users') {
+      void queryClient.prefetchQuery({
+        queryKey: queryKeys.admin.users(1, '', '', '', 20),
+        queryFn: () => getAdminUsers({ page: 1, pageSize: 20 }),
+        staleTime: STALE.admin,
+      })
+      void import('../pages/Admin/AdminUsers')
+    }
+    if (path === '/admin/transactions') {
+      void queryClient.prefetchQuery({
+        queryKey: queryKeys.admin.usersForSelect,
+        queryFn: () => getAdminUsers({ page: 1, pageSize: 1000 }),
+        staleTime: STALE.admin,
+      })
+      void queryClient.prefetchQuery({
+        queryKey: queryKeys.admin.booksForSelect,
+        queryFn: () => getAdminBooks(),
+        staleTime: STALE.admin,
+      })
+      void queryClient.prefetchQuery({
+        queryKey: queryKeys.admin.transactions(1, '', '', '', '', 20),
+        queryFn: () => getAdminTransactions({ page: 1, pageSize: 20 }),
+        staleTime: STALE.admin,
+      })
+      void import('../pages/Admin/AdminTransactions')
+    }
+  }
+
   if (!bookId) return
 
   const now = new Date()
@@ -86,7 +132,6 @@ export function prefetchRoute(path: string, bookId: string): void {
     })
   }
 
-  // 页面 chunk 预加载（与 KeepAlive 懒加载同源）
   if (path === '/reports') void import('../pages/Reports')
   if (path === '/transactions') void import('../pages/Transactions')
   if (path === '/map') void import('../pages/Map')

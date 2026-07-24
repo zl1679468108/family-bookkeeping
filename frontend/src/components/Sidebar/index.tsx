@@ -187,7 +187,8 @@ export const Sidebar: React.FC = () => {
   })
 
   const prefetchRoute = (path: string) => {
-    if (!bookId || !hasBooks) return
+    const isAdminPath = path === '/admin' || path.startsWith('/admin/')
+    if (!isAdminPath && (!bookId || !hasBooks)) return
     prefetchBookRoute(path, bookId)
   }
 
@@ -240,6 +241,8 @@ export const Sidebar: React.FC = () => {
               <button key={item.id}
                 className={`sidebar-nav-item${activeId === item.id ? ' active' : ''}`}
                 onClick={() => navigate(item.path)}
+                onMouseEnter={() => prefetchRoute(item.path)}
+                onFocus={() => prefetchRoute(item.path)}
                 title={collapsed ? item.name : undefined}>
                 <span className="sidebar-nav-icon">
                   {Icons[item.id === 'admin-dashboard' ? 'dashboard' : item.id === 'admin-users' ? 'books' : 'transactions']}
