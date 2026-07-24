@@ -10,7 +10,7 @@ import type { LocationResult } from '@family-bookkeeping/shared-types'
 import { FREQUENCY_OPTIONS } from '../../../utils/frequency'
 import { TRANSACTION_TYPE_OPTIONS } from '../../../utils/transactionType'
 import { busyLabel, ACTION_SAVING } from '../../../utils/actionCopy'
-import { entityFormTitle } from '../../../utils/entityCopy'
+import { entityFormTitle, ENTITY_TEMPLATE } from '../../../utils/entityCopy'
 
 interface TemplateFormProps {
   open: boolean
@@ -58,7 +58,7 @@ export const TemplateFormModal: React.FC<TemplateFormProps> = ({
       <GlobalModal
         open={open}
         onClose={onClose}
-        title={entityFormTitle('模板', !!editingId)}
+        title={entityFormTitle(ENTITY_TEMPLATE, !!editingId)}
         footer={
           <FooterActions align="end" className="global-modal-dialog__footer-inner">
             <Button variant="secondary" onClick={onClose}>取消</Button>

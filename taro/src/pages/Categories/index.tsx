@@ -54,7 +54,7 @@ import {
 import { SUCCESS_DELETED, SUCCESS_ICON_UPLOADED, successEntityUpsert } from "../../utils/successCopy";
 import { FORM_NAME_REQUIRED } from "../../utils/formCopy";
 import { emptyCategories } from "../../utils/emptyCopy";
-import { entityCreateButton } from "../../utils/entityCopy";
+import { entityCreateButton, ENTITY_CATEGORY } from "../../utils/entityCopy";
 import { UPLOAD_FAILED, DELETE_FAILED } from "../../utils/uploadCopy";
 import { failEntityUpsert } from "../../utils/errorCopy";
 
@@ -223,7 +223,7 @@ export default function CategoriesPage() {
         : createCategory({ name, icon, type: catType });
       await apiCall;
       qc.invalidateQueries({ queryKey: ["categories"] });
-      toastSuccess(successEntityUpsert("分类", isEdit));
+      toastSuccess(successEntityUpsert(ENTITY_CATEGORY, isEdit));
       closeForm();
       refetch();
     }, ACTION_SAVING).catch((err: any) => {
@@ -317,7 +317,7 @@ export default function CategoriesPage() {
                 </Button>
               )}
               <Button variant="primary" size="sm" onClick={handleAdd}>
-                {entityCreateButton("分类")}
+                {entityCreateButton(ENTITY_CATEGORY)}
               </Button>
             </>
           )}

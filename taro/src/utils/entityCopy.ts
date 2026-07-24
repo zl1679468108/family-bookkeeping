@@ -1,3 +1,11 @@
+/** 实体名称（列表/toast/标题复用） */
+
+export const ENTITY_CATEGORY = "分类";
+export const ENTITY_TEMPLATE = "模板";
+export const ENTITY_BOOK = "账本";
+export const ENTITY_TRANSACTION = "交易";
+export const ENTITY_BUDGET = "预算";
+
 /** 实体新建/编辑标题与按钮文案 — 与 PC 对齐 */
 
 export function entityCreateTitle(entity: string, verb = "新建"): string {

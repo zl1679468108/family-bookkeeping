@@ -13,6 +13,7 @@ import { queryKeys } from '../../../../utils/queryKeys';
 import { STALE } from '../../../../utils/cachePolicy';
 import { Icon } from '../../../../components/ui/Icon'
 import { transactionTypeShortLabel } from '../../../../utils/transactionType'
+import { EMPTY_TRANSACTIONS } from '../../../../utils/emptyCopy';
 
 interface TransactionHistoryModalProps {
   merchant: MerchantSummary;
@@ -90,7 +91,7 @@ export const TransactionHistoryModal: React.FC<TransactionHistoryModalProps> = (
               ))}
             </div>
           ) : filtered.length === 0 ? (
-            <EmptyState variant="compact" description="暂无交易记录" />
+            <EmptyState variant="compact" description={EMPTY_TRANSACTIONS} />
           ) : (
             filtered.map((tx) => (
               <div key={tx.id} className={`merchant-history-item ${tx.type}`}>

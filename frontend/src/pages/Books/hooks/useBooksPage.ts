@@ -19,6 +19,7 @@ import {
   SUCCESS_MEMBER_REMOVED,
   successEntityDeleted,
 } from '../../../utils/successCopy'
+import { ENTITY_BOOK } from '../../../utils/entityCopy';
 
 export interface InviteCodeData {
   code: string;
@@ -100,7 +101,7 @@ export function useBooksPage() {
   const deleteMutation = useMutationAction(
     (bookId: string) => deleteBook(bookId),
     {
-      successMessage: successEntityDeleted('账本'),
+      successMessage: successEntityDeleted(ENTITY_BOOK),
       errorMessage: ERROR_DELETE_FAILED,
       onSuccess: () => {
         closeAllDialogs();

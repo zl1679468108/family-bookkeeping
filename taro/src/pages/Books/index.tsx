@@ -47,7 +47,7 @@ import {
   successSwitchedBook,
 } from "../../utils/successCopy";
 import { copyToClipboard } from "../../utils/clipboard";
-import { entityCreateButton } from "../../utils/entityCopy";
+import { entityCreateButton, ENTITY_BOOK } from "../../utils/entityCopy";
 import { DELETE_FAILED } from "../../utils/uploadCopy";
 import { ERROR_JOIN_FAILED, ERROR_INVITE_EMAIL, ERROR_GENERATE_FAILED, ERROR_REMOVE_FAILED } from "../../utils/errorCopy";
 import Icon, { ICON_COLOR } from "../../components/Icon";
@@ -245,7 +245,7 @@ export default function BooksPage() {
     if (!target) return;
     run(async () => {
       await deleteBook(target.id);
-      toastSuccess(successEntityDeleted("账本"));
+      toastSuccess(successEntityDeleted(ENTITY_BOOK));
       setDeletingBook(null);
       closeDetail();
       refetch();
@@ -324,7 +324,7 @@ export default function BooksPage() {
             使用邀请码加入
           </Button>
           <Button variant="primary" size="sm" onClick={handleAdd}>
-            {entityCreateButton("账本", "+")}
+            {entityCreateButton(ENTITY_BOOK, "+")}
           </Button>
         </View>
       </View>

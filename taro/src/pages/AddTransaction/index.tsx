@@ -41,6 +41,7 @@ import { FORM_AMOUNT_INVALID, FORM_CATEGORY_REQUIRED } from "../../utils/formCop
 import { MAX_RECEIPT_IMAGES, DELETE_FAILED } from "../../utils/uploadCopy";
 import { ERROR_SAVE_FAILED, ERROR_RECEIPTS_PARTIAL, ERROR_RECEIPTS_ALL } from "../../utils/errorCopy";
 import Icon, { ICON_COLOR } from "../../components/Icon";
+import { ENTITY_TRANSACTION } from "../../utils/entityCopy";
 
 interface Template {
   id: string;
@@ -207,7 +208,7 @@ export default function AddTransaction() {
             Taro.showLoading({ title: CONFIRM_DELETE_LOADING });
             await deleteTransaction(Number(editId));
             Taro.hideLoading();
-            toastSuccess(successEntityDeleted("交易"));
+            toastSuccess(successEntityDeleted(ENTITY_TRANSACTION));
             setTimeout(() => Taro.navigateBack(), 500);
           } catch {
             Taro.hideLoading();

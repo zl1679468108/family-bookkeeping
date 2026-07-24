@@ -19,6 +19,7 @@ import { Button } from '../../components/ui/Button'
 import { EmptyAddTransactionAction } from '../../components/ui/EmptyState/emptyActions'
 import { queryKeys } from '../../utils/queryKeys'
 import { GC_TIME_LONG, STALE } from '../../utils/cachePolicy'
+import { EMPTY_TRANSACTIONS_HOME, EMPTY_NO_BUDGET } from '../../utils/emptyCopy'
 
 const Dashboard: React.FC = () => {
   const navigate = useNavigate()
@@ -143,7 +144,7 @@ const Dashboard: React.FC = () => {
             </div>
           ) : recentTransactions.length === 0 ? (
             <EmptyState
-              description="暂无交易记录，记一笔开始掌握家庭收支"
+              description={EMPTY_TRANSACTIONS_HOME}
               action={
                 <EmptyAddTransactionAction
                   onClick={() => navigate('/add?type=expense')}
@@ -295,7 +296,7 @@ const Dashboard: React.FC = () => {
           <Card className="dash-budget-card">
             <CardHeader title="本月预算" />
             <EmptyState
-              description="暂未设置预算，设置后可以更好地控制支出"
+              description={EMPTY_NO_BUDGET}
               action={
                 <Button variant="primary" onClick={() => navigate('/budgets')}>
                   去设置

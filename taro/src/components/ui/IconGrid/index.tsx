@@ -14,6 +14,8 @@ import {
 import "./index.scss";
 import { toastInfo } from "../../../utils/toast";
 import Icon, { ICON_COLOR } from "../../Icon";
+import { FORM_PRIVACY_REQUIRED } from "../../../utils/formCopy";
+import { IMAGE_SELECT_FAILED_SHORT } from "../../../utils/uploadCopy";
 
 export interface IconGridOption {
   value: string;
@@ -69,11 +71,11 @@ export function IconGrid({
       // 用户主动取消不提示
       if (msg.indexOf("cancel") !== -1) return;
       if (isPrivacyError(e)) {
-        toastInfo("请先同意隐私协议");
+        toastInfo(FORM_PRIVACY_REQUIRED);
         openPrivacySetting();
         return;
       }
-      toastInfo(msg || "选择失败");
+      toastInfo(msg || IMAGE_SELECT_FAILED_SHORT);
     }
   };
 

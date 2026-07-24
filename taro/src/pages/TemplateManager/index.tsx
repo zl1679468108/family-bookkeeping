@@ -46,7 +46,7 @@ import {
 import { SUCCESS_TEMPLATE_APPLIED, successEntityDeleted, successEntityUpsert } from "../../utils/successCopy";
 import { FORM_TEMPLATE_NAME_REQUIRED } from "../../utils/formCopy";
 import { EMPTY_TEMPLATES } from "../../utils/emptyCopy";
-import { entityCreateButton, entityFormTitle } from "../../utils/entityCopy";
+import { entityCreateButton, entityFormTitle, ENTITY_TEMPLATE } from "../../utils/entityCopy";
 import { ERROR_DELETE_FAILED, ERROR_OP_FAILED, ERROR_EXECUTE_FAILED } from "../../utils/errorCopy";
 import Icon, { ICON_COLOR } from "../../components/Icon";
 
@@ -195,7 +195,7 @@ export default function TemplateManager() {
     run(async () => {
       await deleteTemplate(deleteId);
       qc.invalidateQueries({ queryKey: ["templates"] });
-      toastSuccess(successEntityDeleted("模板"));
+      toastSuccess(successEntityDeleted(ENTITY_TEMPLATE));
       setShowDelete(false);
       setDeleteId(null);
       refetch();
@@ -245,7 +245,7 @@ export default function TemplateManager() {
         await createTemplate(data);
       }
       qc.invalidateQueries({ queryKey: ["templates"] });
-      toastSuccess(successEntityUpsert("模板", Boolean(editingId)));
+      toastSuccess(successEntityUpsert(ENTITY_TEMPLATE, Boolean(editingId)));
       setShowForm(false);
       setEditingId(null);
       refetch();
@@ -315,7 +315,7 @@ export default function TemplateManager() {
           </Button>
         )}
         <Button variant="primary" size="sm" onClick={openCreateForm}>
-          {entityCreateButton("模板")}
+          {entityCreateButton(ENTITY_TEMPLATE)}
         </Button>
       </View>
 
@@ -539,7 +539,7 @@ export default function TemplateManager() {
       {/* ========== 表单弹窗（对齐PC截图） ========== */}
       {showForm && (
         <BottomSheet
-          title={entityFormTitle("模板", Boolean(editingId))}
+          title={entityFormTitle(ENTITY_TEMPLATE, Boolean(editingId))}
           onClose={closeForm}
           maxHeight="90vh"
           bodyClassName="tpl-form-pad"

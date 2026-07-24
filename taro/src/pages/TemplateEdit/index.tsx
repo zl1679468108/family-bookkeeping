@@ -34,7 +34,7 @@ import {
 } from "../../utils/confirmCopy";
 import { successEntityDeleted, successEntityUpsert } from "../../utils/successCopy";
 import { FORM_TEMPLATE_NAME_REQUIRED, FORM_CATEGORY_REQUIRED } from "../../utils/formCopy";
-import { entityFormTitle } from "../../utils/entityCopy";
+import { entityFormTitle, ENTITY_TEMPLATE } from "../../utils/entityCopy";
 import { DELETE_FAILED } from "../../utils/uploadCopy";
 import { failEntityUpsert } from "../../utils/errorCopy";
 
@@ -128,7 +128,7 @@ export default function TemplateEdit() {
         await createTemplate(data);
       }
       qc.invalidateQueries({ queryKey: ["templates"] });
-      toastSuccess(successEntityUpsert("模板", isEdit));
+      toastSuccess(successEntityUpsert(ENTITY_TEMPLATE, isEdit));
       setTimeout(() => Taro.navigateBack(), 500);
     }, ACTION_SAVING).catch((err: any) => {
       toastError(err, failEntityUpsert(isEdit));
@@ -139,7 +139,7 @@ export default function TemplateEdit() {
     run(async () => {
       await deleteTemplate(id);
       qc.invalidateQueries({ queryKey: ["templates"] });
-      toastSuccess(successEntityDeleted("模板"));
+      toastSuccess(successEntityDeleted(ENTITY_TEMPLATE));
       setTimeout(() => Taro.navigateBack(), 500);
     }, ACTION_DELETING).catch((err: any) => {
       toastError(err, DELETE_FAILED);
@@ -172,7 +172,7 @@ export default function TemplateEdit() {
       poi_id: "",
     }));
 
-  const title = entityFormTitle("模板", isEdit);
+  const title = entityFormTitle(ENTITY_TEMPLATE, isEdit);
 
   const formatCategoryLabel = (cat: any) => {
     if (!cat) return "选择分类";

@@ -42,7 +42,7 @@ import {
 } from "../../utils/confirmCopy";
 import { FORM_NAME_REQUIRED, FORM_PRIVACY_REQUIRED, FORM_OWNER_EMAIL_REQUIRED, FORM_PASSWORD_VERIFY } from "../../utils/formCopy";
 import { SUCCESS_BOOK_CREATED, SUCCESS_CUSTOM_ICON_ADDED, SUCCESS_DELETED, SUCCESS_OWNERSHIP_TRANSFERRED, SUCCESS_UPDATED, successEntityDeleted } from "../../utils/successCopy";
-import { entityFormTitle } from "../../utils/entityCopy";
+import { entityFormTitle, ENTITY_BOOK } from "../../utils/entityCopy";
 import { IMAGE_SELECT_FAILED, DELETE_FAILED, UPLOAD_FAILED } from "../../utils/uploadCopy";
 import { ERROR_CREATE_FAILED, ERROR_SAVE_FAILED, ERROR_TRANSFER_FAILED } from "../../utils/errorCopy";
 import Icon, { ICON_COLOR } from "../../components/Icon";
@@ -62,7 +62,7 @@ export default function BookSettings() {
 
   // 设置原生导航栏标题（避免自定义 NavHeader 产生双层导航）
   useEffect(() => {
-    Taro.setNavigationBarTitle({ title: entityFormTitle("账本", !isAdd) });
+    Taro.setNavigationBarTitle({ title: entityFormTitle(ENTITY_BOOK, !isAdd) });
   }, [isAdd]);
 
   // ===== UI 状态 — 编辑表单 =====
@@ -261,7 +261,7 @@ export default function BookSettings() {
     run(async () => {
       await deleteBook(bookId);
       qc.invalidateQueries({ queryKey: ["books"] });
-      toastSuccess(successEntityDeleted("账本"));
+      toastSuccess(successEntityDeleted(ENTITY_BOOK));
       setTimeout(() => Taro.navigateBack(), 500);
     }, ACTION_DELETING).catch((err: any) => {
       toastError(err, DELETE_FAILED);

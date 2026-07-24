@@ -10,7 +10,7 @@ import './MemberComparison.scss';
 import { formatAmount } from '../../utils/common';
 import { getChartPalette } from '../../utils/themeColors'
 import { formatMonthDisplayCompact } from '../../utils/month'
-import { EMPTY_MEMBER_SPEND_PERIOD } from '../../utils/emptyCopy';
+import { EMPTY_MEMBER_SPEND_PERIOD, EMPTY_LOAD_FAILED } from '../../utils/emptyCopy';
 
 interface MemberComparisonProps {
   monthFrom: string;
@@ -280,7 +280,7 @@ export const MemberComparison: React.FC<MemberComparisonProps> = ({
     return (
       <EmptyState
         icon="⚠️"
-        description={error instanceof Error ? `加载失败：${error.message}` : '加载失败'}
+        description={error instanceof Error ? `${EMPTY_LOAD_FAILED}：${error.message}` : EMPTY_LOAD_FAILED}
       />
     );
   }

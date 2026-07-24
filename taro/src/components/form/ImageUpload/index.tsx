@@ -14,6 +14,8 @@ import "./index.scss";
 import { getErrorMessage } from "../../../utils/errorMessage";
 import { toastInfo } from "../../../utils/toast";
 import Icon, { ICON_COLOR } from "../../Icon";
+import { FORM_PRIVACY_REQUIRED } from "../../../utils/formCopy";
+import { IMAGE_SELECT_FAILED } from "../../../utils/uploadCopy";
 
 export interface ImageUploadProps {
   /** 已上传的图片 URL（从服务器获取） */
@@ -73,11 +75,11 @@ export default function ImageUpload({
         // 用户主动取消不提示
         if (msg.indexOf("cancel") !== -1) return;
         if (isPrivacyError(err)) {
-          toastInfo("请先同意隐私协议");
+          toastInfo(FORM_PRIVACY_REQUIRED);
           openPrivacySetting();
           return;
         }
-        toastInfo(msg || "选择图片失败");
+        toastInfo(msg || IMAGE_SELECT_FAILED);
       });
   };
 

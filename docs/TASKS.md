@@ -85,6 +85,12 @@
 
 ### ✅ 已完成
 
+#### 2026-07-24 entityCopy 实体名 + 空态/定位文案收口
+- 双端 `entityCopy`：`ENTITY_CATEGORY/TEMPLATE/BOOK/TRANSACTION/BUDGET`；列表标题、创建按钮、成功 toast 实体名统一。
+- 双端 `emptyCopy`：当天流水/成员/平台用户/商户空态；Dashboard、Map、Calendar、BookMemberList、Admin、MerchantDrawer 接线。
+- 双端 `formCopy` 定位文案 + `uploadCopy.IMAGE_SELECT_FAILED_SHORT`；LocationPicker / ImageUpload / IconGrid 隐私与选图提示收口。
+- 验证：frontend / taro `tsc --noEmit` 通过。
+
 #### 2026-07-24 emptyCopy 扩展 + sortCopy 排序提示 + Dropdown 箭头 Icon
 - 双端 `emptyCopy`：流水/首页/预算/成员对比/Admin 等高频空态描述收口。
 - 双端 `sortCopy`：`SORT_NOTHING`/`SORT_UNCHANGED`；Taro `useReorder` 接线。

@@ -18,7 +18,7 @@ import { queryKeys } from '../../../utils/queryKeys'
 import { STALE } from '../../../utils/cachePolicy'
 import { SUCCESS_BOOK_CREATED, SUCCESS_ICON_DELETED, SUCCESS_ICON_UPLOADED, SUCCESS_UPDATED } from '../../../utils/successCopy'
 import { FORM_NAME_REQUIRED } from '../../../utils/formCopy'
-import { entityFormTitle } from '../../../utils/entityCopy'
+import { entityFormTitle, ENTITY_BOOK } from '../../../utils/entityCopy'
 import { failEntityUpsert } from '../../../utils/errorCopy'
 import { processingLabel } from '../../../utils/actionCopy';
 
@@ -111,7 +111,7 @@ export const BookCreateModal: React.FC<BookCreateModalProps> = ({ open, onClose,
     <GlobalModal
       open={open}
       onClose={onClose}
-      title={entityFormTitle('账本', isEdit, '创建')}
+      title={entityFormTitle(ENTITY_BOOK, isEdit, '创建')}
       width={520}
       footer={
         <FooterActions align="end" className="global-modal-dialog__footer-inner">

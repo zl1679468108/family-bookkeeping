@@ -5,6 +5,7 @@ import { bookMemberRoleLabel, isBookOwnerRole } from '../../../utils/roles'
 import { ListRowsSkeleton } from '../../../components/ui/Skeleton';
 import { EmptyState } from '../../../components/ui/EmptyState';
 import { userDisplayName } from '../../../utils/userDisplay'
+import { EMPTY_NO_OTHER_MEMBERS } from '../../../utils/emptyCopy';
 
 interface BookMemberListProps {
   members: any[];
@@ -29,7 +30,7 @@ export const BookMemberList: React.FC<BookMemberListProps> = ({
       return (
         <EmptyState
           variant="compact"
-          description="还没有其他成员，邀请家人一起记账吧"
+          description={EMPTY_NO_OTHER_MEMBERS}
           action={
             onInvite ? (
               <Button variant="primary" size="sm" onClick={onInvite}>

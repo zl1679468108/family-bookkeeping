@@ -8,6 +8,7 @@ import { getLunarInfo } from '../utils/lunarUtils';
 import { formatMoney } from '../../../utils/budget';
 import type { Transaction } from '../../../services/api';
 import type { DailySummaryItem } from '@family-bookkeeping/shared-types';
+import { EMPTY_DAY_TRANSACTIONS } from '../../../utils/emptyCopy';
 
 interface DateDetailModalProps {
   open: boolean;
@@ -79,7 +80,7 @@ export const DateDetailModal: React.FC<DateDetailModalProps> = ({
                   ))}
                 </div>
               ) : dayTransactions.length === 0 ? (
-                <EmptyState variant="compact" description="当天暂无交易记录" />
+                <EmptyState variant="compact" description={EMPTY_DAY_TRANSACTIONS} />
               ) : (
                 <div className="cal-detail-txn-list txn-list">
                   {dayTransactions.map((item) => {

@@ -17,6 +17,7 @@ export const DELETE_FAILED_RETRY = "删除失败，请重试";
 export const DELETE_FAILED = "删除失败";
 export const IMAGE_PROCESS_FAILED = "图片处理失败";
 export const IMAGE_SELECT_FAILED = "选择图片失败";
+export const IMAGE_SELECT_FAILED_SHORT = "选择失败";
 export const IMAGE_FILE_REQUIRED = "请选择图片文件";
 
 export const MAX_RECEIPT_IMAGES = 10;

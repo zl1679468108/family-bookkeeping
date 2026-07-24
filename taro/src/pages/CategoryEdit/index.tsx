@@ -43,7 +43,7 @@ import {
 import { SUCCESS_DELETED, successEntityUpsert, SUCCESS_ADDED_TO_CUSTOM } from "../../utils/successCopy";
 import { categoryTypeTabLabel } from "../../utils/transactionType";
 import { FORM_NAME_REQUIRED, FORM_PRIVACY_REQUIRED } from "../../utils/formCopy";
-import { entityFormTitle } from "../../utils/entityCopy";
+import { entityFormTitle, ENTITY_CATEGORY } from "../../utils/entityCopy";
 import { UPLOAD_FAILED, DELETE_FAILED, IMAGE_SELECT_FAILED } from "../../utils/uploadCopy";
 import { failEntityUpsert } from "../../utils/errorCopy";
 import Icon, { ICON_COLOR } from "../../components/Icon";
@@ -158,7 +158,7 @@ export default function CategoryEdit() {
         : createCategory({ ...payload, type: catType });
       await apiCall;
       qc.invalidateQueries({ queryKey: ["categories"] });
-      toastSuccess(successEntityUpsert("分类", isEdit));
+      toastSuccess(successEntityUpsert(ENTITY_CATEGORY, isEdit));
       setTimeout(() => Taro.navigateBack(), 500);
     }, ACTION_SAVING).catch((err: any) => {
       toastError(err, failEntityUpsert(isEdit));
@@ -177,7 +177,7 @@ export default function CategoryEdit() {
     });
   };
 
-  const title = entityFormTitle("分类", isEdit);
+  const title = entityFormTitle(ENTITY_CATEGORY, isEdit);
 
   return (
     <PageContainer bottomSpace={180} loading={isLoading} loadingText={ACTION_LOADING}>

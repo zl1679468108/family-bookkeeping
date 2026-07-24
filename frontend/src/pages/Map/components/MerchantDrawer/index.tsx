@@ -7,6 +7,7 @@ import { Pagination } from '../../../../components/ui/Pagination';
 import './index.scss';
 import { formatAmount } from '../../../../utils/common';
 import { Button } from '../../../../components/ui/Button'
+import { EMPTY_NO_MERCHANTS, EMPTY_NO_MERCHANT_MATCH } from '../../../../utils/emptyCopy';
 
 interface MerchantDrawerProps {
   merchants: MerchantSummary[];
@@ -182,7 +183,7 @@ export const MerchantDrawer: React.FC<MerchantDrawerProps> = ({
         ) : filtered.length === 0 ? (
           <EmptyState
             variant="compact"
-            description={search ? '未找到匹配的商户，试试其他关键词' : '暂无商户数据，记一笔时添加位置可自动聚合'}
+            description={search ? EMPTY_NO_MERCHANT_MATCH : EMPTY_NO_MERCHANTS}
           />
         ) : (
           pageItems.map((m, idx) => {

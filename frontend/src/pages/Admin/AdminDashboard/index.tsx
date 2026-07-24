@@ -14,6 +14,7 @@ import {
   platformUserStatusLabel,
   platformUserStatusClass,
 } from '../../../utils/userStatus'
+import { EMPTY_NO_PLATFORM_USERS } from '../../../utils/emptyCopy';
 
 const AdminDashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -103,7 +104,7 @@ const AdminDashboard: React.FC = () => {
           {isLoading ? (
             <TableRowsSkeleton columns={5} rows={5} />
           ) : (stats?.recentUsers || []).length === 0 ? (
-            <EmptyState variant="compact" description="平台还没有用户注册" />
+            <EmptyState variant="compact" description={EMPTY_NO_PLATFORM_USERS} />
           ) : (
             <table className="data-table">
               <thead>

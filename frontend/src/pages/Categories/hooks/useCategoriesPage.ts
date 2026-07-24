@@ -22,6 +22,7 @@ import {
   SUCCESS_DELETED,
   successEntityUpsert,
 } from '../../../utils/successCopy'
+import { ENTITY_CATEGORY } from '../../../utils/entityCopy'
 
 export function useCategoriesPage() {
   const { currentBook } = useBook()
@@ -88,7 +89,7 @@ export function useCategoriesPage() {
     (input: CreateCategoryInput) => createCategory(input),
     {
       invalidateKeys: [queryKeys.categories.all],
-      successMessage: successEntityUpsert('分类', false),
+      successMessage: successEntityUpsert(ENTITY_CATEGORY, false),
       errorMessage: ERROR_CREATE_FAILED,
       onSuccess: () => setModalOpen(false),
     },
@@ -99,7 +100,7 @@ export function useCategoriesPage() {
       updateCategory(id, { name, icon, icon_id }),
     {
       invalidateKeys: [queryKeys.categories.all],
-      successMessage: successEntityUpsert('分类', true),
+      successMessage: successEntityUpsert(ENTITY_CATEGORY, true),
       errorMessage: ERROR_UPDATE_FAILED,
       onSuccess: () => {
         setModalOpen(false)

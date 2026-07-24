@@ -17,6 +17,7 @@ import Icon, { ICON_COLOR } from "../Icon";
 import { Spinner, Button } from "../ui";
 import "./index.scss";
 import { toastInfo } from "../../utils/toast";
+import { FORM_PRIVACY_LOCATION, FORM_LOCATION_REQUIRED, FORM_LOCATION_UNAVAILABLE, FORM_LOCATION_DENIED, FORM_PRIVACY_REQUIRED, FORM_LOCATION_TIMEOUT, FORM_LOCATION_MANUAL_HINT } from "../../utils/formCopy";
 
 export interface LocationResult {
   latitude: number;
@@ -79,7 +80,7 @@ export default function LocationPicker({
     if (!ok) {
       console.warn("[LocationPicker] 隐私授权未通过");
       setLocating(false);
-      toastInfo("请先同意隐私协议后使用定位");
+      toastInfo(FORM_PRIVACY_LOCATION);
       return;
     }
 
@@ -143,17 +144,17 @@ export default function LocationPicker({
     } catch (e: any) {
       console.error("[LocationPicker] 定位失败:", e);
       const msg = e?.errMsg || e?.message || "";
-      let title = "无法获取当前位置";
+      let title = FORM_LOCATION_UNAVAILABLE;
       if (msg.indexOf("auth deny") !== -1 || msg.indexOf("authDeny") !== -1) {
-        title = "位置权限被拒绝，请在设置中开启";
+        title = FORM_LOCATION_DENIED;
       } else if (msg.indexOf("privacy") !== -1) {
-        title = "请先同意隐私协议";
+        title = FORM_PRIVACY_REQUIRED;
       } else if (msg.indexOf("timeout") !== -1) {
-        title = "定位超时，请检查网络或到开阔处重试";
+        title = FORM_LOCATION_TIMEOUT;
       } else if (msg) {
         title = msg.slice(0, 50);
       }
-      toastInfo(title + "，可手动搜索或点击地图选择", 2500);
+      toastInfo(title + FORM_LOCATION_MANUAL_HINT, 2500);
     } finally {
       setLocating(false);
     }
@@ -243,7 +244,7 @@ export default function LocationPicker({
   // 确认
   const handleConfirm = () => {
     if (!pos) {
-      toastInfo("请先选择位置");
+      toastInfo(FORM_LOCATION_REQUIRED);
       return;
     }
     onConfirm({

@@ -14,6 +14,7 @@ import { STALE } from '../../../utils/cachePolicy'
 import { successEntityDeleted, successEntityUpsert } from '../../../utils/successCopy'
 import { FORM_TEMPLATE_NAME_REQUIRED } from '../../../utils/formCopy'
 import { ERROR_DELETE_FAILED, ERROR_CREATE_FAILED, ERROR_UPDATE_FAILED } from '../../../utils/errorCopy'
+import { ENTITY_TEMPLATE } from '../../../utils/entityCopy';
 
 export function useTemplatesPage() {
   const { currentBook } = useBook()
@@ -71,7 +72,7 @@ export function useTemplatesPage() {
     () => deleteTemplate(selectedTemplate.id),
     {
       invalidateKeys: [queryKeys.templates.all],
-      successMessage: successEntityDeleted('模板'),
+      successMessage: successEntityDeleted(ENTITY_TEMPLATE),
       errorMessage: ERROR_DELETE_FAILED,
       onSuccess: () => {
         setShowDetail(false)
@@ -85,7 +86,7 @@ export function useTemplatesPage() {
     (data: CreateTemplateInput) => createTemplate(data),
     {
       invalidateKeys: [queryKeys.templates.all],
-      successMessage: successEntityUpsert('模板', false),
+      successMessage: successEntityUpsert(ENTITY_TEMPLATE, false),
       errorMessage: ERROR_CREATE_FAILED,
     },
   )
@@ -94,7 +95,7 @@ export function useTemplatesPage() {
     ({ id, data }: { id: string; data: Partial<CreateTemplateInput> }) => updateTemplate(id, data),
     {
       invalidateKeys: [queryKeys.templates.all],
-      successMessage: successEntityUpsert('模板', true),
+      successMessage: successEntityUpsert(ENTITY_TEMPLATE, true),
       errorMessage: ERROR_UPDATE_FAILED,
       onSuccess: () => {
         setShowForm(false)
