@@ -3,7 +3,7 @@ import { getChartPalette } from '../../utils/themeColors'
 import { useTheme } from '../../utils/theme'
 import { formatMoney } from '../../utils/budget'
 import { userDisplayName } from '../../utils/userDisplay'
-import { TITLE_REPORT_MEMBER_SPEND } from '../../utils/sectionCopy'
+import { TITLE_REPORT_MEMBER_SPEND, LABEL_REPORT_SPENDER, LABEL_REPORT_SAVER } from '../../utils/sectionCopy'
 
 interface MemberItem {
   user_id: string;
@@ -55,7 +55,7 @@ const ReportMemberRanking: React.FC<Props> = ({ data }) => {
                     className="text-xs px-2 py-0.5 rounded"
                     style={{ background: 'var(--warnBg)', color: 'var(--warn)' }}
                   >
-                    消费主力
+                    {LABEL_REPORT_SPENDER}
                   </span>
                 )}
                 {i === data.length - 1 && data.length > 1 && (
@@ -63,7 +63,7 @@ const ReportMemberRanking: React.FC<Props> = ({ data }) => {
                     className="text-xs px-2 py-0.5 rounded"
                     style={{ background: 'var(--incBg)', color: 'var(--inc)' }}
                   >
-                    省钱达人
+                    {LABEL_REPORT_SAVER}
                   </span>
                 )}
               </div>

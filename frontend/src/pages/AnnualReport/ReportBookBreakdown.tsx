@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import { getChartPalette } from '../../utils/themeColors'
 import { useTheme } from '../../utils/theme'
 import { formatMoney } from '../../utils/budget'
+import { TITLE_REPORT_BOOK_VIEW } from '../../utils/sectionCopy'
 
 interface BookItem {
   book_id: string;
@@ -22,7 +23,7 @@ const ReportBookBreakdown: React.FC<Props> = ({ data }) => {
 
   return (
     <div className="mb-6 px-4">
-      <h2 className="text-lg font-bold mb-4" style={{ color: 'var(--fg)' }}>📊 账本视角</h2>
+      <h2 className="text-lg font-bold mb-4" style={{ color: 'var(--fg)' }}>{TITLE_REPORT_BOOK_VIEW}</h2>
       <div className="space-y-4">
         {data.map((book, i) => (
           <div key={book.book_id}>

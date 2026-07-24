@@ -198,3 +198,59 @@ export function normalizeAnnualReport(rawData: unknown): AnnualReportData | unde
     },
   }
 }
+
+/** 奶茶单价（趣味彩蛋换算） */
+export const FUN_FACT_MILK_TEA_UNIT_PRICE = 15
+
+/** {year}年度 */
+export function annualYearLabel(year: number): string {
+  return `${year}年度`
+}
+
+/** {nick}，您的年度财务总结 */
+export function annualReportSubtitle(nickname: string): string {
+  return `${nickname}，您的年度财务总结`
+}
+
+/** {year}年度报告.png */
+export function annualReportFilename(year: number): string {
+  return `${year}年度报告.png`
+}
+
+/** 生成于 {zh-CN 日期} */
+export function annualReportGeneratedAt(date: Date = new Date()): string {
+  const today = date.toLocaleDateString('zh-CN', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  })
+  return `生成于 ${today}`
+}
+
+/** © {appName} - 记录每一笔，看见每一步 */
+export function annualReportCopyright(appName: string): string {
+  return `© ${appName} - 记录每一笔，看见每一步`
+}
+
+/** 餐饮总额 → 约合奶茶杯数 */
+export function milkTeaCupsFromDining(
+  diningTotal: number,
+  unitPrice: number = FUN_FACT_MILK_TEA_UNIT_PRICE,
+): number {
+  const price = unitPrice > 0 ? unitPrice : FUN_FACT_MILK_TEA_UNIT_PRICE
+  return Math.round(Number(diningTotal || 0) / price)
+}
+
+/** 相当于 N 杯奶茶（¥15/杯） */
+export function milkTeaEquivalentLabel(
+  cups: number,
+  unitPrice: number = FUN_FACT_MILK_TEA_UNIT_PRICE,
+): string {
+  return `相当于 ${Number(cups || 0).toLocaleString()} 杯奶茶（¥${unitPrice}/杯）`
+}
+
+/** N 天 */
+export function continuousDaysLabel(days: number): string {
+  return `${Number(days || 0)} 天`
+}
+

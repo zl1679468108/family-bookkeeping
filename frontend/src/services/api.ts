@@ -16,8 +16,7 @@ import type {
   ApiEnvelope,
   ApiErrorPayload,
 } from '@family-bookkeeping/shared-types'
-import { ERROR_SESSION_EXPIRED } from '../utils/errorCopy'
-import { ERROR_REQUEST_FAILED, ERROR_NETWORK, ERROR_NETWORK_REQUEST, ERROR_REQUEST_TIMEOUT_COLD_START } from '../utils/errorCopy'
+import { ERROR_SESSION_EXPIRED, ERROR_REQUEST_FAILED, ERROR_NETWORK, ERROR_NETWORK_REQUEST, ERROR_REQUEST_TIMEOUT_COLD_START, ERROR_SERVICE_UNAVAILABLE, ERROR_SERVER } from '../utils/errorCopy'
 import { API_PATHS } from '../utils/apiPaths'
 import { STORAGE_ACCESS_TOKEN_WEB, STORAGE_REFRESH_TOKEN } from '../utils/storageKeys'
 
@@ -234,11 +233,11 @@ export const request = async <T>(path: string, options: RequestOptions = {}): Pr
 
       // 服务端返回 503/504 时，统一为友好提示
       if (status === 503) {
-        message = '服务暂不可用，请稍后重试'
+        message = ERROR_SERVICE_UNAVAILABLE
       } else if (status === 504) {
         message = ERROR_REQUEST_TIMEOUT_COLD_START
       } else if (status >= 500) {
-        message = '服务器异常，请稍后重试'
+        message = ERROR_SERVER
       }
 
       const error = new ApiError(message, status, errorPayload.code)

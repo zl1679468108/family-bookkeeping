@@ -4,6 +4,7 @@ import { getChartPalette } from '../../utils/themeColors'
 import { useTheme } from '../../utils/theme'
 import { formatMoney } from '../../utils/budget'
 import { hexWithAlpha } from '../../utils/color'
+import { TITLE_REPORT_CATEGORY_TOP5 } from '../../utils/sectionCopy'
 
 interface CategoryItem {
   category_name: string;
@@ -30,7 +31,7 @@ export const ReportCategoryRank: React.FC<ReportCategoryRankProps> = ({ data }) 
           marginBottom: '16px',
         }}
       >
-        🏷️ 支出分类 TOP5
+        {TITLE_REPORT_CATEGORY_TOP5}
       </h2>
       <div
         style={{

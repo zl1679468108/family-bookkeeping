@@ -241,6 +241,13 @@
 - 接线：PC/Taro IconGrid、DropdownSelect、Skeleton、FieldRow；CategoryEdit/BookSettings 上传图标文案
 - 验证：frontend / taro `tsc --noEmit`
 
+#### 2026-07-24 年报标题/FunFact 与服务层错误 shared 化
+- `sectionCopy`：年报总览/分类TOP5/账本视角/趣味彩蛋/月趋势/封面标题与标签、奶茶/贴士/slogan
+- `annualReport`：年份标签、副标题、文件名、生成于、版权、奶茶杯数/等价文案、连续天数
+- `month.formatMonthNumberLabel`；`ACTION_SAVE_AS_IMAGE`；`ERROR_NOT_LOGGED_IN/SERVICE_UNAVAILABLE/SERVER`；图标上传失败文案
+- 接线 PC 年报全组件 + frontend/taro `api` 与 Taro icons/transactions 上传错误
+- 验证：frontend / taro `tsc --noEmit`
+
 #### 2026-07-24 PC 暗色第十二轮（alpha 拼接 / 导出底色 / theme-color）
 - 全站再扫：业务 SCSS 仍无残留浅色 hex/rgba；有意固定色保留（design-tokens、JPEG 头像白底、图表扩展色）
 - 修复 `var(--x)+"40"` 非法阴影：年报 Record 图标光晕改 `color-mix`；分类榜/月趋势 hex alpha 收口 `hexWithAlpha`

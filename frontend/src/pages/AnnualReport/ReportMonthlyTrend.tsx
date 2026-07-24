@@ -6,6 +6,8 @@ import { getThemeColors } from '../../utils/themeColors'
 import { formatMoney } from '../../utils/budget'
 import { transactionTypeLabel } from '../../utils/transactionType'
 import { hexWithAlpha } from '../../utils/color'
+import { TITLE_REPORT_MONTHLY_TREND } from '../../utils/sectionCopy'
+import { formatMonthNumberLabel } from '../../utils/month'
 
 interface MonthlyItem {
   month: number;
@@ -30,7 +32,7 @@ export const ReportMonthlyTrend: React.FC<ReportMonthlyTrendProps> = ({ data }) 
       (chartRef.current as any).__echarts_instance__ = instanceRef.current;
     }
 
-    const months = data.map((d) => `${d.month}月`);
+    const months = data.map((d) => formatMonthNumberLabel(d.month));
     const incomes = data.map((d) => d.income);
     const expenses = data.map((d) => d.expense);
     const theme = getThemeColors();
@@ -155,7 +157,7 @@ export const ReportMonthlyTrend: React.FC<ReportMonthlyTrendProps> = ({ data }) 
           marginBottom: '16px',
         }}
       >
-        📈 12个月收支趋势
+        {TITLE_REPORT_MONTHLY_TREND}
       </h2>
       <div
         ref={chartRef}

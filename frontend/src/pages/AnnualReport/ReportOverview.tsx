@@ -1,6 +1,7 @@
 import React from 'react';
 import { formatMoney } from '../../utils/budget';
 import { FIELD_YEAR_INCOME, FIELD_YEAR_EXPENSE, FIELD_YEAR_BALANCE, FIELD_BALANCE_RATE } from '../../utils/fieldCopy'
+import { TITLE_REPORT_OVERVIEW } from '../../utils/sectionCopy'
 
 interface Props {
   data: {
@@ -47,7 +48,7 @@ const ReportOverview: React.FC<Props> = ({ data }) => {
           marginBottom: '16px',
         }}
       >
-        📊 年度总览
+        {TITLE_REPORT_OVERVIEW}
       </h2>
       <div className="grid grid-cols-2 gap-3">
         <Card

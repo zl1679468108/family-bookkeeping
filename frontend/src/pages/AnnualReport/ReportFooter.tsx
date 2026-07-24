@@ -1,12 +1,9 @@
 import React from 'react';
+import { TAGLINE_BOOKKEEPING_CLEARER } from '../../utils/sectionCopy'
+import { annualReportGeneratedAt, annualReportCopyright } from '../../utils/annualReport'
+import { APP_NAME } from '../../config/version'
 
 const ReportFooter: React.FC = () => {
-  const today = new Date().toLocaleDateString('zh-CN', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  });
-
   return (
     <div className="text-center py-8 px-4">
       <div className="flex justify-center gap-2 mb-4">
@@ -30,14 +27,14 @@ const ReportFooter: React.FC = () => {
         </span>
       </div>
       <div className="text-sm mb-2 font-medium" style={{ color: 'var(--fg3)' }}>
-        记账让生活更清晰
+        {TAGLINE_BOOKKEEPING_CLEARER}
       </div>
       <div className="text-xs" style={{ color: 'var(--fg3)' }}>
-        生成于 {today}
+        {annualReportGeneratedAt()}
       </div>
       <div className="mt-6 pt-6" style={{ borderTop: '1px solid var(--bdL)' }}>
         <div className="text-xs" style={{ color: 'var(--fg3)', opacity: 0.7 }}>
-          © 静记 - 记录每一笔，看见每一步
+          {annualReportCopyright(APP_NAME)}
         </div>
       </div>
     </div>

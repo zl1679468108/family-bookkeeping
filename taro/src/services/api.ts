@@ -4,7 +4,7 @@
  */
 import Taro from "@tarojs/taro";
 import type { ApiEnvelope, ApiErrorPayload, UserProfile } from "../types";
-import { ERROR_REQUEST_FAILED, ERROR_NETWORK, ERROR_REQUEST_TIMEOUT_COLD_START } from "../utils/errorCopy";
+import { ERROR_REQUEST_FAILED, ERROR_NETWORK, ERROR_REQUEST_TIMEOUT_COLD_START, ERROR_SESSION_EXPIRED, ERROR_NOT_LOGGED_IN } from "../utils/errorCopy";
 import { STORAGE_ACCESS_TOKEN_TARO, STORAGE_REFRESH_TOKEN, STORAGE_CURRENT_BOOK_ID } from "../utils/storageKeys";
 import { API_PATHS } from "../utils/apiPaths";
 
@@ -92,7 +92,7 @@ const tryRefresh = (): Promise<{ accessToken: string; refreshToken: string }> =>
     refreshPromise = (async () => {
       const refreshToken = getRefreshToken();
       if (!refreshToken) {
-        throw new ApiError("登录状态已失效，请重新登录", 401);
+        throw new ApiError(ERROR_SESSION_EXPIRED, 401);
       }
       const data = await request<{ user: UserProfile; accessToken: string; refreshToken: string }>(
         "POST",
@@ -179,7 +179,7 @@ async function request<T>(
 
   // 需要认证但没有 token：静默模式下直接抛 401
   if (requiresAuth && !token && silent) {
-    throw new ApiError("未登录", 401);
+    throw new ApiError(ERROR_NOT_LOGGED_IN, 401);
   }
 
   // T-M8: GET 请求 30s 超时，写操作 60s 超时（匹配前端行为）

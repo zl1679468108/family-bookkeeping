@@ -49,6 +49,12 @@ export function formatMonthDisplayCompact(input: string | Date): string {
   return `${year}年${month}月`
 }
 
+
+/** 月份数字 → 7月（图表轴） */
+export function formatMonthNumberLabel(month: number): string {
+  return `${Number(month)}月`
+}
+
 function resolveYearMonth(input: string | Date): { year: number; month: number } {
   if (input instanceof Date) {
     if (Number.isNaN(input.getTime())) return { year: 0, month: 0 }

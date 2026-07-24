@@ -6,6 +6,7 @@ import Taro from "@tarojs/taro";
 import { apiGet, apiDelete, API_BASE_URL, getToken, getStoredBookId } from "./api";
 import type { CustomIcon } from "../types";
 import { API_PATHS } from "../utils/apiPaths";
+import { UPLOAD_ICON_FAILED, UPLOAD_ICON_PARSE_FAILED } from "../utils/uploadCopy";
 
 /** 获取自定义图标列表 */
 export const fetchCustomIcons = (
@@ -45,10 +46,10 @@ export const uploadIcon = (
         }
         return payload as CustomIcon;
       } catch {
-        throw new Error("图标上传解析失败");
+        throw new Error(UPLOAD_ICON_PARSE_FAILED);
       }
     }
-    throw new Error("图标上传失败");
+    throw new Error(UPLOAD_ICON_FAILED);
   });
 };
 

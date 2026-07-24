@@ -1,7 +1,6 @@
 import React, { useState, useRef, useMemo } from 'react';
 import { useAnnualReport } from '../../hooks/useAnnualReport';
 import { generateYearOptions } from '../../utils/month';
-import { normalizeAnnualReport } from '../../utils/annualReport';
 import { useBook } from '../../hooks/useBook';
 import { useAuth } from '../../utils/auth';
 import { captureLongImage } from '../../utils/exportImage';
@@ -23,6 +22,8 @@ import { SUCCESS_REPORT_SAVED } from '../../utils/successCopy';
 import { FORM_SEARCH_YEAR } from '../../utils/formCopy'
 import { userDisplayName } from '../../utils/userDisplay'
 import { EMPTY_BOOK_UNSELECTED } from '../../utils/entityCopy'
+import { normalizeAnnualReport, annualReportFilename } from '../../utils/annualReport'
+import { ACTION_SAVE_AS_IMAGE } from '../../utils/actionCopy'
 
 const CURRENT_YEAR = new Date().getFullYear();
 
@@ -52,7 +53,7 @@ const AnnualReport: React.FC = () => {
       return;
     }
     try {
-      await captureLongImage(reportRef.current, `${year}年度报告.png`);
+      await captureLongImage(reportRef.current, annualReportFilename(year));
       notifySuccess(SUCCESS_REPORT_SAVED);
     } catch (err) {
       console.error('AnnualReport captureLongImage error:', err);
@@ -197,7 +198,7 @@ const AnnualReport: React.FC = () => {
               size="lg"
               onClick={handleSaveImage}
             >
-              📷 保存为图片
+              {ACTION_SAVE_AS_IMAGE}
             </Button>
           </div>
         </>

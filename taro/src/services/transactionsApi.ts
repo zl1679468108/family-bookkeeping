@@ -17,6 +17,7 @@ import type {
   BatchRequest,
   BatchResponse,
 } from "../types";
+import { UPLOAD_FAILED } from "../utils/uploadCopy";
 
 export const getTransactions = (
   filters?: TransactionFilters,
@@ -88,7 +89,7 @@ export const uploadReceipt = (
         return { image_url: "" };
       }
     }
-    throw new Error("上传失败");
+    throw new Error(UPLOAD_FAILED);
   });
 };
 

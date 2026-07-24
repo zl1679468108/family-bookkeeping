@@ -1,5 +1,19 @@
 import React from 'react';
 import { formatMoney } from '../../utils/budget';
+import {
+  TITLE_REPORT_FUN_FACT,
+  LABEL_REPORT_DAILY_AVG,
+  LABEL_REPORT_MAX_STREAK,
+  LABEL_REPORT_TIP,
+  FUN_FACT_MILK_TEA_INTRO,
+  FUN_FACT_TIP_BODY,
+} from '../../utils/sectionCopy'
+import {
+  milkTeaCupsFromDining,
+  milkTeaEquivalentLabel,
+  continuousDaysLabel,
+  FUN_FACT_MILK_TEA_UNIT_PRICE,
+} from '../../utils/annualReport'
 
 interface FunFactData {
   dining_total: number;
@@ -12,7 +26,7 @@ interface Props {
 }
 
 const ReportFunFact: React.FC<Props> = ({ data }) => {
-  const milkTeaCups = Math.round(data.dining_total / 15);
+  const milkTeaCups = milkTeaCupsFromDining(data.dining_total);
 
   return (
     <div style={{ marginBottom: '24px' }}>
@@ -24,7 +38,7 @@ const ReportFunFact: React.FC<Props> = ({ data }) => {
           marginBottom: '16px',
         }}
       >
-        🎉 趣味彩蛋
+        {TITLE_REPORT_FUN_FACT}
       </h2>
       <div
         className="relative overflow-hidden rounded-2xl p-6"
@@ -50,13 +64,13 @@ const ReportFunFact: React.FC<Props> = ({ data }) => {
             </div>
             <div>
               <div style={{ fontSize: '14px', color: 'var(--fg3)', marginBottom: '4px' }}>
-                这一年，你为奶茶付出了...
+                {FUN_FACT_MILK_TEA_INTRO}
               </div>
               <div style={{ fontSize: '24px', fontWeight: 700, color: 'var(--exp)' }}>
                 {formatMoney(data.dining_total, { compact: true })}
               </div>
               <div style={{ fontSize: '13px', color: 'var(--warn)', marginTop: '2px' }}>
-                相当于 {milkTeaCups.toLocaleString()} 杯奶茶（¥15/杯）
+                {milkTeaEquivalentLabel(milkTeaCups, FUN_FACT_MILK_TEA_UNIT_PRICE)}
               </div>
             </div>
           </div>
@@ -68,7 +82,7 @@ const ReportFunFact: React.FC<Props> = ({ data }) => {
             >
               <div className="flex items-center gap-2 mb-2">
                 <span className="text-xl">💳</span>
-                <span style={{ fontSize: '12px', color: 'var(--fg3)' }}>日均支出</span>
+                <span style={{ fontSize: '12px', color: 'var(--fg3)' }}>{LABEL_REPORT_DAILY_AVG}</span>
               </div>
               <div style={{ fontSize: '18px', fontWeight: 700, color: 'var(--info)' }}>
                 {formatMoney(data.daily_avg_expense, { compact: true })}
@@ -81,10 +95,10 @@ const ReportFunFact: React.FC<Props> = ({ data }) => {
             >
               <div className="flex items-center gap-2 mb-2">
                 <span className="text-xl">🔥</span>
-                <span style={{ fontSize: '12px', color: 'var(--fg3)' }}>最长连续记账</span>
+                <span style={{ fontSize: '12px', color: 'var(--fg3)' }}>{LABEL_REPORT_MAX_STREAK}</span>
               </div>
               <div style={{ fontSize: '18px', fontWeight: 700, color: 'var(--inc)' }}>
-                {data.max_continuous_days} 天
+                {continuousDaysLabel(data.max_continuous_days)}
               </div>
             </div>
           </div>
@@ -94,7 +108,7 @@ const ReportFunFact: React.FC<Props> = ({ data }) => {
             style={{ background: 'color-mix(in srgb, var(--srf) 50%, transparent)' }}
           >
             <div style={{ fontSize: '13px', color: 'var(--exp)' }}>
-              ☕ <span style={{ fontWeight: 500 }}>小贴士：</span>少喝一杯奶茶，存下更多美好回忆吧！
+              ☕ <span style={{ fontWeight: 500 }}>{LABEL_REPORT_TIP}</span>{FUN_FACT_TIP_BODY}
             </div>
           </div>
         </div>
