@@ -58,7 +58,8 @@
     "./version": "./src/version.ts",
     "./mapMarkerHtml": "./src/mapMarkerHtml.ts",
     "./fieldCopy": "./src/fieldCopy.ts",
-    "./navCopy": "./src/navCopy.ts"
+    "./navCopy": "./src/navCopy.ts",
+    "./authCopy": "./src/authCopy.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit"

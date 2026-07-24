@@ -9,8 +9,9 @@ import { PasswordField } from '../../../components/ui/PasswordField'
 import { FormField } from '../../../components/ui/FormField'
 import { validatePasswordMatch, validatePasswordMinLength } from '../../../utils/validation'
 import { SUCCESS_CODE_RESENT } from '../../../utils/successCopy'
-import { FORM_REGISTERED_EMAIL_PLACEHOLDER, FORM_CAPTCHA_DIGITS_PLACEHOLDER, FORM_PASSWORD_MIN_SHORT, FORM_PASSWORD_CONFIRM_PLACEHOLDER } from '../../../utils/formCopy'
+import { FORM_REGISTERED_EMAIL_PLACEHOLDER, FORM_CAPTCHA_DIGITS_PLACEHOLDER, FORM_PASSWORD_MIN_SHORT, FORM_PASSWORD_CONFIRM_PLACEHOLDER, FORM_EMAIL_VALID_REQUIRED } from '../../../utils/formCopy'
 import { FIELD_EMAIL_ADDRESS, FIELD_CAPTCHA, FIELD_NEW_PASSWORD, FIELD_CONFIRM_PASSWORD } from '../../../utils/fieldCopy'
+import { AUTH_TITLE_FORGOT, AUTH_TITLE_RESET, AUTH_TITLE_RESET_SUCCESS, AUTH_TITLE_RECOVER, AUTH_DESC_CODE_SENT, ACTION_SEND_CODE, ACTION_SENDING, ACTION_RESEND_CODE, ACTION_RESET_PASSWORD, ACTION_RESETTING } from '../../../utils/authCopy'
 
 const ForgotPassword: React.FC = () => {
   const [email, setEmail] = useState('')
@@ -31,7 +32,7 @@ const ForgotPassword: React.FC = () => {
 
   const { run: handleSendCode, isRunning: sendLoading } = useDebouncedAction(async () => {
     if (!email) {
-      setMessage('请输入有效的邮箱地址')
+      setMessage(FORM_EMAIL_VALID_REQUIRED)
       setMessageType('error')
       return
     }
@@ -82,17 +83,17 @@ const ForgotPassword: React.FC = () => {
     }
   })
 
-  const title = step === 1 ? '忘记密码' : step === 3 ? '重置成功' : '重置密码'
+  const title = step === 1 ? AUTH_TITLE_FORGOT : step === 3 ? AUTH_TITLE_RESET_SUCCESS : AUTH_TITLE_RESET
   const subtitle = step === 1
     ? '请输入注册邮箱，我们将发送验证码'
     : step === 3
       ? '密码已更新，请使用新密码登录'
-      : '验证码已发送至您的邮箱'
+      : AUTH_DESC_CODE_SENT
 
   return (
     <AuthLayout
       illustration={<ForgotIllustration />}
-      title="找回密码"
+      title={AUTH_TITLE_RECOVER}
       subtitle={
         <>
           <p>别担心，我们帮你找回</p>
@@ -136,7 +137,7 @@ const ForgotPassword: React.FC = () => {
             onClick={handleSendCode}
             disabled={sendLoading}
           >
-            {sendLoading ? '发送中...' : '发送验证码'}
+            {sendLoading ? ACTION_SENDING : ACTION_SEND_CODE}
           </Button>
         </div>
       )}
@@ -172,7 +173,7 @@ const ForgotPassword: React.FC = () => {
                 onClick={handleResend}
                 disabled={countdown > 0 || resendLoading}
               >
-                {countdown > 0 ? `${countdown}s` : (resendLoading ? '发送中...' : '重新发送')}
+                {countdown > 0 ? `${countdown}s` : (resendLoading ? ACTION_SENDING : ACTION_RESEND_CODE)}
               </Button>
             </div>
           </FormField>
@@ -201,7 +202,7 @@ const ForgotPassword: React.FC = () => {
           </div>
 
           <Button type="submit" variant="primary" block size="lg" disabled={submitLoading}>
-            {submitLoading ? '重置中...' : '重置密码'}
+            {submitLoading ? ACTION_RESETTING : ACTION_RESET_PASSWORD}
           </Button>
         </form>
       )}

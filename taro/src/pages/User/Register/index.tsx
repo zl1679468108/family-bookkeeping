@@ -14,7 +14,7 @@ import { toastSuccess } from "../../../utils/toast";
 import { validatePasswordMatch, validatePasswordMinLength } from "../../../utils/validation";
 import { SUCCESS_REGISTER } from "../../../utils/successCopy";
 import { ERROR_REGISTER_FAILED } from "../../../utils/errorCopy";
-import { FORM_NICKNAME_PLACEHOLDER, FORM_EMAIL_EXAMPLE, FORM_PASSWORD_MIN_SHORT, FORM_PASSWORD_CONFIRM_PLACEHOLDER } from "../../../utils/formCopy";
+import { FORM_NICKNAME_PLACEHOLDER, FORM_EMAIL_EXAMPLE, FORM_PASSWORD_MIN_SHORT, FORM_PASSWORD_CONFIRM_PLACEHOLDER, FORM_ALL_REQUIRED } from "../../../utils/formCopy"
 import { FIELD_USERNAME, FIELD_EMAIL, FIELD_PASSWORD, FIELD_CONFIRM_PASSWORD } from "../../../utils/fieldCopy";
 
 export default function Register() {
@@ -31,7 +31,7 @@ export default function Register() {
 
   const handleSubmit = () => {
     if (!username.trim() || !email.trim() || !password) {
-      setError("请填写所有必填项");
+      setError(FORM_ALL_REQUIRED);
       return;
     }
     const pwdErr =

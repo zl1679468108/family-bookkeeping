@@ -14,6 +14,7 @@ import {
 } from '../../../utils/validation'
 import { FORM_PASSWORD_MIN_ALPHA_NUM, FORM_PASSWORD_CONFIRM_PLACEHOLDER } from '../../../utils/formCopy'
 import { FIELD_NEW_PASSWORD, FIELD_CONFIRM_PASSWORD } from '../../../utils/fieldCopy'
+import { AUTH_TITLE_RESET, AUTH_TITLE_SET_NEW_PASSWORD, ACTION_RESET_PASSWORD, ACTION_RESETTING } from '../../../utils/authCopy'
 
 const ResetPassword: React.FC = () => {
   const [searchParams] = useSearchParams()
@@ -50,7 +51,7 @@ const ResetPassword: React.FC = () => {
     return (
       <AuthLayout
         illustration={<ForgotIllustration />}
-        title="重置密码"
+        title={AUTH_TITLE_RESET}
         subtitle={
           <>
             <p>链接无效或已失效</p>
@@ -74,7 +75,7 @@ const ResetPassword: React.FC = () => {
   return (
     <AuthLayout
       illustration={<ForgotIllustration />}
-      title="设置新密码"
+      title={AUTH_TITLE_SET_NEW_PASSWORD}
       subtitle={
         <>
           <p>请输入你的新密码</p>
@@ -82,7 +83,7 @@ const ResetPassword: React.FC = () => {
         </>
       }
     >
-      <h3>重置密码</h3>
+      <h3>{AUTH_TITLE_RESET}</h3>
       <p className="form-desc">请设置一个至少 6 位、且包含字母和数字的新密码</p>
 
       {message && (
@@ -115,7 +116,7 @@ const ResetPassword: React.FC = () => {
           </div>
 
           <Button type="submit" variant="primary" block size="lg" disabled={submitLoading}>
-            {submitLoading ? '重置中...' : '重置密码'}
+            {submitLoading ? ACTION_RESETTING : ACTION_RESET_PASSWORD}
           </Button>
         </form>
       ) : (

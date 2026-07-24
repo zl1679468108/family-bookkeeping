@@ -12,6 +12,7 @@ import { PasswordField } from '../../../components/ui/PasswordField'
 import { FormField } from '../../../components/ui/FormField'
 import { FORM_CAPTCHA_PLACEHOLDER, FORM_EMAIL_EXAMPLE, FORM_PASSWORD_PLACEHOLDER } from '../../../utils/formCopy'
 import { FIELD_EMAIL_ADDRESS, FIELD_PASSWORD, FIELD_CAPTCHA } from '../../../utils/fieldCopy'
+import { AUTH_TITLE_WELCOME_BACK, AUTH_CAPTCHA_ALT, AUTH_CAPTCHA_REFRESH_TITLE, AUTH_FORGOT_LINK, ACTION_LOGGING_IN, ACTION_LOGIN_SPACED, AUTH_REGISTER_LINK } from '../../../utils/authCopy'
 
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('')
@@ -54,7 +55,7 @@ const LoginPage: React.FC = () => {
   return (
     <AuthLayout
       illustration={<LoginIllustration />}
-      title="欢迎回来"
+      title={AUTH_TITLE_WELCOME_BACK}
       subtitle={
         <>
           <p>记录每一笔，看清每一分</p>
@@ -103,22 +104,22 @@ const LoginPage: React.FC = () => {
               <img
                 className="captcha-img"
                 src={`data:image/svg+xml;utf8,${encodeURIComponent(captchaSvg)}`}
-                alt="验证码"
+                alt={AUTH_CAPTCHA_ALT}
                 onClick={refreshCaptcha}
-                title="点击刷新验证码"
+                title={AUTH_CAPTCHA_REFRESH_TITLE}
               />
             )}
           </div>
         </FormField>
 
         <Button type="submit" variant="primary" block size="lg" disabled={loading}>
-          {loading ? '登录中...' : '登 录'}
+          {loading ? ACTION_LOGGING_IN : ACTION_LOGIN_SPACED}
         </Button>
       </form>
 
       <div className="form-links">
-        <Link to="/forgot-password">忘记密码？</Link>
-        <Link to="/register">注册新账户</Link>
+        <Link to="/forgot-password">{AUTH_FORGOT_LINK}</Link>
+        <Link to="/register">{AUTH_REGISTER_LINK}</Link>
       </div>
     </AuthLayout>
   )

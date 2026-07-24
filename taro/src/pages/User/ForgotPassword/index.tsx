@@ -15,8 +15,9 @@ import { toastSuccess, toastInfo } from "../../../utils/toast";
 import { validatePasswordMatch, validatePasswordMinLength } from "../../../utils/validation";
 import { ERROR_SEND_FAILED, ERROR_RESET_FAILED } from "../../../utils/errorCopy";
 import { SUCCESS_CODE_SENT, SUCCESS_PASSWORD_RESET, SUCCESS_CODE_RESENT } from "../../../utils/successCopy";
-import { FORM_BACK, FORM_BACK_LOGIN, FORM_REGISTERED_EMAIL_PLACEHOLDER, FORM_CAPTCHA_DIGITS_PLACEHOLDER, FORM_PASSWORD_MIN_SHORT, FORM_PASSWORD_CONFIRM_PLACEHOLDER } from "../../../utils/formCopy"
+import { FORM_BACK, FORM_BACK_LOGIN, FORM_REGISTERED_EMAIL_PLACEHOLDER, FORM_CAPTCHA_DIGITS_PLACEHOLDER, FORM_PASSWORD_MIN_SHORT, FORM_PASSWORD_CONFIRM_PLACEHOLDER, FORM_EMAIL_VALID_REQUIRED, FORM_CAPTCHA_DIGITS_REQUIRED } from "../../../utils/formCopy"
 import { FIELD_EMAIL, FIELD_CAPTCHA, FIELD_NEW_PASSWORD, FIELD_CONFIRM_PASSWORD } from "../../../utils/fieldCopy";
+import { ACTION_SEND_CODE, ACTION_RESEND_CODE, ACTION_RESET_PASSWORD, AUTH_TITLE_PASSWORD_RESET_DONE, AUTH_DESC_PASSWORD_RESET_DONE } from "../../../utils/authCopy";
 
 type Step = "email" | "code" | "success";
 
@@ -57,7 +58,7 @@ export default function ForgotPassword() {
 
   const handleSendCode = useCallback(() => {
     if (!email.trim()) {
-      setError("请输入有效的邮箱地址");
+      setError(FORM_EMAIL_VALID_REQUIRED);
       return;
     }
     setError("");
@@ -74,7 +75,7 @@ export default function ForgotPassword() {
 
   const handleReset = useCallback(() => {
     if (!code.trim()) {
-      setError("请输入6位验证码");
+      setError(FORM_CAPTCHA_DIGITS_REQUIRED);
       return;
     }
     const pwdErr =
@@ -96,7 +97,7 @@ export default function ForgotPassword() {
 
   const handleResendCode = useCallback(async () => {
     if (!email.trim()) {
-      setError("请输入有效的邮箱地址");
+      setError(FORM_EMAIL_VALID_REQUIRED);
       return;
     }
     setError("");
@@ -164,7 +165,7 @@ export default function ForgotPassword() {
             {error ? <Text className="forgot-error">{error}</Text> : null}
 
             <Button variant="primary" block size="lg" className="forgot-submit" onClick={handleSendCode}>
-              发送验证码
+              {ACTION_SEND_CODE}
             </Button>
 
             <View className="forgot-back" onClick={handleGoBack}>
@@ -200,7 +201,7 @@ export default function ForgotPassword() {
                   disabled={countdown > 0}
                   onClick={() => countdown === 0 && handleResendCode()}
                 >
-                  {countdown > 0 ? `${countdown}s` : "重新发送"}
+                  {countdown > 0 ? `${countdown}s` : ACTION_RESEND_CODE}
                 </Button>
               </View>
             </View>
@@ -233,7 +234,7 @@ export default function ForgotPassword() {
             {error ? <Text className="forgot-error">{error}</Text> : null}
 
             <Button variant="primary" block size="lg" className="forgot-submit" onClick={handleReset}>
-              重置密码
+              {ACTION_RESET_PASSWORD}
             </Button>
 
             <View className="forgot-back" onClick={handleGoBack}>
@@ -246,8 +247,8 @@ export default function ForgotPassword() {
           <View className="forgot-content forgot-success-content">
             <View className="forgot-success-card">
               <View className="forgot-success-icon">✓</View>
-              <Text className="forgot-success-title">密码已重置</Text>
-              <Text className="forgot-success-desc">请用新密码登录账户</Text>
+              <Text className="forgot-success-title">{AUTH_TITLE_PASSWORD_RESET_DONE}</Text>
+              <Text className="forgot-success-desc">{AUTH_DESC_PASSWORD_RESET_DONE}</Text>
             </View>
             <Button
               variant="primary"

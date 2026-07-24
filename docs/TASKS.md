@@ -85,6 +85,10 @@
 
 ### ✅ 已完成
 
+#### 2026-07-24 authCopy 鉴权页标题/按钮 shared
+- 新增 `shared-utils/authCopy`：欢迎回来/重置密码/发送验证码/登录中等
+- 接线 PC Login/Forgot/Reset/Profile 与 Taro Login/Register/Forgot 校验与按钮文案
+
 #### 2026-07-24 鉴权字段 + 关闭/清空/空态动作 shared
 - Taro Login/Register/Forgot 字段标签接 `fieldCopy`
 - `ACTION_CLOSE`/`CLEAR`/`START_BOOKKEEPING`/`GO_ADD_TRANSACTION`/`ADD_FIRST_TRANSACTION`；EmptyAddTransaction 默认与双端 close/clear aria-label 收口

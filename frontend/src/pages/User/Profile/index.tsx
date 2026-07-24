@@ -29,6 +29,7 @@ import {
   IMAGE_ACCEPT_WILDCARD,
 } from '../../../utils/uploadCopy'
 import { FIELD_CURRENT_PASSWORD, FIELD_NEW_PASSWORD, FIELD_CONFIRM_NEW_PASSWORD, FIELD_USERNAME, FIELD_EMAIL } from '../../../utils/fieldCopy'
+import { ACTION_UPDATING, ACTION_UPDATE_INFO } from '../../../utils/authCopy'
 
 const compressImage = (file: File, maxSize = 128): Promise<string> =>
   new Promise((resolve, reject) => {
@@ -303,7 +304,7 @@ const ProfilePage: React.FC = () => {
                   variant="primary"
                   disabled={loading}
                 >
-                  {loading ? '更新中...' : '更新信息'}
+                  {loading ? ACTION_UPDATING : ACTION_UPDATE_INFO}
                 </Button>
               </FooterActions>
             </form>

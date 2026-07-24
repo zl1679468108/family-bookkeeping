@@ -14,8 +14,9 @@ import "./index.scss";
 import { toastSuccess } from "../../../utils/toast";
 import { SUCCESS_LOGIN } from "../../../utils/successCopy";
 import { ERROR_LOGIN_FAILED } from "../../../utils/errorCopy";
-import { FORM_EMAIL_PASSWORD_REQUIRED, FORM_CAPTCHA_REQUIRED, FORM_CAPTCHA_PLACEHOLDER, FORM_PASSWORD_PLACEHOLDER, FORM_EMAIL_EXAMPLE } from "../../../utils/formCopy";
+import { FORM_EMAIL_PASSWORD_REQUIRED, FORM_CAPTCHA_REQUIRED, FORM_CAPTCHA_PLACEHOLDER, FORM_PASSWORD_PLACEHOLDER, FORM_EMAIL_EXAMPLE, ERROR_CAPTCHA_LOAD } from "../../../utils/formCopy"
 import { FIELD_EMAIL, FIELD_PASSWORD, FIELD_CAPTCHA } from "../../../utils/fieldCopy";
+import { AUTH_FORGOT_LINK } from "../../../utils/authCopy";
 
 export default function Login() {
   const { isDark } = useTheme();
@@ -38,7 +39,7 @@ export default function Login() {
       setCaptchaSrc(`data:image/svg+xml,${encodedSvg}`);
       setCaptchaCode("");
     } catch {
-      setError("获取验证码失败");
+      setError(ERROR_CAPTCHA_LOAD);
     }
   };
 
@@ -157,7 +158,7 @@ export default function Login() {
             className="link-muted"
             onClick={() => Taro.navigateTo({ url: "/pages/User/ForgotPassword/index" })}
           >
-            忘记密码？
+            {AUTH_FORGOT_LINK}
           </Text>
         </View>
 
