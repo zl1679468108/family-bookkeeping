@@ -12,7 +12,15 @@ import { useBook } from '../../../hooks/useBook'
 import { queryKeys } from '../../../utils/queryKeys'
 import { STALE } from '../../../utils/cachePolicy'
 import { successEntityDeleted, successEntityUpsert } from '../../../utils/successCopy'
-import { FORM_TEMPLATE_NAME_REQUIRED } from '../../../utils/formCopy'
+import {
+  buildTemplatePayload,
+  validateTemplateFormFields,
+  templateToFormFields,
+  templateToCopyFormFields,
+  emptyTemplateFormFields,
+  resolveCategoryDisplay,
+  type TemplateFormFields,
+} from '../../../utils/templatePayload'
 import { ERROR_DELETE_FAILED, ERROR_CREATE_FAILED, ERROR_UPDATE_FAILED } from '../../../utils/errorCopy'
 import { ENTITY_TEMPLATE } from '../../../utils/entityCopy';
 
@@ -27,21 +35,7 @@ export function useTemplatesPage() {
   const [showForm, setShowForm] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [showLocationPicker, setShowLocationPicker] = useState(false)
-  const [form, setForm] = useState({
-    name: '',
-    type: 'expense' as 'income' | 'expense',
-    category_id: '',
-    amount: '',
-    note: '',
-    latitude: '',
-    longitude: '',
-    location_name: '',
-    poi_id: '',
-    sort_order: 0,
-    frequency: '',
-    start_date: '',
-    end_date: '',
-  })
+  const [form, setForm] = useState<TemplateFormFields>(emptyTemplateFormFields())
 
   const { data: templates = [], isLoading } = useQuery({
     queryKey: queryKeys.templates.list(bookId),
@@ -108,31 +102,18 @@ export function useTemplatesPage() {
   const resetForm = () => {
     const currentTypeTemplates = templates.filter(t => t.type === form.type)
     const nextSortOrder = currentTypeTemplates.length + 1
-    setForm({ name: '', type: 'expense', category_id: '', amount: '', note: '', latitude: '', longitude: '', location_name: '', poi_id: '', sort_order: nextSortOrder, frequency: '', start_date: '', end_date: '' })
+    setForm(emptyTemplateFormFields({ type: 'expense', sort_order: nextSortOrder }))
     setShowForm(false)
     setEditingId(null)
   }
 
   const { run: handleSave, isRunning: saveLoading } = useMutationAction(async () => {
-    if (!form.name.trim()) {
-      notifyInfo(FORM_TEMPLATE_NAME_REQUIRED)
+    const check = validateTemplateFormFields(form)
+    if (!check.ok) {
+      notifyInfo(check.message)
       return
     }
-    const data: CreateTemplateInput = {
-      name: form.name.trim(),
-      type: form.type,
-      category_id: form.category_id || undefined,
-      amount: form.amount ? parseFloat(form.amount) : undefined,
-      note: form.note || undefined,
-      latitude: form.latitude ? parseFloat(form.latitude) : undefined,
-      longitude: form.longitude ? parseFloat(form.longitude) : undefined,
-      location_name: form.location_name || undefined,
-      poi_id: form.poi_id || undefined,
-      sort_order: form.sort_order || 0,
-      frequency: form.frequency || undefined,
-      start_date: form.start_date || undefined,
-      end_date: form.end_date || undefined,
-    }
+    const data = buildTemplatePayload(form) as CreateTemplateInput
     if (editingId) {
       await updateMutation.run({ id: editingId, data })
     } else {
@@ -142,41 +123,13 @@ export function useTemplatesPage() {
   })
 
   const handleEdit = (t: any) => {
-    setForm({
-      name: t.name,
-      type: t.type,
-      category_id: t.category_id || '',
-      amount: t.amount ? String(t.amount) : '',
-      note: t.note || '',
-      latitude: t.latitude ? String(t.latitude) : '',
-      longitude: t.longitude ? String(t.longitude) : '',
-      location_name: t.location_name || '',
-      poi_id: t.poi_id || '',
-      sort_order: t.sort_order || 0,
-      frequency: t.frequency || '',
-      start_date: t.start_date || '',
-      end_date: t.end_date || '',
-    })
+    setForm(templateToFormFields(t))
     setEditingId(t.id)
     setShowForm(true)
   }
 
   const handleCopy = (t: any) => {
-    setForm({
-      name: `${t.name} (副本)`,
-      type: t.type,
-      category_id: t.category_id || '',
-      amount: t.amount ? String(t.amount) : '',
-      note: t.note || '',
-      latitude: t.latitude ? String(t.latitude) : '',
-      longitude: t.longitude ? String(t.longitude) : '',
-      location_name: t.location_name || '',
-      poi_id: t.poi_id || '',
-      sort_order: t.sort_order || 0,
-      frequency: '',
-      start_date: '',
-      end_date: '',
-    })
+    setForm(templateToCopyFormFields(t))
     setEditingId(null)
     setShowForm(true)
   }
@@ -192,11 +145,8 @@ export function useTemplatesPage() {
     setShowLocationPicker(false)
   }
 
-  const getCategoryInfo = (categoryId: string | undefined) => {
-    if (!categoryId) return { icon: '', name: '未分类' }
-    const cat = categories.find(c => c.id === categoryId)
-    return cat ? { icon: cat.icon, name: cat.name } : { icon: '', name: '未分类' }
-  }
+  const getCategoryInfo = (categoryId: string | undefined) =>
+    resolveCategoryDisplay(categories, categoryId)
 
   return {
     templates,

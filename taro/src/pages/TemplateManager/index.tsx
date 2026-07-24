@@ -44,26 +44,19 @@ import {
   confirmDeleteThis,
 } from "../../utils/confirmCopy";
 import { SUCCESS_TEMPLATE_APPLIED, successEntityDeleted, successEntityUpsert } from "../../utils/successCopy";
-import { FORM_TEMPLATE_NAME_REQUIRED } from "../../utils/formCopy";
+import {
+  buildTemplatePayload,
+  validateTemplateFormFields,
+  templateToFormFields,
+  templateToCopyFormFields,
+  emptyTemplateFormFields,
+} from "../../utils/templatePayload";
 import { EMPTY_TEMPLATES } from "../../utils/emptyCopy";
 import { entityCreateButton, entityFormTitle, ENTITY_TEMPLATE } from "../../utils/entityCopy";
 import { ERROR_DELETE_FAILED, ERROR_OP_FAILED, ERROR_EXECUTE_FAILED } from "../../utils/errorCopy";
 import Icon, { ICON_COLOR } from "../../components/Icon";
 
 /* ---------- 空表单初始态 ---------- */
-const EMPTY_FORM = {
-  name: "",
-  type: "expense" as "expense" | "income",
-  category_id: "",
-  amount: "",
-  note: "",
-  merchant_name: "",
-  latitude: "",
-  longitude: "",
-  location_name: "",
-  poi_id: "",
-  sort_order: 0,
-};
 
 
 export default function TemplateManager() {
@@ -126,7 +119,7 @@ export default function TemplateManager() {
   const [showDetail, setShowDetail] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [form, setForm] = useState({ ...EMPTY_FORM });
+  const [form, setForm] = useState(emptyTemplateFormFields());
   const [showLocationPicker, setShowLocationPicker] = useState(false);
   const [showDelete, setShowDelete] = useState(false);
 
@@ -149,19 +142,7 @@ export default function TemplateManager() {
   const handleEditFromDetail = () => {
     if (!selectedTemplate) return;
     setEditingId(selectedTemplate.id);
-    setForm({
-      name: selectedTemplate.name,
-      type: selectedTemplate.type,
-      category_id: selectedTemplate.category_id || "",
-      amount: selectedTemplate.amount ? String(selectedTemplate.amount) : "",
-      note: selectedTemplate.note || "",
-      merchant_name: selectedTemplate.merchant_name || "",
-      latitude: selectedTemplate.latitude ? String(selectedTemplate.latitude) : "",
-      longitude: selectedTemplate.longitude ? String(selectedTemplate.longitude) : "",
-      location_name: selectedTemplate.location_name || "",
-      poi_id: selectedTemplate.poi_id || "",
-      sort_order: selectedTemplate.sort_order || 0,
-    });
+    setForm(templateToFormFields(selectedTemplate));
     setShowDetail(false);
     setShowForm(true);
   };
@@ -169,20 +150,7 @@ export default function TemplateManager() {
   /* 从详情 → 复制（对齐 PC：打开预填表单，由用户确认创建） */
   const handleCopyFromDetail = () => {
     if (!selectedTemplate) return;
-    const t = selectedTemplate;
-    setForm({
-      name: `${t.name} (副本)`,
-      type: t.type,
-      category_id: t.category_id || "",
-      amount: t.amount ? String(t.amount) : "",
-      note: t.note || "",
-      merchant_name: t.merchant_name || "",
-      latitude: t.latitude ? String(t.latitude) : "",
-      longitude: t.longitude ? String(t.longitude) : "",
-      location_name: t.location_name || "",
-      poi_id: t.poi_id || "",
-      sort_order: t.sort_order || 0,
-    });
+    setForm(templateToCopyFormFields(selectedTemplate));
     setEditingId(null);
     setShowForm(true);
     closeDetail();
@@ -215,28 +183,17 @@ export default function TemplateManager() {
   /* ==================== 表单弹窗 ==================== */
   const openCreateForm = () => {
     setEditingId(null);
-    setForm({ ...EMPTY_FORM });
+    setForm(emptyTemplateFormFields());
     setShowForm(true);
   };
 
   const handleFormSave = () => {
-    if (!form.name.trim()) {
-      toastInfo(FORM_TEMPLATE_NAME_REQUIRED);
+    const check = validateTemplateFormFields(form);
+    if (!check.ok) {
+      toastInfo(check.message);
       return;
     }
-    const data: any = {
-      name: form.name.trim(),
-      type: form.type,
-      sort_order: form.sort_order,
-    };
-    if (form.category_id) data.category_id = form.category_id;
-    if (form.amount) data.amount = parseFloat(form.amount);
-    if (form.note.trim()) data.note = form.note.trim();
-    if (form.merchant_name.trim()) data.merchant_name = form.merchant_name.trim();
-    if (form.location_name.trim()) data.location_name = form.location_name.trim();
-    if (form.poi_id) data.poi_id = form.poi_id;
-    if (form.latitude) data.latitude = parseFloat(form.latitude);
-    if (form.longitude) data.longitude = parseFloat(form.longitude);
+    const data = buildTemplatePayload(form);
 
     run(async () => {
       if (editingId) {

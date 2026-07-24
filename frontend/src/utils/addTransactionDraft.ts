@@ -1,30 +1,25 @@
-import type { LocationResult } from '@family-bookkeeping/shared-types'
+/**
+ * 记一笔草稿 — PC sessionStorage 适配；纯序列化见 shared-utils
+ */
+import {
+  addTransactionDraftKey,
+  parseAddTransactionDraft,
+  serializeAddTransactionDraft,
+  listAddTransactionDraftKeys,
+  type AddTransactionDraft,
+  type AddTransactionDraftForm,
+} from '../../../shared-utils/src/addTransactionDraft'
 
-export interface AddTransactionDraftForm {
-  amount: string
-  category: string
-  type: 'expense' | 'income'
-  date: string
-  brand: string
-  note: string
-}
-
-export interface AddTransactionDraft {
-  formData: AddTransactionDraftForm
-  location: LocationResult | null
-  updatedAt: number
-}
-
-const draftKey = (bookId: string) => `add-tx-draft:${bookId}`
+export type {
+  AddTransactionDraft,
+  AddTransactionDraftForm,
+  AddTransactionDraftLocation,
+} from '../../../shared-utils/src/addTransactionDraft'
 
 export function loadAddTransactionDraft(bookId: string): AddTransactionDraft | null {
   if (!bookId || typeof sessionStorage === 'undefined') return null
   try {
-    const raw = sessionStorage.getItem(draftKey(bookId))
-    if (!raw) return null
-    const parsed = JSON.parse(raw) as AddTransactionDraft
-    if (!parsed?.formData || typeof parsed.formData !== 'object') return null
-    return parsed
+    return parseAddTransactionDraft(sessionStorage.getItem(addTransactionDraftKey(bookId)))
   } catch {
     return null
   }
@@ -36,8 +31,10 @@ export function saveAddTransactionDraft(
 ): void {
   if (!bookId || typeof sessionStorage === 'undefined') return
   try {
-    const payload: AddTransactionDraft = { ...draft, updatedAt: Date.now() }
-    sessionStorage.setItem(draftKey(bookId), JSON.stringify(payload))
+    sessionStorage.setItem(
+      addTransactionDraftKey(bookId),
+      serializeAddTransactionDraft(draft),
+    )
   } catch {
     // quota / private mode — ignore
   }
@@ -47,16 +44,15 @@ export function clearAddTransactionDraft(bookId?: string): void {
   if (typeof sessionStorage === 'undefined') return
   try {
     if (bookId) {
-      sessionStorage.removeItem(draftKey(bookId))
+      sessionStorage.removeItem(addTransactionDraftKey(bookId))
       return
     }
-    // 无 bookId 时清掉所有记一笔草稿
     const keys: string[] = []
     for (let i = 0; i < sessionStorage.length; i += 1) {
       const key = sessionStorage.key(i)
-      if (key?.startsWith('add-tx-draft:')) keys.push(key)
+      if (key) keys.push(key)
     }
-    keys.forEach((k) => sessionStorage.removeItem(k))
+    listAddTransactionDraftKeys(keys).forEach((k) => sessionStorage.removeItem(k))
   } catch {
     // ignore
   }

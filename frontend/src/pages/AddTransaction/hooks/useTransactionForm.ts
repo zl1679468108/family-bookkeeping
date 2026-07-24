@@ -10,6 +10,7 @@ import type { DropdownOption } from '../../../components/ui/Dropdown'
 import { useMutationAction } from '../../../hooks/useMutationAction'
 import { notifyError, notifyInfo, notifySuccess } from '../../../utils/notifyError'
 import { buildTransactionPayload } from '../../../utils/transactionPayload'
+import { applyTemplateToTransactionForm } from '../../../utils/templatePayload'
 import { validateTransactionFormFields } from '../../../utils/validation'
 import { parseImageList } from '../../../utils/parseImageList'
 import { compressImage } from '../../../utils/imageCompress'
@@ -129,7 +130,16 @@ export function useTransactionForm() {
       brand: draft.formData.brand || '',
       note: draft.formData.note || '',
     })
-    setLocation(draft.location || null)
+    setLocation(
+      draft.location
+        ? {
+            locationName: draft.location.locationName || '',
+            latitude: draft.location.latitude,
+            longitude: draft.location.longitude,
+            poiId: draft.location.poiId ?? null,
+          }
+        : null,
+    )
   }, [bookId, isEditMode, todayStr])
 
   // 新建模式：表单变更时自动保存草稿
@@ -263,20 +273,21 @@ export function useTransactionForm() {
 
   // Template handler
   const handleTemplateConfirm = (template: Template) => {
+    const patch = applyTemplateToTransactionForm(template)
     setFormData((prev) => ({
       ...prev,
-      type: (template.type as 'expense' | 'income') || prev.type,
-      category: template.category_id || prev.category,
-      amount: template.amount ? String(template.amount) : prev.amount,
-      brand: template.merchant_name || prev.brand,
-      note: template.note ?? prev.note,
+      type: patch.type || prev.type,
+      category: patch.category || prev.category,
+      amount: patch.amount || prev.amount,
+      brand: patch.brand || prev.brand,
+      note: patch.note || prev.note,
     }))
-    if (template.latitude && template.longitude) {
+    if (patch.location) {
       setLocation({
-        locationName: template.location_name || '',
-        latitude: template.latitude,
-        longitude: template.longitude,
-        poiId: template.poi_id || null,
+        locationName: patch.location.locationName,
+        latitude: patch.location.latitude,
+        longitude: patch.location.longitude,
+        poiId: patch.location.poiId,
       })
     }
     setShowTemplateSelector(false)

@@ -17,6 +17,7 @@ import { getTemplates } from "../../services/templatesApi";
 import { useCategoryList } from "../../hooks/useCategories";
 import { useSubmit, toastError } from "../../hooks/useSubmit";
 import { buildTransactionPayload } from "./buildPayload";
+import { applyTemplateToTransactionForm } from "../../utils/templatePayload";
 import { uploadPendingReceipts } from "./uploadPendingReceipts";
 import FieldRow from "../../components/form/FieldRow";
 import SectionCard from "../../components/form/SectionCard";
@@ -179,16 +180,17 @@ export default function AddTransaction() {
 
   // 应用模板（与 PC 端一致：带出商户名与位置）
   const applyTemplate = (template: Template) => {
-    setType(template.type);
-    setAmount(String(template.amount ?? ""));
-    setCategoryId(template.category_id);
-    setBrand(template.merchant_name || template.brand || "");
-    setNote(template.description || template.note || "");
-    if (template.latitude !== undefined && template.longitude !== undefined) {
+    const patch = applyTemplateToTransactionForm(template);
+    setType(patch.type);
+    setAmount(patch.amount);
+    setCategoryId(patch.category);
+    setBrand(patch.brand);
+    setNote(patch.note);
+    if (patch.location) {
       setLocation({
-        name: template.location_name || "",
-        latitude: template.latitude,
-        longitude: template.longitude,
+        name: patch.location.name,
+        latitude: patch.location.latitude,
+        longitude: patch.location.longitude,
       });
     }
     setSelectedTemplate(template);

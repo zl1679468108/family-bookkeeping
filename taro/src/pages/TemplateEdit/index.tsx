@@ -33,7 +33,12 @@ import {
   confirmDeleteThis,
 } from "../../utils/confirmCopy";
 import { successEntityDeleted, successEntityUpsert } from "../../utils/successCopy";
-import { FORM_TEMPLATE_NAME_REQUIRED, FORM_CATEGORY_REQUIRED } from "../../utils/formCopy";
+import {
+  buildTemplatePayload,
+  validateTemplateFormFields,
+  templateToFormFields,
+  emptyTemplateFormFields,
+} from "../../utils/templatePayload";
 import { entityFormTitle, ENTITY_TEMPLATE } from "../../utils/entityCopy";
 import { DELETE_FAILED } from "../../utils/uploadCopy";
 import { failEntityUpsert } from "../../utils/errorCopy";
@@ -59,39 +64,17 @@ export default function TemplateEdit() {
     [templates, id],
   );
 
-  const [form, setForm] = useState({
-    name: "",
-    type: "expense" as TplType,
-    category_id: "",
-    amount: "",
-    note: "",
-    latitude: "",
-    longitude: "",
-    location_name: "",
-    poi_id: "",
-    sort_order: 0,
-  });
+  const [form, setForm] = useState(emptyTemplateFormFields({ type: "expense" }));
   const [showLocationPicker, setShowLocationPicker] = useState(false);
   const [showDelete, setShowDelete] = useState(false);
 
   useEffect(() => {
     if (isEdit && existing) {
-      setForm({
-        name: existing.name,
-        type: existing.type,
-        category_id: existing.category_id || "",
-        amount: existing.amount ? String(existing.amount) : "",
-        note: existing.note || "",
-        latitude: existing.latitude ? String(existing.latitude) : "",
-        longitude: existing.longitude ? String(existing.longitude) : "",
-        location_name: existing.location_name || "",
-        poi_id: existing.poi_id || "",
-        sort_order: existing.sort_order || 0,
-      });
+      setForm(templateToFormFields(existing));
     } else {
-      const sameTypeCount = (templates || []).filter((t: any) => t.type === typeParam).length;
-      setForm((p) => ({
-        ...p,
+      const sameTypeCount = (templates || []).filter((tpl: any) => tpl.type === typeParam).length;
+      setForm((prev) => ({
+        ...prev,
         type: typeParam,
         sort_order: sameTypeCount + 1,
       }));
@@ -100,26 +83,12 @@ export default function TemplateEdit() {
 
   // --- 保存/删除 ---
   const handleSave = () => {
-    if (!form.name.trim()) {
-      toastInfo(FORM_TEMPLATE_NAME_REQUIRED);
+    const check = validateTemplateFormFields(form, { requireCategory: true });
+    if (!check.ok) {
+      toastInfo(check.message);
       return;
     }
-    if (!form.category_id) {
-      toastInfo(FORM_CATEGORY_REQUIRED);
-      return;
-    }
-    const data: any = {
-      name: form.name.trim(),
-      type: form.type,
-      category_id: form.category_id,
-      sort_order: form.sort_order,
-    };
-    if (form.amount) data.amount = parseFloat(form.amount);
-    if (form.note.trim()) data.note = form.note.trim();
-    if (form.location_name.trim()) data.location_name = form.location_name.trim();
-    if (form.poi_id) data.poi_id = form.poi_id;
-    if (form.latitude) data.latitude = parseFloat(form.latitude);
-    if (form.longitude) data.longitude = parseFloat(form.longitude);
+    const data = buildTemplatePayload(form);
 
     run(async () => {
       if (isEdit) {
