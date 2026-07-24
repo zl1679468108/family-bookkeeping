@@ -32,7 +32,7 @@ import { INVITE_CODE_HELP_LABEL, INVITE_CODE_HELP_BODY } from "../../utils/invit
 import { userDisplayName } from "../../utils/userDisplay";
 import { ACTION_DELETING, ACTION_LOADING } from "../../utils/actionCopy";
 import { CONFIRM_REMOVE_TITLE, confirmDeleteBook, confirmRemoveMember, CONFIRM_DELETE_BOOK_TITLE } from "../../utils/confirmCopy";
-import { FORM_ALREADY_CURRENT_BOOK, FORM_EMAIL_REQUIRED, FORM_PEER_EMAIL_PLACEHOLDER } from "../../utils/formCopy";
+import { FORM_ALREADY_CURRENT_BOOK, FORM_EMAIL_REQUIRED, FORM_PEER_EMAIL_PLACEHOLDER, FORM_INVITE_CODE_EXAMPLE } from "../../utils/formCopy";
 import { validateEmail } from "../../utils/validation";
 import { validateInviteCode, normalizeInviteCode } from "../../utils/validation";
 import {
@@ -53,6 +53,7 @@ import { EMPTY_BOOKS_SHORT } from "../../utils/emptyCopy";
 import { formatDateTimeMinute } from "../../utils/date";
 import { isCustomIconUrl } from "../../utils/bookIcons";
 import { EMPTY_NO_MEMBERS } from "../../utils/emptyCopy";
+import { TITLE_JOIN_BY_INVITE } from "../../utils/sectionCopy";
 
 type BookRow = Book & { is_default?: boolean };
 
@@ -371,14 +372,14 @@ export default function BooksPage() {
             style={kbdHeight ? { paddingBottom: `${kbdHeight}px` } : undefined}
             onClick={(e: any) => e.stopPropagation()}
           >
-            <SheetHeader title="使用邀请码加入账本" onClose={closeJoinSheet} />
+            <SheetHeader title={TITLE_JOIN_BY_INVITE} onClose={closeJoinSheet} />
 
             <View className="bk-sheet__body">
               <View className="bk-form-row">
                 <Text className="bk-form-label bk-form-label--required">邀请码</Text>
                 <Input
                   className="bk-form-input"
-                  placeholder="例如 A3F8K2"
+                  placeholder={FORM_INVITE_CODE_EXAMPLE}
                   maxlength={32}
                   value={joinCode}
                   onInput={(e: any) => setJoinCode(e.detail.value.toUpperCase())}

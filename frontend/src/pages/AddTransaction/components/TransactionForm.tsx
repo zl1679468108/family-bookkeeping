@@ -8,6 +8,7 @@ import { SegControl } from '../../../components/ui/SegControl'
 import { MAX_NOTE_LENGTH } from '../hooks/useTransactionForm'
 import type { FormData } from '../hooks/useTransactionForm'
 import type { DropdownOption } from '../../../components/ui/Dropdown'
+import { FORM_AMOUNT_PLACEHOLDER, FORM_SELECT_CATEGORY, FORM_BRAND_EXAMPLE, FORM_DESC_EXAMPLE } from '../../../utils/formCopy'
 
 interface TransactionFormProps {
   formData: FormData
@@ -33,7 +34,7 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({
         labelClassName="field-required"
         type="text"
         className="form-input amt"
-        placeholder="0.00"
+        placeholder={FORM_AMOUNT_PLACEHOLDER}
         value={formData.amount}
         onChange={(e) => {
           const v = sanitizeAmountInput(e.target.value)
@@ -49,7 +50,7 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({
             options={categoryOptions}
             value={formData.category}
             onChange={(key) => setFormData((prev) => ({ ...prev, category: key }))}
-            placeholder="选择分类"
+            placeholder={FORM_SELECT_CATEGORY}
             required
             width="100%"
           />
@@ -68,7 +69,7 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({
         label="品牌"
         type="text"
         className="form-input"
-        placeholder="例如：雅诗兰黛、苹果"
+        placeholder={FORM_BRAND_EXAMPLE}
         value={formData.brand}
         onChange={(e) => setFormData((prev) => ({ ...prev, brand: e.target.value }))}
         maxLength={100}
@@ -76,7 +77,7 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({
 
       <Textarea
         label="备注"
-        placeholder="例如：小棕瓶 50ml，给妈妈买的礼物"
+        placeholder={FORM_DESC_EXAMPLE}
         value={formData.note}
         onChange={(e) => {
           const v = e.target.value.slice(0, MAX_NOTE_LENGTH)

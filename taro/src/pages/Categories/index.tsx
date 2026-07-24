@@ -56,6 +56,7 @@ import { entityCreateButton, ENTITY_CATEGORY, DETAIL_CATEGORY } from "../../util
 import { UPLOAD_FAILED, DELETE_FAILED } from "../../utils/uploadCopy";
 import { failEntityUpsert } from "../../utils/errorCopy";
 import { buildCategoryIconOptionSpecs } from "../../utils/categories";
+import { FORM_CATEGORY_NAME_PLACEHOLDER } from "../../utils/formCopy";
 
 /* ---------- 类型 ---------- */
 interface Category {
@@ -498,7 +499,7 @@ export default function CategoriesPage() {
               </Text>
               <Input
                 className="catfs-input"
-                placeholder="输入分类名称"
+                placeholder={FORM_CATEGORY_NAME_PLACEHOLDER}
                 maxlength={10}
                 value={formName}
                 onInput={(e: any) => setFormName(e.detail.value)}

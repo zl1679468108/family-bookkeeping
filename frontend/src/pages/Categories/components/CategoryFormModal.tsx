@@ -6,6 +6,7 @@ import { Input } from '../../../components/ui/Input'
 import { IconGrid } from '../../../components/ui/IconGrid'
 import type { CustomIconItem } from '../../../components/ui/IconGrid'
 import { busyLabel, ACTION_SAVING } from '../../../utils/actionCopy'
+import { FORM_CATEGORY_NAME_PLACEHOLDER } from '../../../utils/formCopy'
 
 interface CategoryFormModalProps {
   modalOpen: boolean
@@ -74,7 +75,7 @@ export const CategoryFormModal: React.FC<CategoryFormModalProps> = ({
       <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
         <Input
           label="名称"
-          placeholder="输入分类名称"
+          placeholder={FORM_CATEGORY_NAME_PLACEHOLDER}
           maxLength={10}
           value={modalName}
           onChange={(e) => setModalName(e.target.value)}

@@ -42,12 +42,13 @@ import {
 } from "../../utils/confirmCopy";
 import { SUCCESS_DELETED, successEntityUpsert, SUCCESS_ADDED_TO_CUSTOM } from "../../utils/successCopy";
 import { categoryTypeTabLabel } from "../../utils/transactionType";
-import { FORM_PRIVACY_REQUIRED } from "../../utils/formCopy";
+import { FORM_PRIVACY_REQUIRED, FORM_CATEGORY_NAME_PLACEHOLDER } from "../../utils/formCopy";
 import { buildCategoryPayload, validateCategoryName } from "../../utils/categoryPayload";
 import { entityFormTitle, ENTITY_CATEGORY } from "../../utils/entityCopy";
 import { UPLOAD_FAILED, DELETE_FAILED, IMAGE_SELECT_FAILED } from "../../utils/uploadCopy";
 import { failEntityUpsert } from "../../utils/errorCopy";
 import Icon, { ICON_COLOR } from "../../components/Icon";
+import { SECTION_CATEGORY_TYPE, SECTION_BASIC_INFO, SECTION_EMOJI_ICONS, SECTION_SHOPPING_ICONS, SECTION_CUSTOM_ICONS } from "../../utils/sectionCopy";
 
 interface CustomIconItem {
   id: string;
@@ -194,7 +195,7 @@ export default function CategoryEdit() {
       />
 
       {/* 类型切换（新增时可选；编辑时沿用原类型） */}
-      <AppSection title="分类类型" compact>
+      <AppSection title={SECTION_CATEGORY_TYPE} compact>
         <View className="catedit-type-tabs">
           <View
             className={`catedit-type-tab ${catType === "expense" ? "catedit-type-tab--active" : ""}`}
@@ -211,12 +212,12 @@ export default function CategoryEdit() {
         </View>
       </AppSection>
 
-      <AppSection title="基本信息" compact>
+      <AppSection title={SECTION_BASIC_INFO} compact>
         <View className="catedit-form-row">
           <Text className="catedit-form-label">名称</Text>
           <Input
             className="catedit-form-input"
-            placeholder="输入分类名称"
+            placeholder={FORM_CATEGORY_NAME_PLACEHOLDER}
             maxlength={10}
             value={form.name}
             onInput={(e: any) => setForm((p) => ({ ...p, name: e.detail.value }))}
@@ -231,7 +232,7 @@ export default function CategoryEdit() {
       </AppSection>
 
       {/* emoji 选择 */}
-      <AppSection title="表情图标" compact>
+      <AppSection title={SECTION_EMOJI_ICONS} compact>
         <View className="catedit-emoji-grid">
           {EMOJI_PRESETS.map((e) => (
             <View
@@ -246,7 +247,7 @@ export default function CategoryEdit() {
       </AppSection>
 
       {/* 购物平台 SVG 图标 */}
-      <AppSection title="购物与生活服务" compact>
+      <AppSection title={SECTION_SHOPPING_ICONS} compact>
         <View className="catedit-emoji-grid catedit-emoji-grid--platform">
           {SHOPPING_PLATFORM_ICONS.map((item) => {
             const val = `platform_${item.key}`;
@@ -278,7 +279,7 @@ export default function CategoryEdit() {
       </AppSection>
 
       {/* 自定义图标 */}
-      <AppSection title="自定义图标" compact>
+      <AppSection title={SECTION_CUSTOM_ICONS} compact>
         <View className="catedit-custom-icons">
           <View
             className="catedit-custom-icon-upload"

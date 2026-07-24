@@ -17,6 +17,7 @@ import { userDisplayName } from "../../../../utils/userDisplay";
 import { SUCCESS_INVITE_SENT } from "../../../../utils/successCopy";
 import { ERROR_INVITE_FAILED } from "../../../../utils/errorCopy";
 import { EMPTY_NO_MEMBERS } from "../../../../utils/emptyCopy";
+import { FORM_MEMBER_EMAIL_SHORT } from "../../../../utils/formCopy";
 
 interface BookCardProps {
   book: Book;
@@ -203,7 +204,7 @@ export default function BookCard({
                   className="book-card__invite-input"
                   value={inviteEmail}
                   onInput={(e: any) => setInviteEmail(e.detail.value)}
-                  placeholder="输入用户邮箱"
+                  placeholder={FORM_MEMBER_EMAIL_SHORT}
                   placeholderClass="book-card__invite-input-placeholder"
                   focus
                 />

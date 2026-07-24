@@ -11,6 +11,7 @@ import { FREQUENCY_OPTIONS } from '../../../utils/frequency'
 import { TRANSACTION_TYPE_OPTIONS } from '../../../utils/transactionType'
 import { busyLabel, ACTION_SAVING } from '../../../utils/actionCopy'
 import { entityFormTitle, ENTITY_TEMPLATE } from '../../../utils/entityCopy'
+import { FORM_TEMPLATE_NAME_EXAMPLE, FORM_SELECT_TYPE, FORM_SELECT_CATEGORY, FORM_AMOUNT_PLACEHOLDER, FORM_NOTE_OPTIONAL } from '../../../utils/formCopy'
 
 interface TemplateFormProps {
   open: boolean
@@ -75,7 +76,7 @@ export const TemplateFormModal: React.FC<TemplateFormProps> = ({
         <div className="tpl-form">
           <Input
             label="模板名称"
-            placeholder="如：公司食堂午餐"
+            placeholder={FORM_TEMPLATE_NAME_EXAMPLE}
             value={form.name}
             onChange={(e) => setForm((prev: any) => ({ ...prev, name: e.target.value.slice(0, 20) }))}
             autoFocus
@@ -88,7 +89,7 @@ export const TemplateFormModal: React.FC<TemplateFormProps> = ({
               value={form.type}
               onChange={(v) => setForm((prev: any) => ({ ...prev, type: v as 'income' | 'expense', category_id: '' }))}
               options={[...TRANSACTION_TYPE_OPTIONS]}
-              placeholder="选择类型"
+              placeholder={FORM_SELECT_TYPE}
               required
             />
             <DropdownSelect
@@ -98,20 +99,20 @@ export const TemplateFormModal: React.FC<TemplateFormProps> = ({
               options={categories
                 .filter((c: any) => c.type === form.type)
                 .map((c: any) => ({ key: c.id, label: `${c.icon} ${c.name}` }))}
-              placeholder="选择分类"
+              placeholder={FORM_SELECT_CATEGORY}
               required
             />
           </div>
           <NumberInput
             label="金额"
             prefix="¥"
-            placeholder="0.00"
+            placeholder={FORM_AMOUNT_PLACEHOLDER}
             value={form.amount}
             onChange={(v) => setForm((prev: any) => ({ ...prev, amount: v }))}
           />
           <Input
             label="备注"
-            placeholder="添加备注（可选）"
+            placeholder={FORM_NOTE_OPTIONAL}
             value={form.note}
             onChange={(e) => setForm((prev: any) => ({ ...prev, note: e.target.value }))}
           />

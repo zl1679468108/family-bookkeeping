@@ -21,6 +21,7 @@ import { TRANSACTION_TYPE_FILTER_LABELS, TRANSACTION_TIME_FILTER_LABELS, FILTER_
 import { parseAmount } from "../../utils/budget";
 import { ACTION_LOADING } from "../../utils/actionCopy";
 import { EMPTY_TRANSACTIONS_HINT } from "../../utils/emptyCopy";
+import { FORM_SEARCH_TXN } from "../../utils/formCopy";
 import {
   typeFilterFromIndex,
   transactionTimeDateRange,
@@ -232,7 +233,7 @@ export default function Transactions() {
               className="search-input"
               value={searchKeyword}
               onInput={(e) => setSearchKeyword(e.detail.value)}
-              placeholder="搜索描述/品牌..."
+              placeholder={FORM_SEARCH_TXN}
               confirmType="search"
               onConfirm={handleSearch}
             />

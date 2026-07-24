@@ -43,6 +43,7 @@ import { entityFormTitle, ENTITY_TEMPLATE } from "../../utils/entityCopy";
 import { DELETE_FAILED } from "../../utils/uploadCopy";
 import { failEntityUpsert } from "../../utils/errorCopy";
 import { EMPTY_NO_CATEGORIES_SHORT } from "../../utils/emptyCopy";
+import { SECTION_TEMPLATE_INFO } from "../../utils/sectionCopy";
 
 type TplType = "expense" | "income";
 
@@ -166,7 +167,7 @@ export default function TemplateEdit() {
         tone="surface"
       />
 
-      <AppSection title="模板信息" compact>
+      <AppSection title={SECTION_TEMPLATE_INFO} compact>
         <View className="tpl-field">
           <Text className="tpl-label tpl-label--required">模板名称</Text>
           <Input

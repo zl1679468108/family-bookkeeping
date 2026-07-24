@@ -167,6 +167,11 @@
 - 邀请/转移邮箱：FE InviteMemberModal、Taro Books/BookMembers/BookSettings 改用 `validateEmail`（空+格式）
 - 验证：frontend / taro `tsc --noEmit`
 
+#### 2026-07-24 表单占位扩展 + 分区/页面标题 shared 化
+- formCopy：金额/分类/模板/备注/搜索/账本/密码等双端高频 placeholder
+- 新增 `sectionCopy`：快捷方式/账单信息/本月预算/分类占比/管理页/位置选择/报表图标题
+- 记一笔/模板/分类/首页/报表/工作台/地图/账本等双端接线
+
 #### 2026-07-24 实体详情标题 + 月份导航文案 shared 化
 - `entityDetailTitle` / `DETAIL_*`：分类/模板/预算/交易/账本详情标题双端接线
 - `NAV_PREV_MONTH` / `NAV_NEXT_MONTH`：PC 日历导航 aria 文案

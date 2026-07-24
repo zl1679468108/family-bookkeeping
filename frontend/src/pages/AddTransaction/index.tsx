@@ -9,6 +9,7 @@ import { LocationDisplay } from '../../components/ui/LocationDisplay'
 import { Button } from '../../components/ui/Button'
 import { FooterActions } from '../../components/ui/FooterActions'
 import { busyLabel, ACTION_SAVING, saveOrConfirmAddLabel } from '../../utils/actionCopy'
+import { SECTION_SHORTCUTS } from '../../utils/sectionCopy'
 
 const AddTransaction: React.FC = () => {
   const {
@@ -96,7 +97,7 @@ const AddTransaction: React.FC = () => {
 
         {/* 右侧：快捷方式 */}
         <div className="add-right">
-          <h4>快捷方式</h4>
+          <h4>{SECTION_SHORTCUTS}</h4>
           <div className="sc-grid">
             <div className="sc-item" onClick={() => setShowTemplateSelector(true)}>
               <div className="sc-icon">📋</div>

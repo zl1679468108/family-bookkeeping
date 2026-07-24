@@ -5,6 +5,7 @@ import { formatAmount } from '../../../utils/common'
 import type { MergedBreakdownItem } from '../hooks/useReportData'
 import { getEchartsChrome, getThemeColors } from '../../../utils/themeColors'
 import { useTheme } from '../../../utils/theme'
+import { TITLE_CATEGORY_RATIO } from '../../../utils/sectionCopy'
 
 interface CategoryRankChartProps {
   data: MergedBreakdownItem[]
@@ -55,7 +56,7 @@ export const CategoryRankChart: React.FC<CategoryRankChartProps> = ({
         },
         series: [
           {
-            name: '分类占比',
+            name: TITLE_CATEGORY_RATIO,
             type: 'pie',
             radius: ['40%', '70%'],
             center: ['35%', '50%'],

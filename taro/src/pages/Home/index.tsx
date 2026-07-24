@@ -24,6 +24,7 @@ import { renderCategoryIcon } from "../../utils/renderCategoryIcon";
 import "./index.scss";
 import { ACTION_LOADING } from "../../utils/actionCopy";
 import { EMPTY_TRANSACTIONS_HOME, EMPTY_NO_BUDGET } from "../../utils/emptyCopy";
+import { TITLE_RECENT_TXN_MONTH, TITLE_BUDGET_MONTH } from "../../utils/sectionCopy";
 
 interface BudgetStatus {
   category_id: string;
@@ -152,7 +153,7 @@ export default function Home() {
 
       {/* ── 最近交易（卡片式，仅展示，不可点击） ── */}
       <AppSection
-        title="本月最近交易"
+        title={TITLE_RECENT_TXN_MONTH}
         actionText="全部"
         onAction={() => Taro.switchTab({ url: "/pages/Transactions/index" }).catch(() =>
           Taro.navigateTo({ url: "/pages/Transactions/index" })
@@ -212,7 +213,7 @@ export default function Home() {
       {/* ── 预算大卡片 ── */}
       <View className="budget-card">
         <View className="budget-card__header">
-          <Text className="budget-card__title">本月预算</Text>
+          <Text className="budget-card__title">{TITLE_BUDGET_MONTH}</Text>
           <Text className="budget-card__total">
             {formatMoney(totalSpent, { wan: true })}
             <Text className="budget-card__total-sep"> / </Text>

@@ -7,6 +7,7 @@ import { busyLabel, ACTION_SAVING } from '../../../utils/actionCopy'
 import { sortModeLabel, SORT_SAVED, SORT_UNCHANGED, SORT_NOTHING } from '../../../utils/sortCopy'
 import { entityCreateButton, ENTITY_CATEGORY } from '../../../utils/entityCopy'
 import type { SortSaveResult } from '../../../hooks/useSort'
+import { TITLE_CATEGORY_MANAGE } from '../../../utils/sectionCopy'
 
 interface CategoryHeaderProps {
   sortingMode: boolean
@@ -25,7 +26,7 @@ export const CategoryHeader: React.FC<CategoryHeaderProps> = ({
 }) => {
   return (
     <CardHeader
-      title="分类管理"
+      title={TITLE_CATEGORY_MANAGE}
       action={
         <div className="list-card-grid__header-actions">
           <Button

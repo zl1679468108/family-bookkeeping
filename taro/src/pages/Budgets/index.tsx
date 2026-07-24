@@ -31,7 +31,7 @@ import {
 } from "../../utils/confirmCopy";
 import { SUCCESS_BUDGET_SAVED, successBudgetCopiedFromLastMonth } from "../../utils/successCopy";
 import { EMPTY_BUDGET_NO_EXPENSE_CATEGORIES } from "../../utils/emptyCopy";
-import { FORM_BUDGET_NONE, FORM_BUDGET_NO_LAST_MONTH } from "../../utils/formCopy";
+import { FORM_BUDGET_NONE, FORM_BUDGET_NO_LAST_MONTH, FORM_BUDGET_AMOUNT_PLACEHOLDER, FORM_AMOUNT_PLACEHOLDER } from "../../utils/formCopy";
 import { ERROR_BUDGET_SAVE_FAILED, ERROR_COPY_FAILED } from "../../utils/errorCopy";
 import { DETAIL_BUDGET } from "../../utils/entityCopy";
 
@@ -364,7 +364,7 @@ export default function BudgetsPage() {
                         }}
                         onBlur={(e) => handleEditBlur(cat.id, e.detail.value)}
                         onConfirm={(e) => handleEditConfirm(cat.id, e.detail.value)}
-                        placeholder="预算金额"
+                        placeholder={FORM_BUDGET_AMOUNT_PLACEHOLDER}
                       />
                     ) : (
                       <>
@@ -511,7 +511,7 @@ export default function BudgetsPage() {
               <Input
                 className="bgfs-input"
                 type="digit"
-                placeholder="0"
+                placeholder={FORM_AMOUNT_PLACEHOLDER}
                 value={editFormAmount}
                 onInput={(e: any) => setEditFormAmount(e.detail.value)}
               />

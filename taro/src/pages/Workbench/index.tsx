@@ -12,6 +12,7 @@ import Taro from "@tarojs/taro";
 import PageContainer from "../../components/PageContainer";
 import { MenuList, PageHero } from "../../components/ui";
 import "./index.scss";
+import { TITLE_WORKBENCH } from "../../utils/sectionCopy";
 
 export default function Workbench() {
   const entries = [
@@ -50,7 +51,7 @@ export default function Workbench() {
   return (
     <PageContainer>
       <PageHero
-        title="工作台"
+        title={TITLE_WORKBENCH}
         meta="账本、分类、模板与预算，一站管理"
         tone="surface"
       />

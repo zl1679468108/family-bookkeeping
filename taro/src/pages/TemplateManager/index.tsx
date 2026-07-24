@@ -56,6 +56,7 @@ import { EMPTY_TEMPLATES, EMPTY_NO_CATEGORIES_SHORT } from "../../utils/emptyCop
 import { entityCreateButton, entityFormTitle, ENTITY_TEMPLATE, DETAIL_TEMPLATE } from "../../utils/entityCopy";
 import { ERROR_DELETE_FAILED, ERROR_OP_FAILED, ERROR_EXECUTE_FAILED } from "../../utils/errorCopy";
 import Icon, { ICON_COLOR } from "../../components/Icon";
+import { FORM_TEMPLATE_NAME_EXAMPLE, FORM_AMOUNT_PLACEHOLDER, FORM_NOTE_OPTIONAL, FORM_SELECT_CATEGORY } from "../../utils/formCopy";
 
 /* ---------- 空表单初始态 ---------- */
 
@@ -520,7 +521,7 @@ export default function TemplateManager() {
             <Text className="tpl-fg__label tpl-fg__label--req">模板名称</Text>
             <Input
               className="tpl-fg__input"
-              placeholder="如：公司食堂午餐"
+              placeholder={FORM_TEMPLATE_NAME_EXAMPLE}
               maxlength={20}
               value={form.name}
               onInput={(e: any) => setForm((p) => ({ ...p, name: e.detail.value }))}
@@ -579,7 +580,7 @@ export default function TemplateManager() {
               >
                 <View className="tpl-fg__select">
                   <Text className={`tpl-fg__select-val ${selectedCat ? "" : "tpl-fg__select-val--ph"}`}>
-                    {selectedCat ? selectedCat.name : "选择分类"}
+                    {selectedCat ? selectedCat.name : FORM_SELECT_CATEGORY}
                   </Text>
                   <Text className="tpl-fg__select-arrow">·</Text>
                 </View>
@@ -594,7 +595,7 @@ export default function TemplateManager() {
               <Text className="tpl-fg__yen">¥</Text>
               <Input
                 className="tpl-fg__input tpl-fg__input--amount"
-                placeholder="0.00"
+                placeholder={FORM_AMOUNT_PLACEHOLDER}
                 type="digit"
                 value={form.amount}
                 onInput={(e: any) => setForm((p) => ({ ...p, amount: sanitizeAmountInput(e.detail.value) }))}
@@ -607,7 +608,7 @@ export default function TemplateManager() {
             <Text className="tpl-fg__label">备注</Text>
             <Input
               className="tpl-fg__input"
-              placeholder="添加备注（可选）"
+              placeholder={FORM_NOTE_OPTIONAL}
               value={form.note}
               onInput={(e: any) => setForm((p) => ({ ...p, note: e.detail.value }))}
             />

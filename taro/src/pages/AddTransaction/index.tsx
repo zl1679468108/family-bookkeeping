@@ -45,6 +45,8 @@ import Icon, { ICON_COLOR } from "../../components/Icon";
 import { ENTITY_TRANSACTION } from "../../utils/entityCopy";
 import { useBookContext } from "../../context/BookContext";
 import { EMPTY_NO_TEMPLATES_SHORT } from "../../utils/emptyCopy";
+import { FORM_TEMPLATE_SELECT, FORM_SELECT_CATEGORY, FORM_AMOUNT_PLACEHOLDER } from "../../utils/formCopy";
+import { SECTION_SHORTCUTS, SECTION_BILL_INFO } from "../../utils/sectionCopy";
 import {
   clearAddTransactionDraft,
   loadAddTransactionDraft,
@@ -361,18 +363,18 @@ export default function AddTransaction() {
     <>
     <PageContainer bottomSpace={180}>
       {/* 快捷方式 — 置顶 */}
-      <SectionCard title="快捷方式">
+      <SectionCard title={SECTION_SHORTCUTS}>
         <FieldRow
           label="模板"
           variant="row"
           value={selectedTemplate?.name || ""}
-          placeholder="选择模板快速记账"
+          placeholder={FORM_TEMPLATE_SELECT}
           onClick={() => setShowTemplates(true)}
         />
       </SectionCard>
 
       {/* 账单信息 */}
-      <SectionCard title="账单信息">
+      <SectionCard title={SECTION_BILL_INFO}>
         {/* 类型 */}
         <Picker
           mode="selector"
@@ -389,7 +391,7 @@ export default function AddTransaction() {
           required
           variant="input"
           inputValue={amount}
-          inputPlaceholder="0.00"
+          inputPlaceholder={FORM_AMOUNT_PLACEHOLDER}
           onInput={(v: string) => {
             const cleaned = sanitizeAmountInput(v);
             const parts = cleaned.split(".");
@@ -406,7 +408,7 @@ export default function AddTransaction() {
           required
           variant="row"
           value={currentCategory?.name || ""}
-          placeholder="选择分类"
+          placeholder={FORM_SELECT_CATEGORY}
           onClick={handlePickCategory}
         />
 

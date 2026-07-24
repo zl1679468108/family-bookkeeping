@@ -20,7 +20,7 @@ import "./index.scss";
 import { toastSuccess, toastInfo } from "../../utils/toast";
 import { INVITE_CODE_HELP } from "../../utils/inviteCopy";
 import { SUCCESS_CREATED, SUCCESS_JOINED } from "../../utils/successCopy";
-import { FORM_INVITE_CODE_PLACEHOLDER, FORM_BACK } from "../../utils/formCopy";
+import { FORM_INVITE_CODE_PLACEHOLDER, FORM_BACK, FORM_BOOK_NAME_EXAMPLE, FORM_BOOK_DESC_EXAMPLE } from "../../utils/formCopy";
 import { validateInviteCode, normalizeInviteCode } from "../../utils/validation";
 import { ERROR_CREATE_FAILED_RETRY, ERROR_INVALID_INVITE } from "../../utils/errorCopy";
 import Icon, { ICON_COLOR } from "../../components/Icon";
@@ -142,7 +142,7 @@ export default function Onboarding() {
             <Text className="ob-label">账本名称</Text>
             <Input
               className="ob-input"
-              placeholder="如：家庭账本"
+              placeholder={FORM_BOOK_NAME_EXAMPLE}
               maxlength={50}
               value={name}
               onInput={(e: any) => setName(e.detail.value)}
@@ -153,7 +153,7 @@ export default function Onboarding() {
             <Text className="ob-label">描述（可选）</Text>
             <Input
               className="ob-input"
-              placeholder="简单介绍一下这个账本"
+              placeholder={FORM_BOOK_DESC_EXAMPLE}
               maxlength={200}
               value={description}
               onInput={(e: any) => setDescription(e.detail.value)}

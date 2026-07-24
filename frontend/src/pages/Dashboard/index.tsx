@@ -21,6 +21,7 @@ import { EmptyAddTransactionAction } from '../../components/ui/EmptyState/emptyA
 import { queryKeys } from '../../utils/queryKeys'
 import { GC_TIME_LONG, STALE } from '../../utils/cachePolicy'
 import { EMPTY_TRANSACTIONS_HOME, EMPTY_NO_BUDGET } from '../../utils/emptyCopy'
+import { TITLE_BUDGET_MONTH, TITLE_RECENT_TXN_MONTH } from '../../utils/sectionCopy'
 
 const Dashboard: React.FC = () => {
   const navigate = useNavigate()
@@ -126,7 +127,7 @@ const Dashboard: React.FC = () => {
         {/* 左侧 - 最近交易 */}
         <Card>
           <CardHeader
-            title={recentLoading ? <Skeleton width="70px" height="14px" /> : "本月最近交易"}
+            title={recentLoading ? <Skeleton width="70px" height="14px" /> : TITLE_RECENT_TXN_MONTH}
           />
           {recentLoading ? (
             <div className="txn-list">
@@ -180,7 +181,7 @@ const Dashboard: React.FC = () => {
         {/* 右侧 - 预算进度 */}
         {budgetLoading ? (
           <Card className="dash-budget-card">
-            <CardHeader title="本月预算" />
+            <CardHeader title={TITLE_BUDGET_MONTH} />
             <div className="dash-budget-summary dash-budget-summary--skeleton">
               <Skeleton width="40%" height="12px" marginBottom="10px" />
               <Skeleton width="100%" height="8px" borderRadius="999px" marginBottom="10px" />
@@ -207,7 +208,7 @@ const Dashboard: React.FC = () => {
         ) : hasBudget ? (
           <Card className="dash-budget-card">
             <CardHeader
-              title="本月预算"
+              title={TITLE_BUDGET_MONTH}
               action={
                 <Button type="button" variant="ghost" size="sm" className="card-action" onClick={() => navigate('/budgets')}>
                   全部
@@ -295,7 +296,7 @@ const Dashboard: React.FC = () => {
           </Card>
         ) : (
           <Card className="dash-budget-card">
-            <CardHeader title="本月预算" />
+            <CardHeader title={TITLE_BUDGET_MONTH} />
             <EmptyState
               description={EMPTY_NO_BUDGET}
               action={

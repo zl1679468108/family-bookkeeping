@@ -24,7 +24,7 @@ import "./index.scss";
 import { toastSuccess, toastInfo } from "../../utils/toast";
 import { userDisplayName, userInitial } from "../../utils/userDisplay";
 import { SUCCESS_ACCOUNT_SWITCHED, SUCCESS_ACCOUNT_DEACTIVATED, SUCCESS_SWITCHED } from "../../utils/successCopy";
-import { FORM_ALREADY_CURRENT_ACCOUNT, FORM_CAPTCHA_REQUIRED, FORM_EMAIL_PASSWORD_REQUIRED, FORM_DEACTIVATE_PASSWORD } from "../../utils/formCopy";
+import { FORM_ALREADY_CURRENT_ACCOUNT, FORM_CAPTCHA_REQUIRED, FORM_EMAIL_PASSWORD_REQUIRED, FORM_DEACTIVATE_PASSWORD, FORM_PASSWORD_LOGIN_PLACEHOLDER, FORM_EMAIL_PLACEHOLDER, FORM_PASSWORD_PLACEHOLDER, FORM_CAPTCHA_PLACEHOLDER } from "../../utils/formCopy";
 import { ACTION_SWITCHING } from "../../utils/actionCopy";
 
 export default function Profile() {
@@ -301,7 +301,7 @@ export default function Profile() {
                 className="deactivate-input"
                 value={deactivatePassword}
                 onInput={(e) => setDeactivatePassword(e.detail.value)}
-                placeholder="输入登录密码"
+                placeholder={FORM_PASSWORD_LOGIN_PLACEHOLDER}
                 placeholderClass="text-hint"
                 password
                 confirmType="done"
@@ -405,7 +405,7 @@ export default function Profile() {
                       className="switch-form-input"
                       value={loginEmail}
                       onInput={(e) => setLoginEmail(e.detail.value)}
-                      placeholder="输入邮箱地址"
+                      placeholder={FORM_EMAIL_PLACEHOLDER}
                     />
                   </View>
                   <View className="switch-form-group">
@@ -414,7 +414,7 @@ export default function Profile() {
                       className="switch-form-input"
                       value={loginPassword}
                       onInput={(e) => setLoginPassword(e.detail.value)}
-                      placeholder="输入密码"
+                      placeholder={FORM_PASSWORD_PLACEHOLDER}
                       password
                     />
                   </View>
@@ -425,7 +425,7 @@ export default function Profile() {
                         className="switch-form-input switch-captcha-input"
                         value={captchaCode}
                         onInput={(e) => setCaptchaCode(e.detail.value)}
-                        placeholder="输入验证码"
+                        placeholder={FORM_CAPTCHA_PLACEHOLDER}
                         maxlength={4}
                       />
                       <Image

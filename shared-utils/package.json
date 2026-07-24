@@ -50,7 +50,8 @@
     "./categoryBreakdown": "./src/categoryBreakdown.ts",
     "./rankProgress": "./src/rankProgress.ts",
     "./reportPeriod": "./src/reportPeriod.ts",
-    "./imageSize": "./src/imageSize.ts"
+    "./imageSize": "./src/imageSize.ts",
+    "./sectionCopy": "./src/sectionCopy.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit"

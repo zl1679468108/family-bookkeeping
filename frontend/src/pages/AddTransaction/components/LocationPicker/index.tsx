@@ -6,6 +6,8 @@ import type { LocationResult } from '@family-bookkeeping/shared-types'
 import { useMapInstance } from '../../../../hooks/useMapInstance';
 import { AmapManager } from '../../../../services/amapManager';
 import './index.scss';
+import { FORM_SEARCH_LOCATION } from '../../../../utils/formCopy'
+import { TITLE_SELECT_LOCATION, TITLE_LOCATE_CURRENT } from '../../../../utils/sectionCopy'
 
 interface LocationPickerProps {
   visible: boolean;
@@ -246,7 +248,7 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
       open={visible}
       onClose={onClose}
       type="modal"
-      title="选择消费位置"
+      title={TITLE_SELECT_LOCATION}
       size="lg"
       closeOnMask={false}
       footer={modalFooter}
@@ -256,7 +258,7 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
       <div className="location-picker-search">
         <input
           type="text" className="location-search-input"
-          placeholder="搜索地址或商户名称..."
+          placeholder={FORM_SEARCH_LOCATION}
           value={searchText}
           onChange={(e) => setSearchText(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
@@ -264,7 +266,7 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
         <Button variant="secondary" onClick={handleSearch} disabled={searching}>
           {searching ? '搜索中...' : '搜索'}
         </Button>
-        <Button variant="secondary" onClick={handleLocate} title="定位到当前位置" style={{ padding: '0 10px' }}>
+        <Button variant="secondary" onClick={handleLocate} title={TITLE_LOCATE_CURRENT} style={{ padding: '0 10px' }}>
           📍
         </Button>
       </div>

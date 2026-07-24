@@ -17,6 +17,7 @@ import { toYearMonth } from '../../utils/reportPeriod'
 import { formatAmount } from '../../utils/common'
 import { formatMonthDisplay } from '../../utils/month'
 import { EMPTY_NO_CATEGORY_DATA, EMPTY_NO_TRANSACTIONS_PERIOD, EMPTY_MEMBER_COMPARE_NEED_MULTI, EMPTY_SELECT_BOOK } from '../../utils/emptyCopy'
+import { TITLE_CATEGORY_RATIO, reportChartTitle } from '../../utils/sectionCopy'
 
 const Reports: React.FC = () => {
   const navigate = useNavigate()
@@ -58,13 +59,12 @@ const Reports: React.FC = () => {
     return false
   })()
 
-  const chartTitle = (() => {
-    if (isDailyView) return '本月每日总支出/总收入'
-    if (isMonthlyView) return '月度总支出/总收入汇总'
-    if (isMonthCompare) return '月对比'
-    if (isYearCompare) return '年对比'
-    return ''
-  })()
+  const chartTitle = reportChartTitle({
+    isDailyView,
+    isMonthlyView,
+    isMonthCompare,
+    isYearCompare,
+  })
 
   const periodOptions = REPORT_PERIOD_OPTIONS.map(({ key, label }) => ({ key, label }))
 
@@ -127,7 +127,7 @@ const Reports: React.FC = () => {
                 </>
               ) : (
                 <>
-                  <CardHeader title="分类占比" />
+                  <CardHeader title={TITLE_CATEGORY_RATIO} />
                   {mergedDefaultBreakdown.length > 0 ? (
                     <CategoryRankChart data={mergedDefaultBreakdown} height="280px" />
                   ) : (

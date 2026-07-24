@@ -22,6 +22,7 @@ import { queryKeys } from '../../utils/queryKeys';
 import { STALE } from '../../utils/cachePolicy';
 import { FILTER_ALL_CATEGORIES } from '../../utils/transactionType'
 import { ACTION_LOADING } from '../../utils/actionCopy';
+import { TITLE_MERCHANT_FOOTPRINT } from '../../utils/sectionCopy'
 
 type ViewMode = 'footprints' | 'heatmap';
 
@@ -310,7 +311,7 @@ const MapPage: React.FC = () => {
       <Drawer
         open={drawerOpen}
         onClose={() => setDrawerOpen(false)}
-        title="商户足迹"
+        title={TITLE_MERCHANT_FOOTPRINT}
         width={440}
       >
         <MerchantDrawer

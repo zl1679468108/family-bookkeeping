@@ -48,6 +48,7 @@ import { entityFormTitle, ENTITY_BOOK } from "../../utils/entityCopy";
 import { IMAGE_SELECT_FAILED, DELETE_FAILED, UPLOAD_FAILED } from "../../utils/uploadCopy";
 import { ERROR_CREATE_FAILED, ERROR_SAVE_FAILED, ERROR_TRANSFER_FAILED } from "../../utils/errorCopy";
 import Icon, { ICON_COLOR } from "../../components/Icon";
+import { TITLE_TRANSFER_OWNERSHIP } from "../../utils/sectionCopy";
 
 interface Member {
   id: string;
@@ -560,7 +561,7 @@ export default function BookSettings() {
       {showTransfer && (
         <View className="bs-mask" onClick={() => setShowTransfer(false)}>
           <View className="bs-sheet" onClick={(e: any) => e.stopPropagation()}>
-            <SheetHeader title="转移所有权" onClose={() => setShowTransfer(false)} />
+            <SheetHeader title={TITLE_TRANSFER_OWNERSHIP} onClose={() => setShowTransfer(false)} />
 
             <View className="bs-sheet__body">
               <View className="bs-warn-box">
