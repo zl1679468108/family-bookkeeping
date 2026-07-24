@@ -9,9 +9,9 @@ import { PasswordField } from '../../../components/ui/PasswordField'
 import { FormField } from '../../../components/ui/FormField'
 import { validatePasswordMatch, validatePasswordMinLength } from '../../../utils/validation'
 import { SUCCESS_CODE_RESENT } from '../../../utils/successCopy'
-import { FORM_REGISTERED_EMAIL_PLACEHOLDER, FORM_CAPTCHA_DIGITS_PLACEHOLDER, FORM_PASSWORD_MIN_SHORT, FORM_PASSWORD_CONFIRM_PLACEHOLDER, FORM_EMAIL_VALID_REQUIRED } from '../../../utils/formCopy'
+import { FORM_REGISTERED_EMAIL_PLACEHOLDER, FORM_CAPTCHA_DIGITS_PLACEHOLDER, FORM_PASSWORD_MIN_SHORT, FORM_PASSWORD_CONFIRM_PLACEHOLDER, FORM_EMAIL_VALID_REQUIRED, FORM_CAPTCHA_DIGITS_REQUIRED } from '../../../utils/formCopy'
 import { FIELD_EMAIL_ADDRESS, FIELD_CAPTCHA, FIELD_NEW_PASSWORD, FIELD_CONFIRM_PASSWORD } from '../../../utils/fieldCopy'
-import { AUTH_TITLE_FORGOT, AUTH_TITLE_RESET, AUTH_TITLE_RESET_SUCCESS, AUTH_TITLE_RECOVER, AUTH_DESC_CODE_SENT, ACTION_SEND_CODE, ACTION_SENDING, ACTION_RESEND_CODE, ACTION_RESET_PASSWORD, ACTION_RESETTING } from '../../../utils/authCopy'
+import { AUTH_TITLE_FORGOT, AUTH_TITLE_RESET, AUTH_TITLE_RESET_SUCCESS, AUTH_TITLE_RECOVER, AUTH_DESC_CODE_SENT, ACTION_SEND_CODE, ACTION_SENDING, ACTION_RESEND_CODE, ACTION_RESET_PASSWORD, ACTION_RESETTING, AUTH_SUB_FORGOT_EMAIL, AUTH_SUB_PASSWORD_UPDATED, AUTH_SUB_RECOVER_LINE1, AUTH_SUB_RECOVER_LINE2, AUTH_TITLE_PASSWORD_RESET_SUCCESS, AUTH_CODE_SENT_TO_PREFIX, AUTH_SEND_FAILED_CHECK_EMAIL } from '../../../utils/authCopy'
 
 const ForgotPassword: React.FC = () => {
   const [email, setEmail] = useState('')
@@ -39,19 +39,19 @@ const ForgotPassword: React.FC = () => {
     setMessage('')
     try {
       await sendResetCode(email)
-      setMessage('验证码已发送至 ' + email)
+      setMessage(AUTH_CODE_SENT_TO_PREFIX + email)
       setMessageType('success')
       setStep(2)
       setCountdown(60)
     } catch {
-      setMessage('发送失败，请检查邮箱地址')
+      setMessage(AUTH_SEND_FAILED_CHECK_EMAIL)
       setMessageType('error')
     }
   })
 
   const { run: handleSubmit, isRunning: submitLoading } = useDebouncedAction(async () => {
     if (!code || code.length !== 6) {
-      setMessage('请输入6位验证码')
+      setMessage(FORM_CAPTCHA_DIGITS_REQUIRED)
       setMessageType('error')
       return
     }
@@ -85,9 +85,9 @@ const ForgotPassword: React.FC = () => {
 
   const title = step === 1 ? AUTH_TITLE_FORGOT : step === 3 ? AUTH_TITLE_RESET_SUCCESS : AUTH_TITLE_RESET
   const subtitle = step === 1
-    ? '请输入注册邮箱，我们将发送验证码'
+    ? AUTH_SUB_FORGOT_EMAIL
     : step === 3
-      ? '密码已更新，请使用新密码登录'
+      ? AUTH_SUB_PASSWORD_UPDATED
       : AUTH_DESC_CODE_SENT
 
   return (
@@ -96,8 +96,8 @@ const ForgotPassword: React.FC = () => {
       title={AUTH_TITLE_RECOVER}
       subtitle={
         <>
-          <p>别担心，我们帮你找回</p>
-          <p>请验证您的身份信息</p>
+          <p>{AUTH_SUB_RECOVER_LINE1}</p>
+          <p>{AUTH_SUB_RECOVER_LINE2}</p>
         </>
       }
     >
@@ -211,7 +211,7 @@ const ForgotPassword: React.FC = () => {
         <div>
           <div className="success-card">
             <div className="sc-icon">✅</div>
-            <h4>密码重置成功</h4>
+            <h4>{AUTH_TITLE_PASSWORD_RESET_SUCCESS}</h4>
             <p>请使用新密码登录账户</p>
           </div>
           <Link to="/login">

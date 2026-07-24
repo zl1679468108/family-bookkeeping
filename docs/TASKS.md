@@ -85,6 +85,10 @@
 
 ### ✅ 已完成
 
+#### 2026-07-24 通用按钮 + 鉴权副标题 shared
+- `ACTION_CANCEL/SAVE/DELETE/CONFIRM/EDIT/COPY/EXECUTE` 等；GlobalModal/ConfirmDialog 默认与双端表单脚/详情操作接线
+- `authCopy` 补找回/重置副标题与成功态；PC Forgot/Reset/Register 与 Taro Forgot 发送失败文案对齐
+
 #### 2026-07-24 authCopy 鉴权页标题/按钮 shared
 - 新增 `shared-utils/authCopy`：欢迎回来/重置密码/发送验证码/登录中等
 - 接线 PC Login/Forgot/Reset/Profile 与 Taro Login/Register/Forgot 校验与按钮文案

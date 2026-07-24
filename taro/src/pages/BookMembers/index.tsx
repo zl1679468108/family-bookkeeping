@@ -19,7 +19,7 @@ import PageContainer from "../../components/PageContainer";
 import { toastSuccess, toastInfo } from "../../utils/toast";
 import { bookMemberRoleLabel, isBookOwnerRole } from "../../utils/roles";
 import { userDisplayName, userInitial } from "../../utils/userDisplay";
-import { ACTION_LOADING } from "../../utils/actionCopy";
+import { ACTION_LOADING, ACTION_CANCEL } from "../../utils/actionCopy"
 import {
   CONFIRM_REMOVE_TITLE,
   CONFIRM_REMOVE_TEXT,
@@ -179,7 +179,7 @@ export default function BookMembers() {
                       setInviteEmail("");
                     }}
                   >
-                    <Text style={{ fontSize: "28rpx" }}>取消</Text>
+                    <Text style={{ fontSize: "28rpx" }}>{ACTION_CANCEL}</Text>
                   </View>
                   <View
                   style={{

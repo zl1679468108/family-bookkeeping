@@ -32,7 +32,7 @@ import { validateTransactionFormFields } from "../../utils/validation";
 import { transactionTypeLabel, TRANSACTION_TYPE_OPTIONS } from "../../utils/transactionType";
 import { parseImageList } from "../../utils/parseImageList";
 import "./index.scss";
-import { ACTION_LOADING, ACTION_SAVING, saveOrConfirmAddLabel } from "../../utils/actionCopy";
+import { ACTION_LOADING, ACTION_SAVING, saveOrConfirmAddLabel, ACTION_DELETE_THIS_TXN } from "../../utils/actionCopy"
 import {
   CONFIRM_DELETE_TITLE,
   CONFIRM_DELETE_TRANSACTION,
@@ -449,7 +449,7 @@ export default function AddTransaction() {
       <View className="addtx-actions">
         {isEdit && (
           <View className="addtx-actions__delete" onClick={handleDelete}>
-            <Text>删除此笔</Text>
+            <Text>{ACTION_DELETE_THIS_TXN}</Text>
           </View>
         )}
         <View

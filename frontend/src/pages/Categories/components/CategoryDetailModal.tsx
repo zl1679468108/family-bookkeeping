@@ -7,6 +7,7 @@ import { transactionTypeLabel } from '../../../utils/transactionType'
 import { formatDateTimeMinute } from '../../../utils/date'
 import { DETAIL_CATEGORY } from '../../../utils/entityCopy'
 import { FIELD_SORT, sortOrderLabel, FIELD_CATEGORY_ID, FIELD_CREATED_AT, FIELD_UPDATED_AT } from '../../../utils/fieldCopy'
+import { ACTION_EDIT, ACTION_DELETE } from '../../../utils/actionCopy'
 
 interface CategoryDetailModalProps {
   selectedCategory: Category | null
@@ -42,17 +43,13 @@ export const CategoryDetailModal: React.FC<CategoryDetailModalProps> = ({
             <Button
               variant="secondary"
               onClick={() => handleOpenEdit(selectedCategory)}
-            >
-              编辑
-            </Button>
+            >{ACTION_EDIT}</Button>
           )}
           {!selectedCategory.is_default && (
             <Button
               variant="danger"
               onClick={() => setDeleteTarget(selectedCategory)}
-            >
-              删除
-            </Button>
+            >{ACTION_DELETE}</Button>
           )}
         </Space>
       }

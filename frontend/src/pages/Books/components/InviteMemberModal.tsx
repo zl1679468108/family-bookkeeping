@@ -7,6 +7,7 @@ import { notifyError } from '../../../utils/notifyError'
 import { validateEmail } from '../../../utils/validation'
 import { FORM_EMAIL_REQUIRED, FORM_PEER_EMAIL_PLACEHOLDER } from '../../../utils/formCopy'
 import { FIELD_EMAIL_ADDRESS } from '../../../utils/fieldCopy'
+import { ACTION_CANCEL } from '../../../utils/actionCopy'
 
 interface InviteMemberModalProps {
   open: boolean;
@@ -46,7 +47,7 @@ export const InviteMemberModal: React.FC<InviteMemberModalProps> = ({
       width={400}
       footer={
         <FooterActions align="end" className="global-modal-dialog__footer-inner">
-          <Button variant="secondary" onClick={onClose}>取消</Button>
+          <Button variant="secondary" onClick={onClose}>{ACTION_CANCEL}</Button>
           <Button
             variant="primary"
             onClick={handleInvite}

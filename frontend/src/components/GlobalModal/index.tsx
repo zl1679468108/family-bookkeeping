@@ -4,7 +4,7 @@ import { Button } from '../ui/Button'
 import { Icon } from '../ui/Icon'
 import { FooterActions } from '../ui/FooterActions'
 import { Spinner } from '../ui/Spinner'
-import { ACTION_CLOSE } from '../../utils/actionCopy'
+import { ACTION_CLOSE, ACTION_CANCEL, ACTION_CONFIRM } from '../../utils/actionCopy'
 
 export type GlobalModalType = 'confirm' | 'detail' | 'modal';
 
@@ -73,8 +73,8 @@ export const GlobalModal: React.FC<GlobalModalProps> = ({
   className = '',
   bodyClassName = '',
   size = 'md',
-  confirmText = '确认',
-  cancelText = '取消',
+  confirmText = ACTION_CONFIRM,
+  cancelText = ACTION_CANCEL,
   confirmDanger = false,
   loading = false,
   onConfirm,

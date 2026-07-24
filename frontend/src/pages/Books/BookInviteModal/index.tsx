@@ -16,6 +16,7 @@ import { validateInviteCode, normalizeInviteCode } from '../../../utils/validati
 import { FORM_INVITE_CODE_EXAMPLE } from '../../../utils/formCopy'
 import { TITLE_JOIN_BY_INVITE } from '../../../utils/sectionCopy'
 import { FIELD_INVITE_CODE } from '../../../utils/fieldCopy'
+import { ACTION_CANCEL } from '../../../utils/actionCopy'
 
 interface BookInviteModalProps {
   open: boolean;
@@ -84,7 +85,7 @@ export const BookInviteModal: React.FC<BookInviteModalProps> = ({ open, onClose,
       width={440}
       footer={
         <FooterActions align="end" className="global-modal-dialog__footer-inner">
-            <Button variant="secondary" onClick={onClose}>取消</Button>
+            <Button variant="secondary" onClick={onClose}>{ACTION_CANCEL}</Button>
             <Button
               variant="primary"
               onClick={handleSubmit}

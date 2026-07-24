@@ -18,6 +18,7 @@ import { SUCCESS_INVITE_SENT } from "../../../../utils/successCopy";
 import { ERROR_INVITE_FAILED } from "../../../../utils/errorCopy";
 import { EMPTY_NO_MEMBERS } from "../../../../utils/emptyCopy";
 import { FORM_MEMBER_EMAIL_SHORT } from "../../../../utils/formCopy";
+import { ACTION_CANCEL } from "../../../../utils/actionCopy";
 
 interface BookCardProps {
   book: Book;
@@ -224,7 +225,7 @@ export default function BookCard({
                     setInviteEmail("");
                   }}
                 >
-                  <Text className="book-card__action-text">取消</Text>
+                  <Text className="book-card__action-text">{ACTION_CANCEL}</Text>
                 </View>
               </View>
             ) : (

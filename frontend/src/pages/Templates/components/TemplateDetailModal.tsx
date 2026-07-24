@@ -9,6 +9,7 @@ import { transactionTypeLabel } from '../../../utils/transactionType'
 import { formatDateTimeMinute } from '../../../utils/date'
 import { DETAIL_TEMPLATE } from '../../../utils/entityCopy'
 import { FIELD_NOTE, FIELD_LOCATION, FIELD_SORT, FIELD_START_DATE, sortOrderLabel, FIELD_MERCHANT, FIELD_CYCLE, FIELD_END_DATE, FIELD_LAST_EXECUTED, FIELD_NEXT_EXECUTED, FIELD_CREATED_AT } from '../../../utils/fieldCopy'
+import { ACTION_DELETE, ACTION_EDIT, ACTION_COPY } from '../../../utils/actionCopy'
 
 interface TemplateDetailModalProps {
   template: any
@@ -40,14 +41,12 @@ export const TemplateDetailModal: React.FC<TemplateDetailModalProps> = ({
       footer={
         <Space size="sm">
           <Button variant="secondary" onClick={() => onEdit(template)}>
-            编辑
+            {ACTION_EDIT}
           </Button>
           <Button variant="secondary" onClick={() => onCopy(template)}>
-            复制
+            {ACTION_COPY}
           </Button>
-          <Button variant="danger" onClick={onDelete}>
-            删除
-          </Button>
+          <Button variant="danger" onClick={onDelete}>{ACTION_DELETE}</Button>
         </Space>
       }
     >

@@ -13,6 +13,7 @@ import { FormField } from '../../../components/ui/FormField'
 import { FORM_NICKNAME_PLACEHOLDER, FORM_EMAIL_EXAMPLE, FORM_PASSWORD_MIN_SHORT, FORM_PASSWORD_CONFIRM_PLACEHOLDER } from '../../../utils/formCopy'
 import { FIELD_USERNAME, FIELD_EMAIL_ADDRESS, FIELD_PASSWORD, FIELD_CONFIRM_PASSWORD } from '../../../utils/fieldCopy'
 import { ACTION_START_BOOKKEEPING } from '../../../utils/actionCopy'
+import { AUTH_TITLE_CREATE_ACCOUNT, ACTION_REGISTERING, ACTION_REGISTER_SPACED } from '../../../utils/authCopy'
 
 const RegisterPage: React.FC = () => {
   const [username, setUsername] = useState('')
@@ -49,7 +50,7 @@ const RegisterPage: React.FC = () => {
         </>
       }
     >
-      <h3>创建账户</h3>
+      <h3>{AUTH_TITLE_CREATE_ACCOUNT}</h3>
       <p className="form-desc">填写以下信息注册新账户</p>
 
       <form onSubmit={(e) => { e.preventDefault(); handleSubmit() }}>
@@ -97,7 +98,7 @@ const RegisterPage: React.FC = () => {
         </div>
 
         <Button type="submit" variant="primary" block size="lg" disabled={loading}>
-          {loading ? '注册中...' : '注 册'}
+          {loading ? ACTION_REGISTERING : ACTION_REGISTER_SPACED}
         </Button>
       </form>
 

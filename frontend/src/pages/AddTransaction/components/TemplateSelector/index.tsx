@@ -8,7 +8,7 @@ import './index.scss'
 import { Icon } from '../../../../components/ui/Icon'
 import { transactionTypeLabel } from '../../../../utils/transactionType'
 import { EMPTY_TEMPLATES_SELECTOR } from '../../../../utils/emptyCopy'
-import { ACTION_CLOSE } from '../../../../utils/actionCopy'
+import { ACTION_CLOSE, ACTION_CANCEL } from '../../../../utils/actionCopy'
 
 interface TemplateSelectorProps {
   visible: boolean
@@ -99,7 +99,7 @@ export const TemplateSelector: React.FC<TemplateSelectorProps> = ({
         </div>
 
         <FooterActions align="end" className="template-selector-footer">
-          <Button variant="secondary" onClick={handleClose}>取消</Button>
+          <Button variant="secondary" onClick={handleClose}>{ACTION_CANCEL}</Button>
           <Button
             variant="primary"
             onClick={handleConfirm}

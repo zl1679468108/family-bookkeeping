@@ -14,7 +14,7 @@ import {
 } from '../../../utils/validation'
 import { FORM_PASSWORD_MIN_ALPHA_NUM, FORM_PASSWORD_CONFIRM_PLACEHOLDER } from '../../../utils/formCopy'
 import { FIELD_NEW_PASSWORD, FIELD_CONFIRM_PASSWORD } from '../../../utils/fieldCopy'
-import { AUTH_TITLE_RESET, AUTH_TITLE_SET_NEW_PASSWORD, ACTION_RESET_PASSWORD, ACTION_RESETTING } from '../../../utils/authCopy'
+import { AUTH_TITLE_RESET, AUTH_TITLE_SET_NEW_PASSWORD, ACTION_RESET_PASSWORD, ACTION_RESETTING, AUTH_SUB_RESET_AFTER, AUTH_TITLE_PASSWORD_RESET_SUCCESS, AUTH_RESET_FAILED_RETRY } from '../../../utils/authCopy'
 
 const ResetPassword: React.FC = () => {
   const [searchParams] = useSearchParams()
@@ -41,7 +41,7 @@ const ResetPassword: React.FC = () => {
       await resetPasswordByToken(token, password)
       setDone(true)
     } catch (err: any) {
-      setMessage(getErrorMessage(err, '重置失败，请重试'))
+      setMessage(getErrorMessage(err, AUTH_RESET_FAILED_RETRY))
       setMessageType('error')
     }
   })
@@ -79,7 +79,7 @@ const ResetPassword: React.FC = () => {
       subtitle={
         <>
           <p>请输入你的新密码</p>
-          <p>重置后请使用新密码登录</p>
+          <p>{AUTH_SUB_RESET_AFTER}</p>
         </>
       }
     >
@@ -123,7 +123,7 @@ const ResetPassword: React.FC = () => {
         <div>
           <div className="success-card">
             <div className="sc-icon">✅</div>
-            <h4>密码重置成功</h4>
+            <h4>{AUTH_TITLE_PASSWORD_RESET_SUCCESS}</h4>
             <p>请使用新密码登录账户</p>
           </div>
           <Link to="/login">

@@ -8,6 +8,7 @@ import { AmapManager } from '../../../../services/amapManager';
 import './index.scss';
 import { FORM_SEARCH_LOCATION } from '../../../../utils/formCopy'
 import { TITLE_SELECT_LOCATION, TITLE_LOCATE_CURRENT } from '../../../../utils/sectionCopy'
+import { ACTION_CANCEL } from '../../../../utils/actionCopy'
 
 interface LocationPickerProps {
   visible: boolean;
@@ -231,7 +232,7 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
     <div className="location-picker-footer">
       <Button variant="secondary" onClick={handleClear}>清除位置</Button>
       <FooterActions align="end">
-        <Button variant="secondary" onClick={onClose}>取消</Button>
+        <Button variant="secondary" onClick={onClose}>{ACTION_CANCEL}</Button>
         <Button
           variant="primary"
           onClick={handleConfirm}

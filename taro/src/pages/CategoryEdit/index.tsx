@@ -34,7 +34,7 @@ import { useSubmit, toastError } from "../../hooks/useSubmit";
 import "./index.scss";
 import { getErrorMessage } from "../../utils/errorMessage";
 import { toastSuccess, toastInfo } from "../../utils/toast";
-import { ACTION_DELETING, ACTION_LOADING, ACTION_SAVING, saveOrCreateLabel, ACTION_CREATE_CATEGORY } from "../../utils/actionCopy";
+import { ACTION_DELETING, ACTION_LOADING, ACTION_SAVING, saveOrCreateLabel, ACTION_CREATE_CATEGORY, ACTION_DELETE } from "../../utils/actionCopy"
 import {
   CONFIRM_DELETE_TITLE,
   CONFIRM_DELETE_TEXT,
@@ -318,7 +318,7 @@ export default function CategoryEdit() {
             className="catedit-actions__delete"
             onClick={() => setShowDelete(true)}
           >
-            <Text>删除</Text>
+            <Text>{ACTION_DELETE}</Text>
           </View>
         )}
         <View

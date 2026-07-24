@@ -20,7 +20,7 @@ import { STALE } from '../../../utils/cachePolicy'
 import { SUCCESS_BOOK_CREATED, SUCCESS_ICON_DELETED, SUCCESS_ICON_UPLOADED, SUCCESS_UPDATED } from '../../../utils/successCopy'
 import { entityFormTitle, ENTITY_BOOK } from '../../../utils/entityCopy'
 import { failEntityUpsert } from '../../../utils/errorCopy'
-import { processingLabel } from '../../../utils/actionCopy';
+import { processingLabel, ACTION_CANCEL, ACTION_SAVE, ACTION_CREATE_BOOK } from '../../../utils/actionCopy'
 import { FORM_BOOK_NAME_EXAMPLE, FORM_BOOK_DESC_EXAMPLE } from '../../../utils/formCopy'
 import { FIELD_BOOK_NAME, FIELD_DESC_OPTIONAL } from '../../../utils/fieldCopy'
 
@@ -117,13 +117,13 @@ export const BookCreateModal: React.FC<BookCreateModalProps> = ({ open, onClose,
       width={520}
       footer={
         <FooterActions align="end" className="global-modal-dialog__footer-inner">
-            <Button variant="secondary" onClick={onClose}>取消</Button>
+            <Button variant="secondary" onClick={onClose}>{ACTION_CANCEL}</Button>
             <Button
               variant="primary"
               onClick={handleSubmit}
               disabled={mutation.isPending || !bookName.trim()}
             >
-              {processingLabel(mutation.isPending, isEdit ? '保存' : '创建账本')}
+              {processingLabel(mutation.isPending, isEdit ? ACTION_SAVE : ACTION_CREATE_BOOK)}
             </Button>
           </FooterActions>
       }

@@ -35,7 +35,7 @@ import { useSubmit, toastError } from "../../hooks/useSubmit";
 import "./index.scss";
 import { getErrorMessage } from "../../utils/errorMessage";
 import { toastSuccess, toastInfo } from "../../utils/toast";
-import { ACTION_DELETING, ACTION_LOADING, ACTION_SAVING } from "../../utils/actionCopy";
+import { ACTION_DELETING, ACTION_LOADING, ACTION_SAVING, ACTION_CANCEL, ACTION_SAVE, ACTION_DELETE_BOOK } from "../../utils/actionCopy"
 import {
   CONFIRM_DELETE_TITLE,
   CONFIRM_DELETE_TEXT,
@@ -535,7 +535,7 @@ export default function BookSettings() {
                       onClick: () => setShowTransfer(true),
                     },
                     {
-                      label: "删除账本",
+                      label: ACTION_DELETE_BOOK,
                       icon: "delete",
                       danger: true,
                       onClick: () => setShowDelete(true),
@@ -551,10 +551,10 @@ export default function BookSettings() {
       {/* 底部按钮 */}
       <StickyActionBar tone="blur" row>
         <Button variant="outline" size="lg" block onClick={() => Taro.navigateBack()}>
-          取消
+          {ACTION_CANCEL}
         </Button>
         <Button variant="primary" size="lg" block onClick={handleSubmitEdit}>
-          保存
+          {ACTION_SAVE}
         </Button>
       </StickyActionBar>
 

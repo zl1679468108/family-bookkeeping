@@ -37,7 +37,7 @@ import { toastSuccess, toastInfo } from "../../utils/toast";
 import { formatMoney } from "../../utils/format";
 import { formatDateTime } from "../../utils/date";
 import { sanitizeAmountInput } from "../../utils/budget";
-import { ACTION_DELETING, ACTION_LOADING, ACTION_SAVING } from "../../utils/actionCopy";
+import { ACTION_DELETING, ACTION_LOADING, ACTION_SAVING, ACTION_EDIT, ACTION_COPY, ACTION_DELETE, ACTION_EXECUTE } from "../../utils/actionCopy"
 import { sortModeLabel, SORT_SAVE } from "../../utils/sortCopy";
 import {
   CONFIRM_DELETE_TITLE,
@@ -373,17 +373,11 @@ export default function TemplateManager() {
           footer={
             <View className="tpl-detail-footer">
               <Button variant="primary" size="sm" onClick={() => selectedTemplate && handleExecute(selectedTemplate)}>
-                执行
+                {ACTION_EXECUTE}
               </Button>
-              <Button variant="secondary" size="sm" onClick={handleEditFromDetail}>
-                编辑
-              </Button>
-              <Button variant="outline" size="sm" onClick={handleCopyFromDetail}>
-                复制
-              </Button>
-              <Button variant="danger" size="sm" onClick={handleDeleteFromDetail}>
-                删除
-              </Button>
+              <Button variant="secondary" size="sm" onClick={handleEditFromDetail}>{ACTION_EDIT}</Button>
+              <Button variant="outline" size="sm" onClick={handleCopyFromDetail}>{ACTION_COPY}</Button>
+              <Button variant="danger" size="sm" onClick={handleDeleteFromDetail}>{ACTION_DELETE}</Button>
             </View>
           }
         >

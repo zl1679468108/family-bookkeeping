@@ -22,12 +22,7 @@ import { budgetStatusToVariant, budgetVariantLabel, formatMoney, buildBudgetUpse
 import { useBook } from '../../hooks/useBook'
 import { queryKeys } from '../../utils/queryKeys'
 import { STALE } from '../../utils/cachePolicy'
-import {
-  ACTION_COPYING,
-  savingLabel,
-  copyingLabel,
-  busyLabel,
-} from '../../utils/actionCopy'
+import { ACTION_COPYING, savingLabel, copyingLabel, busyLabel, ACTION_CANCEL } from '../../utils/actionCopy'
 import {
   CONFIRM_DELETE_TITLE,
   CONFIRM_DELETE_TEXT,
@@ -417,7 +412,7 @@ const Budgets: React.FC = () => {
         title={`编辑预算 - ${selectedBudget?.category.name || ''}`}
         footer={
           <FooterActions align="end" className="global-modal-dialog__footer-inner">
-            <Button variant="secondary" onClick={() => setShowEditForm(false)}>取消</Button>
+            <Button variant="secondary" onClick={() => setShowEditForm(false)}>{ACTION_CANCEL}</Button>
             <Button variant="primary" onClick={handleEditFormSave}>确定</Button>
           </FooterActions>
         }

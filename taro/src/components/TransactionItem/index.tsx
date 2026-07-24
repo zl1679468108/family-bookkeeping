@@ -83,7 +83,7 @@ export default function TransactionItem({
           className={`txi-delete ${swiped ? "txi-delete--show" : ""}`}
           onClick={handleDelete}
         >
-          <Text className="txi-delete-text">删除</Text>
+          <Text className="txi-delete-text">{ACTION_DELETE}</Text>
         </View>
       )}
 
@@ -145,3 +145,4 @@ export default function TransactionItem({
   );
 }
 
+import { ACTION_DELETE } from "../../utils/actionCopy";

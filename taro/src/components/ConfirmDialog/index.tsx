@@ -6,7 +6,7 @@ import { View, Text } from "@tarojs/components";
 import { Button } from "../ui/Button";
 import { FooterActions } from "../ui/FooterActions";
 import "./index.scss";
-import { ACTION_PROCESSING } from "../../utils/actionCopy";
+import { ACTION_PROCESSING, ACTION_CANCEL, ACTION_CONFIRM } from "../../utils/actionCopy"
 
 export interface ConfirmDialogProps {
   visible: boolean;
@@ -24,8 +24,8 @@ export default function ConfirmDialog({
   visible,
   title,
   message,
-  confirmText = "确认",
-  cancelText = "取消",
+  confirmText = ACTION_CONFIRM,
+  cancelText = ACTION_CANCEL,
   confirmLoading = false,
   danger = true,
   onCancel,

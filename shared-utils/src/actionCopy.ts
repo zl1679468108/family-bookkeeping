@@ -25,17 +25,27 @@ export const ACTION_CLEAR = '清空'
 export const ACTION_START_BOOKKEEPING = '开始记账'
 export const ACTION_GO_ADD_TRANSACTION = '去记一笔'
 export const ACTION_ADD_FIRST_TRANSACTION = '添加第一笔交易'
+export const ACTION_CANCEL = '取消'
+export const ACTION_SAVE = '保存'
+export const ACTION_DELETE = '删除'
+export const ACTION_CONFIRM = '确认'
+export const ACTION_CREATE = '创建'
+export const ACTION_EDIT = '编辑'
+export const ACTION_COPY = '复制'
+export const ACTION_EXECUTE = '执行'
+export const ACTION_DELETE_BOOK = '删除账本'
+export const ACTION_DELETE_THIS_TXN = '删除此笔'
 
 /** busy ? busyText : idleText */
 export function busyLabel(busy: boolean, busyText: string, idleText: string): string {
   return busy ? busyText : idleText
 }
 
-export function savingLabel(busy: boolean, idleText = '保存'): string {
+export function savingLabel(busy: boolean, idleText = ACTION_SAVE): string {
   return busyLabel(busy, ACTION_SAVING, idleText)
 }
 
-export function deletingLabel(busy: boolean, idleText = '删除'): string {
+export function deletingLabel(busy: boolean, idleText = ACTION_DELETE): string {
   return busyLabel(busy, ACTION_DELETING, idleText)
 }
 
