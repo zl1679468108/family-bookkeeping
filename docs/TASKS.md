@@ -167,6 +167,10 @@
 - 邀请/转移邮箱：FE InviteMemberModal、Taro Books/BookMembers/BookSettings 改用 `validateEmail`（空+格式）
 - 验证：frontend / taro `tsc --noEmit`
 
+#### 2026-07-24 空态短文案 + Admin userStatus shared 化
+- `EMPTY_NO_CATEGORIES_SHORT` / `EMPTY_NO_TEMPLATES_SHORT`；Taro 模板/记一笔接线
+- `userStatus`（平台用户状态文案/样式）抽入 shared-utils，Admin 走 facade
+
 #### 2026-07-24 分类图标规格 / 成员空态 / 账本日期 shared 化
 - `buildCategoryIconOptionSpecs` 入 categories：PC/Taro 分类表单图标网格同源
 - `EMPTY_NO_MEMBERS` 入 emptyCopy；Taro Books/BookCard/BookMembers 接线

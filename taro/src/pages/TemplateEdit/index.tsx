@@ -42,6 +42,7 @@ import {
 import { entityFormTitle, ENTITY_TEMPLATE } from "../../utils/entityCopy";
 import { DELETE_FAILED } from "../../utils/uploadCopy";
 import { failEntityUpsert } from "../../utils/errorCopy";
+import { EMPTY_NO_CATEGORIES_SHORT } from "../../utils/emptyCopy";
 
 type TplType = "expense" | "income";
 
@@ -228,7 +229,7 @@ export default function TemplateEdit() {
               range={
                 catOpts.length > 0
                   ? catOpts.map((c: any) => formatCategoryLabel(c))
-                  : ["暂无分类"]
+                  : [EMPTY_NO_CATEGORIES_SHORT]
               }
               value={
                 catOpts.length > 0

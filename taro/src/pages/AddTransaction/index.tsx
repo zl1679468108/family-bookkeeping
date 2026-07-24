@@ -44,6 +44,7 @@ import { ERROR_SAVE_FAILED, ERROR_RECEIPTS_PARTIAL, ERROR_RECEIPTS_ALL } from ".
 import Icon, { ICON_COLOR } from "../../components/Icon";
 import { ENTITY_TRANSACTION } from "../../utils/entityCopy";
 import { useBookContext } from "../../context/BookContext";
+import { EMPTY_NO_TEMPLATES_SHORT } from "../../utils/emptyCopy";
 import {
   clearAddTransactionDraft,
   loadAddTransactionDraft,
@@ -468,7 +469,7 @@ export default function AddTransaction() {
           <ScrollView className="template-list" scrollY>
             {templates.length === 0 ? (
               <View className="template-empty">
-                <Text>暂无模板</Text>
+                <Text>{EMPTY_NO_TEMPLATES_SHORT}</Text>
               </View>
             ) : (
               templates.map((template) => (

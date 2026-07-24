@@ -1,6 +1,7 @@
 /** EmptyState 高频描述文案 */
 
 export const EMPTY_TEMPLATES = '还没有交易模板，创建后记账可一键套用'
+export const EMPTY_NO_TEMPLATES_SHORT = '暂无模板'
 export const EMPTY_BOOKS = '还没有任何账本，创建第一个或等待他人邀请加入'
 export const EMPTY_NO_TRANSACTIONS_PERIOD = '当前时间段内没有交易记录'
 export const EMPTY_NO_CATEGORY_DATA = '暂无分类数据，请等待加载或切换时间段'
@@ -16,6 +17,7 @@ export const EMPTY_TRANSACTIONS_HINT = '暂无交易记录，可调整筛选或�
 export const EMPTY_TRANSACTIONS_HOME = '暂无交易记录，记一笔开始掌握家庭收支'
 export const EMPTY_NO_BUDGET = '暂未设置预算，设置后可以更好地控制支出'
 export const EMPTY_CATEGORIES_GENERIC = '暂无分类，添加第一个让收支都有清晰归类'
+export const EMPTY_NO_CATEGORIES_SHORT = '暂无分类'
 export const EMPTY_TEMPLATES_SELECTOR = '暂无模板，请先在「模板管理」中创建'
 export const EMPTY_BOOKS_SHORT = '暂无账本，点击右上角新建'
 export const EMPTY_MEMBER_SPEND_PERIOD = '该时间段内还没有成员消费记录'

@@ -30,6 +30,7 @@
     "./transactionType": "./src/transactionType.ts",
     "./uploadCopy": "./src/uploadCopy.ts",
     "./userDisplay": "./src/userDisplay.ts",
+    "./userStatus": "./src/userStatus.ts",
     "./validation": "./src/validation.ts",
     "./bookIcons": "./src/bookIcons.ts",
     "./platformIcons": "./src/platformIcons.ts",

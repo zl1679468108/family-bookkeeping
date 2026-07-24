@@ -52,7 +52,7 @@ import {
   templateToCopyFormFields,
   emptyTemplateFormFields,
 } from "../../utils/templatePayload";
-import { EMPTY_TEMPLATES } from "../../utils/emptyCopy";
+import { EMPTY_TEMPLATES, EMPTY_NO_CATEGORIES_SHORT } from "../../utils/emptyCopy";
 import { entityCreateButton, entityFormTitle, ENTITY_TEMPLATE } from "../../utils/entityCopy";
 import { ERROR_DELETE_FAILED, ERROR_OP_FAILED, ERROR_EXECUTE_FAILED } from "../../utils/errorCopy";
 import Icon, { ICON_COLOR } from "../../components/Icon";
@@ -568,7 +568,7 @@ export default function TemplateManager() {
                         const displayIcon = isIconUrl(ic) ? "📌" : ic;
                         return `${displayIcon} ${c.name}`;
                       })
-                    : ["暂无分类"]
+                    : [EMPTY_NO_CATEGORIES_SHORT]
                 }
                 value={Math.max(0, catOpts.findIndex((c: any) => c.id === form.category_id))}
                 onChange={(e: any) => {
