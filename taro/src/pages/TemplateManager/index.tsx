@@ -59,6 +59,7 @@ import Icon, { ICON_COLOR } from "../../components/Icon";
 import { FORM_TEMPLATE_NAME_EXAMPLE, FORM_AMOUNT_PLACEHOLDER, FORM_NOTE_OPTIONAL, FORM_SELECT_CATEGORY } from "../../utils/formCopy";
 import { FIELD_NOTE, FIELD_LOCATION, FIELD_ADDRESS, FIELD_MERCHANT_ID, FIELD_MERCHANT_NAME, FIELD_BOOK_ID, FIELD_SORT, FIELD_CYCLE, FIELD_START_DATE, FIELD_END_DATE, FIELD_LAST_EXECUTED, FIELD_NEXT_EXECUTED, FIELD_CREATED_AT, FIELD_TEMPLATE_NAME, FIELD_TYPE, FIELD_CATEGORY, FIELD_AMOUNT, FIELD_LOCATION_INFO, sortOrderLabel } from "../../utils/fieldCopy";
 import { TITLE_SELECT_LOCATION } from "../../utils/sectionCopy"
+import { queryKeys } from "../../utils/queryKeys"
 
 /* ---------- 空表单初始态 ---------- */
 
@@ -115,7 +116,7 @@ export default function TemplateManager() {
     items: orderedTemplates,
     getKey: (t) => t.id,
     onSave: (ids) => reorderTemplates({ ids }),
-    queryKey: ["templates"],
+    queryKey: [...queryKeys.templates.all],
     queryClient: qc,
     refetch,
   });
@@ -166,7 +167,7 @@ export default function TemplateManager() {
     if (!deleteId) return;
     run(async () => {
       await deleteTemplate(deleteId);
-      qc.invalidateQueries({ queryKey: ["templates"] });
+      qc.invalidateQueries({ queryKey: [...queryKeys.templates.all] });
       toastSuccess(successEntityDeleted(ENTITY_TEMPLATE));
       setShowDelete(false);
       setDeleteId(null);
@@ -205,7 +206,7 @@ export default function TemplateManager() {
       } else {
         await createTemplate(data);
       }
-      qc.invalidateQueries({ queryKey: ["templates"] });
+      qc.invalidateQueries({ queryKey: [...queryKeys.templates.all] });
       toastSuccess(successEntityUpsert(ENTITY_TEMPLATE, Boolean(editingId)));
       setShowForm(false);
       setEditingId(null);

@@ -27,6 +27,7 @@
  */
 import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { useAuth } from "../context/AuthContext";
+import { STALE } from "../utils/cachePolicy";
 
 interface CacheEntry {
   data: unknown;
@@ -37,7 +38,7 @@ interface CacheEntry {
 /** 模块级短缓存：key → entry（按 user 隔离） */
 const queryCache = new Map<string, CacheEntry>();
 
-const DEFAULT_STALE_TIME = 30_000;
+const DEFAULT_STALE_TIME = STALE.default;
 
 /** 使缓存失效：prefix 匹配 key 前缀，不传则清空当前用户相关全部 */
 export function invalidateManualQuery(prefix?: string): void {

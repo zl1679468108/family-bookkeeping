@@ -111,6 +111,13 @@
 - `TITLE_DATA_ANALYSIS` / `TITLE_MEMBER_COMPARE` 报表 Tab
 - 验证：frontend / taro `tsc --noEmit`
 
+#### 2026-07-24 queryKeys / 缓存策略 / 空态插画 shared 化
+- `shared-utils/queryKeys`：双端 Query key 工厂 + 账本/用户/交易影响根 key；PC 保留 RQ invalidate 适配
+- `shared-utils/cachePolicy`：`STALE` / `GC_TIME`；Taro app / useManualQuery / useBook 接线
+- Taro 分类/模板/账本/成员 invalidate 改用 `queryKeys.*`（成员 key 对齐 `book-members`）
+- `shared-utils/emptyIllustration`：空态 SVG + 主题重着色；PC/Taro EmptyState 共用
+- 验证：frontend / taro `tsc --noEmit`
+
 #### 2026-07-24 分类图标 kind 判定 shared 化
 - 新增 `shared-utils/categoryIcon`：`resolveCategoryIconKind` / `platformIconKey`
 - PC/Taro `renderCategoryIcon` 共用决策树，端侧只负责渲染

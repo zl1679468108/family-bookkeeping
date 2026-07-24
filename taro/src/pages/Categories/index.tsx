@@ -58,6 +58,7 @@ import { failEntityUpsert } from "../../utils/errorCopy";
 import { buildCategoryIconOptionSpecs } from "../../utils/categories";
 import { FORM_CATEGORY_NAME_PLACEHOLDER } from "../../utils/formCopy";
 import { FIELD_CATEGORY_ID, FIELD_SORT, FIELD_CREATED_AT, FIELD_UPDATED_AT, FIELD_NAME, FIELD_ICON, sortOrderLabel, FIELD_DEFAULT, FIELD_CUSTOM } from "../../utils/fieldCopy";
+import { queryKeys } from "../../utils/queryKeys";
 
 /* ---------- 类型 ---------- */
 interface Category {
@@ -169,7 +170,7 @@ export default function CategoriesPage() {
     items: filtered,
     getKey: (c) => c.id,
     onSave: (ids) => reorderCategories(ids.map((id, i) => ({ id, sort_order: i }))),
-    queryKey: ["categories"],
+    queryKey: [...queryKeys.categories.all],
     queryClient: qc,
     refetch,
   });
@@ -227,7 +228,7 @@ export default function CategoriesPage() {
         ? updateCategory(editingId as string, payload)
         : createCategory(payload as import("@family-bookkeeping/shared-types").CreateCategoryInput);
       await apiCall;
-      qc.invalidateQueries({ queryKey: ["categories"] });
+      qc.invalidateQueries({ queryKey: [...queryKeys.categories.all] });
       toastSuccess(successEntityUpsert(ENTITY_CATEGORY, isEdit));
       closeForm();
       refetch();
@@ -550,7 +551,7 @@ export default function CategoriesPage() {
           if (!deletingCat) return;
           run(async () => {
             await deleteCategory(deletingCat.id);
-            qc.invalidateQueries({ queryKey: ["categories"] });
+            qc.invalidateQueries({ queryKey: [...queryKeys.categories.all] });
             toastSuccess(SUCCESS_DELETED);
             setShowDeleteConfirm(false);
             setDetailCat(null);

@@ -52,6 +52,7 @@ import { ERROR_CREATE_FAILED, ERROR_SAVE_FAILED, ERROR_TRANSFER_FAILED } from ".
 import Icon, { ICON_COLOR } from "../../components/Icon";
 import { TITLE_TRANSFER_OWNERSHIP, TITLE_MEMBER_MANAGE } from "../../utils/sectionCopy"
 import { FIELD_DESC_OPTIONAL, FIELD_ICON, FIELD_CUSTOM, FIELD_OWNER_EMAIL, FIELD_YOUR_PASSWORD, FIELD_BOOK_NAME } from "../../utils/fieldCopy";
+import { queryKeys } from "../../utils/queryKeys";
 
 interface Member {
   id: string;
@@ -218,7 +219,7 @@ export default function BookSettings() {
     });
     run(async () => {
       await createBook(data);
-      qc.invalidateQueries({ queryKey: ["books"] });
+      qc.invalidateQueries({ queryKey: queryKeys.books.all });
       toastSuccess(SUCCESS_BOOK_CREATED);
       setTimeout(() => Taro.navigateBack(), 500);
     }, ACTION_CREATING_ELLIPSIS).catch((err: any) => {
@@ -242,7 +243,7 @@ export default function BookSettings() {
           icon: editIcon,
         }),
       );
-      qc.invalidateQueries({ queryKey: ["books"] });
+      qc.invalidateQueries({ queryKey: queryKeys.books.all });
       toastSuccess(SUCCESS_UPDATED);
       setTimeout(() => Taro.navigateBack(), 500);
     }, ACTION_SAVING).catch((err: any) => {
@@ -262,7 +263,7 @@ export default function BookSettings() {
     }
     run(async () => {
       await transferOwner(bookId, transferEmail.trim(), transferPassword);
-      qc.invalidateQueries({ queryKey: ["books"] });
+      qc.invalidateQueries({ queryKey: queryKeys.books.all });
       toastSuccess(SUCCESS_OWNERSHIP_TRANSFERRED);
       setShowTransfer(false);
     }, ACTION_TRANSFERRING_ELLIPSIS).catch((err: any) => {
@@ -274,7 +275,7 @@ export default function BookSettings() {
   const handleDelete = () => {
     run(async () => {
       await deleteBook(bookId);
-      qc.invalidateQueries({ queryKey: ["books"] });
+      qc.invalidateQueries({ queryKey: queryKeys.books.all });
       toastSuccess(successEntityDeleted(ENTITY_BOOK));
       setTimeout(() => Taro.navigateBack(), 500);
     }, ACTION_DELETING).catch((err: any) => {

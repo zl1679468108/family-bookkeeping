@@ -52,6 +52,7 @@ import { failEntityUpsert } from "../../utils/errorCopy";
 import Icon, { ICON_COLOR } from "../../components/Icon";
 import { SECTION_CATEGORY_TYPE, SECTION_BASIC_INFO, SECTION_EMOJI_ICONS, SECTION_SHOPPING_ICONS, SECTION_CUSTOM_ICONS } from "../../utils/sectionCopy";
 import { FIELD_NAME, FIELD_ICON } from "../../utils/fieldCopy";
+import { queryKeys } from "../../utils/queryKeys";
 
 interface CustomIconItem {
   id: string;
@@ -168,7 +169,7 @@ export default function CategoryEdit() {
         ? updateCategory(id, payload)
         : createCategory(payload as import("@family-bookkeeping/shared-types").CreateCategoryInput);
       await apiCall;
-      qc.invalidateQueries({ queryKey: ["categories"] });
+      qc.invalidateQueries({ queryKey: queryKeys.categories.all });
       toastSuccess(successEntityUpsert(ENTITY_CATEGORY, isEdit));
       setTimeout(() => Taro.navigateBack(), 500);
     }, ACTION_SAVING).catch((err: any) => {
@@ -179,7 +180,7 @@ export default function CategoryEdit() {
   const handleDelete = () => {
     run(async () => {
       await deleteCategory(id);
-      qc.invalidateQueries({ queryKey: ["categories"] });
+      qc.invalidateQueries({ queryKey: queryKeys.categories.all });
       toastSuccess(SUCCESS_DELETED);
       setTimeout(() => Taro.navigateBack(), 500);
     }, ACTION_DELETING).catch((err: any) => {

@@ -33,6 +33,7 @@ import { ERROR_GENERATE_FAILED, ERROR_REMOVE_FAILED, ERROR_INVITE_FAILED } from 
 import { EMPTY_NO_MEMBERS } from "../../utils/emptyCopy";
 import { ACTION_SENDING_ELLIPSIS } from '../../utils/authCopy'
 import { ACTION_GENERATE_INVITE_CODE, ACTION_SEND_INVITE, INVITE_CODE_SHARE_HINT_SHORT } from '../../utils/inviteCopy'
+import { queryKeys } from "../../utils/queryKeys"
 
 interface Member {
   id: string;
@@ -96,7 +97,7 @@ export default function BookMembers() {
       await removeMember(bookId, removeTarget.userId);
       toastSuccess(SUCCESS_MEMBER_REMOVED);
       setRemoveTarget(null);
-      qc.invalidateQueries({ queryKey: ["books", bookId, "members"] });
+      qc.invalidateQueries({ queryKey: queryKeys.books.members(bookId) });
     }, ACTION_REMOVING_ELLIPSIS).catch((err: any) => {
       toastError(err, ERROR_REMOVE_FAILED);
       setRemoveTarget(null);
@@ -114,7 +115,7 @@ export default function BookMembers() {
       toastSuccess(SUCCESS_INVITE_SENT);
       setInviteEmail("");
       setShowInvite(false);
-      qc.invalidateQueries({ queryKey: ["books", bookId, "members"] });
+      qc.invalidateQueries({ queryKey: queryKeys.books.members(bookId) });
     }, ACTION_SENDING_ELLIPSIS).catch((err: any) => {
       toastError(err, ERROR_INVITE_FAILED);
       setShowInvite(false);

@@ -46,6 +46,7 @@ import { EMPTY_NO_CATEGORIES_SHORT } from "../../utils/emptyCopy";
 import { SECTION_TEMPLATE_INFO, TITLE_SELECT_LOCATION } from "../../utils/sectionCopy";
 import { FORM_TEMPLATE_NAME_EXAMPLE, FORM_AMOUNT_PLACEHOLDER, FORM_NOTE_OPTIONAL, FORM_SELECT_TYPE, FORM_SELECT_CATEGORY, templateFormMeta } from "../../utils/formCopy";
 import { FIELD_TYPE, FIELD_CATEGORY, FIELD_AMOUNT, FIELD_NOTE, FIELD_TEMPLATE_NAME, FIELD_LOCATION_INFO, FIELD_SORT } from "../../utils/fieldCopy";
+import { queryKeys } from "../../utils/queryKeys";
 
 type TplType = "expense" | "income";
 
@@ -100,7 +101,7 @@ export default function TemplateEdit() {
       } else {
         await createTemplate(data);
       }
-      qc.invalidateQueries({ queryKey: ["templates"] });
+      qc.invalidateQueries({ queryKey: queryKeys.templates.all });
       toastSuccess(successEntityUpsert(ENTITY_TEMPLATE, isEdit));
       setTimeout(() => Taro.navigateBack(), 500);
     }, ACTION_SAVING).catch((err: any) => {
@@ -111,7 +112,7 @@ export default function TemplateEdit() {
   const handleDelete = () => {
     run(async () => {
       await deleteTemplate(id);
-      qc.invalidateQueries({ queryKey: ["templates"] });
+      qc.invalidateQueries({ queryKey: queryKeys.templates.all });
       toastSuccess(successEntityDeleted(ENTITY_TEMPLATE));
       setTimeout(() => Taro.navigateBack(), 500);
     }, ACTION_DELETING).catch((err: any) => {

@@ -28,6 +28,7 @@ import { ThemeProvider } from "./context/ThemeContext";
 import { hydrateAuthFromStorage } from "./services/api";
 import { migrateSavedAccounts } from "./utils/savedAccounts";
 import "./app.scss";
+import { STALE } from "./utils/cachePolicy";
 
 // T-C3: 在模块加载最早时机（Provider 挂载前）从 Storage 回填内存缓存
 hydrateAuthFromStorage();
@@ -43,7 +44,7 @@ migrateSavedAccounts();
  */
 const queryClient = new QueryClient({
   defaultOptions: {
-    queries: { retry: 1, staleTime: 30000 },
+    queries: { retry: 1, staleTime: STALE.default },
   },
 });
 
