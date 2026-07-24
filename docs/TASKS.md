@@ -85,6 +85,11 @@
 
 ### ✅ 已完成
 
+#### 2026-07-24 图表主题调色板 / ECharts chrome shared 化
+- `chartTheme`：CHART_EXTRA_COLORS、buildChartPalette、buildEchartsChrome
+- PC themeColors 接线；Taro 预留 facade
+- 验证：frontend / taro `tsc --noEmit`
+
 #### 2026-07-24 分页默认值与 ICON_COLOR shared 化
 - `pagination`：DEFAULT_PAGE_SIZE/OPTIONS、HOME_RECENT_TX_PAGE_SIZE；PC Pagination / 首页预取 / Taro 流水与首页接线
 - `iconColor.ICON_COLOR`：PC/Taro Icon 语义色同源

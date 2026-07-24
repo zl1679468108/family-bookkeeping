@@ -1,6 +1,9 @@
 /**
  * 读取设计令牌（支持暗色主题）—— 供 ECharts / canvas / 地图 marker 等需要真实 hex 的场景。
+ * 图表调色板 / chrome 纯逻辑见 shared-utils/chartTheme
  */
+import { buildChartPalette, buildEchartsChrome } from './chartTheme'
+
 export function getCssVar(name: string, fallback = ""): string {
   if (typeof document === "undefined") return fallback;
   const value = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
@@ -41,11 +44,7 @@ export function getChartPalette(): string[] {
   const isDark =
     typeof document !== "undefined" &&
     document.documentElement.getAttribute("data-theme") === "dark";
-  // 扩展色：非语义系列，暗色用更亮一档避免沉底
-  const extras = isDark
-    ? ["#A78BFA", "#F472B6", "#FB923C", "#22D3EE", "#A3E635"]
-    : ["#8B5CF6", "#EC4899", "#F97316", "#06B6D4", "#84CC16"];
-  return [c.pr, c.exp, c.inc, c.warn, c.info, ...extras];
+  return buildChartPalette(c, isDark);
 }
 
 /**
@@ -53,22 +52,7 @@ export function getChartPalette(): string[] {
  * 供坐标轴 / 图例 / 提示 / 分割线等 chrome 样式复用。
  */
 export function getEchartsChrome(theme: ThemeColors = getThemeColors()) {
-  return {
-    text: theme.fg,
-    muted: theme.fg3,
-    border: theme.bd,
-    surface: theme.srf,
-    surfaceHover: theme.srfH,
-    bg: theme.bg,
-    tooltip: {
-      backgroundColor: theme.srfH,
-      borderColor: theme.bd,
-      textStyle: { color: theme.fg },
-    },
-    legendText: { color: theme.fg, fontSize: 12 },
-    axisLabel: { color: theme.fg3 },
-    axisLine: { lineStyle: { color: theme.bd } },
-    splitLine: { lineStyle: { color: theme.bdL, type: "dashed" as const } },
-    pieBorder: theme.srf,
-  };
+  return buildEchartsChrome(theme);
 }
+
+export { buildChartPalette, buildEchartsChrome, CHART_EXTRA_COLORS } from './chartTheme'
