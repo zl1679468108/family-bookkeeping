@@ -85,6 +85,11 @@
 
 ### ✅ 已完成
 
+#### 2026-07-24 Input/Textarea/FormField class shared 化
+- `inputHelpers` 增 buildInput/Textarea/FormGroup class 构建（pc/bem）
+- 双端 Input/Textarea、PC FormField 接线
+- 验证：frontend / taro `tsc --noEmit`
+
 #### 2026-07-24 线框图标扩容 + Card/Badge/Drawer class shared
 - `lineIcons` 新增 home/note/location/edit/delete/email/lock/clock/switch-account；Taro 更多图标走 dataURL
 - `card` / `badge` / `spinner` / `detailItem` / `drawer` class 构建；双端 Card/Badge/Spinner/DetailItem/Drawer 接线

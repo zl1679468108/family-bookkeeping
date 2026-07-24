@@ -1,7 +1,12 @@
 import { Icon } from '../Icon'
 import React, { TextareaHTMLAttributes, useState, useEffect, useRef, useId } from 'react'
-import { shouldShowInputClear, formatCharCount, FIELD_REQUIRED_CLASS} from '../../../utils/inputHelpers'
-import { cx } from '../../../utils/cx'
+import {
+  shouldShowInputClear,
+  formatCharCount,
+  buildTextareaWrapClassName,
+  buildTextareaClassName,
+  fieldRequiredClassName,
+} from '../../../utils/inputHelpers'
 import { ACTION_CLEAR } from '../../../utils/actionCopy'
 
 /**
@@ -72,13 +77,13 @@ export const Textarea: React.FC<TextareaProps> = ({
   const charCount = currentValue.length
 
   return (
-    <div className={cx('ui-textarea-wrap', wrapperClassName)}>
+    <div className={buildTextareaWrapClassName({ className: wrapperClassName, mode: 'pc' })}>
       {label && (
-        <label htmlFor={textareaId} className={cx('ui-input-label', required && FIELD_REQUIRED_CLASS)}>
+        <label htmlFor={textareaId} className={fieldRequiredClassName('ui-input-label', required)}>
           {label}
         </label>
       )}
-      <div className={cx('ui-textarea', error && 'has-error', className)}>
+      <div className={buildTextareaClassName({ error: !!error, className, mode: 'pc' })}>
         <textarea
           ref={textareaRef}
           id={textareaId}

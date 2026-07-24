@@ -8,8 +8,11 @@ import { View, Text, Input as TaroInput } from "@tarojs/components";
 import "./index.scss";
 import Icon, { ICON_COLOR } from "../../Icon";
 import { ACTION_SEARCH } from "../../../utils/actionCopy"
-import { shouldShowInputClear } from "../../../utils/inputHelpers";
-import { cx } from "../../../utils/cx";
+import {
+  shouldShowInputClear,
+  buildInputWrapClassName,
+  buildInputClassName,
+} from "../../../utils/inputHelpers";
 
 export interface BaseInputProps {
   value?: string;
@@ -56,14 +59,14 @@ export function Input({
   const showClear = shouldShowInputClear(allowClear, value, disabled);
 
   return (
-    <View className={cx("ui-input-wrap", error && "ui-input-wrap--error", wrapperClassName)}>
+    <View className={buildInputWrapClassName({ error: !!error, className: wrapperClassName, mode: "bem" })}>
       {label ? (
         <Text className="ui-input__label">
           {required ? <Text className="ui-input__required">*</Text> : null}
           {label}
         </Text>
       ) : null}
-      <View className={cx("ui-input", focused && "ui-input--focus", disabled && "ui-input--disabled", className)}>
+      <View className={buildInputClassName({ focused, disabled, className, mode: "bem" })}>
         {icon ? <View className="ui-input__icon">{icon}</View> : null}
         <TaroInput
           className="ui-input__field"
@@ -104,7 +107,7 @@ export function SearchInput({ value, onChange, placeholder = ACTION_SEARCH, clas
       placeholder={placeholder}
       icon={<Text className="ui-input__search-icon">🔍</Text>}
       allowClear
-      className={`ui-input--search ${className}`}
+      className={`ui-input--search ${className}`.trim()}
       wrapperClassName="ui-input-wrap--search"
     />
   );
@@ -123,7 +126,7 @@ export function NumberInput({
 }: NumberInputProps) {
   /* 用 row 包装：Input 在左占主宽，suffix 在右侧（如"元"） */
   return (
-    <View className={`ui-input-wrap ui-input-wrap--number ${wrapperClassName}`}>
+    <View className={buildInputWrapClassName({ number: true, className: wrapperClassName, mode: "bem" })}>
       <Input
         {...rest}
         type="digit"

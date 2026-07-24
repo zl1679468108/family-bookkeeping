@@ -1,3 +1,5 @@
+import { cx, type ClassValue } from './cx'
+
 /** 输入框纯逻辑 — 双端 Input / SearchInput 共用 */
 
 /** 是否展示清除按钮 */
@@ -64,4 +66,89 @@ export function fieldRequiredClassName(
   const base = String(baseClass || '').trim()
   if (!required) return base
   return base ? `${base} ${FIELD_REQUIRED_CLASS}` : FIELD_REQUIRED_CLASS
+}
+
+
+/** 输入外壳 class（PC/Taro ui-input-wrap） */
+export function buildInputWrapClassName(opts: {
+  error?: boolean
+  search?: boolean
+  number?: boolean
+  className?: ClassValue
+  prefix?: string
+  /** pc: 错误在内层 has-error；bem: 错误在 wrap --error */
+  mode?: 'pc' | 'bem'
+} = {}): string {
+  const prefix = opts.prefix || 'ui-input-wrap'
+  const mode = opts.mode || 'pc'
+  return cx(
+    prefix,
+    mode === 'bem' && opts.error && `${prefix}--error`,
+    opts.search && `${prefix}--search`,
+    opts.number && `${prefix}--number`,
+    opts.className,
+  )
+}
+
+/** 输入框本体 class */
+export function buildInputClassName(opts: {
+  error?: boolean
+  focused?: boolean
+  disabled?: boolean
+  search?: boolean
+  className?: ClassValue
+  prefix?: string
+  mode?: 'pc' | 'bem'
+} = {}): string {
+  const prefix = opts.prefix || 'ui-input'
+  const mode = opts.mode || 'pc'
+  return cx(
+    prefix,
+    mode === 'pc' && opts.error && 'has-error',
+    mode === 'bem' && opts.focused && `${prefix}--focus`,
+    mode === 'bem' && opts.disabled && `${prefix}--disabled`,
+    opts.search && `${prefix}--search`,
+    opts.className,
+  )
+}
+
+/** Textarea 外壳 */
+export function buildTextareaWrapClassName(opts: {
+  error?: boolean
+  className?: ClassValue
+  prefix?: string
+  mode?: 'pc' | 'bem'
+} = {}): string {
+  const prefix = opts.prefix || 'ui-textarea-wrap'
+  const mode = opts.mode || 'pc'
+  return cx(
+    prefix,
+    mode === 'bem' && opts.error && `${prefix}--error`,
+    opts.className,
+  )
+}
+
+/** Textarea 本体 */
+export function buildTextareaClassName(opts: {
+  error?: boolean
+  className?: ClassValue
+  prefix?: string
+  mode?: 'pc' | 'bem'
+} = {}): string {
+  const prefix = opts.prefix || 'ui-textarea'
+  const mode = opts.mode || 'pc'
+  return cx(
+    prefix,
+    mode === 'pc' && opts.error && 'has-error',
+    opts.className,
+  )
+}
+
+/** FormField 外壳 form-group */
+export function buildFormGroupClassName(opts: {
+  className?: ClassValue
+  prefix?: string
+} = {}): string {
+  const prefix = opts.prefix || 'form-group'
+  return cx(prefix, opts.className)
 }

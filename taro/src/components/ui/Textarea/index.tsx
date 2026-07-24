@@ -8,8 +8,8 @@ import { ACTION_CLEAR } from "../../../utils/actionCopy";
 import {
   shouldShowInputClear,
   formatCharCountCompact,
+  buildTextareaWrapClassName,
 } from "../../../utils/inputHelpers";
-import { cx } from "../../../utils/cx";
 import "./index.scss";
 
 export interface TextareaProps {
@@ -43,7 +43,7 @@ export function Textarea({
 }: TextareaProps) {
   const showClear = shouldShowInputClear(allowClear, value, disabled);
   return (
-    <View className={cx("ui-textarea-wrap", error && "ui-textarea-wrap--error", className)}>
+    <View className={buildTextareaWrapClassName({ error: !!error, className, mode: "bem" })}>
       {label ? (
         <Text className="ui-textarea__label">
           {required ? <Text className="ui-textarea__required">*</Text> : null}

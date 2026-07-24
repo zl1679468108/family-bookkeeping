@@ -1,5 +1,5 @@
 import React, { useId, type InputHTMLAttributes, type ReactNode } from 'react'
-import { cx } from '../../../utils/cx'
+import { buildFormGroupClassName } from '../../../utils/inputHelpers'
 
 /**
  * 通用表单字段 —— form-group + label + input。
@@ -30,7 +30,7 @@ export const FormField: React.FC<FormFieldProps> = ({
   const labelFor = children ? id : inputId
 
   return (
-    <div className={cx('form-group', groupClassName)}>
+    <div className={buildFormGroupClassName({ className: groupClassName })}>
       {label != null && label !== '' && (
         <label htmlFor={labelFor} className={labelClassName}>
           {label}
