@@ -1,6 +1,9 @@
 /** 异步操作文案（按钮 / loading / toast 标题） */
 
 export const ACTION_LOADING = '加载中...'
+export const ACTION_PULL_LOAD_MORE = '上拉加载更多'
+export const ACTION_LIST_END = '— 已经到底了 —'
+export const ACTION_ADD_IMAGE = '添加图片'
 export const ACTION_VIEW_ALL = '全部'
 export const ACTION_SAVING = '保存中...'
 export const ACTION_SAVE_EDIT = '保存修改'

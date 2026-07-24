@@ -42,7 +42,8 @@ import {
   CONFIRM_DELETE_TRANSACTION,
 } from '../../utils/confirmCopy'
 import { FORM_SEARCH_TXN, FORM_MIN_AMOUNT, FORM_MAX_AMOUNT } from '../../utils/formCopy'
-import { FIELD_BRAND, FIELD_DESCRIPTION, FIELD_PLACE, FIELD_COORDINATES, FIELD_CREATED_AT } from '../../utils/fieldCopy'
+import { FIELD_BRAND, FIELD_DESCRIPTION, FIELD_PLACE, FIELD_COORDINATES, FIELD_CREATED_AT, FIELD_ATTACHMENT, fieldAttachmentCount } from '../../utils/fieldCopy'
+import { attachmentImageAlt } from '../../utils/uploadCopy'
 
 const PAGE_SIZE = 20
 
@@ -449,7 +450,7 @@ const Transactions: React.FC = () => {
               <>
                 <div className="detail-divider" />
                 <div className="detail-item" style={{ gridColumn: '1 / -1' }}>
-                  <span className="detail-item-label">附件（{imgs.length}）</span>
+                  <span className="detail-item-label">{fieldAttachmentCount(imgs.length)}</span>
                   <div className="detail-image-grid">
                     {imgs.map((url, idx) => (
                       <a
@@ -459,7 +460,7 @@ const Transactions: React.FC = () => {
                         rel="noopener noreferrer"
                         className="detail-image-item"
                       >
-                        <img src={url} alt={`附件 ${idx + 1}`} />
+                        <img src={url} alt={attachmentImageAlt(idx + 1)} />
                       </a>
                     ))}
                   </div>

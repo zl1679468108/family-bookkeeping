@@ -3,8 +3,9 @@ import { MAX_IMAGES } from '../hooks/useTransactionForm'
 import type { PendingImage } from '../hooks/useTransactionForm'
 import { Button } from '../../../components/ui/Button'
 import { Icon } from '../../../components/ui/Icon'
-import { IMAGE_ACCEPT_WILDCARD, DELETE_THIS_IMAGE } from '../../../utils/uploadCopy'
-import { ACTION_CLEAR } from '../../../utils/actionCopy'
+import { IMAGE_ACCEPT_WILDCARD, DELETE_THIS_IMAGE, attachmentImageAlt, pendingUploadImageAlt } from '../../../utils/uploadCopy'
+import { ACTION_CLEAR, ACTION_ADD_IMAGE } from '../../../utils/actionCopy'
+import { fieldAttachmentCapacity } from '../../../utils/fieldCopy'
 
 interface ImageUploadSectionProps {
   savedImageUrls: string[]
@@ -26,7 +27,7 @@ export const ImageUploadSection: React.FC<ImageUploadSectionProps> = ({
     <div className="upload-section">
       <div className="upload-header">
         <span className="upload-title">
-          附件 ({allImageUrls.length} / {MAX_IMAGES})
+          {fieldAttachmentCapacity(allImageUrls.length, MAX_IMAGES)}
         </span>
         {allImageUrls.length > 0 && (
           <Button type="button" variant="ghost" size="sm" className="link-btn" onClick={onClearAll}>{ACTION_CLEAR}</Button>
@@ -36,20 +37,20 @@ export const ImageUploadSection: React.FC<ImageUploadSectionProps> = ({
       <div className="image-grid">
         {savedImageUrls.map((url, idx) => (
           <div key={`saved-${idx}`} className="image-item">
-            <img src={url} alt={`附件 ${idx + 1}`} />
+            <img src={url} alt={attachmentImageAlt(idx + 1)} />
             <button type="button" className="image-remove" onClick={() => onRemoveSaved(idx)} title={DELETE_THIS_IMAGE} aria-label={DELETE_THIS_IMAGE}><Icon name="close" size={12} /></button>
           </div>
         ))}
         {pendingImages.map((p, idx) => (
           <div key={`pending-${idx}`} className="image-item">
-            <img src={p.localUrl} alt={`待上传 ${idx + 1}`} />
+            <img src={p.localUrl} alt={pendingUploadImageAlt(idx + 1)} />
             <button type="button" className="image-remove" onClick={() => onRemovePending(idx)} title={DELETE_THIS_IMAGE} aria-label={DELETE_THIS_IMAGE}><Icon name="close" size={12} /></button>
           </div>
         ))}
         {canAddMore && (
           <div className="image-add" onClick={() => fileInputRef.current?.click()}>
             <span className="image-add-icon">+</span>
-            <span className="image-add-text">添加图片</span>
+            <span className="image-add-text">{ACTION_ADD_IMAGE}</span>
           </div>
         )}
       </div>

@@ -45,3 +45,26 @@ export function maxImagesMessage(max: number): string {
 export const PRIVACY_ALBUM_FOR_ICON = '选择图标需要访问您的相册'
 export const PRIVACY_ALBUM_FOR_AVATAR = '选择头像需要访问您的相册'
 export const PRIVACY_ALBUM_FOR_IMAGE = '选择图片需要访问您的相册'
+
+
+export const LABEL_PENDING_UPLOAD = '待上传'
+
+/** 附件 n（alt，1-based index） */
+export function attachmentImageAlt(index: number): string {
+  return `附件 ${Number(index) || 0}`
+}
+
+/** 待上传 n（alt，1-based index） */
+export function pendingUploadImageAlt(index: number): string {
+  return `待上传 ${Number(index) || 0}`
+}
+
+/** 待上传 n 张 */
+export function pendingUploadCountLabel(count: number): string {
+  return `待上传 ${Number(count) || 0} 张`
+}
+
+/** 简短上限：最多上传 n 张（toast） */
+export function maxUploadCountShort(max: number): string {
+  return `最多上传 ${Number(max) || 0} 张`
+}

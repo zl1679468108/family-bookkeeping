@@ -9,6 +9,8 @@ import {
   shouldShowPagination,
   isPageAtStart,
   isPageAtEnd,
+  paginationPageOfLabel,
+  PAGINATION_PER_PAGE_LABEL,
 } from '../../../utils/pagination'
 import { cx } from '../../../utils/cx'
 export { DEFAULT_PAGE_SIZE, DEFAULT_PAGE_SIZE_OPTIONS } from '../../../utils/pagination'
@@ -111,7 +113,7 @@ export const Pagination: React.FC<PaginationProps> = ({
         </button>
 
         {total !== undefined && (
-          <span className="pagination-current">第 {page} / {computedTotalPages} 页</span>
+          <span className="pagination-current">{paginationPageOfLabel(page, computedTotalPages)}</span>
         )}
 
         <button
@@ -124,7 +126,7 @@ export const Pagination: React.FC<PaginationProps> = ({
 
         {showSize && (
           <div className="pagination-size">
-            <span className="pagination-size__label">每页</span>
+            <span className="pagination-size__label">{PAGINATION_PER_PAGE_LABEL}</span>
             <DropdownSelect
               options={sizeOptions}
               value={String(pageSize)}

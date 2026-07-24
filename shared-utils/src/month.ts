@@ -25,6 +25,11 @@ export function parseMonthKey(key: string): { year: number; month: number } {
  * 月份展示：2024 年 07 月
  * 接受 Date / YYYY-MM / YYYY-MM-DD / YYYY-MM-01
  */
+/** 年月数字 → 2024 年 07 月 */
+export function formatYearMonthDisplay(year: number, month: number): string {
+  return formatMonthDisplay(`${Number(year)}-${String(month).padStart(2, '0')}`)
+}
+
 export function formatMonthDisplay(input: string | Date): string {
   const { year, month } = resolveYearMonth(input)
   if (!year || !month) {

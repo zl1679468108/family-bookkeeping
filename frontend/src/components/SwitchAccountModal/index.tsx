@@ -5,6 +5,7 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../utils/auth'
+import { BADGE_CURRENT } from '../../utils/fieldCopy'
 import { useDebouncedAction } from '../../hooks/useDebouncedAction'
 
 import {
@@ -117,7 +118,7 @@ const SwitchAccountModal: React.FC<SwitchAccountModalProps> = ({ visible, onClos
                     <div className="account-item-info">
                       <div className="account-item-name">
                         {userDisplayName(account)}
-                        {isCurrent && <span className="current-badge">当前</span>}
+                        {isCurrent && <span className="current-badge">{BADGE_CURRENT}</span>}
                       </div>
                       <div className="account-item-email">{account.email}</div>
                     </div>

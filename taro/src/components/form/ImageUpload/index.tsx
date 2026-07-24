@@ -15,8 +15,16 @@ import { getErrorMessage } from "../../../utils/errorMessage";
 import { toastInfo } from "../../../utils/toast";
 import Icon, { ICON_COLOR } from "../../Icon";
 import { FORM_PRIVACY_REQUIRED } from "../../../utils/formCopy";
-import { IMAGE_SELECT_FAILED, PRIVACY_ALBUM_FOR_IMAGE } from "../../../utils/uploadCopy";
-import { MAX_RECEIPT_IMAGES } from "../../../utils/uploadCopy";
+import {
+  IMAGE_SELECT_FAILED,
+  PRIVACY_ALBUM_FOR_IMAGE,
+  MAX_RECEIPT_IMAGES,
+  LABEL_PENDING_UPLOAD,
+  pendingUploadCountLabel,
+  maxUploadCountShort,
+} from "../../../utils/uploadCopy";
+import { fieldAttachmentCapacity } from "../../../utils/fieldCopy";
+import { ACTION_ADD } from "../../../utils/actionCopy";
 
 export interface ImageUploadProps {
   /** 已上传的图片 URL（从服务器获取） */
@@ -51,7 +59,7 @@ export default function ImageUpload({
   const handleSelect = async () => {
     const remaining = maxCount - totalCount;
     if (remaining <= 0) {
-      toastInfo(`最多上传 ${maxCount} 张`);
+      toastInfo(maxUploadCountShort(maxCount));
       return;
     }
     // 先触发微信隐私授权（开启 __usePrivacyCheck__ 时必须）
@@ -113,11 +121,11 @@ export default function ImageUpload({
     <View className="ft-section ft-images">
       <View className="ft-images-head">
         <Text className="ft-images-label">
-          附件 ({totalCount} / {maxCount})
+          {fieldAttachmentCapacity(totalCount, maxCount)}
         </Text>
         {allPending.length > 0 && (
           <Text className="ft-images-pending-hint">
-            待上传 {allPending.length} 张
+            {pendingUploadCountLabel(allPending.length)}
           </Text>
         )}
       </View>
@@ -149,7 +157,7 @@ export default function ImageUpload({
               onClick={() => handlePreview(url, allImages)}
             />
             <View className="ft-images-pending-tag">
-              <Text className="ft-images-pending-tag-text">待上传</Text>
+              <Text className="ft-images-pending-tag-text">{LABEL_PENDING_UPLOAD}</Text>
             </View>
             <View
               className="ft-images-remove"
@@ -162,7 +170,7 @@ export default function ImageUpload({
         {totalCount < maxCount && (
           <View className="ft-images-add" onClick={handleSelect}>
             <Text className="ft-images-add-icon">+</Text>
-            <Text className="ft-images-add-text">添加</Text>
+            <Text className="ft-images-add-text">{ACTION_ADD}</Text>
           </View>
         )}
       </View>

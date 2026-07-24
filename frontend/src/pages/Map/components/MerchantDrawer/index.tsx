@@ -9,6 +9,7 @@ import { formatAmount } from '../../../../utils/common';
 import { Button } from '../../../../components/ui/Button'
 import { EMPTY_NO_MERCHANTS, EMPTY_NO_MERCHANT_MATCH } from '../../../../utils/emptyCopy';
 import { FORM_SEARCH_MERCHANT } from '../../../../utils/formCopy'
+import { filterByTextKeyword } from '../../../../utils/dropdownHelpers'
 
 interface MerchantDrawerProps {
   merchants: MerchantSummary[];
@@ -38,11 +39,10 @@ export const MerchantDrawer: React.FC<MerchantDrawerProps> = ({
   }, [search]);
 
   // 搜索过滤（模糊匹配商户名称 / 地址）
-  const filtered = useMemo(() => {
-    if (!search.trim()) return merchants;
-    const keyword = search.trim().toLowerCase();
-    return merchants.filter((m) => m.location_name.toLowerCase().includes(keyword));
-  }, [merchants, search]);
+  const filtered = useMemo(
+    () => filterByTextKeyword(merchants, search, (m) => m.location_name) as typeof merchants,
+    [merchants, search],
+  );
 
   // 分页切片
   const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));

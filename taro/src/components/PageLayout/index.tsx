@@ -27,7 +27,7 @@ import { useTheme } from "../../context/ThemeContext";
 import { useNavBarTheme } from "../../hooks/useNavBarTheme";
 import "./index.scss";
 import { toastSuccess, toastInfo } from "../../utils/toast";
-import { ACTION_LOADING } from "../../utils/actionCopy";
+import { ACTION_LOADING, ACTION_PULL_LOAD_MORE, ACTION_LIST_END } from "../../utils/actionCopy";
 import { SUCCESS_REFRESH } from "../../utils/successCopy";
 import { ERROR_REFRESH } from "../../utils/errorCopy";
 
@@ -225,9 +225,9 @@ export default function PageLayout({
                     <Text className="page-loadmore-text">{ACTION_LOADING}</Text>
                   </View>
                 ) : hasMore ? (
-                  <Text className="page-loadmore-text page-loadmore-text--hint">上拉加载更多</Text>
+                  <Text className="page-loadmore-text page-loadmore-text--hint">{ACTION_PULL_LOAD_MORE}</Text>
                 ) : (
-                  <Text className="page-loadmore-text page-loadmore-text--end">— 已经到底了 —</Text>
+                  <Text className="page-loadmore-text page-loadmore-text--end">{ACTION_LIST_END}</Text>
                 )}
               </View>
             )}

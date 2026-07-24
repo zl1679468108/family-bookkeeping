@@ -7,6 +7,8 @@
 import { useRef, useState, useCallback } from "react";
 import { View, Text, Image } from "@tarojs/components";
 import "./index.scss";
+import { ACTION_DELETE } from "../../utils/actionCopy";
+import { FIELD_ATTACHMENT } from "../../utils/fieldCopy";
 
 export interface TransactionItemProps {
   icon: string;
@@ -129,7 +131,7 @@ export default function TransactionItem({
               <Text className="txi-img-dot">·</Text>
             )}
             {hasImage && (
-              <Text className="txi-img-hint">附件</Text>
+              <Text className="txi-img-hint">{FIELD_ATTACHMENT}</Text>
             )}
           </View>
         </View>
@@ -145,4 +147,3 @@ export default function TransactionItem({
   );
 }
 
-import { ACTION_DELETE } from "../../utils/actionCopy";

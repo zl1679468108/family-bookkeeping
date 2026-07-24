@@ -74,3 +74,17 @@ export const FIELD_YEAR_EXPENSE = '年度总支出'
 export const FIELD_YEAR_BALANCE = '年度结余'
 export const FIELD_BALANCE_RATE = '结余率'
 export const FIELD_AVATAR_ALT = '头像'
+
+
+export const FIELD_ATTACHMENT = '附件'
+export const BADGE_CURRENT = '当前'
+
+/** 附件（n）— 详情等中文括号 */
+export function fieldAttachmentCount(count: number): string {
+  return `附件（${Number(count) || 0}）`
+}
+
+/** 附件 (current / max) — 表单容量 */
+export function fieldAttachmentCapacity(current: number, max: number): string {
+  return `附件 (${Number(current) || 0} / ${Number(max) || 0})`
+}

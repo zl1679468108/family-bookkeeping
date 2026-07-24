@@ -33,3 +33,12 @@ export function isPageAtEnd(page: number, totalPages: number): boolean {
   return page >= totalPages
 }
 
+
+
+/** 每页 */
+export const PAGINATION_PER_PAGE_LABEL = '每页'
+
+/** 第 page / totalPages 页 */
+export function paginationPageOfLabel(page: number, totalPages: number): string {
+  return `第 ${page} / ${totalPages} 页`
+}

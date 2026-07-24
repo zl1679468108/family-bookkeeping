@@ -3,6 +3,8 @@
  */
 import { View, Text, Picker } from "@tarojs/components";
 import Icon, { ICON_COLOR } from "../Icon";
+import { formatYearMonthDisplay } from "../../utils/month";
+import { cx } from "../../utils/cx";
 
 export interface MonthPickerProps {
   year: number;
@@ -34,7 +36,7 @@ export default function MonthPicker({
 
 
   return (
-    <View className={`month-picker ${className}`.trim()}>
+    <View className={cx("month-picker", className)}>
       <Picker
         mode="date"
         fields="month"
@@ -45,7 +47,7 @@ export default function MonthPicker({
       >
           <View className="month-picker-inner">
             <Text className="month-picker-text">
-              {year} 年 {String(month).padStart(2, "0")} 月
+              {formatYearMonthDisplay(year, month)}
             </Text>
             <Icon name="chevron-down" size={24} color={light ? ICON_COLOR.onPrimary : ICON_COLOR.muted} className={`month-picker-chevron ${light ? "light" : ""}`} />
           </View>
