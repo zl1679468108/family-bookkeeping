@@ -1,28 +1,22 @@
 import React from 'react'
 import { Icon } from '../ui/Icon'
+import { buildFilterChipClassName } from '../../utils/filterChip'
+import './index.scss'
 
 interface FilterChipProps {
   label: string
   onRemove: () => void
+  className?: string
 }
 
-export const FilterChip: React.FC<FilterChipProps> = ({ label, onRemove }) => (
+export const FilterChip: React.FC<FilterChipProps> = ({ label, onRemove, className = '' }) => (
   <span
+    className={buildFilterChipClassName({ className })}
     onClick={onRemove}
-    style={{
-      display: 'inline-flex',
-      alignItems: 'center',
-      gap: 4,
-      padding: '2px 8px',
-      borderRadius: 12,
-      fontSize: 12,
-      background: 'var(--pr)',
-      color: 'var(--on-pr)',
-      cursor: 'pointer',
-      margin: '2px 4px',
-    }}
   >
     {label}
     <Icon name="close" size={12} color="var(--on-pr)" />
   </span>
 )
+
+export default FilterChip

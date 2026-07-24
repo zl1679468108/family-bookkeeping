@@ -5,6 +5,12 @@ import {
   buildInputWrapClassName,
   buildInputClassName,
   fieldRequiredClassName,
+  buildSearchWrapClassName,
+  buildSearchFieldClassName,
+  buildNumberFieldClassName,
+  buildSelectWrapClassName,
+  buildSelectFieldClassName,
+  buildPcInputShellClassName,
 } from '../../../utils/inputHelpers'
 import { Icon } from '../Icon'
 import { ACTION_CLEAR, ACTION_SEARCH_ELLIPSIS,
@@ -157,7 +163,7 @@ export const SearchInput: React.FC<SearchInputProps> = ({
 
   return (
     <div
-      className={`ui-search ${wrapperClassName}`.trim()}
+      className={buildSearchWrapClassName({ className: wrapperClassName })}
       style={width !== undefined ? { width: typeof width === 'number' ? `${width}px` : width } : undefined}
     >
       <span className="ui-search-icon">
@@ -168,7 +174,7 @@ export const SearchInput: React.FC<SearchInputProps> = ({
       <input
         ref={inputRef}
         type="text"
-        className={`ui-search-field ${className}`.trim()}
+        className={buildSearchFieldClassName({ className })}
         placeholder={placeholder}
         value={value}
         onChange={handleChange}
@@ -224,11 +230,11 @@ export const NumberInput: React.FC<NumberInputProps> = ({
   return (
     <div className={buildInputWrapClassName({ className: wrapperClassName, mode: 'pc' })}>
       {label && <label className={fieldRequiredClassName('ui-input-label', required)}>{label}</label>}
-      <div className={`ui-input ${disabled ? 'is-disabled' : ''}`.trim()}>
+      <div className={buildPcInputShellClassName({ disabled })}>
         {prefix && <span className="ui-input-prefix">{prefix}</span>}
         <input
           type="number"
-          className={`ui-number-field ${className}`.trim()}
+          className={buildNumberFieldClassName({ className })}
           placeholder={placeholder}
           value={value}
           onChange={(e) => onChange(e.target.value)}
@@ -276,11 +282,11 @@ export const Select: React.FC<SelectProps> = ({
   wrapperClassName = '',
 }) => {
   return (
-    <div className={`ui-select-wrap ${wrapperClassName}`.trim()}>
+    <div className={buildSelectWrapClassName({ className: wrapperClassName })}>
       {label && <label className="ui-input-label">{label}</label>}
-      <div className={`ui-input ${disabled ? 'is-disabled' : ''}`.trim()}>
+      <div className={buildPcInputShellClassName({ disabled })}>
         <select
-          className={`ui-select-field ${className}`.trim()}
+          className={buildSelectFieldClassName({ className })}
           value={value}
           onChange={(e) => onChange(e.target.value)}
           disabled={disabled}

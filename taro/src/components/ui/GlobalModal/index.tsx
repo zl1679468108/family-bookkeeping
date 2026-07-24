@@ -12,6 +12,11 @@ import SheetHeader from "../../SheetHeader";
 import { Button } from "../Button";
 import "./index.scss";
 import { ACTION_CONFIRM, ACTION_CANCEL } from '../../../utils/actionCopy'
+import {
+  buildUiModalClassName,
+  buildUiModalDialogClassName,
+  buildUiModalBodyClassName,
+} from '../../../utils/globalModal'
 
 export type GlobalModalType = "confirm" | "detail" | "modal";
 
@@ -68,7 +73,7 @@ export function GlobalModal({
 
   return (
     <View
-      className={`ui-modal ui-modal--${type} ${className}`}
+      className={buildUiModalClassName({ type, className })}
       style={{ zIndex: z }}
       catchMove
     >
@@ -76,7 +81,7 @@ export function GlobalModal({
 
       {isConfirm ? (
         /* confirm: 居中卡片 */
-        <View className={`ui-modal__dialog ui-modal__dialog--center ui-modal__dialog--${size}`}>
+        <View className={buildUiModalDialogClassName({ layout: "center", size })}>
           <View className="ui-modal__confirm">
             {title ? <Text className="ui-modal__confirm-title">{title}</Text> : null}
             {description ? <Text className="ui-modal__confirm-desc">{description}</Text> : null}
@@ -99,7 +104,7 @@ export function GlobalModal({
         </View>
       ) : (
         /* detail / modal: 底部 sheet */
-          <View className={`ui-modal__dialog ui-modal__dialog--sheet ui-modal__dialog--${size}`}>
+          <View className={buildUiModalDialogClassName({ layout: "sheet", size })}>
             <View className="ui-modal__sheet">
               {title || closable ? (
                 <SheetHeader
@@ -108,7 +113,7 @@ export function GlobalModal({
                 />
               ) : null}
               {description ? <Text className="ui-modal__desc">{description}</Text> : null}
-            <ScrollView scrollY className={`ui-modal__body ${bodyClassName}`}>
+            <ScrollView scrollY className={buildUiModalBodyClassName({ className: bodyClassName })}>
               {children}
             </ScrollView>
             {footer ? <View className="ui-modal__footer">{footer}</View> : null}

@@ -152,3 +152,59 @@ export function buildFormGroupClassName(opts: {
   const prefix = opts.prefix || 'form-group'
   return cx(prefix, opts.className)
 }
+
+/** PC 搜索框外壳 ui-search */
+export function buildSearchWrapClassName(opts: {
+  className?: ClassValue
+  prefix?: string
+} = {}): string {
+  const prefix = opts.prefix || 'ui-search'
+  return cx(prefix, opts.className)
+}
+
+/** PC 搜索 input 本体 */
+export function buildSearchFieldClassName(opts: {
+  className?: ClassValue
+  prefix?: string
+} = {}): string {
+  const prefix = opts.prefix || 'ui-search-field'
+  return cx(prefix, opts.className)
+}
+
+/** PC number field */
+export function buildNumberFieldClassName(opts: {
+  className?: ClassValue
+  prefix?: string
+} = {}): string {
+  const prefix = opts.prefix || 'ui-number-field'
+  return cx(prefix, opts.className)
+}
+
+/** PC select 外壳 */
+export function buildSelectWrapClassName(opts: {
+  className?: ClassValue
+  prefix?: string
+} = {}): string {
+  const prefix = opts.prefix || 'ui-select-wrap'
+  return cx(prefix, opts.className)
+}
+
+/** PC select field */
+export function buildSelectFieldClassName(opts: {
+  className?: ClassValue
+  prefix?: string
+} = {}): string {
+  const prefix = opts.prefix || 'ui-select-field'
+  return cx(prefix, opts.className)
+}
+
+/** PC 输入本体 disabled 修饰（is-disabled） */
+export function buildPcInputShellClassName(opts: {
+  disabled?: boolean
+  className?: ClassValue
+  prefix?: string
+} = {}): string {
+  const prefix = opts.prefix || 'ui-input'
+  return cx(prefix, opts.disabled && 'is-disabled', opts.className)
+}
+

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { subscribeProgress, ProgressState } from '../../utils/progress'
+import { buildPageProgressBarClassName } from '../../utils/pageProgressBar'
 import './index.scss'
 
 export const PageProgressBar: React.FC = () => {
@@ -14,7 +15,7 @@ export const PageProgressBar: React.FC = () => {
 
   return (
     <div
-      className={`page-progress-bar ${state.isVisible ? 'page-progress-bar--visible' : ''}`}
+      className={buildPageProgressBarClassName({ visible: state.isVisible })}
       aria-hidden={!state.isVisible}
     >
       <div

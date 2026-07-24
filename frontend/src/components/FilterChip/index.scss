@@ -1,0 +1,12 @@
+.filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  background: var(--pr);
+  color: var(--on-pr);
+  cursor: pointer;
+  margin: 2px 4px;
+}

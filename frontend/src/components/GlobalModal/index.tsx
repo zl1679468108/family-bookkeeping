@@ -5,6 +5,13 @@ import { Icon } from '../ui/Icon'
 import { FooterActions } from '../ui/FooterActions'
 import { Spinner } from '../ui/Spinner'
 import { ACTION_CLOSE, ACTION_CANCEL, ACTION_CONFIRM } from '../../utils/actionCopy'
+import {
+  resolveGlobalModalWidth,
+  buildGlobalModalOverlayClassName,
+  buildGlobalModalDialogClassName,
+  buildGlobalModalBtnClassName,
+  buildGlobalModalBodyClassName,
+} from '../../utils/globalModal'
 
 export type GlobalModalType = 'confirm' | 'detail' | 'modal';
 
@@ -169,20 +176,9 @@ export const GlobalModal: React.FC<GlobalModalProps> = ({
 
   if (!open) return null;
 
-  // 根据类型确定样式类名
-  const overlayClass = `global-modal-overlay global-modal-overlay--${type}`;
-  const dialogClass = `global-modal-dialog global-modal-dialog--${type} ${className}`;
-
-  // 默认宽度
-  const getDefaultWidth = () => {
-    if (width !== undefined) return width;
-    if (type === 'confirm') return 380;
-    if (size === 'sm') return 420;
-    if (size === 'lg') return 720;
-    return 520;
-  };
-
-  const defaultWidth = getDefaultWidth();
+  const overlayClass = buildGlobalModalOverlayClassName({ type });
+  const dialogClass = buildGlobalModalDialogClassName({ type, className });
+  const defaultWidth = resolveGlobalModalWidth(type, size, width);
 
   // 渲染确认对话框模式
   if (type === 'confirm') {
@@ -204,7 +200,7 @@ export const GlobalModal: React.FC<GlobalModalProps> = ({
             <Button
               type="button"
               variant="secondary"
-              className="global-modal-btn global-modal-btn--cancel"
+              className={buildGlobalModalBtnClassName({ role: 'cancel' })}
               onClick={onClose}
               disabled={loading}
             >
@@ -213,7 +209,7 @@ export const GlobalModal: React.FC<GlobalModalProps> = ({
             <Button
               type="button"
               variant={confirmVariant === 'danger' ? 'danger' : 'primary'}
-              className={`global-modal-btn global-modal-btn--confirm ${confirmVariant}`}
+              className={buildGlobalModalBtnClassName({ role: 'confirm', variant: confirmVariant })}
               onClick={onConfirm}
               disabled={loading}
             >
@@ -259,7 +255,7 @@ export const GlobalModal: React.FC<GlobalModalProps> = ({
         )}
 
         {children && (
-          <div className={`global-modal-dialog__body ${bodyClassName}`}>
+          <div className={buildGlobalModalBodyClassName({ className: bodyClassName })}>
             {children}
           </div>
         )}

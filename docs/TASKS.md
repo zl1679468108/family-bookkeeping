@@ -85,6 +85,12 @@
 
 ### ✅ 已完成
 
+#### 2026-07-24 GlobalModal/Search·Select class shared 化
+- `globalModal`：PC/Taro 遮罩/对话框/body/按钮 class + 默认宽度
+- `inputHelpers`：Search/Number/Select/pc shell class；PC Input 接线
+- `pageProgressBar` / `filterChip` class；FilterChip 去内联样式改 token class
+- 验证：frontend / taro `tsc --noEmit`
+
 #### 2026-07-24 位置文案与记一笔表单 class shared 化
 - `ACTION_CLICK_TO_EDIT` / `merchantIdDisplay`；PC LocationDisplay 接线
 - `formSection` / `locationDisplay` class；Taro SectionCard/TypeTabs/AmountCard/NoteField/FieldRow/LocationField 接线
