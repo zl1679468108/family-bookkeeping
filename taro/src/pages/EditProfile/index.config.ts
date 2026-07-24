@@ -1,4 +1,5 @@
-export default definePageConfig({
-  navigationBarTitleText: "编辑资料",
-  navigationBarBackgroundColor: "#FFFFFF",
-});
+import { TITLE_EDIT_PROFILE } from '../../utils/sectionCopy'
+
+export default {
+  navigationBarTitleText: TITLE_EDIT_PROFILE,
+}

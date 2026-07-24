@@ -1,6 +1,7 @@
 import * as React from 'react'
 import { formatAmount } from '../../../utils/common'
 import { resolveRankProgress, clampPercent, rankFillTone } from '../../../utils/rankProgress'
+import { BUDGET_LABEL_OVER_BANG } from '../../../utils/budget'
 
 /**
  * 排行/预算进度行组件 —— Reports / Budgets 等页面通用
@@ -60,7 +61,7 @@ export const RankRow: React.FC<RankRowItem> = ({
           )}
           <div className="rank-row__meta">
             {progressPercent !== undefined && `${progressPercent}%`}
-            {status === 'danger' && progressPercent !== undefined && ' 超支!'}
+            {status === 'danger' && progressPercent !== undefined && BUDGET_LABEL_OVER_BANG}
             {meta && <span className="rank-row__extra">{meta}</span>}
           </div>
         </div>

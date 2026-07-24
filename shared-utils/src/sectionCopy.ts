@@ -85,3 +85,5 @@ export function reportChartTitle(flags: {
 export const ONBOARDING_CREATE_TITLE = '我自己创建账本'
 export const ONBOARDING_CREATE_DESC = '新建一个空账本，开始记录收支'
 export const ONBOARDING_JOIN_DESC = '输入他人分享的邀请码，加入已有账本'
+
+export const TITLE_EDIT_PROFILE = '编辑资料'

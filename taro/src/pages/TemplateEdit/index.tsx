@@ -44,7 +44,7 @@ import { DELETE_FAILED } from "../../utils/uploadCopy";
 import { failEntityUpsert } from "../../utils/errorCopy";
 import { EMPTY_NO_CATEGORIES_SHORT } from "../../utils/emptyCopy";
 import { SECTION_TEMPLATE_INFO, TITLE_SELECT_LOCATION } from "../../utils/sectionCopy";
-import { FORM_TEMPLATE_NAME_EXAMPLE, FORM_AMOUNT_PLACEHOLDER, FORM_NOTE_OPTIONAL, FORM_SELECT_TYPE, FORM_SELECT_CATEGORY } from "../../utils/formCopy";
+import { FORM_TEMPLATE_NAME_EXAMPLE, FORM_AMOUNT_PLACEHOLDER, FORM_NOTE_OPTIONAL, FORM_SELECT_TYPE, FORM_SELECT_CATEGORY, templateFormMeta } from "../../utils/formCopy";
 import { FIELD_TYPE, FIELD_CATEGORY, FIELD_AMOUNT, FIELD_NOTE, FIELD_TEMPLATE_NAME, FIELD_LOCATION_INFO, FIELD_SORT } from "../../utils/fieldCopy";
 
 type TplType = "expense" | "income";
@@ -160,7 +160,7 @@ export default function TemplateEdit() {
       <PageHero
         eyebrow={form.type ? `${transactionTypeLabel(form.type)}模板` : "模板"}
         title={title}
-        meta={isEdit ? "修改后保存" : "填写模板信息"}
+        meta={templateFormMeta(isEdit)}
         tone="surface"
       />
 

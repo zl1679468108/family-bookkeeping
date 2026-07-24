@@ -4,6 +4,7 @@
  */
 import Taro from "@tarojs/taro";
 import type { ApiEnvelope, ApiErrorPayload, UserProfile } from "../types";
+import { ERROR_REQUEST_FAILED, ERROR_NETWORK, ERROR_REQUEST_TIMEOUT_COLD_START } from "../utils/errorCopy";
 
 const DEFAULT_API_BASE_URL = "https://zlspace.site/api";
 // ⚠️ 编译期由 config/index.ts 的 defineConstants 将下方 token 直接替换为字面量字符串：
@@ -216,7 +217,7 @@ async function request<T>(
 
     // HTTP error
     const errorData = res.data as ApiErrorPayload;
-    const message = errorData?.message || "请求失败";
+    const message = errorData?.message || ERROR_REQUEST_FAILED;
     const apiError = new ApiError(message, res.statusCode, errorData?.code);
 
     if (res.statusCode === 401) {
@@ -265,11 +266,11 @@ async function request<T>(
       const msg = taroErr.errMsg;
       // 超时/失败时提示可能冷启动，避免用户以为卡死
       if (/timeout|超时|fail/i.test(msg)) {
-        throw new ApiError("请求超时，服务可能正在冷启动，请稍后重试", 0);
+        throw new ApiError(ERROR_REQUEST_TIMEOUT_COLD_START, 0);
       }
       throw new ApiError(msg, 0);
     }
-    throw new ApiError("网络错误，请检查网络连接", 0);
+    throw new ApiError(ERROR_NETWORK, 0);
   }
 }
 

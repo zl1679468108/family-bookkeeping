@@ -59,3 +59,9 @@ export const ERROR_MAP_NETWORK_HINT = '地图服务需要网络环境，请检�
 export const ERROR_JOIN_FAILED_RETRY = '加入失败，请重试'
 export const ERROR_LOAD_FAILED_RETRY = '加载失败，请重试'
 export const ERROR_DATA_LOAD_FAILED_RETRY = '数据加载失败，请稍后重试'
+
+/** HTTP / 网络层（api.ts） */
+export const ERROR_REQUEST_FAILED = '请求失败'
+export const ERROR_NETWORK = '网络错误，请检查网络连接'
+export const ERROR_NETWORK_REQUEST = '网络请求失败，请检查网络连接'
+export const ERROR_REQUEST_TIMEOUT_COLD_START = '请求超时，服务可能正在冷启动，请稍后重试'

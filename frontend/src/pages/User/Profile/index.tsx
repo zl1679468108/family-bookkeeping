@@ -29,7 +29,9 @@ import {
   IMAGE_ACCEPT_WILDCARD,
 } from '../../../utils/uploadCopy'
 import { FIELD_CURRENT_PASSWORD, FIELD_NEW_PASSWORD, FIELD_CONFIRM_NEW_PASSWORD, FIELD_USERNAME, FIELD_EMAIL, FIELD_AVATAR_ALT } from '../../../utils/fieldCopy'
-import { ACTION_UPDATING, ACTION_UPDATE_INFO, AUTH_CHANGE_PASSWORD_FAILED, AUTH_SAVE_PROFILE_FAILED } from '../../../utils/authCopy'
+import { ACTION_UPDATING, ACTION_UPDATE_INFO, AUTH_CHANGE_PASSWORD_FAILED, AUTH_SAVE_PROFILE_FAILED,
+  ACTION_CHANGE_PASSWORD,
+} from '../../../utils/authCopy'
 
 const compressImage = (file: File, maxSize = 128): Promise<string> =>
   new Promise((resolve, reject) => {
@@ -87,7 +89,7 @@ const PasswordModal: React.FC<PasswordModalProps> = ({ visible, onClose }) => {
       setConfirmPassword('')
       onClose()
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : '修改密码失败'
+      const message = err instanceof Error ? err.message : AUTH_CHANGE_PASSWORD_FAILED
       setError(message)
     }
   })
@@ -97,7 +99,7 @@ const PasswordModal: React.FC<PasswordModalProps> = ({ visible, onClose }) => {
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={e => e.stopPropagation()}>
-        <h3 className="modal-title">修改密码</h3>
+        <h3 className="modal-title">{ACTION_CHANGE_PASSWORD}</h3>
         <form onSubmit={(e) => { e.preventDefault(); handleSubmit() }} className="modal-form">
           <PasswordField
             label={FIELD_CURRENT_PASSWORD}
@@ -297,7 +299,7 @@ const ProfilePage: React.FC = () => {
                   variant="secondary"
                   onClick={() => setShowPasswordModal(true)}
                 >
-                  修改密码
+                  {ACTION_CHANGE_PASSWORD}
                 </Button>
                 <Button
                   type="submit"

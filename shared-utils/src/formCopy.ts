@@ -36,6 +36,7 @@ export const FORM_EMAIL_INVALID = '邮箱格式不正确'
 export const FORM_BACK = '返回'
 export const FORM_BACK_LOGIN = '返回登录'
 export const FORM_PRIVACY_LOCATION = '请先同意隐私协议后使用定位'
+export const FORM_PRIVACY_LOCATION_ACCESS = '获取位置需要访问您的地理位置'
 export const FORM_LOCATION_REQUIRED = '请先选择位置'
 export const FORM_LOCATION_UNAVAILABLE = '无法获取当前位置'
 export const FORM_LOCATION_DENIED = '位置权限被拒绝，请在设置中开启'
@@ -116,4 +117,11 @@ export function formLocationAccuracyHint(meters: number, lowAccuracy = false): s
   const m = Math.round(Number(meters) || 0)
   if (lowAccuracy) return `定位精度约 ±${m} 米，建议到开阔处或手动拖动微调`
   return `定位精度约 ±${m} 米`
+}
+
+export const FORM_TEMPLATE_EDIT_META = '修改后保存'
+export const FORM_TEMPLATE_CREATE_META = '填写模板信息'
+
+export function templateFormMeta(isEdit: boolean): string {
+  return isEdit ? FORM_TEMPLATE_EDIT_META : FORM_TEMPLATE_CREATE_META
 }

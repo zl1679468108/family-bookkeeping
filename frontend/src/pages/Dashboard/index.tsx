@@ -4,7 +4,10 @@ import { useQuery } from '@tanstack/react-query'
 import { monthBoundsFromDate } from '../../utils/reportPeriod'
 import { formatAmount } from '../../utils/common'
 import { formatMonthDay } from '../../utils/date'
-import { formatMoney, getBudgetVariant } from '../../utils/budget'
+import { formatMoney, getBudgetVariant,
+  BUDGET_LABEL_OVER,
+  BUDGET_LABEL_REMAINING,
+} from '../../utils/budget'
 import { useBudgetProgress } from '../../hooks/useBudgetProgress'
 import { getTransactions } from '../../services/api'
 import { fetchSummary } from '../../services/statisticsApi'
@@ -243,7 +246,7 @@ const Dashboard: React.FC = () => {
                 </span>
                 <span className="dash-budget-summary__dot">·</span>
                 <span className={budgetStatus.remaining < 0 ? 'is-over' : ''}>
-                  {budgetStatus.remaining < 0 ? '超支' : '剩余'}{' '}
+                  {budgetStatus.remaining < 0 ? BUDGET_LABEL_OVER : BUDGET_LABEL_REMAINING}{' '}
                   <strong>{formatMoney(Math.abs(budgetStatus.remaining), { compact: true })}</strong>
                 </span>
               </div>
@@ -273,7 +276,7 @@ const Dashboard: React.FC = () => {
                       <div className="dash-budget-item__top">
                         <span className="dash-budget-item__name">{cat.category_name}</span>
                         <span className={`dash-budget-item__badge dash-budget-item__badge--${variant}`}>
-                          {variant === 'danger' ? '超支' : `${cat.progress}%`}
+                          {variant === 'danger' ? BUDGET_LABEL_OVER : `${cat.progress}%`}
                         </span>
                       </div>
                       <div className="dash-budget-item__meta">

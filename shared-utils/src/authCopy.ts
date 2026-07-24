@@ -45,6 +45,7 @@ export const ACTION_REGISTERING_ELLIPSIS = '注册中…'
 export const ACTION_SENDING_ELLIPSIS = '发送中…'
 export const ACTION_RESETTING_ELLIPSIS = '重置中…'
 export const AUTH_LOGIN_FAILED = '登录失败，请重试'
+export const ACTION_CHANGE_PASSWORD = '修改密码'
 export const AUTH_CHANGE_PASSWORD_FAILED = '修改密码失败'
 export const AUTH_SAVE_PROFILE_FAILED = '保存失败，请检查网络或稍后重试'
 

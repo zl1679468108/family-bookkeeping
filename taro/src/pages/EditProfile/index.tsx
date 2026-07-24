@@ -44,6 +44,7 @@ import { IMAGE_SELECT_FAILED, PRIVACY_ALBUM_FOR_AVATAR } from "../../utils/uploa
 import { ERROR_SAVE_FAILED_RETRY, ERROR_MODIFY_FAILED_RETRY } from "../../utils/errorCopy";
 import Icon, { ICON_COLOR } from "../../components/Icon";
 import { FIELD_USERNAME, FIELD_EMAIL, FIELD_CURRENT_PASSWORD, FIELD_NEW_PASSWORD, FIELD_CONFIRM_NEW_PASSWORD } from "../../utils/fieldCopy";
+import { ACTION_CHANGE_PASSWORD } from "../../utils/authCopy";
 
 export default function EditProfile() {
   const { user, refreshUser } = useAuth();
@@ -235,7 +236,7 @@ export default function EditProfile() {
       {/* ===== 修改密码入口 ===== */}
       <View className="edit-section">
         <View className="edit-pwd-entry" onClick={openChangePwd}>
-          <Text className="edit-pwd-text">修改密码</Text>
+          <Text className="edit-pwd-text">{ACTION_CHANGE_PASSWORD}</Text>
           <Icon name="chevron-right" size={28} color={ICON_COLOR.muted} className="edit-pwd-arrow" />
         </View>
       </View>
@@ -254,7 +255,7 @@ export default function EditProfile() {
             className="pwd-dialog"
             onClick={(e) => e.stopPropagation()}
           >
-            <Text className="pwd-title">修改密码</Text>
+            <Text className="pwd-title">{ACTION_CHANGE_PASSWORD}</Text>
 
             <View className="pwd-row">
               <Text className="pwd-label">{FIELD_CURRENT_PASSWORD}</Text>

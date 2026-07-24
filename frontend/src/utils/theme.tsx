@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { Icon } from '../components/ui/Icon';
+import { THEME_MODE_LIGHT, THEME_MODE_DARK, THEME_MODE_SYSTEM } from './actionCopy';
 
 type ThemeMode = 'light' | 'dark' | 'system';
 type ResolvedTheme = 'light' | 'dark';
@@ -105,9 +106,9 @@ export const ThemeToggle: React.FC = () => {
   const { theme, setTheme } = useTheme();
 
   const modes: { value: ThemeMode; label: string; icon: React.ReactNode }[] = [
-    { value: 'light', label: '浅色', icon: <Icon name="sun" size={16} /> },
-    { value: 'dark', label: '暗色', icon: <Icon name="moon" size={16} /> },
-    { value: 'system', label: '跟随系统', icon: <Icon name="monitor" size={16} /> },
+    { value: 'light', label: THEME_MODE_LIGHT, icon: <Icon name="sun" size={16} /> },
+    { value: 'dark', label: THEME_MODE_DARK, icon: <Icon name="moon" size={16} /> },
+    { value: 'system', label: THEME_MODE_SYSTEM, icon: <Icon name="monitor" size={16} /> },
   ];
 
   const currentIndex = modes.findIndex((m) => m.value === theme);

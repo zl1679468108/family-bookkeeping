@@ -9,6 +9,9 @@ export type BudgetVariant = 'safe' | 'warn' | 'danger'
 export const BUDGET_WARN_AT = 80
 /** 超支阈值（含）：进度 ≥ 此值视为 danger */
 export const BUDGET_OVER_AT = 100
+export const BUDGET_LABEL_OVER = '超支'
+export const BUDGET_LABEL_REMAINING = '剩余'
+export const BUDGET_LABEL_OVER_BANG = ' 超支!'
 
 export function getBudgetVariant(progress: number): BudgetVariant {
   if (progress >= BUDGET_OVER_AT) return 'danger'

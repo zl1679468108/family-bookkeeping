@@ -111,6 +111,12 @@
 - `TITLE_DATA_ANALYSIS` / `TITLE_MEMBER_COMPARE` 报表 Tab
 - 验证：frontend / taro `tsc --noEmit`
 
+#### 2026-07-24 网络错误/预算标签/主题与资料文案 shared 化
+- API：`ERROR_REQUEST_FAILED` / `ERROR_NETWORK*` / 冷启动超时；PC+Taro `services/api.ts` 接线
+- 预算：`BUDGET_LABEL_OVER|REMAINING|OVER_BANG`；Dashboard / RankList 接线
+- 主题短标签 `THEME_MODE_*`；修改密码 / 编辑资料 / 模板 meta / 位置隐私授权文案
+- 验证：frontend / taro `tsc --noEmit`
+
 #### 2026-07-24 定位/密码/侧栏/分类 meta 文案 shared 化
 - 位置：权限弹窗、搜索 placeholder、已选/地图提示、精度 helper、无搜索结果；Taro LocationPicker/LocationField + PC LocationPicker 接线
 - 动作：显示/隐藏密码、展开/折叠、移除账号、去设置/不了、去设置预算、清除；密码 a11y / 侧栏 / SwitchAccount / 隐私授权 / 首页预算空态接线

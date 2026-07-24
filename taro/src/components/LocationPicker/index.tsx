@@ -17,7 +17,7 @@ import Icon, { ICON_COLOR } from "../Icon";
 import { Spinner, Button } from "../ui";
 import "./index.scss";
 import { toastInfo } from "../../utils/toast";
-import { FORM_PRIVACY_LOCATION, FORM_LOCATION_REQUIRED, FORM_LOCATION_UNAVAILABLE, FORM_LOCATION_DENIED, FORM_PRIVACY_REQUIRED, FORM_LOCATION_TIMEOUT, FORM_LOCATION_MANUAL_HINT, FORM_SEARCH_LOCATION, FORM_LOCATION_SELECTED, FORM_LOCATION_MAP_HINT, FORM_LOCATION_PERMISSION_TITLE, FORM_LOCATION_PERMISSION_CONTENT, formLocationAccuracyHint } from "../../utils/formCopy";
+import { FORM_PRIVACY_LOCATION, FORM_LOCATION_REQUIRED, FORM_LOCATION_UNAVAILABLE, FORM_LOCATION_DENIED, FORM_PRIVACY_REQUIRED, FORM_LOCATION_TIMEOUT, FORM_LOCATION_MANUAL_HINT, FORM_SEARCH_LOCATION, FORM_LOCATION_SELECTED, FORM_LOCATION_MAP_HINT, FORM_LOCATION_PERMISSION_TITLE, FORM_LOCATION_PERMISSION_CONTENT, formLocationAccuracyHint, FORM_PRIVACY_LOCATION_ACCESS } from "../../utils/formCopy";
 import { TITLE_SELECT_LOCATION } from "../../utils/sectionCopy";
 import { ACTION_SEARCHING_ELLIPSIS, ACTION_LOCATING, ACTION_LOCATE, ACTION_GO_SETTINGS, ACTION_DECLINE } from "../../utils/actionCopy";
 import { EMPTY_SEARCH_RESULTS } from "../../utils/emptyCopy";
@@ -79,7 +79,7 @@ export default function LocationPicker({
     setLocAccuracy(null);
 
     // 先触发隐私授权（getLocation 是隐私接口）
-    const ok = await ensurePrivacyAuthorize("获取位置需要访问您的地理位置");
+    const ok = await ensurePrivacyAuthorize(FORM_PRIVACY_LOCATION_ACCESS);
     if (!ok) {
       console.warn("[LocationPicker] 隐私授权未通过");
       setLocating(false);

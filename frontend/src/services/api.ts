@@ -17,6 +17,7 @@ import type {
   ApiErrorPayload,
 } from '@family-bookkeeping/shared-types'
 import { ERROR_SESSION_EXPIRED } from '../utils/errorCopy'
+import { ERROR_REQUEST_FAILED, ERROR_NETWORK, ERROR_NETWORK_REQUEST, ERROR_REQUEST_TIMEOUT_COLD_START } from '../utils/errorCopy'
 
 // 兼容：重新导出常用类型（供已有 import 使用）
 export type { Transaction, TransactionFilters, PaginatedResponse, UserProfile, TokenPair, OcrResult, CategorySuggestion, ApiEnvelope, ApiErrorPayload } from '@family-bookkeeping/shared-types'
@@ -155,7 +156,7 @@ const parseErrorPayload = async (response: Response): Promise<ApiErrorPayload> =
   } catch {
     // 解析失败，返回默认错误
   }
-  return { message: response.statusText || '请求失败' }
+  return { message: response.statusText || ERROR_REQUEST_FAILED }
 }
 
 export const request = async <T>(path: string, options: RequestOptions = {}): Promise<T> => {
@@ -226,14 +227,14 @@ export const request = async <T>(path: string, options: RequestOptions = {}): Pr
 
     if (!response.ok) {
       const errorPayload = await parseErrorPayload(response)
-      let message = errorPayload.message || '请求失败'
+      let message = errorPayload.message || ERROR_REQUEST_FAILED
       const status = errorPayload.statusCode || response.status
 
       // 服务端返回 503/504 时，统一为友好提示
       if (status === 503) {
         message = '服务暂不可用，请稍后重试'
       } else if (status === 504) {
-        message = '请求超时，服务可能正在冷启动，请稍后重试'
+        message = ERROR_REQUEST_TIMEOUT_COLD_START
       } else if (status >= 500) {
         message = '服务器异常，请稍后重试'
       }
@@ -271,16 +272,16 @@ export const request = async <T>(path: string, options: RequestOptions = {}): Pr
     clearTimeout(timeoutTimer)
 
     if (effectiveNotify && !(err instanceof ApiError)) {
-      let message = err instanceof Error ? err.message : '请求失败'
+      let message = err instanceof Error ? err.message : ERROR_REQUEST_FAILED
       // AbortController 触发的 abort 错误
       if (err instanceof Error && (err.name === 'AbortError' || /aborted|timeout/i.test(message))) {
-        message = '请求超时，服务可能正在冷启动，请稍后重试'
+        message = ERROR_REQUEST_TIMEOUT_COLD_START
       } else if (message === 'Failed to fetch') {
-        message = '网络请求失败，请检查网络连接'
+        message = ERROR_NETWORK_REQUEST
       } else if (message.includes('NetworkError')) {
-        message = '网络错误，请检查网络连接'
+        message = ERROR_NETWORK
       } else if (message.includes('timeout') || message.includes('Timeout')) {
-        message = '请求超时，服务可能正在冷启动，请稍后重试'
+        message = ERROR_REQUEST_TIMEOUT_COLD_START
       }
       notifyError(message)
     }
