@@ -98,6 +98,13 @@
 - `formatAmount`/`formatAmountWithType` 薄封装 `formatMoney`，单一金额格式实现。
 - 记一笔保存成功清除草稿；frontend `tsc --noEmit` 通过。
 
+#### 2026-07-24 PC 暗色第四轮 + Icon 体系 + 模板详情体验
+- 记一笔 `useTransactionForm` 提交统一 `useMutationAction`（payload/上传/invalidate 收口）。
+- PC 暗色第四轮：主色面上的 `white`/`rgba(255,255,255,*)` → `var(--on-pr)` / `color-mix`；Admin 粘性列阴影、地图 badge/marker、StatCard/Dashboard/Onboarding/Auth 英雄区收口。
+- 新增 `components/ui/Icon` + `ICON_COLOR`（对齐 Taro 语义色）；侧栏/用户菜单/鉴权眼标/About/Drawer/GlobalModal/SwitchAccount 关闭图标复用。
+- ErrorBoundary 重试改为 `Button`；模板详情隐藏 book_id/poi_id 等技术字段，位置优先展示地址名。
+- 验证：frontend `tsc --noEmit` 通过。
+
 #### 2026-07-24 React Query 缓存复用：queryKeys / cachePolicy / queryClient
 - 新增 `utils/queryKeys.ts`：全站 key 工厂 + book 维度隔离 + `BOOK_SCOPED`/`USER_SCOPED`/`TRANSACTION_IMPACT` 根 key 与 invalidate/remove 助手。
 - 新增 `cachePolicy.ts`（STALE/GC）、`queryClient.ts` 单例；`main.tsx` 共用。

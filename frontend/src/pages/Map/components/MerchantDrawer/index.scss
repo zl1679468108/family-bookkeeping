@@ -113,8 +113,8 @@
   content: '';
   width: 5px;
   height: 9px;
-  border-right: 2px solid white;
-  border-bottom: 2px solid white;
+  border-right: 2px solid var(--on-pr);
+  border-bottom: 2px solid var(--on-pr);
   transform: rotate(45deg) translate(-1px, -1px);
 }
 
@@ -126,7 +126,7 @@
   margin-left: 6px;
   padding: 2px 8px;
   background: var(--pr);
-  color: white;
+  color: var(--on-pr);
   border-radius: 999px;
   font-size: 12px;
   font-weight: 600;

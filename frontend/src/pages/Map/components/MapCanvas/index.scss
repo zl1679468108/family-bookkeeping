@@ -119,7 +119,7 @@
 }
 
 [data-theme="dark"] .map-locating-spinner {
-  border-color: rgba(255, 255, 255, 0.15);
+  border-color: color-mix(in srgb, var(--on-pr) 15%, transparent);
   border-top-color: var(--pr);
 }
 

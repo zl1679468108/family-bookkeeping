@@ -31,8 +31,8 @@
     position: absolute;
     inset: 0;
     background:
-      radial-gradient(ellipse 60% 50% at 50% 40%, rgba(255,255,255,0.08) 0%, transparent 100%),
-      radial-gradient(circle at 20% 80%, rgba(255,255,255,0.05) 0%, transparent 50%);
+      radial-gradient(ellipse 60% 50% at 50% 40%, color-mix(in srgb, var(--on-pr) 8%, transparent) 0%, transparent 100%),
+      radial-gradient(circle at 20% 80%, color-mix(in srgb, var(--on-pr) 5%, transparent) 0%, transparent 50%);
     pointer-events: none;
   }
 }
@@ -48,7 +48,7 @@
 .deco-circle {
   position: absolute;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.06);
+  background: color-mix(in srgb, var(--on-pr) 6%, transparent);
   animation: decoFloat 20s ease-in-out infinite;
 
   &:nth-child(2) {
@@ -102,14 +102,14 @@
 
 .illus-sub {
   font-size: 15px;
-  color: rgba(255, 255, 255, 0.75);
+  color: color-mix(in srgb, var(--on-pr) 75%, transparent);
   line-height: 1.7;
   white-space: pre-line;
   font-weight: 400;
 }
 
 .illus-footer {
-  color: rgba(255, 255, 255, 0.4);
+  color: color-mix(in srgb, var(--on-pr) 40%, transparent);
   font-size: 12px;
   position: absolute;
   bottom: 32px;

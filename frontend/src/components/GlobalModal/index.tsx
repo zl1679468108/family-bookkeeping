@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { useModalZIndex } from '../../hooks/useModalZIndex';
 import { Button } from '../ui/Button'
+import { Icon } from '../ui/Icon'
 import { FooterActions } from '../ui/FooterActions'
 
 export type GlobalModalType = 'confirm' | 'detail' | 'modal';
@@ -257,7 +258,7 @@ export const GlobalModal: React.FC<GlobalModalProps> = ({
             </div>
             {closable && (
               <button type="button" className="global-modal-dialog__close" onClick={onClose} aria-label="关闭">
-                ✕
+                <Icon name="close" size={16} />
               </button>
             )}
           </div>

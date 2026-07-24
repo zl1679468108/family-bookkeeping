@@ -1,4 +1,5 @@
 import React from 'react';
+import { Button } from '../ui/Button';
 
 interface Props {
   children: React.ReactNode;
@@ -48,25 +49,19 @@ export class ErrorBoundary extends React.Component<Props, State> {
           textAlign: 'center',
         }}>
           <div style={{ fontSize: '48px', marginBottom: '16px' }}>😵</div>
-          <h2 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '8px' }}>
+          <h2 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '8px', color: 'var(--fg)' }}>
             页面出错了
           </h2>
           <p style={{ color: 'var(--fg3)', marginBottom: '16px' }}>
             {this.state.error?.message || '未知错误'}
           </p>
-          <button
+          <Button
+            type="button"
+            variant="secondary"
             onClick={() => this.setState({ hasError: false, error: null })}
-            style={{
-              padding: '8px 24px',
-              borderRadius: '8px',
-              border: '1px solid var(--bd)',
-              background: 'var(--bg)',
-              cursor: 'pointer',
-              fontSize: '14px',
-            }}
           >
             重试
-          </button>
+          </Button>
         </div>
       );
     }

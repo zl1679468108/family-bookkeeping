@@ -32,11 +32,11 @@
 }
 
 .stat-card.hero .stat-label {
-  color: rgba(255, 255, 255, 0.75);
+  color: color-mix(in srgb, var(--on-pr) 75%, transparent);
 }
 
 .stat-card.hero .stat-sub {
-  color: rgba(255, 255, 255, 0.6);
+  color: color-mix(in srgb, var(--on-pr) 60%, transparent);
 }
 
 .stat-header {

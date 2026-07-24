@@ -30,7 +30,7 @@ const ReportMemberRanking: React.FC<Props> = ({ data }) => {
           >
             <div
               className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold"
-              style={{ backgroundColor: colors[i % colors.length], color: 'var(--on-pr, #fff)' }}
+              style={{ backgroundColor: colors[i % colors.length], color: 'var(--on-pr)' }}
             >
               {i + 1}
             </div>

@@ -68,25 +68,37 @@ export const TemplateDetailModal: React.FC<TemplateDetailModalProps> = ({
       <div className="detail-divider" />
       <div className="detail-grid">
         {template.note && <DetailItem label="备注" value={template.note} />}
-        {template.latitude && template.longitude && (
-          <DetailItem label="位置" value={`${template.latitude}, ${template.longitude}`} className="full-width" />
+        {(template.location_name || (template.latitude && template.longitude)) && (
+          <DetailItem
+            label="位置"
+            className="full-width"
+            value={
+              template.location_name
+                || `${Number(template.latitude).toFixed(5)}, ${Number(template.longitude).toFixed(5)}`
+            }
+          />
         )}
-        {template.location_name && (
-          <DetailItem label="地址" value={template.location_name} className="full-width" />
-        )}
-        {template.poi_id && <DetailItem label="商户 ID" value={template.poi_id} />}
         {template.merchant_name && (
           <DetailItem
-            label="商户名称"
+            label="商户"
             value={<span className="merchant-name-truncate" title={template.merchant_name}>{template.merchant_name}</span>}
           />
         )}
-        {template.book_id && <DetailItem label="账本 ID" value={template.book_id} />}
         {template.sort_order !== undefined && (
           <DetailItem label="排序" value={`第 ${template.sort_order + 1} 位`} />
         )}
         {template.frequency && (
-          <DetailItem label="周期" value={`${template.frequency === 'daily' ? '每天' : template.frequency === 'weekly' ? '每周' : template.frequency === 'monthly' ? '每月' : template.frequency === 'quarterly' ? '每季度' : '每年'}`} />
+          <DetailItem
+            label="周期"
+            value={
+              template.frequency === 'daily' ? '每天'
+                : template.frequency === 'weekly' ? '每周'
+                : template.frequency === 'monthly' ? '每月'
+                : template.frequency === 'quarterly' ? '每季度'
+                : template.frequency === 'yearly' ? '每年'
+                : template.frequency
+            }
+          />
         )}
         {template.start_date && (
           <DetailItem label="开始日期" value={template.start_date} />

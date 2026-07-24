@@ -46,7 +46,7 @@ function createFootprintContent(
   const size = 36;
   const theme = getThemeColors();
   const ring = theme.srf;
-  const onColor = '#fff';
+  const onColor = 'var(--on-pr)';
   if (userId && colorMap && colorMap.has(userId)) {
     const memberColor = colorMap.get(userId)!;
     const member = members?.find((m) => m.userId === userId);

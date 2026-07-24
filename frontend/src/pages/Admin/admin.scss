@@ -101,7 +101,7 @@
 
 .stat-card--hero .stat-card__label,
 .stat-card--hero .stat-card__hint {
-  color: rgba(255, 255, 255, 0.85);
+  color: color-mix(in srgb, var(--on-pr) 85%, transparent);
 }
 
 .stat-card--hero .stat-card__value {
@@ -156,7 +156,7 @@
   background: var(--srf);
   border-left: 1px solid var(--bd);
   z-index: var(--z-5);
-  box-shadow: -2px 0 4px rgba(0, 0, 0, 0.05);
+  box-shadow: -2px 0 4px color-mix(in srgb, var(--fg) 8%, transparent);
   min-width: 120px;
 }
 
@@ -180,7 +180,7 @@
   background: var(--srf);
   border-left: 1px solid var(--bdL);
   z-index: var(--z-1);
-  box-shadow: -2px 0 4px rgba(0, 0, 0, 0.05);
+  box-shadow: -2px 0 4px color-mix(in srgb, var(--fg) 8%, transparent);
   min-width: 120px;
 }
 

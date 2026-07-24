@@ -128,7 +128,7 @@
 }
 
 .onboarding-btn--primary::before {
-  background: rgba(255, 255, 255, 0.15);
+  background: color-mix(in srgb, var(--on-pr) 15%, transparent);
 }
 
 .onboarding-btn--primary:hover {
@@ -150,7 +150,7 @@
 }
 
 .onboarding-btn--primary .onboarding-btn-icon {
-  background: rgba(255, 255, 255, 0.2);
+  background: color-mix(in srgb, var(--on-pr) 20%, transparent);
 }
 
 .onboarding-btn:not(.onboarding-btn--primary) .onboarding-btn-icon {
@@ -182,7 +182,7 @@
 }
 
 .onboarding-btn--primary .onboarding-btn-desc {
-  color: rgba(255, 255, 255, 0.85);
+  color: color-mix(in srgb, var(--on-pr) 85%, transparent);
 }
 
 .onboarding-btn-arrow {
@@ -198,7 +198,7 @@
 }
 
 .onboarding-btn--primary .onboarding-btn-arrow {
-  color: rgba(255, 255, 255, 0.85);
+  color: color-mix(in srgb, var(--on-pr) 85%, transparent);
 }
 
 /* 卡片底部区域 */
