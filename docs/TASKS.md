@@ -85,6 +85,11 @@
 
 ### ✅ 已完成
 
+#### 2026-07-24 modalZIndex 动态层级 shared 化
+- `shared-utils/modalZIndex`：MODAL_BASE_Z_INDEX + acquire/release；PC util 改 facade
+- Taro GlobalModal/Drawer/DropdownSelect 的 useModalZIndex 对齐 PC 语义（open 开关配对 release）
+- 验证：frontend / taro `tsc --noEmit`
+
 #### 2026-07-24 备注上限 / 排序 moveItem / 成员色图 shared 化
 - `MAX_NOTE_LENGTH` 入 formCopy；PC 记一笔与 Taro NoteField/记一笔共用
 - `sortOrder.moveItem`：Taro useReorder 长按拖拽重排改用 shared

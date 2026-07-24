@@ -1,27 +1,33 @@
 /**
- * useModalZIndex — 弹窗动态 z-index（对齐 PC modalZIndex）
- * 全局 openCount 计数，实际 z = base + openCount，解决多层叠加。
+ * useModalZIndex — 弹窗动态 z-index（对齐 PC）
+ * 纯计数见 shared-utils/modalZIndex；本文件仅 React 绑定。
  */
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { acquire, release, type ModalType } from "../../../utils/modalZIndex";
 
-const MODAL_BASE: Record<string, number> = {
-  detail: 1000,
-  modal: 1500,
-  critical: 2500,
-};
+export function useModalZIndex(open: boolean, type: ModalType): number {
+  const [zIndex, setZIndex] = useState(0);
+  const acquiredRef = useRef(false);
 
-let openCount = 0;
-
-export function useModalZIndex(open: boolean, type: "detail" | "modal" | "critical") {
-  const [z, setZ] = useState(MODAL_BASE[type]);
   useEffect(() => {
-    if (open) {
-      openCount += 1;
-      setZ(MODAL_BASE[type] + openCount);
-      return () => {
-        openCount = Math.max(0, openCount - 1);
-      };
+    if (open && !acquiredRef.current) {
+      setZIndex(acquire(type));
+      acquiredRef.current = true;
+    } else if (!open && acquiredRef.current) {
+      release();
+      acquiredRef.current = false;
+      setZIndex(0);
     }
   }, [open, type]);
-  return z;
+
+  useEffect(() => {
+    return () => {
+      if (acquiredRef.current) {
+        release();
+        acquiredRef.current = false;
+      }
+    };
+  }, []);
+
+  return zIndex;
 }
