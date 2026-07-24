@@ -8,7 +8,7 @@ import Taro from "@tarojs/taro";
 import { useAuth } from "../../../context/AuthContext";
 import { useTheme } from "../../../context/ThemeContext";
 import { useNavBarTheme } from "../../../hooks/useNavBarTheme";
-import { useSubmit } from "../../../hooks/useSubmit";
+import { useSubmit, toastError } from "../../../hooks/useSubmit";
 import "./index.scss";
 
 export default function Register() {
@@ -46,7 +46,7 @@ export default function Register() {
       Taro.showToast({ title: "注册成功", icon: "success" });
       setTimeout(() => Taro.reLaunch({ url: "/pages/Home/index" }), 600);
     }, "注册中…").catch((err: any) => {
-      Taro.showToast({ title: err?.message || "注册失败", icon: "none" });
+      toastError(err, "注册失败");
     });
   };
 

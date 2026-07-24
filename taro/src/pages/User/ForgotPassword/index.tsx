@@ -8,7 +8,7 @@ import Taro from "@tarojs/taro";
 import { sendResetCode, resetPasswordByCode } from "../../../services/authApi";
 import { useTheme } from "../../../context/ThemeContext";
 import { useNavBarTheme } from "../../../hooks/useNavBarTheme";
-import { useSubmit } from "../../../hooks/useSubmit";
+import { useSubmit, toastError } from "../../../hooks/useSubmit";
 import { ApiError } from "../../../services/api";
 import "./index.scss";
 
@@ -62,7 +62,7 @@ export default function ForgotPassword() {
       setStep("code");
       startCountdown();
     }, "发送中…").catch((err: any) => {
-      Taro.showToast({ title: err?.message || "发送失败", icon: "none" });
+      toastError(err, "发送失败");
     });
   }, [email]);
 
@@ -85,7 +85,7 @@ export default function ForgotPassword() {
       Taro.showToast({ title: "密码重置成功", icon: "success" });
       setStep("success");
     }, "重置中…").catch((err: any) => {
-      Taro.showToast({ title: err?.message || "重置失败", icon: "none" });
+      toastError(err, "重置失败");
     });
   }, [email, code, password, confirmPassword]);
 

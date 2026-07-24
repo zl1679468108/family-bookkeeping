@@ -6,7 +6,7 @@ import { View, Text, Input } from "@tarojs/components";
 import Taro, { getCurrentInstance } from "@tarojs/taro";
 import { useQueryClient } from "@tanstack/react-query";
 import { useManualQuery } from "../../hooks/useManualQuery";
-import { useSubmit } from "../../hooks/useSubmit";
+import { useSubmit, toastError } from "../../hooks/useSubmit";
 import {
   fetchBookMembers,
   removeMember,
@@ -45,7 +45,7 @@ export default function BookMembers() {
       Taro.setClipboardData({ data: res.code });
       Taro.showToast({ title: "邀请码已复制", icon: "success" });
     }, "生成中…").catch((err: any) => {
-      Taro.showToast({ title: err?.message || "生成失败", icon: "none" });
+      toastError(err, "生成失败");
     });
   };
 

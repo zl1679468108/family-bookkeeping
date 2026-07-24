@@ -4,6 +4,7 @@
  */
 import { View, Text } from "@tarojs/components";
 import { Button } from "../ui/Button";
+import { FooterActions } from "../ui/FooterActions";
 import "./index.scss";
 
 export interface ConfirmDialogProps {
@@ -36,7 +37,7 @@ export default function ConfirmDialog({
       <View className="cd-dialog" onClick={(e: any) => e.stopPropagation()}>
         <Text className="cd-title">{title}</Text>
         <Text className="cd-message">{message}</Text>
-        <View className="cd-actions">
+        <FooterActions align="stretch" className="cd-actions">
           <Button variant="default" size="lg" block onClick={onCancel}>
             {cancelText}
           </Button>
@@ -49,7 +50,7 @@ export default function ConfirmDialog({
           >
             {confirmLoading ? "处理中..." : confirmText}
           </Button>
-        </View>
+        </FooterActions>
       </View>
     </View>
   );

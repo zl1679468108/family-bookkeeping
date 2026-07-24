@@ -5,6 +5,7 @@ import { updateProfile, changePassword } from '../../../services/api'
 import { useDebouncedAction } from '../../../hooks/useDebouncedAction'
 import { notify } from '../../../utils/notifications'
 import { Button } from '../../../components/ui/Button'
+import { FooterActions } from '../../../components/ui/FooterActions'
 import './index.scss'
 
 const compressImage = (file: File, maxSize = 128): Promise<string> =>
@@ -158,7 +159,7 @@ const PasswordModal: React.FC<PasswordModalProps> = ({ visible, onClose }) => {
             <div className="form-error">{error}</div>
           )}
 
-          <div className="modal-actions">
+          <FooterActions align="end" className="modal-actions">
             <Button
               type="button"
               variant="secondary"
@@ -174,7 +175,7 @@ const PasswordModal: React.FC<PasswordModalProps> = ({ visible, onClose }) => {
             >
               {loading ? '提交中...' : '确认'}
             </Button>
-          </div>
+          </FooterActions>
         </form>
       </div>
     </div>
@@ -328,7 +329,7 @@ const ProfilePage: React.FC = () => {
 
               {error && <div className="form-error">{error}</div>}
 
-              <div className="profile-actions">
+              <FooterActions align="end" className="profile-actions">
                 {/* 修改密码按钮 */}
                 <Button
                   type="button"
@@ -344,7 +345,7 @@ const ProfilePage: React.FC = () => {
                 >
                   {loading ? '更新中...' : '更新信息'}
                 </Button>
-              </div>
+              </FooterActions>
             </form>
           </div>
         </div>

@@ -58,4 +58,5 @@ export { default as Spinner } from "./Spinner";
 export type { SpinnerProps } from "./Spinner";
 export { StickyActionBar } from "./StickyActionBar";
 export type { StickyActionBarProps } from "./StickyActionBar";
-
+export { FooterActions } from "./FooterActions";
+export type { FooterActionsProps } from "./FooterActions";

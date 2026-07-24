@@ -13,7 +13,7 @@ import { createBook, joinByInvitation } from "../../services/booksApi";
 import { useBookContext } from "../../context/BookContext";
 import { useTheme } from "../../context/ThemeContext";
 import { useNavBarTheme } from "../../hooks/useNavBarTheme";
-import { useSubmit } from "../../hooks/useSubmit";
+import { useSubmit, toastError } from "../../hooks/useSubmit";
 import { BOOK_ICONS, renderBookIconSvg } from "../../utils/bookIcons";
 import "./index.scss";
 
@@ -54,7 +54,7 @@ export default function Onboarding() {
       Taro.showToast({ title: "创建成功", icon: "success" });
       setTimeout(() => Taro.reLaunch({ url: "/pages/Home/index" }), 600);
     }, "创建中…").catch((err: any) => {
-      Taro.showToast({ title: err?.message || "创建失败，请重试", icon: "none" });
+      toastError(err, "创建失败，请重试");
     });
   };
 
@@ -72,7 +72,7 @@ export default function Onboarding() {
       Taro.showToast({ title: "加入成功", icon: "success" });
       setTimeout(() => Taro.reLaunch({ url: "/pages/Home/index" }), 600);
     }, "加入中…").catch((err: any) => {
-      Taro.showToast({ title: err?.message || "邀请码无效或已过期", icon: "none" });
+      toastError(err, "邀请码无效或已过期");
     });
   };
 

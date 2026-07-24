@@ -22,38 +22,6 @@ export function formatAmountWithType(amount: number | string, isIncome: boolean)
   return formatAmount(amount, true, sign as '+' | '-')
 }
 
-export function formatDate(dateStr: string, mode: 'full' | 'dashboard' = 'full'): string {
-  const date = new Date(dateStr.replace(' ', 'T'))
-
-  if (Number.isNaN(date.getTime())) {
-    return dateStr
-  }
-
-  const year = date.getFullYear()
-  const month = date.getMonth() + 1
-  const day = date.getDate()
-
-  if (mode === 'dashboard') {
-    const now = new Date()
-    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
-    const yesterday = new Date(today)
-    yesterday.setDate(yesterday.getDate() - 1)
-    const transactionDay = new Date(date.getFullYear(), date.getMonth(), date.getDate())
-
-    if (transactionDay.getTime() === today.getTime()) {
-      return '今天'
-    } else if (transactionDay.getTime() === yesterday.getTime()) {
-      return '昨天'
-    } else if (year === today.getFullYear()) {
-      return `${month}月${day}日`
-    } else {
-      return `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`
-    }
-  }
-
-  // full 模式：仅展示 年-月-日（交易数据只有年月日，没有时分秒）
-  return `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`
-}
 
 // 预算语义（进度阈值 / 金额）— 详见 ./budget
 export {
@@ -67,4 +35,15 @@ export {
   budgetVariantLabel,
 } from './budget'
 export type { BudgetVariant, BudgetCategoryLike } from './budget'
+
+// 日期 — 详见 ./date
+export {
+  formatDate,
+  formatDateYMD,
+  formatFriendlyDate,
+  todayBeijing,
+  parseDateInput,
+} from './date'
+
+export { getErrorMessage } from './errorMessage'
 

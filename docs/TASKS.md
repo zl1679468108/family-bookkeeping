@@ -114,6 +114,11 @@
 - Login / Register / ForgotPassword / EditProfile / About / Profile：与 PC 核心一致，无需改动（Profile 无主题切换，属可选差异）
 - 验证：`tsc --noEmit` 零错误；`build:weapp` 通过
 
+### ✅ 已完成（2026-07-24 公共复用续）
+- **date utils**（PC/Taro 对齐）：`formatDateYMD` / `formatFriendlyDate` / `todayBeijing`；旧 `fmtDate` 别名保留 ✅
+- **getErrorMessage + toastError**：mutation / 提交失败文案统一 ✅
+- **FooterActions**（双端）+ **PC StickyActionBar**：Profile/记一笔/模板选择/GlobalModal/SwitchAccount/Books sheet/ConfirmDialog 收口 ✅
+
 ### ✅ 已完成（2026-07-24 公共复用抽离）
 - **budget utils + useBudgetProgress**（PC/Taro 对齐）：进度变体、金额 formatMoney、分类风险排序、status→variant 映射 ✅
 - **StickyActionBar**：BookSettings / TemplateEdit / EditProfile 底栏统一 ✅

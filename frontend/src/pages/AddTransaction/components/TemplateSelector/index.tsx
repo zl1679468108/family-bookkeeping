@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { ListRowsSkeleton } from '../../../../components/ui/Skeleton'
 import { EmptyState } from '../../../../components/ui/EmptyState'
 import { Button } from '../../../../components/ui/Button'
+import { FooterActions } from '../../../../components/ui/FooterActions'
 import './index.scss'
 
 interface TemplateSelectorProps {
@@ -93,7 +94,7 @@ export const TemplateSelector: React.FC<TemplateSelectorProps> = ({
           )}
         </div>
 
-        <div className="template-selector-footer">
+        <FooterActions align="end" className="template-selector-footer">
           <Button variant="secondary" onClick={handleClose}>取消</Button>
           <Button
             variant="primary"
@@ -102,7 +103,7 @@ export const TemplateSelector: React.FC<TemplateSelectorProps> = ({
           >
             确认选择
           </Button>
-        </div>
+        </FooterActions>
       </div>
     </div>
   )

@@ -2,6 +2,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import { useDebouncedAction } from './useDebouncedAction'
 import { notify } from '../utils/notifications'
+import { getErrorMessage } from '../utils/errorMessage'
 
 export interface MutationActionOptions {
   invalidateKeys?: (string | number)[][]
@@ -40,7 +41,7 @@ export function useMutationAction<T extends any[], R>(
       return result
     } catch (err: any) {
       onError?.(err)
-      if (errorMessage) notify({ type: 'error', message: err?.message || errorMessage })
+      if (errorMessage) notify({ type: 'error', message: getErrorMessage(err, errorMessage) })
       throw err
     }
   })

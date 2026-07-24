@@ -13,7 +13,7 @@ import ConfirmDialog from "../../components/ConfirmDialog";
 import BottomSheet from "../../components/BottomSheet";
 import { useMonthSelector } from "../../hooks/useMonthSelector";
 import { useManualQuery, invalidateManualQuery } from "../../hooks/useManualQuery";
-import { useSubmit } from "../../hooks/useSubmit";
+import { useSubmit, toastError } from "../../hooks/useSubmit";
 import { fetchBudgets, fetchBudgetStatus, upsertBudgets, copyBudgets } from "../../services/budgetsApi";
 import { fetchCategories } from "../../services/categoriesApi";
 import "./index.scss";
@@ -167,7 +167,7 @@ export default function BudgetsPage() {
       refetchBudgets();
       refetchStatus();
     }, "复制中…").catch((err: any) => {
-      Taro.showToast({ title: err?.message || "复制失败", icon: "none" });
+      toastError(err, "复制失败");
     });
   };
 

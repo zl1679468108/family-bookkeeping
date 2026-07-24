@@ -7,7 +7,7 @@ import { useState, useCallback, useMemo, useEffect, useRef } from "react";
 import { View, Text, Input, Image } from "@tarojs/components";
 import Taro, { useDidShow } from "@tarojs/taro";
 import PageContainer from "../../components/PageContainer";
-import { Button, EmptyState } from "../../components/ui";
+import { Button, EmptyState, FooterActions } from "../../components/ui";
 import ConfirmDialog from "../../components/ConfirmDialog";
 import SheetHeader from "../../components/SheetHeader";
 import {
@@ -20,7 +20,7 @@ import {
   joinByInvitation,
 } from "../../services/booksApi";
 import { useManualQuery } from "../../hooks/useManualQuery";
-import { useSubmit } from "../../hooks/useSubmit";
+import { useSubmit, toastError } from "../../hooks/useSubmit";
 import { useBookContext } from "../../context/BookContext";
 import { useAuth } from "../../context/AuthContext";
 import { renderBookIconSvg } from "../../utils/bookIcons";
@@ -79,7 +79,7 @@ export default function BooksPage() {
       Taro.showToast({ title: "加入成功", icon: "success" });
       refetch();
     }, "加入中…").catch((err: any) => {
-      Taro.showToast({ title: err?.message || "加入失败", icon: "none" });
+      toastError(err, "加入失败");
     });
   };
 
@@ -197,7 +197,7 @@ export default function BooksPage() {
       setInviteCodeData(data);
       Taro.showToast({ title: "邀请码已生成", icon: "success" });
     }, "生成中…").catch((err: any) => {
-      Taro.showToast({ title: err?.message || "生成失败", icon: "none" });
+      toastError(err, "生成失败");
     });
   };
 
@@ -381,13 +381,15 @@ export default function BooksPage() {
               </View>
             </View>
 
-            <View className="bk-sheet__footer bk-sheet__footer--dual">
-              <Button variant="default" size="lg" block onClick={closeJoinSheet}>
-                取消
-              </Button>
-              <Button variant="primary" size="lg" block onClick={handleJoinSubmit}>
-                加入账本
-              </Button>
+            <View className="bk-sheet__footer">
+              <FooterActions align="stretch">
+                <Button variant="default" size="lg" block onClick={closeJoinSheet}>
+                  取消
+                </Button>
+                <Button variant="primary" size="lg" block onClick={handleJoinSubmit}>
+                  加入账本
+                </Button>
+              </FooterActions>
             </View>
 
             <View className="bk-sheet__safe" />
@@ -671,12 +673,14 @@ export default function BooksPage() {
             </View>
             <Text className="bk-switch-current">当前账本：{currentBook?.name}</Text>
             <View className="bk-switch-actions">
-              <Button variant="default" size="lg" block onClick={() => setSwitchTarget(null)}>
-                取消
-              </Button>
-              <Button variant="primary" size="lg" block onClick={handleConfirmSwitch}>
-                确认切换
-              </Button>
+              <FooterActions align="stretch">
+                <Button variant="default" size="lg" block onClick={() => setSwitchTarget(null)}>
+                  取消
+                </Button>
+                <Button variant="primary" size="lg" block onClick={handleConfirmSwitch}>
+                  确认切换
+                </Button>
+              </FooterActions>
             </View>
           </View>
         </View>

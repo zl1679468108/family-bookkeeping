@@ -14,6 +14,7 @@ import {
 } from '../../utils/savedAccounts'
 import './index.scss'
 import { Button } from '../ui/Button'
+import { FooterActions } from '../ui/FooterActions'
 
 interface SwitchAccountModalProps {
   visible: boolean
@@ -158,7 +159,7 @@ const SwitchAccountModal: React.FC<SwitchAccountModalProps> = ({ visible, onClos
             <div className="expired-modal-desc">
               {expiredEmail} 的登录状态已失效，请重新登录
             </div>
-            <div className="expired-modal-actions">
+            <FooterActions align="stretch" className="expired-modal-actions">
               <Button
                 type="button"
                 variant="secondary"
@@ -175,7 +176,7 @@ const SwitchAccountModal: React.FC<SwitchAccountModalProps> = ({ visible, onClos
               >
                 去登录
               </Button>
-            </div>
+            </FooterActions>
           </div>
         </div>
       )}

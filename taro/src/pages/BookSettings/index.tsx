@@ -30,7 +30,7 @@ import {
   openPrivacySetting,
 } from "../../utils/privacy";
 import { useManualQuery } from "../../hooks/useManualQuery";
-import { useSubmit } from "../../hooks/useSubmit";
+import { useSubmit, toastError } from "../../hooks/useSubmit";
 import "./index.scss";
 
 interface Member {
@@ -153,8 +153,8 @@ export default function BookSettings() {
           refreshCustomIcons();
           Taro.showToast({ title: "已添加自定义图标", icon: "success" });
         }, "上传中…").catch((err: any) => {
-          Taro.showToast({ title: err?.message || "上传失败", icon: "none" });
-        });
+      toastError(err, "上传失败");
+    });
       })
       .catch((err: any) => {
         const msg = err?.errMsg || err?.message || "";
@@ -199,7 +199,7 @@ export default function BookSettings() {
       Taro.showToast({ title: "账本创建成功", icon: "success" });
       setTimeout(() => Taro.navigateBack(), 500);
     }, "创建中…").catch((err: any) => {
-      Taro.showToast({ title: err?.message || "创建失败", icon: "none" });
+      toastError(err, "创建失败");
     });
   };
 
@@ -219,7 +219,7 @@ export default function BookSettings() {
       Taro.showToast({ title: "更新成功", icon: "success" });
       setTimeout(() => Taro.navigateBack(), 500);
     }, "保存中…").catch((err: any) => {
-      Taro.showToast({ title: err?.message || "保存失败", icon: "none" });
+      toastError(err, "保存失败");
     });
   };
 
@@ -250,7 +250,7 @@ export default function BookSettings() {
       Taro.showToast({ title: "账本已删除", icon: "success" });
       setTimeout(() => Taro.navigateBack(), 500);
     }, "删除中…").catch((err: any) => {
-      Taro.showToast({ title: err?.message || "删除失败", icon: "none" });
+      toastError(err, "删除失败");
     });
   };
 

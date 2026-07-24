@@ -1,0 +1,17 @@
+.ui-footer-actions {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  width: 100%;
+
+  &--end {
+    justify-content: flex-end;
+  }
+  &--start {
+    justify-content: flex-start;
+  }
+  &--stretch > .ui-btn {
+    flex: 1;
+    min-width: 0;
+  }
+}

@@ -30,7 +30,7 @@ import {
   renderPlatformIconSvg,
 } from "../../utils/platformIcons";
 import { useManualQuery } from "../../hooks/useManualQuery";
-import { useSubmit } from "../../hooks/useSubmit";
+import { useSubmit, toastError } from "../../hooks/useSubmit";
 import "./index.scss";
 
 interface CustomIconItem {
@@ -105,8 +105,8 @@ export default function CategoryEdit() {
             Taro.showToast({ title: "上传失败", icon: "none" });
           }
         }, "上传中…").catch((err: any) => {
-          Taro.showToast({ title: err?.message || "上传失败", icon: "none" });
-        });
+      toastError(err, "上传失败");
+    });
       })
       .catch((err: any) => {
         const msg = err?.errMsg || err?.message || "";

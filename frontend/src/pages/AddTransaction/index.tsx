@@ -7,6 +7,7 @@ import { useTransactionForm } from './hooks/useTransactionForm'
 import { Skeleton, FormSkeleton } from '../../components/ui/Skeleton'
 import { LocationDisplay } from '../../components/ui/LocationDisplay'
 import { Button } from '../../components/ui/Button'
+import { FooterActions } from '../../components/ui/FooterActions'
 
 const AddTransaction: React.FC = () => {
   const {
@@ -76,18 +77,19 @@ const AddTransaction: React.FC = () => {
           </div>
 
           {/* 操作按钮 */}
-          <div style={{ display: 'flex', gap: 10, paddingTop: 14 }}>
-            <Button
-              variant="primary"
-              style={{ flex: 1 }}
-              onClick={handleSubmit}
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? '保存中...' : isEditMode ? '保存修改' : '确认添加'}
-            </Button>
-            <Button variant="secondary" onClick={handleReset}>
-              重置
-            </Button>
+          <div style={{ paddingTop: 14 }}>
+            <FooterActions align="stretch">
+              <Button
+                variant="primary"
+                onClick={handleSubmit}
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? '保存中...' : isEditMode ? '保存修改' : '确认添加'}
+              </Button>
+              <Button variant="secondary" onClick={handleReset}>
+                重置
+              </Button>
+            </FooterActions>
           </div>
         </div>
 

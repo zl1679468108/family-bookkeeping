@@ -1,0 +1,20 @@
+.ui-footer-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+
+  &--end {
+    justify-content: flex-end;
+  }
+  &--start {
+    justify-content: flex-start;
+  }
+  &--stretch {
+    > .ui-btn,
+    > button {
+      flex: 1;
+      min-width: 0;
+    }
+  }
+}

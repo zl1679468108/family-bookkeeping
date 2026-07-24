@@ -1,0 +1,31 @@
+.ui-sticky-actions {
+  position: sticky;
+  bottom: 0;
+  z-index: var(--z-50, 50);
+  display: flex;
+  gap: 10px;
+  padding: 12px 0 calc(12px + env(safe-area-inset-bottom, 0));
+  margin-top: 16px;
+  background: var(--srf);
+  border-top: 1px solid var(--bdL);
+  box-sizing: border-box;
+
+  &--blur {
+    background: color-mix(in srgb, var(--srf) 92%, transparent);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  &--row {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  > .ui-btn {
+    min-width: 0;
+  }
+
+  > .ui-btn--primary {
+    flex: 1;
+  }
+}

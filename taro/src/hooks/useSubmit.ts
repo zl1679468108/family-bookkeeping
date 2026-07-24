@@ -42,6 +42,7 @@
  */
 import { useRef, useCallback } from "react";
 import Taro from "@tarojs/taro";
+import { getErrorMessage } from "../utils/errorMessage";
 
 export function useSubmit() {
   const ref = useRef(false);
@@ -79,3 +80,9 @@ export function useSubmit() {
 
   return { run };
 }
+
+/** 统一失败 toast（页面 .catch 时复用） */
+export function toastError(err: unknown, fallback = "操作失败") {
+  Taro.showToast({ title: getErrorMessage(err, fallback), icon: "none" });
+}
+
