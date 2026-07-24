@@ -3,6 +3,7 @@ import { renderCategoryIcon } from '../../utils/renderCategoryIcon';
 import { getChartPalette } from '../../utils/themeColors'
 import { useTheme } from '../../utils/theme'
 import { formatMoney } from '../../utils/budget'
+import { hexWithAlpha } from '../../utils/color'
 
 interface CategoryItem {
   category_name: string;
@@ -44,7 +45,7 @@ export const ReportCategoryRank: React.FC<ReportCategoryRankProps> = ({ data }) 
             <div key={item.category_name} className="flex items-center gap-3">
               <div
                 className="w-8 h-8 rounded-lg flex items-center justify-center text-sm"
-                style={{ backgroundColor: colors[index % colors.length] + '20' }}
+                style={{ backgroundColor: hexWithAlpha(colors[index % colors.length], '20') }}
               >
                 {renderCategoryIcon(item.category_icon, { size: 18 })}
               </div>
@@ -68,7 +69,7 @@ export const ReportCategoryRank: React.FC<ReportCategoryRankProps> = ({ data }) 
                     style={{
                       width: `${item.percentage}%`,
                       backgroundColor: colors[index % colors.length],
-                      boxShadow: `0 0 8px ${colors[index % colors.length]}40`,
+                      boxShadow: `0 0 8px ${hexWithAlpha(colors[index % colors.length], '40')}`,
                     }}
                   />
                 </div>

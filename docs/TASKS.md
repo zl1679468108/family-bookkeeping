@@ -241,6 +241,13 @@
 - 接线：PC/Taro IconGrid、DropdownSelect、Skeleton、FieldRow；CategoryEdit/BookSettings 上传图标文案
 - 验证：frontend / taro `tsc --noEmit`
 
+#### 2026-07-24 PC 暗色第十二轮（alpha 拼接 / 导出底色 / theme-color）
+- 全站再扫：业务 SCSS 仍无残留浅色 hex/rgba；有意固定色保留（design-tokens、JPEG 头像白底、图表扩展色）
+- 修复 `var(--x)+"40"` 非法阴影：年报 Record 图标光晕改 `color-mix`；分类榜/月趋势 hex alpha 收口 `hexWithAlpha`
+- 热力峰值锚点 `#1A1C19` → `THEME_TOKEN_HEX.dark.bg`；年报导出 `toPng` 底色随 `getThemeColors().bg`
+- 浏览器 `theme-color` meta 随主题同步（index.html 首屏 + ThemeProvider）
+- 验证：frontend `tsc --noEmit`
+
 #### 2026-07-24 PC 暗色第十一轮（残留硬编码 / 冗余 dark 覆盖）
 - 全站再扫：业务 SCSS 无残留浅色 hex/rgba；Tailwind 色板均映射 CSS 变量
 - 去掉失效/重复 `[data-theme=dark]`：Drawer mask、地图 locating/loading 反色 hack、MerchantDrawer hover 双份阴影

@@ -1,5 +1,6 @@
 import { toPng } from 'html-to-image';
 import type { ECharts } from './echarts';
+import { getThemeColors } from './themeColors';
 
 /**
  * 截取 DOM 元素生成长图并触发下载
@@ -30,6 +31,8 @@ export async function captureLongImage(
       pixelRatio: 1,
       quality: 1,
       cacheBust: true,
+      // 暗色下避免透明底导出成黑/花屏，随主题表面底色
+      backgroundColor: getThemeColors().bg,
     });
 
     const a = document.createElement('a');

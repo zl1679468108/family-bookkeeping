@@ -5,6 +5,7 @@ import type { ECharts } from '../../utils/echarts';
 import { getThemeColors } from '../../utils/themeColors'
 import { formatMoney } from '../../utils/budget'
 import { transactionTypeLabel } from '../../utils/transactionType'
+import { hexWithAlpha } from '../../utils/color'
 
 interface MonthlyItem {
   month: number;
@@ -105,8 +106,8 @@ export const ReportMonthlyTrend: React.FC<ReportMonthlyTrendProps> = ({ data }) 
           itemStyle: { color: theme.inc, borderColor: bgColor, borderWidth: 2 },
           areaStyle: {
             color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-              { offset: 0, color: theme.inc + '4D' },
-              { offset: 1, color: theme.inc + '05' },
+              { offset: 0, color: hexWithAlpha(theme.inc, '4D') },
+              { offset: 1, color: hexWithAlpha(theme.inc, '05') },
             ]),
           },
         },
@@ -121,8 +122,8 @@ export const ReportMonthlyTrend: React.FC<ReportMonthlyTrendProps> = ({ data }) 
           itemStyle: { color: theme.exp, borderColor: bgColor, borderWidth: 2 },
           areaStyle: {
             color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-              { offset: 0, color: theme.exp + '4D' },
-              { offset: 1, color: theme.exp + '05' },
+              { offset: 0, color: hexWithAlpha(theme.exp, '4D') },
+              { offset: 1, color: hexWithAlpha(theme.exp, '05') },
             ]),
           },
         },

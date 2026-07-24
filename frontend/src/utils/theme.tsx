@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect, useCallback } fr
 import { Icon } from '../components/ui/Icon';
 import { THEME_MODE_LIGHT, THEME_MODE_DARK, THEME_MODE_SYSTEM } from './actionCopy';
 import { STORAGE_THEME_WEB } from './storageKeys';
+import { THEME_TOKEN_HEX } from './themeTokens'
 
 type ThemeMode = 'light' | 'dark' | 'system';
 type ResolvedTheme = 'light' | 'dark';
@@ -39,6 +40,18 @@ const resolveTheme = (mode: ThemeMode): ResolvedTheme => {
   return mode;
 };
 
+
+function syncThemeColorMeta(resolved: ResolvedTheme) {
+  if (typeof document === 'undefined') return
+  let meta = document.querySelector('meta[name="theme-color"]') as HTMLMetaElement | null
+  if (!meta) {
+    meta = document.createElement('meta')
+    meta.name = 'theme-color'
+    document.head.appendChild(meta)
+  }
+  meta.content = THEME_TOKEN_HEX[resolved].bg
+}
+
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [theme, setThemeState] = useState<ThemeMode>(getStoredTheme);
   const [resolvedTheme, setResolvedTheme] = useState<ResolvedTheme>(() => resolveTheme(getStoredTheme()));
@@ -47,6 +60,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   useEffect(() => {
     document.documentElement.setAttribute(THEME_ATTR, resolvedTheme);
     document.documentElement.style.colorScheme = resolvedTheme;
+    syncThemeColorMeta(resolvedTheme);
   }, [resolvedTheme]);
 
   // 监听系统主题变化（仅在 theme === 'system' 时生效）

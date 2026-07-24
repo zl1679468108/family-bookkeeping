@@ -24,6 +24,26 @@ export function blendHexColors(a: string, b: string, t: number): string {
   return `rgb(${r},${g},${bl})`
 }
 
+
+/**
+ * 给 #RGB / #RRGGBB 追加 00–FF alpha；非 hex（如 CSS var）原样返回，
+ * 避免 `var(--x) + "40"` 拼出非法颜色。
+ */
+export function hexWithAlpha(color: string, alphaHex: string): string {
+  const raw = String(color || '').trim()
+  const alpha = String(alphaHex || '').replace(/^#/, '').toUpperCase()
+  if (!/^[0-9A-F]{2}$/.test(alpha)) return raw
+  if (!raw.startsWith('#')) return raw
+  const h = raw.slice(1)
+  if (h.length === 3) {
+    const expanded = h.split('').map((c) => c + c).join('')
+    return `#${expanded}${alpha}`
+  }
+  if (h.length === 6) return `#${h}${alpha}`
+  if (h.length === 8) return `#${h.slice(0, 6)}${alpha}`
+  return raw
+}
+
 /**
  * 商户收支占比色：支出主导 → exp，收入主导 → inc，中间线性混合
  */

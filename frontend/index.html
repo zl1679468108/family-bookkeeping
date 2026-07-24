@@ -15,6 +15,13 @@
           var theme = dark ? 'dark' : 'light';
           document.documentElement.setAttribute('data-theme', theme);
           document.documentElement.style.colorScheme = theme;
+          var meta = document.querySelector('meta[name="theme-color"]');
+          if (!meta) {
+            meta = document.createElement('meta');
+            meta.setAttribute('name', 'theme-color');
+            document.head.appendChild(meta);
+          }
+          meta.setAttribute('content', dark ? '#1A1C19' : '#F6F7F4');
         } catch (e) {}
       })();
     </script>

@@ -7,6 +7,7 @@ import './index.scss';
 import { getThemeColors } from '../../../../utils/themeColors'
 import { useTheme } from '../../../../utils/theme'
 import { merchantBalanceColor, blendHexColors } from '../../../../utils/color'
+import { THEME_TOKEN_HEX } from '../../../../utils/themeTokens'
 import { createFootprintMarkerHtml, merchantShortLabel } from '../../../../utils/mapMarkerHtml'
 import { ERROR_LOCATION_UNAVAILABLE, ERROR_MAP_UNAVAILABLE, ERROR_MAP_NETWORK_HINT } from '../../../../utils/errorCopy'
 import { ACTION_LOCATING_CURRENT_ELLIPSIS } from '../../../../utils/actionCopy'
@@ -381,7 +382,7 @@ const _MapCanvas: React.ForwardRefRenderFunction<MapCanvasHandle, MapCanvasProps
         0.4: theme.warn,
         0.6: blendHexColors(theme.warn, theme.exp, 0.45),
         0.8: theme.exp,
-        1.0: blendHexColors(theme.exp, '#1A1C19', 0.4), // 峰值压暗（与主题无关的混合锚点）
+        1.0: blendHexColors(theme.exp, THEME_TOKEN_HEX.dark.bg, 0.4), // 峰值压暗（固定暗锚，与当前主题无关）
       },
     });
     heatmap.setDataSet({ data: heatmapData, max: 100 });

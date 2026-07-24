@@ -86,7 +86,7 @@ export const ReportRecords: React.FC<ReportRecordsProps> = ({ data }) => {
               className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
               style={{
                 backgroundColor: card.iconBg,
-                boxShadow: `0 4px 12px ${card.iconBg}40`,
+                boxShadow: `0 4px 12px color-mix(in srgb, ${card.iconBg} 25%, transparent)`,
               }}
             >
               <span style={{ fontSize: '24px' }}>{card.icon}</span>
