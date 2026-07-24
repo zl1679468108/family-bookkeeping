@@ -41,6 +41,7 @@ import {
   CONFIRM_DELETE_TRANSACTION,
 } from '../../utils/confirmCopy'
 import { FORM_SEARCH_TXN, FORM_MIN_AMOUNT, FORM_MAX_AMOUNT } from '../../utils/formCopy'
+import { FIELD_BRAND } from '../../utils/fieldCopy'
 
 const PAGE_SIZE = 20
 
@@ -423,7 +424,7 @@ const Transactions: React.FC = () => {
           </div>
           <div className="detail-divider" />
           <div className="detail-grid">
-            {selectedTransaction.brand && <DetailItem label="品牌" value={selectedTransaction.brand} />}
+            {selectedTransaction.brand && <DetailItem label={FIELD_BRAND} value={selectedTransaction.brand} />}
             {selectedTransaction.description && (
               <DetailItem
                 label="描述"

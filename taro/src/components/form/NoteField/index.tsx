@@ -4,6 +4,7 @@
 import { View, Text, Textarea } from "@tarojs/components";
 import "./index.scss";
 import { FORM_DESC_EXAMPLE } from "../../../utils/formCopy";
+import { FIELD_NOTE } from "../../../utils/fieldCopy";
 
 export interface NoteFieldProps {
   value: string;
@@ -19,7 +20,7 @@ export default function NoteField({
   return (
     <View className="ft-section ft-note">
       <View className="ft-note-head">
-        <Text className="ft-note-label">备注</Text>
+        <Text className="ft-note-label">{FIELD_NOTE}</Text>
         <Text className="ft-note-counter">
           {value.length} / {maxLength}
         </Text>

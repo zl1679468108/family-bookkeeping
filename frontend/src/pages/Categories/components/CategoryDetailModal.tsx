@@ -6,6 +6,7 @@ import type { Category } from '@family-bookkeeping/shared-types'
 import { transactionTypeLabel } from '../../../utils/transactionType'
 import { formatDateTimeMinute } from '../../../utils/date'
 import { DETAIL_CATEGORY } from '../../../utils/entityCopy'
+import { FIELD_SORT, sortOrderLabel, FIELD_CATEGORY_ID, FIELD_CREATED_AT, FIELD_UPDATED_AT } from '../../../utils/fieldCopy'
 
 interface CategoryDetailModalProps {
   selectedCategory: Category | null
@@ -72,13 +73,13 @@ export const CategoryDetailModal: React.FC<CategoryDetailModalProps> = ({
       </div>
       <div className="detail-divider" />
       <div className="detail-grid">
-        <DetailItem label="分类 ID" value={selectedCategory.id} />
-        <DetailItem label="排序" value={`第 ${selectedCategory.sort_order + 1} 位`} />
+        <DetailItem label={FIELD_CATEGORY_ID} value={selectedCategory.id} />
+        <DetailItem label={FIELD_SORT} value={sortOrderLabel(selectedCategory.sort_order)} />
         {selectedCategory.created_at && (
-          <DetailItem label="创建时间" value={formatDateTimeMinute(selectedCategory.created_at)} />
+          <DetailItem label={FIELD_CREATED_AT} value={formatDateTimeMinute(selectedCategory.created_at)} />
         )}
         {selectedCategory.updated_at && (
-          <DetailItem label="更新时间" value={formatDateTimeMinute(selectedCategory.updated_at)} />
+          <DetailItem label={FIELD_UPDATED_AT} value={formatDateTimeMinute(selectedCategory.updated_at)} />
         )}
       </div>
     </GlobalModal>

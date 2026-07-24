@@ -55,6 +55,7 @@ import {
   toAddTransactionDraftLocation,
   restoreAddTransactionFormData,
 } from "../../utils/addTransactionDraft";
+import { FIELD_TYPE, FIELD_AMOUNT, FIELD_CATEGORY, FIELD_DATE, FIELD_BRAND, FIELD_TEMPLATE } from "../../utils/fieldCopy";
 
 interface Template {
   id: string;
@@ -365,7 +366,7 @@ export default function AddTransaction() {
       {/* 快捷方式 — 置顶 */}
       <SectionCard title={SECTION_SHORTCUTS}>
         <FieldRow
-          label="模板"
+          label={FIELD_TEMPLATE}
           variant="row"
           value={selectedTemplate?.name || ""}
           placeholder={FORM_TEMPLATE_SELECT}
@@ -382,12 +383,12 @@ export default function AddTransaction() {
           value={type === "income" ? 1 : 0}
           onChange={(e: any) => setType(e.detail.value === 1 ? "income" : "expense")}
         >
-          <FieldRow label="类型" required variant="row" value={transactionTypeLabel(type)} />
+          <FieldRow label={FIELD_TYPE} required variant="row" value={transactionTypeLabel(type)} />
         </Picker>
 
         {/* 金额 */}
         <FieldRow
-          label="金额"
+          label={FIELD_AMOUNT}
           required
           variant="input"
           inputValue={amount}
@@ -404,7 +405,7 @@ export default function AddTransaction() {
 
         {/* 分类 */}
         <FieldRow
-          label="分类"
+          label={FIELD_CATEGORY}
           required
           variant="row"
           value={currentCategory?.name || ""}
@@ -418,12 +419,12 @@ export default function AddTransaction() {
           value={date}
           onChange={(e: any) => setDate(e.detail.value)}
         >
-          <FieldRow label="日期" required variant="row" value={date} />
+          <FieldRow label={FIELD_DATE} required variant="row" value={date} />
         </Picker>
 
         {/* 品牌 */}
         <FieldRow
-          label="品牌"
+          label={FIELD_BRAND}
           variant="input"
           inputValue={brand}
           inputPlaceholder={FORM_BRAND_EXAMPLE}

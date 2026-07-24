@@ -9,6 +9,7 @@ import { MAX_NOTE_LENGTH } from '../hooks/useTransactionForm'
 import type { FormData } from '../hooks/useTransactionForm'
 import type { DropdownOption } from '../../../components/ui/Dropdown'
 import { FORM_AMOUNT_PLACEHOLDER, FORM_SELECT_CATEGORY, FORM_BRAND_EXAMPLE, FORM_DESC_EXAMPLE } from '../../../utils/formCopy'
+import { FIELD_AMOUNT, FIELD_CATEGORY, FIELD_DATE, FIELD_BRAND, FIELD_NOTE } from '../../../utils/fieldCopy'
 
 interface TransactionFormProps {
   formData: FormData
@@ -30,7 +31,7 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({
       />
 
       <FormField
-        label="金额"
+        label={FIELD_AMOUNT}
         labelClassName="field-required"
         type="text"
         className="form-input amt"
@@ -46,7 +47,7 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({
       <div className="form-row">
         <div className="form-group">
           <DropdownSelect
-            label="分类"
+            label={FIELD_CATEGORY}
             options={categoryOptions}
             value={formData.category}
             onChange={(key) => setFormData((prev) => ({ ...prev, category: key }))}
@@ -56,7 +57,7 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({
           />
         </div>
         <FormField
-          label="日期"
+          label={FIELD_DATE}
           labelClassName="field-required"
           type="date"
           className="form-input"
@@ -66,7 +67,7 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({
       </div>
 
       <FormField
-        label="品牌"
+        label={FIELD_BRAND}
         type="text"
         className="form-input"
         placeholder={FORM_BRAND_EXAMPLE}
@@ -76,7 +77,7 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({
       />
 
       <Textarea
-        label="备注"
+        label={FIELD_NOTE}
         placeholder={FORM_DESC_EXAMPLE}
         value={formData.note}
         onChange={(e) => {

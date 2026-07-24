@@ -24,6 +24,7 @@ import { FILTER_ALL_CATEGORIES, FILTER_VIEW, FILTER_ALL_MEMBERS, FILTER_ALL } fr
 import { ACTION_LOADING } from '../../utils/actionCopy';
 import { TITLE_MERCHANT_FOOTPRINT } from '../../utils/sectionCopy'
 import { FORM_SELECT_MONTH, FORM_SEARCH_MONTH } from '../../utils/formCopy'
+import { FIELD_TYPE, FIELD_CATEGORY } from '../../utils/fieldCopy'
 
 type ViewMode = 'footprints' | 'heatmap';
 
@@ -241,7 +242,7 @@ const MapPage: React.FC = () => {
 
           {/* 类型 */}
           <DropdownSelect
-            label="类型"
+            label={FIELD_TYPE}
             options={typeOptions}
             value={selectedType}
             onChange={(key) => {
@@ -253,7 +254,7 @@ const MapPage: React.FC = () => {
 
           {/* 分类（使用 renderCategoryIcon 渲染自定义图标） */}
           <DropdownSelect
-            label="分类"
+            label={FIELD_CATEGORY}
             options={categoryOptions}
             value={selectedCategory}
             onChange={(key) => setSelectedCategory(key)}

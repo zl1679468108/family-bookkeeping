@@ -8,6 +8,7 @@ import { getNextExecutionDate } from '../../../utils/templateRecurring'
 import { transactionTypeLabel } from '../../../utils/transactionType'
 import { formatDateTimeMinute } from '../../../utils/date'
 import { DETAIL_TEMPLATE } from '../../../utils/entityCopy'
+import { FIELD_NOTE, FIELD_LOCATION, FIELD_SORT, FIELD_START_DATE, sortOrderLabel, FIELD_MERCHANT, FIELD_CYCLE, FIELD_END_DATE, FIELD_LAST_EXECUTED, FIELD_NEXT_EXECUTED, FIELD_CREATED_AT } from '../../../utils/fieldCopy'
 
 interface TemplateDetailModalProps {
   template: any
@@ -71,10 +72,10 @@ export const TemplateDetailModal: React.FC<TemplateDetailModalProps> = ({
       </div>
       <div className="detail-divider" />
       <div className="detail-grid">
-        {template.note && <DetailItem label="备注" value={template.note} />}
+        {template.note && <DetailItem label={FIELD_NOTE} value={template.note} />}
         {(template.location_name || (template.latitude && template.longitude)) && (
           <DetailItem
-            label="位置"
+            label={FIELD_LOCATION}
             className="full-width"
             value={
               template.location_name
@@ -84,30 +85,30 @@ export const TemplateDetailModal: React.FC<TemplateDetailModalProps> = ({
         )}
         {template.merchant_name && (
           <DetailItem
-            label="商户"
+            label={FIELD_MERCHANT}
             value={<span className="merchant-name-truncate" title={template.merchant_name}>{template.merchant_name}</span>}
           />
         )}
         {template.sort_order !== undefined && (
-          <DetailItem label="排序" value={`第 ${template.sort_order + 1} 位`} />
+          <DetailItem label={FIELD_SORT} value={sortOrderLabel(template.sort_order)} />
         )}
         {template.frequency && (
-          <DetailItem label="周期" value={formatFrequency(template.frequency)} />
+          <DetailItem label={FIELD_CYCLE} value={formatFrequency(template.frequency)} />
         )}
         {template.start_date && (
-          <DetailItem label="开始日期" value={template.start_date} />
+          <DetailItem label={FIELD_START_DATE} value={template.start_date} />
         )}
         {template.end_date && (
-          <DetailItem label="结束日期" value={template.end_date} />
+          <DetailItem label={FIELD_END_DATE} value={template.end_date} />
         )}
         {template.last_executed_at && (
-          <DetailItem label="上次执行" value={template.last_executed_at} />
+          <DetailItem label={FIELD_LAST_EXECUTED} value={template.last_executed_at} />
         )}
         {template.frequency && (
-          <DetailItem label="下次执行" value={getNextExecutionDate(template)} />
+          <DetailItem label={FIELD_NEXT_EXECUTED} value={getNextExecutionDate(template)} />
         )}
         {template.created_at && (
-          <DetailItem label="创建时间" value={formatDateTimeMinute(template.created_at)} />
+          <DetailItem label={FIELD_CREATED_AT} value={formatDateTimeMinute(template.created_at)} />
         )}
       </div>
     </GlobalModal>

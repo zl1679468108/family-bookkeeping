@@ -12,6 +12,7 @@ import { TRANSACTION_TYPE_OPTIONS } from '../../../utils/transactionType'
 import { busyLabel, ACTION_SAVING } from '../../../utils/actionCopy'
 import { entityFormTitle, ENTITY_TEMPLATE } from '../../../utils/entityCopy'
 import { FORM_TEMPLATE_NAME_EXAMPLE, FORM_SELECT_TYPE, FORM_SELECT_CATEGORY, FORM_AMOUNT_PLACEHOLDER, FORM_NOTE_OPTIONAL, FORM_SELECT_FREQUENCY } from '../../../utils/formCopy'
+import { FIELD_TYPE, FIELD_CATEGORY, FIELD_AMOUNT, FIELD_NOTE, FIELD_SORT, FIELD_FREQUENCY, FIELD_START_DATE } from '../../../utils/fieldCopy'
 
 interface TemplateFormProps {
   open: boolean
@@ -85,7 +86,7 @@ export const TemplateFormModal: React.FC<TemplateFormProps> = ({
           />
           <div className="tpl-form-row">
             <DropdownSelect
-              label="类型"
+              label={FIELD_TYPE}
               value={form.type}
               onChange={(v) => setForm((prev: any) => ({ ...prev, type: v as 'income' | 'expense', category_id: '' }))}
               options={[...TRANSACTION_TYPE_OPTIONS]}
@@ -93,7 +94,7 @@ export const TemplateFormModal: React.FC<TemplateFormProps> = ({
               required
             />
             <DropdownSelect
-              label="分类"
+              label={FIELD_CATEGORY}
               value={form.category_id}
               onChange={(v) => setForm((prev: any) => ({ ...prev, category_id: v }))}
               options={categories
@@ -104,14 +105,14 @@ export const TemplateFormModal: React.FC<TemplateFormProps> = ({
             />
           </div>
           <NumberInput
-            label="金额"
+            label={FIELD_AMOUNT}
             prefix="¥"
             placeholder={FORM_AMOUNT_PLACEHOLDER}
             value={form.amount}
             onChange={(v) => setForm((prev: any) => ({ ...prev, amount: v }))}
           />
           <Input
-            label="备注"
+            label={FIELD_NOTE}
             placeholder={FORM_NOTE_OPTIONAL}
             value={form.note}
             onChange={(e) => setForm((prev: any) => ({ ...prev, note: e.target.value }))}
@@ -138,7 +139,7 @@ export const TemplateFormModal: React.FC<TemplateFormProps> = ({
           {!editingId && (
             <div className="tpl-form-row full-width">
               <NumberInput
-                label="排序"
+                label={FIELD_SORT}
                 value={String(form.sort_order || 0)}
                 onChange={(v) => setForm((prev: any) => ({ ...prev, sort_order: parseInt(v) || 0 }))}
                 placeholder="0"
@@ -149,7 +150,7 @@ export const TemplateFormModal: React.FC<TemplateFormProps> = ({
             <label className="tpl-form-label">周期记账（可选）</label>
             <div className="tpl-form-row">
               <DropdownSelect
-                label="频率"
+                label={FIELD_FREQUENCY}
                 value={form.frequency || ''}
                 onChange={(v) => setForm((prev: any) => ({ ...prev, frequency: v || undefined }))}
                 options={[{ key: '', label: '不重复' }, ...FREQUENCY_OPTIONS]}
@@ -159,7 +160,7 @@ export const TemplateFormModal: React.FC<TemplateFormProps> = ({
             {form.frequency && (
               <div className="tpl-form-row">
                 <Input
-                  label="开始日期"
+                  label={FIELD_START_DATE}
                   type="date"
                   value={form.start_date || ''}
                   onChange={(e) => setForm((prev: any) => ({ ...prev, start_date: e.target.value }))}

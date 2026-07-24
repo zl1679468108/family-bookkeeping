@@ -45,6 +45,7 @@ import { failEntityUpsert } from "../../utils/errorCopy";
 import { EMPTY_NO_CATEGORIES_SHORT } from "../../utils/emptyCopy";
 import { SECTION_TEMPLATE_INFO } from "../../utils/sectionCopy";
 import { FORM_TEMPLATE_NAME_EXAMPLE, FORM_AMOUNT_PLACEHOLDER, FORM_NOTE_OPTIONAL } from "../../utils/formCopy";
+import { FIELD_TYPE, FIELD_CATEGORY, FIELD_AMOUNT, FIELD_NOTE, FIELD_TEMPLATE_NAME, FIELD_LOCATION_INFO, FIELD_SORT } from "../../utils/fieldCopy";
 
 type TplType = "expense" | "income";
 
@@ -170,7 +171,7 @@ export default function TemplateEdit() {
 
       <AppSection title={SECTION_TEMPLATE_INFO} compact>
         <View className="tpl-field">
-          <Text className="tpl-label tpl-label--required">模板名称</Text>
+          <Text className="tpl-label tpl-label--required">{FIELD_TEMPLATE_NAME}</Text>
           <Input
             className="tpl-input"
             placeholder={FORM_TEMPLATE_NAME_EXAMPLE}
@@ -182,7 +183,7 @@ export default function TemplateEdit() {
 
         <View className="tpl-row">
           <View className="tpl-field tpl-field--half">
-            <Text className="tpl-label tpl-label--required">类型</Text>
+            <Text className="tpl-label tpl-label--required">{FIELD_TYPE}</Text>
             <Picker
               mode="selector"
               range={typeDisplayRange}
@@ -225,7 +226,7 @@ export default function TemplateEdit() {
           </View>
 
           <View className="tpl-field tpl-field--half">
-            <Text className="tpl-label tpl-label--required">分类</Text>
+            <Text className="tpl-label tpl-label--required">{FIELD_CATEGORY}</Text>
             <Picker
               mode="selector"
               range={
@@ -274,7 +275,7 @@ export default function TemplateEdit() {
         </View>
 
         <View className="tpl-field">
-          <Text className="tpl-label">金额</Text>
+          <Text className="tpl-label">{FIELD_AMOUNT}</Text>
           <View className="tpl-input-wrap">
             <Text className="tpl-input-prefix">¥</Text>
             <Input
@@ -288,7 +289,7 @@ export default function TemplateEdit() {
         </View>
 
         <View className="tpl-field">
-          <Text className="tpl-label">备注</Text>
+          <Text className="tpl-label">{FIELD_NOTE}</Text>
           <Input
             className="tpl-input"
             placeholder={FORM_NOTE_OPTIONAL}
@@ -298,7 +299,7 @@ export default function TemplateEdit() {
         </View>
 
         <View className="tpl-field">
-          <Text className="tpl-label">位置信息</Text>
+          <Text className="tpl-label">{FIELD_LOCATION_INFO}</Text>
           {form.location_name ? (
             <View className="tpl-location-card">
               <Text className="tpl-location-card__name">{form.location_name}</Text>
@@ -328,7 +329,7 @@ export default function TemplateEdit() {
 
         {!isEdit && (
           <View className="tpl-field">
-            <Text className="tpl-label">排序</Text>
+            <Text className="tpl-label">{FIELD_SORT}</Text>
             <Input
               className="tpl-input tpl-input--num"
               placeholder="0"

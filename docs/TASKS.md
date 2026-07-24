@@ -85,6 +85,10 @@
 
 ### ✅ 已完成
 
+#### 2026-07-24 fieldCopy 字段标签双端统一
+- 新增 `shared-utils/fieldCopy`：金额/分类/日期/品牌/备注/排序/商户/周期/时间等字段标签 + `sortOrderLabel`
+- 接线 PC 记一笔/模板/分类/地图/流水详情，Taro 记一笔/NoteField/TemplateEdit
+
 #### 2026-07-24 月份导航 pure + 搜索/Admin 确认文案 shared
 - `monthState.shiftYearMonth` / `parseYearMonthKey`；PC 日历上下月与月份切换改用
 - `FORM_SEARCH_MONTH|YEAR|USER|TXN_DESC`：报表/年报/日历/地图/Admin 搜索占位统一
