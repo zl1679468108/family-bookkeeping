@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { Sun, Moon, Monitor } from 'lucide-react';
+import { Icon } from '../components/ui/Icon';
 
 type ThemeMode = 'light' | 'dark' | 'system';
 type ResolvedTheme = 'light' | 'dark';
@@ -105,9 +105,9 @@ export const ThemeToggle: React.FC = () => {
   const { theme, setTheme } = useTheme();
 
   const modes: { value: ThemeMode; label: string; icon: React.ReactNode }[] = [
-    { value: 'light', label: '浅色', icon: <Sun size={16} /> },
-    { value: 'dark', label: '暗色', icon: <Moon size={16} /> },
-    { value: 'system', label: '跟随系统', icon: <Monitor size={16} /> },
+    { value: 'light', label: '浅色', icon: <Icon name="sun" size={16} /> },
+    { value: 'dark', label: '暗色', icon: <Icon name="moon" size={16} /> },
+    { value: 'system', label: '跟随系统', icon: <Icon name="monitor" size={16} /> },
   ];
 
   const currentIndex = modes.findIndex((m) => m.value === theme);

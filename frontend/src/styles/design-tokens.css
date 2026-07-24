@@ -178,6 +178,12 @@
   --sh4: 0 16px 48px rgba(0, 0, 0, 0.5);
 }
 
+/* 文本选区：随主题表面/主色变化 */
+::selection {
+  background: color-mix(in srgb, var(--pr) 28%, transparent);
+  color: var(--fg);
+}
+
 /* ═══ 全局动画关键帧 ═══ */
 @keyframes fadeIn    { from { opacity: 0; }                    to { opacity: 1; } }
 @keyframes fadeInUp  { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }

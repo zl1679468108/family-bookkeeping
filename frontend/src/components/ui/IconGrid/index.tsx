@@ -197,7 +197,13 @@ export const IconGrid: React.FC<IconGridProps> = ({
                 onClick={handleUploadClick}
                 disabled={uploading}
               >
-                <span className="icon-btn-emoji">{uploading ? '⏳' : '➕'}</span>
+                <span className="icon-btn-emoji" aria-hidden>
+                  {uploading ? (
+                    <span className="icon-btn-spinner" />
+                  ) : (
+                    <Icon name="add" size={18} />
+                  )}
+                </span>
                 <span className="icon-btn-label">{uploading ? '上传中' : '上传'}</span>
               </button>
             )}

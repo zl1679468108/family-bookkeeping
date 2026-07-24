@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react'
+import { Icon } from '../components/ui/Icon'
 
 export type NotificationType = 'success' | 'error' | 'info'
 
@@ -100,11 +101,11 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
               <button
                 type="button"
                 onClick={() => setNotifications((current) => current.filter((notification) => notification.id !== item.id))}
-                className="text-xs font-medium opacity-70 hover:opacity-100"
+                className="text-xs font-medium opacity-70 hover:opacity-100 shrink-0"
                 aria-label="关闭通知"
                 style={{ color: 'inherit' }}
               >
-                ×
+                <Icon name="close" size={14} />
               </button>
             </div>
           </div>

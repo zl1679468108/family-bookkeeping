@@ -167,6 +167,16 @@
 - 邀请/转移邮箱：FE InviteMemberModal、Taro Books/BookMembers/BookSettings 改用 `validateEmail`（空+格式）
 - 验证：frontend / taro `tsc --noEmit`
 
+#### 2026-07-24 报表周期区间 shared 化
+- 新增 `shared-utils/src/reportPeriod`：`REPORT_PERIOD` / `PeriodType` / `REPORT_PERIOD_OPTIONS`、`resolveReportPeriodRange`、`trailingCalendarMonthsRange`、`monthToDateRange`、`monthBoundsFrom*`、`trailingYearRangeEndingAt` 等
+- PC `useReportData` / 报表周期 tabs 接线；Taro Home 本月摘要区间改 `monthToDateRange`
+- 去掉报表 hook 对 date-fns 的区间依赖，自然月口径双端对齐
+
+#### 2026-07-24 PC 暗色第八轮 + Icon 主题收口
+- 全站 SCSS 硬编码 hex/rgba 复核：业务样式已令牌化；保留插画/热力/压缩画布等有意固定色
+- `::selection` 随 `--pr/--fg`；主题切换去掉 `lucide-react`，改 `Icon` 的 sun/moon/monitor
+- Toast 关闭、IconGrid 上传入口改 `Icon`；上传中用令牌色 spinner
+
 #### 2026-07-24 PC 暗色第七轮（令牌/对比度/原生控件）
 - `--prGr` 暗色覆盖；`color-scheme` 随 `data-theme`（含 index 启动脚本防 FOUC）
 - nav-tip 反色文字 `on-pr`→`bg`；模板位置勾 `prGr`→`pr`；`--danger`→`--exp`

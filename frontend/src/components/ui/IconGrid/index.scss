@@ -111,3 +111,13 @@
     opacity: 0.4;
   }
 }
+
+.icon-btn-spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--bd);
+  border-top-color: var(--pr);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
