@@ -37,7 +37,7 @@ import { SUCCESS_BUDGET_SAVED, SUCCESS_BUDGET_DELETED, successBudgetCopiedFromLa
 import { FORM_BUDGET_NONE, FORM_BUDGET_NO_LAST_MONTH } from '../../utils/formCopy'
 import { EMPTY_BUDGET_NO_EXPENSE_CATEGORIES } from '../../utils/emptyCopy'
 import { ERROR_BUDGET_SAVE_FAILED, ERROR_COPY_BUDGET_FAILED } from '../../utils/errorCopy'
-import { DETAIL_BUDGET } from '../../utils/entityCopy'
+import { DETAIL_BUDGET, ENTITY_BUDGET, entityEditNamedTitle, ACTION_EDIT_BUDGET, ACTION_DELETE_BUDGET } from '../../utils/entityCopy'
 import { FIELD_PROGRESS, FIELD_SPENT, FIELD_BUDGET_AMOUNT, FIELD_REMAINING, FIELD_STATUS, FIELD_MONTH } from '../../utils/fieldCopy'
 
 const Budgets: React.FC = () => {
@@ -375,10 +375,10 @@ const Budgets: React.FC = () => {
                 variant="secondary"
                 onClick={() => handleOpenEditForm(selectedBudget)}
               >
-                编辑预算
+                {ACTION_EDIT_BUDGET}
               </Button>
               <Button variant="danger" onClick={() => setShowDeleteConfirm(true)}>
-                删除预算
+                {ACTION_DELETE_BUDGET}
               </Button>
             </Space>
           }
@@ -409,7 +409,7 @@ const Budgets: React.FC = () => {
       <GlobalModal
         open={showEditForm && !!selectedBudget}
         onClose={() => setShowEditForm(false)}
-        title={`编辑预算 - ${selectedBudget?.category.name || ''}`}
+        title={entityEditNamedTitle(ENTITY_BUDGET, selectedBudget?.category.name)}
         footer={
           <FooterActions align="end" className="global-modal-dialog__footer-inner">
             <Button variant="secondary" onClick={() => setShowEditForm(false)}>{ACTION_CANCEL}</Button>

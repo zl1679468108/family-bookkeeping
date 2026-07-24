@@ -35,6 +35,8 @@ import "./index.scss";
 import { getErrorMessage } from "../../utils/errorMessage";
 import { toastSuccess, toastInfo } from "../../utils/toast";
 import { ACTION_DELETING, ACTION_LOADING, ACTION_SAVING, saveOrCreateLabel, ACTION_CREATE_CATEGORY, ACTION_DELETE } from "../../utils/actionCopy"
+import { getThemeTokenHex } from "../../utils/themeTokens"
+import { useTheme } from "../../context/ThemeContext"
 import {
   CONFIRM_DELETE_TITLE,
   CONFIRM_DELETE_TEXT,
@@ -60,6 +62,8 @@ interface CustomIconItem {
 type CatType = "expense" | "income";
 
 export default function CategoryEdit() {
+  const { isDark } = useTheme();
+  const themeHex = getThemeTokenHex(isDark);
   const router = getCurrentInstance().router;
   const id = (router?.params?.id as string) || "";
   const typeParam = (router?.params?.type as CatType) || "expense";
@@ -261,7 +265,7 @@ export default function CategoryEdit() {
               >
                 <View className="catedit-platform-item__icon">
                   <Image
-                    src={renderPlatformIconSvg(item.key, 22, selected ? "#2d9d8a" : "#1a1c19")}
+                    src={renderPlatformIconSvg(item.key, 22, selected ? themeHex.pr : themeHex.fg)}
                     mode="aspectFit"
                     style={{ width: "22px", height: "22px", display: "block" }}
                   />

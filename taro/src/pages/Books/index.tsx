@@ -54,6 +54,8 @@ import { formatDateTimeMinute } from "../../utils/date";
 import { isCustomIconUrl } from "../../utils/bookIcons";
 import { EMPTY_NO_MEMBERS } from "../../utils/emptyCopy";
 import { TITLE_JOIN_BY_INVITE } from "../../utils/sectionCopy";
+import { getThemeTokenHex } from "../../utils/themeTokens";
+import { useTheme } from "../../context/ThemeContext";
 
 type BookRow = Book & { is_default?: boolean };
 
@@ -65,6 +67,8 @@ interface Member {
 }
 
 export default function BooksPage() {
+  const { isDark } = useTheme();
+  const themeHex = getThemeTokenHex(isDark);
   const { currentBook, switchBook } = useBookContext();
   const { user } = useAuth();
   const { run } = useSubmit();
@@ -337,7 +341,7 @@ export default function BooksPage() {
                       <Text>图</Text>
                     ) : (
                       <Image
-                        src={renderBookIconSvg(book.icon, 28, "#1a1c19")}
+                        src={renderBookIconSvg(book.icon, 28, themeHex.fg)}
                         mode="aspectFit"
                         style={{ width: "28px", height: "28px", display: "block" }}
                       />
@@ -445,7 +449,7 @@ export default function BooksPage() {
                         <Text style={{ fontSize: "36rpx" }}>图</Text>
                       ) : (
                         <Image
-                          src={renderBookIconSvg(detailBook.icon, 40, "#1a1c19")}
+                          src={renderBookIconSvg(detailBook.icon, 40, themeHex.fg)}
                           mode="aspectFit"
                           style={{ width: "40px", height: "40px", display: "block" }}
                         />

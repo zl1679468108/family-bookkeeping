@@ -85,6 +85,15 @@
 
 ### ✅ 已完成
 
+#### 2026-07-24 暗色第九轮 + 页标题/月份/主题 hex 收口
+- 新增 `shared-utils/themeTokens`：SVG data URL / 导航栏等无法读 CSS var 的静态亮暗 hex；PC/Taro facade
+- 年报 `ReportCover` 按 `resolvedTheme` + `getThemeColors` 重绘渐变与山丘色，去掉 Material 硬编码与 `text-white`
+- Taro 账本/引导/分类编辑图标色与 `useNavBarTheme` 改读 `getThemeTokenHex`，暗色下不再固定 `#1A1C19/#2D9D8A`
+- 页标题 shared：`TITLE_MEMBER_MANAGE`、成员对比三卡标题、`entityEditNamedTitle` / `ACTION_EDIT_BUDGET|DELETE_BUDGET`；BookSettings/Onboarding/Budgets/MemberComparison 接线
+- 月份：`shiftToYearMonthString`；报表 `monthCompareTarget` / 成员对比起始月对齐 monthState
+- 验证：frontend / taro `tsc --noEmit`
+
+
 #### 2026-07-24 日历 monthState + 鉴权错误/协议文案
 - PC 日历初始年月改用 `currentYearMonth`
 - 协议勾选、登录/改密失败、Taro 鉴权 busy 省略号文案 shared 化

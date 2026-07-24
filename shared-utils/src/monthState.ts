@@ -47,3 +47,15 @@ export function parseYearMonthKey(key: string): YearMonth | null {
   if (month < 1 || month > 12) return null
   return { year, month }
 }
+
+/** YYYY-MM（报表对比等，无日） */
+export function toYearMonthString(year: number, month: number): string {
+  return `${year}-${String(month).padStart(2, '0')}`
+}
+
+/** 当前月 ± delta → YYYY-MM */
+export function shiftToYearMonthString(delta = 0, now: Date = new Date()): string {
+  const cur = currentYearMonth(now)
+  const next = shiftYearMonth(cur.year, cur.month, delta)
+  return toYearMonthString(next.year, next.month)
+}

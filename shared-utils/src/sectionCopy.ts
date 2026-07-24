@@ -36,6 +36,19 @@ export const TITLE_TEMPLATE_MANAGE = entityManageTitle(ENTITY_TEMPLATE)
 export const TITLE_BUDGET_MANAGE = entityManageTitle(ENTITY_BUDGET)
 export const TITLE_BOOK_MANAGE = entityManageTitle(ENTITY_BOOK)
 export const TITLE_TRANSACTION_MANAGE = entityManageTitle(ENTITY_TRANSACTION)
+export const TITLE_MEMBER_MANAGE = entityManageTitle('成员')
+
+/** 成员对比卡片 */
+export const TITLE_MEMBER_SPEND = '成员支出分布'
+export const TITLE_CATEGORY_COMPARE = '分类对比'
+export const TITLE_MONTHLY_ESTIMATE = '月度估算'
+
+/** 标题 · 周期 */
+export function withPeriodLabel(title: string, periodLabel: string): string {
+  const p = String(periodLabel || '').trim()
+  return p ? `${title} · ${p}` : title
+}
+
 
 /** 位置选择 */
 export const TITLE_SELECT_LOCATION = '选择消费位置'

@@ -1,3 +1,4 @@
+import { THEME_TOKEN_HEX } from "./themeTokens";
 /**
  * 购物平台图标 — 纯数据与 data URL 见 shared-utils；保持 Taro 旧 API。
  */
@@ -29,5 +30,5 @@ export const getPlatformIconByKey = (key: string): string =>
 export const renderPlatformIconSvg = (
   key: string,
   _size: number = 20,
-  color: string = "#1a1c19",
+  color: string = THEME_TOKEN_HEX.light.fg,
 ): string => getPlatformIconSvgDataUrl(key, color);

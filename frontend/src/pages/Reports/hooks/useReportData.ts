@@ -20,6 +20,7 @@ import {
   isReportMonthlyTrendView,
   REPORT_PERIOD_OPTIONS,
 } from '../../../utils/reportPeriod'
+import { shiftToYearMonthString } from '../../../utils/monthState'
 
 export { PeriodType, REPORT_PERIOD_OPTIONS }
 
@@ -28,11 +29,7 @@ export function useReportData() {
   const { currentBook } = useBook()
   const bookId = currentBook?.id || ''
   const [period, setPeriod] = useState<PeriodType>(PeriodType.Month)
-  const [monthCompareTarget, setMonthCompareTarget] = useState(() => {
-    const d = new Date()
-    d.setMonth(d.getMonth() - 1)
-    return toYearMonth(d)
-  })
+  const [monthCompareTarget, setMonthCompareTarget] = useState(() => shiftToYearMonthString(-1))
   const [yearCompareTarget, setYearCompareTarget] = useState(() => new Date().getFullYear() - 1)
 
   const now = useMemo(() => new Date(), [])

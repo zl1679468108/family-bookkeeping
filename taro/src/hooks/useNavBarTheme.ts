@@ -13,6 +13,7 @@
  */
 import { useEffect } from "react";
 import Taro, { useDidShow } from "@tarojs/taro";
+import { getThemeTokenHex } from "../utils/themeTokens";
 
 const THEME_STORAGE_KEY = "app_theme_mode";
 
@@ -27,9 +28,10 @@ function readIsDark(): boolean {
 /** 同步设置导航栏配色（无动画、无条件） */
 function applyNavBarColor(isDark: boolean) {
   try {
+    const hex = getThemeTokenHex(isDark);
     Taro.setNavigationBarColor({
-      frontColor: isDark ? "#ffffff" : "#000000",
-      backgroundColor: isDark ? "#1A1C19" : "#FFFFFF",
+      frontColor: isDark ? hex.onPr : "#000000",
+      backgroundColor: isDark ? hex.bg : hex.srf,
     });
   } catch {
     // 个别基础库版本异常时静默忽略

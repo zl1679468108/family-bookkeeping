@@ -12,6 +12,7 @@ import { getChartPalette, getEchartsChrome } from '../../utils/themeColors'
 import { useTheme } from '../../utils/theme'
 import { formatMonthDisplayCompact, generateMonthKeysBetween } from '../../utils/month'
 import { EMPTY_MEMBER_SPEND_PERIOD, EMPTY_LOAD_FAILED } from '../../utils/emptyCopy';
+import { TITLE_MEMBER_SPEND, TITLE_CATEGORY_COMPARE, TITLE_MONTHLY_ESTIMATE, withPeriodLabel } from '../../utils/sectionCopy';
 
 interface MemberComparisonProps {
   monthFrom: string;
@@ -294,18 +295,18 @@ export const MemberComparison: React.FC<MemberComparisonProps> = ({
       {/* 第一行：成员支出分布 + 分类对比 并排 */}
       <div style={{ display: 'flex', gap: '14px' }}>
         <Card style={{ flex: 1 }}>
-          <CardHeader title={`成员支出分布 · ${periodLabel}`} />
+          <CardHeader title={withPeriodLabel(TITLE_MEMBER_SPEND, periodLabel)} />
           <MemberExpensePieChart data={data} />
         </Card>
         <Card style={{ flex: 1 }}>
-          <CardHeader title={`分类对比 · ${periodLabel}`} />
+          <CardHeader title={withPeriodLabel(TITLE_CATEGORY_COMPARE, periodLabel)} />
           <CategoryPieChart data={data} />
         </Card>
       </div>
 
       {/* 第二行：月度明细 */}
       <Card style={{ marginTop: '14px' }}>
-        <CardHeader title={`月度估算 · ${periodLabel}`} />
+        <CardHeader title={withPeriodLabel(TITLE_MONTHLY_ESTIMATE, periodLabel)} />
         <MonthlyBarChart data={data} monthFrom={monthFrom} monthTo={monthTo} />
       </Card>
     </div>

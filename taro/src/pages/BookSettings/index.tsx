@@ -35,7 +35,7 @@ import { useSubmit, toastError } from "../../hooks/useSubmit";
 import "./index.scss";
 import { getErrorMessage } from "../../utils/errorMessage";
 import { toastSuccess, toastInfo } from "../../utils/toast";
-import { ACTION_DELETING, ACTION_LOADING, ACTION_SAVING, ACTION_CANCEL, ACTION_SAVE, ACTION_DELETE_BOOK } from "../../utils/actionCopy"
+import { ACTION_DELETING, ACTION_LOADING, ACTION_SAVING, ACTION_CANCEL, ACTION_SAVE, ACTION_DELETE_BOOK, ACTION_CREATE_BOOK } from "../../utils/actionCopy"
 import {
   CONFIRM_DELETE_TITLE,
   CONFIRM_DELETE_TEXT,
@@ -45,10 +45,12 @@ import { FORM_PRIVACY_REQUIRED, FORM_OWNER_EMAIL_REQUIRED, FORM_PASSWORD_VERIFY,
 import { validateEmail } from "../../utils/validation";
 import { SUCCESS_BOOK_CREATED, SUCCESS_CUSTOM_ICON_ADDED, SUCCESS_DELETED, SUCCESS_OWNERSHIP_TRANSFERRED, SUCCESS_UPDATED, successEntityDeleted } from "../../utils/successCopy";
 import { entityFormTitle, ENTITY_BOOK } from "../../utils/entityCopy";
+import { getThemeTokenHex } from "../../utils/themeTokens";
+import { useTheme } from "../../context/ThemeContext";
 import { IMAGE_SELECT_FAILED, DELETE_FAILED, UPLOAD_FAILED } from "../../utils/uploadCopy";
 import { ERROR_CREATE_FAILED, ERROR_SAVE_FAILED, ERROR_TRANSFER_FAILED } from "../../utils/errorCopy";
 import Icon, { ICON_COLOR } from "../../components/Icon";
-import { TITLE_TRANSFER_OWNERSHIP } from "../../utils/sectionCopy"
+import { TITLE_TRANSFER_OWNERSHIP, TITLE_MEMBER_MANAGE } from "../../utils/sectionCopy"
 import { FIELD_DESC_OPTIONAL, FIELD_ICON, FIELD_CUSTOM, FIELD_OWNER_EMAIL, FIELD_YOUR_PASSWORD, FIELD_BOOK_NAME } from "../../utils/fieldCopy";
 
 interface Member {
@@ -59,6 +61,8 @@ interface Member {
 }
 
 export default function BookSettings() {
+  const { isDark } = useTheme();
+  const themeHex = getThemeTokenHex(isDark);
   const router = getCurrentInstance().router;
   const bookId = (router?.params?.id as string) || "";
   const isAdd = !bookId;
@@ -337,7 +341,7 @@ export default function BookSettings() {
                         src={renderBookIconSvg(
                           item.key,
                           20,
-                          isSelected ? "#2d9d8a" : "#1a1c19",
+                          isSelected ? themeHex.pr : themeHex.fg,
                         )}
                         mode="aspectFit"
                         style={{ width: "20px", height: "20px", display: "block" }}
@@ -393,7 +397,7 @@ export default function BookSettings() {
 
         <StickyActionBar tone="blur">
           <Button variant="primary" size="lg" block onClick={handleCreate}>
-            创建账本
+            {ACTION_CREATE_BOOK}
           </Button>
         </StickyActionBar>
       </PageContainer>
@@ -447,7 +451,7 @@ export default function BookSettings() {
                         src={renderBookIconSvg(
                           item.key,
                           20,
-                          isSelected ? "#2d9d8a" : "#1a1c19",
+                          isSelected ? themeHex.pr : themeHex.fg,
                         )}
                         mode="aspectFit"
                         style={{ width: "20px", height: "20px", display: "block" }}
@@ -517,7 +521,7 @@ export default function BookSettings() {
                 <MenuList
                   items={[
                     {
-                      label: "成员管理",
+                      label: TITLE_MEMBER_MANAGE,
                       icon: "profile",
                       right: (
                         <Text className="bs-info-row__value">

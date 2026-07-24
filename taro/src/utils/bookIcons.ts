@@ -1,3 +1,4 @@
+import { THEME_TOKEN_HEX } from "./themeTokens";
 /**
  * 账本图标 — 纯数据与 SVG data URL 见 shared-utils；本文件保持 Taro 旧 API 别名。
  */
@@ -32,5 +33,5 @@ export const getBookIconByKey = (iconKey?: string): string =>
 export const renderBookIconSvg = (
   iconKey?: string,
   _size: number = 20,
-  color: string = "#1a1c19",
+  color: string = THEME_TOKEN_HEX.light.fg,
 ): string => getBookIconSvgDataUrl(iconKey, color);

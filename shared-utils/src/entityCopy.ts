@@ -36,3 +36,18 @@ export const DETAIL_TEMPLATE = entityDetailTitle(ENTITY_TEMPLATE)
 export const DETAIL_BOOK = entityDetailTitle(ENTITY_BOOK)
 export const DETAIL_TRANSACTION = entityDetailTitle(ENTITY_TRANSACTION)
 export const DETAIL_BUDGET = entityDetailTitle(ENTITY_BUDGET)
+
+/** 编辑预算 - 餐饮 */
+export function entityEditNamedTitle(entity: string, name?: string | null): string {
+  const base = entityEditTitle(entity)
+  const n = String(name || '').trim()
+  return n ? `${base} - ${n}` : base
+}
+
+/** 删除预算 / 删除分类 */
+export function entityDeleteAction(entity: string): string {
+  return `删除${entity}`
+}
+
+export const ACTION_EDIT_BUDGET = entityEditTitle(ENTITY_BUDGET)
+export const ACTION_DELETE_BUDGET = entityDeleteAction(ENTITY_BUDGET)

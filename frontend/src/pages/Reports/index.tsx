@@ -13,7 +13,7 @@ import MemberComparison from './MemberComparison'
 import { TrendChart } from './components/TrendChart'
 import { CategoryRankChart } from './components/CategoryRankChart'
 import { useReportData, PeriodType, REPORT_PERIOD_OPTIONS } from './hooks/useReportData'
-import { toYearMonth } from '../../utils/reportPeriod'
+import { shiftToYearMonthString } from '../../utils/monthState'
 import { formatAmount } from '../../utils/common'
 import { formatMonthDisplay } from '../../utils/month'
 import { EMPTY_NO_CATEGORY_DATA, EMPTY_NO_TRANSACTIONS_PERIOD, EMPTY_MEMBER_COMPARE_NEED_MULTI, EMPTY_SELECT_BOOK } from '../../utils/emptyCopy'
@@ -26,12 +26,8 @@ const Reports: React.FC = () => {
   const { currentBook } = useBook()
   const { isMultiMember } = useMemberColors(currentBook?.id)
   const [tab, setTab] = useState<'analysis' | 'members'>('analysis')
-  const [memberStartMonth, setMemberStartMonth] = useState(() => {
-    const d = new Date()
-    d.setMonth(d.getMonth() - 11)
-    return toYearMonth(d)
-  })
-  const [memberEndMonth, setMemberEndMonth] = useState(() => toYearMonth(new Date()))
+  const [memberStartMonth, setMemberStartMonth] = useState(() => shiftToYearMonthString(-11))
+  const [memberEndMonth, setMemberEndMonth] = useState(() => shiftToYearMonthString(0))
 
   const {
     period, setPeriod,

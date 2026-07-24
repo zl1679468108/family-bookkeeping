@@ -26,11 +26,14 @@ import { ERROR_CREATE_FAILED_RETRY, ERROR_INVALID_INVITE } from "../../utils/err
 import Icon, { ICON_COLOR } from "../../components/Icon";
 import { FIELD_BOOK_NAME, FIELD_DESC_OPTIONAL, FIELD_ICON, FIELD_INVITE_CODE } from "../../utils/fieldCopy";
 import { TITLE_JOIN_BY_INVITE, ONBOARDING_CREATE_TITLE, ONBOARDING_CREATE_DESC, ONBOARDING_JOIN_DESC } from "../../utils/sectionCopy"
+import { ACTION_CREATE_BOOK } from "../../utils/actionCopy"
+import { getThemeTokenHex } from "../../utils/themeTokens"
 
 type Mode = "choice" | "create" | "join";
 
 export default function Onboarding() {
   const { isDark } = useTheme();
+  const themeHex = getThemeTokenHex(isDark);
   useNavBarTheme();
   const { refetchBooks, switchBook } = useBookContext();
   const { run } = useSubmit();
@@ -104,7 +107,7 @@ export default function Onboarding() {
           <View className="ob-opt" onClick={() => setMode("create")}>
             <View className="ob-opt__icon">
               <Image
-                src={renderBookIconSvg("default", 26, "#2D9D8A")}
+                src={renderBookIconSvg("default", 26, themeHex.pr)}
                 mode="aspectFit"
                 style={{ width: "26px", height: "26px", display: "block" }}
               />
@@ -136,7 +139,7 @@ export default function Onboarding() {
               <Icon name="back" size={28} color={ICON_COLOR.muted} />
               <Text>{FORM_BACK}</Text>
             </View>
-            <Text className="ob-nav__title">创建账本</Text>
+            <Text className="ob-nav__title">{ACTION_CREATE_BOOK}</Text>
             <View className="ob-nav__spacer" />
           </View>
 
@@ -178,7 +181,7 @@ export default function Onboarding() {
                     src={renderBookIconSvg(
                       item.key,
                       20,
-                      selected ? "#2D9D8A" : "#1A1C19",
+                      selected ? themeHex.pr : themeHex.fg,
                     )}
                     mode="aspectFit"
                     style={{ width: "20px", height: "20px", display: "block" }}
@@ -196,7 +199,7 @@ export default function Onboarding() {
           </View>
 
           <Button variant="primary" block size="lg" onClick={handleCreate}>
-            创建账本
+            {ACTION_CREATE_BOOK}
           </Button>
         </View>
       )}
