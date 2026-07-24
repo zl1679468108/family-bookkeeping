@@ -38,3 +38,6 @@ export { getErrorMessage } from "./errorMessage";
 
 export { monthDateRange, toMonthKey, parseMonthKey } from "./month";
 
+// 轻提示 — 详见 ./toast
+export { toast, toastSuccess, toastInfo, toastWarn, toastError } from "./toast";
+export type { ToastType } from "./toast";

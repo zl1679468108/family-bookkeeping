@@ -33,6 +33,7 @@ import { useManualQuery } from "../../hooks/useManualQuery";
 import { useSubmit, toastError } from "../../hooks/useSubmit";
 import "./index.scss";
 import { getErrorMessage } from "../../utils/errorMessage";
+import { toastSuccess, toastInfo } from "../../utils/toast";
 
 interface CustomIconItem {
   id: string;
@@ -101,9 +102,9 @@ export default function CategoryEdit() {
           if (iconUrl) {
             setForm({ ...form, icon: iconUrl });
             refreshCustomIcons();
-            Taro.showToast({ title: "已添加到自定义", icon: "success" });
+            toastSuccess("已添加到自定义");
           } else {
-            Taro.showToast({ title: "上传失败", icon: "none" });
+            toastInfo("上传失败");
           }
         }, "上传中…").catch((err: any) => {
       toastError(err, "上传失败");
@@ -113,11 +114,11 @@ export default function CategoryEdit() {
         const msg = getErrorMessage(err, "");
         if (msg.indexOf("cancel") !== -1) return;
         if (isPrivacyError(err)) {
-          Taro.showToast({ title: "请先同意隐私协议", icon: "none" });
+          toastInfo("请先同意隐私协议");
           openPrivacySetting();
           return;
         }
-        Taro.showToast({ title: msg || "选择图片失败", icon: "none" });
+        toastInfo(msg || "选择图片失败");
       });
   };
 
@@ -126,15 +127,15 @@ export default function CategoryEdit() {
     deleteIcon(iconId)
       .then(() => {
         refreshCustomIcons();
-        Taro.showToast({ title: "已删除", icon: "success" });
+        toastSuccess("已删除");
       })
-      .catch(() => Taro.showToast({ title: "删除失败", icon: "none" }));
+      .catch(() => toastInfo("删除失败"));
   };
 
   // --- 提交/删除（手动 Promise 链，规避 Taro 下 useMutation 卡死）---
   const handleSave = () => {
     if (!form.name.trim()) {
-      Taro.showToast({ title: "请输入名称", icon: "none" });
+      toastInfo("请输入名称");
       return;
     }
     const payload = { name: form.name.trim(), icon: form.icon };
@@ -144,7 +145,7 @@ export default function CategoryEdit() {
         : createCategory({ ...payload, type: catType });
       await apiCall;
       qc.invalidateQueries({ queryKey: ["categories"] });
-      Taro.showToast({ title: isEdit ? "分类已更新" : "分类已创建", icon: "success" });
+      toastSuccess(isEdit ? "分类已更新" : "分类已创建");
       setTimeout(() => Taro.navigateBack(), 500);
     }, "保存中…").catch((err: any) => {
       toastError(err, (isEdit ? "更新失败" : "创建失败"));
@@ -155,7 +156,7 @@ export default function CategoryEdit() {
     run(async () => {
       await deleteCategory(id);
       qc.invalidateQueries({ queryKey: ["categories"] });
-      Taro.showToast({ title: "已删除", icon: "success" });
+      toastSuccess("已删除");
       setTimeout(() => Taro.navigateBack(), 500);
     }, "删除中…").catch((err: any) => {
       toastError(err, "删除失败");

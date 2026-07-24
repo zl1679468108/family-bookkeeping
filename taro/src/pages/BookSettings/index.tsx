@@ -33,6 +33,7 @@ import { useManualQuery } from "../../hooks/useManualQuery";
 import { useSubmit, toastError } from "../../hooks/useSubmit";
 import "./index.scss";
 import { getErrorMessage } from "../../utils/errorMessage";
+import { toastSuccess, toastInfo } from "../../utils/toast";
 
 interface Member {
   id: string;
@@ -152,7 +153,7 @@ export default function BookSettings() {
           if (isAdd) setAddIcon(iconUrl);
           else setEditIcon(iconUrl);
           refreshCustomIcons();
-          Taro.showToast({ title: "已添加自定义图标", icon: "success" });
+          toastSuccess("已添加自定义图标");
         }, "上传中…").catch((err: any) => {
       toastError(err, "上传失败");
     });
@@ -161,11 +162,11 @@ export default function BookSettings() {
         const msg = getErrorMessage(err, "");
         if (msg.indexOf("cancel") !== -1) return;
         if (isPrivacyError(err)) {
-          Taro.showToast({ title: "请先同意隐私协议", icon: "none" });
+          toastInfo("请先同意隐私协议");
           openPrivacySetting();
           return;
         }
-        Taro.showToast({ title: msg || "选择图片失败", icon: "none" });
+        toastInfo(msg || "选择图片失败");
       });
   };
 
@@ -174,9 +175,9 @@ export default function BookSettings() {
     deleteIcon(iconId)
       .then(() => {
         refreshCustomIcons();
-        Taro.showToast({ title: "已删除", icon: "success" });
+        toastSuccess("已删除");
       })
-      .catch(() => Taro.showToast({ title: "删除失败", icon: "none" }));
+      .catch(() => toastInfo("删除失败"));
   };
 
   // ===== 新增模式 =====
@@ -186,7 +187,7 @@ export default function BookSettings() {
 
   const handleCreate = () => {
     if (!addName.trim()) {
-      Taro.showToast({ title: "请输入名称", icon: "none" });
+      toastInfo("请输入名称");
       return;
     }
     const data: { name: string; description?: string; icon?: string } = {
@@ -197,7 +198,7 @@ export default function BookSettings() {
     run(async () => {
       await createBook(data);
       qc.invalidateQueries({ queryKey: ["books"] });
-      Taro.showToast({ title: "账本创建成功", icon: "success" });
+      toastSuccess("账本创建成功");
       setTimeout(() => Taro.navigateBack(), 500);
     }, "创建中…").catch((err: any) => {
       toastError(err, "创建失败");
@@ -207,7 +208,7 @@ export default function BookSettings() {
   // ===== 编辑模式：提交 =====
   const handleSubmitEdit = () => {
     if (!editName.trim()) {
-      Taro.showToast({ title: "请输入名称", icon: "none" });
+      toastInfo("请输入名称");
       return;
     }
     run(async () => {
@@ -217,7 +218,7 @@ export default function BookSettings() {
         icon: editIcon,
       });
       qc.invalidateQueries({ queryKey: ["books"] });
-      Taro.showToast({ title: "更新成功", icon: "success" });
+      toastSuccess("更新成功");
       setTimeout(() => Taro.navigateBack(), 500);
     }, "保存中…").catch((err: any) => {
       toastError(err, "保存失败");
@@ -226,17 +227,17 @@ export default function BookSettings() {
 
   const handleSubmitTransfer = () => {
     if (!transferEmail.trim()) {
-      Taro.showToast({ title: "请输入新拥有者邮箱", icon: "none" });
+      toastInfo("请输入新拥有者邮箱");
       return;
     }
     if (!transferPassword) {
-      Taro.showToast({ title: "请输入密码验证", icon: "none" });
+      toastInfo("请输入密码验证");
       return;
     }
     run(async () => {
       await transferOwner(bookId, transferEmail.trim(), transferPassword);
       qc.invalidateQueries({ queryKey: ["books"] });
-      Taro.showToast({ title: "所有权已转移", icon: "success" });
+      toastSuccess("所有权已转移");
       setShowTransfer(false);
     }, "转移中…").catch((err: any) => {
       toastError(err, "转移失败");
@@ -248,7 +249,7 @@ export default function BookSettings() {
     run(async () => {
       await deleteBook(bookId);
       qc.invalidateQueries({ queryKey: ["books"] });
-      Taro.showToast({ title: "账本已删除", icon: "success" });
+      toastSuccess("账本已删除");
       setTimeout(() => Taro.navigateBack(), 500);
     }, "删除中…").catch((err: any) => {
       toastError(err, "删除失败");

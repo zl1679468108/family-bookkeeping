@@ -29,6 +29,7 @@ import {
 } from "../../utils/privacy";
 import "./index.scss";
 import { getErrorMessage } from "../../utils/errorMessage";
+import { toastSuccess, toastInfo } from "../../utils/toast";
 
 export default function EditProfile() {
   const { user, refreshUser } = useAuth();
@@ -83,37 +84,37 @@ export default function EditProfile() {
           if (iconUrl) {
             setAvatarUrl(iconUrl);
             setAvatarPreview(iconUrl);
-            Taro.showToast({ title: "头像已更新", icon: "success" });
+            toastSuccess("头像已更新");
           } else {
             setAvatarUrl(path); // fallback：临时路径
-            Taro.showToast({ title: "已选择图片", icon: "success" });
+            toastSuccess("已选择图片");
           }
         }, "上传中…").catch(() => {
           setAvatarUrl(path); // fallback
-          Taro.showToast({ title: "已选择图片", icon: "success" });
+          toastSuccess("已选择图片");
         });
       })
       .catch((err: any) => {
         const msg = getErrorMessage(err, "");
         if (msg.indexOf("cancel") !== -1) return;
         if (isPrivacyError(err)) {
-          Taro.showToast({ title: "请先同意隐私协议", icon: "none" });
+          toastInfo("请先同意隐私协议");
           openPrivacySetting();
           return;
         }
-        Taro.showToast({ title: msg || "选择图片失败", icon: "none" });
+        toastInfo(msg || "选择图片失败");
       });
   }, []);
 
   // ---- 保存资料 ----
   const handleSave = useCallback(() => {
     if (!username.trim()) {
-      return Taro.showToast({ title: "用户名不能为空", icon: "none" });
+      return toastInfo("用户名不能为空");
     }
 
     const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRe.test(email.trim())) {
-      return Taro.showToast({ title: "邮箱格式不正确", icon: "none" });
+      return toastInfo("邮箱格式不正确");
     }
 
     run(async () => {
@@ -125,7 +126,7 @@ export default function EditProfile() {
           : avatarUrl,
       });
       await refreshUser?.();
-      Taro.showToast({ title: "保存成功", icon: "success" });
+      toastSuccess("保存成功");
       setTimeout(() => Taro.navigateBack(), 600);
     }, "保存中…").catch((err: any) => {
       toastError(err, "保存失败，请重试");
@@ -146,19 +147,16 @@ export default function EditProfile() {
 
   const handleChangePwd = useCallback(() => {
     if (!oldPwd) {
-      return Taro.showToast({ title: "请输入当前密码", icon: "none" });
+      return toastInfo("请输入当前密码");
     }
     if (newPwd.length < 6) {
-      return Taro.showToast({ title: "新密码长度至少为 6 位", icon: "none" });
+      return toastInfo("新密码长度至少为 6 位");
     }
     if (newPwd !== confirmPwd) {
-      return Taro.showToast({ title: "两次输入的新密码不一致", icon: "none" });
+      return toastInfo("两次输入的新密码不一致");
     }
     if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(newPwd)) {
-      return Taro.showToast({
-        title: "新密码必须同时包含大小写字母和数字",
-        icon: "none",
-      });
+      return toastInfo("新密码必须同时包含大小写字母和数字");
     }
 
     run(async () => {
@@ -167,7 +165,7 @@ export default function EditProfile() {
         newPassword: newPwd,
         confirmPassword: confirmPwd,
       });
-      Taro.showToast({ title: "密码修改成功", icon: "success" });
+      toastSuccess("密码修改成功");
       setShowPwd(false);
       setOldPwd("");
       setNewPwd("");

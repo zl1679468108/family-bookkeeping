@@ -21,6 +21,7 @@ import {
   SavedAccount,
 } from "../../utils/savedAccounts";
 import "./index.scss";
+import { toastSuccess, toastInfo } from "../../utils/toast";
 
 export default function Profile() {
   const { user, signOut, signIn, switchByToken } = useAuth();
@@ -74,7 +75,7 @@ export default function Profile() {
       await deactivateAccount(deactivatePassword);
       // 清理本地保存的当前账号
       if (user?.email) removeAccount(user.email);
-      Taro.showToast({ title: "账号已注销", icon: "success" });
+      toastSuccess("账号已注销");
       // 本地清理（不再走 apiLogout，后端 session 已被清）
       try { await signOut(); } catch {}
       setTimeout(() => {
@@ -102,7 +103,7 @@ export default function Profile() {
   // 切换到已有账号
   const handleSwitchAccount = async (account: SavedAccount) => {
     if (account.email === user?.email) {
-      Taro.showToast({ title: "当前已是该账号", icon: "none" });
+      toastInfo("当前已是该账号");
       return;
     }
     const token = getAccountToken(account.email);
@@ -111,7 +112,7 @@ export default function Profile() {
       setSwitchingEmail(account.email);
       try {
         await switchByToken(account.email, token, refreshToken ?? undefined);
-        Taro.showToast({ title: "账号切换成功", icon: "success" });
+        toastSuccess("账号切换成功");
         setAccounts(getSavedAccounts());
         setSwitchModal(false);
         return;
@@ -166,7 +167,7 @@ export default function Profile() {
     setLoginLoading(true);
     try {
       await signIn(loginEmail.trim(), loginPassword, captchaId, captchaCode);
-      Taro.showToast({ title: "切换成功", icon: "success" });
+      toastSuccess("切换成功");
       setAccounts(getSavedAccounts());
       setSwitchModal(false);
       setShowLoginForm(false);

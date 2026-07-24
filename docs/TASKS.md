@@ -85,6 +85,12 @@
 
 ### ✅ 已完成
 
+#### 2026-07-24 金额格式 + Taro toast 统一
+- 扩展 `taro/src/utils/toast.ts`（toastSuccess/Info/Warn/Error），页面几乎全部迁离直接 `Taro.showToast`；`useSubmit` re-export `toastError`。
+- PC 地图/日历金额改用 `formatAmount` / `formatMoney`，删除日历本地 formatAmount。
+- 验证：frontend/taro `tsc --noEmit` 通过。
+
+
 #### 2026-07-24 复用收口：EmptyState 插画 / MetricRow / 空态 CTA / FooterActions
 - 双端 EmptyState 默认插画统一（人物+空箱+问号）。
 - PC 新增 `MetricRow`，报表总收入/总支出迁移。

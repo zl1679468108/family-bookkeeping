@@ -5,6 +5,7 @@ import { Skeleton } from '../../../../components/ui/Skeleton';
 import { EmptyState } from '../../../../components/ui/EmptyState';
 import { Pagination } from '../../../../components/ui/Pagination';
 import './index.scss';
+import { formatAmount } from '../../../../utils/common';
 
 interface MerchantDrawerProps {
   merchants: MerchantSummary[];
@@ -116,12 +117,12 @@ export const MerchantDrawer: React.FC<MerchantDrawerProps> = ({
           </span>
           {expenseTotal > 0 && (
             <span className="merchant-drawer__summary-item expense">
-              支出 <strong>¥{expenseTotal.toLocaleString('zh-CN', { minimumFractionDigits: 2 })}</strong>
+              支出 <strong>{formatAmount(expenseTotal)}</strong>
             </span>
           )}
           {incomeTotal > 0 && (
             <span className="merchant-drawer__summary-item income">
-              收入 <strong>¥{incomeTotal.toLocaleString('zh-CN', { minimumFractionDigits: 2 })}</strong>
+              收入 <strong>{formatAmount(incomeTotal)}</strong>
             </span>
           )}
         </div>
@@ -217,7 +218,7 @@ export const MerchantDrawer: React.FC<MerchantDrawerProps> = ({
                       <div className="merchant-drawer__stat-item expense">
                         <span className="merchant-drawer__stat-label">支出</span>
                         <span className="merchant-drawer__stat-amount">
-                          ¥{m.expense_total.toLocaleString('zh-CN', { minimumFractionDigits: 2 })}
+                          {formatAmount(m.expense_total)}
                         </span>
                         <span className="merchant-drawer__stat-count">{m.expense_count} 次</span>
                       </div>
@@ -226,7 +227,7 @@ export const MerchantDrawer: React.FC<MerchantDrawerProps> = ({
                       <div className="merchant-drawer__stat-item income">
                         <span className="merchant-drawer__stat-label">收入</span>
                         <span className="merchant-drawer__stat-amount">
-                          ¥{m.income_total.toLocaleString('zh-CN', { minimumFractionDigits: 2 })}
+                          {formatAmount(m.income_total)}
                         </span>
                         <span className="merchant-drawer__stat-count">{m.income_count} 次</span>
                       </div>

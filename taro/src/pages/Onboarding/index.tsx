@@ -16,6 +16,7 @@ import { useNavBarTheme } from "../../hooks/useNavBarTheme";
 import { useSubmit, toastError } from "../../hooks/useSubmit";
 import { BOOK_ICONS, renderBookIconSvg } from "../../utils/bookIcons";
 import "./index.scss";
+import { toastSuccess, toastInfo } from "../../utils/toast";
 
 type Mode = "choice" | "create" | "join";
 
@@ -39,7 +40,7 @@ export default function Onboarding() {
 
   const handleCreate = () => {
     if (!name.trim()) {
-      Taro.showToast({ title: "请输入名称", icon: "none" });
+      toastInfo("请输入名称");
       return;
     }
     run(async () => {
@@ -51,7 +52,7 @@ export default function Onboarding() {
       const list = await refetchBooks();
       const target = list.find((b) => b.id === newBook.id) || newBook;
       switchBook(target);
-      Taro.showToast({ title: "创建成功", icon: "success" });
+      toastSuccess("创建成功");
       setTimeout(() => Taro.reLaunch({ url: "/pages/Home/index" }), 600);
     }, "创建中…").catch((err: any) => {
       toastError(err, "创建失败，请重试");
@@ -61,7 +62,7 @@ export default function Onboarding() {
   const handleJoin = () => {
     const trimmed = code.trim().toUpperCase();
     if (!trimmed) {
-      Taro.showToast({ title: "请输入邀请码", icon: "none" });
+      toastInfo("请输入邀请码");
       return;
     }
     run(async () => {
@@ -69,7 +70,7 @@ export default function Onboarding() {
       const list = await refetchBooks();
       const target = list.find((b) => b.id === joined.book_id) || list[0] || null;
       if (target) switchBook(target);
-      Taro.showToast({ title: "加入成功", icon: "success" });
+      toastSuccess("加入成功");
       setTimeout(() => Taro.reLaunch({ url: "/pages/Home/index" }), 600);
     }, "加入中…").catch((err: any) => {
       toastError(err, "邀请码无效或已过期");

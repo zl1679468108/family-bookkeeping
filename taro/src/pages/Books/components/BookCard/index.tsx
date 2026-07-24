@@ -11,6 +11,7 @@ import type { Book } from "../../../../types";
 import { Button } from "../../../../components/ui";
 import "./index.scss";
 import { toastError } from "../../../../hooks/useSubmit";
+import { toastSuccess } from "../../../../utils/toast";
 
 interface BookCardProps {
   book: Book;
@@ -52,7 +53,7 @@ export default function BookCard({
       .then(() => {
         setInviteEmail("");
         setInviting(false);
-        Taro.showToast({ title: "邀请已发送", icon: "success" });
+        toastSuccess("邀请已发送");
       })
       .catch((err: any) => {
         toastError(err, "邀请失败");

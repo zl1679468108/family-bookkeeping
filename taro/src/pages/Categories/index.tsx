@@ -10,7 +10,7 @@
  */
 import { useState, useMemo, useEffect, useCallback, useRef } from "react";
 import { View, Text, Input } from "@tarojs/components";
-import Taro, { useDidShow } from "@tarojs/taro";
+import {  useDidShow  } from "@tarojs/taro";
 import { useQueryClient } from "@tanstack/react-query";
 import PageContainer from "../../components/PageContainer";
 import { Button, EmptyState, SegControl } from "../../components/ui";
@@ -40,6 +40,7 @@ import { useManualQuery } from "../../hooks/useManualQuery";
 import { useSubmit, toastError } from "../../hooks/useSubmit";
 import { useReorder } from "../../hooks/useReorder";
 import "./index.scss";
+import { toastSuccess, toastInfo } from "../../utils/toast";
 
 /* ---------- 类型 ---------- */
 interface Category {
@@ -194,7 +195,7 @@ export default function CategoriesPage() {
   // ---- 表单提交（手动 Promise 链，规避 Taro 下 useMutation 卡死）----
   const handleFormSubmit = () => {
     if (!formName.trim()) {
-      Taro.showToast({ title: "请输入名称", icon: "none" });
+      toastInfo("请输入名称");
       return;
     }
     const name = formName.trim();
@@ -206,7 +207,7 @@ export default function CategoriesPage() {
         : createCategory({ name, icon, type: catType });
       await apiCall;
       qc.invalidateQueries({ queryKey: ["categories"] });
-      Taro.showToast({ title: isEdit ? "分类已更新" : "分类已创建", icon: "success" });
+      toastSuccess(isEdit ? "分类已更新" : "分类已创建");
       closeForm();
       refetch();
     }, "保存中…").catch((err: any) => {
@@ -229,12 +230,12 @@ export default function CategoriesPage() {
         // 刷新自定义图标列表
         const list = await fetchCustomIcons("category");
         setCustomIcons(list || []);
-        Taro.showToast({ title: "上传成功", icon: "success" });
+        toastSuccess("上传成功");
       } else {
-        Taro.showToast({ title: "上传失败", icon: "none" });
+        toastInfo("上传失败");
       }
     } catch {
-      Taro.showToast({ title: "上传失败", icon: "none" });
+      toastInfo("上传失败");
     }
   };
 
@@ -243,9 +244,9 @@ export default function CategoriesPage() {
       await deleteIcon(iconId);
       const list = await fetchCustomIcons("category");
       setCustomIcons(list || []);
-      Taro.showToast({ title: "已删除", icon: "success" });
+      toastSuccess("已删除");
     } catch {
-      Taro.showToast({ title: "删除失败", icon: "none" });
+      toastInfo("删除失败");
     }
   };
 
@@ -530,7 +531,7 @@ export default function CategoriesPage() {
           run(async () => {
             await deleteCategory(deletingCat.id);
             qc.invalidateQueries({ queryKey: ["categories"] });
-            Taro.showToast({ title: "已删除", icon: "success" });
+            toastSuccess("已删除");
             setShowDeleteConfirm(false);
             setDetailCat(null);
             setDeletingCat(null);

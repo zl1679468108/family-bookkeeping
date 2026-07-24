@@ -17,6 +17,7 @@ import type { MapFilters, MerchantSummary } from '@family-bookkeeping/shared-typ
 import { format, startOfMonth, endOfMonth } from 'date-fns';
 import './index.scss';
 import { getThemeColors } from '../../utils/themeColors'
+import { formatAmount } from '../../utils/common';
 
 type ViewMode = 'footprints' | 'heatmap';
 
@@ -282,7 +283,7 @@ const MapPage: React.FC = () => {
             <span className="map-stat-chip">
               💰{' '}
               <strong>
-                ¥{totalAmount.toLocaleString('zh-CN', { minimumFractionDigits: 2 })}
+                {formatAmount(totalAmount)}
               </strong>
             </span>
           </div>

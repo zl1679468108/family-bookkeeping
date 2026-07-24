@@ -26,6 +26,7 @@ import { useAuth } from "../../context/AuthContext";
 import { renderBookIconSvg } from "../../utils/bookIcons";
 import type { Book } from "../../types";
 import "./index.scss";
+import { toastSuccess, toastInfo } from "../../utils/toast";
 
 type BookRow = Book & { is_default?: boolean };
 
@@ -69,14 +70,14 @@ export default function BooksPage() {
   const handleJoinSubmit = () => {
     const code = joinCode.trim();
     if (code.length < 4) {
-      Taro.showToast({ title: "邀请码至少需要4位", icon: "none" });
+      toastInfo("邀请码至少需要4位");
       return;
     }
     run(async () => {
       await joinByInvitation(code.toUpperCase());
       setShowJoinSheet(false);
       setJoinCode("");
-      Taro.showToast({ title: "加入成功", icon: "success" });
+      toastSuccess("加入成功");
       refetch();
     }, "加入中…").catch((err: any) => {
       toastError(err, "加入失败");
@@ -167,12 +168,12 @@ export default function BooksPage() {
   const handleInviteSubmit = () => {
     const email = inviteEmail.trim();
     if (!email) {
-      Taro.showToast({ title: "请输入邮箱地址", icon: "none" });
+      toastInfo("请输入邮箱地址");
       return;
     }
     run(async () => {
       await inviteMember(detailBook!.id, email);
-      Taro.showToast({ title: "邀请已发送", icon: "success" });
+      toastSuccess("邀请已发送");
       setInviteEmail("");
       setDetailMode("info");
       refetchMembers();
@@ -195,7 +196,7 @@ export default function BooksPage() {
     run(async () => {
       const data = await createInvitation(detailBook!.id);
       setInviteCodeData(data);
-      Taro.showToast({ title: "邀请码已生成", icon: "success" });
+      toastSuccess("邀请码已生成");
     }, "生成中…").catch((err: any) => {
       toastError(err, "生成失败");
     });
@@ -204,7 +205,7 @@ export default function BooksPage() {
   const handleCopyCode = async () => {
     if (inviteCodeData?.code) {
       await Taro.setClipboardData({ data: inviteCodeData.code });
-      Taro.showToast({ title: "已复制邀请码", icon: "success" });
+      toastSuccess("已复制邀请码");
     }
   };
 
@@ -219,7 +220,7 @@ export default function BooksPage() {
     if (!target) return;
     run(async () => {
       await deleteBook(target.id);
-      Taro.showToast({ title: "账本已删除", icon: "success" });
+      toastSuccess("账本已删除");
       setDeletingBook(null);
       closeDetail();
       refetch();
@@ -233,7 +234,7 @@ export default function BooksPage() {
     if (!removingMember || !detailBook) return;
     run(async () => {
       await removeMember(detailBook.id, removingMember.id);
-      Taro.showToast({ title: "成员已移除", icon: "success" });
+      toastSuccess("成员已移除");
       setRemovingMember(null);
       setShowRemoveConfirm(false);
       refetchMembers();
@@ -248,11 +249,11 @@ export default function BooksPage() {
   // --- 切换 / 新建 ---
   const handleSwitch = (book: BookRow) => {
     if (currentBook && String(currentBook.id) === String(book.id)) {
-      Taro.showToast({ title: "当前已是该账本", icon: "none" });
+      toastInfo("当前已是该账本");
       return;
     }
     switchBook(book);
-    Taro.showToast({ title: `已切换到「${book.name}」`, icon: "success" });
+    toastSuccess(`已切换到「${book.name}」`);
   };
 
   const handleConfirmSwitch = () => {

@@ -11,6 +11,7 @@ import { useNavBarTheme } from "../../../hooks/useNavBarTheme";
 import { useSubmit, toastError } from "../../../hooks/useSubmit";
 import { getCaptcha } from "../../../services/authApi";
 import "./index.scss";
+import { toastSuccess } from "../../../utils/toast";
 
 export default function Login() {
   const { isDark } = useTheme();
@@ -55,7 +56,7 @@ export default function Login() {
     setError("");
     run(async () => {
       await signIn(email.trim(), password, captchaId, captchaCode);
-      Taro.showToast({ title: "登录成功", icon: "success" });
+      toastSuccess("登录成功");
       setTimeout(() => {
         try {
           const pages = Taro.getCurrentPages();

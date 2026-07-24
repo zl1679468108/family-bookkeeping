@@ -11,6 +11,7 @@ import { useNavBarTheme } from "../../../hooks/useNavBarTheme";
 import { useSubmit, toastError } from "../../../hooks/useSubmit";
 import { ApiError } from "../../../services/api";
 import "./index.scss";
+import { toastSuccess, toastInfo } from "../../../utils/toast";
 
 type Step = "email" | "code" | "success";
 
@@ -57,7 +58,7 @@ export default function ForgotPassword() {
     setError("");
     run(async () => {
       await sendResetCode(email.trim());
-      Taro.showToast({ title: "验证码已发送", icon: "success" });
+      toastSuccess("验证码已发送");
       setSuccess(`验证码已发送至 ${email.trim()}`);
       setStep("code");
       startCountdown();
@@ -82,7 +83,7 @@ export default function ForgotPassword() {
     setError("");
     run(async () => {
       await resetPasswordByCode(email.trim(), code.trim(), password, confirmPassword);
-      Taro.showToast({ title: "密码重置成功", icon: "success" });
+      toastSuccess("密码重置成功");
       setStep("success");
     }, "重置中…").catch((err: any) => {
       toastError(err, "重置失败");
@@ -98,12 +99,12 @@ export default function ForgotPassword() {
     try {
       await sendResetCode(email.trim());
       setSuccess("验证码已重新发送");
-      Taro.showToast({ title: "验证码已重新发送", icon: "success" });
+      toastSuccess("验证码已重新发送");
       startCountdown();
     } catch (err) {
       const msg = err instanceof ApiError ? err.message : "发送失败，请检查邮箱地址";
       setError(msg);
-      Taro.showToast({ title: msg, icon: "none" });
+      toastInfo(msg);
     }
   }, [email]);
 

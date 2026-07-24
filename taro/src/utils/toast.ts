@@ -1,19 +1,21 @@
 /**
- * toast — 统一轻提示封装（对齐 PC notify 语义）
- * 内部用 Taro.showToast，颜色语义对齐 --inc/--exp/--info
+ * toast — 统一轻提示封装（对齐 PC notify / notifyError 语义）
+ * 页面侧请用本文件，避免直接 Taro.showToast 导致风格不一。
  */
 import Taro from "@tarojs/taro";
+import { getErrorMessage } from "./errorMessage";
 
 export type ToastType = "success" | "error" | "info" | "warn";
 
 export function toast(
   message: string,
   type: ToastType = "info",
-  duration = 2000
+  duration = 2000,
 ): void {
+  // Taro 原生 error icon 在部分基础库表现不稳定，错误统一 none + 文案
   const iconMap: Record<ToastType, "success" | "error" | "none" | "loading"> = {
     success: "success",
-    error: "error",
+    error: "none",
     info: "none",
     warn: "none",
   };
@@ -23,4 +25,21 @@ export function toast(
     duration,
     mask: false,
   });
+}
+
+export function toastSuccess(message: string, duration = 2000): void {
+  toast(message, "success", duration);
+}
+
+export function toastInfo(message: string, duration = 2000): void {
+  toast(message, "info", duration);
+}
+
+export function toastWarn(message: string, duration = 2000): void {
+  toast(message, "warn", duration);
+}
+
+/** 错误提示：支持 unknown err 或纯文案 */
+export function toastError(err: unknown, fallback = "操作失败"): void {
+  toast(getErrorMessage(err, fallback), "error");
 }

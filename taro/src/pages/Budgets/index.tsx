@@ -18,6 +18,7 @@ import { fetchBudgets, fetchBudgetStatus, upsertBudgets, copyBudgets } from "../
 import { fetchCategories } from "../../services/categoriesApi";
 import "./index.scss";
 import { budgetStatusToVariant, budgetVariantLabel } from "../../utils/budget";
+import { toastSuccess, toastInfo } from "../../utils/toast";
 
 /* ---------- 类型 ---------- */
 interface BudgetDetail {
@@ -130,7 +131,7 @@ export default function BudgetsPage() {
     run(async () => {
       await upsertBudgets({ month: monthKey, budgets: items });
       invalidateManualQuery(`budgets-`);
-      Taro.showToast({ title: "预算保存成功", icon: "success" });
+      toastSuccess("预算保存成功");
       refetchBudgets();
       refetchStatus();
       setEditingId(null);
@@ -151,7 +152,7 @@ export default function BudgetsPage() {
       })
       .filter(Boolean) as Array<{ category: string; amount: number }>;
     if (items.length > 0) handleUpsert(items);
-    else Taro.showToast({ title: "请至少设置一个分类的预算金额", icon: "none" });
+    else toastInfo("请至少设置一个分类的预算金额");
   };
 
   const [showCopyConfirm, setShowCopyConfirm] = useState(false);
@@ -160,10 +161,10 @@ export default function BudgetsPage() {
     run(async () => {
       const result = await copyBudgets({ targetMonth: monthKey });
       if (!result || result.length === 0) {
-        Taro.showToast({ title: "上月暂无预算可复制", icon: "none" });
+        toastInfo("上月暂无预算可复制");
         return;
       }
-      Taro.showToast({ title: `已复制 ${result.length} 条`, icon: "success" });
+      toastSuccess(`已复制 ${result.length} 条`);
       refetchBudgets();
       refetchStatus();
     }, "复制中…").catch((err: any) => {

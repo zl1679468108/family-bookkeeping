@@ -20,12 +20,13 @@
  */
 import { ReactNode, useCallback, useEffect, useState, CSSProperties } from "react";
 import { View, Text, ScrollView } from "@tarojs/components";
-import Taro, { useDidShow } from "@tarojs/taro";
+import {  useDidShow  } from "@tarojs/taro";
 import LoadingOverlay from "../ui/LoadingOverlay";
 import { TableRowsSkeleton, CardGridSkeleton, StatCardsSkeleton } from "../ui/Skeleton";
 import { useTheme } from "../../context/ThemeContext";
 import { useNavBarTheme } from "../../hooks/useNavBarTheme";
 import "./index.scss";
+import { toastSuccess, toastInfo } from "../../utils/toast";
 
 interface PageLayoutProps {
   children: ReactNode;
@@ -183,11 +184,7 @@ export default function PageLayout({
               if (guard) clearTimeout(guard);
               setLocalRefreshing(false);
               if (refreshToast) {
-                Taro.showToast({
-                  title: ok ? "刷新成功" : "刷新失败",
-                  icon: ok ? "success" : "none",
-                  duration: 1200,
-                });
+                if (ok) toastSuccess("刷新成功", 1200); else toastInfo("刷新失败", 1200);
               }
             };
             guard = setTimeout(() => finish(false), 8000);

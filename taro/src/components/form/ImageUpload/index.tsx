@@ -12,6 +12,7 @@ import {
 } from "../../../utils/privacy";
 import "./index.scss";
 import { getErrorMessage } from "../../../utils/errorMessage";
+import { toastInfo } from "../../../utils/toast";
 
 export interface ImageUploadProps {
   /** 已上传的图片 URL（从服务器获取） */
@@ -46,7 +47,7 @@ export default function ImageUpload({
   const handleSelect = async () => {
     const remaining = maxCount - totalCount;
     if (remaining <= 0) {
-      Taro.showToast({ title: `最多上传 ${maxCount} 张`, icon: "none" });
+      toastInfo(`最多上传 ${maxCount} 张`);
       return;
     }
     // 先触发微信隐私授权（开启 __usePrivacyCheck__ 时必须）
@@ -71,11 +72,11 @@ export default function ImageUpload({
         // 用户主动取消不提示
         if (msg.indexOf("cancel") !== -1) return;
         if (isPrivacyError(err)) {
-          Taro.showToast({ title: "请先同意隐私协议", icon: "none" });
+          toastInfo("请先同意隐私协议");
           openPrivacySetting();
           return;
         }
-        Taro.showToast({ title: msg || "选择图片失败", icon: "none" });
+        toastInfo(msg || "选择图片失败");
       });
   };
 

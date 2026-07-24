@@ -22,9 +22,9 @@
  *   });
  */
 import { useState, useCallback } from "react";
-import Taro from "@tarojs/taro";
 import type { QueryClient } from "@tanstack/react-query";
 import { useSubmit, toastError } from "./useSubmit";
+import { toastSuccess, toastInfo } from "../utils/toast";
 
 export interface UseReorderOptions<T> {
   /** 非排序模式下的基准有序列表（已按 sort_order 排好） */
@@ -129,7 +129,7 @@ export function useReorder<T>({
 
   const save = useCallback(() => {
     if (sortOrder.length === 0) {
-      Taro.showToast({ title: "无需保存", icon: "none" });
+      toastInfo("无需保存");
       return;
     }
     const orderedIds = sortOrder.map((item) => getKey(item));
@@ -137,7 +137,7 @@ export function useReorder<T>({
     const originalIds = items.map((item) => getKey(item));
     const changed = orderedIds.some((id, i) => id !== originalIds[i]);
     if (!changed) {
-      Taro.showToast({ title: "顺序未变化", icon: "none" });
+      toastInfo("顺序未变化");
       setSortMode(false);
       setSortOrder([]);
       return;
@@ -147,7 +147,7 @@ export function useReorder<T>({
       await onSave(orderedIds);
       console.log("[useReorder] onSave 成功，开始失效缓存 + 刷新列表");
       queryClient.invalidateQueries({ queryKey });
-      Taro.showToast({ title: successText, icon: "success" });
+      toastSuccess(successText);
       setSortMode(false);
       setSortOrder([]);
       // 确保先退出排序模式再刷新列表，避免 displayList 在排序模式下的特殊分支

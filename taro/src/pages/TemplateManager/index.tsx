@@ -30,6 +30,7 @@ import { useReorder } from "../../hooks/useReorder";
 import { isIconUrl } from "../../utils/renderCategoryIcon";
 import type { Template } from "../../types";
 import "./index.scss";
+import { toastSuccess, toastInfo } from "../../utils/toast";
 
 /* ---------- 空表单初始态 ---------- */
 const EMPTY_FORM = {
@@ -184,7 +185,7 @@ export default function TemplateManager() {
     run(async () => {
       await deleteTemplate(deleteId);
       qc.invalidateQueries({ queryKey: ["templates"] });
-      Taro.showToast({ title: "模板已删除", icon: "success" });
+      toastSuccess("模板已删除");
       setShowDelete(false);
       setDeleteId(null);
       refetch();
@@ -210,7 +211,7 @@ export default function TemplateManager() {
 
   const handleFormSave = () => {
     if (!form.name.trim()) {
-      Taro.showToast({ title: "请输入模板名称", icon: "none" });
+      toastInfo("请输入模板名称");
       return;
     }
     const data: any = {
@@ -234,7 +235,7 @@ export default function TemplateManager() {
         await createTemplate(data);
       }
       qc.invalidateQueries({ queryKey: ["templates"] });
-      Taro.showToast({ title: editingId ? "模板已更新" : "模板已创建", icon: "success" });
+      toastSuccess(editingId ? "模板已更新" : "模板已创建");
       setShowForm(false);
       setEditingId(null);
       refetch();
@@ -273,7 +274,7 @@ export default function TemplateManager() {
         merchant_name: result.merchant_name || "",
         type: result.type,
       });
-      Taro.showToast({ title: "模板已应用", icon: "success" });
+      toastSuccess("模板已应用");
       setTimeout(() => Taro.navigateTo({ url: "/pages/AddTransaction/index" }), 600);
     } catch (err: any) {
       Taro.hideLoading();

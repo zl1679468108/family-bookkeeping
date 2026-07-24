@@ -1,6 +1,7 @@
 import React from 'react';
 import { Skeleton } from '../../../components/ui/Skeleton';
-import { getLunarInfo, formatAmount, WEEKDAY_LABELS } from '../utils/lunarUtils';
+import { getLunarInfo, WEEKDAY_LABELS } from '../utils/lunarUtils';
+import { formatMoney } from '../../../utils/budget';
 import type { DailySummaryItem } from '@family-bookkeeping/shared-types';
 
 interface CalendarGridProps {
@@ -58,11 +59,11 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
                 <div className="cd-stats">
                   <div className="cd-stat-row">
                     <span className="cd-stat-k">支</span>
-                    <span className="cd-stat-v exp">{formatAmount(cell.total_expense)}</span>
+                    <span className="cd-stat-v exp">{formatMoney(cell.total_expense, { compact: true })}</span>
                   </div>
                   <div className="cd-stat-row">
                     <span className="cd-stat-k">收</span>
-                    <span className="cd-stat-v inc">{formatAmount(cell.total_income)}</span>
+                    <span className="cd-stat-v inc">{formatMoney(cell.total_income, { compact: true })}</span>
                   </div>
                   <div className="cd-stat-row">
                     <span className="cd-stat-v neutral">{cell.transaction_count}笔</span>

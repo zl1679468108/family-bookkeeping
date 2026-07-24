@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import type { MerchantSummary } from '@family-bookkeeping/shared-types'
-import { formatAmountWithType } from '../../../../utils/common';
+import { formatAmount, formatAmountWithType } from '../../../../utils/common';
 import { useCategoryLookup } from '../../../../hooks/useCategories';
 import { fetchMerchantTransactions } from '../../../../services/mapApi';
 import { Skeleton } from '../../../../components/ui/Skeleton';
@@ -39,10 +39,10 @@ export const TransactionHistoryModal: React.FC<TransactionHistoryModalProps> = (
             <h3>🏪 {merchant.location_name}</h3>
             <div className="merchant-history-summary">
               {merchant.expense_count > 0 && (
-                <span className="history-tag expense">总支出 ¥{merchant.expense_total.toLocaleString('zh-CN', { minimumFractionDigits: 2 })} · {merchant.expense_count}次</span>
+                <span className="history-tag expense">总支出 {formatAmount(merchant.expense_total)} · {merchant.expense_count}次</span>
               )}
               {merchant.income_count > 0 && (
-                <span className="history-tag income">总收入 ¥{merchant.income_total.toLocaleString('zh-CN', { minimumFractionDigits: 2 })} · {merchant.income_count}次</span>
+                <span className="history-tag income">总收入 {formatAmount(merchant.income_total)} · {merchant.income_count}次</span>
               )}
             </div>
           </div>

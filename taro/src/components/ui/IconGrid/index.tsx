@@ -12,6 +12,7 @@ import {
   openPrivacySetting,
 } from "../../../utils/privacy";
 import "./index.scss";
+import { toastInfo } from "../../../utils/toast";
 
 export interface IconGridOption {
   value: string;
@@ -67,11 +68,11 @@ export function IconGrid({
       // 用户主动取消不提示
       if (msg.indexOf("cancel") !== -1) return;
       if (isPrivacyError(e)) {
-        Taro.showToast({ title: "请先同意隐私协议", icon: "none" });
+        toastInfo("请先同意隐私协议");
         openPrivacySetting();
         return;
       }
-      Taro.showToast({ title: msg || "选择失败", icon: "none" });
+      toastInfo(msg || "选择失败");
     }
   };
 

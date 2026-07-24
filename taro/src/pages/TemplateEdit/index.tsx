@@ -24,6 +24,7 @@ import { isIconUrl } from "../../utils/renderCategoryIcon";
 import LocationPicker, { LocationResult } from "../../components/LocationPicker";
 import Icon, { ICON_COLOR } from "../../components/Icon";
 import "./index.scss";
+import { toastSuccess, toastInfo } from "../../utils/toast";
 
 type TplType = "expense" | "income";
 
@@ -88,11 +89,11 @@ export default function TemplateEdit() {
   // --- 保存/删除 ---
   const handleSave = () => {
     if (!form.name.trim()) {
-      Taro.showToast({ title: "请输入模板名称", icon: "none" });
+      toastInfo("请输入模板名称");
       return;
     }
     if (!form.category_id) {
-      Taro.showToast({ title: "请选择分类", icon: "none" });
+      toastInfo("请选择分类");
       return;
     }
     const data: any = {
@@ -115,7 +116,7 @@ export default function TemplateEdit() {
         await createTemplate(data);
       }
       qc.invalidateQueries({ queryKey: ["templates"] });
-      Taro.showToast({ title: isEdit ? "模板已更新" : "模板已创建", icon: "success" });
+      toastSuccess(isEdit ? "模板已更新" : "模板已创建");
       setTimeout(() => Taro.navigateBack(), 500);
     }, "保存中…").catch((err: any) => {
       toastError(err, isEdit ? "更新失败" : "创建失败");
@@ -126,7 +127,7 @@ export default function TemplateEdit() {
     run(async () => {
       await deleteTemplate(id);
       qc.invalidateQueries({ queryKey: ["templates"] });
-      Taro.showToast({ title: "模板已删除", icon: "success" });
+      toastSuccess("模板已删除");
       setTimeout(() => Taro.navigateBack(), 500);
     }, "删除中…").catch((err: any) => {
       toastError(err, "删除失败");

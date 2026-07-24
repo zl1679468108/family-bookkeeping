@@ -8,31 +8,21 @@
  *   - 主动收起键盘
  *   - 60s 兜底强制关闭 loading（防御 fn 异常不 reject 的极端情况）
  *
- * 为什么不用 useState + 按钮文字"xxx中…"？
- *   微信 WebView 已知坑：键盘收起动画期间触发 setData 会概率性冻死整页渲染，
- *   表现为按钮 loading 卡死、X/取消点不动。原生 showLoading 不走 setData，
- *   规避此问题，且全局 UI 统一。
- *
- * 为什么不再需要 safeSubmit 包裹？
- *   safeSubmit 是为「等键盘收起后再 setSaving(true)」设计的。
- *   现在 loading 改用原生 showLoading，不再触发 setData，键盘动画问题不复存在，
- *   useSubmit 内部主动 hideKeyboard 即可，无需等待。
- *
  * Usage:
- *   const { run } = useSubmit();
+ *   import { useSubmit, toastError } from "../../hooks/useSubmit";
+ *   import { toastSuccess, toastInfo } from "../../utils/toast";
  *
+ *   const { run } = useSubmit();
  *   const handleSave = () => {
  *     if (!name.trim()) {
- *       Taro.showToast({ title: "请输入名称", icon: "none" });
+ *       toastInfo("请输入名称");
  *       return;
  *     }
  *     run(async () => {
  *       await createBook({ name });
- *       Taro.showToast({ title: "创建成功", icon: "success" });
+ *       toastSuccess("创建成功");
  *       Taro.navigateBack();
- *     }, "创建中…").catch((err: any) => {
- *       Taro.showToast({ title: err?.message || "创建失败", icon: "none" });
- *     });
+ *     }, "创建中…").catch((err) => toastError(err, "创建失败"));
  *   };
  *
  * 注意：
@@ -42,7 +32,9 @@
  */
 import { useRef, useCallback } from "react";
 import Taro from "@tarojs/taro";
-import { getErrorMessage } from "../utils/errorMessage";
+
+// 兼容旧 import 路径：toastError 统一实现在 utils/toast
+export { toastError } from "../utils/toast";
 
 export function useSubmit() {
   const ref = useRef(false);
@@ -51,15 +43,12 @@ export function useSubmit() {
     fn: () => Promise<T>,
     title: string = "处理中…",
   ): Promise<T | undefined> => {
-    // 防重复提交
     if (ref.current) return undefined;
     ref.current = true;
 
-    // 主动收起键盘（异步，不等；showLoading mask 会盖住键盘）
     Taro.hideKeyboard();
     Taro.showLoading({ title, mask: true });
 
-    // 兜底：60s 后强制关闭 loading（防止 fn 异常不 reject）
     const timer = setTimeout(() => {
       Taro.hideLoading();
       ref.current = false;
@@ -80,9 +69,3 @@ export function useSubmit() {
 
   return { run };
 }
-
-/** 统一失败 toast（页面 .catch 时复用） */
-export function toastError(err: unknown, fallback = "操作失败") {
-  Taro.showToast({ title: getErrorMessage(err, fallback), icon: "none" });
-}
-

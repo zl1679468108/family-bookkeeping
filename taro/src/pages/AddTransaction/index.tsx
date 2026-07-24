@@ -24,7 +24,7 @@ import LocationField, {
   LocationResult,
 } from "../../components/form/LocationField";
 import ImageUpload from "../../components/form/ImageUpload";
-import { todayBeijing } from "../../utils/format";
+import { todayBeijing, toastSuccess, toastInfo } from "../../utils/format";
 import "./index.scss";
 
 interface Template {
@@ -198,7 +198,7 @@ export default function AddTransaction() {
     }
     setSelectedTemplate(template);
     setShowTemplates(false);
-    Taro.showToast({ title: `已应用模板：${template.name}`, icon: "success" });
+    toastSuccess(`已应用模板：${template.name}`);
   };
 
   // 删除
@@ -213,11 +213,11 @@ export default function AddTransaction() {
             Taro.showLoading({ title: "删除中..." });
             await deleteTransaction(Number(editId));
             Taro.hideLoading();
-            Taro.showToast({ title: "交易已删除", icon: "success" });
+            toastSuccess("交易已删除");
             setTimeout(() => Taro.navigateBack(), 500);
           } catch {
             Taro.hideLoading();
-            Taro.showToast({ title: "删除失败", icon: "none" });
+            toastInfo("删除失败");
           }
         }
       },
@@ -227,11 +227,11 @@ export default function AddTransaction() {
   // 提交
   const handleSubmit = () => {
     if (!amount || parseFloat(amount) <= 0) {
-      Taro.showToast({ title: "请输入有效金额", icon: "none" });
+      toastInfo("请输入有效金额");
       return;
     }
     if (!categoryId) {
-      Taro.showToast({ title: "请选择分类", icon: "none" });
+      toastInfo("请选择分类");
       return;
     }
 
@@ -288,10 +288,7 @@ export default function AddTransaction() {
 
         // 如果有图片上传失败，提示用户
         if (failedCount > 0) {
-          Taro.showToast({
-            title: `${failedCount} 张图片上传失败，其余已保存`,
-            icon: "none",
-          });
+          toastInfo(`${failedCount} 张图片上传失败，其余已保存`);
         }
       }
 
@@ -305,19 +302,13 @@ export default function AddTransaction() {
         setPendingImages([]);
       } else if (pendingImages.length > 0 && failedCount === pendingImages.length) {
         // 所有图片都上传失败了，保留 pendingImages 让用户重试
-        Taro.showToast({
-          title: "图片上传失败，请检查网络后重试",
-          icon: "none",
-        });
+        toastInfo("图片上传失败，请检查网络后重试");
       } else if (pendingImages.length > 0) {
         // 部分成功或不需要更新，清空 pending
         setPendingImages([]);
       }
 
-      Taro.showToast({
-        title: isEdit ? "交易已更新" : "交易已保存",
-        icon: "success",
-      });
+      toastSuccess(isEdit ? "交易已更新" : "交易已保存");
       setTimeout(() => Taro.navigateBack(), 600);
     }, "保存中…").catch((err: any) => {
       toastError(err, "保存失败");

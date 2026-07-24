@@ -4,7 +4,8 @@ import { Skeleton } from '../../../components/ui/Skeleton';
 import { EmptyState } from '../../../components/ui/EmptyState';
 import { useCategoryLookup } from '../../../hooks/useCategories';
 import { formatAmountWithType } from '../../../utils/common';
-import { getLunarInfo, formatAmount } from '../utils/lunarUtils';
+import { getLunarInfo } from '../utils/lunarUtils';
+import { formatMoney } from '../../../utils/budget';
 import type { Transaction } from '../../../services/api';
 import type { DailySummaryItem } from '@family-bookkeeping/shared-types';
 
@@ -50,11 +51,11 @@ export const DateDetailModal: React.FC<DateDetailModalProps> = ({
               <div className="cal-detail-stats">
                 <div className="cal-detail-stat-row">
                   <span className="cal-detail-stat-label">总支出</span>
-                  <span className="cal-detail-stat-value exp">¥{cellData ? formatAmount(cellData.total_expense) : '0'}</span>
+                  <span className="cal-detail-stat-value exp">{cellData ? formatMoney(cellData.total_expense, { compact: true }) : '¥0'}</span>
                 </div>
                 <div className="cal-detail-stat-row">
                   <span className="cal-detail-stat-label">总收入</span>
-                  <span className="cal-detail-stat-value inc">¥{cellData ? formatAmount(cellData.total_income) : '0'}</span>
+                  <span className="cal-detail-stat-value inc">{cellData ? formatMoney(cellData.total_income, { compact: true }) : '¥0'}</span>
                 </div>
                 <div className="cal-detail-stat-row">
                   <span className="cal-detail-stat-label">总笔数</span>

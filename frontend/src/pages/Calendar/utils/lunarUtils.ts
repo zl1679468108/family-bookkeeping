@@ -65,13 +65,6 @@ export const firstDayOfWeek = (year: number, month: number): number =>
 export const toMonthKey = (year: number, month: number): string =>
   `${year}-${String(month).padStart(2, '0')}`;
 
-export const formatAmount = (amount: number): string => {
-  if (amount === 0) return '0';
-  return amount.toLocaleString('zh-CN', {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 2,
-  });
-};
 
 export const generateMonthOptions = (): { key: string; label: string }[] => {
   const options: { key: string; label: string }[] = [];

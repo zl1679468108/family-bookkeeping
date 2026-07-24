@@ -16,6 +16,7 @@ import { useTheme } from "../../context/ThemeContext";
 import Icon, { ICON_COLOR } from "../Icon";
 import { Spinner, Button } from "../ui";
 import "./index.scss";
+import { toastInfo } from "../../utils/toast";
 
 export interface LocationResult {
   latitude: number;
@@ -78,10 +79,7 @@ export default function LocationPicker({
     if (!ok) {
       console.warn("[LocationPicker] 隐私授权未通过");
       setLocating(false);
-      Taro.showToast({
-        title: "请先同意隐私协议后使用定位",
-        icon: "none",
-      });
+      toastInfo("请先同意隐私协议后使用定位");
       return;
     }
 
@@ -155,11 +153,7 @@ export default function LocationPicker({
       } else if (msg) {
         title = msg.slice(0, 50);
       }
-      Taro.showToast({
-        title: title + "，可手动搜索或点击地图选择",
-        icon: "none",
-        duration: 2500,
-      });
+      toastInfo(title + "，可手动搜索或点击地图选择", 2500);
     } finally {
       setLocating(false);
     }
@@ -249,7 +243,7 @@ export default function LocationPicker({
   // 确认
   const handleConfirm = () => {
     if (!pos) {
-      Taro.showToast({ title: "请先选择位置", icon: "none" });
+      toastInfo("请先选择位置");
       return;
     }
     onConfirm({

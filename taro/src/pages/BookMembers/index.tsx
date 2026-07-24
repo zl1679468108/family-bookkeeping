@@ -16,6 +16,7 @@ import {
 } from "../../services/booksApi";
 import ConfirmDialog from "../../components/ConfirmDialog";
 import PageContainer from "../../components/PageContainer";
+import { toastSuccess } from "../../utils/toast";
 
 interface Member {
   id: string;
@@ -43,7 +44,7 @@ export default function BookMembers() {
       const res = await createInvitation(bookId);
       setInviteCode(res.code);
       Taro.setClipboardData({ data: res.code });
-      Taro.showToast({ title: "邀请码已复制", icon: "success" });
+      toastSuccess("邀请码已复制");
     }, "生成中…").catch((err: any) => {
       toastError(err, "生成失败");
     });
@@ -77,7 +78,7 @@ export default function BookMembers() {
     if (!removeTarget) return;
     run(async () => {
       await removeMember(bookId, removeTarget.userId);
-      Taro.showToast({ title: "成员已移除", icon: "success" });
+      toastSuccess("成员已移除");
       setRemoveTarget(null);
       qc.invalidateQueries({ queryKey: ["books", bookId, "members"] });
     }, "移除中…").catch((err: any) => {
@@ -90,7 +91,7 @@ export default function BookMembers() {
     if (!inviteEmail.trim()) return;
     run(async () => {
       await inviteMember(bookId, inviteEmail.trim());
-      Taro.showToast({ title: "邀请已发送", icon: "success" });
+      toastSuccess("邀请已发送");
       setInviteEmail("");
       setShowInvite(false);
       qc.invalidateQueries({ queryKey: ["books", bookId, "members"] });

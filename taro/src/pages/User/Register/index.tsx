@@ -10,6 +10,7 @@ import { useTheme } from "../../../context/ThemeContext";
 import { useNavBarTheme } from "../../../hooks/useNavBarTheme";
 import { useSubmit, toastError } from "../../../hooks/useSubmit";
 import "./index.scss";
+import { toastSuccess } from "../../../utils/toast";
 
 export default function Register() {
   const { isDark } = useTheme();
@@ -43,7 +44,7 @@ export default function Register() {
     setError("");
     run(async () => {
       await signUp(email.trim(), password, username.trim());
-      Taro.showToast({ title: "注册成功", icon: "success" });
+      toastSuccess("注册成功");
       setTimeout(() => Taro.reLaunch({ url: "/pages/Home/index" }), 600);
     }, "注册中…").catch((err: any) => {
       toastError(err, "注册失败");

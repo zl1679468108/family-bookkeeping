@@ -7,6 +7,7 @@ import { CalendarGrid } from './components/CalendarGrid';
 import { DateDetailModal } from './components/DateDetailModal';
 import { daysInMonth, firstDayOfWeek, toMonthKey, generateMonthOptions } from './utils/lunarUtils';
 import type { DailySummaryItem } from '@family-bookkeeping/shared-types';
+import { formatMoney } from '../../utils/budget';
 
 const Calendar: React.FC = () => {
   const now = new Date();
@@ -88,10 +89,6 @@ const Calendar: React.FC = () => {
     setShowDetailModal(true);
   }, []);
 
-  const formatAmount = (amount: number) => {
-    if (amount === 0) return '0';
-    return amount.toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
-  };
 
   return (
     <div className="page-container">
@@ -138,11 +135,11 @@ const Calendar: React.FC = () => {
             <>
               <div className="cal-stat">
                 <div className="cs-lbl">总支出</div>
-                <div className="cs-val exp">¥{formatAmount(monthStats.totalExpense)}</div>
+                <div className="cs-val exp">{formatMoney(monthStats.totalExpense, { compact: true })}</div>
               </div>
               <div className="cal-stat">
                 <div className="cs-lbl">总收入</div>
-                <div className="cs-val inc">¥{formatAmount(monthStats.totalIncome)}</div>
+                <div className="cs-val inc">{formatMoney(monthStats.totalIncome, { compact: true })}</div>
               </div>
               <div className="cal-stat">
                 <div className="cs-lbl">总笔数</div>
@@ -151,7 +148,7 @@ const Calendar: React.FC = () => {
               <div className="cal-stat">
                 <div className="cs-lbl">结余</div>
                 <div className={`cs-val ${monthStats.totalIncome - monthStats.totalExpense >= 0 ? 'inc' : 'exp'}`}>
-                  ¥{formatAmount(monthStats.totalIncome - monthStats.totalExpense)}
+                  {formatMoney(monthStats.totalIncome - monthStats.totalExpense, { compact: true })}
                 </div>
               </div>
             </>
