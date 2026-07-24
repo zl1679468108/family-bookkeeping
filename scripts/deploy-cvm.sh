@@ -16,8 +16,8 @@
 # 说明：
 #   - 后端密钥真相源是 backend/.env.production，部署时会复制为服务器上的
 #     /opt/family-bookkeeping/backend/.env，并把 FRONTEND_URL 改成本域名。
-#   - 前端用 REACT_APP_API_BASE_URL 覆盖为相对路径 /bookkeeping/api 后本地构建
-#     （同源，IP/域名通用）。子路径由 homepage(package.json) 控制静态资源前缀。
+#   - 前端用 VITE_API_BASE_URL 覆盖为相对路径 /bookkeeping/api 后本地构建（Vite 产物 dist/）
+#     （同源，IP/域名通用）。子路径由 vite.config base=/bookkeeping/ 控制静态资源前缀。
 #   - 传输用 scp/ssh，建议提前把本机公钥放进服务器 ~/.ssh/authorized_keys，
 #     避免每次输密码（本脚本用 $SSH_OPTS 透传参数）。
 #   - 子路径部署：本项目挂在 https://$DOMAIN/bookkeeping/，接口 /bookkeeping/api；
@@ -38,13 +38,13 @@ NGINX_LOCAL="$ROOT_DIR/config/nginx/zlspace.site.conf"
 
 echo "=== [1/4] 本地构建 ==="
 ( cd "$ROOT_DIR/backend" && npm run build:prod )
-( cd "$ROOT_DIR/frontend" && REACT_APP_API_BASE_URL="/$SUBPATH/api" npm run build:prod )
+( cd "$ROOT_DIR/frontend" && VITE_API_BASE_URL="/$SUBPATH/api" npm run build:prod )
 
 echo "=== [2/4] 打包 ==="
 rm -f /tmp/backend.tar.gz /tmp/frontend.tar.gz
 # 禁用 macOS 扩展属性/AppleDouble(._) 归档，避免 bsdtar 在 build/ 上报错
 ( cd "$ROOT_DIR/backend" && COPYFILE_DISABLE=1 tar --format=ustar --no-mac-metadata -czf /tmp/backend.tar.gz dist package.json package-lock.json nest-cli.json )
-( cd "$ROOT_DIR/frontend" && COPYFILE_DISABLE=1 tar --format=ustar --no-mac-metadata -czf /tmp/frontend.tar.gz -C build . )
+( cd "$ROOT_DIR/frontend" && COPYFILE_DISABLE=1 tar --format=ustar --no-mac-metadata -czf /tmp/frontend.tar.gz -C dist . )
 
 # 生成服务器用 .env（覆盖 FRONTEND_URL）
 grep -v '^FRONTEND_URL=' "$ROOT_DIR/backend/.env.production" > /tmp/backend.env
