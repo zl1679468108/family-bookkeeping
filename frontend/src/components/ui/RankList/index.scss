@@ -53,8 +53,8 @@
 
 .rank-row__bar .fill.safe { background: var(--prGr); }
 .rank-row__bar .fill.income { background: var(--inc); }
-.rank-row__bar .fill.warn { background: linear-gradient(90deg, #E8A838, #F0C040); }
-.rank-row__bar .fill.danger { background: linear-gradient(90deg, #E06055, #F08075); }
+.rank-row__bar .fill.warn { background: linear-gradient(90deg, var(--warn), color-mix(in srgb, var(--warn) 70%, white)); }
+.rank-row__bar .fill.danger { background: linear-gradient(90deg, var(--exp), color-mix(in srgb, var(--exp) 70%, white)); }
 
 .rank-row__meta {
   flex: 3;

@@ -40,7 +40,7 @@
   color: var(--exp);
   font-size: 12px;
   white-space: nowrap;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  box-shadow: var(--sh2);
 }
 
 /* 定位中遮罩：定位完成前隐藏地图，避免 AMap 默认 IP 定位闪现 */
@@ -145,7 +145,7 @@
   color: var(--fg);
   font-size: 13px;
   outline: none;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  box-shadow: var(--sh2);
 }
 
 .map-search-input:focus {
@@ -160,7 +160,7 @@
   background: var(--srf);
   cursor: pointer;
   font-size: 16px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  box-shadow: var(--sh2);
 }
 
 .map-search-results {
@@ -173,7 +173,7 @@
   background: var(--srf);
   border-radius: 8px;
   border: 1px solid var(--bd);
-  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+  box-shadow: var(--sh3);
   z-index: calc(var(--z-10) + 1);
 }
 

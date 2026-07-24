@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { renderCategoryIcon } from '../../utils/renderCategoryIcon';
 import { getChartPalette } from '../../utils/themeColors'
 
@@ -14,9 +14,8 @@ interface ReportCategoryRankProps {
   data: CategoryItem[];
 }
 
-const colors = getChartPalette();
-
 export const ReportCategoryRank: React.FC<ReportCategoryRankProps> = ({ data }) => {
+  const colors = useMemo(() => getChartPalette(), []);
   const formatAmount = (n: number) => {
     if (n >= 10000) {
       return '¥' + (n / 10000).toFixed(1) + 'w';
@@ -67,7 +66,7 @@ export const ReportCategoryRank: React.FC<ReportCategoryRankProps> = ({ data }) 
                     </span>
                   </div>
                 </div>
-                <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                <div className="h-2 rounded-full overflow-hidden" style={{ background: 'var(--bdL)' }}>
                   <div
                     className="h-full rounded-full transition-all duration-500 ease-out"
                     style={{

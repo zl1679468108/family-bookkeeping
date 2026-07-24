@@ -32,6 +32,24 @@ export const notify = ({ type = 'info', message }: NotifyInput): void => {
   listeners.forEach((listener) => listener(notification))
 }
 
+const toastStyleByType: Record<NotificationType, React.CSSProperties> = {
+  error: {
+    borderColor: 'color-mix(in srgb, var(--exp) 35%, transparent)',
+    background: 'var(--expBg)',
+    color: 'var(--exp)',
+  },
+  success: {
+    borderColor: 'color-mix(in srgb, var(--inc) 35%, transparent)',
+    background: 'var(--incBg)',
+    color: 'var(--inc)',
+  },
+  info: {
+    borderColor: 'var(--bd)',
+    background: 'var(--srf)',
+    color: 'var(--fg)',
+  },
+}
+
 export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [notifications, setNotifications] = useState<NotificationItem[]>([])
   // 存储所有未触发的定时器 ID，组件卸载时统一清理（F-M9）
@@ -74,13 +92,8 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
         {notifications.map((item) => (
           <div
             key={item.id}
-            className={`pointer-events-auto rounded-xl border px-4 py-3 shadow-lg backdrop-blur-sm transition-all ${
-              item.type === 'error'
-                ? 'border-red-200 bg-red-50 text-red-700'
-                : item.type === 'success'
-                  ? 'border-green-200 bg-green-50 text-green-700'
-                  : 'border-slate-200 bg-white text-slate-700'
-            }`}
+            className="pointer-events-auto rounded-xl border px-4 py-3 shadow-lg backdrop-blur-sm transition-all"
+            style={toastStyleByType[item.type]}
           >
             <div className="flex items-start justify-between gap-3">
               <p className="text-sm leading-5 break-words whitespace-pre-wrap max-h-40 overflow-auto">{item.message}</p>
@@ -89,6 +102,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
                 onClick={() => setNotifications((current) => current.filter((notification) => notification.id !== item.id))}
                 className="text-xs font-medium opacity-70 hover:opacity-100"
                 aria-label="关闭通知"
+                style={{ color: 'inherit' }}
               >
                 ×
               </button>

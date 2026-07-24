@@ -30,12 +30,12 @@
 
 .dd-select__btn:hover {
   border-color: var(--pr);
-  box-shadow: 0 0 0 3px rgba(45, 157, 138, 0.1);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--pr) 14%, transparent);
 }
 
 .dd-select.is-open .dd-select__btn {
   border-color: var(--pr);
-  box-shadow: 0 0 0 3px rgba(45, 157, 138, 0.12);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--pr) 16%, transparent);
   background: var(--srfH);
 }
 
@@ -74,7 +74,7 @@
 
 .dd-select__clear:hover {
   color: var(--fg);
-  background: rgba(0, 0, 0, 0.06);
+  background: var(--hover);
 }
 
 .dd-select__chevron {
@@ -127,7 +127,7 @@
 
 .dd-select__search-input:focus {
   border-color: var(--pr);
-  box-shadow: 0 0 0 3px rgba(45, 157, 138, 0.1);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--pr) 14%, transparent);
 }
 
 .dd-select__search-input::placeholder {

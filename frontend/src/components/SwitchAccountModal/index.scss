@@ -3,7 +3,7 @@
 .switch-account-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: var(--ov);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -86,7 +86,7 @@
   }
 
   &.current {
-    background: rgba(45, 157, 138, 0.08);
+    background: color-mix(in srgb, var(--pr) 10%, transparent);
     cursor: default;
   }
 }
@@ -131,7 +131,7 @@
   font-size: 11px;
   font-weight: 500;
   color: var(--pr);
-  background: rgba(45, 157, 138, 0.12);
+  background: color-mix(in srgb, var(--pr) 14%, transparent);
   padding: 1px 6px;
   border-radius: 4px;
 }
@@ -166,7 +166,7 @@
 
   &:hover {
     color: var(--exp);
-    background: rgba(224, 96, 85, 0.1);
+    background: color-mix(in srgb, var(--exp) 12%, transparent);
   }
 }
 

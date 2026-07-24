@@ -10,7 +10,7 @@
 
 .stat-card:hover {
   border-color: var(--pr);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  box-shadow: var(--sh2);
 }
 
 .stat-card__header {
@@ -71,7 +71,7 @@
 }
 
 .stat-card.income .stat-card__icon {
-  background: rgba(45, 157, 138, 0.1);
+  background: color-mix(in srgb, var(--inc) 12%, transparent);
   color: var(--inc);
 }
 
@@ -84,7 +84,7 @@
 }
 
 .stat-card.expense .stat-card__icon {
-  background: rgba(220, 38, 38, 0.1);
+  background: color-mix(in srgb, var(--exp) 12%, transparent);
 }
 
 .stat-card.expense .stat-card__value {

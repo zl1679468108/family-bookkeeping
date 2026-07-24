@@ -18,8 +18,8 @@
 
   &__inner {
     height: 100%;
-    background: var(--primary, #2d9d8a);
-    box-shadow: 0 0 6px rgba(45, 157, 138, 0.4);
+    background: var(--pr);
+    box-shadow: 0 0 6px color-mix(in srgb, var(--pr) 45%, transparent);
     transition: width 250ms ease-out;
   }
 }

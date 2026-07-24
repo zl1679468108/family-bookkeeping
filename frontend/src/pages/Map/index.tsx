@@ -16,6 +16,7 @@ import { fetchMapTransactions, fetchMerchantSummary } from '../../services/mapAp
 import type { MapFilters, MerchantSummary } from '@family-bookkeeping/shared-types'
 import { format, startOfMonth, endOfMonth } from 'date-fns';
 import './index.scss';
+import { getThemeColors } from '../../utils/themeColors'
 
 type ViewMode = 'footprints' | 'heatmap';
 
@@ -146,7 +147,7 @@ const MapPage: React.FC = () => {
     return members.map((m) => ({
       key: m.userId,
       label: m.username,
-      color: colorMap.get(m.userId) || '#999',
+      color: colorMap.get(m.userId) || getThemeColors().fg3,
     }));
   }, [members, colorMap]);
 

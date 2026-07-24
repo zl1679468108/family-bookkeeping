@@ -73,7 +73,7 @@
 
 .map-stat-chip--clickable:hover {
   border-color: var(--pr);
-  box-shadow: 0 2px 8px rgba(45, 157, 138, 0.15);
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--pr) 16%, transparent);
 }
 
 /* ── 地图 / 列表 容器 ── */

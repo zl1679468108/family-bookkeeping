@@ -39,7 +39,7 @@
   align-items: center;
   justify-content: space-between;
   padding-top: 8px;
-  border-top: 1px solid rgba(0, 0, 0, 0.06);
+  border-top: 1px solid var(--bd);
 }
 
 .loc-display-edit {
@@ -62,7 +62,7 @@
   transition: color var(--df);
 
   &:hover {
-    color: #c54a40;
+    color: var(--exp);
   }
 }
 

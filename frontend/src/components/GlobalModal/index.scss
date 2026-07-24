@@ -19,13 +19,13 @@
 
 /* 详情弹窗遮罩 */
 .global-modal-overlay--detail {
-  background: rgba(0, 0, 0, 0.5);
+  background: var(--ov);
   backdrop-filter: blur(4px);
 }
 
 /* 通用弹窗遮罩 */
 .global-modal-overlay--modal {
-  background: rgba(0, 0, 0, 0.5);
+  background: var(--ov);
 }
 
 /* 基础对话框样式 */

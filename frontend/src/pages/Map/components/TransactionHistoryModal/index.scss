@@ -21,7 +21,7 @@
   max-height: 75vh;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18);
+  box-shadow: var(--sh4);
   overflow: hidden;
 }
 

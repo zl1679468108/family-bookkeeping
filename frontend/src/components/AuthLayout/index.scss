@@ -160,7 +160,7 @@
   font-size: 19px;
   font-weight: 700;
   flex-shrink: 0;
-  box-shadow: 0 4px 12px rgba(45, 157, 138, 0.25);
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--pr) 28%, transparent);
 }
 
 .fl-text {
@@ -253,13 +253,13 @@
 .auth-form .btn-submit:hover:not(:disabled),
 .auth-form .ui-btn.btn-submit:hover:not(:disabled) {
   transform: translateY(-1px);
-  box-shadow: 0 6px 20px rgba(45, 157, 138, 0.3);
+  box-shadow: 0 6px 20px color-mix(in srgb, var(--pr) 32%, transparent);
 }
 
 .auth-form .btn-submit:active:not(:disabled),
 .auth-form .ui-btn.btn-submit:active:not(:disabled) {
   transform: translateY(0);
-  box-shadow: 0 2px 8px rgba(45, 157, 138, 0.25);
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--pr) 28%, transparent);
 }
 
 .auth-form .btn-submit:disabled,
@@ -384,13 +384,13 @@
 .auth-message.success {
   background: var(--incBg);
   color: var(--inc);
-  border: 1px solid rgba(59, 162, 114, 0.15);
+  border: 1px solid color-mix(in srgb, var(--inc) 20%, transparent);
 }
 
 .auth-message.error {
   background: var(--expBg);
   color: var(--exp);
-  border: 1px solid rgba(224, 96, 85, 0.15);
+  border: 1px solid color-mix(in srgb, var(--exp) 20%, transparent);
 }
 
 /* ── 成功卡片 ── */

@@ -2,7 +2,7 @@
 .template-selector-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: var(--ov);
   z-index: var(--z-modal);
   display: flex;
   align-items: center;
@@ -147,12 +147,12 @@
 
 .template-type.expense {
   background: var(--expBg);
-  color: #cf1322;
+  color: var(--exp);
 }
 
 .template-type.income {
   background: var(--incBg);
-  color: #389e0d;
+  color: var(--inc);
 }
 
 /* 第二行：备注/分类 + 金额 */

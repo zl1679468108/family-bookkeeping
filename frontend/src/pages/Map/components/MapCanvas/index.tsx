@@ -4,17 +4,33 @@ import { TransactionHistoryModal } from '../TransactionHistoryModal';
 import { useMapInstance } from '../../../../hooks/useMapInstance';
 import { AmapManager } from '../../../../services/amapManager';
 import './index.scss';
+import { getThemeColors } from '../../../../utils/themeColors'
 
 /* ⚠️ 静态初值，永不随 state 变化，避免二次变更视口取消瓦片 */
+function parseHexRgb(hex: string): [number, number, number] {
+  const h = hex.replace('#', '').trim();
+  if (h.length === 3) {
+    return [parseInt(h[0] + h[0], 16), parseInt(h[1] + h[1], 16), parseInt(h[2] + h[2], 16)];
+  }
+  if (h.length >= 6) {
+    return [parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16)];
+  }
+  return [170, 170, 170];
+}
+
 function getMerchantColor(expenseTotal: number, incomeTotal: number): string {
+  const theme = getThemeColors();
   const total = expenseTotal + incomeTotal;
-  if (total === 0) return '#aaa';
+  if (total === 0) return theme.fg3;
   const expenseRatio = expenseTotal / total;
-  if (expenseRatio >= 0.9) return '#EE6666';
-  if (expenseRatio <= 0.1) return '#91CC75';
-  const r = Math.round(238 - (238 - 145) * (1 - expenseRatio));
-  const g = Math.round(102 + (204 - 102) * (1 - expenseRatio));
-  const b = Math.round(102 - (102 - 117) * (1 - expenseRatio));
+  if (expenseRatio >= 0.9) return theme.exp;
+  if (expenseRatio <= 0.1) return theme.inc;
+  const [er, eg, eb] = parseHexRgb(theme.exp);
+  const [ir, ig, ib] = parseHexRgb(theme.inc);
+  const t = 1 - expenseRatio; // 越偏收入越靠近 inc
+  const r = Math.round(er + (ir - er) * t);
+  const g = Math.round(eg + (ig - eg) * t);
+  const b = Math.round(eb + (ib - eb) * t);
   return `rgb(${r},${g},${b})`;
 }
 

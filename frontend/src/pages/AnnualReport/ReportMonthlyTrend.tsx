@@ -101,8 +101,8 @@ export const ReportMonthlyTrend: React.FC<ReportMonthlyTrendProps> = ({ data }) 
           itemStyle: { color: theme.inc, borderColor: bgColor, borderWidth: 2 },
           areaStyle: {
             color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-              { offset: 0, color: 'rgba(59, 162, 114, 0.3)' },
-              { offset: 1, color: 'rgba(16, 185, 129, 0.02)' },
+              { offset: 0, color: theme.inc + '4D' },
+              { offset: 1, color: theme.inc + '05' },
             ]),
           },
         },
@@ -113,12 +113,12 @@ export const ReportMonthlyTrend: React.FC<ReportMonthlyTrendProps> = ({ data }) 
           smooth: true,
           symbol: 'circle',
           symbolSize: 6,
-          lineStyle: { color: '#f97316', width: 3 },
-          itemStyle: { color: '#f97316', borderColor: bgColor, borderWidth: 2 },
+          lineStyle: { color: theme.exp, width: 3 },
+          itemStyle: { color: theme.exp, borderColor: bgColor, borderWidth: 2 },
           areaStyle: {
             color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-              { offset: 0, color: 'rgba(249, 115, 22, 0.3)' },
-              { offset: 1, color: 'rgba(249, 115, 22, 0.02)' },
+              { offset: 0, color: theme.exp + '4D' },
+              { offset: 1, color: theme.exp + '05' },
             ]),
           },
         },

@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useMemo } from 'react';
+import { getChartPalette } from '../../utils/themeColors'
 
 interface MemberItem {
   user_id: string;
@@ -11,47 +12,52 @@ interface Props {
   data: MemberItem[];
 }
 
-const COLORS = ['#2D9D8A', '#ef4444', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899'];
-
 const ReportMemberRanking: React.FC<Props> = ({ data }) => {
+  const colors = useMemo(() => getChartPalette(), []);
+
   if (!data || data.length <= 1) return null;
 
   return (
     <div className="mb-6 px-4">
-      <h2 className="text-lg font-bold text-gray-800 mb-4">👥 成员消费</h2>
+      <h2 className="text-lg font-bold mb-4" style={{ color: 'var(--fg)' }}>👥 成员消费</h2>
       <div className="space-y-3">
         {data.map((member, i) => (
           <div
             key={member.user_id}
-            className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl"
+            className="flex items-center gap-3 p-3 rounded-xl"
+            style={{ background: 'var(--srfH)' }}
           >
-            {/* 排名 */}
             <div
-              className="w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-bold"
-              style={{ backgroundColor: COLORS[i % COLORS.length] }}
+              className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold"
+              style={{ backgroundColor: colors[i % colors.length], color: 'var(--on-pr, #fff)' }}
             >
               {i + 1}
             </div>
 
-            {/* 信息 */}
             <div className="flex-1 min-w-0">
               <div className="flex justify-between items-center">
-                <span className="text-sm font-medium text-gray-800">
+                <span className="text-sm font-medium" style={{ color: 'var(--fg)' }}>
                   {member.nickname || '用户'}
                 </span>
-                <span className="text-sm font-bold text-gray-700">
+                <span className="text-sm font-bold" style={{ color: 'var(--fg2)' }}>
                   ¥{member.expense.toFixed(0)}
                 </span>
               </div>
               <div className="flex justify-between items-center mt-1">
-                <span className="text-xs text-gray-400">{member.percentage}%</span>
+                <span className="text-xs" style={{ color: 'var(--fg3)' }}>{member.percentage}%</span>
                 {i === 0 && (
-                  <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded">
+                  <span
+                    className="text-xs px-2 py-0.5 rounded"
+                    style={{ background: 'var(--warnBg)', color: 'var(--warn)' }}
+                  >
                     消费主力
                   </span>
                 )}
                 {i === data.length - 1 && data.length > 1 && (
-                  <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded">
+                  <span
+                    className="text-xs px-2 py-0.5 rounded"
+                    style={{ background: 'var(--incBg)', color: 'var(--inc)' }}
+                  >
                     省钱达人
                   </span>
                 )}

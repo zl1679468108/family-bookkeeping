@@ -30,6 +30,8 @@
   --fg3:   #8B8E89;
   --bd:    #E0E2DD;
   --bdL:   #EDEEE9;
+  --bdH:   #C8CBC4;   /* hover 边框 */
+  --hover: color-mix(in srgb, var(--fg) 6%, transparent); /* 清/悬停填充 */
 
   /* ═══ 骨架屏 ═══ */
   --sk-base: #E9EBE6;   /* 骨架基础色 */
@@ -139,6 +141,8 @@
   --fg3:   #6E716C;
   --bd:    #3A3D39;
   --bdL:   #303330;
+  --bdH:   #4A4D49;   /* hover 边框（暗色更亮） */
+  --hover: color-mix(in srgb, var(--fg) 8%, transparent);
 
   /* ═══ 骨架屏 ═══ */
   --sk-base: #2C2F2C;
@@ -178,10 +182,10 @@
 /* ═══ Spotlight 聚焦动画 (绿色版) ═══ */
 @keyframes spotlightPulse {
   0%, 100% {
-    box-shadow: 0 0 0 1px rgba(45, 157, 138, 0.45), 0 0 14px rgba(45, 157, 138, 0.18);
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--pr) 45%, transparent), 0 0 14px color-mix(in srgb, var(--pr) 18%, transparent);
   }
   50% {
-    box-shadow: 0 0 0 2px rgba(45, 157, 138, 0.7), 0 0 24px rgba(45, 157, 138, 0.32);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--pr) 70%, transparent), 0 0 24px color-mix(in srgb, var(--pr) 32%, transparent);
   }
 }
 @keyframes spotlightBorderGlow {
@@ -203,7 +207,7 @@
 [data-theme="dark"] .spotlight--focused.budgets-table-row {
   animation: spotlightBorderGlowDark 0.8s ease-in-out infinite;
   border-color: var(--pr);
-  background: rgba(69, 183, 167, 0.04);
+  background: color-mix(in srgb, var(--pr) 6%, transparent);
 }
 @keyframes spotlightBorderGlowDark {
   0%   { border-color: var(--pr); }

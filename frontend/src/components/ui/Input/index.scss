@@ -31,7 +31,7 @@
 
 .ui-input:focus-within:not(.is-disabled) {
   border-color: var(--pr);
-  box-shadow: 0 0 0 3px rgba(45, 157, 138, 0.1);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--pr) 14%, transparent);
 }
 
 .ui-input.has-error {
@@ -105,7 +105,7 @@
 
 .ui-input-clear:hover {
   color: var(--fg);
-  background: rgba(0, 0, 0, 0.06);
+  background: var(--hover);
 }
 
 .ui-input-error {
@@ -147,7 +147,7 @@
 
 .ui-search:focus-within {
   border-color: var(--pr);
-  box-shadow: 0 0 0 3px rgba(45, 157, 138, 0.1);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--pr) 14%, transparent);
 }
 
 .ui-search-icon {
@@ -190,7 +190,7 @@
 
 .ui-search-clear:hover {
   color: var(--fg);
-  background: rgba(0, 0, 0, 0.06);
+  background: var(--hover);
 }
 
 /* 密码展示/隐藏切换按钮 */

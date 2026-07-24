@@ -383,7 +383,7 @@ const AnnualReport: React.FC = () => {
                 borderRadius: '12px',
                 border: 'none',
                 background: 'var(--prGr)',
-                color: '#fff',
+                color: 'var(--on-pr, #fff)',
                 fontSize: '16px',
                 fontWeight: 600,
                 cursor: 'pointer',

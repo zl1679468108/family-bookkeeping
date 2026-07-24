@@ -63,12 +63,12 @@
     /* 状态修饰 */
     &.budget-card--over {
       border-left: 3px solid var(--exp);
-      background: linear-gradient(90deg, rgba(220, 38, 38, 0.03) 0%, var(--srf) 100%);
+      background: linear-gradient(90deg, color-mix(in srgb, var(--exp) 6%, transparent) 0%, var(--srf) 100%);
     }
 
     &.budget-card--warn {
       border-left: 3px solid var(--warn);
-      background: linear-gradient(90deg, rgba(232, 168, 56, 0.03) 0%, var(--srf) 100%);
+      background: linear-gradient(90deg, color-mix(in srgb, var(--warn) 6%, transparent) 0%, var(--srf) 100%);
     }
   }
 }

@@ -240,12 +240,12 @@
 
 .dash-budget-summary--warn {
   background: linear-gradient(135deg, var(--warnBg) 0%, var(--srf) 100%);
-  border-color: rgba(232, 168, 56, 0.28);
+  border-color: color-mix(in srgb, var(--warn) 28%, transparent);
 }
 
 .dash-budget-summary--danger {
   background: linear-gradient(135deg, var(--expBg) 0%, var(--srf) 100%);
-  border-color: rgba(224, 96, 85, 0.25);
+  border-color: color-mix(in srgb, var(--exp) 25%, transparent);
 }
 
 .dash-budget-summary--skeleton {
@@ -367,19 +367,19 @@
 }
 
 .dash-budget-item--warn {
-  background: linear-gradient(90deg, rgba(232, 168, 56, 0.08) 0%, var(--bg) 48%);
+  background: linear-gradient(90deg, color-mix(in srgb, var(--warn) 10%, transparent) 0%, var(--bg) 48%);
 }
 
 .dash-budget-item--danger {
-  background: linear-gradient(90deg, rgba(224, 96, 85, 0.08) 0%, var(--bg) 48%);
+  background: linear-gradient(90deg, color-mix(in srgb, var(--exp) 10%, transparent) 0%, var(--bg) 48%);
 }
 
 .dash-budget-item--warn:hover {
-  border-color: rgba(232, 168, 56, 0.28);
+  border-color: color-mix(in srgb, var(--warn) 28%, transparent);
 }
 
 .dash-budget-item--danger:hover {
-  border-color: rgba(224, 96, 85, 0.28);
+  border-color: color-mix(in srgb, var(--exp) 28%, transparent);
 }
 
 .dash-budget-item__icon {
@@ -398,12 +398,12 @@
 
 .dash-budget-item--danger .dash-budget-item__icon {
   background: var(--expBg);
-  border-color: rgba(224, 96, 85, 0.16);
+  border-color: color-mix(in srgb, var(--exp) 16%, transparent);
 }
 
 .dash-budget-item--warn .dash-budget-item__icon {
   background: var(--warnBg);
-  border-color: rgba(232, 168, 56, 0.18);
+  border-color: color-mix(in srgb, var(--warn) 18%, transparent);
 }
 
 .dash-budget-item__body {
