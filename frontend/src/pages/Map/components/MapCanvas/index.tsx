@@ -5,6 +5,7 @@ import { useMapInstance } from '../../../../hooks/useMapInstance';
 import { AmapManager } from '../../../../services/amapManager';
 import './index.scss';
 import { getThemeColors } from '../../../../utils/themeColors'
+import { useTheme } from '../../../../utils/theme'
 import { merchantBalanceColor } from '../../../../utils/color'
 import { createFootprintMarkerHtml, merchantShortLabel } from '../../../../utils/mapMarkerHtml'
 import { ERROR_LOCATION_UNAVAILABLE, ERROR_MAP_UNAVAILABLE, ERROR_MAP_NETWORK_HINT } from '../../../../utils/errorCopy'
@@ -89,6 +90,7 @@ const _MapCanvas: React.ForwardRefRenderFunction<MapCanvasHandle, MapCanvasProps
   const [mapVisible, setMapVisible] = useState(false);
 
   // ---- Map instance via pool ----
+  const { resolvedTheme } = useTheme();
   const { mapContainerRef, map: rawMap, ready, error: mapError } = useMapInstance('map-canvas', {
     // 开启 ResizeObserver：容器尺寸变化（侧栏折叠/窗口变化）时补 resize，避免空白瓦片
     skipResizeObserver: false,
@@ -427,7 +429,7 @@ const _MapCanvas: React.ForwardRefRenderFunction<MapCanvasHandle, MapCanvasProps
       // 组件卸载或依赖变化时，清除 markers
       clearMarkers(map);
     };
-  }, [map, ready, viewMode, merchants, data, useMemberColor, colorMap, members, clearMarkers, handleMerchantClick]);
+  }, [map, ready, viewMode, merchants, data, useMemberColor, colorMap, members, clearMarkers, handleMerchantClick, resolvedTheme]);
 
   /* ====== InfoWindow (imperative)：每次 map 变化时重建，避免绑定到已失效的 map ====== */
 

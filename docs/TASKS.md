@@ -111,6 +111,13 @@
 - `TITLE_DATA_ANALYSIS` / `TITLE_MEMBER_COMPARE` 报表 Tab
 - 验证：frontend / taro `tsc --noEmit`
 
+#### 2026-07-24 PC 暗色第十轮（图表联动 / 地图样式 / 残留硬编码）
+- 年报图表/色条：`getChartPalette` 空依赖改为 `resolvedTheme`；`ReportMonthlyTrend` 切主题重绘
+- 扩展色随暗色提亮；年报封面亮色 `white`/`rgba(255,255,255,*)` → `onPr` / color-mix
+- 高德 `useMapInstance` 随 `data-theme` 切换 `amap://styles/dark|normal`；足迹/成员 marker 随主题重建
+- `bookIcons`/`platformIcons` 默认色对齐 `THEME_TOKEN_HEX.light.fg`；marker 兜底 `fg3`
+- 验证：frontend `tsc --noEmit`
+
 #### 2026-07-24 暗色第九轮 + 页标题/月份/主题 hex 收口
 - 新增 `shared-utils/themeTokens`：SVG data URL / 导航栏等无法读 CSS var 的静态亮暗 hex；PC/Taro facade
 - 年报 `ReportCover` 按 `resolvedTheme` + `getThemeColors` 重绘渐变与山丘色，去掉 Material 硬编码与 `text-white`

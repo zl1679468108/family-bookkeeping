@@ -35,10 +35,17 @@ export function getThemeColors() {
   };
 }
 
-/** 多系列调色板（主色 + 语义色衍生，暗色下仍清晰） */
+/** 多系列调色板（主色 + 语义色衍生；扩展色随暗色略提亮以保证对比） */
 export function getChartPalette(): string[] {
   const c = getThemeColors();
-  return [c.pr, c.exp, c.inc, c.warn, c.info, "#8B5CF6", "#EC4899", "#F97316", "#06B6D4", "#84CC16"];
+  const isDark =
+    typeof document !== "undefined" &&
+    document.documentElement.getAttribute("data-theme") === "dark";
+  // 扩展色：非语义系列，暗色用更亮一档避免沉底
+  const extras = isDark
+    ? ["#A78BFA", "#F472B6", "#FB923C", "#22D3EE", "#A3E635"]
+    : ["#8B5CF6", "#EC4899", "#F97316", "#06B6D4", "#84CC16"];
+  return [c.pr, c.exp, c.inc, c.warn, c.info, ...extras];
 }
 
 /**

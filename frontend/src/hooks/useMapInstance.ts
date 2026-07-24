@@ -15,6 +15,7 @@
 import { useRef, useEffect, useState, useCallback, useMemo } from 'react';
 import { AmapManager } from '../services/amapManager';
 import { ERROR_MAP_SDK_LOAD_FAILED } from '../utils/errorCopy'
+import { useTheme } from '../utils/theme'
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -35,6 +36,24 @@ interface UseMapInstanceReturn {
 }
 
 /* ------------------------------------------------------------------ */
+/*  Theme map styles（官方内置样式，无需自定义）                         */
+/* ------------------------------------------------------------------ */
+
+const AMAP_MAP_STYLE = {
+  light: 'amap://styles/normal',
+  dark: 'amap://styles/dark',
+} as const
+
+function applyMapStyle(map: any, resolved: 'light' | 'dark') {
+  if (!map || typeof map.setMapStyle !== 'function') return
+  try {
+    map.setMapStyle(AMAP_MAP_STYLE[resolved])
+  } catch {
+    /* best-effort：部分环境未开通样式包时忽略 */
+  }
+}
+
+/* ------------------------------------------------------------------ */
 /*  Hook                                                               */
 /* ------------------------------------------------------------------ */
 
@@ -44,6 +63,7 @@ export function useMapInstance(
   active: boolean = true,
 ): UseMapInstanceReturn {
   const manager = useMemo(() => AmapManager.getInstance(), []);
+  const { resolvedTheme } = useTheme();
 
   // ---- SDK readiness ----
   const [sdkReady, setSdkReady] = useState(manager.isLoaded);
@@ -168,6 +188,12 @@ export function useMapInstance(
       }
     };
   }, [id, active, sdkReady, resolvedOptions, manager, parentEl, skipResizeObserver]);
+
+  /* ---- Sync map style with app theme ---- */
+  useEffect(() => {
+    if (!ready || !map) return
+    applyMapStyle(map, resolvedTheme)
+  }, [map, ready, resolvedTheme])
 
   /* ---- Callback ref for the React wrapper div ---- */
   const mapContainerRef: React.RefCallback<HTMLDivElement> = useCallback(

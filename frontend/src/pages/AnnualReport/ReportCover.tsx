@@ -29,12 +29,12 @@ const ReportCover: React.FC<Props> = ({ year, nickname }) => {
     }
     return {
       // 亮色保持插画饱和度，文字用 on-pr 白以保证对比
-      background: `linear-gradient(180deg, color-mix(in srgb, ${c.info} 72%, white) 0%, color-mix(in srgb, ${c.pr} 55%, ${c.inc}) 48%, color-mix(in srgb, ${c.incBg} 55%, ${c.pr}) 100%)`,
+      background: `linear-gradient(180deg, color-mix(in srgb, ${c.info} 72%, ${c.onPr}) 0%, color-mix(in srgb, ${c.pr} 55%, ${c.inc}) 48%, color-mix(in srgb, ${c.incBg} 55%, ${c.pr}) 100%)`,
       text: c.onPr,
       hill1: c.pr,
       hill2: c.inc,
       tree: c.prH,
-      glow: 'rgba(255,255,255,0.22)',
+      glow: `color-mix(in srgb, ${c.onPr} 22%, transparent)`,
       flower: c.warn,
       flowerAlt: c.exp,
       chipBg: 'color-mix(in srgb, var(--on-pr) 20%, transparent)',

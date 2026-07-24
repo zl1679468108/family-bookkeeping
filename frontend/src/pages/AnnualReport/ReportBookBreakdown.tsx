@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import { getChartPalette } from '../../utils/themeColors'
+import { useTheme } from '../../utils/theme'
 import { formatMoney } from '../../utils/budget'
 
 interface BookItem {
@@ -14,7 +15,8 @@ interface Props {
 }
 
 const ReportBookBreakdown: React.FC<Props> = ({ data }) => {
-  const colors = useMemo(() => getChartPalette(), []);
+  const { resolvedTheme } = useTheme();
+  const colors = useMemo(() => getChartPalette(), [resolvedTheme]);
 
   if (!data || data.length <= 1) return null;
 

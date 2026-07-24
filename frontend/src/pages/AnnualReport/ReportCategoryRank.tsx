@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { renderCategoryIcon } from '../../utils/renderCategoryIcon';
 import { getChartPalette } from '../../utils/themeColors'
+import { useTheme } from '../../utils/theme'
 import { formatMoney } from '../../utils/budget'
 
 interface CategoryItem {
@@ -16,7 +17,8 @@ interface ReportCategoryRankProps {
 }
 
 export const ReportCategoryRank: React.FC<ReportCategoryRankProps> = ({ data }) => {
-  const colors = useMemo(() => getChartPalette(), []);
+  const { resolvedTheme } = useTheme();
+  const colors = useMemo(() => getChartPalette(), [resolvedTheme]);
   return (
     <div style={{ marginBottom: '24px' }}>
       <h2

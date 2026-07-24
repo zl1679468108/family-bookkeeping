@@ -9,6 +9,7 @@
  * - Taro：data URL + <Image>（taro/src/utils/platformIcons.ts）
  */
 
+import { THEME_TOKEN_HEX } from './themeTokens'
 export interface PlatformIconItem {
   key: string
   label: string
@@ -240,7 +241,7 @@ const buildSvgChildrenXml = (
 /** 生成完整 SVG 字符串；strokeWidth 默认 1.5（与 PC 端一致） */
 export const buildPlatformIconSvgString = (
   key?: string,
-  color = '#1a1c19',
+  color: string = THEME_TOKEN_HEX.light.fg,
   strokeWidth = 1.5,
 ): string => {
   const spec = getPlatformIconSpecByKey(key)
@@ -261,7 +262,7 @@ const svgToDataUrl = (svgStr: string): string =>
 /** data URL，供 <img> / 小程序 Image 使用 */
 export const getPlatformIconSvgDataUrl = (
   key: string,
-  color = '#1a1c19',
+  color: string = THEME_TOKEN_HEX.light.fg,
 ): string => svgToDataUrl(buildPlatformIconSvgString(key, color))
 
 /** 判断 icon 是否为 http(s) URL */

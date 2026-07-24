@@ -1,3 +1,5 @@
+import { THEME_TOKEN_HEX } from './themeTokens'
+
 /**
  * 地图 Marker HTML 纯函数（PC 高德 content 字符串）
  * 颜色由调用方注入，不依赖 DOM / getComputedStyle
@@ -71,7 +73,7 @@ export function createFootprintMarkerHtml(opts: FootprintMarkerOptions): string 
     `
   }
 
-  const color = opts.merchantColor ?? '#999'
+  const color = opts.merchantColor ?? THEME_TOKEN_HEX.light.fg3
   const shortName = opts.merchantShortName ?? ''
   return `
     <div style="

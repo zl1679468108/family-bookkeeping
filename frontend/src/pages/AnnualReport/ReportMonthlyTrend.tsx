@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { useTheme } from '../../utils/theme'
 import { echarts } from '../../utils/echarts';
 import type { ECharts } from '../../utils/echarts';
 import { getThemeColors } from '../../utils/themeColors'
@@ -17,6 +18,7 @@ interface ReportMonthlyTrendProps {
 export const ReportMonthlyTrend: React.FC<ReportMonthlyTrendProps> = ({ data }) => {
   const chartRef = useRef<HTMLDivElement>(null);
   const instanceRef = useRef<ECharts | null>(null);
+  const { resolvedTheme } = useTheme();
 
   useEffect(() => {
     if (!chartRef.current) return;
@@ -132,7 +134,7 @@ export const ReportMonthlyTrend: React.FC<ReportMonthlyTrendProps> = ({ data }) 
     return () => {
       window.removeEventListener('resize', handleResize);
     };
-  }, [data]);
+  }, [data, resolvedTheme]);
 
   useEffect(() => {
     return () => {

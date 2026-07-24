@@ -10,6 +10,7 @@
  * - Taro：data URL + <Image>（taro/src/utils/bookIcons.ts 再导出）
  */
 
+import { THEME_TOKEN_HEX } from './themeTokens'
 export interface BookIconItem {
   key: string;
   label: string;
@@ -301,7 +302,7 @@ const buildSvgChildrenXml = (
  */
 export const buildBookIconSvgString = (
   iconKey?: string,
-  color = '#1a1c19',
+  color: string = THEME_TOKEN_HEX.light.fg,
   strokeWidth = 2,
 ): string => {
   const spec = getBookIconSpecByKey(iconKey)
@@ -325,7 +326,7 @@ const svgToDataUrl = (svgStr: string): string =>
  */
 export const getBookIconSvgDataUrl = (
   iconKey?: string,
-  color = '#1a1c19',
+  color: string = THEME_TOKEN_HEX.light.fg,
 ): string => {
   if (isCustomIconUrl(iconKey)) return iconKey as string
   return svgToDataUrl(buildBookIconSvgString(iconKey, color))

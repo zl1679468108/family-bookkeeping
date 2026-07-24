@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { fetchMemberLocations } from '../../../services/mapApi';
 import type { MemberLocation } from '@family-bookkeeping/shared-types'
 import { getThemeColors } from '../../../utils/themeColors'
+import { useTheme } from '../../../utils/theme'
 import { queryKeys } from '../../../utils/queryKeys'
 import { isMemberOffline } from '../../../utils/memberPresence'
 import { createMemberBubbleHtml } from '../../../utils/mapMarkerHtml'
@@ -40,6 +41,7 @@ export const MemberLocationLayer: React.FC<MemberLocationLayerProps> = ({
   bookId,
   mapInstance,
 }) => {
+  const { resolvedTheme } = useTheme();
   const markersRef = useRef<any[]>([]);
 
   // 轮询成员位置，每 60s，避免地图页长时间打开时把后端持续点亮
@@ -94,7 +96,7 @@ export const MemberLocationLayer: React.FC<MemberLocationLayerProps> = ({
     return () => {
       newMarkers.forEach((m: any) => m.setMap(null));
     };
-  }, [locations, bookId, mapInstance]);
+  }, [locations, bookId, mapInstance, resolvedTheme]);
 
   // 组件不渲染任何 DOM 节点
   return null;
