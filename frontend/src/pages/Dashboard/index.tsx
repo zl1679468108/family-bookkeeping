@@ -23,6 +23,7 @@ import { GC_TIME_LONG, STALE } from '../../utils/cachePolicy'
 import { EMPTY_TRANSACTIONS_HOME, EMPTY_NO_BUDGET } from '../../utils/emptyCopy'
 import { TITLE_BUDGET_MONTH, TITLE_RECENT_TXN_MONTH } from '../../utils/sectionCopy'
 import { ACTION_VIEW_ALL } from '../../utils/actionCopy'
+import { FIELD_MONTH_BALANCE, FIELD_MONTH_INCOME, FIELD_MONTH_EXPENSE } from '../../utils/fieldCopy'
 
 const Dashboard: React.FC = () => {
   const navigate = useNavigate()
@@ -102,19 +103,19 @@ const Dashboard: React.FC = () => {
         ) : (
           <>
             <StatCard
-              label="本月结余"
+              label={FIELD_MONTH_BALANCE}
               value={formatAmount(summary?.balance || 0)}
               sub={`共 ${(summary?.incomeCount || 0) + (summary?.expenseCount || 0)} 笔`}
               variant="hero"
             />
             <StatCard
-              label="本月收入"
+              label={FIELD_MONTH_INCOME}
               value={formatAmount(summary?.totalIncome || 0)}
               sub={`${summary?.incomeCount || 0} 笔`}
               variant="income"
             />
             <StatCard
-              label="本月支出"
+              label={FIELD_MONTH_EXPENSE}
               value={formatAmount(summary?.totalExpense || 0)}
               sub={`${summary?.expenseCount || 0} 笔`}
               variant="expense"

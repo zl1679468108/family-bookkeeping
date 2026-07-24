@@ -24,7 +24,7 @@ import { FILTER_ALL_CATEGORIES, FILTER_VIEW, FILTER_ALL_MEMBERS, FILTER_ALL } fr
 import { ACTION_LOADING } from '../../utils/actionCopy';
 import { TITLE_MERCHANT_FOOTPRINT } from '../../utils/sectionCopy'
 import { FORM_SELECT_MONTH, FORM_SEARCH_MONTH } from '../../utils/formCopy'
-import { FIELD_TYPE, FIELD_CATEGORY } from '../../utils/fieldCopy'
+import { FIELD_TYPE, FIELD_CATEGORY, FIELD_VIEW, FIELD_MEMBER, FIELD_MONTH } from '../../utils/fieldCopy'
 
 type ViewMode = 'footprints' | 'heatmap';
 
@@ -205,7 +205,7 @@ const MapPage: React.FC = () => {
         <div className="map-toolbar-row">
           {/* 视图切换（放第一个） */}
           <DropdownSelect
-            label="视图"
+            label={FIELD_VIEW}
             options={viewOptions}
             value={viewMode}
             onChange={(key) => {
@@ -220,7 +220,7 @@ const MapPage: React.FC = () => {
           {/* 成员筛选 */}
           {isMultiMember && (
             <DropdownSelect
-              label="成员"
+              label={FIELD_MEMBER}
               options={memberOptions}
               value={selectedMemberId}
               onChange={(key) => setSelectedMemberId(key)}
@@ -230,7 +230,7 @@ const MapPage: React.FC = () => {
 
           {/* 年月选择器（与预算模块一致） */}
           <DropdownSelect
-            label="月份"
+            label={FIELD_MONTH}
             options={monthOptions.map((o) => ({ key: o.key, label: o.label, isHeader: o.isHeader, icon: o.isHeader ? undefined : '📅' }))}
             value={selectedMonth}
             onChange={(key) => key && setSelectedMonth(key)}

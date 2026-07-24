@@ -5,6 +5,7 @@ import { getBookIconByKey } from '../../../utils/bookIcons';
 import { BookMemberList } from './BookMemberList';
 import { formatDateTimeMinute } from '../../../utils/date'
 import { DETAIL_BOOK } from '../../../utils/entityCopy'
+import { FIELD_MEMBERS, FIELD_TXN_COUNT, FIELD_STATUS, FIELD_CREATED_AT, FIELD_UPDATED_AT, FIELD_OWNER_ID } from '../../../utils/fieldCopy'
 
 const DEFAULT_BOOK_NAME = '默认账本';
 
@@ -87,16 +88,16 @@ export const BookDetailModal: React.FC<BookDetailModalProps> = ({
       </div>
       <div className="detail-divider" />
       <div className="detail-grid">
-        <DetailItem label="成员" value={`${members.length || selectedBook.m || 1} 人`} />
-        <DetailItem label="交易笔数" value={`${selectedBook.txn_count || 0} 笔`} />
-        {selectedBook.is_archived && <DetailItem label="状态" value="已归档" />}
+        <DetailItem label={FIELD_MEMBERS} value={`${members.length || selectedBook.m || 1} 人`} />
+        <DetailItem label={FIELD_TXN_COUNT} value={`${selectedBook.txn_count || 0} 笔`} />
+        {selectedBook.is_archived && <DetailItem label={FIELD_STATUS} value="已归档" />}
         {selectedBook.created_at && (
-          <DetailItem label="创建时间" value={formatDateTimeMinute(selectedBook.created_at)} />
+          <DetailItem label={FIELD_CREATED_AT} value={formatDateTimeMinute(selectedBook.created_at)} />
         )}
         {selectedBook.updated_at && (
-          <DetailItem label="更新时间" value={formatDateTimeMinute(selectedBook.updated_at)} />
+          <DetailItem label={FIELD_UPDATED_AT} value={formatDateTimeMinute(selectedBook.updated_at)} />
         )}
-        {selectedBook.owner_id && <DetailItem label="账主 ID" value={selectedBook.owner_id} />}
+        {selectedBook.owner_id && <DetailItem label={FIELD_OWNER_ID} value={selectedBook.owner_id} />}
       </div>
       <BookMemberList
         members={members}

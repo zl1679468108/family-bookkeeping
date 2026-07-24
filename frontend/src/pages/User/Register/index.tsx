@@ -11,6 +11,7 @@ import { Button } from '../../../components/ui/Button'
 import { PasswordField } from '../../../components/ui/PasswordField'
 import { FormField } from '../../../components/ui/FormField'
 import { FORM_NICKNAME_PLACEHOLDER, FORM_EMAIL_EXAMPLE, FORM_PASSWORD_MIN_SHORT, FORM_PASSWORD_CONFIRM_PLACEHOLDER } from '../../../utils/formCopy'
+import { FIELD_USERNAME, FIELD_EMAIL_ADDRESS, FIELD_PASSWORD, FIELD_CONFIRM_PASSWORD } from '../../../utils/fieldCopy'
 
 const RegisterPage: React.FC = () => {
   const [username, setUsername] = useState('')
@@ -53,7 +54,7 @@ const RegisterPage: React.FC = () => {
       <form onSubmit={(e) => { e.preventDefault(); handleSubmit() }}>
         <FormField
           id="regUser"
-          label="用户名"
+          label={FIELD_USERNAME}
           type="text"
           placeholder={FORM_NICKNAME_PLACEHOLDER}
           value={username}
@@ -64,7 +65,7 @@ const RegisterPage: React.FC = () => {
 
         <FormField
           id="regEmail"
-          label="邮箱地址"
+          label={FIELD_EMAIL_ADDRESS}
           type="email"
           placeholder={FORM_EMAIL_EXAMPLE}
           value={email}
@@ -76,7 +77,7 @@ const RegisterPage: React.FC = () => {
         <div className="form-row">
           <PasswordField
             id="regPass"
-            label="密码"
+            label={FIELD_PASSWORD}
             placeholder={FORM_PASSWORD_MIN_SHORT}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
@@ -85,7 +86,7 @@ const RegisterPage: React.FC = () => {
           />
           <PasswordField
             id="regPass2"
-            label="确认密码"
+            label={FIELD_CONFIRM_PASSWORD}
             placeholder={FORM_PASSWORD_CONFIRM_PLACEHOLDER}
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}

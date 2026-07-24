@@ -22,6 +22,7 @@ import { entityFormTitle, ENTITY_BOOK } from '../../../utils/entityCopy'
 import { failEntityUpsert } from '../../../utils/errorCopy'
 import { processingLabel } from '../../../utils/actionCopy';
 import { FORM_BOOK_NAME_EXAMPLE, FORM_BOOK_DESC_EXAMPLE } from '../../../utils/formCopy'
+import { FIELD_BOOK_NAME, FIELD_DESC_OPTIONAL } from '../../../utils/fieldCopy'
 
 interface BookCreateModalProps {
   open: boolean;
@@ -129,7 +130,7 @@ export const BookCreateModal: React.FC<BookCreateModalProps> = ({ open, onClose,
     >
       <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
         <Input
-          label="账本名称"
+          label={FIELD_BOOK_NAME}
           type="text"
           value={bookName}
           onChange={(e) => setBookName(e.target.value)}
@@ -140,7 +141,7 @@ export const BookCreateModal: React.FC<BookCreateModalProps> = ({ open, onClose,
         />
 
         <Textarea
-          label="描述（可选）"
+          label={FIELD_DESC_OPTIONAL}
           value={bookDesc}
           onChange={(e) => setBookDesc(e.target.value)}
           placeholder={FORM_BOOK_DESC_EXAMPLE}

@@ -15,6 +15,7 @@ import { SUCCESS_JOINED } from '../../../utils/successCopy'
 import { validateInviteCode, normalizeInviteCode } from '../../../utils/validation'
 import { FORM_INVITE_CODE_EXAMPLE } from '../../../utils/formCopy'
 import { TITLE_JOIN_BY_INVITE } from '../../../utils/sectionCopy'
+import { FIELD_INVITE_CODE } from '../../../utils/fieldCopy'
 
 interface BookInviteModalProps {
   open: boolean;
@@ -96,7 +97,7 @@ export const BookInviteModal: React.FC<BookInviteModalProps> = ({ open, onClose,
     >
       <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
         <Input
-          label="邀请码"
+          label={FIELD_INVITE_CODE}
           type="text"
           value={inviteCode}
           onChange={(e) => setInviteCode(e.target.value.toUpperCase())}

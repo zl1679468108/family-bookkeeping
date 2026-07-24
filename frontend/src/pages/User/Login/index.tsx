@@ -11,6 +11,7 @@ import { Button } from '../../../components/ui/Button'
 import { PasswordField } from '../../../components/ui/PasswordField'
 import { FormField } from '../../../components/ui/FormField'
 import { FORM_CAPTCHA_PLACEHOLDER, FORM_EMAIL_EXAMPLE, FORM_PASSWORD_PLACEHOLDER } from '../../../utils/formCopy'
+import { FIELD_EMAIL_ADDRESS, FIELD_PASSWORD, FIELD_CAPTCHA } from '../../../utils/fieldCopy'
 
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('')
@@ -67,7 +68,7 @@ const LoginPage: React.FC = () => {
       <form onSubmit={(e) => { e.preventDefault(); handleSubmit() }}>
         <FormField
           id="loginEmail"
-          label="邮箱地址"
+          label={FIELD_EMAIL_ADDRESS}
           type="email"
           placeholder={FORM_EMAIL_EXAMPLE}
           value={email}
@@ -78,7 +79,7 @@ const LoginPage: React.FC = () => {
 
         <PasswordField
           id="loginPass"
-          label="密码"
+          label={FIELD_PASSWORD}
           placeholder={FORM_PASSWORD_PLACEHOLDER}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
@@ -86,7 +87,7 @@ const LoginPage: React.FC = () => {
           autoComplete="current-password"
         />
 
-        <FormField id="captchaCode" label="验证码">
+        <FormField id="captchaCode" label={FIELD_CAPTCHA}>
           <div className="captcha-row">
             <input
               id="captchaCode"

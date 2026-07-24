@@ -12,7 +12,7 @@ import { TRANSACTION_TYPE_OPTIONS } from '../../../utils/transactionType'
 import { busyLabel, ACTION_SAVING } from '../../../utils/actionCopy'
 import { entityFormTitle, ENTITY_TEMPLATE } from '../../../utils/entityCopy'
 import { FORM_TEMPLATE_NAME_EXAMPLE, FORM_SELECT_TYPE, FORM_SELECT_CATEGORY, FORM_AMOUNT_PLACEHOLDER, FORM_NOTE_OPTIONAL, FORM_SELECT_FREQUENCY } from '../../../utils/formCopy'
-import { FIELD_TYPE, FIELD_CATEGORY, FIELD_AMOUNT, FIELD_NOTE, FIELD_SORT, FIELD_FREQUENCY, FIELD_START_DATE } from '../../../utils/fieldCopy'
+import { FIELD_TYPE, FIELD_CATEGORY, FIELD_AMOUNT, FIELD_NOTE, FIELD_SORT, FIELD_FREQUENCY, FIELD_START_DATE, FIELD_TEMPLATE_NAME, FIELD_END_DATE_OPTIONAL } from '../../../utils/fieldCopy'
 
 interface TemplateFormProps {
   open: boolean
@@ -76,7 +76,7 @@ export const TemplateFormModal: React.FC<TemplateFormProps> = ({
       >
         <div className="tpl-form">
           <Input
-            label="模板名称"
+            label={FIELD_TEMPLATE_NAME}
             placeholder={FORM_TEMPLATE_NAME_EXAMPLE}
             value={form.name}
             onChange={(e) => setForm((prev: any) => ({ ...prev, name: e.target.value.slice(0, 20) }))}
@@ -166,7 +166,7 @@ export const TemplateFormModal: React.FC<TemplateFormProps> = ({
                   onChange={(e) => setForm((prev: any) => ({ ...prev, start_date: e.target.value }))}
                 />
                 <Input
-                  label="结束日期（可选）"
+                  label={FIELD_END_DATE_OPTIONAL}
                   type="date"
                   value={form.end_date || ''}
                   onChange={(e) => setForm((prev: any) => ({ ...prev, end_date: e.target.value }))}

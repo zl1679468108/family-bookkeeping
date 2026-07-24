@@ -6,6 +6,7 @@ import { Input } from '../../../components/ui/Input';
 import { notifyError } from '../../../utils/notifyError'
 import { validateEmail } from '../../../utils/validation'
 import { FORM_EMAIL_REQUIRED, FORM_PEER_EMAIL_PLACEHOLDER } from '../../../utils/formCopy'
+import { FIELD_EMAIL_ADDRESS } from '../../../utils/fieldCopy'
 
 interface InviteMemberModalProps {
   open: boolean;
@@ -58,7 +59,7 @@ export const InviteMemberModal: React.FC<InviteMemberModalProps> = ({
     >
       <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
         <Input
-          label="邮箱地址"
+          label={FIELD_EMAIL_ADDRESS}
           type="email"
           placeholder={FORM_PEER_EMAIL_PLACEHOLDER}
           value={inviteEmail}

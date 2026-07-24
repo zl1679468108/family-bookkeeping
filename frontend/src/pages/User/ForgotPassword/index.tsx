@@ -10,6 +10,7 @@ import { FormField } from '../../../components/ui/FormField'
 import { validatePasswordMatch, validatePasswordMinLength } from '../../../utils/validation'
 import { SUCCESS_CODE_RESENT } from '../../../utils/successCopy'
 import { FORM_REGISTERED_EMAIL_PLACEHOLDER, FORM_CAPTCHA_DIGITS_PLACEHOLDER, FORM_PASSWORD_MIN_SHORT, FORM_PASSWORD_CONFIRM_PLACEHOLDER } from '../../../utils/formCopy'
+import { FIELD_EMAIL_ADDRESS, FIELD_CAPTCHA, FIELD_NEW_PASSWORD, FIELD_CONFIRM_PASSWORD } from '../../../utils/fieldCopy'
 
 const ForgotPassword: React.FC = () => {
   const [email, setEmail] = useState('')
@@ -118,7 +119,7 @@ const ForgotPassword: React.FC = () => {
         <div>
           <FormField
             id="forgotEmail"
-            label="邮箱地址"
+            label={FIELD_EMAIL_ADDRESS}
             type="email"
             placeholder={FORM_REGISTERED_EMAIL_PLACEHOLDER}
             value={email}
@@ -144,13 +145,13 @@ const ForgotPassword: React.FC = () => {
         <form onSubmit={(e) => { e.preventDefault(); handleSubmit() }}>
           <FormField
             id="forgotEmailDisplay"
-            label="邮箱地址"
+            label={FIELD_EMAIL_ADDRESS}
             type="email"
             value={email}
             disabled
           />
 
-          <FormField id="forgotCode" label="验证码">
+          <FormField id="forgotCode" label={FIELD_CAPTCHA}>
             <div style={{ display: 'flex', gap: 8 }}>
               <input
                 id="forgotCode"
@@ -179,7 +180,7 @@ const ForgotPassword: React.FC = () => {
           <div className="form-row">
           <PasswordField
             id="forgotNewPass"
-            label="新密码"
+            label={FIELD_NEW_PASSWORD}
             placeholder={FORM_PASSWORD_MIN_SHORT}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
@@ -189,7 +190,7 @@ const ForgotPassword: React.FC = () => {
           />
           <PasswordField
             id="forgotNewPass2"
-            label="确认密码"
+            label={FIELD_CONFIRM_PASSWORD}
             placeholder={FORM_PASSWORD_CONFIRM_PLACEHOLDER}
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}

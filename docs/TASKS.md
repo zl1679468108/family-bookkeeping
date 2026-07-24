@@ -85,6 +85,10 @@
 
 ### ✅ 已完成
 
+#### 2026-07-24 鉴权/账本/统计字段标签接线
+- `fieldCopy` 补邮箱地址/密码/验证码/成员/交易笔数/本月结余收支/年报指标等
+- PC Login/Register/Forgot/Reset、账本创建/邀请/详情、模板表单、地图筛选、Dashboard、年报总览统一字段标签
+
 #### 2026-07-24 navCopy 导航文案 + 详情/表单字段扩展
 - 新增 `shared-utils/navCopy`：首页/流水/工作台/记一笔/账本/分类/模板/预算等导航与工作台描述
 - 接线 PC Sidebar、Taro TabBar/`app.config`/Workbench；`ACTION_LOGOUT`/`PROMOTE`/`DEMOTE`

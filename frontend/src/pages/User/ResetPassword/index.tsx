@@ -13,6 +13,7 @@ import {
   validatePasswordMinLength,
 } from '../../../utils/validation'
 import { FORM_PASSWORD_MIN_ALPHA_NUM, FORM_PASSWORD_CONFIRM_PLACEHOLDER } from '../../../utils/formCopy'
+import { FIELD_NEW_PASSWORD, FIELD_CONFIRM_PASSWORD } from '../../../utils/fieldCopy'
 
 const ResetPassword: React.FC = () => {
   const [searchParams] = useSearchParams()
@@ -93,7 +94,7 @@ const ResetPassword: React.FC = () => {
           <div className="form-row">
           <PasswordField
             id="resetNewPass"
-            label="新密码"
+            label={FIELD_NEW_PASSWORD}
             placeholder={FORM_PASSWORD_MIN_ALPHA_NUM}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
@@ -103,7 +104,7 @@ const ResetPassword: React.FC = () => {
           />
           <PasswordField
             id="resetNewPass2"
-            label="确认密码"
+            label={FIELD_CONFIRM_PASSWORD}
             placeholder={FORM_PASSWORD_CONFIRM_PLACEHOLDER}
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
