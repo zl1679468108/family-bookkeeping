@@ -96,7 +96,7 @@ const AdminDashboard: React.FC = () => {
           {isLoading ? (
             <TableRowsSkeleton columns={5} rows={5} />
           ) : (stats?.recentUsers || []).length === 0 ? (
-            <EmptyState variant="compact" title="暂无注册用户" description="平台还没有用户注册" />
+            <EmptyState variant="compact" description="平台还没有用户注册" />
           ) : (
             <table className="data-table">
               <thead>

@@ -121,8 +121,11 @@ export default function PageContainer({
     >
       {showEmpty ? (
         <EmptyState
-          title={emptyTitle}
-          description={emptyDesc}
+          description={
+            emptyTitle && emptyDesc && emptyTitle !== emptyDesc
+              ? `${emptyTitle}。${emptyDesc}`
+              : (emptyDesc ?? emptyTitle)
+          }
           action={emptyAction}
           icon={emptyIcon}
           variant={emptyVariant}

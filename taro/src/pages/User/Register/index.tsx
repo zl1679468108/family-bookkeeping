@@ -11,6 +11,7 @@ import { useNavBarTheme } from "../../../hooks/useNavBarTheme";
 import { useSubmit, toastError } from "../../../hooks/useSubmit";
 import "./index.scss";
 import { toastSuccess } from "../../../utils/toast";
+import { validatePasswordMatch, validatePasswordMinLength } from "../../../utils/validation";
 
 export default function Register() {
   const { isDark } = useTheme();
@@ -29,12 +30,11 @@ export default function Register() {
       setError("请填写所有必填项");
       return;
     }
-    if (password !== confirmPassword) {
-      setError("两次输入的密码不一致");
-      return;
-    }
-    if (password.length < 6) {
-      setError("密码长度至少为6位");
+    const pwdErr =
+      validatePasswordMatch(password, confirmPassword, "两次输入的密码不一致") ||
+      validatePasswordMinLength(password, { message: "密码长度至少为6位" });
+    if (pwdErr) {
+      setError(pwdErr);
       return;
     }
     if (!agreed) {

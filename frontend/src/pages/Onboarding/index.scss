@@ -124,7 +124,7 @@
 .onboarding-btn--primary {
   background: var(--prGr);
   border-color: var(--pr);
-  color: #fff;
+  color: var(--on-pr);
 }
 
 .onboarding-btn--primary::before {
@@ -173,7 +173,7 @@
 }
 
 .onboarding-btn--primary .onboarding-btn-title {
-  color: #fff;
+  color: var(--on-pr);
 }
 
 .onboarding-btn-desc {
@@ -374,7 +374,7 @@
 
 .invite-btn--primary {
   background: var(--pr);
-  color: #fff;
+  color: var(--on-pr);
   border-color: var(--pr);
 }
 

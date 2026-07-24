@@ -39,7 +39,7 @@
   height: 100%;
   max-width: 90vw;
   background: var(--srf);
-  box-shadow: -8px 0 24px rgba(0, 0, 0, 0.12);
+  box-shadow: var(--sh3);
   display: flex;
   flex-direction: column;
   transform: translateX(100%);
@@ -49,7 +49,7 @@
 .ui-drawer--left .ui-drawer-panel {
   right: auto;
   left: 0;
-  box-shadow: 8px 0 24px rgba(0, 0, 0, 0.12);
+  box-shadow: var(--sh3);
   transform: translateX(-100%);
 }
 

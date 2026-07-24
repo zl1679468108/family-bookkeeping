@@ -6,6 +6,7 @@ import { useCategoryLookup } from '../../../../hooks/useCategories';
 import { fetchMerchantTransactions } from '../../../../services/mapApi';
 import { Skeleton } from '../../../../components/ui/Skeleton';
 import { EmptyState } from '../../../../components/ui/EmptyState';
+import { SegControl } from '../../../../components/ui/SegControl';
 import './index.scss';
 
 interface TransactionHistoryModalProps {
@@ -46,20 +47,22 @@ export const TransactionHistoryModal: React.FC<TransactionHistoryModalProps> = (
               )}
             </div>
           </div>
-          <button className="merchant-history-close" onClick={onClose}>✕</button>
+          <button type="button" className="merchant-history-close" onClick={onClose} aria-label="关闭">✕</button>
         </div>
 
         {/* 筛选标签 */}
         <div className="merchant-history-tabs">
-          <button className={`map-chip ${filterType === 'all' ? 'active' : ''}`} onClick={() => setFilterType('all')}>
-            全部 ({transactions.length})
-          </button>
-          <button className={`map-chip ${filterType === 'expense' ? 'active' : ''}`} onClick={() => setFilterType('expense')}>
-            支出 ({merchant.expense_count})
-          </button>
-          <button className={`map-chip ${filterType === 'income' ? 'active' : ''}`} onClick={() => setFilterType('income')}>
-            收入 ({merchant.income_count})
-          </button>
+          <SegControl
+            size="sm"
+            variant="pill"
+            value={filterType}
+            onChange={setFilterType}
+            options={[
+              { value: 'all', label: `全部 (${transactions.length})` },
+              { value: 'expense', label: `支出 (${merchant.expense_count})` },
+              { value: 'income', label: `收入 (${merchant.income_count})` },
+            ]}
+          />
         </div>
 
         {/* 交易列表 */}
@@ -78,7 +81,7 @@ export const TransactionHistoryModal: React.FC<TransactionHistoryModalProps> = (
               ))}
             </div>
           ) : filtered.length === 0 ? (
-            <EmptyState variant="compact" title="暂无交易记录" />
+            <EmptyState variant="compact" description="暂无交易记录" />
           ) : (
             filtered.map((tx) => (
               <div key={tx.id} className={`merchant-history-item ${tx.type}`}>

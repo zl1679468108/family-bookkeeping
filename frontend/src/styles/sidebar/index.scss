@@ -41,7 +41,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #fff;
+  color: var(--on-pr);
   font-size: 14px;
   font-weight: 700;
   flex-shrink: 0;
@@ -138,7 +138,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #fff;
+  color: var(--on-pr);
   font-size: 10px;
   font-weight: 700;
   flex-shrink: 0;
@@ -311,7 +311,7 @@
   font-size: 10px;
   font-weight: 700;
   background: var(--exp);
-  color: #fff;
+  color: var(--on-pr);
   padding: 1px 5px;
   border-radius: 10px;
 }
@@ -369,7 +369,7 @@
   justify-content: center;
   font-size: 13px;
   font-weight: 700;
-  color: #fff;
+  color: var(--on-pr);
   flex-shrink: 0;
 }
 
@@ -453,7 +453,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #fff;
+  color: var(--on-pr);
   font-size: 16px;
   font-weight: 700;
   flex-shrink: 0;

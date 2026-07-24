@@ -68,7 +68,7 @@ export const ICON_COLOR = {
   muted: "var(--fg3)",
   fg: "var(--fg)",
   danger: "var(--exp)",
-  onPrimary: "#fff",
+  onPrimary: "var(--on-pr, #fff)",
 } as const;
 
 const FILE_MAP: Record<IconName, string> = {

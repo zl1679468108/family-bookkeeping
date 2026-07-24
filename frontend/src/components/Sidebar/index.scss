@@ -38,7 +38,7 @@
     height: 30px;
     border-radius: var(--rm);
     background: var(--prGr);
-    color: #fff;
+    color: var(--on-pr);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -231,7 +231,7 @@
   font-size: 10px;
   font-weight: 700;
   background: var(--exp);
-  color: #fff;
+  color: var(--on-pr);
   padding: 1px 5px;
   border-radius: 10px;
 }
@@ -292,7 +292,7 @@
   height: 32px;
   border-radius: 50%;
   background: var(--prGr);
-  color: #fff;
+  color: var(--on-pr);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -368,7 +368,7 @@
   height: 40px;
   border-radius: 50%;
   background: var(--prGr);
-  color: #fff;
+  color: var(--on-pr);
   display: flex;
   align-items: center;
   justify-content: center;

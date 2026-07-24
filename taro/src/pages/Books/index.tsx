@@ -307,7 +307,7 @@ export default function BooksPage() {
       {/* ====== 账本列表（双列网格）====== */}
       {!books || books.length === 0 ? (
         <View className="bk-empty">
-          <EmptyState title="暂无账本" description="点击右上角新建账本" />
+          <EmptyState description="暂无账本，点击右上角新建" />
         </View>
       ) : (
         <View className="bk-grid">

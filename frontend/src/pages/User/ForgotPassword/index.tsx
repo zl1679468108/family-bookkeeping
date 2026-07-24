@@ -5,6 +5,7 @@ import { useDebouncedAction } from '../../../hooks/useDebouncedAction'
 import AuthLayout from '../../../components/AuthLayout'
 import { ForgotIllustration } from '../../../components/AuthLayout/AuthIllustrations'
 import { Button } from '../../../components/ui/Button'
+import { validatePasswordMatch, validatePasswordMinLength } from '../../../utils/validation'
 
 const ForgotPassword: React.FC = () => {
   const [email, setEmail] = useState('')
@@ -50,13 +51,11 @@ const ForgotPassword: React.FC = () => {
       setMessageType('error')
       return
     }
-    if (password.length < 6) {
-      setMessage('密码至少6位')
-      setMessageType('error')
-      return
-    }
-    if (password !== confirmPassword) {
-      setMessage('两次密码不一致')
+    const pwdErr =
+      validatePasswordMinLength(password, { message: '密码至少6位' }) ||
+      validatePasswordMatch(password, confirmPassword, '两次密码不一致')
+    if (pwdErr) {
+      setMessage(pwdErr)
       setMessageType('error')
       return
     }

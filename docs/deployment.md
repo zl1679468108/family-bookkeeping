@@ -6,8 +6,9 @@
 ```
 浏览器 / 微信
      │
-     ├─ PC Web ──► Nginx (80/443, zlspace.site) ──► /var/www/family-bookkeeping (静态)
-     │                                            └─ /api ──► 127.0.0.1:3000 (PM2: family-bookkeeping-api)
+     ├─ PC Web ──► Nginx (80/443, zlspace.site) ──► /bookkeeping/ → /var/www/family-bookkeeping (静态)
+     │                                            └─ /bookkeeping/api → 127.0.0.1:3000/api (PM2: family-bookkeeping-api)
+     │                                            └─ /api（兼容）→ 127.0.0.1:3000
      │                                                                     │
      └─ 小程序 ──► https://zlspace.site/api ────────────────────────────────┘
                                                       │
@@ -74,7 +75,7 @@ SERVER=121.4.84.120 USER=ubuntu ./scripts/deploy-cvm.sh
 
 1. **本地构建**
    - 后端：`cd backend && npm run build:prod`
-   - 前端：`cd frontend && REACT_APP_API_BASE_URL=/api npm run build:prod`
+   - 前端：`cd frontend && VITE_API_BASE_URL=/bookkeeping/api npm run build:prod`
 2. **打包**：`backend` 打 `dist`+`package*.json`+`nest-cli.json`；前端打 `build/`
 3. **生成服务器 .env**：复制 `backend/.env.production`，把 `FRONTEND_URL` 改写为 `https://zlspace.site`
 4. **上传**到 `/tmp/`
@@ -85,7 +86,7 @@ SERVER=121.4.84.120 USER=ubuntu ./scripts/deploy-cvm.sh
 ```bash
 # 本机构建
 cd backend && npm run build:prod
-cd ../frontend && REACT_APP_API_BASE_URL=/api npm run build:prod
+cd ../frontend && VITE_API_BASE_URL=/bookkeeping/api npm run build:prod
 
 # 上传
 tar -czf /tmp/backend.tar.gz -C backend dist package.json package-lock.json nest-cli.json
@@ -111,8 +112,10 @@ ssh ubuntu@121.4.84.120
 `/etc/nginx/sites-available/zlspace.site.conf`（已部署，记录备查）：
 
 - 监听 `80` 与 `443`
-- `/api` → `proxy_pass http://127.0.0.1:3000`，并转发 `Host` / `Authorization` 等头
-- 前端为 SPA：`try_files $uri $uri/ /index.html`
+- `/bookkeeping/` → 静记静态资源（`alias /var/www/family-bookkeeping/`）
+- `/bookkeeping/api/` → `proxy_pass http://127.0.0.1:3000/api/`，并转发 `Host` / `Authorization` 等头
+- `/api` → 兼容旧路径 / 小程序，`proxy_pass http://127.0.0.1:3000`
+- 前端为 SPA（HashRouter）：`try_files $uri $uri/ /bookkeeping/index.html`
 - HTTP `80` 全量 `return 301 https://$host$request_uri`
 
 ### 2.4 进程 / 日志
@@ -217,9 +220,9 @@ CVM 在上海（大陆机房），**HTTP-01 验证被腾讯云「域名未备案
 
 部署后逐项确认：
 
-- [ ] `https://zlspace.site` → 200，地址栏有锁标（Let's Encrypt）
+- [ ] `https://zlspace.site/bookkeeping/` → 200，地址栏有锁标（Let's Encrypt）
 - [ ] `http://zlspace.site` → 301 跳转 HTTPS
-- [ ] `https://zlspace.site/api` → 转发到后端（根路径 404 JSON 属正常）
+- [ ] `https://zlspace.site/bookkeeping/api/` → 转发到后端（根路径 404 JSON 属正常）
 - [ ] `pm2 list` → `family-bookkeeping-api` 在线
 - [ ] `sudo ss -ltnp | grep -E ':80|:443|:3000'` → 三端口均监听
 - [ ] 前端能注册 / 登录 / 记账 / 看报表

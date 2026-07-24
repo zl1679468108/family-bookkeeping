@@ -6,6 +6,11 @@ import AuthLayout from '../../../components/AuthLayout'
 import { ForgotIllustration } from '../../../components/AuthLayout/AuthIllustrations'
 import { Button } from '../../../components/ui/Button'
 import { getErrorMessage } from '../../../utils/errorMessage'
+import {
+  validatePasswordAlphaNumeric,
+  validatePasswordMatch,
+  validatePasswordMinLength,
+} from '../../../utils/validation'
 
 const ResetPassword: React.FC = () => {
   const [searchParams] = useSearchParams()
@@ -20,18 +25,12 @@ const ResetPassword: React.FC = () => {
   const [messageType, setMessageType] = useState<'success' | 'error'>('success')
 
   const { run: handleSubmit, isRunning: submitLoading } = useDebouncedAction(async () => {
-    if (password.length < 6) {
-      setMessage('密码至少6位')
-      setMessageType('error')
-      return
-    }
-    if (!/(?=.*[a-zA-Z])(?=.*\d)/.test(password)) {
-      setMessage('密码必须包含字母和数字')
-      setMessageType('error')
-      return
-    }
-    if (password !== confirmPassword) {
-      setMessage('两次密码不一致')
+    const pwdErr =
+      validatePasswordMinLength(password, { message: '密码至少6位' }) ||
+      validatePasswordAlphaNumeric(password) ||
+      validatePasswordMatch(password, confirmPassword, '两次密码不一致')
+    if (pwdErr) {
+      setMessage(pwdErr)
       setMessageType('error')
       return
     }

@@ -298,8 +298,7 @@ export default function BudgetsPage() {
       {expenseCats.length === 0 ? (
         <View className="bdg-empty">
           <EmptyState
-            title="暂无支出分类"
-            description="先添加支出分类，再设置本月预算"
+            description="暂无支出分类，先添加分类再设置本月预算"
             action={
               <Button
                 variant="primary"

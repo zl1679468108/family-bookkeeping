@@ -325,8 +325,7 @@ export default function Transactions() {
         <View className="txn-list">
           {txn.length === 0 ? (
             <EmptyState
-              title="暂无交易记录"
-              description="调整筛选条件或新增一笔账单"
+              description="暂无交易记录，可调整筛选或新增一笔账单"
               action={
                 <EmptyAddTransactionAction
                   onClick={() => Taro.navigateTo({ url: "/pages/AddTransaction/index" })}

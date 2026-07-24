@@ -28,7 +28,7 @@
 .stat-card.hero {
   background: var(--prGr);
   border: none;
-  color: #fff;
+  color: var(--on-pr);
 }
 
 .stat-card.hero .stat-label {
@@ -82,7 +82,7 @@
 }
 
 .stat-card.hero .stat-value {
-  color: #fff;
+  color: var(--on-pr);
 }
 
 .stat-sub {

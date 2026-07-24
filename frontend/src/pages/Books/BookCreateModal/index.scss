@@ -212,7 +212,7 @@ select.book-modal-field__input {
 
 .book-modal-btn--primary {
   background: var(--pr);
-  color: #fff;
+  color: var(--on-pr);
 }
 
 .book-modal-btn--primary:hover:not(:disabled) {
@@ -221,7 +221,7 @@ select.book-modal-field__input {
 
 .book-modal-btn--danger {
   background: var(--exp);
-  color: #fff;
+  color: var(--on-pr);
 }
 
 .book-modal-btn--danger:hover:not(:disabled) {

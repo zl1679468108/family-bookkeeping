@@ -44,6 +44,9 @@ function createFootprintContent(
   members?: MapMember[],
 ): string {
   const size = 36;
+  const theme = getThemeColors();
+  const ring = theme.srf;
+  const onColor = '#fff';
   if (userId && colorMap && colorMap.has(userId)) {
     const memberColor = colorMap.get(userId)!;
     const member = members?.find((m) => m.userId === userId);
@@ -52,9 +55,9 @@ function createFootprintContent(
       <div style="
         width: ${size}px; height: ${size}px;
         border-radius: 50%; background: ${memberColor};
-        border: 3px solid white; box-shadow: 0 2px 10px rgba(0,0,0,0.35);
+        border: 3px solid ${ring}; box-shadow: 0 2px 10px rgba(0,0,0,0.35);
         cursor: pointer; display: flex; align-items: center; justify-content: center;
-        color: white; font-size: 16px; font-weight: 700; white-space: nowrap;
+        color: ${onColor}; font-size: 16px; font-weight: 700; white-space: nowrap;
       ">${initial}</div>
     `;
   }
@@ -66,9 +69,9 @@ function createFootprintContent(
     <div style="
       width: ${size}px; height: ${size}px;
       border-radius: 50%; background: ${color};
-      border: 3px solid white; box-shadow: 0 2px 10px rgba(0,0,0,0.35);
+      border: 3px solid ${ring}; box-shadow: 0 2px 10px rgba(0,0,0,0.35);
       cursor: pointer; display: flex; align-items: center; justify-content: center;
-      color: white; font-size: 12px; font-weight: 700; white-space: nowrap;
+      color: ${onColor}; font-size: 12px; font-weight: 700; white-space: nowrap;
     ">${shortName}</div>
   `;
 }

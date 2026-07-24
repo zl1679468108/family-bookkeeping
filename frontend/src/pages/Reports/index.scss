@@ -31,7 +31,7 @@
 
 .reports-tab.active {
   background: var(--pr);
-  color: #fff;
+  color: var(--on-pr);
 }
 
 /* 报表切换行 */
@@ -65,7 +65,7 @@
 
 .rprs.active {
   background: var(--pr);
-  color: #fff;
+  color: var(--on-pr);
 }
 
 /* 报表头部：tab + 筛选 */

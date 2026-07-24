@@ -320,8 +320,7 @@ export default function CategoriesPage() {
         {filtered.length === 0 ? (
           <View className="cats-empty">
             <EmptyState
-              title={`暂无${catType === "expense" ? "支出" : "收入"}分类`}
-              description="添加第一个分类，让每一笔收支都有清晰的归类。"
+              description={`暂无${catType === "expense" ? "支出" : "收入"}分类，添加第一个让收支归类更清晰`}
             />
           </View>
         ) : sortMode ? (

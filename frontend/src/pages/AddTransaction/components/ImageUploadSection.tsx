@@ -34,13 +34,13 @@ export const ImageUploadSection: React.FC<ImageUploadSectionProps> = ({
         {savedImageUrls.map((url, idx) => (
           <div key={`saved-${idx}`} className="image-item">
             <img src={url} alt={`附件 ${idx + 1}`} />
-            <button className="image-remove" onClick={() => onRemoveSaved(idx)} title="删除此图">×</button>
+            <button type="button" className="image-remove" onClick={() => onRemoveSaved(idx)} title="删除此图" aria-label="删除此图">×</button>
           </div>
         ))}
         {pendingImages.map((p, idx) => (
           <div key={`pending-${idx}`} className="image-item">
             <img src={p.localUrl} alt={`待上传 ${idx + 1}`} />
-            <button className="image-remove" onClick={() => onRemovePending(idx)} title="删除此图">×</button>
+            <button type="button" className="image-remove" onClick={() => onRemovePending(idx)} title="删除此图" aria-label="删除此图">×</button>
           </div>
         ))}
         {canAddMore && (

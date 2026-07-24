@@ -159,8 +159,7 @@ export default function Home() {
       >
         {txn.length === 0 ? (
           <EmptyState
-            title="暂无交易记录"
-            description="记录每一笔交易，掌握家庭收支"
+            description="暂无交易记录，记一笔开始掌握家庭收支"
             action={
               <EmptyAddTransactionAction
                 onClick={() => Taro.navigateTo({ url: "/pages/AddTransaction/index" })}
@@ -265,8 +264,7 @@ export default function Home() {
           </View>
         ) : (
           <EmptyState
-            title="暂无预算设置"
-            description="设置预算可以更好地控制支出"
+            description="暂未设置预算，设置后可以更好地控制支出"
             action={
               <EmptyActionButton
                 variant="secondary"

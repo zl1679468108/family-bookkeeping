@@ -8,6 +8,12 @@ import { Button } from '../../../components/ui/Button'
 import { FooterActions } from '../../../components/ui/FooterActions'
 import './index.scss'
 import { notifySuccess, notifyError } from '../../../utils/notifyError'
+import {
+  validateEmail,
+  validatePasswordMatch,
+  validatePasswordMinLength,
+  validatePasswordStrength,
+} from '../../../utils/validation'
 
 const compressImage = (file: File, maxSize = 128): Promise<string> =>
   new Promise((resolve, reject) => {
@@ -57,16 +63,12 @@ const PasswordModal: React.FC<PasswordModalProps> = ({ visible, onClose }) => {
   const { run: handleSubmit, isRunning: loading } = useDebouncedAction(async () => {
     setError('')
 
-    if (newPassword.length < 6) {
-      setError('新密码长度至少为 6 位')
-      return
-    }
-    if (newPassword !== confirmPassword) {
-      setError('两次输入的新密码不一致')
-      return
-    }
-    if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(newPassword)) {
-      setError('新密码必须同时包含大小写字母和数字')
+    const pwdErr =
+      validatePasswordMinLength(newPassword, { message: '新密码长度至少为 6 位' }) ||
+      validatePasswordMatch(newPassword, confirmPassword, '两次输入的新密码不一致') ||
+      validatePasswordStrength(newPassword)
+    if (pwdErr) {
+      setError(pwdErr)
       return
     }
 
@@ -238,12 +240,9 @@ const ProfilePage: React.FC = () => {
       setError('用户名不能为空')
       return
     }
-    if (!email.trim()) {
-      setError('邮箱不能为空')
-      return
-    }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      setError('邮箱格式不正确')
+    const emailErr = validateEmail(email)
+    if (emailErr) {
+      setError(emailErr)
       return
     }
 

@@ -26,7 +26,6 @@ export const BookMemberList: React.FC<BookMemberListProps> = ({
       return (
         <EmptyState
           variant="compact"
-          title="暂无成员"
           description="还没有其他成员，邀请家人一起记账吧"
           action={
             onInvite ? (

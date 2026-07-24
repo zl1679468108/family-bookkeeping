@@ -48,6 +48,7 @@ const Budgets: React.FC = () => {
   const [selectedBudget, setSelectedBudget] = useState<any>(null)
   const [showDetail, setShowDetail] = useState(false)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [showCopyConfirm, setShowCopyConfirm] = useState(false)
   const [showEditForm, setShowEditForm] = useState(false)
   const [editFormValues, setEditFormValues] = useState<Record<string, string>>({})
 
@@ -163,6 +164,7 @@ const Budgets: React.FC = () => {
       notifySuccess(`已复制上月 ${result.length} 条预算`)
       queryClient.invalidateQueries({ queryKey: ['budgets', selectedMonth] })
       queryClient.invalidateQueries({ queryKey: ['budgets', 'status', selectedMonth] })
+      setShowCopyConfirm(false)
     } catch (err: any) {
       notifyError(err, '复制上月预算失败')
     }
@@ -268,7 +270,7 @@ const Budgets: React.FC = () => {
                 <Button
                   variant="secondary"
                   size="sm"
-                  onClick={handleCopyLastMonth}
+                  onClick={() => setShowCopyConfirm(true)}
                   disabled={copyLoading || saveLoading}
                 >
                   {copyLoading ? '复制中...' : '复制上月'}
@@ -302,8 +304,7 @@ const Budgets: React.FC = () => {
           </div>
         ) : expenseCategories.length === 0 ? (
           <EmptyState
-            title="暂无支出分类"
-            description="请先在分类管理中添加支出分类"
+            description="暂无支出分类，请先在分类管理中添加"
             action={
               <EmptyActionButton size="sm" onClick={() => navigate('/categories')}>
                 去添加分类
@@ -447,6 +448,16 @@ const Budgets: React.FC = () => {
         onClose={() => setShowDeleteConfirm(false)}
         confirmText="确认删除"
         confirmDanger
+      />
+
+      <GlobalModal
+        type="confirm"
+        open={showCopyConfirm}
+        title="复制上月预算"
+        children="将上月预算复制到当前月份（已有金额会被覆盖），是否继续？"
+        onConfirm={handleCopyLastMonth}
+        onClose={() => setShowCopyConfirm(false)}
+        confirmText={copyLoading ? '复制中...' : '确认复制'}
       />
     </div>
   )

@@ -90,8 +90,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
       />
       {orderedList.length === 0 ? (
         <EmptyState
-          title="还没有交易模板"
-          description="创建模板后，记账时可一键套用，省去重复填写。"
+          description="还没有交易模板，创建后记账可一键套用"
         />
       ) : (
         <div className={`list-card-grid${sortingMode ? ' sort-mode' : ''}`}>

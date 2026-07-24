@@ -95,7 +95,7 @@
 .illus-title {
   font-size: 28px;
   font-weight: 700;
-  color: #fff;
+  color: var(--on-pr);
   margin-bottom: 10px;
   letter-spacing: -0.01em;
 }
@@ -156,7 +156,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #fff;
+  color: var(--on-pr);
   font-size: 19px;
   font-weight: 700;
   flex-shrink: 0;
@@ -239,7 +239,7 @@
   background: var(--prGr);
   border: none;
   border-radius: var(--rs);
-  color: #fff;
+  color: var(--on-pr);
   font-size: 15px;
   font-weight: 600;
   cursor: pointer;

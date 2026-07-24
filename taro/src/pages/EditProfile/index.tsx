@@ -30,6 +30,12 @@ import {
 import "./index.scss";
 import { getErrorMessage } from "../../utils/errorMessage";
 import { toastSuccess, toastInfo } from "../../utils/toast";
+import {
+  validateEmail,
+  validatePasswordMatch,
+  validatePasswordMinLength,
+  validatePasswordStrength,
+} from "../../utils/validation";
 
 export default function EditProfile() {
   const { user, refreshUser } = useAuth();
@@ -112,9 +118,9 @@ export default function EditProfile() {
       return toastInfo("用户名不能为空");
     }
 
-    const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRe.test(email.trim())) {
-      return toastInfo("邮箱格式不正确");
+    const emailErr = validateEmail(email);
+    if (emailErr) {
+      return toastInfo(emailErr);
     }
 
     run(async () => {
@@ -149,14 +155,12 @@ export default function EditProfile() {
     if (!oldPwd) {
       return toastInfo("请输入当前密码");
     }
-    if (newPwd.length < 6) {
-      return toastInfo("新密码长度至少为 6 位");
-    }
-    if (newPwd !== confirmPwd) {
-      return toastInfo("两次输入的新密码不一致");
-    }
-    if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(newPwd)) {
-      return toastInfo("新密码必须同时包含大小写字母和数字");
+    const pwdErr =
+      validatePasswordMinLength(newPwd, { message: "新密码长度至少为 6 位" }) ||
+      validatePasswordMatch(newPwd, confirmPwd, "两次输入的新密码不一致") ||
+      validatePasswordStrength(newPwd);
+    if (pwdErr) {
+      return toastInfo(pwdErr);
     }
 
     run(async () => {

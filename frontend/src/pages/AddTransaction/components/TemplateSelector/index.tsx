@@ -43,7 +43,7 @@ export const TemplateSelector: React.FC<TemplateSelectorProps> = ({
       <div className="template-selector-modal" onClick={(e) => e.stopPropagation()}>
         <div className="template-selector-header">
           <h3>选择模板</h3>
-          <button className="template-selector-close" onClick={handleClose}>✕</button>
+          <button type="button" className="template-selector-close" onClick={handleClose} aria-label="关闭">✕</button>
         </div>
 
         <div className="template-selector-body">
@@ -52,8 +52,7 @@ export const TemplateSelector: React.FC<TemplateSelectorProps> = ({
           ) : templates.length === 0 ? (
             <EmptyState
               variant="compact"
-              title="暂无模板"
-              description="请先在「模板管理」中创建模板"
+              description="暂无模板，请先在「模板管理」中创建"
             />
           ) : (
             <div className="template-list">

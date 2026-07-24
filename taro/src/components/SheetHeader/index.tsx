@@ -5,13 +5,16 @@
  * 左侧返回按钮仅在存在 onBack 时显示，否则占位保持标题居中。
  */
 import { View, Text } from "@tarojs/components";
+import Icon, { ICON_COLOR } from "../Icon";
 import "./index.scss";
 
 interface SheetHeaderProps {
   title: string;
   onClose: () => void;
   onBack?: () => void;
+  /** @deprecated 使用内置 Icon，保留以兼容旧调用 */
   backIcon?: string;
+  /** @deprecated 使用内置 Icon，保留以兼容旧调用 */
   closeIcon?: string;
 }
 
@@ -19,8 +22,6 @@ export function SheetHeader({
   title,
   onClose,
   onBack,
-  backIcon = "←",
-  closeIcon = "×",
 }: SheetHeaderProps) {
   const handleBack = (e: any) => {
     e.stopPropagation();
@@ -35,8 +36,8 @@ export function SheetHeader({
     <View className="sheet-header">
       <View className="sheet-header__side sheet-header__side--left">
         {onBack ? (
-          <View className="sheet-header__icon" onClick={onBack}>
-            <Text onClick={handleBack}>{backIcon}</Text>
+          <View className="sheet-header__icon" onClick={handleBack} aria-label="返回">
+            <Icon name="back" size={36} color={ICON_COLOR.muted} />
           </View>
         ) : null}
       </View>
@@ -46,8 +47,8 @@ export function SheetHeader({
       </Text>
 
       <View className="sheet-header__side sheet-header__side--right">
-        <View className="sheet-header__icon" onClick={onClose}>
-          <Text onClick={handleClose}>{closeIcon}</Text>
+        <View className="sheet-header__icon" onClick={handleClose} aria-label="关闭">
+          <Icon name="close" size={36} color={ICON_COLOR.muted} />
         </View>
       </View>
     </View>

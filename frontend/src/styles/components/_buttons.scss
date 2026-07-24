@@ -15,7 +15,7 @@
 
 .btn-primary {
   background: var(--pr);
-  color: #fff;
+  color: var(--on-pr);
   border: 1px solid var(--pr);
 }
 .btn-primary:hover {
@@ -55,7 +55,7 @@
 
 .btn-danger {
   background: var(--exp);
-  color: #fff;
+  color: var(--on-pr);
 }
 .btn-danger:hover {
   background: var(--exp);

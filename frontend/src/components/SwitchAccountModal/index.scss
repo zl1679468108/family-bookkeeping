@@ -14,7 +14,7 @@
 .switch-account-modal {
   background: var(--srf);
   border-radius: 12px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  box-shadow: var(--sh4);
   width: 400px;
   max-width: calc(100vw - 40px);
   max-height: calc(100vh - 80px);
@@ -96,7 +96,7 @@
   height: 36px;
   border-radius: 50%;
   background: var(--prGr);
-  color: #fff;
+  color: var(--on-pr);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -217,7 +217,7 @@
 .expired-modal {
   background: var(--srf);
   border-radius: 16px;
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+  box-shadow: var(--sh4);
   width: 340px;
   max-width: calc(100vw - 40px);
   padding: 32px;
@@ -278,7 +278,7 @@
 
   .expired-modal-btn-login {
     background: var(--pr);
-    color: #fff;
+    color: var(--on-pr);
 
     &:hover {
       background: var(--prH);

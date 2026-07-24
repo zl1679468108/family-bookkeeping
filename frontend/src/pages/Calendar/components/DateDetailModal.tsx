@@ -79,7 +79,7 @@ export const DateDetailModal: React.FC<DateDetailModalProps> = ({
                   ))}
                 </div>
               ) : dayTransactions.length === 0 ? (
-                <EmptyState variant="compact" title="当天暂无交易记录" />
+                <EmptyState variant="compact" description="当天暂无交易记录" />
               ) : (
                 <div className="cal-detail-txn-list txn-list">
                   {dayTransactions.map((item) => {

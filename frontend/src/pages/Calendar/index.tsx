@@ -94,12 +94,12 @@ const Calendar: React.FC = () => {
     <div className="page-container">
       <div className="dash-card">
         <div className="cal-header-row">
-          <button className="cal-nav-btn cal-nav-btn--prev" onClick={goPrevMonth} title="上一月">
+          <button type="button" className="cal-nav-btn cal-nav-btn--prev" onClick={goPrevMonth} title="上一月" aria-label="上一月">
             <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
               <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
             </svg>
           </button>
-          <button className="cal-nav-btn cal-nav-btn--next" onClick={goNextMonth} title="下一月">
+          <button type="button" className="cal-nav-btn cal-nav-btn--next" onClick={goNextMonth} title="下一月" aria-label="下一月">
             <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
               <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
             </svg>

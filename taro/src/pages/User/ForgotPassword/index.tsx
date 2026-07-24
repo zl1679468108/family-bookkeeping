@@ -12,6 +12,7 @@ import { useSubmit, toastError } from "../../../hooks/useSubmit";
 import { ApiError } from "../../../services/api";
 import "./index.scss";
 import { toastSuccess, toastInfo } from "../../../utils/toast";
+import { validatePasswordMatch, validatePasswordMinLength } from "../../../utils/validation";
 
 type Step = "email" | "code" | "success";
 
@@ -72,12 +73,11 @@ export default function ForgotPassword() {
       setError("请输入6位验证码");
       return;
     }
-    if (!password || password.length < 6) {
-      setError("密码至少6位");
-      return;
-    }
-    if (password !== confirmPassword) {
-      setError("两次密码不一致");
+    const pwdErr =
+      validatePasswordMinLength(password, { message: "密码至少6位" }) ||
+      validatePasswordMatch(password, confirmPassword, "两次密码不一致");
+    if (pwdErr) {
+      setError(pwdErr);
       return;
     }
     setError("");

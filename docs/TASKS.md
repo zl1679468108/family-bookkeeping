@@ -85,6 +85,17 @@
 
 ### ✅ 已完成
 
+#### 2026-07-24 UI 复用收口第三轮 + 暗色/图标/校验
+- EmptyState 剩余 `title=` 收口为单段 `description`（Transactions/Admin/Map/Calendar 等）。
+- 双端新增 `utils/validation.ts`：密码长度/匹配/强度/字母数字、邮箱校验；Profile/EditProfile/Register/Forgot/Reset 迁移。
+- PC 预算「复制上月」补确认弹窗（对齐 Taro）。
+- PC 暗色第三轮：主色上文字 `#fff` → `var(--on-pr)`；常见 modal 阴影改 `var(--sh*)`；地图 marker 描边随 `theme.srf`。
+- 手写控件：地图历史筛选改 `SegControl`；关闭/导航/图片删除补 `type`+`aria-label`。
+- Taro 图标：`SheetHeader` 返回/关闭改 `Icon` mask 着色；`ICON_COLOR.onPrimary` 走令牌。
+- 模板详情金额改 `formatMoney`；部署文档 `/bookkeeping` 路径同步。
+- 验证：frontend/taro `tsc --noEmit` 通过。
+- 备注：工作区另有未提交的 queryKeys/cachePolicy 半成品（未纳入本 commit），后续专项完成。
+
 #### 2026-07-24 notify 统一 + EmptyState 单段文案
 - PC 全站业务侧 `notify({type})` 收口到 `notifySuccess/Error/Info`（含 api request、useMutationAction）。
 - EmptyState 双端统一为插画 + 单段描述；`title` 兼容旧调用，与 description 并存时自动合并。

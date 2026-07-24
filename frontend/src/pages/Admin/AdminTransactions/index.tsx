@@ -136,9 +136,9 @@ const AdminTransactions: React.FC = () => {
             <TableRowsSkeleton columns={9} rows={10} />
           </div>
         ) : error ? (
-          <EmptyState title="加载失败" description="请稍后重试" variant="compact" />
+          <EmptyState description="加载失败，请稍后重试" variant="compact" />
         ) : (data?.transactions || []).length === 0 ? (
-          <EmptyState title="暂无交易记录" variant="compact" />
+          <EmptyState description="暂无交易记录" variant="compact" />
         ) : (
           <>
             <div className="data-table-panel__scroll">

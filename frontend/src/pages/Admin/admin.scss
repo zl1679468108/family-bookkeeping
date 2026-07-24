@@ -105,7 +105,7 @@
 }
 
 .stat-card--hero .stat-card__value {
-  color: #fff;
+  color: var(--on-pr);
 }
 
 .stat-card--income {
@@ -393,7 +393,7 @@
 
 .btn-primary {
   background: var(--pr);
-  color: #fff;
+  color: var(--on-pr);
   border-color: var(--pr);
 
   &:hover:not(:disabled) {
@@ -429,7 +429,7 @@
 
   &:hover:not(:disabled) {
     background: var(--exp);
-    color: #fff;
+    color: var(--on-pr);
   }
 }
 
@@ -508,7 +508,7 @@
   padding: 24px;
   width: 100%;
   max-width: 480px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--sh3);
   animation: slideUp 0.25s ease;
 }
 
@@ -558,7 +558,7 @@
   height: 56px;
   border-radius: 50%;
   background: var(--prGr);
-  color: #fff;
+  color: var(--on-pr);
   display: flex;
   align-items: center;
   justify-content: center;

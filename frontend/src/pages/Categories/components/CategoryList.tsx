@@ -32,8 +32,7 @@ export const CategoryList: React.FC<CategoryListProps> = ({
   if (orderedList.length === 0) {
     return (
       <EmptyState
-        title="暂无分类"
-        description="添加第一个分类，让每一笔收支都有清晰的归类。"
+        description="暂无分类，添加第一个让收支都有清晰归类"
         action={
           onAdd ? (
             <EmptyActionButton size="sm" onClick={onAdd}>

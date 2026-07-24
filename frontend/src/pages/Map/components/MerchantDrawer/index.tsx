@@ -179,8 +179,7 @@ export const MerchantDrawer: React.FC<MerchantDrawerProps> = ({
         ) : filtered.length === 0 ? (
           <EmptyState
             variant="compact"
-            title="暂无商户数据"
-            description={search ? '未找到匹配的商户，试试其他关键词' : '记一笔时添加位置信息，系统会自动按商户聚合'}
+            description={search ? '未找到匹配的商户，试试其他关键词' : '暂无商户数据，记一笔时添加位置可自动聚合'}
           />
         ) : (
           pageItems.map((m, idx) => {

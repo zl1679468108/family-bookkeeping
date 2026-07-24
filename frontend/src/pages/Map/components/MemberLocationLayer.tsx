@@ -39,7 +39,7 @@ function createBubbleContent(loc: MemberLocation, isOffline: boolean): string {
         font-size:10px;color:${theme.fg};background:${theme.srf};
         padding:1px 6px;border-radius:8px;white-space:nowrap;
         max-width:80px;overflow:hidden;text-overflow:ellipsis;
-        text-shadow:0 0 2px white;
+        text-shadow:0 0 2px ${theme.srf};
       ">${loc.username}</span>
     </div>
   `;

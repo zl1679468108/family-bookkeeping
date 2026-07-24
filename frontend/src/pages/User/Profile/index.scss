@@ -73,7 +73,7 @@
   justify-content: center;
   opacity: 0;
   transition: opacity 0.2s;
-  color: #fff;
+  color: var(--on-pr);
   font-size: 13px;
   font-weight: 500;
 
@@ -187,7 +187,7 @@
 
 .btn-primary {
   background: var(--pr);
-  color: #fff;
+  color: var(--on-pr);
   border: 1px solid var(--pr);
 
   &:hover:not(:disabled) {
@@ -238,7 +238,7 @@
   padding: 32px;
   width: 100%;
   max-width: 420px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--sh3);
   animation: slideUp 0.25s ease;
 }
 

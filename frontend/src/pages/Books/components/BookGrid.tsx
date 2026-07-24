@@ -69,8 +69,7 @@ export const BookGrid: React.FC<BookGridProps> = ({
       />
       {books.length === 0 ? (
         <EmptyState
-          title="还没有任何账本"
-          description="创建你的第一个账本，或等待他人邀请你加入。"
+          description="还没有任何账本，创建第一个或等待他人邀请加入"
         />
       ) : (
         <div className="list-card-grid">
