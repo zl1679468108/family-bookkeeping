@@ -1,7 +1,7 @@
 import React from 'react'
 import { renderCategoryIcon } from '../../../utils/renderCategoryIcon'
 import { EmptyState } from '../../../components/ui/EmptyState'
-import { Button } from '../../../components/ui/Button'
+import { EmptyActionButton } from '../../../components/ui/EmptyState/emptyActions'
 import type { Category } from '@family-bookkeeping/shared-types'
 
 interface CategoryListProps {
@@ -36,9 +36,9 @@ export const CategoryList: React.FC<CategoryListProps> = ({
         description="添加第一个分类，让每一笔收支都有清晰的归类。"
         action={
           onAdd ? (
-            <Button variant="primary" size="sm" onClick={onAdd}>
+            <EmptyActionButton size="sm" onClick={onAdd}>
               + 新增分类
-            </Button>
+            </EmptyActionButton>
           ) : undefined
         }
       />

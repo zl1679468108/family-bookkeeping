@@ -1,0 +1,57 @@
+/* ═══ MetricRow —— 横向指标行 ═══ */
+
+.metric-row {
+  display: flex;
+  gap: 14px;
+  width: 100%;
+}
+
+.metric-row__item {
+  flex: 1;
+  min-width: 0;
+  padding: 16px;
+}
+
+.metric-row--centered .metric-row__item {
+  text-align: center;
+}
+
+.metric-row__label {
+  font-size: 13px;
+  color: var(--fg2);
+  margin-bottom: 8px;
+  line-height: 1.4;
+}
+
+.metric-row__value {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--fg);
+  line-height: 1.2;
+  word-break: break-all;
+}
+
+.metric-row--md .metric-row__item {
+  padding: 12px;
+}
+
+.metric-row--md .metric-row__label {
+  font-size: 12px;
+  margin-bottom: 6px;
+}
+
+.metric-row--md .metric-row__value {
+  font-size: 18px;
+}
+
+.metric-row__item--income .metric-row__value {
+  color: var(--inc);
+}
+
+.metric-row__item--expense .metric-row__value {
+  color: var(--exp);
+}
+
+.metric-row__item--accent .metric-row__value {
+  color: var(--pr);
+}

@@ -1,6 +1,7 @@
 import React from 'react'
 import { GlobalModal } from '../../../components/ui'
 import { Button } from '../../../components/ui/Button'
+import { FooterActions } from '../../../components/ui/FooterActions'
 import { Input, NumberInput } from '../../../components/ui/Input'
 import { DropdownSelect } from '../../../components/ui/Dropdown'
 import { LocationDisplay } from '../../../components/ui/LocationDisplay'
@@ -55,7 +56,7 @@ export const TemplateFormModal: React.FC<TemplateFormProps> = ({
         onClose={onClose}
         title={editingId ? '编辑模板' : '新建模板'}
         footer={
-          <div className="global-modal-dialog__footer-inner">
+          <FooterActions align="end" className="global-modal-dialog__footer-inner">
             <Button variant="secondary" onClick={onClose}>取消</Button>
             <Button
               variant="primary"
@@ -64,7 +65,7 @@ export const TemplateFormModal: React.FC<TemplateFormProps> = ({
             >
               {saveLoading ? '保存中...' : (editingId ? '更新' : '创建')}
             </Button>
-          </div>
+          </FooterActions>
         }
       >
         <div className="tpl-form">

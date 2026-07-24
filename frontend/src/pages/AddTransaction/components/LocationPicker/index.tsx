@@ -1,5 +1,6 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { Button } from '../../../../components/ui/Button';
+import { FooterActions } from '../../../../components/ui/FooterActions';
 import { GlobalModal } from '../../../../components/GlobalModal';
 import type { LocationResult } from '@family-bookkeeping/shared-types'
 import { useMapInstance } from '../../../../hooks/useMapInstance';
@@ -225,9 +226,9 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
   };
 
   const modalFooter = (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', width: '100%' }}>
+    <div className="location-picker-footer">
       <Button variant="secondary" onClick={handleClear}>清除位置</Button>
-      <div style={{ display: 'flex', gap: '8px', marginLeft: 'auto' }}>
+      <FooterActions align="end">
         <Button variant="secondary" onClick={onClose}>取消</Button>
         <Button
           variant="primary"
@@ -236,7 +237,7 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
         >
           确认位置
         </Button>
-      </div>
+      </FooterActions>
     </div>
   );
 

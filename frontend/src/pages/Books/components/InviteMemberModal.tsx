@@ -1,6 +1,7 @@
 import React from 'react';
 import { GlobalModal } from '../../../components/ui';
 import { Button } from '../../../components/ui/Button';
+import { FooterActions } from '../../../components/ui/FooterActions';
 import { Input } from '../../../components/ui/Input';
 import { notify } from '../../../utils/notifications';
 
@@ -40,7 +41,7 @@ export const InviteMemberModal: React.FC<InviteMemberModalProps> = ({
       title="邀请成员"
       width={400}
       footer={
-        <div className="global-modal-dialog__footer-inner">
+        <FooterActions align="end" className="global-modal-dialog__footer-inner">
           <Button variant="secondary" onClick={onClose}>取消</Button>
           <Button
             variant="primary"
@@ -49,7 +50,7 @@ export const InviteMemberModal: React.FC<InviteMemberModalProps> = ({
           >
             {isPending ? '发送中...' : '发送邀请'}
           </Button>
-        </div>
+        </FooterActions>
       }
     >
       <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>

@@ -4,30 +4,30 @@
   align-items: center;
   justify-content: center;
   text-align: center;
-  padding: 64rpx 40rpx;
+  padding: 80rpx 40rpx;
   gap: 16rpx;
 
   &--compact {
-    padding: 32rpx 24rpx;
+    padding: 40rpx 24rpx;
     gap: 12rpx;
   }
 
   &--full {
     min-height: 60vh;
+    padding: 120rpx 40rpx;
   }
 
-  /* 图标容器：兼容默认 Image 与自定义传入的 emoji/节点 */
   &__icon {
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-bottom: 4rpx;
+    margin-bottom: 8rpx;
     line-height: 1;
   }
 
-  /* 默认空状态图标（Image） */
   &__icon-img {
-    opacity: 0.9;
+    display: block;
+    pointer-events: none;
   }
 
   /* 兼容直接传 emoji 的回退字号 */
@@ -40,19 +40,19 @@
     font-size: 64rpx;
   }
 
-  /* 标题：模块定制的核心文案 */
   &__title {
     font-size: 28rpx;
     color: var(--fg2);
-    font-weight: 600;
-    line-height: 1.4;
+    font-weight: 500;
+    line-height: 1.5;
+    max-width: 520rpx;
   }
 
   &__desc {
     font-size: 24rpx;
     color: var(--fg3);
     line-height: 1.5;
-    max-width: 480rpx;
+    max-width: 520rpx;
   }
 
   &--compact &__desc {

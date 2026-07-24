@@ -2,11 +2,10 @@
  * EmptyState — 空状态占位（全局公共组件）
  *
  * 设计约定：
- * - 图标：全模块共用同一个「空盒子」线性图标（getEmptyIconDataUrl），
- *   不传 icon 时自动渲染；个别模块可用 icon 覆盖。
- * - 标题：title 由各模块自定（核心可定制项）。
- * - 可选 description / action（如「去记一笔」按钮）。
- * - variant: default（居中带 action）/ compact（小尺寸）/ full（整屏）。
+ * - 图标：全模块共用同一插画（getEmptyIconDataUrl：人物 + 空箱子 + 问号）
+ * - 主文案：title 由各模块自定
+ * - 可选 description / action
+ * - variant: default / compact / full
  */
 import { ReactNode } from "react";
 import { View, Text, Image } from "@tarojs/components";
@@ -14,19 +13,21 @@ import { getEmptyIconDataUrl } from "../../../utils/emptyIcons";
 import "./index.scss";
 
 export interface EmptyStateProps {
-  /** 自定义图标；不传则使用全局统一的空状态图标 */
+  /** 自定义图标；不传则使用全局统一插画 */
   icon?: ReactNode;
-  /** 标题（各模块自定，核心可定制项） */
+  /** 主文案（各模块自定） */
   title?: ReactNode;
   /** 补充说明 */
   description?: ReactNode;
   /** 操作区（如按钮） */
   action?: ReactNode;
   variant?: "default" | "compact" | "full";
-  /** 默认图标尺寸（px → rpx），不传按 variant 给默认值 */
+  /** 默认插画尺寸（rpx），不传按 variant 给默认值 */
   iconSize?: number;
   className?: string;
 }
+
+const EMPTY_ILLUSTRATION_SRC = getEmptyIconDataUrl();
 
 export function EmptyState({
   icon,
@@ -37,14 +38,15 @@ export function EmptyState({
   iconSize,
   className = "",
 }: EmptyStateProps) {
+  // 插画 rpx：compact 200 / default 300 / full 360（对应约 100/150/180 px）
   const resolvedIconSize =
-    iconSize ?? (variant === "compact" ? 64 : variant === "full" ? 120 : 96);
+    iconSize ?? (variant === "compact" ? 200 : variant === "full" ? 360 : 300);
 
   const renderIcon =
     icon ?? (
       <Image
         className="ui-empty__icon-img"
-        src={getEmptyIconDataUrl()}
+        src={EMPTY_ILLUSTRATION_SRC}
         mode="aspectFit"
         style={{
           width: `${resolvedIconSize}rpx`,

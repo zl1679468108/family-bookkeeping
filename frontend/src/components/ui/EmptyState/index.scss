@@ -9,11 +9,11 @@
 }
 
 .empty-state--default {
-  padding: 40px 16px;
+  padding: 48px 16px;
 }
 
 .empty-state--compact {
-  padding: 24px 16px;
+  padding: 28px 16px;
 }
 
 .empty-state--full {
@@ -24,27 +24,32 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--fg3); /* SVG 用 currentColor，随明暗主题自适应 */
+  color: var(--fg3);
   font-size: 32px; /* emoji 回退字号 */
-  margin-bottom: 12px;
+  margin-bottom: 16px;
   line-height: 1;
+  user-select: none;
 }
 
-/* 统一默认图标（SVG）略降低存在感，与 Taro 端保持一致 */
-.empty-state__icon svg {
-  opacity: 0.9;
+.empty-state__icon img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  pointer-events: none;
 }
 
 .empty-state--compact .empty-state__icon {
   font-size: 20px;
-  margin-bottom: 8px;
+  margin-bottom: 12px;
 }
 
 .empty-state__title {
   font-size: 14px;
   font-weight: 500;
-  color: var(--fg);
+  color: var(--fg2);
   margin-bottom: 6px;
+  line-height: 1.5;
+  max-width: 320px;
 }
 
 .empty-state--compact .empty-state__title {
@@ -55,6 +60,7 @@
   font-size: 12px;
   color: var(--fg3);
   line-height: 1.5;
+  max-width: 320px;
 }
 
 .empty-state__action {

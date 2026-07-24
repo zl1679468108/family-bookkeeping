@@ -10,7 +10,7 @@ import { useEffect, useMemo, useState, useCallback } from "react";
 import { View, Text } from "@tarojs/components";
 import Taro from "@tarojs/taro";
 import PageContainer from "../../components/PageContainer";
-import { AppSection, MetricGrid, EmptyState, Button } from "../../components/ui";
+import { AppSection, MetricGrid, EmptyState, EmptyAddTransactionAction, EmptyActionButton } from "../../components/ui";
 import { getTransactions } from "../../services/transactionsApi";
 import { fetchSummary } from "../../services/statisticsApi";
 import { fetchBudgetStatus } from "../../services/budgetsApi";
@@ -162,13 +162,9 @@ export default function Home() {
             title="暂无交易记录"
             description="记录每一笔交易，掌握家庭收支"
             action={
-              <Button
-                variant="primary"
-                size="sm"
+              <EmptyAddTransactionAction
                 onClick={() => Taro.navigateTo({ url: "/pages/AddTransaction/index" })}
-              >
-                去记一笔
-              </Button>
+              />
             }
           />
         ) : (
@@ -272,13 +268,13 @@ export default function Home() {
             title="暂无预算设置"
             description="设置预算可以更好地控制支出"
             action={
-              <Button
+              <EmptyActionButton
                 variant="secondary"
                 size="sm"
                 onClick={() => Taro.navigateTo({ url: "/pages/Budgets/index" })}
               >
                 去设置预算
-              </Button>
+              </EmptyActionButton>
             }
           />
         )}

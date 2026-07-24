@@ -19,6 +19,7 @@ import { DropdownSelect } from '../../components/ui/Dropdown'
 import { Pagination } from '../../components/ui/Pagination'
 import { EmptyState } from '../../components/ui/EmptyState'
 import { Button } from '../../components/ui/Button'
+import { EmptyAddTransactionAction } from '../../components/ui/EmptyState/emptyActions'
 import { FilterBar } from '../../components/ui/FilterBar'
 import { SearchInput, NumberInput } from '../../components/ui/Input'
 import { notify } from '../../utils/notifications'
@@ -251,9 +252,7 @@ const Transactions: React.FC = () => {
           <EmptyState
             title="暂无交易记录"
             action={
-              <Button variant="primary" onClick={() => navigate('/add?type=expense')}>
-                添加第一笔交易
-              </Button>
+              <EmptyAddTransactionAction onClick={() => navigate('/add?type=expense')} />
             }
           />
         </Card>

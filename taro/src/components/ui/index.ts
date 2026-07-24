@@ -15,6 +15,7 @@ export { default as MenuList } from "./MenuList";
 export type { MenuListItem } from "./MenuList";
 export { default as FloatingAction } from "./FloatingAction";
 export { EmptyState } from "./EmptyState";
+export { EmptyActionButton, EmptyAddTransactionAction } from "./EmptyState/emptyActions";
 export {
   Skeleton,
   AvatarSkeleton,

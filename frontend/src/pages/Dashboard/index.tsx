@@ -16,6 +16,7 @@ import { Card, CardHeader } from '../../components/ui/Card'
 import { EmptyState } from '../../components/ui/EmptyState'
 import { StatCard } from '../../components/ui/StatCard'
 import { Button } from '../../components/ui/Button'
+import { EmptyAddTransactionAction } from '../../components/ui/EmptyState/emptyActions'
 
 const Dashboard: React.FC = () => {
   const navigate = useNavigate()
@@ -141,12 +142,9 @@ const Dashboard: React.FC = () => {
               title="暂无交易记录"
               description="记录每一笔交易，掌握家庭收支"
               action={
-                <Button
-                  variant="primary"
+                <EmptyAddTransactionAction
                   onClick={() => navigate('/add?type=expense')}
-                >
-                  添加第一笔交易
-                </Button>
+                />
               }
             />
           ) : (

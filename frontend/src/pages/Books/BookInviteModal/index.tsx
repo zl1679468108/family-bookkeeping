@@ -4,6 +4,7 @@ import { joinByInvitation } from '../../../services/booksApi';
 import { notify } from '../../../utils/notifications';
 import { GlobalModal } from '../../../components/ui';
 import { Button } from '../../../components/ui/Button';
+import { FooterActions } from '../../../components/ui/FooterActions';
 import { Input } from '../../../components/ui/Input';
 import './index.scss';
 import { getErrorMessage } from '../../../utils/errorMessage'
@@ -73,7 +74,7 @@ export const BookInviteModal: React.FC<BookInviteModalProps> = ({ open, onClose,
       title="使用邀请码加入"
       width={440}
       footer={
-        <div className="global-modal-dialog__footer-inner">
+        <FooterActions align="end" className="global-modal-dialog__footer-inner">
             <Button variant="secondary" onClick={onClose}>取消</Button>
             <Button
               variant="primary"
@@ -82,7 +83,7 @@ export const BookInviteModal: React.FC<BookInviteModalProps> = ({ open, onClose,
             >
               {joining ? '加入中...' : '加入账本'}
             </Button>
-          </div>
+          </FooterActions>
       }
     >
       <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>

@@ -15,6 +15,8 @@ import { Skeleton } from '../../components/ui/Skeleton'
 import { GlobalModal, DetailItem, Space } from '../../components/ui'
 import { Card } from '../../components/ui/Card'
 import { Button } from '../../components/ui/Button'
+import { FooterActions } from '../../components/ui/FooterActions'
+import { EmptyActionButton } from '../../components/ui/EmptyState/emptyActions'
 import { NumberInput } from '../../components/ui/Input'
 import { EmptyState } from '../../components/ui/EmptyState'
 import { DropdownSelect } from '../../components/ui/Dropdown'
@@ -304,9 +306,9 @@ const Budgets: React.FC = () => {
             title="暂无支出分类"
             description="请先在分类管理中添加支出分类"
             action={
-              <Button variant="primary" size="sm" onClick={() => navigate('/categories')}>
+              <EmptyActionButton size="sm" onClick={() => navigate('/categories')}>
                 去添加分类
-              </Button>
+              </EmptyActionButton>
             }
           />
         ) : (
@@ -417,10 +419,10 @@ const Budgets: React.FC = () => {
         onClose={() => setShowEditForm(false)}
         title={`编辑预算 - ${selectedBudget?.category.name || ''}`}
         footer={
-          <div className="global-modal-dialog__footer-inner">
+          <FooterActions align="end" className="global-modal-dialog__footer-inner">
             <Button variant="secondary" onClick={() => setShowEditForm(false)}>取消</Button>
             <Button variant="primary" onClick={handleEditFormSave}>确定</Button>
-          </div>
+          </FooterActions>
         }
       >
         <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>

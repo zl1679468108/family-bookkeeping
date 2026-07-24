@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { format } from 'date-fns'
 import { useBook } from '../../hooks/useBook'
 import { useMemberColors } from '../../hooks/useMemberColors'
@@ -7,7 +8,8 @@ import { SegControl } from '../../components/ui/SegControl'
 import { DropdownSelect } from '../../components/ui/Dropdown'
 import { Skeleton } from '../../components/ui/Skeleton'
 import { EmptyState } from '../../components/ui/EmptyState'
-import { Button } from '../../components/ui/Button'
+import { MetricRow } from '../../components/ui/MetricRow'
+import { EmptyAddTransactionAction } from '../../components/ui/EmptyState/emptyActions'
 import MemberComparison from './MemberComparison'
 import { TrendChart } from './components/TrendChart'
 import { CategoryRankChart } from './components/CategoryRankChart'
@@ -15,6 +17,7 @@ import { useReportData, PeriodType } from './hooks/useReportData'
 import { formatAmount } from '../../utils/common'
 
 const Reports: React.FC = () => {
+  const navigate = useNavigate()
   const { currentBook } = useBook()
   const { isMultiMember } = useMemberColors(currentBook?.id)
   const [tab, setTab] = useState<'analysis' | 'members'>('analysis')
@@ -107,16 +110,12 @@ const Reports: React.FC = () => {
                   </div>
                 </div>
               ) : (
-                <div style={{ display: 'flex', gap: '14px' }}>
-                  <div style={{ flex: 1, padding: '16px', textAlign: 'center' }}>
-                    <div style={{ fontSize: '13px', color: 'var(--fg2)', marginBottom: '8px' }}>总收入</div>
-                    <div style={{ fontSize: '24px', fontWeight: 700, color: 'var(--inc)' }}>{formatAmount(totalIncome)}</div>
-                  </div>
-                  <div style={{ flex: 1, padding: '16px', textAlign: 'center' }}>
-                    <div style={{ fontSize: '13px', color: 'var(--fg2)', marginBottom: '8px' }}>总支出</div>
-                    <div style={{ fontSize: '24px', fontWeight: 700, color: 'var(--exp)' }}>{formatAmount(totalExpense)}</div>
-                  </div>
-                </div>
+                <MetricRow
+                  items={[
+                    { label: '总收入', value: formatAmount(totalIncome), tone: 'income' },
+                    { label: '总支出', value: formatAmount(totalExpense), tone: 'expense' },
+                  ]}
+                />
               )}
             </Card>
 
@@ -175,7 +174,7 @@ const Reports: React.FC = () => {
                 />
                 {!chartHasData && (
                   <div style={{ position: 'relative', marginTop: '-300px', height: '300px', display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none', background: 'var(--bg-card)' }}>
-                    <EmptyState title="暂无数据" description="当前时间段内没有交易记录" action={<Button variant="outline">开始记账</Button>} />
+                    <EmptyState title="暂无数据" description="当前时间段内没有交易记录" action={<EmptyAddTransactionAction label="开始记账" onClick={() => navigate('/add?type=expense')} />} />
                   </div>
                 )}
               </>

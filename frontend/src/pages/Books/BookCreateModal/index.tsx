@@ -7,6 +7,7 @@ import { BOOK_ICONS, getBookIconByKey } from '../../../utils/bookIcons';
 import { notify } from '../../../utils/notifications';
 import { GlobalModal } from '../../../components/ui';
 import { Button } from '../../../components/ui/Button';
+import { FooterActions } from '../../../components/ui/FooterActions';
 import { Input } from '../../../components/ui/Input';
 import { Textarea } from '../../../components/ui/Textarea';
 import { IconGrid } from '../../../components/ui/IconGrid';
@@ -105,7 +106,7 @@ export const BookCreateModal: React.FC<BookCreateModalProps> = ({ open, onClose,
       title={isEdit ? '编辑账本' : '创建账本'}
       width={520}
       footer={
-        <div className="global-modal-dialog__footer-inner">
+        <FooterActions align="end" className="global-modal-dialog__footer-inner">
             <Button variant="secondary" onClick={onClose}>取消</Button>
             <Button
               variant="primary"
@@ -114,7 +115,7 @@ export const BookCreateModal: React.FC<BookCreateModalProps> = ({ open, onClose,
             >
               {mutation.isPending ? '处理中...' : (isEdit ? '保存' : '创建账本')}
             </Button>
-          </div>
+          </FooterActions>
       }
     >
       <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>

@@ -90,3 +90,12 @@
   border-top: 1px solid var(--bd);
   flex-shrink: 0;
 }
+
+
+.location-picker-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+}

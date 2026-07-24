@@ -85,6 +85,14 @@
 
 ### ✅ 已完成
 
+#### 2026-07-24 复用收口：EmptyState 插画 / MetricRow / 空态 CTA / FooterActions
+- 双端 EmptyState 默认插画统一（人物+空箱+问号）。
+- PC 新增 `MetricRow`，报表总收入/总支出迁移。
+- 双端 `EmptyAddTransactionAction` / `EmptyActionButton`，Dashboard/流水/报表/Home 等空态 CTA 收口。
+- 多个 GlobalModal footer 改用 `FooterActions`（账本/模板/邀请/预算/定位）。
+- 验证：`frontend`/`taro` `tsc --noEmit` 通过。
+
+
 #### 2026-07-24 PC 暗色全站硬编码色第二轮
 - 补齐缺失 `--bdH` / `--hover` 令牌；Toast、年报 Tailwind 浅色类、输入清除悬停、语义色/遮罩/品牌 rgba 收口为 `var`/`color-mix`；地图 marker 与图表色随 `themeColors`。
 - 验证：`frontend npx tsc --noEmit` 通过。
