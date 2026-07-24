@@ -1,5 +1,8 @@
 import React from 'react'
-import { cx } from '../../../utils/cx'
+import {
+  buildStickyActionBarClassName,
+  type StickyActionBarTone,
+} from '../../../utils/stickyActionBar'
 import './index.scss'
 
 /**
@@ -7,7 +10,7 @@ import './index.scss'
  */
 export interface StickyActionBarProps {
   children: React.ReactNode
-  tone?: 'solid' | 'blur'
+  tone?: StickyActionBarTone
   row?: boolean
   className?: string
 }
@@ -18,12 +21,7 @@ export const StickyActionBar: React.FC<StickyActionBarProps> = ({
   row = true,
   className = '',
 }) => {
-  const cls = cx(
-    'ui-sticky-actions',
-    `ui-sticky-actions--${tone}`,
-    row && 'ui-sticky-actions--row',
-    className,
-  )
+  const cls = buildStickyActionBarClassName({ tone, row, className })
   return <div className={cls}>{children}</div>
 }
 

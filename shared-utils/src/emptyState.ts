@@ -44,3 +44,14 @@ export function resolveEmptyIconSize(
   const map = platform === 'taro' ? EMPTY_ICON_SIZE_TARO : EMPTY_ICON_SIZE_WEB
   return map[variant] ?? map.default
 }
+
+/** empty-state / empty-state--compact */
+export function buildEmptyStateClassName(
+  variant: EmptyStateVariant = 'default',
+  className: string = '',
+  prefix = 'empty-state',
+): string {
+  const extra = (className || '').trim()
+  return [prefix, `${prefix}--${variant}`, extra].filter(Boolean).join(' ')
+}
+

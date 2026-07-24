@@ -5,11 +5,11 @@
 import { ReactNode } from "react";
 import { View, Text } from "@tarojs/components";
 import "./index.scss";
-import { clampPercent } from "../../../utils/rankProgress";
+import { clampPercent, type RankType, type RankStatus } from "../../../utils/rankProgress";
+import { buildRankRowClassName } from "../../../utils/rankRow";
 import { EMPTY_NO_DATA } from "../../../utils/emptyCopy";
 
-export type RankStatus = "safe" | "warn" | "danger";
-export type RankType = "income" | "expense" | "neutral";
+export type { RankType, RankStatus };
 
 export interface RankRowItem {
   icon?: ReactNode;
@@ -29,7 +29,7 @@ export function RankRow({
 }: RankRowItem) {
   return (
     <View
-      className={`ui-rank-row ui-rank-row--${type} ${status ? `ui-rank-row--${status}` : ""} ${onClick ? "ui-rank-row--clickable" : ""}`}
+      className={buildRankRowClassName({ type, status, clickable: !!onClick, mode: "bem" })}
       hoverClass={onClick ? "ui-rank-row--pressed" : ""}
       hoverStayTime={80}
       onClick={onClick}

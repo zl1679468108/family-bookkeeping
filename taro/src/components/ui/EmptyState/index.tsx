@@ -11,9 +11,9 @@ import { getEmptyIconDataUrl } from "../../../utils/emptyIcons";
 import {
   resolveEmptyStateText,
   resolveEmptyIconSize,
+  buildEmptyStateClassName,
   type EmptyStateVariant,
 } from "../../../utils/emptyState";
-import { cx } from "../../../utils/cx";
 import { useTheme } from "../../../context/ThemeContext";
 import "./index.scss";
 
@@ -63,7 +63,7 @@ export function EmptyState({
     );
 
   return (
-    <View className={cx(`ui-empty`, `ui-empty--${variant}`, className)}>
+    <View className={buildEmptyStateClassName(variant, className, "ui-empty")}>
       {renderIcon ? <View className="ui-empty__icon">{renderIcon}</View> : null}
       {text ? <Text className="ui-empty__desc">{text}</Text> : null}
       {action ? <View className="ui-empty__action">{action}</View> : null}

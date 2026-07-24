@@ -42,3 +42,40 @@ export const PAGINATION_PER_PAGE_LABEL = '每页'
 export function paginationPageOfLabel(page: number, totalPages: number): string {
   return `第 ${page} / ${totalPages} 页`
 }
+
+/** 由 total + pageSize 计算总页数（至少 1） */
+export function computeTotalPages(total: number, pageSize: number): number {
+  const size = Number(pageSize) > 0 ? Number(pageSize) : DEFAULT_PAGE_SIZE
+  return Math.max(1, Math.ceil(Math.max(0, Number(total) || 0) / size))
+}
+
+/** N 条/页 */
+export function paginationPageSizeLabel(size: number): string {
+  return `${size} 条/页`
+}
+
+/** 分页条 class（PC pagination-bar） */
+export function buildPaginationBarClassName(opts: {
+  align?: 'left' | 'center' | 'right'
+  className?: string
+  prefix?: string
+} = {}): string {
+  const align = opts.align || 'right'
+  const prefix = opts.prefix || 'pagination-bar'
+  const extra = (opts.className || '').trim()
+  return [prefix, `${prefix}--${align}`, extra].filter(Boolean).join(' ')
+}
+
+/** 分页按钮 class（Taro ui-pagination__btn） */
+export function buildPaginationBtnClassName(opts: {
+  disabled?: boolean
+  className?: string
+  prefix?: string
+} = {}): string {
+  const prefix = opts.prefix || 'ui-pagination__btn'
+  const parts = [prefix]
+  if (opts.disabled) parts.push(`${prefix}--disabled`)
+  if (opts.className) parts.push(opts.className)
+  return parts.filter(Boolean).join(' ')
+}
+

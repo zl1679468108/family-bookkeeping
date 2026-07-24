@@ -85,6 +85,13 @@
 
 ### ✅ 已完成
 
+#### 2026-07-24 Pagination/RankRow/Sticky/EmptyState class shared 化
+- `pagination`：computeTotalPages / pageSize 文案 / bar·btn class 构建；双端 Pagination 接线
+- `rankRow.buildRankRowClassName`：RankType/RankStatus 复用 `rankProgress`；双端 RankList 接线
+- `stickyActionBar.buildStickyActionBarClassName`；双端 StickyActionBar 接线
+- `emptyState.buildEmptyStateClassName`；双端 EmptyState 接线
+- 验证：frontend / taro `tsc --noEmit`
+
 #### 2026-07-24 StatCard/Metric tone 与 class shared 化
 - `statCard`：`StatCardVariant` + `buildStatCardClassName`（pc/bem 双模式）；双端 StatCard 接线
 - `metric`：`MetricTone` + row/grid/item class 构建；PC MetricRow / Taro MetricGrid 接线

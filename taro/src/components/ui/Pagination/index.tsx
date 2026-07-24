@@ -10,6 +10,7 @@ import {
   shouldShowPagination,
   isPageAtStart,
   isPageAtEnd,
+  buildPaginationBtnClassName,
 } from "../../../utils/pagination";
 import { cx } from "../../../utils/cx";
 import "./index.scss";
@@ -36,14 +37,14 @@ export function Pagination({ page, totalPages, onChange, info, className = "" }:
       )}
       <View className="ui-pagination__btns">
         <View
-          className={cx("ui-pagination__btn", prevDisabled && "ui-pagination__btn--disabled")}
+          className={buildPaginationBtnClassName({ disabled: prevDisabled })}
           hoverClass={prevDisabled ? "" : "ui-pagination__btn--pressed"}
           onClick={() => !prevDisabled && onChange?.(page - 1)}
         >
           <Text>{ACTION_PREV_PAGE}</Text>
         </View>
         <View
-          className={cx("ui-pagination__btn", nextDisabled && "ui-pagination__btn--disabled")}
+          className={buildPaginationBtnClassName({ disabled: nextDisabled })}
           hoverClass={nextDisabled ? "" : "ui-pagination__btn--pressed"}
           onClick={() => !nextDisabled && onChange?.(page + 1)}
         >

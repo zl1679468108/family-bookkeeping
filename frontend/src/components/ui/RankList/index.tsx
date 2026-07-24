@@ -1,7 +1,7 @@
 import * as React from 'react'
-import { cx } from '../../../utils/cx'
 import { formatAmount, formatAmountPair } from '../../../utils/common'
-import { resolveRankProgress, clampPercent, rankFillTone } from '../../../utils/rankProgress'
+import { resolveRankProgress, clampPercent, rankFillTone, type RankType, type RankStatus } from '../../../utils/rankProgress'
+import { buildRankRowClassName } from '../../../utils/rankRow'
 import { BUDGET_LABEL_OVER_BANG } from '../../../utils/budget'
 
 /**
@@ -15,8 +15,8 @@ export interface RankRowItem {
   totalAmount?: number
   progress?: number
   meta?: React.ReactNode
-  type?: 'income' | 'expense' | 'neutral'
-  status?: 'safe' | 'warn' | 'danger'
+  type?: RankType
+  status?: RankStatus
   onClick?: () => void
 }
 
@@ -36,7 +36,7 @@ export const RankRow: React.FC<RankRowItem> = ({
 
   return (
     <div
-      className="rank-row"
+      className={buildRankRowClassName({ type, status, clickable: !!onClick, mode: 'pc' })}
       onClick={onClick}
       style={onClick ? { cursor: 'pointer' } : undefined}
     >

@@ -1,6 +1,5 @@
 import React, { useMemo } from 'react'
-import { resolveEmptyStateText, resolveEmptyIconSize } from '../../../utils/emptyState'
-import { cx } from '../../../utils/cx'
+import { resolveEmptyStateText, resolveEmptyIconSize, buildEmptyStateClassName } from '../../../utils/emptyState'
 import { getEmptyIllustrationDataUrl } from './emptyIllustration'
 import { getThemeColors } from '../../../utils/themeColors'
 import { useTheme } from '../../../utils/theme'
@@ -71,7 +70,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
 
   return (
     <div
-      className={cx('empty-state', `empty-state--${variant}`, className)}
+      className={buildEmptyStateClassName(variant, className)}
       style={style}
     >
       {renderIcon ? <div className="empty-state__icon">{renderIcon}</div> : null}

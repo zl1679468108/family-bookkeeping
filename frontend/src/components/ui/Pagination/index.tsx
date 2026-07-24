@@ -11,8 +11,10 @@ import {
   isPageAtEnd,
   paginationPageOfLabel,
   PAGINATION_PER_PAGE_LABEL,
+  computeTotalPages,
+  paginationPageSizeLabel,
+  buildPaginationBarClassName,
 } from '../../../utils/pagination'
-import { cx } from '../../../utils/cx'
 export { DEFAULT_PAGE_SIZE, DEFAULT_PAGE_SIZE_OPTIONS } from '../../../utils/pagination'
 
 /**
@@ -72,7 +74,7 @@ export const Pagination: React.FC<PaginationProps> = ({
 }) => {
   // 总页数：优先用 total 计算，否则回退到 totalPages
   const computedTotalPages = total !== undefined
-    ? Math.max(1, Math.ceil(total / pageSize))
+    ? computeTotalPages(total, pageSize)
     : (totalPages ?? 1)
 
   // 每页条数下拉：传了 total 默认显示，可显式关闭
@@ -87,7 +89,7 @@ export const Pagination: React.FC<PaginationProps> = ({
 
   const sizeOptions = pageSizeOptions.map((s) => ({
     key: String(s),
-    label: `${s} 条/页`,
+    label: paginationPageSizeLabel(s),
   }))
 
   const handleSizeChange = (key: string) => {
@@ -98,7 +100,7 @@ export const Pagination: React.FC<PaginationProps> = ({
 
   return (
     <div
-      className={cx('pagination-bar', `pagination-bar--${align}`, className)}
+      className={buildPaginationBarClassName({ align, className })}
       style={style}
     >
       {info !== undefined ? info : defaultInfo}
