@@ -8,7 +8,8 @@ import { EmptyState } from '../../components/ui/EmptyState';
 import { Card, CardHeader } from '../../components/ui/Card';
 import './MemberComparison.scss';
 import { formatAmount } from '../../utils/common';
-import { getChartPalette } from '../../utils/themeColors'
+import { getChartPalette, getEchartsChrome } from '../../utils/themeColors'
+import { useTheme } from '../../utils/theme'
 import { formatMonthDisplayCompact } from '../../utils/month'
 import { EMPTY_MEMBER_SPEND_PERIOD, EMPTY_LOAD_FAILED } from '../../utils/emptyCopy';
 
@@ -16,8 +17,6 @@ interface MemberComparisonProps {
   monthFrom: string;
   monthTo: string;
 }
-
-const MEMBER_COLORS: string[] = getChartPalette();
 
 const generateMonthRange = (from: string, to: string): string[] => {
   const months: string[] = [];
@@ -50,9 +49,11 @@ const renderPieChart = (
   }
   instRef.current = echarts.init(elRef.current);
 
+  const chrome = getEchartsChrome();
   const option: EChartsOption = {
     tooltip: {
       trigger: 'item',
+      ...chrome.tooltip,
       formatter: (params: any) => {
         const v = params.value || 0;
         return `${params.name}<br/>金额：${formatAmount(v)}<br/>占比：${params.percent}%`;
@@ -62,7 +63,7 @@ const renderPieChart = (
       orient: 'vertical',
       right: '5%',
       top: 'center',
-      textStyle: { fontSize: 12, color: 'var(--fg)' },
+      textStyle: chrome.legendText,
     },
     series: [
       {
@@ -73,19 +74,21 @@ const renderPieChart = (
         avoidLabelOverlap: true,
         itemStyle: {
           borderRadius: 6,
-          borderColor: 'var(--bg-card)',
+          borderColor: chrome.pieBorder,
           borderWidth: 2,
         },
         label: {
           show: true,
           formatter: '{b}: {d}%',
           fontSize: 11,
+          color: chrome.text,
         },
         emphasis: {
           label: {
             show: true,
             fontSize: 14,
             fontWeight: 'bold',
+            color: chrome.text,
           },
         },
         data: data,
@@ -101,14 +104,16 @@ const renderPieChart = (
 const MemberExpensePieChart: React.FC<{ data: MemberComparisonItem[] }> = ({ data }) => {
   const chartRef = useRef<HTMLDivElement>(null);
   const chartInstance = useRef<ECharts | null>(null);
+  const { resolvedTheme } = useTheme();
+  const palette = useMemo(() => getChartPalette(), [resolvedTheme]);
 
   const pieData = useMemo(() => {
     return data.map((member, i) => ({
       name: member.user_name,
       value: member.total_expense,
-      itemStyle: { color: MEMBER_COLORS[i % MEMBER_COLORS.length] },
+      itemStyle: { color: palette[i % palette.length] },
     }));
-  }, [data]);
+  }, [data, palette]);
 
   useEffect(() => {
     if (pieData.length === 0 || !chartRef.current) return;
@@ -124,7 +129,7 @@ const MemberExpensePieChart: React.FC<{ data: MemberComparisonItem[] }> = ({ dat
       clearTimeout(timer);
       window.removeEventListener('resize', handleResize);
     };
-  }, [pieData]);
+  }, [pieData, resolvedTheme]);
 
   return <div ref={chartRef} style={{ width: '100%', height: '280px' }} />;
 };
@@ -133,6 +138,7 @@ const MemberExpensePieChart: React.FC<{ data: MemberComparisonItem[] }> = ({ dat
 const CategoryPieChart: React.FC<{ data: MemberComparisonItem[] }> = ({ data }) => {
   const chartRef = useRef<HTMLDivElement>(null);
   const chartInstance = useRef<ECharts | null>(null);
+  const { resolvedTheme } = useTheme();
 
   const allCategories = useMemo(() => {
     const catMap = new Map<string, number>();
@@ -160,7 +166,7 @@ const CategoryPieChart: React.FC<{ data: MemberComparisonItem[] }> = ({ data }) 
       clearTimeout(timer);
       window.removeEventListener('resize', handleResize);
     };
-  }, [allCategories]);
+  }, [allCategories, resolvedTheme]);
 
   return <div ref={chartRef} style={{ width: '100%', height: '280px' }} />;
 };
@@ -173,6 +179,8 @@ const MonthlyBarChart: React.FC<{
 }> = ({ data, monthFrom, monthTo }) => {
   const chartRef = useRef<HTMLDivElement>(null);
   const chartInstance = useRef<ECharts | null>(null);
+  const { resolvedTheme } = useTheme();
+  const palette = useMemo(() => getChartPalette(), [resolvedTheme]);
 
   const months = useMemo(() => generateMonthRange(monthFrom, monthTo), [monthFrom, monthTo]);
 
@@ -183,10 +191,10 @@ const MonthlyBarChart: React.FC<{
       return {
         name: member.user_name,
         data: months.map(() => monthlyAmount),
-        color: MEMBER_COLORS[i % MEMBER_COLORS.length],
+        color: palette[i % palette.length],
       };
     });
-  }, [data, months]);
+  }, [data, months, palette]);
 
   useEffect(() => {
     if (!chartRef.current || data.length === 0) return;
@@ -197,10 +205,12 @@ const MonthlyBarChart: React.FC<{
     }
     chartInstance.current = echarts.init(chartRef.current);
 
-  const option: EChartsOption = {
+    const chrome = getEchartsChrome();
+    const option: EChartsOption = {
       tooltip: {
         trigger: 'axis',
         axisPointer: { type: 'shadow' },
+        ...chrome.tooltip,
         formatter: (params: any) => {
           let result = `${params[0].name}<br/>`;
           params.forEach((p: any) => {
@@ -213,16 +223,19 @@ const MonthlyBarChart: React.FC<{
       xAxis: {
         type: 'category',
         data: months.map((m) => formatMonthDisplayCompact(m)),
-        axisLabel: { fontSize: 11 },
+        axisLabel: { ...chrome.axisLabel, fontSize: 11 },
+        axisLine: chrome.axisLine,
       },
       yAxis: {
         type: 'value',
-        axisLabel: { formatter: (value: number) => formatAmount(value) },
+        axisLabel: { ...chrome.axisLabel, formatter: (value: number) => formatAmount(value) },
+        splitLine: chrome.splitLine,
+        axisLine: { show: false },
       },
       legend: {
         data: memberMonthData.map((m) => m.name),
         top: 0,
-        textStyle: { fontSize: 12 },
+        textStyle: chrome.legendText,
       },
       series: memberMonthData.map((member) => ({
         name: member.name,
@@ -242,7 +255,7 @@ const MonthlyBarChart: React.FC<{
     return () => {
       window.removeEventListener('resize', handleResize);
     };
-  }, [data, months, memberMonthData]);
+  }, [data, months, memberMonthData, resolvedTheme]);
 
   return <div ref={chartRef} style={{ width: '100%', height: '300px' }} />;
 };

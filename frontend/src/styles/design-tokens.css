@@ -42,6 +42,7 @@
   --incBg:  #EAF7F0;
   --exp:    #E06055;   /* 支出 */
   --expBg:  #FCEEED;
+  --expBd:  #F0C4C0;   /* 支出描边 */
   --warn:   #E8A838;   /* 警告 */
   --warnBg: #FDF6E8;
   --info:   #4A90D9;   /* 信息 */
@@ -158,6 +159,7 @@
   --incBg:  #1A3528;
   --exp:    #F08075;
   --expBg:  #3A2020;
+  --expBd:  #6A3A36;
   --warn:   #F0C040;
   --warnBg: #3A3020;
   --info:   #60A5FA;
@@ -198,10 +200,10 @@
 }
 @keyframes spotlightPulseDark {
   0%, 100% {
-    box-shadow: 0 0 0 1px rgba(69, 183, 167, 0.5), 0 0 16px rgba(69, 183, 167, 0.22);
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--pr) 50%, transparent), 0 0 16px color-mix(in srgb, var(--pr) 22%, transparent);
   }
   50% {
-    box-shadow: 0 0 0 2px rgba(69, 183, 167, 0.75), 0 0 28px rgba(69, 183, 167, 0.38);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--pr) 75%, transparent), 0 0 28px color-mix(in srgb, var(--pr) 38%, transparent);
   }
 }
 [data-theme="dark"] .spotlight--focused.budgets-table-row {

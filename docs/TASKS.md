@@ -111,6 +111,13 @@
 - Taro 公共 UI Icon 收口：Input 清除、IconGrid 删除、DropdownSelect、List/MenuList 箭头、FieldRow/LocationField、ImageUpload；页面级 Profile/Books/About/Onboarding/MonthPicker 等。
 - 验证：frontend / taro `tsc --noEmit` 通过。
 
+#### 2026-07-24 PC 暗色第六轮（硬编码色 + 图表 chrome）
+- 无效 token 收口：`--bg-card/--line/--bg-elevated/--bg-soft` → `--srf/--bd/--srfH`；补 `--expBd` 令牌
+- ECharts canvas 主题：新增 `getEchartsChrome()`，Trend/分类饼/成员对比坐标轴·图例·tooltip 随 `resolvedTheme` 刷新
+- EmptyState 插画运行时按令牌重着色；RankList 渐变 `white`→`var(--srf)`；spotlight 暗色脉冲改 `color-mix(var(--pr))`
+- Tailwind 色板/阴影映射 CSS 变量；记一笔删除按钮 oklch → exp color-mix
+- 附：排序纯函数 shared-utils（sortOrder/parseImageList）+ 双端 useSort/useReorder 对齐 skip-unchanged
+
 #### 2026-07-24 errorCopy / 筛选文案接线 + 暗色第五轮 + Icon 收口
 - 新增双端 `utils/errorCopy`：操作失败/CRUD/邀请/预算/OCR/会话失效等统一；`failEntityUpsert` / `failUpdateOrSave`；`errorMessage`/`notifyError`/`toastError` 默认 fallback 走 `ERROR_OP_FAILED`。
 - 双端接线：Categories/Books/Templates/Budgets/记一笔/Auth/Profile/流水等 errorMessage 与 toast 改常量；`formCopy`/`successCopy` 补转移拥有者、注销、OCR、重发验证码等。

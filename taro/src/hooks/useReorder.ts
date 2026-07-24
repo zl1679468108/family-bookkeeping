@@ -9,17 +9,6 @@
  *
  * 说明：当前为按钮式相邻交换（非真拖拽）。若日后要做手势拖拽，只需在 onDragEnd
  * 里重排 sortOrder 再调 save() 即可，本 Hook 的 moveUp/moveDown/save 完全复用。
- *
- * Usage:
- *   const { sortMode, sortOrder, displayList,
- *           enter, cancel, moveUp, moveDown, save } = useReorder<ItemType>({
- *     items: baseList,                 // 非排序模式下的基准有序列表
- *     getKey: (item) => item.id,
- *     onSave: (orderedIds) => reorderApi({ ids: orderedIds }),
- *     queryKey: ["categories"],
- *     queryClient: qc,
- *     refetch: () => refetch(),
- *   });
  */
 import { useState, useCallback } from "react";
 import type { QueryClient } from "@tanstack/react-query";
@@ -28,6 +17,7 @@ import { toastSuccess, toastInfo } from "../utils/toast";
 import { ACTION_SAVING } from "../utils/actionCopy";
 import { SORT_SAVED, SORT_NOTHING, SORT_UNCHANGED } from "../utils/sortCopy";
 import { ERROR_SORT_SAVE_FAILED } from "../utils/errorCopy";
+import { decideSortSave, swapAdjacent } from "../utils/sortOrder";
 
 export interface UseReorderOptions<T> {
   /** 非排序模式下的基准有序列表（已按 sort_order 排好） */
@@ -94,22 +84,22 @@ export function useReorder<T>({
 
   const moveUp = useCallback(
     (index: number) => {
-      if (index <= 0) return;
-      const next = [...sortOrder];
-      [next[index - 1], next[index]] = [next[index], next[index - 1]];
-      setSortOrder(next);
+      setSortOrder((prev) => {
+        const next = swapAdjacent(prev, index, "up");
+        return next ?? prev;
+      });
     },
-    [sortOrder],
+    [],
   );
 
   const moveDown = useCallback(
     (index: number) => {
-      if (index >= sortOrder.length - 1) return;
-      const next = [...sortOrder];
-      [next[index], next[index + 1]] = [next[index + 1], next[index]];
-      setSortOrder(next);
+      setSortOrder((prev) => {
+        const next = swapAdjacent(prev, index, "down");
+        return next ?? prev;
+      });
     },
-    [sortOrder],
+    [],
   );
 
   const moveTo = useCallback(
@@ -131,37 +121,44 @@ export function useReorder<T>({
   );
 
   const save = useCallback(() => {
-    if (sortOrder.length === 0) {
+    const originalIds = items.map((item) => getKey(item));
+    const orderedIds = sortOrder.map((item) => getKey(item));
+    const decision = decideSortSave(originalIds, orderedIds);
+
+    if (decision === "empty") {
       toastInfo(SORT_NOTHING);
       return;
     }
-    const orderedIds = sortOrder.map((item) => getKey(item));
-    // 检查顺序是否真的变化了（避免无变化的空保存请求）
-    const originalIds = items.map((item) => getKey(item));
-    const changed = orderedIds.some((id, i) => id !== originalIds[i]);
-    if (!changed) {
+    if (decision === "unchanged") {
       toastInfo(SORT_UNCHANGED);
       setSortMode(false);
       setSortOrder([]);
       return;
     }
-    console.log("[useReorder] 保存排序:", { from: originalIds, to: orderedIds });
+
     run(async () => {
-      await onSave(orderedIds);
-      console.log("[useReorder] onSave 成功，开始失效缓存 + 刷新列表");
-      queryClient.invalidateQueries({ queryKey });
-      toastSuccess(successText);
-      setSortMode(false);
-      setSortOrder([]);
-      // 确保先退出排序模式再刷新列表，避免 displayList 在排序模式下的特殊分支
-      await Promise.resolve();
-      console.log("[useReorder] 调用 refetch 刷新列表");
-      refetch();
-    }, ACTION_SAVING).catch((err: any) => {
-      console.error("[useReorder] 保存失败:", err);
-      toastError(err, ERROR_SORT_SAVE_FAILED);
-    });
-  }, [sortOrder, items, getKey, onSave, queryClient, queryKey, refetch, successText, run]);
+      try {
+        await onSave(orderedIds);
+        toastSuccess(successText);
+        setSortMode(false);
+        setSortOrder([]);
+        queryClient.invalidateQueries({ queryKey });
+        refetch();
+      } catch (e: unknown) {
+        toastError(e, ERROR_SORT_SAVE_FAILED);
+      }
+    }, ACTION_SAVING);
+  }, [
+    sortOrder,
+    items,
+    getKey,
+    onSave,
+    successText,
+    queryClient,
+    queryKey,
+    refetch,
+    run,
+  ]);
 
   return {
     sortMode,

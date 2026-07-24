@@ -241,7 +241,7 @@
 }
 
 .upload-btn.delete {
-  border-color: oklch(60% 0.18 25 / 30%);
+  border-color: color-mix(in srgb, var(--exp) 30%, transparent);
   color: var(--danger);
 }
 

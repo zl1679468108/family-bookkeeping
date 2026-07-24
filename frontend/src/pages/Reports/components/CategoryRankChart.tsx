@@ -3,6 +3,8 @@ import { echarts } from '../../../utils/echarts'
 import type { ECharts, EChartsOption } from '../../../utils/echarts'
 import { formatAmount } from '../../../utils/common'
 import type { MergedBreakdownItem } from '../hooks/useReportData'
+import { getEchartsChrome, getThemeColors } from '../../../utils/themeColors'
+import { useTheme } from '../../../utils/theme'
 
 interface CategoryRankChartProps {
   data: MergedBreakdownItem[]
@@ -17,6 +19,7 @@ export const CategoryRankChart: React.FC<CategoryRankChartProps> = ({
 }) => {
   const chartRef = useRef<HTMLDivElement>(null)
   const chartInstance = useRef<ECharts | null>(null)
+  const { resolvedTheme } = useTheme()
 
   useEffect(() => {
     if (!chartRef.current || data.length === 0) return
@@ -28,6 +31,8 @@ export const CategoryRankChart: React.FC<CategoryRankChartProps> = ({
       }
       chartInstance.current = echarts.init(chartRef.current!)
 
+      const theme = getThemeColors()
+      const chrome = getEchartsChrome(theme)
       const pieData = data.map((d) => ({
         name: d.category_name,
         value: Number(d.amount),
@@ -36,6 +41,7 @@ export const CategoryRankChart: React.FC<CategoryRankChartProps> = ({
       const option: EChartsOption = {
         tooltip: {
           trigger: 'item',
+          ...chrome.tooltip,
           formatter: (params: any) => {
             const v = params.value || 0
             return `${params.name}<br/>金额：${formatAmount(v)}<br/>占比：${params.percent}%`
@@ -45,7 +51,7 @@ export const CategoryRankChart: React.FC<CategoryRankChartProps> = ({
           orient: 'vertical',
           right: '5%',
           top: 'center',
-          textStyle: { fontSize: 12, color: 'var(--fg)' },
+          textStyle: chrome.legendText,
         },
         series: [
           {
@@ -54,9 +60,9 @@ export const CategoryRankChart: React.FC<CategoryRankChartProps> = ({
             radius: ['40%', '70%'],
             center: ['35%', '50%'],
             avoidLabelOverlap: true,
-            itemStyle: { borderRadius: 6, borderColor: 'var(--bg-card)', borderWidth: 2 },
-            label: { show: true, formatter: '{b}: {d}%', fontSize: 11 },
-            emphasis: { label: { show: true, fontSize: 14, fontWeight: 'bold' } },
+            itemStyle: { borderRadius: 6, borderColor: chrome.pieBorder, borderWidth: 2 },
+            label: { show: true, formatter: '{b}: {d}%', fontSize: 11, color: chrome.text },
+            emphasis: { label: { show: true, fontSize: 14, fontWeight: 'bold', color: chrome.text } },
             data: pieData,
           },
         ],
@@ -73,7 +79,7 @@ export const CategoryRankChart: React.FC<CategoryRankChartProps> = ({
       clearTimeout(timer)
       window.removeEventListener('resize', handleResize)
     }
-  }, [data])
+  }, [data, resolvedTheme])
 
   useEffect(() => {
     return () => {

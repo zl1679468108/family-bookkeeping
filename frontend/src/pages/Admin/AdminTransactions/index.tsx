@@ -252,7 +252,7 @@ const AdminTransactions: React.FC = () => {
                 handleViewImage(url);
               }}
               className="detail-image-item"
-              style={{ cursor: 'pointer', display: 'block', borderRadius: '8px', overflow: 'hidden', border: '1px solid var(--line)', aspectRatio: '1 / 1', backgroundColor: 'var(--bg)', padding: 0 }}
+              style={{ cursor: 'pointer', display: 'block', borderRadius: '8px', overflow: 'hidden', border: '1px solid var(--bd)', aspectRatio: '1 / 1', backgroundColor: 'var(--bg)', padding: 0 }}
               title="点击在新窗口打开"
             >
               <img src={url} alt={`图片 ${idx + 1}`} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />

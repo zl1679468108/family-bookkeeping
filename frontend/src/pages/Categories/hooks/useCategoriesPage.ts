@@ -6,6 +6,7 @@ import { EMOJI_PRESETS } from '../../../utils/emojiPresets'
 import { SHOPPING_PLATFORM_ICONS, getPlatformIconByKey } from '../../../utils/shoppingPlatformIcons'
 
 import { useSort } from '../../../hooks/useSort'
+import type { SortSaveResult } from '../../../hooks/useSort'
 import { useCategories } from '../../../hooks/useCategories'
 import { useMutationAction } from '../../../hooks/useMutationAction'
 import type { Category, CreateCategoryInput } from '@family-bookkeeping/shared-types'
@@ -75,7 +76,7 @@ export function useCategoriesPage() {
     dragIndex: number | null
     orderedList: Category[]
     handleEnterSortMode: () => void
-    handleSaveSort: () => void
+    handleSaveSort: () => Promise<SortSaveResult | undefined>
     handleCancelSort: () => void
     handleDragStart: (index: number) => void
     handleDragOver: (e: React.DragEvent, index: number) => void

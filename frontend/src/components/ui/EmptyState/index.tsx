@@ -1,5 +1,7 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import { getEmptyIllustrationDataUrl } from './emptyIllustration'
+import { getThemeColors } from '../../../utils/themeColors'
+import { useTheme } from '../../../utils/theme'
 
 /**
  * 通用空状态：统一插画 + 一段描述（无标题层级）
@@ -30,19 +32,25 @@ interface EmptyStateProps {
   style?: React.CSSProperties
 }
 
-const EMPTY_ILLUSTRATION_SRC = getEmptyIllustrationDataUrl()
+const EmptyIllustration: React.FC<{ size: number }> = ({ size }) => {
+  const { resolvedTheme } = useTheme()
+  const src = useMemo(
+    () => getEmptyIllustrationDataUrl(getThemeColors()),
+    [resolvedTheme],
+  )
 
-const EmptyIllustration: React.FC<{ size: number }> = ({ size }) => (
-  <img
-    src={EMPTY_ILLUSTRATION_SRC}
-    width={size}
-    height={size}
-    alt=""
-    aria-hidden="true"
-    draggable={false}
-    style={{ display: 'block', width: size, height: size }}
-  />
-)
+  return (
+    <img
+      src={src}
+      width={size}
+      height={size}
+      alt=""
+      aria-hidden="true"
+      draggable={false}
+      style={{ display: 'block', width: size, height: size }}
+    />
+  )
+}
 
 export const EmptyState: React.FC<EmptyStateProps> = ({
   icon,

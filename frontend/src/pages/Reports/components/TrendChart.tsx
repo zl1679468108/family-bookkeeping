@@ -4,7 +4,8 @@ import type { ECharts, EChartsOption } from '../../../utils/echarts'
 import { format, parseISO } from 'date-fns'
 import { formatAmount } from '../../../utils/common'
 import type { PeriodType } from '../hooks/useReportData'
-import { getThemeColors } from '../../../utils/themeColors'
+import { getEchartsChrome, getThemeColors } from '../../../utils/themeColors'
+import { useTheme } from '../../../utils/theme'
 import { formatMonthDisplay } from '../../../utils/month'
 
 interface TrendChartProps {
@@ -32,6 +33,7 @@ export const TrendChart: React.FC<TrendChartProps> = ({
 }) => {
   const chartRef = useRef<HTMLDivElement>(null)
   const chartInstance = useRef<ECharts | null>(null)
+  const { resolvedTheme } = useTheme()
 
   const chartData = useMemo(() => {
     if (isDailyView) {
@@ -89,10 +91,19 @@ export const TrendChart: React.FC<TrendChartProps> = ({
   useEffect(() => {
     if (!chartInstance.current || !chartData) return
     let option: EChartsOption = {}
+    const theme = getThemeColors()
+    const chrome = getEchartsChrome(theme)
+    const axisX = { type: 'category' as const, data: chartData.dates, axisLabel: chrome.axisLabel, axisLine: chrome.axisLine }
+    const axisY = {
+      type: 'value' as const,
+      axisLabel: { ...chrome.axisLabel, formatter: (v: number) => formatAmount(v) },
+      splitLine: chrome.splitLine,
+      axisLine: { show: false },
+    }
 
     if (isDailyView) {
       option = {
-        tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' },
+        tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, ...chrome.tooltip,
           formatter: (params: any) => {
             const exp = params.find((p: any) => p.seriesName === '总支出')?.value || 0
             const inc = params.find((p: any) => p.seriesName === '总收入')?.value || 0
@@ -100,9 +111,9 @@ export const TrendChart: React.FC<TrendChartProps> = ({
           },
         },
         grid: { left: '3%', right: '4%', bottom: '3%', top: '15%', containLabel: true },
-        xAxis: { type: 'category', data: chartData.dates },
-        yAxis: { type: 'value', axisLabel: { formatter: (v: number) => formatAmount(v) } },
-        legend: { data: ['总支出', '总收入'], top: 5 },
+        xAxis: axisX,
+        yAxis: axisY,
+        legend: { data: ['总支出', '总收入'], top: 5, textStyle: chrome.legendText },
         series: [
           { name: '总支出', type: 'bar', data: chartData.expenses, itemStyle: { color: getThemeColors().exp } },
           { name: '总收入', type: 'bar', data: chartData.incomes, itemStyle: { color: getThemeColors().inc } },
@@ -112,7 +123,7 @@ export const TrendChart: React.FC<TrendChartProps> = ({
       const curLabel = formatMonthDisplay(now)
       const tgtLabel = formatMonthDisplay(monthCompareTarget)
       option = {
-        tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' },
+        tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, ...chrome.tooltip,
           formatter: (params: any) => {
             const ce = params.find((p: any) => p.seriesName === `${curLabel} 总支出`)?.value || 0
             const ci = params.find((p: any) => p.seriesName === `${curLabel} 总收入`)?.value || 0
@@ -122,9 +133,9 @@ export const TrendChart: React.FC<TrendChartProps> = ({
           },
         },
         grid: { left: '3%', right: '4%', bottom: '3%', top: '15%', containLabel: true },
-        xAxis: { type: 'category', data: chartData.dates },
-        yAxis: { type: 'value', axisLabel: { formatter: (v: number) => formatAmount(v) } },
-        legend: { top: 5 },
+        xAxis: axisX,
+        yAxis: axisY,
+        legend: { top: 5, textStyle: chrome.legendText },
         series: [
           { name: `${curLabel} 总支出`, type: 'bar', data: chartData.currExpenses, itemStyle: { color: getThemeColors().exp }, barGap: '20%' },
           { name: `${curLabel} 总收入`, type: 'bar', data: chartData.currIncomes, itemStyle: { color: getThemeColors().inc } },
@@ -134,7 +145,7 @@ export const TrendChart: React.FC<TrendChartProps> = ({
       }
     } else if (isYearCompare) {
       option = {
-        tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' },
+        tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, ...chrome.tooltip,
           formatter: (params: any) => {
             const ce = params.find((p: any) => p.seriesName === `${currentYear}年 总支出`)?.value || 0
             const ci = params.find((p: any) => p.seriesName === `${currentYear}年 总收入`)?.value || 0
@@ -144,9 +155,9 @@ export const TrendChart: React.FC<TrendChartProps> = ({
           },
         },
         grid: { left: '3%', right: '4%', bottom: '3%', top: '15%', containLabel: true },
-        xAxis: { type: 'category', data: chartData.dates },
-        yAxis: { type: 'value', axisLabel: { formatter: (v: number) => formatAmount(v) } },
-        legend: { top: 5 },
+        xAxis: axisX,
+        yAxis: axisY,
+        legend: { top: 5, textStyle: chrome.legendText },
         series: [
           { name: `${currentYear}年 总支出`, type: 'bar', data: chartData.currentYearExpenses, itemStyle: { color: getThemeColors().exp }, barGap: '20%' },
           { name: `${currentYear}年 总收入`, type: 'bar', data: chartData.currentYearIncomes, itemStyle: { color: getThemeColors().inc } },
@@ -156,7 +167,7 @@ export const TrendChart: React.FC<TrendChartProps> = ({
       }
     } else {
       option = {
-        tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' },
+        tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, ...chrome.tooltip,
           formatter: (params: any) => {
             const exp = params.find((p: any) => p.seriesName === '总支出')?.value || 0
             const inc = params.find((p: any) => p.seriesName === '总收入')?.value || 0
@@ -164,9 +175,9 @@ export const TrendChart: React.FC<TrendChartProps> = ({
           },
         },
         grid: { left: '3%', right: '4%', bottom: '3%', top: '15%', containLabel: true },
-        xAxis: { type: 'category', data: chartData.dates },
-        yAxis: { type: 'value', axisLabel: { formatter: (v: number) => formatAmount(v) } },
-        legend: { data: ['总支出', '总收入'], top: 5 },
+        xAxis: axisX,
+        yAxis: axisY,
+        legend: { data: ['总支出', '总收入'], top: 5, textStyle: chrome.legendText },
         series: [
           { name: '总支出', type: 'bar', data: chartData.expenses, itemStyle: { color: getThemeColors().exp } },
           { name: '总收入', type: 'bar', data: chartData.incomes, itemStyle: { color: getThemeColors().inc } },
@@ -176,7 +187,7 @@ export const TrendChart: React.FC<TrendChartProps> = ({
 
     chartInstance.current.setOption(option as any)
     chartInstance.current.resize()
-  }, [chartData, period, now, currentYear, monthCompareTarget, yearCompareTarget, isDailyView, isMonthCompare, isYearCompare])
+  }, [chartData, period, now, currentYear, monthCompareTarget, yearCompareTarget, isDailyView, isMonthCompare, isYearCompare, resolvedTheme])
 
   return <div ref={chartRef} style={{ width: '100%', height: '300px' }} />
 }

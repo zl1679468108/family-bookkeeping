@@ -175,7 +175,7 @@ const Reports: React.FC = () => {
                   yoyExpenseData={yoyExpenseData} yoyIncomeData={yoyIncomeData} trendData={trendData} mainLoading={mainLoading}
                 />
                 {!chartHasData && (
-                  <div style={{ position: 'relative', marginTop: '-300px', height: '300px', display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none', background: 'var(--bg-card)' }}>
+                  <div style={{ position: 'relative', marginTop: '-300px', height: '300px', display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none', background: 'var(--srf)' }}>
                     <EmptyState description={EMPTY_NO_TRANSACTIONS_PERIOD} action={<EmptyAddTransactionAction label="开始记账" onClick={() => navigate('/add?type=expense')} />} />
                   </div>
                 )}

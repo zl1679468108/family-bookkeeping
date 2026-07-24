@@ -55,7 +55,7 @@ function createFootprintContent(
       <div style="
         width: ${size}px; height: ${size}px;
         border-radius: 50%; background: ${memberColor};
-        border: 3px solid ${ring}; box-shadow: 0 2px 10px color-mix(in srgb, ${theme.fg || "#000"} 32%, transparent);
+        border: 3px solid ${ring}; box-shadow: 0 2px 10px color-mix(in srgb, ${theme.fg} 32%, transparent);
         cursor: pointer; display: flex; align-items: center; justify-content: center;
         color: ${onColor}; font-size: 16px; font-weight: 700; white-space: nowrap;
       ">${initial}</div>
@@ -69,7 +69,7 @@ function createFootprintContent(
     <div style="
       width: ${size}px; height: ${size}px;
       border-radius: 50%; background: ${color};
-      border: 3px solid ${ring}; box-shadow: 0 2px 10px color-mix(in srgb, ${theme.fg || "#000"} 32%, transparent);
+      border: 3px solid ${ring}; box-shadow: 0 2px 10px color-mix(in srgb, ${theme.fg} 32%, transparent);
       cursor: pointer; display: flex; align-items: center; justify-content: center;
       color: ${onColor}; font-size: 12px; font-weight: 700; white-space: nowrap;
     ">${shortName}</div>

@@ -7,11 +7,14 @@ export function getCssVar(name: string, fallback = ""): string {
   return value || fallback;
 }
 
+export type ThemeColors = ReturnType<typeof getThemeColors>;
+
 /** 图表 / canvas 语义色（随 data-theme 变化） */
 export function getThemeColors() {
   return {
     pr: getCssVar("--pr", "#2D9D8A"),
     prH: getCssVar("--prH", "#248B78"),
+    onPr: getCssVar("--on-pr", "#ffffff"),
     inc: getCssVar("--inc", "#3BA272"),
     exp: getCssVar("--exp", "#E06055"),
     warn: getCssVar("--warn", "#E8A838"),
@@ -36,4 +39,29 @@ export function getThemeColors() {
 export function getChartPalette(): string[] {
   const c = getThemeColors();
   return [c.pr, c.exp, c.inc, c.warn, c.info, "#8B5CF6", "#EC4899", "#F97316", "#06B6D4", "#84CC16"];
+}
+
+/**
+ * ECharts canvas 不解析 CSS var，统一用计算后的 hex。
+ * 供坐标轴 / 图例 / 提示 / 分割线等 chrome 样式复用。
+ */
+export function getEchartsChrome(theme: ThemeColors = getThemeColors()) {
+  return {
+    text: theme.fg,
+    muted: theme.fg3,
+    border: theme.bd,
+    surface: theme.srf,
+    surfaceHover: theme.srfH,
+    bg: theme.bg,
+    tooltip: {
+      backgroundColor: theme.srfH,
+      borderColor: theme.bd,
+      textStyle: { color: theme.fg },
+    },
+    legendText: { color: theme.fg, fontSize: 12 },
+    axisLabel: { color: theme.fg3 },
+    axisLine: { lineStyle: { color: theme.bd } },
+    splitLine: { lineStyle: { color: theme.bdL, type: "dashed" as const } },
+    pieBorder: theme.srf,
+  };
 }

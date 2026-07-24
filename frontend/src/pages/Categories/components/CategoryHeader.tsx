@@ -2,15 +2,16 @@ import React from 'react'
 import { Button } from '../../../components/ui/Button'
 import { CardHeader } from '../../../components/ui/Card'
 
-import { notifySuccess } from '../../../utils/notifyError'
+import { notifySuccess, notifyInfo } from '../../../utils/notifyError'
 import { busyLabel, ACTION_SAVING } from '../../../utils/actionCopy'
-import { sortModeLabel, SORT_SAVED } from '../../../utils/sortCopy'
+import { sortModeLabel, SORT_SAVED, SORT_UNCHANGED, SORT_NOTHING } from '../../../utils/sortCopy'
 import { entityCreateButton, ENTITY_CATEGORY } from '../../../utils/entityCopy'
+import type { SortSaveResult } from '../../../hooks/useSort'
 
 interface CategoryHeaderProps {
   sortingMode: boolean
   isSaving: boolean
-  handleSaveSort: () => void
+  handleSaveSort: () => Promise<SortSaveResult | undefined>
   handleEnterSortMode: () => void
   handleOpenAdd: () => void
 }
@@ -30,10 +31,12 @@ export const CategoryHeader: React.FC<CategoryHeaderProps> = ({
           <Button
             variant={sortingMode ? 'outline' : 'secondary'}
             size="sm"
-            onClick={() => {
+            onClick={async () => {
               if (sortingMode) {
-                handleSaveSort()
-                notifySuccess(SORT_SAVED)
+                const result = await handleSaveSort()
+                if (result === 'saved') notifySuccess(SORT_SAVED)
+                else if (result === 'unchanged') notifyInfo(SORT_UNCHANGED)
+                else if (result === 'empty') notifyInfo(SORT_NOTHING)
               } else {
                 handleEnterSortMode()
               }
