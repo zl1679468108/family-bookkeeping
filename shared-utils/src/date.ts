@@ -44,13 +44,23 @@ export function formatFriendlyDate(input: string | Date): string {
   return formatDateYMD(date)
 }
 
+/** 按 Asia/Shanghai 输出 YYYY-MM-DD（与 toLocaleDateString en-CA 一致） */
+export function formatBeijingYMD(date: Date = new Date()): string {
+  return date.toLocaleDateString('en-CA', { timeZone: 'Asia/Shanghai' })
+}
+
 /** 今天（北京时间 YYYY-MM-DD） */
 export function todayBeijing(): string {
-  const now = new Date()
-  const beijing = new Date(
-    now.getTime() + now.getTimezoneOffset() * 60000 + 8 * 3600000,
-  )
-  return formatDateYMD(beijing)
+  // 优先用时区 API，避免与周期模板 nextDate 口径漂移
+  try {
+    return formatBeijingYMD()
+  } catch {
+    const now = new Date()
+    const beijing = new Date(
+      now.getTime() + now.getTimezoneOffset() * 60000 + 8 * 3600000,
+    )
+    return formatDateYMD(beijing)
+  }
 }
 
 /**

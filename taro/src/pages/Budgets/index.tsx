@@ -29,7 +29,7 @@ import {
   CONFIRM_COPY_BUDGET_MESSAGE,
   CONFIRM_COPY_BUDGET_TEXT,
 } from "../../utils/confirmCopy";
-import { SUCCESS_BUDGET_SAVED, successCopiedCount } from "../../utils/successCopy";
+import { SUCCESS_BUDGET_SAVED, successBudgetCopiedFromLastMonth } from "../../utils/successCopy";
 import { EMPTY_BUDGET_NO_EXPENSE_CATEGORIES } from "../../utils/emptyCopy";
 import { FORM_BUDGET_NONE, FORM_BUDGET_NO_LAST_MONTH } from "../../utils/formCopy";
 import { ERROR_BUDGET_SAVE_FAILED, ERROR_COPY_FAILED } from "../../utils/errorCopy";
@@ -171,7 +171,7 @@ export default function BudgetsPage() {
         toastInfo(FORM_BUDGET_NO_LAST_MONTH);
         return;
       }
-      toastSuccess(successCopiedCount(result.length));
+      toastSuccess(successBudgetCopiedFromLastMonth(result.length));
       refetchBudgets();
       refetchStatus();
     }, ACTION_COPYING).catch((err: any) => {

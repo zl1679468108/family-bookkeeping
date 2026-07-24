@@ -34,6 +34,7 @@ export type { BudgetVariant, BudgetCategoryLike } from './budget'
 export {
   formatDate,
   formatDateYMD,
+  formatBeijingYMD,
   formatFriendlyDate,
   formatDateTime,
   formatDateTimeMinute,

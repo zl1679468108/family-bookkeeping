@@ -4,6 +4,7 @@ import { Button } from '../../../components/ui/Button'
 import { renderCategoryIcon } from '../../../utils/renderCategoryIcon'
 import { formatMoney } from '../../../utils/budget'
 import { formatFrequency } from '../../../utils/frequency'
+import { getNextExecutionDate } from '../../../utils/templateRecurring'
 import { transactionTypeLabel } from '../../../utils/transactionType'
 import { formatDateTimeMinute } from '../../../utils/date'
 
@@ -100,6 +101,9 @@ export const TemplateDetailModal: React.FC<TemplateDetailModalProps> = ({
         )}
         {template.last_executed_at && (
           <DetailItem label="上次执行" value={template.last_executed_at} />
+        )}
+        {template.frequency && (
+          <DetailItem label="下次执行" value={getNextExecutionDate(template)} />
         )}
         {template.created_at && (
           <DetailItem label="创建时间" value={formatDateTimeMinute(template.created_at)} />

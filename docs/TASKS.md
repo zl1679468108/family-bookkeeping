@@ -136,6 +136,13 @@
 - `fmtAmount` 并入 shared budget；双端 `renderCategoryIcon` 统一 `isIconUrl/isPlatformIcon/isBookIconKey` 判定
 - 附：PC 暗色第六轮与 sortOrder 已在上一提交
 
+#### 2026-07-24 周期模板 nextDate + 预算复制文案 shared 化
+- 新增 `templateRecurring`：`getNextExecutionDate` / `isRecurringDue` / filter·count·has
+- `formatBeijingYMD` 统一北京日口径；PC 模板页到期判定与执行成功文案接线
+- 双端模板详情展示「下次执行」；TemplateSelector 频率标签走 `formatFrequency`
+- 预算复制成功文案 `successBudgetCopiedFromLastMonth` 双端对齐
+- 验证：frontend / taro `tsc --noEmit`
+
 #### 2026-07-24 记一笔草稿 shared 化 + Taro 接线
 - `addTransactionDraft` 增补：`isAddTransactionDraftEmpty` / `toAddTransactionDraftLocation` / `restoreAddTransactionFormData`
 - PC 适配复用纯函数；`todayBeijing` 替换手写时区

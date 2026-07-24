@@ -62,3 +62,14 @@ export const SUCCESS_CODE_RESENT = '验证码已重新发送'
 export const SUCCESS_OCR = 'OCR 识别成功，已自动填充表单'
 export const SUCCESS_REFRESH = '刷新成功'
 export const SUCCESS_REPORT_SAVED = '年度报告已保存为图片'
+
+/** 复制上月预算 */
+export function successBudgetCopiedFromLastMonth(count: number): string {
+  return `已复制上月 ${count} 条预算`
+}
+
+/** 批量执行周期模板 */
+export function successRecurringExecuted(executed: number, skipped: number): string {
+  return `周期模板执行完成：成功 ${executed} 个，跳过 ${skipped} 个`
+}
+

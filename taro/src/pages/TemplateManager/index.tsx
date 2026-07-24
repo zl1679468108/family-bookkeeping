@@ -27,6 +27,7 @@ import { useCategories } from "../../hooks/useCategories";
 import { useManualQuery } from "../../hooks/useManualQuery";
 import { useSubmit, toastError } from "../../hooks/useSubmit";
 import { FREQUENCY_LABELS } from "../../utils/frequency";
+import { getNextExecutionDate } from "../../utils/templateRecurring";
 import { transactionTypeLabel, TRANSACTION_TYPE_OPTIONS } from "../../utils/transactionType";
 import { useReorder } from "../../hooks/useReorder";
 import { isIconUrl } from "../../utils/renderCategoryIcon";
@@ -480,6 +481,14 @@ export default function TemplateManager() {
                 <Text className="tpl-detail-item__label">上次执行</Text>
                 <Text className="tpl-detail-item__value">
                   {formatDateTime(selectedTemplate.last_executed_at)}
+                </Text>
+              </View>
+            )}
+            {selectedTemplate.frequency && (
+              <View className="tpl-detail-item">
+                <Text className="tpl-detail-item__label">下次执行</Text>
+                <Text className="tpl-detail-item__value">
+                  {getNextExecutionDate(selectedTemplate)}
                 </Text>
               </View>
             )}

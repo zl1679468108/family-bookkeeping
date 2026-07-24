@@ -37,6 +37,7 @@
     "./clipboard": "./src/clipboard.ts",
     "./categoryColors": "./src/categoryColors.ts",
     "./templatePayload": "./src/templatePayload.ts",
+    "./templateRecurring": "./src/templateRecurring.ts",
     "./addTransactionDraft": "./src/addTransactionDraft.ts",
     "./bookPayload": "./src/bookPayload.ts",
     "./categoryPayload": "./src/categoryPayload.ts"

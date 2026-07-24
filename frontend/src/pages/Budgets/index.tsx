@@ -38,7 +38,7 @@ import {
   CONFIRM_COPY_BUDGET_TEXT,
 } from '../../utils/confirmCopy'
 import { formatMonthDisplay } from '../../utils/month'
-import { SUCCESS_BUDGET_SAVED, SUCCESS_BUDGET_DELETED } from '../../utils/successCopy'
+import { SUCCESS_BUDGET_SAVED, SUCCESS_BUDGET_DELETED, successBudgetCopiedFromLastMonth } from '../../utils/successCopy'
 import { FORM_BUDGET_NONE, FORM_BUDGET_NO_LAST_MONTH } from '../../utils/formCopy'
 import { EMPTY_BUDGET_NO_EXPENSE_CATEGORIES } from '../../utils/emptyCopy'
 import { ERROR_BUDGET_SAVE_FAILED, ERROR_COPY_BUDGET_FAILED } from '../../utils/errorCopy'
@@ -172,7 +172,7 @@ const Budgets: React.FC = () => {
       errorMessage: ERROR_COPY_BUDGET_FAILED,
       shouldCommit: (result) => Array.isArray(result) && result.length > 0,
       successMessage: (result) =>
-        result ? `已复制上月 ${result.length} 条预算` : null,
+        result ? successBudgetCopiedFromLastMonth(result.length) : null,
       onSuccess: (result) => {
         if (result) setShowCopyConfirm(false)
       },

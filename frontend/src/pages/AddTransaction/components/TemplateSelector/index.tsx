@@ -1,3 +1,4 @@
+import { formatFrequency } from '../../../../utils/frequency'
 import React, { useState } from 'react'
 import { ListRowsSkeleton } from '../../../../components/ui/Skeleton'
 import { EmptyState } from '../../../../components/ui/EmptyState'
@@ -81,7 +82,7 @@ export const TemplateSelector: React.FC<TemplateSelectorProps> = ({
                         {tpl.amount && <span className="template-amount">¥{tpl.amount}</span>}
                         {tpl.frequency && (
                           <span className="template-recurring-badge">
-                            {tpl.frequency === 'daily' ? '每日' : tpl.frequency === 'weekly' ? '每周' : tpl.frequency === 'monthly' ? '每月' : tpl.frequency === 'quarterly' ? '每季' : '每年'}
+                            {formatFrequency(tpl.frequency)}
                           </span>
                         )}
                       </div>
