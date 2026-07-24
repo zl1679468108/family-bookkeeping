@@ -9,7 +9,7 @@ import { LocationPicker } from '../../AddTransaction/components/LocationPicker'
 import type { LocationResult } from '@family-bookkeeping/shared-types'
 import { FREQUENCY_OPTIONS } from '../../../utils/frequency'
 import { TRANSACTION_TYPE_OPTIONS } from '../../../utils/transactionType'
-import { busyLabel, ACTION_SAVING, ACTION_CANCEL } from '../../../utils/actionCopy'
+import {  busyLabel, ACTION_SAVING, ACTION_CANCEL, updateOrCreateLabel } from '../../../utils/actionCopy'
 import { entityFormTitle, ENTITY_TEMPLATE } from '../../../utils/entityCopy'
 import { FORM_TEMPLATE_NAME_EXAMPLE, FORM_SELECT_TYPE, FORM_SELECT_CATEGORY, FORM_AMOUNT_PLACEHOLDER, FORM_NOTE_OPTIONAL, FORM_SELECT_FREQUENCY } from '../../../utils/formCopy'
 import { FIELD_TYPE, FIELD_CATEGORY, FIELD_AMOUNT, FIELD_NOTE, FIELD_SORT, FIELD_FREQUENCY, FIELD_START_DATE, FIELD_TEMPLATE_NAME, FIELD_END_DATE_OPTIONAL } from '../../../utils/fieldCopy'
@@ -69,7 +69,7 @@ export const TemplateFormModal: React.FC<TemplateFormProps> = ({
               onClick={onSave}
               disabled={saveLoading}
             >
-              {busyLabel(saveLoading, ACTION_SAVING, editingId ? '更新' : '创建')}
+              {busyLabel(saveLoading, ACTION_SAVING, updateOrCreateLabel(!!editingId))}
             </Button>
           </FooterActions>
         }

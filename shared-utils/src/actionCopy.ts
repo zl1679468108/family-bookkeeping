@@ -13,6 +13,8 @@ export const ACTION_SUBMITTING = '提交中...'
 export const ACTION_PROCESSING = '处理中...'
 /** 部分场景用中文省略号 */
 export const ACTION_PROCESSING_ELLIPSIS = '处理中…'
+export const ACTION_CREATING_ELLIPSIS = '创建中…'
+export const ACTION_UPDATING_ELLIPSIS = '更新中…'
 export const ACTION_SWITCHING = '切换中...'
 export const NAV_PREV_MONTH = '上一月'
 export const NAV_NEXT_MONTH = '下一月'
@@ -30,6 +32,7 @@ export const ACTION_SAVE = '保存'
 export const ACTION_DELETE = '删除'
 export const ACTION_CONFIRM = '确认'
 export const ACTION_CREATE = '创建'
+export const ACTION_UPDATE = '更新'
 export const ACTION_EDIT = '编辑'
 export const ACTION_COPY = '复制'
 export const ACTION_EXECUTE = '执行'
@@ -69,4 +72,9 @@ export function saveOrCreateLabel(isEdit: boolean, createText = ACTION_CREATE_CA
 /** 记一笔：编辑 → 保存修改；新建 → 确认添加 */
 export function saveOrConfirmAddLabel(isEdit: boolean): string {
   return isEdit ? ACTION_SAVE_EDIT : ACTION_CONFIRM_ADD
+}
+
+/** 表单脚：编辑 → 更新；新建 → 创建 */
+export function updateOrCreateLabel(isEdit: boolean): string {
+  return isEdit ? ACTION_UPDATE : ACTION_CREATE
 }

@@ -35,7 +35,7 @@ import { useSubmit, toastError } from "../../hooks/useSubmit";
 import "./index.scss";
 import { getErrorMessage } from "../../utils/errorMessage";
 import { toastSuccess, toastInfo } from "../../utils/toast";
-import { ACTION_DELETING, ACTION_LOADING, ACTION_SAVING, ACTION_CANCEL, ACTION_SAVE, ACTION_DELETE_BOOK, ACTION_CREATE_BOOK } from "../../utils/actionCopy"
+import {  ACTION_DELETING, ACTION_LOADING, ACTION_SAVING, ACTION_CANCEL, ACTION_SAVE, ACTION_DELETE_BOOK, ACTION_CREATE_BOOK, ACTION_CREATING_ELLIPSIS } from "../../utils/actionCopy"
 import {
   CONFIRM_DELETE_TITLE,
   CONFIRM_DELETE_TEXT,
@@ -221,7 +221,7 @@ export default function BookSettings() {
       qc.invalidateQueries({ queryKey: ["books"] });
       toastSuccess(SUCCESS_BOOK_CREATED);
       setTimeout(() => Taro.navigateBack(), 500);
-    }, "创建中…").catch((err: any) => {
+    }, ACTION_CREATING_ELLIPSIS).catch((err: any) => {
       toastError(err, ERROR_CREATE_FAILED);
     });
   };

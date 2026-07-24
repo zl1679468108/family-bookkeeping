@@ -37,7 +37,7 @@ import { toastSuccess, toastInfo } from "../../utils/toast";
 import { formatMoney } from "../../utils/format";
 import { formatDateTime } from "../../utils/date";
 import { sanitizeAmountInput } from "../../utils/budget";
-import { ACTION_DELETING, ACTION_LOADING, ACTION_SAVING, ACTION_EDIT, ACTION_COPY, ACTION_DELETE, ACTION_EXECUTE } from "../../utils/actionCopy"
+import {  ACTION_DELETING, ACTION_LOADING, ACTION_SAVING, ACTION_EDIT, ACTION_COPY, ACTION_DELETE, ACTION_EXECUTE, updateOrCreateLabel } from "../../utils/actionCopy"
 import { sortModeLabel, SORT_SAVE } from "../../utils/sortCopy";
 import {
   CONFIRM_DELETE_TITLE,
@@ -507,7 +507,7 @@ export default function TemplateManager() {
           bodyClassName="tpl-form-pad"
           footer={
             <View className="tpl-form-footer tpl-form-footer--single">
-              <Button variant="primary" block size="md" onClick={handleFormSave}>{editingId ? "更新" : "创建"}</Button>
+              <Button variant="primary" block size="md" onClick={handleFormSave}>{updateOrCreateLabel(!!editingId)}</Button>
             </View>
           }
         >

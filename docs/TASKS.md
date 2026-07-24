@@ -85,6 +85,11 @@
 
 ### ✅ 已完成
 
+#### 2026-07-24 模板更新/创建与报表 Tab 文案 shared
+- `ACTION_UPDATE` / `updateOrCreateLabel` / `ACTION_CREATING_ELLIPSIS`；PC TemplateFormModal 与 Taro TemplateManager/Edit、Onboarding/BookSettings 创建中… 接线
+- `TITLE_DATA_ANALYSIS` / `TITLE_MEMBER_COMPARE` 报表 Tab
+- 验证：frontend / taro `tsc --noEmit`
+
 #### 2026-07-24 暗色第九轮 + 页标题/月份/主题 hex 收口
 - 新增 `shared-utils/themeTokens`：SVG data URL / 导航栏等无法读 CSS var 的静态亮暗 hex；PC/Taro facade
 - 年报 `ReportCover` 按 `resolvedTheme` + `getThemeColors` 重绘渐变与山丘色，去掉 Material 硬编码与 `text-white`

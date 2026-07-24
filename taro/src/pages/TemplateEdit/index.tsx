@@ -26,7 +26,7 @@ import LocationPicker, { LocationResult } from "../../components/LocationPicker"
 import Icon, { ICON_COLOR } from "../../components/Icon";
 import "./index.scss";
 import { toastSuccess, toastInfo } from "../../utils/toast";
-import { ACTION_DELETING, ACTION_LOADING, ACTION_SAVING, ACTION_DELETE } from "../../utils/actionCopy"
+import {  ACTION_DELETING, ACTION_LOADING, ACTION_SAVING, ACTION_DELETE, updateOrCreateLabel } from "../../utils/actionCopy"
 import {
   CONFIRM_DELETE_TITLE,
   CONFIRM_DELETE_TEXT,
@@ -351,7 +351,7 @@ export default function TemplateEdit() {
           </Button>
         )}
         <Button variant="primary" size="lg" block onClick={handleSave}>
-          {isEdit ? "更新" : "创建"}
+          {updateOrCreateLabel(isEdit)}
         </Button>
       </StickyActionBar>
 

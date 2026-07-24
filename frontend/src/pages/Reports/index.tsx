@@ -17,7 +17,7 @@ import { shiftToYearMonthString } from '../../utils/monthState'
 import { formatAmount } from '../../utils/common'
 import { formatMonthDisplay } from '../../utils/month'
 import { EMPTY_NO_CATEGORY_DATA, EMPTY_NO_TRANSACTIONS_PERIOD, EMPTY_MEMBER_COMPARE_NEED_MULTI, EMPTY_SELECT_BOOK } from '../../utils/emptyCopy'
-import { TITLE_CATEGORY_RATIO, reportChartTitle } from '../../utils/sectionCopy'
+import { TITLE_CATEGORY_RATIO, TITLE_DATA_ANALYSIS, TITLE_MEMBER_COMPARE, reportChartTitle } from '../../utils/sectionCopy'
 import { FORM_SEARCH_MONTH, FORM_SEARCH_YEAR } from '../../utils/formCopy'
 import { ACTION_START_BOOKKEEPING } from '../../utils/actionCopy'
 
@@ -70,7 +70,7 @@ const Reports: React.FC = () => {
     <div className="page-container">
       <div className="reports-header">
         <SegControl
-          options={[{ value: 'analysis', label: '数据分析' }, { value: 'members', label: '成员对比' }]}
+          options={[{ value: 'analysis', label: TITLE_DATA_ANALYSIS }, { value: 'members', label: TITLE_MEMBER_COMPARE }]}
           value={tab}
           onChange={(v) => setTab(v as 'analysis' | 'members')}
         />

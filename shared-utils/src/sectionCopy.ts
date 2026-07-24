@@ -25,6 +25,8 @@ export const TITLE_RECENT_TXN_MONTH = '本月最近交易'
 export const TITLE_BUDGET_MONTH = '本月预算'
 export const TITLE_CATEGORY_RATIO = '分类占比'
 export const TITLE_WORKBENCH = '工作台'
+export const TITLE_DATA_ANALYSIS = '数据分析'
+export const TITLE_MEMBER_COMPARE = '成员对比'
 
 /** 管理页标题：分类管理 / 模板管理 … */
 export function entityManageTitle(entity: string): string {
