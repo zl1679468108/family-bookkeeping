@@ -4,6 +4,8 @@
  */
 import { View, Text, Input } from "@tarojs/components";
 import { sanitizeAmountInput } from "../../../utils/budget";
+import { FIELD_AMOUNT } from "../../../utils/fieldCopy";
+import { FORM_AMOUNT_PLACEHOLDER } from "../../../utils/formCopy";
 import "./index.scss";
 
 export interface AmountCardProps {
@@ -14,13 +16,13 @@ export interface AmountCardProps {
 export default function AmountCard({ value, onChange }: AmountCardProps) {
   return (
     <View className="ft-amt-card">
-      <Text className="ft-amt-label">金额</Text>
+      <Text className="ft-amt-label">{FIELD_AMOUNT}</Text>
       <View className="ft-amt-row">
         <Text className="ft-amt-symbol">¥</Text>
         <Input
           className="ft-amt-input"
           type="digit"
-          placeholder="0.00"
+          placeholder={FORM_AMOUNT_PLACEHOLDER}
           value={value}
           onInput={(e: any) => {
             onChange(sanitizeAmountInput(e.detail.value as string));

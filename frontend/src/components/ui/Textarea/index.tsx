@@ -1,5 +1,7 @@
 import { Icon } from '../Icon'
 import React, { TextareaHTMLAttributes, useState, useEffect, useRef, useId } from 'react'
+import { shouldShowInputClear, formatCharCount } from '../../../utils/inputHelpers'
+import { cx } from '../../../utils/cx'
 import { ACTION_CLEAR } from '../../../utils/actionCopy'
 
 /**
@@ -70,13 +72,13 @@ export const Textarea: React.FC<TextareaProps> = ({
   const charCount = currentValue.length
 
   return (
-    <div className={`ui-textarea-wrap ${wrapperClassName}`.trim()}>
+    <div className={cx('ui-textarea-wrap', wrapperClassName)}>
       {label && (
-        <label htmlFor={textareaId} className={`ui-input-label${required ? ' field-required' : ''}`}>
+        <label htmlFor={textareaId} className={cx('ui-input-label', required && 'field-required')}>
           {label}
         </label>
       )}
-      <div className={`ui-textarea ${error ? 'has-error' : ''} ${className}`.trim()}>
+      <div className={cx('ui-textarea', error && 'has-error', className)}>
         <textarea
           ref={textareaRef}
           id={textareaId}
@@ -85,7 +87,7 @@ export const Textarea: React.FC<TextareaProps> = ({
           maxLength={maxLength}
           {...props}
         />
-        {allowClear && currentValue && (
+        {shouldShowInputClear(allowClear, currentValue) && (
           <button type="button" className="ui-textarea-clear" onClick={handleClear} aria-label={ACTION_CLEAR}>
             <Icon name="close" size={12} strokeWidth={2.5} />
           </button>
@@ -96,7 +98,7 @@ export const Textarea: React.FC<TextareaProps> = ({
           {error && <span className="ui-input-error">{error}</span>}
           {showCount && (
             <span className="ui-textarea-count">
-              {charCount}{maxLength ? ` / ${maxLength}` : ''}
+              {maxLength ? formatCharCount(charCount, maxLength as number) : charCount}
             </span>
           )}
         </div>

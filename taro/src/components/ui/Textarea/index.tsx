@@ -4,6 +4,12 @@
  */
 import { ReactNode } from "react";
 import { View, Text, Textarea as TaroTextarea } from "@tarojs/components";
+import { ACTION_CLEAR } from "../../../utils/actionCopy";
+import {
+  shouldShowInputClear,
+  formatCharCountCompact,
+} from "../../../utils/inputHelpers";
+import { cx } from "../../../utils/cx";
 import "./index.scss";
 
 export interface TextareaProps {
@@ -35,9 +41,9 @@ export function Textarea({
   disabled = false,
   className = "",
 }: TextareaProps) {
-  const showClear = allowClear && !!value && !disabled;
+  const showClear = shouldShowInputClear(allowClear, value, disabled);
   return (
-    <View className={`ui-textarea-wrap ${error ? "ui-textarea-wrap--error" : ""} ${className}`}>
+    <View className={cx("ui-textarea-wrap", error && "ui-textarea-wrap--error", className)}>
       {label ? (
         <Text className="ui-textarea__label">
           {required ? <Text className="ui-textarea__required">*</Text> : null}
@@ -58,10 +64,16 @@ export function Textarea({
         {(showClear || (showCount && maxLength)) ? (
           <View className="ui-textarea__footer">
             {showCount && maxLength ? (
-              <Text className="ui-textarea__count">{value.length}/{maxLength}</Text>
-            ) : <Text />}
+              <Text className="ui-textarea__count">
+                {formatCharCountCompact(value.length, maxLength)}
+              </Text>
+            ) : (
+              <Text />
+            )}
             {showClear ? (
-              <Text className="ui-textarea__clear" onClick={() => onChange?.("")}>{ACTION_CLEAR}</Text>
+              <Text className="ui-textarea__clear" onClick={() => onChange?.("")}>
+                {ACTION_CLEAR}
+              </Text>
             ) : null}
           </View>
         ) : null}
@@ -72,4 +84,3 @@ export function Textarea({
 }
 
 export default Textarea;
-import { ACTION_CLEAR } from "../../../utils/actionCopy";

@@ -6,6 +6,7 @@ import "./index.scss";
 import { FORM_DESC_EXAMPLE } from "../../../utils/formCopy";
 import { FIELD_NOTE } from "../../../utils/fieldCopy";
 import { MAX_NOTE_LENGTH } from "../../../utils/formCopy";
+import { formatCharCount } from "../../../utils/inputHelpers";
 
 export interface NoteFieldProps {
   value: string;
@@ -23,7 +24,7 @@ export default function NoteField({
       <View className="ft-note-head">
         <Text className="ft-note-label">{FIELD_NOTE}</Text>
         <Text className="ft-note-counter">
-          {value.length} / {maxLength}
+          {formatCharCount(value.length, maxLength)}
         </Text>
       </View>
       <Textarea

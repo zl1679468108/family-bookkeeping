@@ -85,6 +85,11 @@
 
 ### ✅ 已完成
 
+#### 2026-07-24 Textarea/字数统计/金额卡文案 shared 化
+- `formatCharCount(Compact)` 入 inputHelpers；PC/Taro Textarea、NoteField 接线
+- AmountCard 金额标签/placeholder 走 fieldCopy/formCopy
+- 验证：frontend / taro `tsc --noEmit`
+
 #### 2026-07-24 TypeTabs / Metric·StatCard cx / Drawer 默认 shared
 - Taro TypeTabs 改用 TRANSACTION_TYPE_OPTIONS + cx，与 PC 记一笔类型选项同源
 - MetricRow/MetricGrid/StatCard className 双端 cx；Drawer 默认宽度/placement 入 shared

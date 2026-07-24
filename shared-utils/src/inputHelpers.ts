@@ -22,3 +22,14 @@ export function resolvePasswordInputType(
   }
   return baseType
 }
+
+/** 字数统计展示：`12 / 500` */
+export function formatCharCount(current: number, max: number): string {
+  return `${Number(current) || 0} / ${max}`
+}
+
+/** 字数统计紧凑：`12/500`（无空格） */
+export function formatCharCountCompact(current: number, max: number): string {
+  return `${Number(current) || 0}/${max}`
+}
+
