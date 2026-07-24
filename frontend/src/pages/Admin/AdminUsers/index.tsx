@@ -17,6 +17,12 @@ import { formatDateTime } from '../../../utils/date';
 import { platformUserRoleLabel, isPlatformAdmin } from '../../../utils/roles'
 import { queryKeys } from '../../../utils/queryKeys'
 import { STALE } from '../../../utils/cachePolicy'
+import {
+  PLATFORM_USER_STATUS_OPTIONS,
+  platformUserStatusLabel,
+  platformUserStatusClass,
+  platformUserStatusActionLabel,
+} from '../../../utils/userStatus'
 
 const AdminUsers: React.FC = () => {
   const queryClient = useQueryClient();
@@ -113,11 +119,7 @@ const AdminUsers: React.FC = () => {
     { key: 'admin', label: platformUserRoleLabel('admin') },
   ];
 
-  const statusOptions = [
-    { key: 'active', label: '正常' },
-    { key: 'suspended', label: '停用' },
-    { key: 'deleted', label: '已注销' },
-  ];
+  const statusOptions = PLATFORM_USER_STATUS_OPTIONS;
 
   const handleSearchChange = (value: string) => {
     setSearch(value);
@@ -205,15 +207,9 @@ const AdminUsers: React.FC = () => {
                       </td>
                       <td>
                         <span
-                          className={
-                            user.status === 'active'
-                              ? 'status status--success'
-                              : user.status === 'suspended'
-                                ? 'status status--danger'
-                                : 'status status--muted'
-                          }
+                          className={platformUserStatusClass(user.status)}
                         >
-                          {user.status === 'active' ? '正常' : user.status === 'suspended' ? '停用' : '已注销'}
+                          {platformUserStatusLabel(user.status)}
                         </span>
                       </td>
                       <td className="data-table__cell--muted">
@@ -229,7 +225,7 @@ const AdminUsers: React.FC = () => {
                             size="sm"
                             onClick={() => openStatusDialog(user)}
                           >
-                            {user.status === 'active' ? '停用' : '启用'}
+                            {platformUserStatusActionLabel(user.status)}
                           </Button>
                         </div>
                       </td>
@@ -289,7 +285,7 @@ const AdminUsers: React.FC = () => {
       >
         <div>
           <p className="global-modal-dialog__message">
-            确认将用户 {selectedUserName} 的状态改为 {selectedUserStatus === 'active' ? '正常' : '停用'}？需要输入您的密码确认。
+            确认将用户 {selectedUserName} 的状态改为 {platformUserStatusLabel(selectedUserStatus)}？需要输入您的密码确认。
           </p>
           <div style={{ marginTop: '12px' }}>
             <Input

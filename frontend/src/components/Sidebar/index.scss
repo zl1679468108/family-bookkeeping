@@ -320,6 +320,7 @@
 
 .sidebar-user-arrow {
   flex-shrink: 0;
+  margin-left: auto;
   color: var(--fg3);
   font-size: 10px;
   transition: transform var(--df, 0.15s);

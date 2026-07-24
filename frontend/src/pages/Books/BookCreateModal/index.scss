@@ -3,7 +3,7 @@
 .book-modal-overlay {
   position: fixed;
   inset: 0;
-  background: var(--ov, rgba(0, 0, 0, 0.45));
+  background: var(--ov);
   backdrop-filter: blur(4px);
   display: flex;
   align-items: center;

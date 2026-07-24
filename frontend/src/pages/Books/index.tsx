@@ -9,6 +9,14 @@ import { InviteCodeModal } from './components/InviteCodeModal';
 import { GlobalModal } from '../../components/ui';
 import './index.scss';
 import { userDisplayName } from '../../utils/userDisplay'
+import {
+  CONFIRM_DELETE_TITLE,
+  CONFIRM_DELETE_TEXT,
+  CONFIRM_REMOVE_TITLE,
+  CONFIRM_REMOVE_TEXT,
+  confirmDeleteBook,
+  confirmRemoveMember,
+} from '../../utils/confirmCopy'
 
 const BooksPage: React.FC = () => {
   const {
@@ -56,20 +64,20 @@ const BooksPage: React.FC = () => {
       <GlobalModal
         type="confirm"
         open={!!deleteTarget}
-        title="确认删除"
-        children="确定删除？"
+        title={CONFIRM_DELETE_TITLE}
+        children={confirmDeleteBook(selectedBook?.name || books?.find((b: any) => b.id === deleteTarget)?.name || '该账本')}
         onConfirm={() => deleteTarget && deleteMutation.run(deleteTarget)}
         onClose={() => setDeleteTarget(null)}
         loading={deleteMutation.isPending}
-        confirmText="确认删除"
+        confirmText={CONFIRM_DELETE_TEXT}
         confirmDanger
       />
 
       <GlobalModal
         type="confirm"
         open={showMemberConfirm}
-        title="确认移除"
-        children={`确定要移除成员 ${userDisplayName(removingMember)}？`}
+        title={CONFIRM_REMOVE_TITLE}
+        children={confirmRemoveMember(userDisplayName(removingMember))}
         onConfirm={() => {
           if (removingMember && selectedBook) {
             removeMemberMutation.run({ bookId: selectedBook.id, userId: removingMember.id });
@@ -77,7 +85,7 @@ const BooksPage: React.FC = () => {
         }}
         onClose={() => { setShowMemberConfirm(false); setRemovingMember(null); }}
         loading={removeMemberMutation.isPending}
-        confirmText="确认移除"
+        confirmText={CONFIRM_REMOVE_TEXT}
         confirmDanger
       />
 

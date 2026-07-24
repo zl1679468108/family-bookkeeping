@@ -2,6 +2,7 @@ import React from 'react'
 import { MAX_IMAGES } from '../hooks/useTransactionForm'
 import type { PendingImage } from '../hooks/useTransactionForm'
 import { Button } from '../../../components/ui/Button'
+import { Icon } from '../../../components/ui/Icon'
 
 interface ImageUploadSectionProps {
   savedImageUrls: string[]
@@ -34,13 +35,13 @@ export const ImageUploadSection: React.FC<ImageUploadSectionProps> = ({
         {savedImageUrls.map((url, idx) => (
           <div key={`saved-${idx}`} className="image-item">
             <img src={url} alt={`附件 ${idx + 1}`} />
-            <button type="button" className="image-remove" onClick={() => onRemoveSaved(idx)} title="删除此图" aria-label="删除此图">×</button>
+            <button type="button" className="image-remove" onClick={() => onRemoveSaved(idx)} title="删除此图" aria-label="删除此图"><Icon name="close" size={12} /></button>
           </div>
         ))}
         {pendingImages.map((p, idx) => (
           <div key={`pending-${idx}`} className="image-item">
             <img src={p.localUrl} alt={`待上传 ${idx + 1}`} />
-            <button type="button" className="image-remove" onClick={() => onRemovePending(idx)} title="删除此图" aria-label="删除此图">×</button>
+            <button type="button" className="image-remove" onClick={() => onRemovePending(idx)} title="删除此图" aria-label="删除此图"><Icon name="close" size={12} /></button>
           </div>
         ))}
         {canAddMore && (

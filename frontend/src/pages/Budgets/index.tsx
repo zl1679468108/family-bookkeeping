@@ -23,6 +23,15 @@ import { budgetStatusToVariant, budgetVariantLabel, formatMoney } from '../../ut
 import { useBook } from '../../hooks/useBook'
 import { queryKeys } from '../../utils/queryKeys'
 import { STALE } from '../../utils/cachePolicy'
+import {
+  CONFIRM_DELETE_TITLE,
+  CONFIRM_DELETE_TEXT,
+  confirmDeleteThis,
+  confirmDeleteBudget,
+  CONFIRM_COPY_BUDGET_TITLE,
+  CONFIRM_COPY_BUDGET_MESSAGE,
+  CONFIRM_COPY_BUDGET_TEXT,
+} from '../../utils/confirmCopy'
 
 const formatMonthToDisplay = (monthStr: string): string => {
   const date = new Date(monthStr)
@@ -443,22 +452,22 @@ const Budgets: React.FC = () => {
       <GlobalModal
         type="confirm"
         open={showDeleteConfirm}
-        title="确认删除"
-        children={selectedBudget ? `确定删除「${selectedBudget.category.name}」本月预算吗？删除后该分类预算将清零。` : "确定要删除这个预算吗？"}
+        title={CONFIRM_DELETE_TITLE}
+        children={selectedBudget ? confirmDeleteBudget(selectedBudget.category.name) : confirmDeleteThis("预算")}
         onConfirm={handleDeleteBudget}
         onClose={() => setShowDeleteConfirm(false)}
-        confirmText="确认删除"
+        confirmText={CONFIRM_DELETE_TEXT}
         confirmDanger
       />
 
       <GlobalModal
         type="confirm"
         open={showCopyConfirm}
-        title="复制上月预算"
-        children="将上月预算复制到当前月份（已有金额会被覆盖），是否继续？"
+        title={CONFIRM_COPY_BUDGET_TITLE}
+        children={CONFIRM_COPY_BUDGET_MESSAGE}
         onConfirm={handleCopyLastMonth}
         onClose={() => setShowCopyConfirm(false)}
-        confirmText={copyLoading ? '复制中...' : '确认复制'}
+        confirmText={copyLoading ? '复制中...' : CONFIRM_COPY_BUDGET_TEXT}
       />
     </div>
   )

@@ -19,6 +19,15 @@ import { fetchCategories } from "../../services/categoriesApi";
 import "./index.scss";
 import { budgetStatusToVariant, budgetVariantLabel, formatMoney } from "../../utils/budget";
 import { toastSuccess, toastInfo } from "../../utils/toast";
+import {
+  CONFIRM_DELETE_TITLE,
+  CONFIRM_DELETE_TEXT,
+  confirmDeleteThis,
+  confirmDeleteBudget,
+  CONFIRM_COPY_BUDGET_TITLE,
+  CONFIRM_COPY_BUDGET_MESSAGE,
+  CONFIRM_COPY_BUDGET_TEXT,
+} from "../../utils/confirmCopy";
 
 /* ---------- 类型 ---------- */
 interface BudgetDetail {
@@ -520,13 +529,13 @@ export default function BudgetsPage() {
       {/* 删除/清零确认弹窗（详情删除 & 编辑金额置 0 共用） */}
       <ConfirmDialog
         visible={showDeleteConfirm}
-        title="确认删除预算"
+        title={CONFIRM_DELETE_TITLE}
         message={
           detailCat
-            ? `确定删除「${detailCat.category.name}」本月预算吗？删除后该分类预算将清零。`
-            : "确定要删除这个预算吗？"
+            ? confirmDeleteBudget(detailCat.category.name)
+            : confirmDeleteThis("预算")
         }
-        confirmText="确认删除"
+        confirmText={CONFIRM_DELETE_TEXT}
         danger
         confirmLoading={false}
         onCancel={() => setShowDeleteConfirm(false)}
@@ -535,9 +544,9 @@ export default function BudgetsPage() {
 
       <ConfirmDialog
         visible={showCopyConfirm}
-        title="复制上月预算"
-        message="将上月预算复制到当前月份（已有金额会被覆盖），是否继续？"
-        confirmText="确认复制"
+        title={CONFIRM_COPY_BUDGET_TITLE}
+        message={CONFIRM_COPY_BUDGET_MESSAGE}
+        confirmText={CONFIRM_COPY_BUDGET_TEXT}
         danger={false}
         confirmLoading={false}
         onCancel={() => setShowCopyConfirm(false)}

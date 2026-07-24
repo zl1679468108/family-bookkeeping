@@ -42,6 +42,12 @@ import { transactionTypeLabel } from "../../utils/transactionType";
 import { useReorder } from "../../hooks/useReorder";
 import "./index.scss";
 import { toastSuccess, toastInfo } from "../../utils/toast";
+import {
+  CONFIRM_DELETE_TITLE,
+  CONFIRM_DELETE_TEXT,
+  confirmDeleteThis,
+  confirmDeleteCategory,
+} from "../../utils/confirmCopy";
 
 /* ---------- 类型 ---------- */
 interface Category {
@@ -513,13 +519,13 @@ export default function CategoriesPage() {
       {/* 删除确认弹窗 */}
       <ConfirmDialog
         visible={showDeleteConfirm}
-        title="确认删除"
+        title={CONFIRM_DELETE_TITLE}
         message={
           deletingCat
-            ? `确定删除自定义分类「${deletingCat.name}」吗？删除后不可恢复。`
-            : "确定要删除这个分类吗？"
+            ? confirmDeleteCategory(deletingCat.name)
+            : confirmDeleteThis("分类")
         }
-        confirmText="确认删除"
+        confirmText={CONFIRM_DELETE_TEXT}
         danger
         confirmLoading={false}
         onCancel={() => {

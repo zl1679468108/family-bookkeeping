@@ -26,6 +26,7 @@ export type IconName =
   | 'eye-off'
   | 'chevron-left'
   | 'chevron-right'
+  | 'chevron-down'
   | 'search'
   | 'settings'
   | 'admin-dashboard'
@@ -183,6 +184,11 @@ const PATHS: Record<IconName, React.ReactNode> = {
   'chevron-right': (
     <>
       <polyline points="9 18 15 12 9 6" />
+    </>
+  ),
+  'chevron-down': (
+    <>
+      <polyline points="6 9 12 15 18 9" />
     </>
   ),
   search: (

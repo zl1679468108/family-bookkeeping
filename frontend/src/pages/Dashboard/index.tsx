@@ -207,13 +207,9 @@ const Dashboard: React.FC = () => {
             <CardHeader
               title="本月预算"
               action={
-                <button
-                  type="button"
-                  className="card-action"
-                  onClick={() => navigate('/budgets')}
-                >
+                <Button type="button" variant="ghost" size="sm" className="card-action" onClick={() => navigate('/budgets')}>
                   全部
-                </button>
+                </Button>
               }
             />
 

@@ -144,3 +144,15 @@
     }
   }
 }
+
+
+/* 记一笔类型切换：SegControl 拉满宽度 */
+.transaction-type-seg.seg-control {
+  display: flex;
+  width: 100%;
+  margin-bottom: 14px;
+}
+.transaction-type-seg .seg-opt {
+  flex: 1;
+  justify-content: center;
+}

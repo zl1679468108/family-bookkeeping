@@ -30,6 +30,11 @@ import { sanitizeAmountInput, isValidPositiveAmount } from "../../utils/budget";
 import { transactionTypeLabel, TRANSACTION_TYPE_OPTIONS } from "../../utils/transactionType";
 import { parseImageList } from "../../utils/parseImageList";
 import "./index.scss";
+import {
+  CONFIRM_DELETE_TITLE,
+  CONFIRM_DELETE_TRANSACTION,
+  CONFIRM_DELETE_LOADING,
+} from "../../utils/confirmCopy";
 
 interface Template {
   id: string;
@@ -188,12 +193,12 @@ export default function AddTransaction() {
   const handleDelete = async () => {
     if (!editId) return;
     Taro.showModal({
-      title: "确认删除",
-      content: "确定要删除这笔交易吗？",
+      title: CONFIRM_DELETE_TITLE,
+      content: CONFIRM_DELETE_TRANSACTION,
       success: async (res) => {
         if (res.confirm) {
           try {
-            Taro.showLoading({ title: "删除中..." });
+            Taro.showLoading({ title: CONFIRM_DELETE_LOADING });
             await deleteTransaction(Number(editId));
             Taro.hideLoading();
             toastSuccess("交易已删除");

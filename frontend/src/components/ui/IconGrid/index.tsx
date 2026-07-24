@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { Icon } from '../Icon'
 
 import { notifyError } from '../../../utils/notifyError'
 
@@ -173,7 +174,7 @@ export const IconGrid: React.FC<IconGridProps> = ({
                       className={`icon-btn-delete ${deletingId === ci.id ? 'icon-btn-delete--loading' : ''}`}
                       onClick={(e) => handleDelete(e, ci.id)}
                     >
-                      ×
+                      {deletingId === ci.id ? '…' : <Icon name="close" size={10} />}
                     </span>
                   )}
                 </button>

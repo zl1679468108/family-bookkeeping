@@ -27,6 +27,11 @@ import { parseImageList } from '../../utils/parseImageList'
 import { queryKeys, TRANSACTION_IMPACT_ROOT_KEYS } from '../../utils/queryKeys'
 import { STALE } from '../../utils/cachePolicy'
 import { transactionTypeLabel, TRANSACTION_TYPE_OPTIONS } from '../../utils/transactionType'
+import {
+  CONFIRM_DELETE_TITLE,
+  CONFIRM_DELETE_TEXT,
+  CONFIRM_DELETE_TRANSACTION,
+} from '../../utils/confirmCopy'
 
 const PAGE_SIZE = 20
 
@@ -466,16 +471,16 @@ const Transactions: React.FC = () => {
       <GlobalModal
         type="confirm"
         open={showDeleteConfirm}
-        title="确认删除"
+        title={CONFIRM_DELETE_TITLE}
         onConfirm={handleDelete}
         onClose={() => {
           setShowDeleteConfirm(false)
         }}
         loading={deleteLoading}
-        confirmText="确认删除"
+        confirmText={CONFIRM_DELETE_TEXT}
         confirmDanger
       >
-        确定要删除这笔交易吗？
+        {CONFIRM_DELETE_TRANSACTION}
       </GlobalModal>
     </div>
   )

@@ -34,6 +34,11 @@ import { useSubmit, toastError } from "../../hooks/useSubmit";
 import "./index.scss";
 import { getErrorMessage } from "../../utils/errorMessage";
 import { toastSuccess, toastInfo } from "../../utils/toast";
+import {
+  CONFIRM_DELETE_TITLE,
+  CONFIRM_DELETE_TEXT,
+  confirmDeleteThis,
+} from "../../utils/confirmCopy";
 
 interface CustomIconItem {
   id: string;
@@ -313,9 +318,9 @@ export default function CategoryEdit() {
 
       <ConfirmDialog
         visible={showDelete}
-        title="确认删除"
-        message="确定要删除这个分类吗？"
-        confirmText="确认删除"
+        title={CONFIRM_DELETE_TITLE}
+        message={confirmDeleteThis("分类")}
+        confirmText={CONFIRM_DELETE_TEXT}
         danger
         confirmLoading={false}
         onCancel={() => setShowDelete(false)}

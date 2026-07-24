@@ -8,6 +8,11 @@ import { TemplateDetailModal } from './components/TemplateDetailModal'
 import { TemplateFormModal } from './components/TemplateFormModal'
 import { useExecuteRecurring } from '../../hooks/useTemplates'
 import { notifyError, notifySuccess } from '../../utils/notifyError'
+import {
+  CONFIRM_DELETE_TITLE,
+  CONFIRM_DELETE_TEXT,
+  confirmDeleteThis,
+} from '../../utils/confirmCopy'
 
 const Templates: React.FC = () => {
   const {
@@ -141,12 +146,12 @@ const Templates: React.FC = () => {
       <GlobalModal
         type="confirm"
         open={showDeleteConfirm}
-        title="确认删除"
-        children="确定要删除这个模板吗？"
+        title={CONFIRM_DELETE_TITLE}
+        children={confirmDeleteThis("模板")}
         onConfirm={handleDeleteTemplate}
         onClose={() => setShowDeleteConfirm(false)}
         loading={deleteLoading}
-        confirmText="确认删除"
+        confirmText={CONFIRM_DELETE_TEXT}
         confirmDanger
       />
 

@@ -85,6 +85,14 @@
 
 ### ✅ 已完成
 
+#### 2026-07-24 确认文案 / Icon / Admin 状态 / 按钮收口
+- 新增双端 `utils/confirmCopy`：删除/移除/预算复制确认 title·正文·按钮文案统一；PC 账本删除补全风险说明。
+- 新增 PC `utils/userStatus`：Admin 用户状态标签/样式/操作文案与筛选 options 复用。
+- Icon 补 `chevron-down`；侧栏折叠/用户菜单、About 时间线、Profile 头像占位、IconGrid 删除、记一笔附件删除改 `Icon`。
+- 记一笔类型切换改 `SegControl` + `TRANSACTION_TYPE_OPTIONS`；Dashboard「全部」、年报保存改 `Button`。
+- 地图/Book 弹层 `var(--ov)` 去硬编码 fallback；KeepAlive 移除与地图首屏空白已单独提交。
+- 验证：frontend / taro `tsc --noEmit` 通过。
+
 #### 2026-07-24 useMutationAction 增强 + Budgets/流水/Admin 预取收口
 - `useMutationAction` 支持 `successMessage` 函数、`shouldCommit`、带 result 的 onSuccess/onError。
 - Budgets 去掉分散 `useMutation`+`useDebouncedAction`，统一 upsert/复制 mutation。

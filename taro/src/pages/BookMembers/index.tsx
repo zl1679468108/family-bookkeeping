@@ -19,6 +19,11 @@ import PageContainer from "../../components/PageContainer";
 import { toastSuccess } from "../../utils/toast";
 import { bookMemberRoleLabel, isBookOwnerRole } from "../../utils/roles";
 import { userDisplayName, userInitial } from "../../utils/userDisplay";
+import {
+  CONFIRM_REMOVE_TITLE,
+  CONFIRM_REMOVE_TEXT,
+  confirmRemoveMember,
+} from "../../utils/confirmCopy";
 
 interface Member {
   id: string;
@@ -413,9 +418,9 @@ export default function BookMembers() {
 
       <ConfirmDialog
         visible={!!removeTarget}
-        title="确认移除"
-        message={`确定要移除成员「${removeTarget?.name}」吗？`}
-        confirmText="确认移除"
+        title={CONFIRM_REMOVE_TITLE}
+        message={confirmRemoveMember(removeTarget?.name || "")}
+        confirmText={CONFIRM_REMOVE_TEXT}
         onCancel={() => setRemoveTarget(null)}
         onConfirm={handleRemove}
       />

@@ -124,13 +124,7 @@ export const Sidebar: React.FC = () => {
       {/* 折叠按钮 */}
       <button className="sidebar-toggle" onClick={() => setCollapsed(!collapsed)}
         title={collapsed ? '展开' : '折叠'}>
-        <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor">
-          {collapsed ? (
-            <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
-          ) : (
-            <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
-          )}
-        </svg>
+        <Icon name={collapsed ? 'chevron-right' : 'chevron-left'} size={18} />
       </button>
 
       {/* 导航 */}
@@ -201,9 +195,7 @@ export const Sidebar: React.FC = () => {
             {!collapsed && (
               <>
                 <span className="sidebar-user-name">{displayName}</span>
-                <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor" className={`sidebar-user-arrow${menuOpen ? ' open' : ''}`} style={{ marginLeft: 'auto' }}>
-                  <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                </svg>
+                <Icon name="chevron-down" size={14} className={`sidebar-user-arrow${menuOpen ? ' open' : ''}`} />
               </>
             )}
           </button>

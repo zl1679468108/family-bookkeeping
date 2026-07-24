@@ -36,6 +36,11 @@ import { toastSuccess, toastInfo } from "../../utils/toast";
 import { formatMoney } from "../../utils/format";
 import { formatDateTime } from "../../utils/date";
 import { sanitizeAmountInput } from "../../utils/budget";
+import {
+  CONFIRM_DELETE_TITLE,
+  CONFIRM_DELETE_TEXT,
+  confirmDeleteThis,
+} from "../../utils/confirmCopy";
 
 /* ---------- 空表单初始态 ---------- */
 const EMPTY_FORM = {
@@ -707,9 +712,9 @@ export default function TemplateManager() {
       {/* 删除确认弹窗 */}
       <ConfirmDialog
         visible={showDelete}
-        title="确认删除"
-        message="确定要删除这个模板吗？"
-        confirmText="确认删除"
+        title={CONFIRM_DELETE_TITLE}
+        message={confirmDeleteThis("模板")}
+        confirmText={CONFIRM_DELETE_TEXT}
         danger
         confirmLoading={false}
         onCancel={() => { setShowDelete(false); setDeleteId(null); }}

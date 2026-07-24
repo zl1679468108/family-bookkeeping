@@ -1,6 +1,12 @@
 import React from 'react'
 import { GlobalModal } from '../../../components/ui'
 import type { Category } from '@family-bookkeeping/shared-types'
+import {
+  CONFIRM_DELETE_TITLE,
+  CONFIRM_DELETE_TEXT,
+  CONFIRM_DELETE_LOADING,
+  confirmDeleteCategory,
+} from '../../../utils/confirmCopy'
 
 interface DeleteConfirmModalProps {
   deleteTarget: Category | null
@@ -19,11 +25,11 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
     <GlobalModal
       type="confirm"
       open={!!deleteTarget}
-      title="确认删除"
-      children={`确定删除自定义分类「${deleteTarget?.name || ''}」吗？删除后不可恢复。`}
+      title={CONFIRM_DELETE_TITLE}
+      children={confirmDeleteCategory(deleteTarget?.name || '')}
       onConfirm={handleDeleteConfirm}
       onClose={() => setDeleteTarget(null)}
-      confirmText={deleteMutation.isPending ? '删除中...' : '确认删除'}
+      confirmText={deleteMutation.isPending ? CONFIRM_DELETE_LOADING : CONFIRM_DELETE_TEXT}
       loading={deleteMutation.isPending}
       confirmDanger
     />

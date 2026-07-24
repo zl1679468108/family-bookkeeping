@@ -10,6 +10,10 @@ import { formatDateTime } from '../../../utils/date';
 import { platformUserRoleLabel, isPlatformAdmin } from '../../../utils/roles'
 import { queryKeys } from '../../../utils/queryKeys'
 import { STALE } from '../../../utils/cachePolicy'
+import {
+  platformUserStatusLabel,
+  platformUserStatusClass,
+} from '../../../utils/userStatus'
 
 const AdminDashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -123,15 +127,9 @@ const AdminDashboard: React.FC = () => {
                     </td>
                     <td>
                       <span
-                        className={
-                          user.status === 'active'
-                            ? 'status status--success'
-                            : user.status === 'suspended'
-                            ? 'status status--danger'
-                            : 'status status--muted'
-                        }
+                        className={platformUserStatusClass(user.status)}
                       >
-                        {user.status === 'active' ? '正常' : user.status === 'suspended' ? '停用' : '已注销'}
+                        {platformUserStatusLabel(user.status)}
                       </span>
                     </td>
                     <td className="data-table__cell--muted">

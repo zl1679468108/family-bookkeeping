@@ -34,6 +34,11 @@ import { useSubmit, toastError } from "../../hooks/useSubmit";
 import "./index.scss";
 import { getErrorMessage } from "../../utils/errorMessage";
 import { toastSuccess, toastInfo } from "../../utils/toast";
+import {
+  CONFIRM_DELETE_TITLE,
+  CONFIRM_DELETE_TEXT,
+  CONFIRM_DELETE_BOOK_GENERIC,
+} from "../../utils/confirmCopy";
 
 interface Member {
   id: string;
@@ -589,9 +594,9 @@ export default function BookSettings() {
       {/* ===== 删除确认 ===== */}
       <ConfirmDialog
         visible={showDelete}
-        title="确认删除"
-        message="确定要删除该账本吗？账本内所有交易记录将被清除，此操作不可恢复。"
-        confirmText="确认删除"
+        title={CONFIRM_DELETE_TITLE}
+        message={CONFIRM_DELETE_BOOK_GENERIC}
+        confirmText={CONFIRM_DELETE_TEXT}
         onCancel={() => setShowDelete(false)}
         onConfirm={handleDelete}
       />

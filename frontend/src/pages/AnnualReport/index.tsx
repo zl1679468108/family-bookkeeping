@@ -15,6 +15,7 @@ import ReportMemberRanking from './ReportMemberRanking';
 import ReportFunFact from './ReportFunFact';
 import ReportFooter from './ReportFooter';
 import { notifySuccess, notifyError } from '../../utils/notifyError'
+import { Button } from '../../components/ui/Button'
 
 interface AnnualOverview {
   total_income: number;
@@ -372,35 +373,14 @@ const AnnualReport: React.FC = () => {
               justifyContent: 'center',
             }}
           >
-            <button
+            <Button
               type="button"
+              variant="primary"
+              size="lg"
               onClick={handleSaveImage}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '10px',
-                padding: '14px 40px',
-                borderRadius: '12px',
-                border: 'none',
-                background: 'var(--prGr)',
-                color: 'var(--on-pr)',
-                fontSize: '16px',
-                fontWeight: 600,
-                cursor: 'pointer',
-                boxShadow: 'var(--sh3)',
-                transition: 'all 0.3s ease',
-              }}
-              onMouseOver={(e) => {
-                e.currentTarget.style.transform = 'translateY(-2px)';
-                e.currentTarget.style.boxShadow = 'var(--sh4)';
-              }}
-              onMouseOut={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = 'var(--sh3)';
-              }}
             >
               📷 保存为图片
-            </button>
+            </Button>
           </div>
         </>
       )}

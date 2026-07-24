@@ -3,6 +3,8 @@ import { DropdownSelect } from '../../../components/ui/Dropdown'
 import { FormField } from '../../../components/ui/FormField'
 import { Textarea } from '../../../components/ui/Textarea'
 import { sanitizeAmountInput } from '../../../utils/budget'
+import { TRANSACTION_TYPE_OPTIONS } from '../../../utils/transactionType'
+import { SegControl } from '../../../components/ui/SegControl'
 import { MAX_NOTE_LENGTH } from '../hooks/useTransactionForm'
 import type { FormData } from '../hooks/useTransactionForm'
 import type { DropdownOption } from '../../../components/ui/Dropdown'
@@ -18,23 +20,13 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({
 }) => {
   return (
     <>
-      {/* 类型切换 Tab（页内专用 form-tabs 样式） */}
-      <div className="form-tabs">
-        <button
-          type="button"
-          className={formData.type !== 'income' ? 'active' : ''}
-          onClick={() => setFormData((prev) => ({ ...prev, type: 'expense', category: '' }))}
-        >
-          支出
-        </button>
-        <button
-          type="button"
-          className={formData.type === 'income' ? 'active' : ''}
-          onClick={() => setFormData((prev) => ({ ...prev, type: 'income', category: '' }))}
-        >
-          收入
-        </button>
-      </div>
+      {/* 类型切换 */}
+      <SegControl
+        className="transaction-type-seg"
+        options={TRANSACTION_TYPE_OPTIONS.map((o) => ({ value: o.key, label: o.label }))}
+        value={formData.type === 'income' ? 'income' : 'expense'}
+        onChange={(type) => setFormData((prev) => ({ ...prev, type, category: '' }))}
+      />
 
       <FormField
         label="金额"

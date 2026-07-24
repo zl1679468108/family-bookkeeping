@@ -10,6 +10,7 @@ import { FormField } from '../../../components/ui/FormField'
 import { FooterActions } from '../../../components/ui/FooterActions'
 import './index.scss'
 import { notifySuccess, notifyError } from '../../../utils/notifyError'
+import { Icon } from '../../../components/ui/Icon'
 import {
   validateEmail,
   validatePasswordMatch,
@@ -238,10 +239,7 @@ const ProfilePage: React.FC = () => {
                 <img src={avatarPreview} alt="头像" className="avatar-image" />
               ) : (
                 <div className="avatar-placeholder">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                    <path d="M12 2a5 5 0 00-5 5 5 5 0 005 5c2.76 0 5-2.24 5-5s-2.24-5-5-5z" />
-                    <path d="M20 21a8 8 0 00-16 0" />
-                  </svg>
+                  <Icon name="user" size={32} strokeWidth={1.5} />
                   <span>上传头像</span>
                 </div>
               )}

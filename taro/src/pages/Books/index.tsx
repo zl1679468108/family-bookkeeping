@@ -30,6 +30,11 @@ import { toastSuccess, toastInfo } from "../../utils/toast";
 import { bookMemberRoleLabel, isBookOwnerRole } from "../../utils/roles";
 import { INVITE_CODE_HELP_LABEL, INVITE_CODE_HELP_BODY } from "../../utils/inviteCopy";
 import { userDisplayName } from "../../utils/userDisplay";
+import {
+  CONFIRM_REMOVE_TITLE,
+  confirmDeleteBook,
+  confirmRemoveMember,
+} from "../../utils/confirmCopy";
 
 type BookRow = Book & { is_default?: boolean };
 
@@ -694,7 +699,7 @@ export default function BooksPage() {
       <ConfirmDialog
         visible={showDeleteConfirm}
         title="删除账本"
-        message={`确定要删除「${deletingBook?.name || detailBook?.name || ""}」吗？此操作不可恢复，所有数据将被永久删除。`}
+        message={confirmDeleteBook(deletingBook?.name || detailBook?.name || "该账本")}
         confirmText="删除"
         danger
         onConfirm={handleDelete}
@@ -707,8 +712,8 @@ export default function BooksPage() {
       {/* 移除成员确认弹窗 */}
       <ConfirmDialog
         visible={showRemoveConfirm}
-        title="确认移除"
-        message={`确定要移除成员 ${userDisplayName(removingMember)} 吗？`}
+        title={CONFIRM_REMOVE_TITLE}
+        message={confirmRemoveMember(userDisplayName(removingMember))}
         confirmText="移除"
         danger
         onConfirm={handleRemoveMember}
