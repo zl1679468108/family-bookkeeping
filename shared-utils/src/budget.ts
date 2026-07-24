@@ -103,6 +103,20 @@ export function budgetVariantLabel(variant: BudgetVariant): string {
   return '正常'
 }
 
+/** 进度条 fill class（双端 Budgets 同源） */
+export function budgetProgressFillClass(variant: BudgetVariant): string {
+  if (variant === 'danger') return 'progress-fill--danger'
+  if (variant === 'warn') return 'progress-fill--warn'
+  return 'progress-fill--safe'
+}
+
+/** 进度/状态色 CSS 变量（Taro 内联 style 同源） */
+export function budgetProgressColorVar(variant: BudgetVariant): string {
+  if (variant === 'danger') return 'var(--exp)'
+  if (variant === 'warn') return 'var(--warn)'
+  return 'var(--pr)'
+}
+
 /** 清理金额输入：仅保留数字与一个小数点，默认最多 2 位小数 */
 export function sanitizeAmountInput(raw: string, maxDecimals = 2): string {
   const v = String(raw ?? '').replace(/[^0-9.]/g, '')

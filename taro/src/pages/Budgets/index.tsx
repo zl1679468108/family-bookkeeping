@@ -17,7 +17,7 @@ import { useSubmit, toastError } from "../../hooks/useSubmit";
 import { fetchBudgets, fetchBudgetStatus, upsertBudgets, copyBudgets } from "../../services/budgetsApi";
 import { fetchCategories } from "../../services/categoriesApi";
 import "./index.scss";
-import { budgetStatusToVariant, budgetVariantLabel, formatMoney, buildBudgetUpsertItems, parseNonNegativeAmount, buildSingleBudgetItem } from "../../utils/budget";
+import { budgetStatusToVariant, budgetVariantLabel, formatMoney, buildBudgetUpsertItems, parseNonNegativeAmount, buildSingleBudgetItem, budgetProgressColorVar } from "../../utils/budget";
 import { toastSuccess, toastInfo } from "../../utils/toast";
 import { ACTION_COPYING, ACTION_LOADING, ACTION_SAVING } from "../../utils/actionCopy";
 import {
@@ -258,12 +258,8 @@ export default function BudgetsPage() {
   };
 
   /* ---- 辅助函数 ---- */
-  const statusColor = (status: string) => {
-    const v = budgetStatusToVariant(status);
-    if (v === "danger") return "var(--exp)";
-    if (v === "warn") return "var(--warn)";
-    return "var(--pr)";
-  };
+  const statusColor = (status: string) =>
+    budgetProgressColorVar(budgetStatusToVariant(status));
 
   const statusLabel = (status: string) => budgetVariantLabel(budgetStatusToVariant(status));
 

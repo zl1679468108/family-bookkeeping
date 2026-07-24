@@ -18,7 +18,7 @@ import { EmptyActionButton } from '../../components/ui/EmptyState/emptyActions'
 import { NumberInput } from '../../components/ui/Input'
 import { EmptyState } from '../../components/ui/EmptyState'
 import { DropdownSelect } from '../../components/ui/Dropdown'
-import { budgetStatusToVariant, budgetVariantLabel, formatMoney, buildBudgetUpsertItems, parseNonNegativeAmount, buildSingleBudgetItem } from '../../utils/budget'
+import { budgetStatusToVariant, budgetVariantLabel, formatMoney, buildBudgetUpsertItems, parseNonNegativeAmount, buildSingleBudgetItem, budgetProgressFillClass } from '../../utils/budget'
 import { useBook } from '../../hooks/useBook'
 import { queryKeys } from '../../utils/queryKeys'
 import { STALE } from '../../utils/cachePolicy'
@@ -42,14 +42,6 @@ import { SUCCESS_BUDGET_SAVED, SUCCESS_BUDGET_DELETED, successBudgetCopiedFromLa
 import { FORM_BUDGET_NONE, FORM_BUDGET_NO_LAST_MONTH } from '../../utils/formCopy'
 import { EMPTY_BUDGET_NO_EXPENSE_CATEGORIES } from '../../utils/emptyCopy'
 import { ERROR_BUDGET_SAVE_FAILED, ERROR_COPY_BUDGET_FAILED } from '../../utils/errorCopy'
-
-const progressFillClass = (variant: 'safe' | 'warn' | 'danger'): string => {
-  switch (variant) {
-    case 'danger': return 'progress-fill--danger'
-    case 'warn': return 'progress-fill--warn'
-    default: return 'progress-fill--safe'
-  }
-}
 
 const Budgets: React.FC = () => {
   const navigate = useNavigate()
@@ -326,7 +318,7 @@ const Budgets: React.FC = () => {
               const isFocused = hasFocus && focusId === catKey
               const remaining = budget - spent
               const variant = budgetStatusToVariant(status)
-              const fillCls = progressFillClass(variant)
+              const fillCls = budgetProgressFillClass(variant)
               const statusClass = variant === 'danger' ? ' budget-card--over' : variant === 'warn' ? ' budget-card--warn' : ''
 
               return (

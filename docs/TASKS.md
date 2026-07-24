@@ -167,6 +167,10 @@
 - 邀请/转移邮箱：FE InviteMemberModal、Taro Books/BookMembers/BookSettings 改用 `validateEmail`（空+格式）
 - 验证：frontend / taro `tsc --noEmit`
 
+#### 2026-07-24 预算进度色 / 地图商户色 shared 化
+- `budgetProgressFillClass` / `budgetProgressColorVar`：PC/Taro 预算进度样式同源
+- 新增 `shared-utils/src/color`：`parseHexRgb` / `blendHexColors` / `merchantBalanceColor`；地图足迹色接线
+
 #### 2026-07-24 空态短文案 + Admin userStatus shared 化
 - `EMPTY_NO_CATEGORIES_SHORT` / `EMPTY_NO_TEMPLATES_SHORT`；Taro 模板/记一笔接线
 - `userStatus`（平台用户状态文案/样式）抽入 shared-utils，Admin 走 facade
