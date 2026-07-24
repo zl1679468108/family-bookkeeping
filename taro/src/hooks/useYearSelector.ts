@@ -5,8 +5,9 @@
 import { useState } from "react";
 import Taro from "@tarojs/taro";
 import { generateYearOptions } from "../utils/month";
+import { STORAGE_REPORT_YEAR } from "../utils/storageKeys";
 
-const STORAGE_KEY = "selected_report_year";
+const STORAGE_KEY = STORAGE_REPORT_YEAR;
 
 export function useYearSelector() {
   const currentYear = new Date().getFullYear();

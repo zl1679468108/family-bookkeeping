@@ -9,9 +9,12 @@ import { View, Text } from "@tarojs/components";
 import Taro from "@tarojs/taro";
 import { useEffect, useState } from "react";
 import Icon, { IconName } from "../Icon";
+import { NAV_HOME, NAV_TRANSACTIONS, NAV_WORKBENCH, NAV_PROFILE } from "../../utils/navCopy";
+import { STORAGE_THEME_TARO } from "../../utils/storageKeys";
+import { getThemeTokenHex } from "../../utils/themeTokens";
 import "./index.scss";
 
-const THEME_STORAGE_KEY = "app_theme_mode";
+const THEME_STORAGE_KEY = STORAGE_THEME_TARO;
 
 function readIsDark(): boolean {
   try {
@@ -22,22 +25,21 @@ function readIsDark(): boolean {
 }
 
 function containerStyle(isDark: boolean): React.CSSProperties {
+  const hex = getThemeTokenHex(isDark);
   return {
-    backgroundColor: isDark ? "#252825" : "#FFFFFF",
-    borderTopColor: isDark ? "#3A3D39" : "#E0E2DD",
+    backgroundColor: hex.srf,
+    borderTopColor: hex.bd,
   };
 }
 
 function labelStyle(isActive: boolean, isDark: boolean): React.CSSProperties {
-  if (isActive) {
-    return { color: isDark ? "#45B7A7" : "#2D9D8A" };
-  }
-  return { color: isDark ? "#6E716C" : "#8B8E89" };
+  const hex = getThemeTokenHex(isDark);
+  return { color: isActive ? hex.pr : hex.fg3 };
 }
 
 function iconColor(isActive: boolean, isDark: boolean): string {
-  if (isActive) return isDark ? "#45B7A7" : "#2D9D8A";
-  return isDark ? "#6E716C" : "#8B8E89";
+  const hex = getThemeTokenHex(isDark);
+  return isActive ? hex.pr : hex.fg3;
 }
 
 const ITEMS: { path: string; label: string; icon: IconName }[] = [
@@ -90,4 +92,3 @@ export default function TabBar() {
     </View>
   );
 }
-import { NAV_HOME, NAV_TRANSACTIONS, NAV_WORKBENCH, NAV_PROFILE } from "../../utils/navCopy";

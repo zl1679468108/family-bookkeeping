@@ -9,14 +9,14 @@ import type {
   CreateCategoryInput,
   UpdateCategoryInput,
 } from '@family-bookkeeping/shared-types';
+import { API_PATHS } from '../utils/apiPaths';
 
 /**
  * 获取分类列表
  * GET /categories?type=
  */
 export const fetchCategories = async (type?: 'income' | 'expense'): Promise<Category[]> => {
-  const query = type ? `?type=${type}` : '';
-  return request<Category[]>(`/categories${query}`, { requiresAuth: true });
+  return request<Category[]>(API_PATHS.categories.list(type), { requiresAuth: true });
 };
 
 /**
@@ -24,7 +24,7 @@ export const fetchCategories = async (type?: 'income' | 'expense'): Promise<Cate
  * POST /categories
  */
 export const createCategory = async (dto: CreateCategoryInput): Promise<Category> => {
-  return request<Category>('/categories', {
+  return request<Category>(API_PATHS.categories.root, {
     method: 'POST',
     requiresAuth: true,
     body: dto,
@@ -39,7 +39,7 @@ export const updateCategory = async (
   id: string,
   dto: UpdateCategoryInput,
 ): Promise<Category> => {
-  return request<Category>(`/categories/${id}`, {
+  return request<Category>(API_PATHS.categories.byId(id), {
     method: 'PUT',
     requiresAuth: true,
     body: dto,
@@ -51,7 +51,7 @@ export const updateCategory = async (
  * DELETE /categories/:id
  */
 export const deleteCategory = async (id: string): Promise<void> => {
-  await request<null>(`/categories/${id}`, {
+  await request<null>(API_PATHS.categories.byId(id), {
     method: 'DELETE',
     requiresAuth: true,
   });
@@ -62,7 +62,7 @@ export const deleteCategory = async (id: string): Promise<void> => {
  * PATCH /categories/reorder
  */
 export const reorderCategories = async (orders: { id: string; sort_order: number }[]): Promise<void> => {
-  await request<null>('/categories/reorder', {
+  await request<null>(API_PATHS.categories.reorder, {
     method: 'PATCH',
     requiresAuth: true,
     body: { orders },

@@ -85,6 +85,13 @@
 
 ### ✅ 已完成
 
+#### 2026-07-24 API 路径与存储键 shared 化
+- `shared-utils/apiPaths`：REST path 工厂；双端 services 统一接线
+- `shared-utils/storageKeys`：access/refresh/book/theme/report-year 键名；Web/Taro access 键历史差异保留
+- Taro ThemeContext / useNavBarTheme / TabBar / useYearSelector 与 PC theme 读 shared 键
+- TabBar 内联色改读 `getThemeTokenHex`（补 `bd` 令牌）
+- 验证：frontend / taro `tsc --noEmit`
+
 #### 2026-07-24 定位/地图错误与用户展示文案 shared 化
 - `errorCopy` 定位/地图/加载/加入失败文案；`actionCopy` 定位/添加；`formCopy` 定位失败提示/新创建；`userDisplay` USER_FALLBACK/UNNAMED；`authCopy` 登录过期
 - 接线 PC LocationPicker/Map/年报/Admin/切换账号，Taro LocationPicker/BookCard/模板选择/IconGrid/Profile/成员列表

@@ -13,6 +13,7 @@ import React, {
   useMemo,
 } from "react";
 import Taro from "@tarojs/taro";
+import { STORAGE_THEME_TARO } from "../utils/storageKeys";
 
 type ThemeMode = "light" | "dark";
 
@@ -25,7 +26,7 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-const THEME_STORAGE_KEY = "app_theme_mode";
+const THEME_STORAGE_KEY = STORAGE_THEME_TARO;
 
 /** 从 Storage 读取主题偏好，默认亮色 */
 function getStoredTheme(): ThemeMode {

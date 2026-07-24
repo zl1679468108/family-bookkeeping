@@ -5,15 +5,14 @@
 import Taro from "@tarojs/taro";
 import { apiGet, apiDelete, API_BASE_URL, getToken, getStoredBookId } from "./api";
 import type { CustomIcon } from "../types";
-
-const ICONS_PATH = "/icons";
+import { API_PATHS } from "../utils/apiPaths";
 
 /** 获取自定义图标列表 */
 export const fetchCustomIcons = (
   iconType?: "category" | "book" | "avatar",
 ): Promise<CustomIcon[]> => {
-  const query = iconType ? `?icon_type=${encodeURIComponent(iconType)}` : "";
-  return apiGet<CustomIcon[]>(`${ICONS_PATH}${query}`, { requiresAuth: true });
+  const query = iconType ? `icon_type=${encodeURIComponent(iconType)}` : undefined;
+  return apiGet<CustomIcon[]>(API_PATHS.icons.list(query), { requiresAuth: true });
 };
 
 /**
@@ -31,7 +30,7 @@ export const uploadIcon = (
   if (bookId) header["x-book-id"] = bookId;
 
   return Taro.uploadFile({
-    url: `${API_BASE_URL}${ICONS_PATH}/upload`,
+    url: `${API_BASE_URL}${API_PATHS.icons.upload}`,
     filePath,
     name: "file",
     formData: { icon_type: iconType },
@@ -55,5 +54,5 @@ export const uploadIcon = (
 
 /** 删除自定义图标 */
 export const deleteIcon = (iconId: string): Promise<void> => {
-  return apiDelete<void>(`${ICONS_PATH}/${iconId}`, { requiresAuth: true });
+  return apiDelete<void>(API_PATHS.icons.byId(iconId), { requiresAuth: true });
 };

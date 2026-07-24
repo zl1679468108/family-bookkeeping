@@ -1,12 +1,12 @@
 /**
- * Auth API service — login, register, profile.
+ * Auth API service.
  */
-
 import { apiGet, apiPost, apiPut } from "./api";
 import type { AuthResponse, UserProfile } from "../types";
+import { API_PATHS } from "../utils/apiPaths";
 
 export const getCaptcha = (): Promise<{ captchaId: string; svg: string }> =>
-  apiGet<{ captchaId: string; svg: string }>("/auth/captcha", { requiresAuth: false });
+  apiGet<{ captchaId: string; svg: string }>(API_PATHS.auth.captcha, { requiresAuth: false });
 
 export const login = (
   email: string,
@@ -14,7 +14,7 @@ export const login = (
   captchaId: string,
   captchaCode: string,
 ): Promise<AuthResponse> =>
-  apiPost<AuthResponse>("/auth/login", {
+  apiPost<AuthResponse>(API_PATHS.auth.login, {
     data: { email, password, captchaId, captchaCode },
     requiresAuth: false,
   });
@@ -24,32 +24,31 @@ export const register = (
   password: string,
   username: string,
 ): Promise<AuthResponse> =>
-  apiPost<AuthResponse>("/auth/register", {
+  apiPost<AuthResponse>(API_PATHS.auth.register, {
     data: { email, password, username },
     requiresAuth: false,
   });
 
-/** 切换账号（使用存储的凭据） */
 export const switchAccount = (
   email: string,
   password: string,
-  token?: string,
+  captchaId: string,
+  captchaCode: string,
 ): Promise<AuthResponse> =>
-  apiPost<AuthResponse>("/auth/switch-account", {
-    data: { email, password, token: token || undefined },
+  apiPost<AuthResponse>(API_PATHS.auth.switchAccount, {
+    data: { email, password, captchaId, captchaCode },
     requiresAuth: false,
   });
 
 export const getProfile = (): Promise<UserProfile> =>
-  apiGet<UserProfile>("/auth/profile", { requiresAuth: true });
+  apiGet<UserProfile>(API_PATHS.auth.profile, { requiresAuth: true });
 
-/** 更新用户个人资料（用户名 / 邮箱 / 头像）— 后端是 PUT */
 export const updateProfile = (payload: {
-  username: string;
-  email: string;
+  username?: string;
+  email?: string;
   avatar_url?: string;
 }): Promise<UserProfile> =>
-  apiPut<UserProfile>("/auth/profile", { data: payload, requiresAuth: true });
+  apiPut<UserProfile>(API_PATHS.auth.profile, { data: payload, requiresAuth: true });
 
 /** 修改密码 */
 export const changePassword = (payload: {
@@ -58,16 +57,16 @@ export const changePassword = (payload: {
   confirmPassword: string;
 }): Promise<{ success: boolean; message: string }> =>
   apiPost<{ success: boolean; message: string }>(
-    "/auth/change-password",
+    API_PATHS.auth.changePassword,
     { data: payload, requiresAuth: true },
   );
 
 export const logout = (): Promise<void> =>
-  apiPost<void>("/auth/logout", { requiresAuth: true });
+  apiPost<void>(API_PATHS.auth.logout, { requiresAuth: true });
 
 /** 注销账号（软删除）— 需二次确认密码 */
 export const deactivateAccount = (password: string): Promise<void> =>
-  apiPost<void>("/auth/deactivate", {
+  apiPost<void>(API_PATHS.auth.deactivate, {
     data: { password },
     requiresAuth: true,
   });
@@ -75,7 +74,7 @@ export const deactivateAccount = (password: string): Promise<void> =>
 export const sendResetCode = (
   email: string,
 ): Promise<{ success: boolean; message: string }> =>
-  apiPost<{ success: boolean; message: string }>("/auth/send-reset-code", {
+  apiPost<{ success: boolean; message: string }>(API_PATHS.auth.sendResetCode, {
     data: { email },
     requiresAuth: false,
   });
@@ -87,7 +86,7 @@ export const resetPasswordByCode = (
   confirmPassword: string,
 ): Promise<{ success: boolean; message: string }> =>
   apiPost<{ success: boolean; message: string }>(
-    "/auth/reset-password-by-code",
+    API_PATHS.auth.resetPasswordByCode,
     { data: { email, code, password, confirmPassword }, requiresAuth: false },
   );
 
@@ -95,7 +94,7 @@ export const resetPasswordByCode = (
 export const setCurrentBook = (
   bookId: string,
 ): Promise<{ book_id: string }> =>
-  apiPut<{ book_id: string }>("/auth/current-book", {
+  apiPut<{ book_id: string }>(API_PATHS.auth.currentBook, {
     data: { book_id: bookId },
     requiresAuth: true,
   });

@@ -4,6 +4,7 @@
  */
 
 import { request } from './api';
+import { API_PATHS } from '../utils/apiPaths';
 import type {
   StatisticsSummary,
   MonthlyTrendItem,
@@ -24,7 +25,7 @@ import type { MemberComparisonItem, MemberComparisonParams } from '@family-bookk
  */
 export const fetchSummary = async (params: SummaryParams): Promise<StatisticsSummary> => {
   const query = new URLSearchParams(params as unknown as Record<string, string>).toString();
-  return request<StatisticsSummary>(`/statistics/summary?${query}`, { requiresAuth: true });
+  return request<StatisticsSummary>(API_PATHS.statistics.summary(query), { requiresAuth: true });
 };
 
 /**
@@ -44,7 +45,7 @@ export const fetchMonthlyTrend = async (
   if (params.endDate !== undefined) {
     query.append('endDate', params.endDate);
   }
-  return request<MonthlyTrendItem[]>(`/statistics/monthly-trend?${query.toString()}`, {
+  return request<MonthlyTrendItem[]>(API_PATHS.statistics.monthlyTrend(query.toString()), {
     requiresAuth: true,
   });
 };
@@ -57,7 +58,7 @@ export const fetchCategoryBreakdown = async (
   params: CategoryBreakdownParams,
 ): Promise<CategoryBreakdownItem[]> => {
   const query = new URLSearchParams(params as unknown as Record<string, string>).toString();
-  return request<CategoryBreakdownItem[]>(`/statistics/category-breakdown?${query}`, {
+  return request<CategoryBreakdownItem[]>(API_PATHS.statistics.categoryBreakdown(query), {
     requiresAuth: true,
   });
 };
@@ -70,7 +71,7 @@ export const fetchDailySummary = async (
   params: DailySummaryParams,
 ): Promise<DailySummaryItem[]> => {
   const query = new URLSearchParams({ month: params.month }).toString();
-  return request<DailySummaryItem[]>(`/statistics/daily-summary?${query}`, {
+  return request<DailySummaryItem[]>(API_PATHS.statistics.dailySummary(query), {
     requiresAuth: true,
   });
 };
@@ -86,7 +87,7 @@ export const fetchYearOverYear = async (
   if (params.year !== undefined) query.append('year', String(params.year));
   if (params.compareYear !== undefined) query.append('compareYear', String(params.compareYear));
   if (params.type !== undefined) query.append('type', params.type);
-  return request<YoYComparisonItem[]>(`/statistics/yoy-comparison?${query.toString()}`, {
+  return request<YoYComparisonItem[]>(API_PATHS.statistics.yoy(query.toString()), {
     requiresAuth: true,
   });
 };
@@ -102,7 +103,7 @@ export const fetchMemberComparison = async (
     month_from: params.month_from,
     month_to: params.month_to,
   }).toString();
-  return request<MemberComparisonItem[]>(`/statistics/member-comparison?${query}`, {
+  return request<MemberComparisonItem[]>(API_PATHS.statistics.memberComparison(query), {
     requiresAuth: true,
   });
 };

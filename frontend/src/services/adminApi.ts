@@ -1,4 +1,5 @@
 import { request } from './api';
+import { API_PATHS } from '../utils/apiPaths';
 
 /** 平台统计数据 */
 export interface PlatformStats {
@@ -23,7 +24,7 @@ export interface PlatformStats {
 
 /** 获取平台统计数据 */
 export const getAdminStats = async (): Promise<PlatformStats> => {
-  return request('/admin/stats', { method: 'GET', requiresAuth: true });
+  return request(API_PATHS.admin.stats, { method: 'GET', requiresAuth: true });
 };
 
 /** 用户列表查询参数 */
@@ -62,7 +63,7 @@ export const getAdminUsers = async (params: QueryUsersParams = {}): Promise<User
   if (params.status) query.append('status', params.status);
 
   const queryString = query.toString();
-  return request(`/admin/users${queryString ? `?${queryString}` : ''}`, {
+  return request(API_PATHS.admin.users(queryString || undefined), {
     method: 'GET',
     requiresAuth: true,
   });
@@ -95,7 +96,7 @@ export interface UserDetail {
 
 /** 获取用户详情 */
 export const getAdminUserDetail = async (userId: string): Promise<UserDetail> => {
-  return request(`/admin/users/${userId}`, { method: 'GET', requiresAuth: true });
+  return request(API_PATHS.admin.user(userId), { method: 'GET', requiresAuth: true });
 };
 
 /** 修改用户角色 */
@@ -104,7 +105,7 @@ export const updateUserRole = async (
   role: string,
   password: string,
 ): Promise<{ message: string }> => {
-  return request(`/admin/users/${userId}/role`, {
+  return request(API_PATHS.admin.userRole(userId), {
     method: 'PUT',
     requiresAuth: true,
     body: { role, password },
@@ -117,7 +118,7 @@ export const updateUserStatus = async (
   status: string,
   password: string,
 ): Promise<{ message: string }> => {
-  return request(`/admin/users/${userId}/status`, {
+  return request(API_PATHS.admin.userStatus(userId), {
     method: 'PUT',
     requiresAuth: true,
     body: { status, password },
@@ -203,7 +204,7 @@ export const getAdminTransactions = async (
   if (normalize(params.date_to)) query.append('date_to', normalize(params.date_to)!);
 
   const queryString = query.toString();
-  return request(`/admin/transactions${queryString ? `?${queryString}` : ''}`, {
+  return request(API_PATHS.admin.transactions(queryString || undefined), {
     method: 'GET',
     requiresAuth: true,
   });
@@ -221,5 +222,5 @@ export interface AdminBookListResponse {
 }
 
 export const getAdminBooks = async (): Promise<AdminBookListResponse> => {
-  return request('/admin/books', { method: 'GET', requiresAuth: true });
+  return request(API_PATHS.admin.books, { method: 'GET', requiresAuth: true });
 };

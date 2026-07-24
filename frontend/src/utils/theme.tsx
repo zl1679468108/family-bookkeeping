@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { Icon } from '../components/ui/Icon';
 import { THEME_MODE_LIGHT, THEME_MODE_DARK, THEME_MODE_SYSTEM } from './actionCopy';
+import { STORAGE_THEME_WEB } from './storageKeys';
 
 type ThemeMode = 'light' | 'dark' | 'system';
 type ResolvedTheme = 'light' | 'dark';
@@ -11,7 +12,7 @@ interface ThemeContextType {
   setTheme: (mode: ThemeMode) => void;
 }
 
-const THEME_STORAGE_KEY = 'app_theme';
+const THEME_STORAGE_KEY = STORAGE_THEME_WEB;
 const THEME_ATTR = 'data-theme';
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);

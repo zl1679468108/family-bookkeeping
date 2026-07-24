@@ -4,6 +4,7 @@
  */
 
 import { request } from './api';
+import { API_PATHS } from '../utils/apiPaths';
 
 export interface CustomIcon {
   id: string;
@@ -18,8 +19,8 @@ export interface CustomIcon {
  * GET /icons?icon_type=
  */
 export const fetchCustomIcons = async (iconType?: 'category' | 'book' | 'avatar'): Promise<CustomIcon[]> => {
-  const query = iconType ? `?icon_type=${iconType}` : '';
-  return request<CustomIcon[]>(`/icons${query}`, { requiresAuth: true });
+  const query = iconType ? `icon_type=${encodeURIComponent(iconType)}` : '';
+  return request<CustomIcon[]>(API_PATHS.icons.list(query || undefined), { requiresAuth: true });
 };
 
 /**
@@ -31,7 +32,7 @@ export const uploadIcon = async (file: File, iconType: 'category' | 'book' | 'av
   formData.append('file', file);
   formData.append('icon_type', iconType);
 
-  return request<CustomIcon>('/icons/upload', {
+  return request<CustomIcon>(API_PATHS.icons.upload, {
     method: 'POST',
     requiresAuth: true,
     body: formData,
@@ -43,7 +44,7 @@ export const uploadIcon = async (file: File, iconType: 'category' | 'book' | 'av
  * DELETE /icons/:id
  */
 export const deleteIcon = async (iconId: string): Promise<void> => {
-  await request<null>(`/icons/${iconId}`, {
+  await request<null>(API_PATHS.icons.byId(iconId), {
     method: 'DELETE',
     requiresAuth: true,
   });

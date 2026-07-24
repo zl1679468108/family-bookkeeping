@@ -1,4 +1,5 @@
 import { request } from './api';
+import { API_PATHS } from '../utils/apiPaths';
 import type {
   MapTransaction,
   MerchantSummary,
@@ -21,7 +22,7 @@ export const fetchMapTransactions = (filters: MapFilters): Promise<MapTransactio
   if (filters.maxAmount != null) params.append('maxAmount', String(filters.maxAmount));
   if (filters.memberIds?.length) params.append('memberIds', filters.memberIds.join(','));
 
-  return request<MapTransaction[]>(`/map/transactions?${params}`, { requiresAuth: true });
+  return request<MapTransaction[]>(API_PATHS.map.transactions(params.toString()), { requiresAuth: true });
 };
 
 /**
@@ -35,7 +36,7 @@ export const fetchMerchantSummary = (filters: MapFilters): Promise<MerchantSumma
   if (filters.categories?.length) params.append('categories', filters.categories.join(','));
   if (filters.memberIds?.length) params.append('memberIds', filters.memberIds.join(','));
 
-  return request<MerchantSummary[]>(`/map/merchants?${params}`, { requiresAuth: true });
+  return request<MerchantSummary[]>(API_PATHS.map.merchants(params.toString()), { requiresAuth: true });
 };
 
 /**
@@ -56,7 +57,7 @@ export const fetchMerchantTransactions = (
   if (startDate) params.append('startDate', startDate);
   if (endDate) params.append('endDate', endDate);
 
-  return request<MapTransaction[]>(`/map/merchants/transactions?${params}`, { requiresAuth: true });
+  return request<MapTransaction[]>(API_PATHS.map.merchantTransactions(params.toString()), { requiresAuth: true });
 };
 
 // ===== P1 新增 API =====
@@ -66,7 +67,7 @@ export const fetchMerchantTransactions = (
  * GET /map/members → { data: MapMember[] }
  */
 export const fetchBookMembers = (): Promise<MapMember[]> => {
-  return request<MapMember[]>('/map/members', { requiresAuth: true });
+  return request<MapMember[]>(API_PATHS.map.members, { requiresAuth: true });
 };
 
 /**
@@ -74,7 +75,7 @@ export const fetchBookMembers = (): Promise<MapMember[]> => {
  * GET /map/members/locations → { data: MemberLocation[] }
  */
 export const fetchMemberLocations = (): Promise<MemberLocation[]> => {
-  return request<MemberLocation[]>('/map/members/locations', { requiresAuth: true });
+  return request<MemberLocation[]>(API_PATHS.map.memberLocations, { requiresAuth: true });
 };
 
 /**
@@ -82,7 +83,7 @@ export const fetchMemberLocations = (): Promise<MemberLocation[]> => {
  * POST /map/location body: LocationUpdateRequest
  */
 export const updateMyLocation = (body: LocationUpdateRequest): Promise<void> => {
-  return request<void>('/map/location', {
+  return request<void>(API_PATHS.map.location, {
     method: 'POST',
     requiresAuth: true,
     body,

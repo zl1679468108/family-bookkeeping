@@ -9,39 +9,32 @@ import type {
   UpsertBudgetInput,
   CopyBudgetInput,
 } from "../types";
-
-const BUDGETS_PATH = "/budgets";
+import { API_PATHS } from "../utils/apiPaths";
 
 /** Get user budgets for a month */
 export const fetchBudgets = async (month: string): Promise<BudgetRecord[]> => {
-  return apiGet<BudgetRecord[]>(
-    `${BUDGETS_PATH}?month=${encodeURIComponent(month)}`,
-    { requiresAuth: true },
-  );
+  return apiGet<BudgetRecord[]>(API_PATHS.budgets.list(month), { requiresAuth: true });
 };
 
 /** Get budget execution status */
 export const fetchBudgetStatus = async (
   month: string,
 ): Promise<BudgetStatus> => {
-  return apiGet<BudgetStatus>(
-    `${BUDGETS_PATH}/status?month=${encodeURIComponent(month)}`,
-    { requiresAuth: true },
-  );
+  return apiGet<BudgetStatus>(API_PATHS.budgets.status(month), { requiresAuth: true });
 };
 
 /** Batch save budgets (upsert) */
 export const upsertBudgets = async (
   input: UpsertBudgetInput,
 ): Promise<BudgetRecord[]> => {
-  return apiPut<BudgetRecord[]>(BUDGETS_PATH, { data: input, requiresAuth: true });
+  return apiPut<BudgetRecord[]>(API_PATHS.budgets.root, { data: input, requiresAuth: true });
 };
 
 /** Copy previous month budgets */
 export const copyBudgets = async (
   input: CopyBudgetInput,
 ): Promise<BudgetRecord[]> => {
-  return apiPost<BudgetRecord[]>(`${BUDGETS_PATH}/copy`, {
+  return apiPost<BudgetRecord[]>(API_PATHS.budgets.copy, {
     data: input,
     requiresAuth: true,
   });

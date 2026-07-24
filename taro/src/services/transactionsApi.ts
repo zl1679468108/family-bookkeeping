@@ -7,6 +7,7 @@ import {
   API_BASE_URL, getToken, getStoredBookId,
 } from "./api";
 import Taro from "@tarojs/taro";
+import { API_PATHS } from "../utils/apiPaths";
 
 import type {
   Transaction,
@@ -32,27 +33,27 @@ export const getTransactions = (
   }
   const query = parts.join("&");
   return apiGet<PaginatedResponse<Transaction>>(
-    `/transactions${query ? "?" + query : ""}`,
+    API_PATHS.transactions.withQuery(query),
     { requiresAuth: true },
   );
 };
 
 export const getTransaction = (id: number): Promise<Transaction> =>
-  apiGet<Transaction>(`/transactions/${id}`, { requiresAuth: true });
+  apiGet<Transaction>(API_PATHS.transactions.byId(id), { requiresAuth: true });
 
 export const createTransaction = (
   input: CreateTransactionInput,
 ): Promise<Transaction> =>
-  apiPost<Transaction>("/transactions", { data: input, requiresAuth: true });
+  apiPost<Transaction>(API_PATHS.transactions.root, { data: input, requiresAuth: true });
 
 export const updateTransaction = (
   id: number,
   input: Partial<CreateTransactionInput>,
 ): Promise<Transaction> =>
-  apiPut<Transaction>(`/transactions/${id}`, { data: input, requiresAuth: true });
+  apiPut<Transaction>(API_PATHS.transactions.byId(id), { data: input, requiresAuth: true });
 
 export const deleteTransaction = (id: number): Promise<void> =>
-  apiDelete<void>(`/transactions/${id}`, { requiresAuth: true });
+  apiDelete<void>(API_PATHS.transactions.byId(id), { requiresAuth: true });
 
 // ---- Receipt (Image Upload) ----
 
@@ -68,7 +69,7 @@ export const uploadReceipt = (
   if (bookId) header["x-book-id"] = bookId;
 
   return Taro.uploadFile({
-    url: `${API_BASE_URL}/transactions/${transactionId}/receipt`,
+    url: `${API_BASE_URL}${API_PATHS.transactions.receipt(transactionId)}`,
     filePath,
     name: "file",
     header,
@@ -93,7 +94,7 @@ export const uploadReceipt = (
 
 /** Delete receipt image for a transaction */
 export const deleteReceipt = (transactionId: number): Promise<void> => {
-  return apiDelete<void>(`/transactions/${transactionId}/receipt`, {
+  return apiDelete<void>(API_PATHS.transactions.receipt(transactionId), {
     requiresAuth: true,
   });
 };
@@ -104,7 +105,7 @@ export const deleteReceipt = (transactionId: number): Promise<void> => {
 export const batchTransactions = (
   data: BatchRequest,
 ): Promise<BatchResponse> => {
-  return apiPost<BatchResponse>("/transactions/batch", {
+  return apiPost<BatchResponse>(API_PATHS.transactions.batch, {
     data,
     requiresAuth: true,
   });

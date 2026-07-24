@@ -4,12 +4,11 @@
 
 import { apiGet, apiPost, apiPut, apiDelete } from "./api";
 import type { Book } from "../types";
-
-const BOOKS_PATH = "/books";
+import { API_PATHS } from "../utils/apiPaths";
 
 /** Get all books for current user */
 export const fetchBooks = async (): Promise<Book[]> => {
-  return apiGet<Book[]>(BOOKS_PATH, { requiresAuth: true });
+  return apiGet<Book[]>(API_PATHS.books.root, { requiresAuth: true });
 };
 
 /** Create a new book */
@@ -18,12 +17,12 @@ export const createBook = async (data: {
   description?: string;
   icon?: string;
 }): Promise<Book> => {
-  return apiPost<Book>(BOOKS_PATH, { data, requiresAuth: true });
+  return apiPost<Book>(API_PATHS.books.root, { data, requiresAuth: true });
 };
 
 /** Rename a book */
 export const renameBook = async (id: string, name: string): Promise<Book> => {
-  return apiPut<Book>(`${BOOKS_PATH}/${id}`, { data: { name }, requiresAuth: true });
+  return apiPut<Book>(API_PATHS.books.byId(id), { data: { name }, requiresAuth: true });
 };
 
 /** Update book details (name, description, icon) */
@@ -31,17 +30,17 @@ export const updateBook = async (
   id: string,
   data: { name?: string; description?: string; icon?: string },
 ): Promise<Book> => {
-  return apiPut<Book>(`${BOOKS_PATH}/${id}`, { data, requiresAuth: true });
+  return apiPut<Book>(API_PATHS.books.byId(id), { data, requiresAuth: true });
 };
 
 /** Delete a book */
 export const deleteBook = async (id: string): Promise<void> => {
-  return apiDelete<void>(`${BOOKS_PATH}/${id}`, { requiresAuth: true });
+  return apiDelete<void>(API_PATHS.books.byId(id), { requiresAuth: true });
 };
 
 /** Get members of a book */
 export const fetchBookMembers = async (bookId: string): Promise<any[]> => {
-  return apiGet<any[]>(`${BOOKS_PATH}/${bookId}/members`, { requiresAuth: true });
+  return apiGet<any[]>(API_PATHS.books.members(bookId), { requiresAuth: true });
 };
 
 /** Invite a member by email */
@@ -49,7 +48,7 @@ export const inviteMember = async (
   bookId: string,
   email: string,
 ): Promise<any> => {
-  return apiPost<any>(`${BOOKS_PATH}/${bookId}/members`, {
+  return apiPost<any>(API_PATHS.books.members(bookId), {
     data: { email },
     requiresAuth: true,
   });
@@ -60,7 +59,7 @@ export const createInvitation = async (
   bookId: string,
 ): Promise<{ code: string; book_name: string; expires_at: string }> => {
   return apiPost<{ code: string; book_name: string; expires_at: string }>(
-    `${BOOKS_PATH}/${bookId}/invitations`,
+    API_PATHS.books.invitations(bookId),
     { requiresAuth: true },
   );
 };
@@ -70,7 +69,7 @@ export const getInvitation = async (
   code: string,
 ): Promise<{ book_id: string; book_name: string; expires_at: string } | null> => {
   return apiGet<{ book_id: string; book_name: string; expires_at: string } | null>(
-    `${BOOKS_PATH}/invitations/${encodeURIComponent(code)}`,
+    API_PATHS.books.invitationByCode(code),
     { requiresAuth: false },
   );
 };
@@ -80,14 +79,14 @@ export const joinByInvitation = async (
   code: string,
 ): Promise<{ book_id: string; book_name: string }> => {
   return apiPost<{ book_id: string; book_name: string }>(
-    `${BOOKS_PATH}/invitations/${encodeURIComponent(code)}/join`,
+    API_PATHS.books.joinByCode(code),
     { requiresAuth: true },
   );
 };
 
 /** Leave a book */
 export const leaveBook = async (bookId: string): Promise<void> => {
-  return apiDelete<void>(`${BOOKS_PATH}/${bookId}/members/me`, { requiresAuth: true });
+  return apiDelete<void>(API_PATHS.books.leave(bookId), { requiresAuth: true });
 };
 
 /** Remove a member (owner only) */
@@ -95,7 +94,7 @@ export const removeMember = async (
   bookId: string,
   userId: string,
 ): Promise<void> => {
-  return apiDelete<void>(`${BOOKS_PATH}/${bookId}/members/${userId}`, { requiresAuth: true });
+  return apiDelete<void>(API_PATHS.books.member(bookId, userId), { requiresAuth: true });
 };
 
 /** Transfer book ownership */
@@ -104,7 +103,7 @@ export const transferOwner = async (
   newOwnerEmail: string,
   password: string,
 ): Promise<void> => {
-  return apiPut<void>(`${BOOKS_PATH}/${bookId}/transfer-owner`, {
+  return apiPut<void>(API_PATHS.books.transferOwner(bookId), {
     data: { newOwnerEmail, password },
     requiresAuth: true,
   });
@@ -114,5 +113,5 @@ export const transferOwner = async (
 export const checkOwner = async (
   bookId: string,
 ): Promise<{ isOwner: boolean }> => {
-  return apiGet<{ isOwner: boolean }>(`${BOOKS_PATH}/${bookId}/check-owner`, { requiresAuth: true });
+  return apiGet<{ isOwner: boolean }>(API_PATHS.books.checkOwner(bookId), { requiresAuth: true });
 };

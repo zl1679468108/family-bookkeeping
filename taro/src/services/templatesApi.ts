@@ -9,24 +9,23 @@ import type {
   ExecuteTemplateInput,
   ReorderInput,
 } from "../types";
-
-const TEMPLATES_PATH = "/templates";
+import { API_PATHS } from "../utils/apiPaths";
 
 /** Get template list */
 export const getTemplates = async (): Promise<Template[]> => {
-  return apiGet<Template[]>(TEMPLATES_PATH, { requiresAuth: true });
+  return apiGet<Template[]>(API_PATHS.templates.root, { requiresAuth: true });
 };
 
 /** Get a single template */
 export const getTemplate = async (id: string): Promise<Template> => {
-  return apiGet<Template>(`${TEMPLATES_PATH}/${encodeURIComponent(id)}`, { requiresAuth: true });
+  return apiGet<Template>(API_PATHS.templates.byId(id), { requiresAuth: true });
 };
 
 /** Create a new template */
 export const createTemplate = async (
   data: CreateTemplateInput,
 ): Promise<Template> => {
-  return apiPost<Template>(TEMPLATES_PATH, { data, requiresAuth: true });
+  return apiPost<Template>(API_PATHS.templates.root, { data, requiresAuth: true });
 };
 
 /** Update a template */
@@ -34,12 +33,12 @@ export const updateTemplate = async (
   id: string,
   data: Partial<CreateTemplateInput>,
 ): Promise<Template> => {
-  return apiPut<Template>(`${TEMPLATES_PATH}/${encodeURIComponent(id)}`, { data, requiresAuth: true });
+  return apiPut<Template>(API_PATHS.templates.byId(id), { data, requiresAuth: true });
 };
 
 /** Delete a template */
 export const deleteTemplate = async (id: string): Promise<void> => {
-  return apiDelete<void>(`${TEMPLATES_PATH}/${encodeURIComponent(id)}`, { requiresAuth: true });
+  return apiDelete<void>(API_PATHS.templates.byId(id), { requiresAuth: true });
 };
 
 /** Execute a template (creates a transaction from template) */
@@ -56,12 +55,12 @@ export const executeTemplate = async (
   merchant_name?: string;
   type: "expense" | "income";
 }> => {
-  return apiPost(`${TEMPLATES_PATH}/${encodeURIComponent(id)}/execute`, { data: data || {}, requiresAuth: true });
+  return apiPost(API_PATHS.templates.execute(id), { data: data || {}, requiresAuth: true });
 };
 
 /** Reorder templates (PUT /templates/reorder with { ids: string[] }) */
 export const reorderTemplates = async (
   data: ReorderInput,
 ): Promise<void> => {
-  return apiPut<void>(`${TEMPLATES_PATH}/reorder`, { data, requiresAuth: true });
+  return apiPut<void>(API_PATHS.templates.reorder, { data, requiresAuth: true });
 };

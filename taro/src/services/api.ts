@@ -5,6 +5,8 @@
 import Taro from "@tarojs/taro";
 import type { ApiEnvelope, ApiErrorPayload, UserProfile } from "../types";
 import { ERROR_REQUEST_FAILED, ERROR_NETWORK, ERROR_REQUEST_TIMEOUT_COLD_START } from "../utils/errorCopy";
+import { STORAGE_ACCESS_TOKEN_TARO, STORAGE_REFRESH_TOKEN, STORAGE_CURRENT_BOOK_ID } from "../utils/storageKeys";
+import { API_PATHS } from "../utils/apiPaths";
 
 const DEFAULT_API_BASE_URL = "https://zlspace.site/api";
 // ⚠️ 编译期由 config/index.ts 的 defineConstants 将下方 token 直接替换为字面量字符串：
@@ -15,9 +17,9 @@ const DEFAULT_API_BASE_URL = "https://zlspace.site/api";
 export const API_BASE_URL: string =
   process.env.TARO_APP_API_BASE_URL || DEFAULT_API_BASE_URL;
 
-const AUTH_TOKEN_KEY = "auth_token"; // 访问令牌（短，请求携带）
-const AUTH_REFRESH_TOKEN_KEY = "auth_refresh_token"; // 刷新令牌（长，仅用于换发）
-const BOOK_ID_KEY = "current_book_id";
+const AUTH_TOKEN_KEY = STORAGE_ACCESS_TOKEN_TARO; // 访问令牌（短，请求携带）
+const AUTH_REFRESH_TOKEN_KEY = STORAGE_REFRESH_TOKEN; // 刷新令牌（长，仅用于换发）
+const BOOK_ID_KEY = STORAGE_CURRENT_BOOK_ID;
 
 /** Custom API error class */
 export class ApiError extends Error {
@@ -94,7 +96,7 @@ const tryRefresh = (): Promise<{ accessToken: string; refreshToken: string }> =>
       }
       const data = await request<{ user: UserProfile; accessToken: string; refreshToken: string }>(
         "POST",
-        "/auth/refresh",
+        API_PATHS.auth.refresh,
         { data: { refreshToken }, silent: true, _internalRefresh: true },
       );
       storeTokens(data.accessToken, data.refreshToken);

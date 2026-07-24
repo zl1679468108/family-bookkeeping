@@ -18,6 +18,8 @@ import type {
 } from '@family-bookkeeping/shared-types'
 import { ERROR_SESSION_EXPIRED } from '../utils/errorCopy'
 import { ERROR_REQUEST_FAILED, ERROR_NETWORK, ERROR_NETWORK_REQUEST, ERROR_REQUEST_TIMEOUT_COLD_START } from '../utils/errorCopy'
+import { API_PATHS } from '../utils/apiPaths'
+import { STORAGE_ACCESS_TOKEN_WEB, STORAGE_REFRESH_TOKEN } from '../utils/storageKeys'
 
 // 兼容：重新导出常用类型（供已有 import 使用）
 export type { Transaction, TransactionFilters, PaginatedResponse, UserProfile, TokenPair, OcrResult, CategorySuggestion, ApiEnvelope, ApiErrorPayload } from '@family-bookkeeping/shared-types'
@@ -25,8 +27,8 @@ export type { Transaction, TransactionFilters, PaginatedResponse, UserProfile, T
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api'
 
 // 双 Token 存储键
-const ACCESS_TOKEN_KEY = 'auth_access_token'
-const REFRESH_TOKEN_KEY = 'auth_refresh_token'
+const ACCESS_TOKEN_KEY = STORAGE_ACCESS_TOKEN_WEB
+const REFRESH_TOKEN_KEY = STORAGE_REFRESH_TOKEN
 
 export class ApiError extends Error {
   statusCode: number
@@ -114,7 +116,7 @@ const tryRefresh = (): Promise<TokenPair> => {
       if (!refreshToken) {
         throw new ApiError(ERROR_SESSION_EXPIRED, 401)
       }
-      const data = await request<TokenPair>('/auth/refresh', {
+      const data = await request<TokenPair>(API_PATHS.auth.refresh, {
         method: 'POST',
         body: { refreshToken },
         silent: true,
@@ -323,16 +325,16 @@ export const getTransactions = async (filters?: TransactionFilters): Promise<Pag
   if (filters?.date_from) params.append('date_from', filters.date_from)
   if (filters?.date_to) params.append('date_to', filters.date_to)
 
-  const query = params.toString() ? `?${params.toString()}` : ''
-  return request<PaginatedResponse<Transaction>>(`/transactions${query}`, { requiresAuth: true })
+  const query = params.toString()
+  return request<PaginatedResponse<Transaction>>(API_PATHS.transactions.withQuery(query), { requiresAuth: true })
 }
 
 export const getTransaction = async (id: number): Promise<Transaction> => {
-  return request<Transaction>(`/transactions/${id}`, { requiresAuth: true })
+  return request<Transaction>(API_PATHS.transactions.byId(id), { requiresAuth: true })
 }
 
 export const createTransaction = async (transaction: Partial<Transaction>): Promise<Transaction> => {
-  return request<Transaction>('/transactions', {
+  return request<Transaction>(API_PATHS.transactions.root, {
     method: 'POST',
     requiresAuth: true,
     body: transaction,
@@ -340,7 +342,7 @@ export const createTransaction = async (transaction: Partial<Transaction>): Prom
 }
 
 export const updateTransaction = async (id: number, transaction: Partial<Transaction>): Promise<Transaction> => {
-  return request<Transaction>(`/transactions/${id}`, {
+  return request<Transaction>(API_PATHS.transactions.byId(id), {
     method: 'PUT',
     requiresAuth: true,
     body: transaction,
@@ -348,7 +350,7 @@ export const updateTransaction = async (id: number, transaction: Partial<Transac
 }
 
 export const deleteTransaction = async (id: number): Promise<void> => {
-  await request<null>(`/transactions/${id}`, {
+  await request<null>(API_PATHS.transactions.byId(id), {
     method: 'DELETE',
     requiresAuth: true,
   })
@@ -362,8 +364,8 @@ export const exportToExcel = async (filters?: TransactionFilters): Promise<void>
   if (filters?.startDate) params.append('startDate', filters.startDate)
   if (filters?.endDate) params.append('endDate', filters.endDate)
 
-  const query = params.toString() ? `?${params.toString()}` : ''
-  const blob = await request<Blob>(`/export/excel${query}`, {
+  const query = params.toString()
+  const blob = await request<Blob>(API_PATHS.export.excel(query || undefined), {
     requiresAuth: true,
     responseType: 'blob',
     showProgress: true,
@@ -380,8 +382,8 @@ export const exportToPDF = async (filters?: TransactionFilters): Promise<void> =
   if (filters?.startDate) params.append('startDate', filters.startDate)
   if (filters?.endDate) params.append('endDate', filters.endDate)
 
-  const query = params.toString() ? `?${params.toString()}` : ''
-  const blob = await request<Blob>(`/export/pdf${query}`, {
+  const query = params.toString()
+  const blob = await request<Blob>(API_PATHS.export.pdf(query || undefined), {
     requiresAuth: true,
     responseType: 'blob',
     showProgress: true,
@@ -397,7 +399,7 @@ export const exportToPDF = async (filters?: TransactionFilters): Promise<void> =
 export const uploadReceipt = async (transactionId: number, file: Blob): Promise<{ image_url: string }> => {
   const formData = new FormData();
   formData.append('file', file, 'receipt.jpg');
-  return request<{ image_url: string }>(`/transactions/${transactionId}/receipt`, {
+  return request<{ image_url: string }>(API_PATHS.transactions.receipt(transactionId), {
     method: 'POST',
     requiresAuth: true,
     body: formData,
@@ -409,7 +411,7 @@ export const register = async (
   password: string,
   username: string,
 ): Promise<{ user: UserProfile; accessToken: string; refreshToken: string }> => {
-  return request<{ user: UserProfile; accessToken: string; refreshToken: string }>('/auth/register', {
+  return request<{ user: UserProfile; accessToken: string; refreshToken: string }>(API_PATHS.auth.register, {
     method: 'POST',
     body: { email, password, username },
   })
@@ -422,7 +424,7 @@ export const login = async (
   captchaCode: string,
 ): Promise<{ user: UserProfile; accessToken: string; refreshToken: string }> => {
   // 登录时不传递 token，直接创建新会话（带验证码的登录是新会话）
-  return request<{ user: UserProfile; accessToken: string; refreshToken: string }>('/auth/login', {
+  return request<{ user: UserProfile; accessToken: string; refreshToken: string }>(API_PATHS.auth.login, {
     method: 'POST',
     body: { email, password, captchaId, captchaCode },
   })
@@ -434,7 +436,7 @@ export const switchAccount = async (
   password: string,
   token?: string,
 ): Promise<{ user: UserProfile; accessToken: string; refreshToken: string }> => {
-  return request<{ user: UserProfile; accessToken: string; refreshToken: string }>('/auth/switch-account', {
+  return request<{ user: UserProfile; accessToken: string; refreshToken: string }>(API_PATHS.auth.switchAccount, {
     method: 'POST',
     body: { email, password, token: token || undefined },
     notifyOnError: false,
@@ -442,18 +444,18 @@ export const switchAccount = async (
 }
 
 export const getCaptcha = async (): Promise<{ captchaId: string; svg: string }> => {
-  return request<{ captchaId: string; svg: string }>('/auth/captcha')
+  return request<{ captchaId: string; svg: string }>(API_PATHS.auth.captcha)
 }
 
 export const forgotPassword = async (email: string): Promise<void> => {
-  await request<null>('/auth/forgot-password', {
+  await request<null>(API_PATHS.auth.forgotPassword, {
     method: 'POST',
     body: { email },
   })
 }
 
 export const sendResetCode = async (email: string): Promise<void> => {
-  await request<null>('/auth/send-reset-code', {
+  await request<null>(API_PATHS.auth.sendResetCode, {
     method: 'POST',
     body: { email },
   })
@@ -465,7 +467,7 @@ export const resetPasswordByCode = async (
   password: string,
   confirmPassword: string,
 ): Promise<void> => {
-  await request<null>('/auth/reset-password-by-code', {
+  await request<null>(API_PATHS.auth.resetPasswordByCode, {
     method: 'POST',
     body: { email, code, password, confirmPassword },
   })
@@ -475,18 +477,18 @@ export const resetPasswordByToken = async (
   token: string,
   password: string,
 ): Promise<void> => {
-  await request<null>('/auth/reset-password', {
+  await request<null>(API_PATHS.auth.resetPassword, {
     method: 'POST',
     body: { token, password },
   })
 }
 
 export const getProfile = async (): Promise<UserProfile> => {
-  return request<UserProfile>('/auth/profile', { requiresAuth: true })
+  return request<UserProfile>(API_PATHS.auth.profile, { requiresAuth: true })
 }
 
 export const updateProfile = async (data: Partial<UserProfile>): Promise<UserProfile> => {
-  return request<UserProfile>('/auth/profile', {
+  return request<UserProfile>(API_PATHS.auth.profile, {
     method: 'PUT',
     body: data,
     requiresAuth: true,
@@ -494,7 +496,7 @@ export const updateProfile = async (data: Partial<UserProfile>): Promise<UserPro
 }
 
 export const logout = async (): Promise<void> => {
-  await request<null>('/auth/logout', {
+  await request<null>(API_PATHS.auth.logout, {
     method: 'POST',
     requiresAuth: true,
     notifyOnError: false,
@@ -504,7 +506,7 @@ export const logout = async (): Promise<void> => {
 export const changePassword = async (
   data: { oldPassword: string; newPassword: string; confirmPassword: string }
 ): Promise<void> => {
-  return request<void>('/auth/change-password', {
+  return request<void>(API_PATHS.auth.changePassword, {
     method: 'POST',
     body: data,
     requiresAuth: true,
@@ -512,7 +514,7 @@ export const changePassword = async (
 }
 
 export const setCurrentBook = async (bookId: string): Promise<{ book_id: string }> => {
-  return request<{ book_id: string }>('/auth/current-book', {
+  return request<{ book_id: string }>(API_PATHS.auth.currentBook, {
     method: 'PUT',
     body: { book_id: bookId },
     requiresAuth: true,
@@ -530,7 +532,7 @@ export const ocrReceipt = async (file: Blob): Promise<OcrResult> => {
   // 后端 FileValidationPipe 要求扩展名与 MIME 一致
   const ext = file.type === 'image/png' ? '.png' : '.jpg'
   formData.append('file', file, `receipt${ext}`)
-  return request<OcrResult>('/ocr/receipt', {
+  return request<OcrResult>(API_PATHS.ocr.receipt, {
     method: 'POST',
     requiresAuth: true,
     body: formData,
@@ -545,5 +547,5 @@ export const suggestCategory = async (params: { brand?: string; note?: string; a
   if (params.brand) queryParams.set('brand', params.brand);
   if (params.note) queryParams.set('note', params.note);
   if (params.amount) queryParams.set('amount', String(params.amount));
-  return request<CategorySuggestion[]>(`/transactions/suggest-category?${queryParams.toString()}`, { requiresAuth: true });
+  return request<CategorySuggestion[]>(API_PATHS.transactions.suggestCategory(queryParams.toString()), { requiresAuth: true });
 }

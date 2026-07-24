@@ -14,8 +14,9 @@
 import { useEffect } from "react";
 import Taro, { useDidShow } from "@tarojs/taro";
 import { getThemeTokenHex } from "../utils/themeTokens";
+import { STORAGE_THEME_TARO } from "../utils/storageKeys";
 
-const THEME_STORAGE_KEY = "app_theme_mode";
+const THEME_STORAGE_KEY = STORAGE_THEME_TARO;
 
 function readIsDark(): boolean {
   try {

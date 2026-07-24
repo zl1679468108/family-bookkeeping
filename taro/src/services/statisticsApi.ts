@@ -3,15 +3,13 @@
  * 对齐 PC 端 frontend/src/services/statisticsApi.ts
  *
  * 小程序仅保留「概览」接口（首页月度收支汇总）。
- * 报表/日历/年对比/成员对比等统计接口随对应页面一并移除。
  */
 import { apiGet } from "./api";
 import type {
   StatisticsSummary,
   SummaryParams,
 } from "../types";
-
-const STATISTICS_PATH = "/statistics";
+import { API_PATHS } from "../utils/apiPaths";
 
 /** Get statistics summary for a date range */
 export const fetchSummary = async (
@@ -22,5 +20,5 @@ export const fetchSummary = async (
     `endDate=${encodeURIComponent(params.endDate)}`,
   ];
   const query = parts.join("&");
-  return apiGet<StatisticsSummary>(`${STATISTICS_PATH}/summary?${query}`, { requiresAuth: true });
+  return apiGet<StatisticsSummary>(API_PATHS.statistics.summary(query), { requiresAuth: true });
 };
