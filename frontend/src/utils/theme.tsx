@@ -41,9 +41,10 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [theme, setThemeState] = useState<ThemeMode>(getStoredTheme);
   const [resolvedTheme, setResolvedTheme] = useState<ResolvedTheme>(() => resolveTheme(getStoredTheme()));
 
-  // 同步 data-theme 属性到 document 根元素
+  // 同步 data-theme / color-scheme 到 document 根元素
   useEffect(() => {
     document.documentElement.setAttribute(THEME_ATTR, resolvedTheme);
+    document.documentElement.style.colorScheme = resolvedTheme;
   }, [resolvedTheme]);
 
   // 监听系统主题变化（仅在 theme === 'system' 时生效）
@@ -56,6 +57,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       const newResolved: ResolvedTheme = e.matches ? 'dark' : 'light';
       setResolvedTheme(newResolved);
       document.documentElement.setAttribute(THEME_ATTR, newResolved);
+      document.documentElement.style.colorScheme = newResolved;
     };
 
     mediaQuery.addEventListener('change', handleChange);
@@ -71,6 +73,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const newResolved = resolveTheme(mode);
     setResolvedTheme(newResolved);
     document.documentElement.setAttribute(THEME_ATTR, newResolved);
+    document.documentElement.style.colorScheme = newResolved;
     setThemeState(mode);
   }, []);
 
@@ -79,6 +82,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const resolved = resolveTheme(theme);
     setResolvedTheme(resolved);
     document.documentElement.setAttribute(THEME_ATTR, resolved);
+    document.documentElement.style.colorScheme = resolved;
   }, [theme]);
 
   return (

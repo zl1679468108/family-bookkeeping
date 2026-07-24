@@ -156,3 +156,22 @@
   flex: 1;
   justify-content: center;
 }
+
+/* 浏览器自动填充：避免浅黄底在暗色下刺眼 */
+.form-input:-webkit-autofill,
+.form-input:-webkit-autofill:hover,
+.form-input:-webkit-autofill:focus,
+.form-select:-webkit-autofill,
+.form-select:-webkit-autofill:hover,
+.form-select:-webkit-autofill:focus,
+.ui-input input:-webkit-autofill,
+.ui-input input:-webkit-autofill:hover,
+.ui-input input:-webkit-autofill:focus,
+.ui-search-field:-webkit-autofill,
+.ui-search-field:-webkit-autofill:hover,
+.ui-search-field:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--fg);
+  caret-color: var(--fg);
+  box-shadow: 0 0 0 1000px var(--srf) inset;
+  transition: background-color 99999s ease-in-out 0s;
+}

@@ -162,12 +162,12 @@
 
 .dd-select__item:hover {
   background: var(--prBg);
-  color: var(--prD);
+  color: var(--pr);
 }
 
 .dd-select__item.is-active {
   background: var(--prBg);
-  color: var(--prD);
+  color: var(--pr);
   font-weight: 600;
 }
 

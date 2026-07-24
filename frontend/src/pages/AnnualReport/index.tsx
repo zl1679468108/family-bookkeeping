@@ -330,7 +330,7 @@ const AnnualReport: React.FC = () => {
           style={{
             textAlign: 'center',
             padding: '60px 20px',
-            color: 'var(--danger)',
+            color: 'var(--exp)',
             fontSize: '14px',
           }}
         >

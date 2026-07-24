@@ -136,6 +136,12 @@
 - `fmtAmount` 并入 shared budget；双端 `renderCategoryIcon` 统一 `isIconUrl/isPlatformIcon/isBookIconKey` 判定
 - 附：PC 暗色第六轮与 sortOrder 已在上一提交
 
+#### 2026-07-24 PC 暗色第七轮（令牌/对比度/原生控件）
+- `--prGr` 暗色覆盖；`color-scheme` 随 `data-theme`（含 index 启动脚本防 FOUC）
+- nav-tip 反色文字 `on-pr`→`bg`；模板位置勾 `prGr`→`pr`；`--danger`→`--exp`
+- 下拉选中项文字 `prD`→`pr` 提升暗色对比；表单 autofill 随 `--srf/--fg`
+- 验证：frontend `tsc --noEmit`
+
 #### 2026-07-24 PC 暗色第六轮（硬编码色 + 图表 chrome）
 - 无效 token 收口：`--bg-card/--line/--bg-elevated/--bg-soft` → `--srf/--bd/--srfH`；补 `--expBd` 令牌
 - ECharts canvas 主题：新增 `getEchartsChrome()`，Trend/分类饼/成员对比坐标轴·图例·tooltip 随 `resolvedTheme` 刷新

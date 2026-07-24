@@ -7,6 +7,17 @@
     <link rel="icon" href="/favicon.ico?v=20260612" type="image/x-icon" />
     <link rel="shortcut icon" href="/favicon.ico?v=20260612" type="image/x-icon" />
     <link rel="apple-touch-icon" href="/favicon.png?v=20260612" />
+    <script>
+      (function () {
+        try {
+          var mode = localStorage.getItem('app_theme') || 'system';
+          var dark = mode === 'dark' || (mode === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+          var theme = dark ? 'dark' : 'light';
+          document.documentElement.setAttribute('data-theme', theme);
+          document.documentElement.style.colorScheme = theme;
+        } catch (e) {}
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
