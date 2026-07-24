@@ -194,11 +194,11 @@ class AmapManager {
       } catch {}
       // 容器重新挂到真实 DOM：同步像素尺寸再 resize
       const m = pooled.map;
-      const parentH = Math.max(parentEl.clientHeight || 0, parentEl.offsetHeight || 0, 480);
-      const parentW = Math.max(parentEl.clientWidth || 0, parentEl.offsetWidth || 0, 320);
-      pooled.container.style.width = parentW ? `${parentW}px` : '100%';
+      const rect = parentEl.getBoundingClientRect();
+      const parentH = Math.max(Math.floor(rect.height), parentEl.clientHeight || 0, parentEl.offsetHeight || 0, 360);
+      const parentW = Math.max(Math.floor(rect.width), parentEl.clientWidth || 0, parentEl.offsetWidth || 0, 320);
+      pooled.container.style.width = `${parentW}px`;
       pooled.container.style.height = `${parentH}px`;
-      parentEl.style.minHeight = parentEl.style.minHeight || '480px';
       const doResize = () => {
         try { if (m && typeof m.resize === 'function') m.resize(); } catch {}
       };
@@ -221,11 +221,11 @@ class AmapManager {
 
     // --- Create new instance ---
     const container = document.createElement('div');
-    const parentH = Math.max(parentEl.clientHeight || 0, parentEl.offsetHeight || 0, 480);
-    const parentW = Math.max(parentEl.clientWidth || 0, parentEl.offsetWidth || 0, 320);
-    container.style.width = parentW ? `${parentW}px` : '100%';
+    const rect = parentEl.getBoundingClientRect();
+    const parentH = Math.max(Math.floor(rect.height), parentEl.clientHeight || 0, parentEl.offsetHeight || 0, 360);
+    const parentW = Math.max(Math.floor(rect.width), parentEl.clientWidth || 0, parentEl.offsetWidth || 0, 320);
+    container.style.width = `${parentW}px`;
     container.style.height = `${parentH}px`;
-    parentEl.style.minHeight = parentEl.style.minHeight || '480px';
     parentEl.appendChild(container);
 
     const defaultOpts = {

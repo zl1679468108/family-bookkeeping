@@ -183,17 +183,12 @@ const _MapCanvas: React.ForwardRefRenderFunction<MapCanvasHandle, MapCanvasProps
       try {
         const el = (map as any).getContainer?.() ?? (map as any)._container;
         const parent = el?.parentElement as HTMLElement | null;
-        if (parent) {
-          const h = parent.clientHeight || parent.offsetHeight || 480;
-          const w = parent.clientWidth || parent.offsetWidth || parent.offsetWidth;
-          if (el && h > 0) {
-            el.style.width = '100%';
-            el.style.height = `${h}px`;
-          }
-          if (w > 0 && parent.style) {
-            // keep parent from collapsing
-            if (!parent.style.minHeight) parent.style.minHeight = '480px';
-          }
+        if (parent && el) {
+          const rect = parent.getBoundingClientRect();
+          const h = Math.max(Math.floor(rect.height), parent.clientHeight || 0, 1);
+          const w = Math.max(Math.floor(rect.width), parent.clientWidth || 0, 1);
+          el.style.width = `${w}px`;
+          el.style.height = `${h}px`;
         }
         if (typeof map.resize === 'function') map.resize();
       } catch { /* ignore */ }
@@ -522,7 +517,7 @@ const _MapCanvas: React.ForwardRefRenderFunction<MapCanvasHandle, MapCanvasProps
             style={{
               width: '100%',
               height: '100%',
-              minHeight: 480,
+              minHeight: 0,
               opacity: mapVisible ? 1 : 0,
               transition: 'opacity 0.25s ease',
               background: 'var(--bg)',
