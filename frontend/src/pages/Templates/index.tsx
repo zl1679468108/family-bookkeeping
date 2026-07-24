@@ -8,6 +8,7 @@ import { TemplateDetailModal } from './components/TemplateDetailModal'
 import { TemplateFormModal } from './components/TemplateFormModal'
 import { useExecuteRecurring } from '../../hooks/useTemplates'
 import { notify } from '../../utils/notifications'
+import { notifyError } from '../../utils/notifyError'
 
 const Templates: React.FC = () => {
   const {
@@ -89,7 +90,7 @@ const Templates: React.FC = () => {
       const { executed, skipped } = result as { executed: number; skipped: number }
       notify({ type: 'success', message: `周期模板执行完成：成功 ${executed} 个，跳过 ${skipped} 个` })
     } catch (err: any) {
-      notify({ type: 'error', message: err?.message || '执行周期模板失败' })
+      notifyError(err, '执行周期模板失败')
     }
   }
 

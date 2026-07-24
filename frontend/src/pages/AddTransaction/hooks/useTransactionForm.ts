@@ -9,6 +9,7 @@ import { renderCategoryIcon } from '../../../utils/renderCategoryIcon'
 import type { DropdownOption } from '../../../components/ui/Dropdown'
 import { useDebouncedAction } from '../../../hooks/useDebouncedAction'
 import { notify } from '../../../utils/notifications'
+import { notifyError } from '../../../utils/notifyError'
 import { parseImageList } from '../../../utils/parseImageList'
 import { compressImage } from '../../../utils/imageCompress'
 import type { LocationResult } from '@family-bookkeeping/shared-types'
@@ -225,7 +226,7 @@ export function useTransactionForm() {
       handleReset()
       navigate('/transactions')
     } catch (err: any) {
-      notify({ type: 'error', message: err?.message || (isEditMode ? '更新失败' : '保存失败') })
+      notifyError(err, (isEditMode ? '更新失败' : '保存失败') )
     }
   })
 

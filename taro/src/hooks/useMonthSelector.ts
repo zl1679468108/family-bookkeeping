@@ -5,6 +5,7 @@
  * 在 Home/Transactions/Budgets 等页面使用。
  */
 import { useState, useMemo } from "react";
+import { monthDateRange, toMonthKey } from "../utils/month";
 
 interface UseMonthSelectorOptions {
   /** 初始月份（默认当前月） */
@@ -19,28 +20,21 @@ export function useMonthSelector(options: UseMonthSelectorOptions = {}) {
     options.initialMonth ?? now.getMonth() + 1,
   );
 
-  const dateRange = useMemo(() => {
-    const sm = String(month).padStart(2, "0");
-    const lastDay = new Date(year, month, 0).getDate();
-    return {
-      start: `${year}-${sm}-01`,
-      end: `${year}-${sm}-${String(lastDay).padStart(2, "0")}`,
-    };
-  }, [year, month]);
+  const dateRange = useMemo(() => monthDateRange(year, month), [year, month]);
 
-  const monthKey = useMemo(
-    () => `${year}-${String(month).padStart(2, "0")}-01`,
-    [year, month],
-  );
+  const monthKey = useMemo(() => toMonthKey(year, month), [year, month]);
 
   return {
     year,
     month,
     setYear,
     setMonth,
-    /** { start: '2026-06-01', end: '2026-06-30' } */
     dateRange,
-    /** '2026-06-01' */
     monthKey,
+    /** 同时设置年月 */
+    setYearMonth: (y: number, m: number) => {
+      setYear(y);
+      setMonth(m);
+    },
   };
 }

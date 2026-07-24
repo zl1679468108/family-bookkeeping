@@ -135,7 +135,7 @@ export default function BudgetsPage() {
       refetchStatus();
       setEditingId(null);
     }, "保存中…").catch((err: any) => {
-      Taro.showToast({ title: err?.message || "预算保存失败", icon: "none" });
+      toastError(err, "预算保存失败");
       setEditingId(null);
     });
   };

@@ -37,7 +37,7 @@ import {
   getPlatformIconSvgDataUrl,
 } from "../../utils/platformIcons";
 import { useManualQuery } from "../../hooks/useManualQuery";
-import { useSubmit } from "../../hooks/useSubmit";
+import { useSubmit, toastError } from "../../hooks/useSubmit";
 import { useReorder } from "../../hooks/useReorder";
 import "./index.scss";
 
@@ -210,10 +210,7 @@ export default function CategoriesPage() {
       closeForm();
       refetch();
     }, "保存中…").catch((err: any) => {
-      Taro.showToast({
-        title: err?.message || (isEdit ? "更新失败" : "创建失败"),
-        icon: "none",
-      });
+      toastError(err, (isEdit ? "更新失败" : "创建失败"));
       // 失败也关闭表单，避免 loading 卡住
       closeForm();
     });
@@ -539,7 +536,7 @@ export default function CategoriesPage() {
             setDeletingCat(null);
             refetch();
           }, "删除中…").catch((err: any) => {
-            Taro.showToast({ title: err?.message || "删除失败", icon: "none" });
+            toastError(err, "删除失败");
             setShowDeleteConfirm(false);
             setDeletingCat(null);
           });

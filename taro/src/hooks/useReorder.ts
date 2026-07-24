@@ -24,7 +24,7 @@
 import { useState, useCallback } from "react";
 import Taro from "@tarojs/taro";
 import type { QueryClient } from "@tanstack/react-query";
-import { useSubmit } from "./useSubmit";
+import { useSubmit, toastError } from "./useSubmit";
 
 export interface UseReorderOptions<T> {
   /** 非排序模式下的基准有序列表（已按 sort_order 排好） */
@@ -156,10 +156,7 @@ export function useReorder<T>({
       refetch();
     }, "保存中…").catch((err: any) => {
       console.error("[useReorder] 保存失败:", err);
-      Taro.showToast({
-        title: err?.message || "排序保存失败",
-        icon: "none",
-      });
+      toastError(err, "排序保存失败");
     });
   }, [sortOrder, items, getKey, onSave, queryClient, queryKey, refetch, successText, run]);
 

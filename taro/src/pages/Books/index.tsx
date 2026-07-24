@@ -178,7 +178,7 @@ export default function BooksPage() {
       refetchMembers();
       refetch(); // 刷新列表（成员数可能变化）
     }, "发送中…").catch((err: any) => {
-      Taro.showToast({ title: err?.message || "邀请失败，请检查邮箱", icon: "none" });
+      toastError(err, "邀请失败，请检查邮箱");
       setInviteEmail("");
       setDetailMode("info");
     });
@@ -224,7 +224,7 @@ export default function BooksPage() {
       closeDetail();
       refetch();
     }, "删除中…").catch((err: any) => {
-      Taro.showToast({ title: err?.message || "删除失败", icon: "none" });
+      toastError(err, "删除失败");
       setDeletingBook(null);
     });
   };
@@ -239,7 +239,7 @@ export default function BooksPage() {
       refetchMembers();
       refetch();
     }, "移除中…").catch((err: any) => {
-      Taro.showToast({ title: err?.message || "移除失败", icon: "none" });
+      toastError(err, "移除失败");
       setRemovingMember(null);
       setShowRemoveConfirm(false);
     });

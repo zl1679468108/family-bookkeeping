@@ -114,6 +114,11 @@
 - Login / Register / ForgotPassword / EditProfile / About / Profile：与 PC 核心一致，无需改动（Profile 无主题切换，属可选差异）
 - 验证：`tsc --noEmit` 零错误；`build:weapp` 通过
 
+### ✅ 已完成（2026-07-24 公共复用第三批）
+- **错误文案扫尾**：`getErrorMessage` 支持 `errMsg`；PC `notifyError`；Taro 多页/useReorder/BookCard 等 `toastError` ✅
+- **month utils**：`monthDateRange` / `toMonthKey` / `parseMonthKey`，`useMonthSelector` 消费公共函数 ✅
+- BookSettings 转移 footer → FooterActions ✅
+
 ### ✅ 已完成（2026-07-24 公共复用续）
 - **date utils**（PC/Taro 对齐）：`formatDateYMD` / `formatFriendlyDate` / `todayBeijing`；旧 `fmtDate` 别名保留 ✅
 - **getErrorMessage + toastError**：mutation / 提交失败文案统一 ✅

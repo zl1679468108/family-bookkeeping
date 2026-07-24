@@ -19,7 +19,7 @@ import {
 } from "../../services/templatesApi";
 import { useCategories } from "../../hooks/useCategories";
 import { useManualQuery } from "../../hooks/useManualQuery";
-import { useSubmit } from "../../hooks/useSubmit";
+import { useSubmit, toastError } from "../../hooks/useSubmit";
 import { isIconUrl } from "../../utils/renderCategoryIcon";
 import LocationPicker, { LocationResult } from "../../components/LocationPicker";
 import Icon, { ICON_COLOR } from "../../components/Icon";
@@ -118,7 +118,7 @@ export default function TemplateEdit() {
       Taro.showToast({ title: isEdit ? "模板已更新" : "模板已创建", icon: "success" });
       setTimeout(() => Taro.navigateBack(), 500);
     }, "保存中…").catch((err: any) => {
-      Taro.showToast({ title: err?.message || (isEdit ? "更新失败" : "创建失败"), icon: "none" });
+      toastError(err, isEdit ? "更新失败" : "创建失败");
     });
   };
 
@@ -129,7 +129,7 @@ export default function TemplateEdit() {
       Taro.showToast({ title: "模板已删除", icon: "success" });
       setTimeout(() => Taro.navigateBack(), 500);
     }, "删除中…").catch((err: any) => {
-      Taro.showToast({ title: err?.message || "删除失败", icon: "none" });
+      toastError(err, "删除失败");
       setShowDelete(false);
     });
   };

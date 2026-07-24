@@ -81,7 +81,7 @@ export default function BookMembers() {
       setRemoveTarget(null);
       qc.invalidateQueries({ queryKey: ["books", bookId, "members"] });
     }, "移除中…").catch((err: any) => {
-      Taro.showToast({ title: err?.message || "移除失败", icon: "none" });
+      toastError(err, "移除失败");
       setRemoveTarget(null);
     });
   };
@@ -95,7 +95,7 @@ export default function BookMembers() {
       setShowInvite(false);
       qc.invalidateQueries({ queryKey: ["books", bookId, "members"] });
     }, "发送中…").catch((err: any) => {
-      Taro.showToast({ title: err?.message || "邀请失败", icon: "none" });
+      toastError(err, "邀请失败");
       setShowInvite(false);
     });
   };

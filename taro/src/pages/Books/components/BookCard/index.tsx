@@ -10,6 +10,7 @@ import { useManualQuery } from "../../../../hooks/useManualQuery";
 import type { Book } from "../../../../types";
 import { Button } from "../../../../components/ui";
 import "./index.scss";
+import { toastError } from "../../../../hooks/useSubmit";
 
 interface BookCardProps {
   book: Book;
@@ -54,10 +55,7 @@ export default function BookCard({
         Taro.showToast({ title: "邀请已发送", icon: "success" });
       })
       .catch((err: any) => {
-        Taro.showToast({
-          title: err?.message || "邀请失败",
-          icon: "error",
-        });
+        toastError(err, "邀请失败");
         // 失败时关闭邀请输入，避免卡住
         setShowInvite(false);
         setInviteEmail("");

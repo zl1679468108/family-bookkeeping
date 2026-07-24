@@ -21,13 +21,14 @@ import {
   changePassword as apiChangePassword,
   getProfile,
 } from "../../services/authApi";
-import { useSubmit } from "../../hooks/useSubmit";
+import { useSubmit, toastError } from "../../hooks/useSubmit";
 import {
   ensurePrivacyAuthorize,
   isPrivacyError,
   openPrivacySetting,
 } from "../../utils/privacy";
 import "./index.scss";
+import { getErrorMessage } from "../../utils/errorMessage";
 
 export default function EditProfile() {
   const { user, refreshUser } = useAuth();
@@ -93,7 +94,7 @@ export default function EditProfile() {
         });
       })
       .catch((err: any) => {
-        const msg = err?.errMsg || err?.message || "";
+        const msg = getErrorMessage(err, "");
         if (msg.indexOf("cancel") !== -1) return;
         if (isPrivacyError(err)) {
           Taro.showToast({ title: "请先同意隐私协议", icon: "none" });
@@ -127,10 +128,7 @@ export default function EditProfile() {
       Taro.showToast({ title: "保存成功", icon: "success" });
       setTimeout(() => Taro.navigateBack(), 600);
     }, "保存中…").catch((err: any) => {
-      Taro.showToast({
-        title: err?.message || "保存失败，请重试",
-        icon: "none",
-      });
+      toastError(err, "保存失败，请重试");
     });
   }, [username, email, avatarUrl, refreshUser]);
 
@@ -175,10 +173,7 @@ export default function EditProfile() {
       setNewPwd("");
       setConfirmPwd("");
     }, "提交中…").catch((err: any) => {
-      Taro.showToast({
-        title: err?.message || "修改失败，请重试",
-        icon: "none",
-      });
+      toastError(err, "修改失败，请重试");
     });
   }, [oldPwd, newPwd, confirmPwd]);
 

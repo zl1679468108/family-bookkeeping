@@ -10,6 +10,7 @@ import { useFocusItem } from '../../hooks/useFocusItem'
 import { useMonthRangeOptions } from '../../hooks/useMonthRangeOptions'
 import type { BudgetRecord, UpsertBudgetInput } from '@family-bookkeeping/shared-types';
 import { notify } from '../../utils/notifications'
+import { notifyError } from '../../utils/notifyError'
 import { Skeleton } from '../../components/ui/Skeleton'
 import { GlobalModal, DetailItem, Space } from '../../components/ui'
 import { Card } from '../../components/ui/Card'
@@ -119,7 +120,7 @@ const Budgets: React.FC = () => {
       queryClient.invalidateQueries({ queryKey: ['budgets', 'status', selectedMonth] })
     },
     onError: (err: any) => {
-      notify({ type: 'error', message: err?.message || '预算保存失败' })
+      notifyError(err, '预算保存失败')
     },
   })
 
@@ -162,7 +163,7 @@ const Budgets: React.FC = () => {
       queryClient.invalidateQueries({ queryKey: ['budgets', selectedMonth] })
       queryClient.invalidateQueries({ queryKey: ['budgets', 'status', selectedMonth] })
     } catch (err: any) {
-      notify({ type: 'error', message: err?.message || '复制上月预算失败' })
+      notifyError(err, '复制上月预算失败')
     }
   })
 

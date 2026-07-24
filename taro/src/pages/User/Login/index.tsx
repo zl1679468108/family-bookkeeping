@@ -8,7 +8,7 @@ import Taro from "@tarojs/taro";
 import { useAuth } from "../../../context/AuthContext";
 import { useTheme } from "../../../context/ThemeContext";
 import { useNavBarTheme } from "../../../hooks/useNavBarTheme";
-import { useSubmit } from "../../../hooks/useSubmit";
+import { useSubmit, toastError } from "../../../hooks/useSubmit";
 import { getCaptcha } from "../../../services/authApi";
 import "./index.scss";
 
@@ -71,7 +71,7 @@ export default function Login() {
       }, 600);
     }, "登录中…").catch((err: any) => {
       console.error("[Login] signIn failed:", err);
-      Taro.showToast({ title: err?.message || "登录失败", icon: "none" });
+      toastError(err, "登录失败");
       refreshCaptcha();
     });
   };

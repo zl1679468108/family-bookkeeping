@@ -5,6 +5,7 @@ import { useDebouncedAction } from '../../../hooks/useDebouncedAction'
 import AuthLayout from '../../../components/AuthLayout'
 import { ForgotIllustration } from '../../../components/AuthLayout/AuthIllustrations'
 import { Button } from '../../../components/ui/Button'
+import { getErrorMessage } from '../../../utils/errorMessage'
 
 const ResetPassword: React.FC = () => {
   const [searchParams] = useSearchParams()
@@ -39,7 +40,7 @@ const ResetPassword: React.FC = () => {
       await resetPasswordByToken(token, password)
       setDone(true)
     } catch (err: any) {
-      setMessage(err?.message || '重置失败，请重试')
+      setMessage(getErrorMessage(err, '重置失败，请重试'))
       setMessageType('error')
     }
   })

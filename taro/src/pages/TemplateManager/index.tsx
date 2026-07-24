@@ -25,7 +25,7 @@ import {
 } from "../../services/templatesApi";
 import { useCategories } from "../../hooks/useCategories";
 import { useManualQuery } from "../../hooks/useManualQuery";
-import { useSubmit } from "../../hooks/useSubmit";
+import { useSubmit, toastError } from "../../hooks/useSubmit";
 import { useReorder } from "../../hooks/useReorder";
 import { isIconUrl } from "../../utils/renderCategoryIcon";
 import type { Template } from "../../types";
@@ -189,7 +189,7 @@ export default function TemplateManager() {
       setDeleteId(null);
       refetch();
     }, "删除中…").catch((err: any) => {
-      Taro.showToast({ title: err?.message || "删除失败", icon: "none" });
+      toastError(err, "删除失败");
       setShowDelete(false);
       setDeleteId(null);
     });
@@ -239,7 +239,7 @@ export default function TemplateManager() {
       setEditingId(null);
       refetch();
     }, "保存中…").catch((err: any) => {
-      Taro.showToast({ title: err?.message || "操作失败", icon: "none" });
+      toastError(err, "操作失败");
       setShowForm(false);
       setEditingId(null);
     });
@@ -277,7 +277,7 @@ export default function TemplateManager() {
       setTimeout(() => Taro.navigateTo({ url: "/pages/AddTransaction/index" }), 600);
     } catch (err: any) {
       Taro.hideLoading();
-      Taro.showToast({ title: err?.message || "执行失败", icon: "none" });
+      toastError(err, "执行失败");
     }
   };
 

@@ -11,7 +11,7 @@ import Taro, { getCurrentInstance } from "@tarojs/taro";
 import { useQueryClient } from "@tanstack/react-query";
 import PageContainer from "../../components/PageContainer";
 import ConfirmDialog from "../../components/ConfirmDialog";
-import { AppSection, MenuList, Button, StickyActionBar } from "../../components/ui";
+import { AppSection, MenuList, Button, StickyActionBar, FooterActions } from "../../components/ui";
 import SheetHeader from "../../components/SheetHeader";
 import { BOOK_ICONS, renderBookIconSvg } from "../../utils/bookIcons";
 import {
@@ -32,6 +32,7 @@ import {
 import { useManualQuery } from "../../hooks/useManualQuery";
 import { useSubmit, toastError } from "../../hooks/useSubmit";
 import "./index.scss";
+import { getErrorMessage } from "../../utils/errorMessage";
 
 interface Member {
   id: string;
@@ -157,7 +158,7 @@ export default function BookSettings() {
     });
       })
       .catch((err: any) => {
-        const msg = err?.errMsg || err?.message || "";
+        const msg = getErrorMessage(err, "");
         if (msg.indexOf("cancel") !== -1) return;
         if (isPrivacyError(err)) {
           Taro.showToast({ title: "请先同意隐私协议", icon: "none" });
@@ -238,7 +239,7 @@ export default function BookSettings() {
       Taro.showToast({ title: "所有权已转移", icon: "success" });
       setShowTransfer(false);
     }, "转移中…").catch((err: any) => {
-      Taro.showToast({ title: err?.message || "转移失败", icon: "none" });
+      toastError(err, "转移失败");
       setShowTransfer(false);
     });
   };
@@ -571,9 +572,11 @@ export default function BookSettings() {
               </View>
 
               <View className="bs-sheet__footer">
-                <Button variant="primary" size="lg" block onClick={handleSubmitTransfer}>
-                  确认转移
-                </Button>
+                <FooterActions align="stretch">
+                  <Button variant="primary" size="lg" block onClick={handleSubmitTransfer}>
+                    确认转移
+                  </Button>
+                </FooterActions>
               </View>
             </View>
 

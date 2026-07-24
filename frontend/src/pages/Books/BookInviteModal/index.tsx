@@ -6,6 +6,7 @@ import { GlobalModal } from '../../../components/ui';
 import { Button } from '../../../components/ui/Button';
 import { Input } from '../../../components/ui/Input';
 import './index.scss';
+import { getErrorMessage } from '../../../utils/errorMessage'
 
 interface BookInviteModalProps {
   open: boolean;
@@ -56,7 +57,7 @@ export const BookInviteModal: React.FC<BookInviteModalProps> = ({ open, onClose,
         onSuccess?.();
       })
       .catch((err: any) => {
-        const msg = err?.message || '加入失败，请重试';
+        const msg = getErrorMessage(err, '加入失败，请重试');
         notify({ type: 'error', message: Array.isArray(msg) ? msg[0] : msg });
       })
       .finally(() => {

@@ -16,7 +16,7 @@ import {
 } from "../../services/transactionsApi";
 import { getTemplates } from "../../services/templatesApi";
 import { useCategoryList } from "../../hooks/useCategories";
-import { useSubmit } from "../../hooks/useSubmit";
+import { useSubmit, toastError } from "../../hooks/useSubmit";
 import FieldRow from "../../components/form/FieldRow";
 import SectionCard from "../../components/form/SectionCard";
 import NoteField from "../../components/form/NoteField";
@@ -320,10 +320,7 @@ export default function AddTransaction() {
       });
       setTimeout(() => Taro.navigateBack(), 600);
     }, "保存中…").catch((err: any) => {
-      Taro.showToast({
-        title: err?.message || "保存失败",
-        icon: "none",
-      });
+      toastError(err, "保存失败");
     });
   };
 

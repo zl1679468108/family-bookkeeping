@@ -2,6 +2,6 @@
 export function getErrorMessage(err: unknown, fallback = "操作失败"): string {
   if (!err) return fallback;
   if (typeof err === "string" && err.trim()) return err;
-  const anyErr = err as { message?: string; error?: string; msg?: string };
-  return anyErr?.message || anyErr?.error || anyErr?.msg || fallback;
+  const anyErr = err as { message?: string; errMsg?: string; error?: string; msg?: string };
+  return anyErr?.message || anyErr?.errMsg || anyErr?.error || anyErr?.msg || fallback;
 }

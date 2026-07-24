@@ -11,6 +11,7 @@ import {
   openPrivacySetting,
 } from "../../../utils/privacy";
 import "./index.scss";
+import { getErrorMessage } from "../../../utils/errorMessage";
 
 export interface ImageUploadProps {
   /** 已上传的图片 URL（从服务器获取） */
@@ -66,7 +67,7 @@ export default function ImageUpload({
         }
       })
       .catch((err: any) => {
-        const msg = err?.errMsg || err?.message || "";
+        const msg = getErrorMessage(err, "");
         // 用户主动取消不提示
         if (msg.indexOf("cancel") !== -1) return;
         if (isPrivacyError(err)) {

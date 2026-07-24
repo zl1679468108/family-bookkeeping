@@ -35,3 +35,6 @@ export {
 export type { BudgetVariant, BudgetCategoryLike } from "./budget";
 
 export { getErrorMessage } from "./errorMessage";
+
+export { monthDateRange, toMonthKey, parseMonthKey } from "./month";
+

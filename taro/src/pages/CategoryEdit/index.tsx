@@ -32,6 +32,7 @@ import {
 import { useManualQuery } from "../../hooks/useManualQuery";
 import { useSubmit, toastError } from "../../hooks/useSubmit";
 import "./index.scss";
+import { getErrorMessage } from "../../utils/errorMessage";
 
 interface CustomIconItem {
   id: string;
@@ -109,7 +110,7 @@ export default function CategoryEdit() {
     });
       })
       .catch((err: any) => {
-        const msg = err?.errMsg || err?.message || "";
+        const msg = getErrorMessage(err, "");
         if (msg.indexOf("cancel") !== -1) return;
         if (isPrivacyError(err)) {
           Taro.showToast({ title: "请先同意隐私协议", icon: "none" });
@@ -146,7 +147,7 @@ export default function CategoryEdit() {
       Taro.showToast({ title: isEdit ? "分类已更新" : "分类已创建", icon: "success" });
       setTimeout(() => Taro.navigateBack(), 500);
     }, "保存中…").catch((err: any) => {
-      Taro.showToast({ title: err?.message || (isEdit ? "更新失败" : "创建失败"), icon: "none" });
+      toastError(err, (isEdit ? "更新失败" : "创建失败"));
     });
   };
 
@@ -157,7 +158,7 @@ export default function CategoryEdit() {
       Taro.showToast({ title: "已删除", icon: "success" });
       setTimeout(() => Taro.navigateBack(), 500);
     }, "删除中…").catch((err: any) => {
-      Taro.showToast({ title: err?.message || "删除失败", icon: "none" });
+      toastError(err, "删除失败");
       setShowDelete(false);
     });
   };
