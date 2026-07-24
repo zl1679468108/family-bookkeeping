@@ -38,7 +38,7 @@ import {
 } from "../../utils/confirmCopy";
 import { FORM_ALREADY_CURRENT_BOOK, FORM_EMAIL_REQUIRED, FORM_PEER_EMAIL_PLACEHOLDER } from "../../utils/formCopy";
 import { validateEmail } from "../../utils/validation";
-import { validateInviteCode } from "../../utils/validation";
+import { validateInviteCode, normalizeInviteCode } from "../../utils/validation";
 import {
   SUCCESS_JOINED,
   SUCCESS_INVITE_SENT,
@@ -96,13 +96,14 @@ export default function BooksPage() {
 
   const handleJoinSubmit = () => {
     const code = joinCode.trim();
-    const inviteErr = validateInviteCode(code);
+    const normalized = normalizeInviteCode(code);
+    const inviteErr = validateInviteCode(normalized);
     if (inviteErr) {
       toastInfo(inviteErr);
       return;
     }
     run(async () => {
-      await joinByInvitation(code.toUpperCase());
+      await joinByInvitation(normalized);
       setShowJoinSheet(false);
       setJoinCode("");
       toastSuccess(SUCCESS_JOINED);

@@ -136,6 +136,12 @@
 - `fmtAmount` 并入 shared budget；双端 `renderCategoryIcon` 统一 `isIconUrl/isPlatformIcon/isBookIconKey` 判定
 - 附：PC 暗色第六轮与 sortOrder 已在上一提交
 
+#### 2026-07-24 月份/年份选项 + 邀请码归一 shared 化
+- `month.ts` 增补：`generateMonthOptions` / `generateYearOptions` / `currentMonthKey`
+- 接线：useMonthRangeOptions、日历/报表/年报选项；Taro useYearSelector
+- `normalizeInviteCode`：FE 邀请加入 + Taro Books/Onboarding 统一 trim+大写
+- 验证：frontend / taro `tsc --noEmit`
+
 #### 2026-07-24 流水筛选/分组 + OCR 表单补丁 shared 化
 - 新增 `transactionList`：时间筛选区间（近7/30天口径统一）、类型索引、按日分组、日期标题、收支汇总
 - 新增 `ocrForm`：`applyOcrResultToForm` / `isOcrResultUseful`；PC 记一笔 OCR 接线

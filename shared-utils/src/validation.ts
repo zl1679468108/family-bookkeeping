@@ -74,6 +74,11 @@ export function validateEmail(
   return null
 }
 
+/** 邀请码：trim + 大写（加入账本提交口径） */
+export function normalizeInviteCode(code: string): string {
+  return String(code ?? '').trim().toUpperCase()
+}
+
 /** 邀请码：去空白后至少 min 位（默认 4） */
 export function validateInviteCode(
   code: string,

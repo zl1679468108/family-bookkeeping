@@ -58,3 +58,110 @@ function resolveYearMonth(input: string | Date): { year: number; month: number }
   }
   return { year: 0, month: 0 }
 }
+
+export type MonthOption = {
+  key: string
+  label: string
+  isHeader?: boolean
+}
+
+export type MonthKeyFormat = 'monthDay' | 'month'
+export type MonthLabelStyle = 'monthOnly' | 'yearMonth' | 'yearMonthPad'
+
+export type GenerateMonthOptionsParams = {
+  yearsBefore?: number
+  yearsAfter?: number
+  now?: Date
+  /** monthDay=YYYY-MM-01；month=YYYY-MM */
+  keyFormat?: MonthKeyFormat
+  /** monthOnly=MM 月；yearMonth=2024年7月；yearMonthPad=2024 年 07 月 */
+  labelStyle?: MonthLabelStyle
+  /** 是否插入年份分组头 */
+  withYearHeaders?: boolean
+}
+
+/** 当前月 key（默认 YYYY-MM-01） */
+export function currentMonthKey(
+  now: Date = new Date(),
+  keyFormat: MonthKeyFormat = 'monthDay',
+): string {
+  const year = now.getFullYear()
+  const month = now.getMonth() + 1
+  if (keyFormat === 'month') return `${year}-${String(month).padStart(2, '0')}`
+  return toMonthKey(year, month)
+}
+
+/**
+ * 生成年月选项（Budgets/Map 分组下拉、报表月份、日历月份共用）
+ */
+export function generateMonthOptions(params: GenerateMonthOptionsParams = {}): MonthOption[] {
+  const {
+    yearsBefore = 3,
+    yearsAfter = 1,
+    now = new Date(),
+    keyFormat = 'monthDay',
+    labelStyle = 'monthOnly',
+    withYearHeaders = keyFormat === 'monthDay' && labelStyle === 'monthOnly',
+  } = params
+
+  const currentYear = now.getFullYear()
+  const startYear = currentYear - yearsBefore
+  const endYear = currentYear + yearsAfter
+  const result: MonthOption[] = []
+
+  for (let year = startYear; year <= endYear; year += 1) {
+    if (withYearHeaders) {
+      result.push({ key: `year-${year}`, label: `${year} 年`, isHeader: true })
+    }
+    for (let month = 1; month <= 12; month += 1) {
+      const key =
+        keyFormat === 'month'
+          ? `${year}-${String(month).padStart(2, '0')}`
+          : toMonthKey(year, month)
+      let label: string
+      if (labelStyle === 'monthOnly') {
+        label = `${String(month).padStart(2, '0')} 月`
+      } else if (labelStyle === 'yearMonthPad') {
+        label = formatMonthDisplay(key)
+      } else {
+        label = formatMonthDisplayCompact(key)
+      }
+      result.push({ key, label })
+    }
+  }
+  return result
+}
+
+export type GenerateYearOptionsParams = {
+  yearsBefore?: number
+  yearsAfter?: number
+  now?: Date
+  /** true: 从新到旧 */
+  descending?: boolean
+  /** spaced: "2024 年"；compact: "2024年" */
+  labelStyle?: 'spaced' | 'compact'
+}
+
+/** 年份选项（年报/报表对比） */
+export function generateYearOptions(
+  params: GenerateYearOptionsParams = {},
+): Array<{ key: string; label: string }> {
+  const {
+    yearsBefore = 5,
+    yearsAfter = 0,
+    now = new Date(),
+    descending = false,
+    labelStyle = 'spaced',
+  } = params
+  const currentYear = now.getFullYear()
+  const years: number[] = []
+  for (let y = currentYear - yearsBefore; y <= currentYear + yearsAfter; y += 1) {
+    years.push(y)
+  }
+  if (descending) years.reverse()
+  return years.map((y) => ({
+    key: String(y),
+    label: labelStyle === 'compact' ? `${y}年` : `${y} 年`,
+  }))
+}
+

@@ -21,7 +21,7 @@ import { toastSuccess, toastInfo } from "../../utils/toast";
 import { INVITE_CODE_HELP } from "../../utils/inviteCopy";
 import { SUCCESS_CREATED, SUCCESS_JOINED } from "../../utils/successCopy";
 import { FORM_INVITE_CODE_PLACEHOLDER, FORM_BACK } from "../../utils/formCopy";
-import { validateInviteCode } from "../../utils/validation";
+import { validateInviteCode, normalizeInviteCode } from "../../utils/validation";
 import { ERROR_CREATE_FAILED_RETRY, ERROR_INVALID_INVITE } from "../../utils/errorCopy";
 import Icon, { ICON_COLOR } from "../../components/Icon";
 
@@ -66,7 +66,7 @@ export default function Onboarding() {
   };
 
   const handleJoin = () => {
-    const trimmed = code.trim().toUpperCase();
+    const trimmed = normalizeInviteCode(code);
     const inviteErr = validateInviteCode(trimmed);
     if (inviteErr) {
       toastInfo(inviteErr);

@@ -6,7 +6,7 @@ import { GC_TIME_LONG, STALE } from '../../../utils/cachePolicy'
 import { startOfMonth, endOfMonth, format, subMonths, parseISO } from 'date-fns'
 import { fetchMonthlyTrend, fetchCategoryBreakdown, fetchDailySummary, fetchYearOverYear } from '../../../services/statisticsApi'
 import type { CategoryBreakdownItem } from '@family-bookkeeping/shared-types'
-import { formatMonthDisplay } from '../../../utils/month'
+import { generateMonthOptions, generateYearOptions } from '../../../utils/month'
 
 export enum PeriodType {
   Month = 'month',
@@ -30,28 +30,29 @@ export function useReportData() {
   const currentMonth = useMemo(() => format(now, 'yyyy-MM'), [now])
   const currentYear = useMemo(() => now.getFullYear(), [now])
 
-  const yearOptions = useMemo(() => {
-    const years: { key: string; label: string }[] = []
-    for (let i = -5; i <= 5; i++) {
-      const y = currentYear + i
-      years.push({ key: String(y), label: `${y}年` })
-    }
-    return years
-  }, [currentYear])
+  const yearOptions = useMemo(
+    () =>
+      generateYearOptions({
+        yearsBefore: 5,
+        yearsAfter: 5,
+        now,
+        labelStyle: 'compact',
+      }),
+    [now],
+  )
 
-  const monthOptions = useMemo(() => {
-    const months: { key: string; label: string }[] = []
-    for (let y = currentYear - 5; y <= currentYear + 5; y++) {
-      for (let i = 0; i < 12; i++) {
-        const date = new Date(y, i, 1)
-        months.push({
-          key: format(date, 'yyyy-MM'),
-          label: formatMonthDisplay(date),
-        })
-      }
-    }
-    return months
-  }, [currentYear])
+  const monthOptions = useMemo(
+    () =>
+      generateMonthOptions({
+        yearsBefore: 5,
+        yearsAfter: 5,
+        now,
+        keyFormat: 'month',
+        labelStyle: 'yearMonthPad',
+        withYearHeaders: false,
+      }).map(({ key, label }) => ({ key, label })),
+    [now],
+  )
 
   const { startDate, endDate, months, dailyDataMonths, yearCompare } = useMemo(() => {
     switch (period) {

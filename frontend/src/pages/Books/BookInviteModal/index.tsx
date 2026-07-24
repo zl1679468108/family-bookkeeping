@@ -12,7 +12,7 @@ import { getErrorMessage } from '../../../utils/errorMessage'
 import { queryKeys } from '../../../utils/queryKeys'
 import { INVITE_CODE_HELP_LABEL, INVITE_CODE_HELP_BODY } from '../../../utils/inviteCopy'
 import { SUCCESS_JOINED } from '../../../utils/successCopy'
-import { validateInviteCode } from '../../../utils/validation'
+import { validateInviteCode, normalizeInviteCode } from '../../../utils/validation'
 
 interface BookInviteModalProps {
   open: boolean;
@@ -41,7 +41,7 @@ export const BookInviteModal: React.FC<BookInviteModalProps> = ({ open, onClose,
   };
 
   const handleSubmit = () => {
-    const code = inviteCode.trim();
+    const code = normalizeInviteCode(inviteCode);
     const inviteErr = validateInviteCode(code);
     if (inviteErr) {
       notifyInfo(inviteErr);
@@ -56,7 +56,7 @@ export const BookInviteModal: React.FC<BookInviteModalProps> = ({ open, onClose,
       resetJoining();
     }, 10000);
 
-    joinByInvitation(code.toUpperCase(), { notifyOnError: false })
+    joinByInvitation(code, { notifyOnError: false })
       .then(() => {
         notifySuccess(SUCCESS_JOINED);
         queryClient.invalidateQueries({ queryKey: queryKeys.books.all });

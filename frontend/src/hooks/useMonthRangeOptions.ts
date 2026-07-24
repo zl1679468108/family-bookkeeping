@@ -1,15 +1,18 @@
 /**
  * useMonthRangeOptions — 月份范围选项生成器（年份分组）
  *
- * 生成近 3 年到未来 1 年的年月选项，按年份分组。
- * 可用于 DropdownSelect 组件的 options 属性。
+ * 纯数据见 shared-utils generateMonthOptions / currentMonthKey
  *
  * 用法：
  *  const { monthOptions, currentMonthKey } = useMonthRangeOptions()
  *  <DropdownSelect options={monthOptions} value={currentMonthKey} />
  */
 import { useMemo } from 'react'
-import { format } from 'date-fns'
+import {
+  generateMonthOptions,
+  currentMonthKey as getCurrentMonthKey,
+  type MonthOption,
+} from '../utils/month'
 
 interface UseMonthRangeOptionsProps {
   /** 往前年数，默认3 */
@@ -24,37 +27,19 @@ export function useMonthRangeOptions(options: UseMonthRangeOptionsProps = {}) {
     yearsAfter = 1,
   } = options
 
-  const currentMonthKey = useMemo(() => {
-    const today = new Date()
-    const firstOfMonth = new Date(today.getFullYear(), today.getMonth(), 1)
-    return format(firstOfMonth, 'yyyy-MM-dd')
-  }, [])
+  const currentMonthKey = useMemo(() => getCurrentMonthKey(), [])
 
-  const monthOptions = useMemo(() => {
-    const result: { key: string; label: string; isHeader?: boolean }[] = []
-    const today = new Date()
-    const currentYear = today.getFullYear()
-
-    const startYear = currentYear - yearsBefore
-    const endYear = currentYear + yearsAfter
-
-    for (let year = startYear; year <= endYear; year++) {
-      // 年份分组头
-      result.push({
-        key: `year-${year}`,
-        label: `${year} 年`,
-        isHeader: true,
-      })
-      for (let month = 0; month < 12; month++) {
-        const date = new Date(year, month, 1)
-        const key = format(date, 'yyyy-MM-dd')
-        const label = format(date, 'MM 月')
-        result.push({ key, label })
-      }
-    }
-
-    return result
-  }, [yearsBefore, yearsAfter])
+  const monthOptions = useMemo(
+    () =>
+      generateMonthOptions({
+        yearsBefore,
+        yearsAfter,
+        keyFormat: 'monthDay',
+        labelStyle: 'monthOnly',
+        withYearHeaders: true,
+      }) as MonthOption[],
+    [yearsBefore, yearsAfter],
+  )
 
   return {
     /** 月份选项列表（含年份分组头），可直接传给 DropdownSelect 的 options */

@@ -1,3 +1,8 @@
+import {
+  toMonthKey as sharedToMonthKey,
+  generateMonthOptions as sharedGenerateMonthOptions,
+} from '../../../utils/month'
+
 import { Solar, HolidayUtil } from 'lunar-javascript';
 
 export interface LunarInfo {
@@ -62,22 +67,17 @@ export const daysInMonth = (year: number, month: number): number =>
 export const firstDayOfWeek = (year: number, month: number): number =>
   new Date(year, month - 1, 1).getDay();
 
+/** 日历用 YYYY-MM（无日） */
 export const toMonthKey = (year: number, month: number): string =>
-  `${year}-${String(month).padStart(2, '0')}`;
+  sharedToMonthKey(year, month).slice(0, 7)
 
-
-export const generateMonthOptions = (): { key: string; label: string }[] => {
-  const options: { key: string; label: string }[] = [];
-  const today = new Date();
-  const startYear = today.getFullYear() - 5;
-  const endYear = today.getFullYear() + 5;
-  for (let y = startYear; y <= endYear; y++) {
-    for (let m = 1; m <= 12; m++) {
-      const key = `${y}-${String(m).padStart(2, '0')}`;
-      options.push({ key, label: `${y}年${m}月` });
-    }
-  }
-  return options;
-};
+export const generateMonthOptions = (): { key: string; label: string }[] =>
+  sharedGenerateMonthOptions({
+    yearsBefore: 5,
+    yearsAfter: 5,
+    keyFormat: 'month',
+    labelStyle: 'yearMonth',
+    withYearHeaders: false,
+  }).map(({ key, label }) => ({ key, label }))
 
 export const WEEKDAY_LABELS = ['日', '一', '二', '三', '四', '五', '六'];

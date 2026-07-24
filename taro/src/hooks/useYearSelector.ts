@@ -4,6 +4,7 @@
  */
 import { useState } from "react";
 import Taro from "@tarojs/taro";
+import { generateYearOptions } from "../utils/month";
 
 const STORAGE_KEY = "selected_report_year";
 
@@ -33,6 +34,6 @@ export function useYearSelector() {
     year,
     setYear,
     currentYear,
-    years: Array.from({ length: 5 }, (_, i) => currentYear - i),
+    years: generateYearOptions({ yearsBefore: 4, yearsAfter: 0, descending: true, labelStyle: "compact" }).map((o) => Number(o.key)),
   };
 }

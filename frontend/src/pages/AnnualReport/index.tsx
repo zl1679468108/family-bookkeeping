@@ -1,5 +1,6 @@
 import React, { useState, useRef, useMemo } from 'react';
 import { useAnnualReport } from '../../hooks/useAnnualReport';
+import { generateYearOptions } from '../../utils/month';
 import { useBook } from '../../hooks/useBook';
 import { useAuth } from '../../utils/auth';
 import { captureLongImage } from '../../utils/exportImage';
@@ -221,14 +222,17 @@ const AnnualReport: React.FC = () => {
 
   const { data, isLoading, error } = useAnnualReport(year);
 
-  // 生成年份选项（前后各 5 年）
-  const yearOptions = useMemo(() => {
-    const options: { key: string; label: string }[] = [];
-    for (let y = CURRENT_YEAR + 5; y >= CURRENT_YEAR - 5; y--) {
-      options.push({ key: String(y), label: `${y} 年` });
-    }
-    return options;
-  }, []);
+  // 生成年份选项（前后各 5 年，新→旧）
+  const yearOptions = useMemo(
+    () =>
+      generateYearOptions({
+        yearsBefore: 5,
+        yearsAfter: 5,
+        descending: true,
+        labelStyle: 'spaced',
+      }),
+    [],
+  );
 
   const handleSaveImage = async () => {
     if (!reportRef.current) {
