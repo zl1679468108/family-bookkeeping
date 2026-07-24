@@ -11,6 +11,8 @@ import "./index.scss";
 import Icon, { ICON_COLOR } from "../../Icon";
 import { FORM_LOCATION_SELECTED } from "../../../utils/formCopy";
 import { ACTION_CLEAR_SELECTION } from "../../../utils/actionCopy";
+import { hasLocationValue, formatCoords } from "../../../utils/locationHelpers";
+import { FIELD_LOCATION } from "../../../utils/fieldCopy";
 
 export interface LocationResult {
   name: string;
@@ -26,9 +28,7 @@ export interface LocationFieldProps {
 export default function LocationField({ value, onChange }: LocationFieldProps) {
   const [visible, setVisible] = useState(false);
 
-  const hasLocation =
-    !!value &&
-    (!!value.name || value.latitude !== undefined || value.longitude !== undefined);
+  const hasLocation = hasLocationValue(value);
 
   const handleConfirm = (result: PickerResult) => {
     // LocationPicker 的「清除」会返回 latitude=0, locationName="" 的特殊信号
@@ -45,6 +45,7 @@ export default function LocationField({ value, onChange }: LocationFieldProps) {
   };
 
   if (hasLocation && value) {
+    const coords = formatCoords(value.latitude, value.longitude, 4);
     return (
       <>
         <View
@@ -52,14 +53,12 @@ export default function LocationField({ value, onChange }: LocationFieldProps) {
           onClick={() => setVisible(true)}
         >
           <View className="ft-loc-info">
-            <Text className="ft-loc-label">位置</Text>
+            <Text className="ft-loc-label">{FIELD_LOCATION}</Text>
             <View className="ft-loc-texts">
               <Text className="ft-loc-name">{value.name || FORM_LOCATION_SELECTED}</Text>
-              {value.latitude !== undefined && value.longitude !== undefined && (
-                <Text className="ft-loc-coords">
-                  {value.latitude.toFixed(4)}, {value.longitude.toFixed(4)}
-                </Text>
-              )}
+              {coords ? (
+                <Text className="ft-loc-coords">{coords}</Text>
+              ) : null}
             </View>
           </View>
           <Text

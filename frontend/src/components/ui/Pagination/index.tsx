@@ -1,6 +1,16 @@
 import React from 'react'
 import { DropdownSelect } from '../Dropdown'
-import { DEFAULT_PAGE_SIZE, DEFAULT_PAGE_SIZE_OPTIONS } from '../../../utils/pagination'
+import {
+  DEFAULT_PAGE_SIZE,
+  DEFAULT_PAGE_SIZE_OPTIONS,
+  ACTION_PREV_PAGE,
+  ACTION_NEXT_PAGE,
+  paginationTotalLabel,
+  shouldShowPagination,
+  isPageAtStart,
+  isPageAtEnd,
+} from '../../../utils/pagination'
+import { cx } from '../../../utils/cx'
 export { DEFAULT_PAGE_SIZE, DEFAULT_PAGE_SIZE_OPTIONS } from '../../../utils/pagination'
 
 /**
@@ -65,8 +75,12 @@ export const Pagination: React.FC<PaginationProps> = ({
 
   // 每页条数下拉：传了 total 默认显示，可显式关闭
   const showSize = showSizeChanger !== false && total !== undefined
+  const defaultInfo = total !== undefined ? paginationTotalLabel(total) : null
 
-  const needShow = computedTotalPages > 1 || showSize || !!info
+  const needShow = shouldShowPagination(
+    computedTotalPages,
+    !!(info ?? defaultInfo) || showSize,
+  )
   if (!needShow) return null
 
   const sizeOptions = pageSizeOptions.map((s) => ({
@@ -80,11 +94,9 @@ export const Pagination: React.FC<PaginationProps> = ({
     onChange(1) // 切换每页条数后回到第一页
   }
 
-  const defaultInfo = total !== undefined ? `共 ${total} 条` : null
-
   return (
     <div
-      className={`pagination-bar pagination-bar--${align} ${className}`.trim()}
+      className={cx('pagination-bar', `pagination-bar--${align}`, className)}
       style={style}
     >
       {info !== undefined ? info : defaultInfo}
@@ -92,10 +104,10 @@ export const Pagination: React.FC<PaginationProps> = ({
       <div className="pagination-controls">
         <button
           className="pagination-btn"
-          disabled={page <= 1}
+          disabled={isPageAtStart(page)}
           onClick={() => onChange(Math.max(1, page - 1))}
         >
-          上一页
+          {ACTION_PREV_PAGE}
         </button>
 
         {total !== undefined && (
@@ -104,10 +116,10 @@ export const Pagination: React.FC<PaginationProps> = ({
 
         <button
           className="pagination-btn"
-          disabled={page >= computedTotalPages}
+          disabled={isPageAtEnd(page, computedTotalPages)}
           onClick={() => onChange(Math.min(computedTotalPages, page + 1))}
         >
-          下一页
+          {ACTION_NEXT_PAGE}
         </button>
 
         {showSize && (

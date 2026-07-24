@@ -85,6 +85,11 @@
 
 ### ✅ 已完成
 
+#### 2026-07-24 分页文案/位置纯逻辑 shared 化
+- pagination：上一页/下一页/共N条/shouldShow/isPageAtStart|End；双端 Pagination 接线
+- locationHelpers：hasLocationValue / formatCoords；LocationDisplay / LocationField 接线
+- 验证：frontend / taro `tsc --noEmit`
+
 #### 2026-07-24 Textarea/字数统计/金额卡文案 shared 化
 - `formatCharCount(Compact)` 入 inputHelpers；PC/Taro Textarea、NoteField 接线
 - AmountCard 金额标签/placeholder 走 fieldCopy/formCopy

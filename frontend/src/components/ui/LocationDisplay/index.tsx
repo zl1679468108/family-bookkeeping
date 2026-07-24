@@ -1,4 +1,6 @@
 import React from 'react'
+import { hasLocationValue, formatCoords } from '../../../utils/locationHelpers'
+import { cx } from '../../../utils/cx'
 
 interface LocationDisplayProps {
   locationName?: string
@@ -19,7 +21,7 @@ export const LocationDisplay: React.FC<LocationDisplayProps> = ({
   onClear,
   showButton = false,
 }) => {
-  const hasLocation = locationName || (latitude && longitude)
+  const hasLocation = hasLocationValue({ locationName, latitude, longitude })
 
   if (!hasLocation) {
     if (showButton && onClick) {
@@ -32,16 +34,15 @@ export const LocationDisplay: React.FC<LocationDisplayProps> = ({
     return null
   }
 
-  const lat = typeof latitude === 'number' ? latitude.toFixed(6) : latitude
-  const lng = typeof longitude === 'number' ? longitude.toFixed(6) : longitude
+  const coords = formatCoords(latitude, longitude, 6)
 
   return (
-    <div className="loc-display">
+    <div className={cx('loc-display')}>
       <div className="loc-display-name">{locationName}</div>
       <div className="loc-display-body">
-        {(latitude || longitude) && (
+        {coords && (
           <div className="loc-display-coords">
-            {lat}, {lng}
+            {coords}
           </div>
         )}
         {poiId && (
