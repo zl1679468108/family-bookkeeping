@@ -1,6 +1,5 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { format } from 'date-fns'
 import { useBook } from '../../hooks/useBook'
 import { useMemberColors } from '../../hooks/useMemberColors'
 import { Card, CardHeader } from '../../components/ui/Card'
@@ -13,7 +12,8 @@ import { EmptyAddTransactionAction } from '../../components/ui/EmptyState/emptyA
 import MemberComparison from './MemberComparison'
 import { TrendChart } from './components/TrendChart'
 import { CategoryRankChart } from './components/CategoryRankChart'
-import { useReportData, PeriodType } from './hooks/useReportData'
+import { useReportData, PeriodType, REPORT_PERIOD_OPTIONS } from './hooks/useReportData'
+import { toYearMonth } from '../../utils/reportPeriod'
 import { formatAmount } from '../../utils/common'
 import { formatMonthDisplay } from '../../utils/month'
 import { EMPTY_NO_CATEGORY_DATA, EMPTY_NO_TRANSACTIONS_PERIOD, EMPTY_MEMBER_COMPARE_NEED_MULTI, EMPTY_SELECT_BOOK } from '../../utils/emptyCopy'
@@ -23,8 +23,12 @@ const Reports: React.FC = () => {
   const { currentBook } = useBook()
   const { isMultiMember } = useMemberColors(currentBook?.id)
   const [tab, setTab] = useState<'analysis' | 'members'>('analysis')
-  const [memberStartMonth, setMemberStartMonth] = useState(format(new Date().setMonth(new Date().getMonth() - 11), 'yyyy-MM'))
-  const [memberEndMonth, setMemberEndMonth] = useState(format(new Date(), 'yyyy-MM'))
+  const [memberStartMonth, setMemberStartMonth] = useState(() => {
+    const d = new Date()
+    d.setMonth(d.getMonth() - 11)
+    return toYearMonth(d)
+  })
+  const [memberEndMonth, setMemberEndMonth] = useState(() => toYearMonth(new Date()))
 
   const {
     period, setPeriod,
@@ -62,14 +66,7 @@ const Reports: React.FC = () => {
     return ''
   })()
 
-  const periodOptions = [
-    { key: PeriodType.Month, label: '本月' },
-    { key: PeriodType.ThreeMonth, label: '近 3 月' },
-    { key: PeriodType.SixMonth, label: '近 6 月' },
-    { key: PeriodType.Year, label: '近 1 年' },
-    { key: PeriodType.MonthCompare, label: '月对比' },
-    { key: PeriodType.YearCompare, label: '年对比' },
-  ]
+  const periodOptions = REPORT_PERIOD_OPTIONS.map(({ key, label }) => ({ key, label }))
 
   return (
     <div className="page-container">

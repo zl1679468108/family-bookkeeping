@@ -3,19 +3,24 @@ import { useQuery } from '@tanstack/react-query'
 import { useBook } from '../../../hooks/useBook'
 import { queryKeys } from '../../../utils/queryKeys'
 import { GC_TIME_LONG, STALE } from '../../../utils/cachePolicy'
-import { startOfMonth, endOfMonth, format, subMonths, parseISO } from 'date-fns'
 import { fetchMonthlyTrend, fetchCategoryBreakdown, fetchDailySummary, fetchYearOverYear } from '../../../services/statisticsApi'
 import type { CategoryBreakdownItem } from '@family-bookkeeping/shared-types'
 import { generateMonthOptions, generateYearOptions } from '../../../utils/month'
+import {
+  PeriodType,
+  resolveReportPeriodRange,
+  monthBoundsFromDate,
+  monthBoundsFromKey,
+  trailingYearRangeEndingAt,
+  toYearMonth,
+  isReportDailyView,
+  isReportMonthCompare,
+  isReportYearCompare,
+  isReportMonthlyTrendView,
+  REPORT_PERIOD_OPTIONS,
+} from '../../../utils/reportPeriod'
 
-export enum PeriodType {
-  Month = 'month',
-  ThreeMonth = '3month',
-  SixMonth = '6month',
-  Year = 'year',
-  MonthCompare = 'monthCompare',
-  YearCompare = 'yearCompare',
-}
+export { PeriodType, REPORT_PERIOD_OPTIONS }
 
 export type MergedBreakdownItem = CategoryBreakdownItem & { type: 'expense' | 'income' }
 
@@ -23,11 +28,15 @@ export function useReportData() {
   const { currentBook } = useBook()
   const bookId = currentBook?.id || ''
   const [period, setPeriod] = useState<PeriodType>(PeriodType.Month)
-  const [monthCompareTarget, setMonthCompareTarget] = useState(format(subMonths(new Date(), 1), 'yyyy-MM'))
-  const [yearCompareTarget, setYearCompareTarget] = useState(new Date().getFullYear() - 1)
+  const [monthCompareTarget, setMonthCompareTarget] = useState(() => {
+    const d = new Date()
+    d.setMonth(d.getMonth() - 1)
+    return toYearMonth(d)
+  })
+  const [yearCompareTarget, setYearCompareTarget] = useState(() => new Date().getFullYear() - 1)
 
   const now = useMemo(() => new Date(), [])
-  const currentMonth = useMemo(() => format(now, 'yyyy-MM'), [now])
+  const currentMonth = useMemo(() => toYearMonth(now), [now])
   const currentYear = useMemo(() => now.getFullYear(), [now])
 
   const yearOptions = useMemo(
@@ -54,71 +63,21 @@ export function useReportData() {
     [now],
   )
 
-  const { startDate, endDate, months, dailyDataMonths, yearCompare } = useMemo(() => {
-    switch (period) {
-      case PeriodType.Month:
-        return {
-          startDate: format(startOfMonth(now), 'yyyy-MM-dd'),
-          endDate: format(endOfMonth(now), 'yyyy-MM-dd'),
-          months: 1,
-          dailyDataMonths: [currentMonth],
-          yearCompare: null,
-        }
-      case PeriodType.ThreeMonth:
-        return {
-          startDate: format(startOfMonth(subMonths(now, 2)), 'yyyy-MM-dd'),
-          endDate: format(endOfMonth(now), 'yyyy-MM-dd'),
-          months: 3,
-          dailyDataMonths: [],
-          yearCompare: null,
-        }
-      case PeriodType.SixMonth:
-        return {
-          startDate: format(startOfMonth(subMonths(now, 5)), 'yyyy-MM-dd'),
-          endDate: format(endOfMonth(now), 'yyyy-MM-dd'),
-          months: 6,
-          dailyDataMonths: [],
-          yearCompare: null,
-        }
-      case PeriodType.Year:
-        return {
-          startDate: format(startOfMonth(subMonths(now, 11)), 'yyyy-MM-dd'),
-          endDate: format(endOfMonth(now), 'yyyy-MM-dd'),
-          months: 12,
-          dailyDataMonths: [],
-          yearCompare: null,
-        }
-      case PeriodType.MonthCompare:
-        return {
-          startDate: format(startOfMonth(parseISO(monthCompareTarget)), 'yyyy-MM-dd'),
-          endDate: format(endOfMonth(now), 'yyyy-MM-dd'),
-          months: 2,
-          dailyDataMonths: [monthCompareTarget, currentMonth],
-          yearCompare: null,
-        }
-      case PeriodType.YearCompare:
-        return {
-          startDate: format(startOfMonth(subMonths(now, 11)), 'yyyy-MM-dd'),
-          endDate: format(endOfMonth(now), 'yyyy-MM-dd'),
-          months: 12,
-          dailyDataMonths: [],
-          yearCompare: { currentYear, compareYear: yearCompareTarget },
-        }
-      default:
-        return {
-          startDate: format(startOfMonth(now), 'yyyy-MM-dd'),
-          endDate: format(endOfMonth(now), 'yyyy-MM-dd'),
-          months: 1,
-          dailyDataMonths: [currentMonth],
-          yearCompare: null,
-        }
-    }
-  }, [period, now, currentMonth, currentYear, monthCompareTarget, yearCompareTarget])
+  const { startDate, endDate, months, dailyDataMonths, yearCompare } = useMemo(
+    () =>
+      resolveReportPeriodRange({
+        period,
+        now,
+        monthCompareTarget,
+        yearCompareTarget,
+      }),
+    [period, now, monthCompareTarget, yearCompareTarget],
+  )
 
-  const isDailyView = period === PeriodType.Month
-  const isMonthCompare = period === PeriodType.MonthCompare
-  const isYearCompare = period === PeriodType.YearCompare
-  const isMonthlyView = [PeriodType.ThreeMonth, PeriodType.SixMonth, PeriodType.Year].includes(period)
+  const isDailyView = isReportDailyView(period)
+  const isMonthCompare = isReportMonthCompare(period)
+  const isYearCompare = isReportYearCompare(period)
+  const isMonthlyView = isReportMonthlyTrendView(period)
 
   // Queries — T-M31: 统一加 staleTime 避免重复请求
   const { data: trendData = [], isLoading: trendLoading } = useQuery({
@@ -159,31 +118,19 @@ export function useReportData() {
   })
 
   // Date ranges for category breakdown
-  const currentMonthRange = useMemo(() => ({
-    startDate: format(startOfMonth(now), 'yyyy-MM-dd'),
-    endDate: format(endOfMonth(now), 'yyyy-MM-dd'),
-  }), [now])
+  const currentMonthRange = useMemo(() => monthBoundsFromDate(now), [now])
 
-  const targetMonthRange = useMemo(() => ({
-    startDate: format(startOfMonth(parseISO(monthCompareTarget)), 'yyyy-MM-dd'),
-    endDate: format(endOfMonth(parseISO(monthCompareTarget)), 'yyyy-MM-dd'),
-  }), [monthCompareTarget])
+  const targetMonthRange = useMemo(() => monthBoundsFromKey(monthCompareTarget), [monthCompareTarget])
 
-  const currentYearRange = useMemo(() => {
-    const currentEnd = new Date(currentYear, now.getMonth(), 1)
-    return {
-      startDate: format(startOfMonth(subMonths(currentEnd, 11)), 'yyyy-MM-dd'),
-      endDate: format(endOfMonth(currentEnd), 'yyyy-MM-dd'),
-    }
-  }, [currentYear, now])
+  const currentYearRange = useMemo(
+    () => trailingYearRangeEndingAt(new Date(currentYear, now.getMonth(), 1)),
+    [currentYear, now],
+  )
 
-  const targetYearRange = useMemo(() => {
-    const compareEnd = new Date(yearCompareTarget, now.getMonth(), 1)
-    return {
-      startDate: format(startOfMonth(subMonths(compareEnd, 11)), 'yyyy-MM-dd'),
-      endDate: format(endOfMonth(compareEnd), 'yyyy-MM-dd'),
-    }
-  }, [yearCompareTarget, now])
+  const targetYearRange = useMemo(
+    () => trailingYearRangeEndingAt(new Date(yearCompareTarget, now.getMonth(), 1)),
+    [yearCompareTarget, now],
+  )
 
   // Category breakdown queries — T-M31: 加 staleTime
   const { data: expenseBreakdown = [], isLoading: expenseBreakdownLoading } = useQuery({

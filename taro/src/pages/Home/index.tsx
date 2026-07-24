@@ -13,6 +13,7 @@ import PageContainer from "../../components/PageContainer";
 import { AppSection, MetricGrid, EmptyState, EmptyAddTransactionAction, EmptyActionButton } from "../../components/ui";
 import { getTransactions } from "../../services/transactionsApi";
 import { fetchSummary } from "../../services/statisticsApi";
+import { monthToDateRange, toYearMonth } from "../../utils/reportPeriod";
 import { fetchBudgetStatus } from "../../services/budgetsApi";
 import { useCategoryLookup } from "../../hooks/useCategories";
 import { useAuth } from "../../context/AuthContext";
@@ -48,10 +49,8 @@ export default function Home() {
     if (!user) return;
 
     const now = new Date();
-    const pad = (n: number) => String(n).padStart(2, "0");
-    const startDate = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-01`;
-    const endDate = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
-    const monthStr = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-01`;
+    const { startDate, endDate } = monthToDateRange(now);
+    const monthStr = `${toYearMonth(now)}-01`;
 
     const [summaryRes, txnRes, budgetRes] = await Promise.allSettled([
       fetchSummary({ startDate, endDate }),

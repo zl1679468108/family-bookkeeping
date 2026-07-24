@@ -20,6 +20,7 @@
     "./frequency": "./src/frequency.ts",
     "./inviteCopy": "./src/inviteCopy.ts",
     "./month": "./src/month.ts",
+    "./reportPeriod": "./src/reportPeriod.ts",
     "./parseImageList": "./src/parseImageList.ts",
     "./roles": "./src/roles.ts",
     "./sortCopy": "./src/sortCopy.ts",
