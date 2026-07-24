@@ -89,6 +89,7 @@
 - 新增 `shared-utils/lineIcons`：PC 线框 Icon 规格纯数据 + SVG/dataURL；PC Icon 改读规格渲染
 - 新增 `shared-utils/button.buildUiButtonClassName`；双端 Button 接线
 - About：应用信息/更新日志/运行环境/页脚/发布日格式化；`TITLE_SELECT_TEMPLATE` 记一笔接线
+- Onboarding 副标题 / 输入邀请码加入标题 shared
 - 验证：frontend / taro `tsc --noEmit`
 
 #### 2026-07-24 页标题/交易成功/定位城市/注销说明 shared 化

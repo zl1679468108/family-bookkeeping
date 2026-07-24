@@ -25,7 +25,7 @@ import { validateInviteCode, normalizeInviteCode } from "../../utils/validation"
 import { ERROR_CREATE_FAILED_RETRY, ERROR_INVALID_INVITE } from "../../utils/errorCopy";
 import Icon, { ICON_COLOR } from "../../components/Icon";
 import { FIELD_BOOK_NAME, FIELD_DESC_OPTIONAL, FIELD_ICON, FIELD_INVITE_CODE } from "../../utils/fieldCopy";
-import { TITLE_JOIN_BY_INVITE, ONBOARDING_CREATE_TITLE, ONBOARDING_CREATE_DESC, ONBOARDING_JOIN_DESC } from "../../utils/sectionCopy"
+import { TITLE_JOIN_BY_INVITE, ONBOARDING_CREATE_TITLE, ONBOARDING_CREATE_DESC, ONBOARDING_JOIN_DESC, ONBOARDING_SUBTITLE, TITLE_JOIN_BY_INVITE_CODE } from "../../utils/sectionCopy"
 import { ACTION_CREATE_BOOK, ACTION_CREATING_ELLIPSIS, ACTION_JOINING_ELLIPSIS, ACTION_JOIN_BOOK } from "../../utils/actionCopy"
 import { getThemeTokenHex } from "../../utils/themeTokens"
 import { appWelcomeTitle } from "../../config/version";
@@ -99,7 +99,7 @@ export default function Onboarding() {
         </View>
         <Text className="ob-title">{appWelcomeTitle()}</Text>
         <Text className="ob-subtitle">
-          创建属于你自己的账本，或通过邀请码加入他人的账本
+          {ONBOARDING_SUBTITLE}
         </Text>
       </View>
 
@@ -212,7 +212,7 @@ export default function Onboarding() {
               <Icon name="back" size={28} color={ICON_COLOR.muted} />
               <Text>{FORM_BACK}</Text>
             </View>
-            <Text className="ob-nav__title">输入邀请码加入</Text>
+            <Text className="ob-nav__title">{TITLE_JOIN_BY_INVITE_CODE}</Text>
             <View className="ob-nav__spacer" />
           </View>
 
