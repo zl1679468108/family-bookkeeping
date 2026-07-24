@@ -85,6 +85,11 @@
 
 ### ✅ 已完成
 
+#### 2026-07-24 图片附件区/AuthLayout shared 化
+- `imageUpload`：容量判断 + PC/Taro 附件区 class；ImageUploadSection / ImageUpload 接线
+- `authLayout`：装饰圆常量/style + auth-page/illus/form class；AuthLayout 接线
+- 验证：frontend / taro `tsc --noEmit`
+
 #### 2026-07-24 Sidebar/ConfirmDialog/切换账号 class shared 化
 - `sidebar`：侧栏折叠/导航项/用户箭头/菜单项 class
 - `confirmDialog`：Taro 确认弹层 mask/dialog class

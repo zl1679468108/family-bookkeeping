@@ -2,6 +2,13 @@ import React from 'react'
 import './index.scss'
 import { AUTH_BRAND_TAGLINE } from '../../utils/authCopy'
 import { APP_NAME, APP_BRAND_MARK } from '../../config/version'
+import {
+  AUTH_DECO_CIRCLES,
+  authDecoCircleStyle,
+  buildAuthPageClassName,
+  buildAuthIllusClassName,
+  buildAuthFormClassName,
+} from '../../utils/authLayout'
 
 interface AuthLayoutProps {
   illustration: React.ReactNode
@@ -19,13 +26,13 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({
   footer = AUTH_BRAND_TAGLINE,
 }) => {
   return (
-    <div className="auth-page">
+    <div className={buildAuthPageClassName()}>
       {/* ── 左侧：沉浸式插画面板 ── */}
-      <div className="auth-illus">
+      <div className={buildAuthIllusClassName()}>
         <div className="illus-bg">
-          <div className="deco-circle" style={{ width: 420, height: 420, top: -100, right: -120 }} />
-          <div className="deco-circle" style={{ width: 280, height: 280, bottom: -80, left: -60 }} />
-          <div className="deco-circle" style={{ width: 100, height: 100, top: 280, left: 120 }} />
+          {AUTH_DECO_CIRCLES.map((circle, idx) => (
+            <div key={idx} className="deco-circle" style={authDecoCircleStyle(circle)} />
+          ))}
         </div>
 
         <div className="illus-content">
@@ -38,7 +45,7 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({
       </div>
 
       {/* ── 右侧：表单面板 ── */}
-      <div className="auth-form">
+      <div className={buildAuthFormClassName()}>
         <div className="form-inner">
           {/* Logo */}
           <div className="form-logo">

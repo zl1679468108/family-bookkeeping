@@ -25,6 +25,13 @@ import {
 } from "../../../utils/uploadCopy";
 import { fieldAttachmentCapacity } from "../../../utils/fieldCopy";
 import { ACTION_ADD } from "../../../utils/actionCopy";
+import {
+  canAddMoreImages,
+  buildFormImagesSectionClassName,
+  buildFormImagesGridClassName,
+  buildFormImagesItemClassName,
+  buildFormImagesAddClassName,
+} from "../../../utils/imageUpload";
 
 export interface ImageUploadProps {
   /** 已上传的图片 URL（从服务器获取） */
@@ -118,7 +125,7 @@ export default function ImageUpload({
   const allImages = [...allSaved, ...allPending];
 
   return (
-    <View className="ft-section ft-images">
+    <View className={buildFormImagesSectionClassName()}>
       <View className="ft-images-head">
         <Text className="ft-images-label">
           {fieldAttachmentCapacity(totalCount, maxCount)}
@@ -129,10 +136,10 @@ export default function ImageUpload({
           </Text>
         )}
       </View>
-      <View className="ft-images-grid">
+      <View className={buildFormImagesGridClassName()}>
         {/* 已上传的图片 */}
         {allSaved.map((url, idx) => (
-          <View key={`saved-${idx}`} className="ft-images-item">
+          <View key={`saved-${idx}`} className={buildFormImagesItemClassName()}>
             <Image
               className="ft-images-img"
               src={url}
@@ -149,7 +156,7 @@ export default function ImageUpload({
         ))}
         {/* 待上传的本地图片 */}
         {allPending.map((url, idx) => (
-          <View key={`pending-${idx}`} className="ft-images-item ft-images-item--pending">
+          <View key={`pending-${idx}`} className={buildFormImagesItemClassName({ pending: true })}>
             <Image
               className="ft-images-img"
               src={url}
@@ -167,8 +174,8 @@ export default function ImageUpload({
             </View>
           </View>
         ))}
-        {totalCount < maxCount && (
-          <View className="ft-images-add" onClick={handleSelect}>
+        {canAddMoreImages(totalCount, maxCount) && (
+          <View className={buildFormImagesAddClassName()} onClick={handleSelect}>
             <Text className="ft-images-add-icon">+</Text>
             <Text className="ft-images-add-text">{ACTION_ADD}</Text>
           </View>
