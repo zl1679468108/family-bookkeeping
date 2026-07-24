@@ -1,10 +1,10 @@
 import React from 'react'
-import { format } from 'date-fns'
 import { GlobalModal, DetailItem, Space } from '../../../components/ui'
 import { Button } from '../../../components/ui/Button'
 import { renderCategoryIcon } from '../../../utils/renderCategoryIcon'
 import type { Category } from '@family-bookkeeping/shared-types'
 import { transactionTypeLabel } from '../../../utils/transactionType'
+import { formatDateTimeMinute } from '../../../utils/date'
 
 interface CategoryDetailModalProps {
   selectedCategory: Category | null
@@ -74,10 +74,10 @@ export const CategoryDetailModal: React.FC<CategoryDetailModalProps> = ({
         <DetailItem label="分类 ID" value={selectedCategory.id} />
         <DetailItem label="排序" value={`第 ${selectedCategory.sort_order + 1} 位`} />
         {selectedCategory.created_at && (
-          <DetailItem label="创建时间" value={format(new Date(selectedCategory.created_at), 'yyyy-MM-dd HH:mm')} />
+          <DetailItem label="创建时间" value={formatDateTimeMinute(selectedCategory.created_at)} />
         )}
         {selectedCategory.updated_at && (
-          <DetailItem label="更新时间" value={format(new Date(selectedCategory.updated_at), 'yyyy-MM-dd HH:mm')} />
+          <DetailItem label="更新时间" value={formatDateTimeMinute(selectedCategory.updated_at)} />
         )}
       </div>
     </GlobalModal>

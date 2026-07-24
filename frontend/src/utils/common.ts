@@ -1,4 +1,5 @@
 import { formatMoney } from './budget'
+import { isIncomeType } from './transactionType'
 
 /**
  * 金额展示（固定 2 位小数）— 兼容旧调用。
@@ -10,6 +11,11 @@ export function formatAmount(amount: number | string, showSign = false, sign: '+
 
 export function formatAmountWithType(amount: number | string, isIncome: boolean): string {
   return formatMoney(amount, { showSign: true, sign: isIncome ? '+' : '-' })
+}
+
+/** 按收支类型加 +/- 前缀 */
+export function formatAmountByType(amount: number | string, type?: string | null): string {
+  return formatAmountWithType(amount, isIncomeType(type))
 }
 // 预算语义（进度阈值 / 金额）— 详见 ./budget
 export {
@@ -30,6 +36,7 @@ export {
   formatDateYMD,
   formatFriendlyDate,
   formatDateTime,
+  formatDateTimeMinute,
   todayBeijing,
   parseDateInput,
 } from './date'

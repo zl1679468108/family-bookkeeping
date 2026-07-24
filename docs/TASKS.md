@@ -85,6 +85,13 @@
 
 ### ✅ 已完成
 
+#### 2026-07-24 actionCopy / Spinner / 类型样式 / 时间分钟格式复用
+- 双端 `utils/actionCopy`：加载/保存/删除/复制/提交文案 + `busyLabel` 系 helper；`confirmCopy.CONFIRM_DELETE_LOADING` 同源。
+- PC `ui/Spinner`：GlobalModal 确认 loading、SwitchAccount 切换中复用。
+- `transactionTypeStatusClass` / `transactionTypeAmountClass` + `formatAmountByType`；Admin 流水与记一笔模板选择收口。
+- 双端 `formatDateTimeMinute`：账本/分类/模板/邀请码详情创建·更新时间统一。
+- 验证：frontend / taro `tsc --noEmit` 通过。
+
 #### 2026-07-24 确认文案 / Icon / Admin 状态 / 按钮收口
 - 新增双端 `utils/confirmCopy`：删除/移除/预算复制确认 title·正文·按钮文案统一；PC 账本删除补全风险说明。
 - 新增 PC `utils/userStatus`：Admin 用户状态标签/样式/操作文案与筛选 options 复用。

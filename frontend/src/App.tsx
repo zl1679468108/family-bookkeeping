@@ -8,6 +8,7 @@ import { ThemeProvider } from './utils/theme'
 import { BookProvider, useBook } from './hooks/useBook'
 import { hasToken } from './services/api'
 import { PageProgressBar } from './components/PageProgressBar'
+import { ACTION_LOADING } from './utils/actionCopy'
 
 const PROJECT_NAME = '静记'
 
@@ -45,7 +46,7 @@ const PrivateRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => 
     // T-L11: 显示加载状态，避免白屏
     return (
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-        <div style={{ color: 'var(--fg3)' }}>加载中...</div>
+        <div style={{ color: 'var(--fg3)' }}>{ACTION_LOADING}</div>
       </div>
     )
   }

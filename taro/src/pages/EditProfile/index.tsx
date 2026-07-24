@@ -31,6 +31,7 @@ import "./index.scss";
 import { getErrorMessage } from "../../utils/errorMessage";
 import { toastSuccess, toastInfo } from "../../utils/toast";
 import { userInitial } from "../../utils/userDisplay";
+import { ACTION_SAVING, ACTION_SUBMITTING } from "../../utils/actionCopy";
 import {
   validateEmail,
   validatePasswordMatch,
@@ -135,7 +136,7 @@ export default function EditProfile() {
       await refreshUser?.();
       toastSuccess("保存成功");
       setTimeout(() => Taro.navigateBack(), 600);
-    }, "保存中…").catch((err: any) => {
+    }, ACTION_SAVING).catch((err: any) => {
       toastError(err, "保存失败，请重试");
     });
   }, [username, email, avatarUrl, refreshUser]);
@@ -175,7 +176,7 @@ export default function EditProfile() {
       setOldPwd("");
       setNewPwd("");
       setConfirmPwd("");
-    }, "提交中…").catch((err: any) => {
+    }, ACTION_SUBMITTING).catch((err: any) => {
       toastError(err, "修改失败，请重试");
     });
   }, [oldPwd, newPwd, confirmPwd]);

@@ -15,6 +15,7 @@ import {
 import './index.scss'
 import { Button } from '../ui/Button'
 import { Icon } from '../ui/Icon'
+import { Spinner } from '../ui/Spinner'
 import { FooterActions } from '../ui/FooterActions'
 import { notifySuccess, notifyInfo } from '../../utils/notifyError'
 import { userDisplayName, userInitial } from '../../utils/userDisplay'
@@ -124,9 +125,7 @@ const SwitchAccountModal: React.FC<SwitchAccountModalProps> = ({ visible, onClos
                     )}
                     {!isCurrent && switchingEmail === account.email && (
                       <div className="account-item-loading">
-                        <svg width="16" height="16" viewBox="0 0 24 24" className="spinning">
-                          <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" strokeWidth="3" strokeDasharray="30 70" />
-                        </svg>
+                        <Spinner size={16} />
                       </div>
                     )}
                   </div>

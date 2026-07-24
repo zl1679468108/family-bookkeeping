@@ -30,6 +30,7 @@ import { toastSuccess, toastInfo } from "../../utils/toast";
 import { bookMemberRoleLabel, isBookOwnerRole } from "../../utils/roles";
 import { INVITE_CODE_HELP_LABEL, INVITE_CODE_HELP_BODY } from "../../utils/inviteCopy";
 import { userDisplayName } from "../../utils/userDisplay";
+import { ACTION_DELETING, ACTION_LOADING } from "../../utils/actionCopy";
 import {
   CONFIRM_REMOVE_TITLE,
   confirmDeleteBook,
@@ -232,7 +233,7 @@ export default function BooksPage() {
       setDeletingBook(null);
       closeDetail();
       refetch();
-    }, "删除中…").catch((err: any) => {
+    }, ACTION_DELETING).catch((err: any) => {
       toastError(err, "删除失败");
       setDeletingBook(null);
     });
@@ -294,7 +295,7 @@ export default function BooksPage() {
     <PageContainer
       contentClassName="bk-content"
       loading={isLoading}
-      loadingText="加载中…"
+      loadingText={ACTION_LOADING}
       loadingVariant="cards"
       onRefresh={handleRefresh}
       refreshing={refreshing}

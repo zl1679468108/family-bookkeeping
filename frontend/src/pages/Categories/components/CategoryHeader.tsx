@@ -3,6 +3,7 @@ import { Button } from '../../../components/ui/Button'
 import { CardHeader } from '../../../components/ui/Card'
 
 import { notifySuccess } from '../../../utils/notifyError'
+import { busyLabel, ACTION_SAVING } from '../../../utils/actionCopy'
 
 interface CategoryHeaderProps {
   sortingMode: boolean
@@ -37,7 +38,7 @@ export const CategoryHeader: React.FC<CategoryHeaderProps> = ({
             }}
             disabled={isSaving}
           >
-            {isSaving ? '保存中...' : (sortingMode ? '完成排序' : '编辑排序')}
+            {busyLabel(isSaving, ACTION_SAVING, sortingMode ? '完成排序' : '编辑排序')}
           </Button>
           <Button variant="primary" size="sm" onClick={handleOpenAdd}>
             + 新建分类

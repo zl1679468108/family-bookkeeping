@@ -5,6 +5,7 @@ import { Button } from '../../../../components/ui/Button'
 import { FooterActions } from '../../../../components/ui/FooterActions'
 import './index.scss'
 import { Icon } from '../../../../components/ui/Icon'
+import { transactionTypeLabel } from '../../../../utils/transactionType'
 
 interface TemplateSelectorProps {
   visible: boolean
@@ -70,7 +71,7 @@ export const TemplateSelector: React.FC<TemplateSelectorProps> = ({
                       <div className="template-item-top">
                         <span className="template-item-name">{tpl.name}</span>
                         <span className={`template-type ${tpl.type}`}>
-                          {tpl.type === 'income' ? '收入' : '支出'}
+                          {transactionTypeLabel(tpl.type)}
                         </span>
                       </div>
                       {/* 第二行：备注/分类 + 金额 */}

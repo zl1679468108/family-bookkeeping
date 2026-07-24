@@ -11,6 +11,7 @@ import { FooterActions } from '../../../components/ui/FooterActions'
 import './index.scss'
 import { notifySuccess, notifyError } from '../../../utils/notifyError'
 import { Icon } from '../../../components/ui/Icon'
+import { submittingLabel } from '../../../utils/actionCopy'
 import {
   validateEmail,
   validatePasswordMatch,
@@ -135,7 +136,7 @@ const PasswordModal: React.FC<PasswordModalProps> = ({ visible, onClose }) => {
               variant="primary"
               disabled={loading}
             >
-              {loading ? '提交中...' : '确认'}
+              {submittingLabel(loading)}
             </Button>
           </FooterActions>
         </form>

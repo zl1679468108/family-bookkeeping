@@ -21,6 +21,7 @@ import { formatMoney } from "../../utils/format";
 import { getBudgetVariant } from "../../utils/budget";
 import { renderCategoryIcon } from "../../utils/renderCategoryIcon";
 import "./index.scss";
+import { ACTION_LOADING } from "../../utils/actionCopy";
 
 interface BudgetStatus {
   category_id: string;
@@ -141,7 +142,7 @@ export default function Home() {
   return (
       <PageContainer
       loading={initialLoading}
-      loadingText="加载中…"
+      loadingText={ACTION_LOADING}
       loadingVariant="home"
       onRefresh={handleRefresh}
       refreshing={refreshing}

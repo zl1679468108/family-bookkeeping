@@ -24,6 +24,12 @@ import { useBook } from '../../hooks/useBook'
 import { queryKeys } from '../../utils/queryKeys'
 import { STALE } from '../../utils/cachePolicy'
 import {
+  ACTION_COPYING,
+  savingLabel,
+  copyingLabel,
+  busyLabel,
+} from '../../utils/actionCopy'
+import {
   CONFIRM_DELETE_TITLE,
   CONFIRM_DELETE_TEXT,
   confirmDeleteThis,
@@ -283,10 +289,10 @@ const Budgets: React.FC = () => {
                   onClick={() => setShowCopyConfirm(true)}
                   disabled={copyLoading || upsertLoading}
                 >
-                  {copyLoading ? '复制中...' : '复制上月'}
+                  {copyingLabel(copyLoading, '复制上月')}
                 </Button>
                 <Button variant="primary" size="sm" onClick={handleSave} disabled={upsertLoading || copyLoading}>
-                  {upsertLoading ? '保存中...' : '保存'}
+                  {savingLabel(upsertLoading)}
                 </Button>
               </>
             )}
@@ -467,7 +473,7 @@ const Budgets: React.FC = () => {
         children={CONFIRM_COPY_BUDGET_MESSAGE}
         onConfirm={handleCopyLastMonth}
         onClose={() => setShowCopyConfirm(false)}
-        confirmText={copyLoading ? '复制中...' : CONFIRM_COPY_BUDGET_TEXT}
+        confirmText={busyLabel(copyLoading, ACTION_COPYING, CONFIRM_COPY_BUDGET_TEXT)}
       />
     </div>
   )

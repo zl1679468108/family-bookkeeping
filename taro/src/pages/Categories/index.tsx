@@ -42,6 +42,7 @@ import { transactionTypeLabel } from "../../utils/transactionType";
 import { useReorder } from "../../hooks/useReorder";
 import "./index.scss";
 import { toastSuccess, toastInfo } from "../../utils/toast";
+import { ACTION_DELETING, ACTION_LOADING, ACTION_SAVING } from "../../utils/actionCopy";
 import {
   CONFIRM_DELETE_TITLE,
   CONFIRM_DELETE_TEXT,
@@ -217,7 +218,7 @@ export default function CategoriesPage() {
       toastSuccess(isEdit ? "分类已更新" : "分类已创建");
       closeForm();
       refetch();
-    }, "保存中…").catch((err: any) => {
+    }, ACTION_SAVING).catch((err: any) => {
       toastError(err, (isEdit ? "更新失败" : "创建失败"));
       // 失败也关闭表单，避免 loading 卡住
       closeForm();
@@ -270,7 +271,7 @@ export default function CategoriesPage() {
   return (
     <PageContainer
       loading={isLoading}
-      loadingText="加载中…"
+      loadingText={ACTION_LOADING}
       loadingVariant="list"
       onRefresh={handleRefresh}
       refreshing={refreshing}
@@ -542,7 +543,7 @@ export default function CategoriesPage() {
             setDetailCat(null);
             setDeletingCat(null);
             refetch();
-          }, "删除中…").catch((err: any) => {
+          }, ACTION_DELETING).catch((err: any) => {
             toastError(err, "删除失败");
             setShowDeleteConfirm(false);
             setDeletingCat(null);

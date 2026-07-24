@@ -1,11 +1,10 @@
 import React from 'react';
-import { format } from 'date-fns';
 import { GlobalModal } from '../../../components/ui';
 import { Button } from '../../../components/ui/Button';
 import { FooterActions } from '../../../components/ui/FooterActions';
-;
 import type { InviteCodeData } from '../hooks/useBooksPage';
 import { notifySuccess } from '../../../utils/notifyError'
+import { formatDateTimeMinute } from '../../../utils/date'
 
 interface InviteCodeModalProps {
   open: boolean;
@@ -65,7 +64,7 @@ export const InviteCodeModal: React.FC<InviteCodeModalProps> = ({
         <div style={{ fontSize: '12px', color: 'var(--fg3)', marginTop: '10px' }}>
           点击邀请码即可复制
           <br />
-          有效期至：{inviteCode && format(new Date(inviteCode.expires_at), 'yyyy-MM-dd HH:mm')}
+          有效期至：{inviteCode && formatDateTimeMinute(inviteCode.expires_at)}
         </div>
       </div>
     </GlobalModal>

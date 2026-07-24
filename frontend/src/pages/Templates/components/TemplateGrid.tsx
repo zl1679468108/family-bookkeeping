@@ -6,6 +6,7 @@ import { EmptyState } from '../../../components/ui/EmptyState'
 import { renderCategoryIcon } from '../../../utils/renderCategoryIcon'
 import { formatAmount } from '../../../utils/common'
 import { transactionTypeLabel } from '../../../utils/transactionType'
+import { busyLabel, ACTION_SAVING } from '../../../utils/actionCopy'
 
 interface TemplateGridProps {
   isLoading: boolean
@@ -81,7 +82,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
               onClick={sortingMode ? onSaveSort : onEnterSortMode}
               disabled={isSaving}
             >
-              {isSaving ? '保存中...' : (sortingMode ? '完成排序' : '编辑排序')}
+              {busyLabel(isSaving, ACTION_SAVING, sortingMode ? '完成排序' : '编辑排序')}
             </Button>
             <Button variant="primary" size="sm" onClick={onNew}>
               + 新建模板

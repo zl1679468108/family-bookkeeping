@@ -30,6 +30,7 @@ import { sanitizeAmountInput, isValidPositiveAmount } from "../../utils/budget";
 import { transactionTypeLabel, TRANSACTION_TYPE_OPTIONS } from "../../utils/transactionType";
 import { parseImageList } from "../../utils/parseImageList";
 import "./index.scss";
+import { ACTION_LOADING, ACTION_SAVING } from "../../utils/actionCopy";
 import {
   CONFIRM_DELETE_TITLE,
   CONFIRM_DELETE_TRANSACTION,
@@ -89,7 +90,7 @@ export default function AddTransaction() {
   // 加载编辑数据
   useEffect(() => {
     if (isEdit) {
-      Taro.showLoading({ title: "加载中…", mask: true });
+      Taro.showLoading({ title: ACTION_LOADING, mask: true });
       getTransaction(Number(editId))
         .then((data: any) => {
           if (!data) return;
@@ -276,7 +277,7 @@ export default function AddTransaction() {
 
       toastSuccess(isEdit ? "交易已更新" : "交易已保存");
       setTimeout(() => Taro.navigateBack(), 600);
-    }, "保存中…").catch((err: any) => {
+    }, ACTION_SAVING).catch((err: any) => {
       toastError(err, "保存失败");
     });
   };

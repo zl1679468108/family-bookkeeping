@@ -1,11 +1,11 @@
 import React from 'react'
-import { format } from 'date-fns'
 import { GlobalModal, DetailItem, Space } from '../../../components/ui'
 import { Button } from '../../../components/ui/Button'
 import { renderCategoryIcon } from '../../../utils/renderCategoryIcon'
 import { formatMoney } from '../../../utils/budget'
 import { formatFrequency } from '../../../utils/frequency'
 import { transactionTypeLabel } from '../../../utils/transactionType'
+import { formatDateTimeMinute } from '../../../utils/date'
 
 interface TemplateDetailModalProps {
   template: any
@@ -102,7 +102,7 @@ export const TemplateDetailModal: React.FC<TemplateDetailModalProps> = ({
           <DetailItem label="上次执行" value={template.last_executed_at} />
         )}
         {template.created_at && (
-          <DetailItem label="创建时间" value={format(new Date(template.created_at), 'yyyy-MM-dd HH:mm')} />
+          <DetailItem label="创建时间" value={formatDateTimeMinute(template.created_at)} />
         )}
       </div>
     </GlobalModal>

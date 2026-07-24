@@ -1,0 +1,20 @@
+.ui-spinner {
+  display: inline-block;
+  flex-shrink: 0;
+  animation: ui-spin 0.8s linear infinite;
+  vertical-align: middle;
+}
+
+.ui-spinner__track {
+  opacity: 0.25;
+}
+
+.ui-spinner__head {
+  opacity: 0.75;
+}
+
+@keyframes ui-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

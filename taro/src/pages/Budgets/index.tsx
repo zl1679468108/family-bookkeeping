@@ -19,6 +19,7 @@ import { fetchCategories } from "../../services/categoriesApi";
 import "./index.scss";
 import { budgetStatusToVariant, budgetVariantLabel, formatMoney } from "../../utils/budget";
 import { toastSuccess, toastInfo } from "../../utils/toast";
+import { ACTION_COPYING, ACTION_LOADING, ACTION_SAVING } from "../../utils/actionCopy";
 import {
   CONFIRM_DELETE_TITLE,
   CONFIRM_DELETE_TEXT,
@@ -144,7 +145,7 @@ export default function BudgetsPage() {
       refetchBudgets();
       refetchStatus();
       setEditingId(null);
-    }, "保存中…").catch((err: any) => {
+    }, ACTION_SAVING).catch((err: any) => {
       toastError(err, "预算保存失败");
       setEditingId(null);
     });
@@ -176,7 +177,7 @@ export default function BudgetsPage() {
       toastSuccess(`已复制 ${result.length} 条`);
       refetchBudgets();
       refetchStatus();
-    }, "复制中…").catch((err: any) => {
+    }, ACTION_COPYING).catch((err: any) => {
       toastError(err, "复制失败");
     });
   };
@@ -277,7 +278,7 @@ export default function BudgetsPage() {
   return (
     <PageContainer
       loading={isLoading || statusLoading}
-      loadingText="加载中…"
+      loadingText={ACTION_LOADING}
       loadingVariant="list"
       onRefresh={handleRefresh}
       refreshing={refreshing}

@@ -34,6 +34,7 @@ import { useSubmit, toastError } from "../../hooks/useSubmit";
 import "./index.scss";
 import { getErrorMessage } from "../../utils/errorMessage";
 import { toastSuccess, toastInfo } from "../../utils/toast";
+import { ACTION_DELETING, ACTION_LOADING, ACTION_SAVING } from "../../utils/actionCopy";
 import {
   CONFIRM_DELETE_TITLE,
   CONFIRM_DELETE_TEXT,
@@ -152,7 +153,7 @@ export default function CategoryEdit() {
       qc.invalidateQueries({ queryKey: ["categories"] });
       toastSuccess(isEdit ? "分类已更新" : "分类已创建");
       setTimeout(() => Taro.navigateBack(), 500);
-    }, "保存中…").catch((err: any) => {
+    }, ACTION_SAVING).catch((err: any) => {
       toastError(err, (isEdit ? "更新失败" : "创建失败"));
     });
   };
@@ -163,7 +164,7 @@ export default function CategoryEdit() {
       qc.invalidateQueries({ queryKey: ["categories"] });
       toastSuccess("已删除");
       setTimeout(() => Taro.navigateBack(), 500);
-    }, "删除中…").catch((err: any) => {
+    }, ACTION_DELETING).catch((err: any) => {
       toastError(err, "删除失败");
       setShowDelete(false);
     });
@@ -172,7 +173,7 @@ export default function CategoryEdit() {
   const title = isEdit ? "编辑分类" : "新建分类";
 
   return (
-    <PageContainer bottomSpace={180} loading={isLoading} loadingText="加载中…">
+    <PageContainer bottomSpace={180} loading={isLoading} loadingText={ACTION_LOADING}>
       <PageHero
         eyebrow={catType === "expense" ? "支出分类" : "收入分类"}
         title={title}

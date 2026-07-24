@@ -9,6 +9,7 @@ import { LocationPicker } from '../../AddTransaction/components/LocationPicker'
 import type { LocationResult } from '@family-bookkeeping/shared-types'
 import { FREQUENCY_OPTIONS } from '../../../utils/frequency'
 import { TRANSACTION_TYPE_OPTIONS } from '../../../utils/transactionType'
+import { busyLabel, ACTION_SAVING } from '../../../utils/actionCopy'
 
 interface TemplateFormProps {
   open: boolean
@@ -65,7 +66,7 @@ export const TemplateFormModal: React.FC<TemplateFormProps> = ({
               onClick={onSave}
               disabled={saveLoading}
             >
-              {saveLoading ? '保存中...' : (editingId ? '更新' : '创建')}
+              {busyLabel(saveLoading, ACTION_SAVING, editingId ? '更新' : '创建')}
             </Button>
           </FooterActions>
         }

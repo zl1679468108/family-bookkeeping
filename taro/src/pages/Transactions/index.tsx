@@ -18,6 +18,7 @@ import { formatMoney } from "../../utils/format";
 import "./index.scss";
 import { TRANSACTION_TYPE_FILTER_LABELS } from "../../utils/transactionType";
 import { parseAmount } from "../../utils/budget";
+import { ACTION_LOADING } from "../../utils/actionCopy";
 
 const FILTER_OPTIONS = [...TRANSACTION_TYPE_FILTER_LABELS];
 const TIME_OPTIONS = ["全部时间", "近 7 天", "近 30 天"];
@@ -264,7 +265,7 @@ export default function Transactions() {
     <>
       <PageContainer
         loading={loading}
-        loadingText="加载中…"
+        loadingText={ACTION_LOADING}
       loadingVariant="list"
         onRefresh={handleRefresh}
         refreshing={refreshing}

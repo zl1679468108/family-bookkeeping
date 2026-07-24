@@ -3,6 +3,7 @@ import { ReactNode } from "react";
 import SheetHeader from "../SheetHeader";
 import Spinner from "../ui/Spinner";
 import "./index.scss";
+import { ACTION_LOADING } from "../../utils/actionCopy";
 
 export interface BottomSheetProps {
   /** 是否显示（可选：父组件通常用 {cond && <BottomSheet/>} 控制挂载，传 false 也可强制隐藏） */
@@ -38,7 +39,7 @@ export default function BottomSheet({
   onClose,
   onBack,
   loading = false,
-  loadingText = "加载中…",
+  loadingText = ACTION_LOADING,
   footer,
   children,
   bodyClassName,

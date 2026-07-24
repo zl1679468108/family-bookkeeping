@@ -8,6 +8,7 @@ import { Skeleton, FormSkeleton } from '../../components/ui/Skeleton'
 import { LocationDisplay } from '../../components/ui/LocationDisplay'
 import { Button } from '../../components/ui/Button'
 import { FooterActions } from '../../components/ui/FooterActions'
+import { busyLabel, ACTION_SAVING } from '../../utils/actionCopy'
 
 const AddTransaction: React.FC = () => {
   const {
@@ -84,7 +85,7 @@ const AddTransaction: React.FC = () => {
                 onClick={handleSubmit}
                 disabled={isSubmitting}
               >
-                {isSubmitting ? '保存中...' : isEditMode ? '保存修改' : '确认添加'}
+                {busyLabel(isSubmitting, ACTION_SAVING, isEditMode ? '保存修改' : '确认添加')}
               </Button>
               <Button variant="secondary" onClick={handleReset}>
                 重置

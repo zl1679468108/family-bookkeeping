@@ -62,3 +62,19 @@ export function formatDateTime(input: string | Date | null | undefined): string 
   return d.toLocaleString("zh-CN");
 }
 
+/** 精确到分钟：YYYY-MM-DD HH:mm（详情弹窗创建/更新时间） */
+export function formatDateTimeMinute(input: string | Date | null | undefined): string {
+  if (!input) return "-";
+  if (typeof input === "string") {
+    const m = input.match(/^(\d{4}-\d{2}-\d{2})[ T](\d{2}:\d{2})/);
+    if (m) return `${m[1]} ${m[2]}`;
+  }
+  const d = input instanceof Date ? input : parseDateInput(String(input));
+  if (Number.isNaN(d.getTime())) return String(input);
+  const y = d.getFullYear();
+  const mo = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  const h = String(d.getHours()).padStart(2, "0");
+  const mi = String(d.getMinutes()).padStart(2, "0");
+  return `${y}-${mo}-${day} ${h}:${mi}`;
+}

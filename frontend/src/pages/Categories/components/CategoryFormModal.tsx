@@ -5,6 +5,7 @@ import { FooterActions } from '../../../components/ui/FooterActions'
 import { Input } from '../../../components/ui/Input'
 import { IconGrid } from '../../../components/ui/IconGrid'
 import type { CustomIconItem } from '../../../components/ui/IconGrid'
+import { busyLabel, ACTION_SAVING } from '../../../utils/actionCopy'
 
 interface CategoryFormModalProps {
   modalOpen: boolean
@@ -65,7 +66,7 @@ export const CategoryFormModal: React.FC<CategoryFormModalProps> = ({
             onClick={handleModalConfirm}
             disabled={createMutation.isPending || updateMutation.isPending}
           >
-            {createMutation.isPending || updateMutation.isPending ? '保存中...' : '确认'}
+            {busyLabel(createMutation.isPending || updateMutation.isPending, ACTION_SAVING, '确认')}
           </Button>
         </FooterActions>
       }

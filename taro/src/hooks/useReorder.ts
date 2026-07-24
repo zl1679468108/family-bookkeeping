@@ -25,6 +25,7 @@ import { useState, useCallback } from "react";
 import type { QueryClient } from "@tanstack/react-query";
 import { useSubmit, toastError } from "./useSubmit";
 import { toastSuccess, toastInfo } from "../utils/toast";
+import { ACTION_SAVING } from "../utils/actionCopy";
 
 export interface UseReorderOptions<T> {
   /** 非排序模式下的基准有序列表（已按 sort_order 排好） */
@@ -154,7 +155,7 @@ export function useReorder<T>({
       await Promise.resolve();
       console.log("[useReorder] 调用 refetch 刷新列表");
       refetch();
-    }, "保存中…").catch((err: any) => {
+    }, ACTION_SAVING).catch((err: any) => {
       console.error("[useReorder] 保存失败:", err);
       toastError(err, "排序保存失败");
     });

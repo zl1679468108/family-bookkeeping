@@ -263,9 +263,8 @@
 
 /* 加载动画 */
 .global-modal-dialog__spinner {
-  width: 16px;
-  height: 16px;
-  animation: spin 0.8s linear infinite;
+  /* size 由 Spinner props 控制；动画在 .ui-spinner */
+  margin-right: 6px;
 }
 
 /* 动画关键帧 */

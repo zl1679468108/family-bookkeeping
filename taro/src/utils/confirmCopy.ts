@@ -1,8 +1,10 @@
+import { ACTION_DELETING } from "./actionCopy";
+
 /** 删除 / 移除 / 预算复制 确认弹窗文案（与 PC 对齐） */
 
 export const CONFIRM_DELETE_TITLE = "确认删除";
 export const CONFIRM_DELETE_TEXT = "确认删除";
-export const CONFIRM_DELETE_LOADING = "删除中...";
+export const CONFIRM_DELETE_LOADING = ACTION_DELETING;
 
 export const CONFIRM_REMOVE_TITLE = "确认移除";
 export const CONFIRM_REMOVE_TEXT = "确认移除";

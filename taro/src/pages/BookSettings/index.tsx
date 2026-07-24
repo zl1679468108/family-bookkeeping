@@ -34,6 +34,7 @@ import { useSubmit, toastError } from "../../hooks/useSubmit";
 import "./index.scss";
 import { getErrorMessage } from "../../utils/errorMessage";
 import { toastSuccess, toastInfo } from "../../utils/toast";
+import { ACTION_DELETING, ACTION_LOADING, ACTION_SAVING } from "../../utils/actionCopy";
 import {
   CONFIRM_DELETE_TITLE,
   CONFIRM_DELETE_TEXT,
@@ -225,7 +226,7 @@ export default function BookSettings() {
       qc.invalidateQueries({ queryKey: ["books"] });
       toastSuccess("更新成功");
       setTimeout(() => Taro.navigateBack(), 500);
-    }, "保存中…").catch((err: any) => {
+    }, ACTION_SAVING).catch((err: any) => {
       toastError(err, "保存失败");
     });
   };
@@ -256,7 +257,7 @@ export default function BookSettings() {
       qc.invalidateQueries({ queryKey: ["books"] });
       toastSuccess("账本已删除");
       setTimeout(() => Taro.navigateBack(), 500);
-    }, "删除中…").catch((err: any) => {
+    }, ACTION_DELETING).catch((err: any) => {
       toastError(err, "删除失败");
     });
   };
@@ -264,7 +265,7 @@ export default function BookSettings() {
   // ===== 渲染守卫 =====
   if (!isAdd && !currentBook) {
     return (
-      <PageContainer loading={booksLoading} loadingText="加载中…">
+      <PageContainer loading={booksLoading} loadingText={ACTION_LOADING}>
         <View className="bs-empty">
           <Text>账本不存在</Text>
         </View>

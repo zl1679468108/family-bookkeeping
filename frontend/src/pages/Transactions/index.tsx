@@ -12,7 +12,7 @@ import type { Category } from '@family-bookkeeping/shared-types';
 import { useDebounce } from '../../hooks/useDebounce'
 import { useMutationAction } from '../../hooks/useMutationAction'
 import { useFocusItem } from '../../hooks/useFocusItem'
-import { formatAmount, formatAmountWithType } from '../../utils/common'
+import { formatAmount, formatAmountByType } from '../../utils/common'
 import { Skeleton } from '../../components/ui/Skeleton'
 import { GlobalModal, DetailItem, Space } from '../../components/ui'
 import { Card } from '../../components/ui/Card'
@@ -348,7 +348,7 @@ const Transactions: React.FC = () => {
                       }}
                       role="button"
                       tabIndex={0}
-                      aria-label={`查看交易详情：${t.description || getCategoryName(t.category)} ${formatAmountWithType(t.amount, t.type === 'income')}`}
+                      aria-label={`查看交易详情：${t.description || getCategoryName(t.category)} ${formatAmountByType(t.amount, t.type)}`}
                       style={{ cursor: 'pointer' }}
                     >
                       <td>{format(parse(t.date, 'yyyy-MM-dd', new Date()), 'yyyy-MM-dd')}</td>
@@ -366,7 +366,7 @@ const Transactions: React.FC = () => {
                         </span>
                       </td>
                       <td className={`cell-amount ${t.type === 'expense' ? 'debit' : 'credit'}`}>
-                        {formatAmountWithType(t.amount, t.type === 'income')}
+                        {formatAmountByType(t.amount, t.type)}
                       </td>
                     </tr>
                   )
@@ -416,7 +416,7 @@ const Transactions: React.FC = () => {
               </div>
               <div className="detail-amount">
                 <div className={`detail-amount-value ${selectedTransaction.type === 'income' ? 'income' : ''}`}>
-                  {formatAmountWithType(selectedTransaction.amount, selectedTransaction.type === 'income')}
+                  {formatAmountByType(selectedTransaction.amount, selectedTransaction.type)}
                 </div>
               </div>
             </div>

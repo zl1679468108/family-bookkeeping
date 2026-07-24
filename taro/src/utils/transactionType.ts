@@ -30,3 +30,13 @@ export const TRANSACTION_TYPE_OPTIONS: ReadonlyArray<{
 
 /** 流水筛选：全部 + 支出 + 收入 */
 export const TRANSACTION_TYPE_FILTER_LABELS = ["全部类型", "支出", "收入"] as const;
+
+/** Admin / 列表 status 徽标 class */
+export function transactionTypeStatusClass(type?: string | null): string {
+  return type === "income" ? "status status--success" : "status status--danger";
+}
+
+/** 金额着色 class */
+export function transactionTypeAmountClass(type?: string | null): string {
+  return type === "income" ? "amount amount--income" : "amount amount--expense";
+}

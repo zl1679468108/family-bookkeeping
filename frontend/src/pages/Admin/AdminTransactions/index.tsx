@@ -20,9 +20,15 @@ import { EmptyState } from '../../../components/ui/EmptyState'
 import { TableRowsSkeleton } from '../../../components/ui/Skeleton'
 import { GlobalModal } from '../../../components/ui';
 import { renderCategoryIcon } from '../../../utils/renderCategoryIcon';
-import { formatMoney } from '../../../utils/budget';
 import { queryKeys } from '../../../utils/queryKeys'
 import { STALE } from '../../../utils/cachePolicy'
+import {
+  transactionTypeLabel,
+  transactionTypeStatusClass,
+  transactionTypeAmountClass,
+  isIncomeType,
+} from '../../../utils/transactionType'
+import { formatAmountByType } from '../../../utils/common'
 
 const AdminTransactions: React.FC = () => {
   const [page, setPage] = useState(1);
@@ -168,11 +174,9 @@ const AdminTransactions: React.FC = () => {
                       </td>
                       <td>
                         <span
-                          className={
-                            t.type === 'income' ? 'status status--success' : 'status status--danger'
-                          }
+                          className={transactionTypeStatusClass(t.type)}
                         >
-                          {t.type === 'income' ? '收入' : '支出'}
+                          {transactionTypeLabel(t.type)}
                         </span>
                       </td>
                       <td>
@@ -187,12 +191,9 @@ const AdminTransactions: React.FC = () => {
                       </td>
                       <td className="data-table__col--right">
                         <span
-                          className={`amount ${t.type === 'income' ? 'amount--income' : 'amount--expense'}`}
+                          className={transactionTypeAmountClass(t.type)}
                         >
-                          {formatMoney(Number(t.amount), {
-                            showSign: true,
-                            sign: t.type === 'income' ? '+' : '-',
-                          })}
+{formatAmountByType(Number(t.amount), t.type)}
                         </span>
                       </td>
                       <td className="data-table__cell--muted">{t.books?.name || '-'}</td>

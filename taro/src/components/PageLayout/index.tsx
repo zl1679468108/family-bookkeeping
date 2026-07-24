@@ -27,6 +27,7 @@ import { useTheme } from "../../context/ThemeContext";
 import { useNavBarTheme } from "../../hooks/useNavBarTheme";
 import "./index.scss";
 import { toastSuccess, toastInfo } from "../../utils/toast";
+import { ACTION_LOADING } from "../../utils/actionCopy";
 
 interface PageLayoutProps {
   children: ReactNode;
@@ -148,7 +149,7 @@ export default function PageLayout({
           style={contentStyle}
         >
           {loadingVariant === "overlay" || !skeletonBody ? (
-            <LoadingOverlay tip={loadingText || "加载中…"} />
+            <LoadingOverlay tip={loadingText || ACTION_LOADING} />
           ) : (
             skeletonBody
           )}
@@ -219,7 +220,7 @@ export default function PageLayout({
                 {loadingMoreProp ? (
                   <View className="page-loadmore-inner">
                     <View className="page-loadmore-spinner" />
-                    <Text className="page-loadmore-text">加载中…</Text>
+                    <Text className="page-loadmore-text">{ACTION_LOADING}</Text>
                   </View>
                 ) : hasMore ? (
                   <Text className="page-loadmore-text page-loadmore-text--hint">上拉加载更多</Text>

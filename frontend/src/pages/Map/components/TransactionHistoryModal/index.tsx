@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import type { MerchantSummary } from '@family-bookkeeping/shared-types'
-import { formatAmount, formatAmountWithType } from '../../../../utils/common';
+import { formatAmount, formatAmountByType } from '../../../../utils/common';
 import { useCategoryLookup } from '../../../../hooks/useCategories';
 import { fetchMerchantTransactions } from '../../../../services/mapApi';
 import { Skeleton } from '../../../../components/ui/Skeleton';
@@ -108,7 +108,7 @@ export const TransactionHistoryModal: React.FC<TransactionHistoryModalProps> = (
                 </div>
                 <div className="history-item-right">
                   <span className={`history-item-amount ${tx.type}`}>
-                    {formatAmountWithType(tx.amount, tx.type === 'income')}
+                    {formatAmountByType(tx.amount, tx.type)}
                   </span>
                   <span className="history-item-date">{tx.date}</span>
                 </div>

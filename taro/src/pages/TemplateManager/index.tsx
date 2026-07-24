@@ -36,6 +36,7 @@ import { toastSuccess, toastInfo } from "../../utils/toast";
 import { formatMoney } from "../../utils/format";
 import { formatDateTime } from "../../utils/date";
 import { sanitizeAmountInput } from "../../utils/budget";
+import { ACTION_DELETING, ACTION_LOADING, ACTION_SAVING } from "../../utils/actionCopy";
 import {
   CONFIRM_DELETE_TITLE,
   CONFIRM_DELETE_TEXT,
@@ -191,7 +192,7 @@ export default function TemplateManager() {
       setShowDelete(false);
       setDeleteId(null);
       refetch();
-    }, "删除中…").catch((err: any) => {
+    }, ACTION_DELETING).catch((err: any) => {
       toastError(err, "删除失败");
       setShowDelete(false);
       setDeleteId(null);
@@ -241,7 +242,7 @@ export default function TemplateManager() {
       setShowForm(false);
       setEditingId(null);
       refetch();
-    }, "保存中…").catch((err: any) => {
+    }, ACTION_SAVING).catch((err: any) => {
       toastError(err, "操作失败");
       setShowForm(false);
       setEditingId(null);
@@ -265,7 +266,7 @@ export default function TemplateManager() {
   /* 执行模板 */
   const handleExecute = async (t: Template) => {
     try {
-      Taro.showLoading({ title: "加载中..." });
+      Taro.showLoading({ title: ACTION_LOADING });
       const result = await executeTemplate(t.id);
       Taro.hideLoading();
       Taro.setStorageSync("templateExecuteResult", {
@@ -289,7 +290,7 @@ export default function TemplateManager() {
   return (
     <PageContainer
       loading={isLoading}
-      loadingText="加载中…"
+      loadingText={ACTION_LOADING}
       loadingVariant="list"
       onRefresh={handleRefresh}
       refreshing={refreshing}

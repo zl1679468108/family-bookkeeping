@@ -26,6 +26,7 @@ import LocationPicker, { LocationResult } from "../../components/LocationPicker"
 import Icon, { ICON_COLOR } from "../../components/Icon";
 import "./index.scss";
 import { toastSuccess, toastInfo } from "../../utils/toast";
+import { ACTION_DELETING, ACTION_LOADING, ACTION_SAVING } from "../../utils/actionCopy";
 import {
   CONFIRM_DELETE_TITLE,
   CONFIRM_DELETE_TEXT,
@@ -124,7 +125,7 @@ export default function TemplateEdit() {
       qc.invalidateQueries({ queryKey: ["templates"] });
       toastSuccess(isEdit ? "模板已更新" : "模板已创建");
       setTimeout(() => Taro.navigateBack(), 500);
-    }, "保存中…").catch((err: any) => {
+    }, ACTION_SAVING).catch((err: any) => {
       toastError(err, isEdit ? "更新失败" : "创建失败");
     });
   };
@@ -135,7 +136,7 @@ export default function TemplateEdit() {
       qc.invalidateQueries({ queryKey: ["templates"] });
       toastSuccess("模板已删除");
       setTimeout(() => Taro.navigateBack(), 500);
-    }, "删除中…").catch((err: any) => {
+    }, ACTION_DELETING).catch((err: any) => {
       toastError(err, "删除失败");
       setShowDelete(false);
     });
@@ -182,7 +183,7 @@ export default function TemplateEdit() {
   };
 
   return (
-    <PageContainer bottomSpace={180} loading={isLoading} loadingText="加载中…">
+    <PageContainer bottomSpace={180} loading={isLoading} loadingText={ACTION_LOADING}>
       <PageHero
         eyebrow={form.type ? `${transactionTypeLabel(form.type)}模板` : "模板"}
         title={title}

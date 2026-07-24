@@ -19,6 +19,7 @@ import PageContainer from "../../components/PageContainer";
 import { toastSuccess } from "../../utils/toast";
 import { bookMemberRoleLabel, isBookOwnerRole } from "../../utils/roles";
 import { userDisplayName, userInitial } from "../../utils/userDisplay";
+import { ACTION_LOADING } from "../../utils/actionCopy";
 import {
   CONFIRM_REMOVE_TITLE,
   CONFIRM_REMOVE_TEXT,
@@ -111,7 +112,7 @@ export default function BookMembers() {
   return (
     <PageContainer
       loading={isLoading || ownerLoading}
-      loadingText="加载中…"
+      loadingText={ACTION_LOADING}
       loadingVariant="list"
       onRefresh={handleRefresh}
       refreshing={refreshing}
