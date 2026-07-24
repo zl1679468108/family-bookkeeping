@@ -26,7 +26,7 @@ import type { QueryClient } from "@tanstack/react-query";
 import { useSubmit, toastError } from "./useSubmit";
 import { toastSuccess, toastInfo } from "../utils/toast";
 import { ACTION_SAVING } from "../utils/actionCopy";
-import { SORT_SAVED } from "../utils/sortCopy";
+import { SORT_SAVED, SORT_NOTHING, SORT_UNCHANGED } from "../utils/sortCopy";
 import { ERROR_SORT_SAVE_FAILED } from "../utils/errorCopy";
 
 export interface UseReorderOptions<T> {
@@ -132,7 +132,7 @@ export function useReorder<T>({
 
   const save = useCallback(() => {
     if (sortOrder.length === 0) {
-      toastInfo("无需保存");
+      toastInfo(SORT_NOTHING);
       return;
     }
     const orderedIds = sortOrder.map((item) => getKey(item));
@@ -140,7 +140,7 @@ export function useReorder<T>({
     const originalIds = items.map((item) => getKey(item));
     const changed = orderedIds.some((id, i) => id !== originalIds[i]);
     if (!changed) {
-      toastInfo("顺序未变化");
+      toastInfo(SORT_UNCHANGED);
       setSortMode(false);
       setSortOrder([]);
       return;

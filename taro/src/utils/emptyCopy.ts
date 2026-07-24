@@ -11,3 +11,15 @@ export const EMPTY_LOAD_FAILED = "加载失败";
 export function emptyCategories(typeLabel: string): string {
   return `暂无${typeLabel}分类，添加第一个让收支归类更清晰`;
 }
+export const EMPTY_TRANSACTIONS = "暂无交易记录";
+export const EMPTY_TRANSACTIONS_HINT = "暂无交易记录，可调整筛选或新增一笔账单";
+export const EMPTY_TRANSACTIONS_HOME = "暂无交易记录，记一笔开始掌握家庭收支";
+export const EMPTY_NO_BUDGET = "暂未设置预算，设置后可以更好地控制支出";
+export const EMPTY_CATEGORIES_GENERIC = "暂无分类，添加第一个让收支都有清晰归类";
+export const EMPTY_TEMPLATES_SELECTOR = "暂无模板，请先在「模板管理」中创建";
+export const EMPTY_BOOKS_SHORT = "暂无账本，点击右上角新建";
+export const EMPTY_MEMBER_SPEND_PERIOD = "该时间段内还没有成员消费记录";
+export const EMPTY_MEMBER_COMPARE_NEED_MULTI = "成员对比仅在多成员账本可用，请切换账本或邀请家人加入";
+export const EMPTY_SELECT_BOOK = "请先在左侧选择要查看的账本";
+export const EMPTY_NO_USERS = "暂无用户";
+export const EMPTY_LOAD_FAILED_RETRY = "加载失败，请稍后重试";

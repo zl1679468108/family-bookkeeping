@@ -39,7 +39,7 @@ import {
 import { successEntityDeleted, successTemplateApplied, successTransactionSaved } from "../../utils/successCopy";
 import { FORM_AMOUNT_INVALID, FORM_CATEGORY_REQUIRED } from "../../utils/formCopy";
 import { MAX_RECEIPT_IMAGES, DELETE_FAILED } from "../../utils/uploadCopy";
-import { ERROR_SAVE_FAILED } from "../../utils/errorCopy";
+import { ERROR_SAVE_FAILED, ERROR_RECEIPTS_PARTIAL, ERROR_RECEIPTS_ALL } from "../../utils/errorCopy";
 import Icon, { ICON_COLOR } from "../../components/Icon";
 
 interface Template {
@@ -260,7 +260,7 @@ export default function AddTransaction() {
         uploadedUrls = result.uploadedUrls;
         failedCount = result.failedCount;
         if (failedCount > 0) {
-          toastInfo(`${failedCount} 张图片上传失败，其余已保存`);
+          toastInfo(ERROR_RECEIPTS_PARTIAL(failedCount));
         }
       }
 
@@ -274,7 +274,7 @@ export default function AddTransaction() {
         setPendingImages([]);
       } else if (pendingImages.length > 0 && failedCount === pendingImages.length) {
         // 所有图片都上传失败了，保留 pendingImages 让用户重试
-        toastInfo("图片上传失败，请检查网络后重试");
+        toastInfo(ERROR_RECEIPTS_ALL);
       } else if (pendingImages.length > 0) {
         // 部分成功或不需要更新，清空 pending
         setPendingImages([]);

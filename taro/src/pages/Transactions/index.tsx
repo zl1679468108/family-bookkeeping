@@ -20,6 +20,7 @@ import "./index.scss";
 import { TRANSACTION_TYPE_FILTER_LABELS, TRANSACTION_TIME_FILTER_LABELS, FILTER_ALL_CATEGORIES } from "../../utils/transactionType";
 import { parseAmount } from "../../utils/budget";
 import { ACTION_LOADING } from "../../utils/actionCopy";
+import { EMPTY_TRANSACTIONS_HINT } from "../../utils/emptyCopy";
 
 const FILTER_OPTIONS = [...TRANSACTION_TYPE_FILTER_LABELS];
 const TIME_OPTIONS = [...TRANSACTION_TIME_FILTER_LABELS];
@@ -329,7 +330,7 @@ export default function Transactions() {
         <View className="txn-list">
           {txn.length === 0 ? (
             <EmptyState
-              description="暂无交易记录，可调整筛选或新增一笔账单"
+              description={EMPTY_TRANSACTIONS_HINT}
               action={
                 <EmptyAddTransactionAction
                   onClick={() => Taro.navigateTo({ url: "/pages/AddTransaction/index" })}

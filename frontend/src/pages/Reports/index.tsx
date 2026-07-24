@@ -16,7 +16,7 @@ import { CategoryRankChart } from './components/CategoryRankChart'
 import { useReportData, PeriodType } from './hooks/useReportData'
 import { formatAmount } from '../../utils/common'
 import { formatMonthDisplay } from '../../utils/month'
-import { EMPTY_NO_CATEGORY_DATA, EMPTY_NO_TRANSACTIONS_PERIOD } from '../../utils/emptyCopy'
+import { EMPTY_NO_CATEGORY_DATA, EMPTY_NO_TRANSACTIONS_PERIOD, EMPTY_MEMBER_COMPARE_NEED_MULTI, EMPTY_SELECT_BOOK } from '../../utils/emptyCopy'
 
 const Reports: React.FC = () => {
   const navigate = useNavigate()
@@ -189,7 +189,7 @@ const Reports: React.FC = () => {
         <>
           {!isMultiMember ? (
             <Card>
-              <EmptyState description="成员对比仅在多成员账本可用，请切换账本或邀请家人加入" />
+              <EmptyState description={EMPTY_MEMBER_COMPARE_NEED_MULTI} />
             </Card>
           ) : (
             <>
@@ -203,7 +203,7 @@ const Reports: React.FC = () => {
                 <MemberComparison monthFrom={memberStartMonth} monthTo={memberEndMonth} />
               ) : (
                 <Card>
-                  <EmptyState description="请先在左侧选择要查看的账本" />
+                  <EmptyState description={EMPTY_SELECT_BOOK} />
                 </Card>
               )}
             </>

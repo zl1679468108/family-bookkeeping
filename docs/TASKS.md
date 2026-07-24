@@ -85,6 +85,13 @@
 
 ### ✅ 已完成
 
+#### 2026-07-24 emptyCopy 扩展 + sortCopy 排序提示 + Dropdown 箭头 Icon
+- 双端 `emptyCopy`：流水/首页/预算/成员对比/Admin 等高频空态描述收口。
+- 双端 `sortCopy`：`SORT_NOTHING`/`SORT_UNCHANGED`；Taro `useReorder` 接线。
+- 记一笔附件失败文案走 `ERROR_RECEIPTS_*`；隐私协议 toast 走 `FORM_PRIVACY_REQUIRED`。
+- PC `Dropdown` chevron → `Icon chevron-down`。
+- 验证：frontend / taro `tsc --noEmit` 通过。
+
 #### 2026-07-24 校验默认文案 + actionCopy 扩展 + 公共 Icon 收口
 - 双端 `formCopy`：密码/邮箱校验默认文案 + 返回/返回登录；`validation.ts` 默认值同源。
 - 双端 `actionCopy`：`ACTION_PROCESSING`/`ACTION_SWITCHING`/`processingLabel`；ConfirmDialog/useSubmit/BookCreateModal/Spinner/Map aria 收口。

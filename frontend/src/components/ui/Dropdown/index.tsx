@@ -1,5 +1,5 @@
-import { Icon } from '../Icon'
 import React, { useState, useRef, useEffect } from 'react'
+import { Icon } from '../Icon'
 
 /**
  * 通用下拉选择组件 —— 取代各页面手写的 <select> 和自定义下拉
@@ -146,7 +146,7 @@ export const DropdownSelect: React.FC<DropdownSelectProps> = ({
             <Icon name="close" size={12} strokeWidth={2.5} />
           </span>
         )}
-        <span className="dd-select__chevron">▾</span>
+        <span className="dd-select__chevron"><Icon name="chevron-down" size={14} /></span>
       </button>
 
       {open && (

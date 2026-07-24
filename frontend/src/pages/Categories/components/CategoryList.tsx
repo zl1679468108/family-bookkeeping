@@ -3,6 +3,7 @@ import { renderCategoryIcon } from '../../../utils/renderCategoryIcon'
 import { EmptyState } from '../../../components/ui/EmptyState'
 import { EmptyActionButton } from '../../../components/ui/EmptyState/emptyActions'
 import type { Category } from '@family-bookkeeping/shared-types'
+import { EMPTY_CATEGORIES_GENERIC } from '../../../utils/emptyCopy'
 
 interface CategoryListProps {
   orderedList: Category[]
@@ -32,7 +33,7 @@ export const CategoryList: React.FC<CategoryListProps> = ({
   if (orderedList.length === 0) {
     return (
       <EmptyState
-        description="暂无分类，添加第一个让收支都有清晰归类"
+        description={EMPTY_CATEGORIES_GENERIC}
         action={
           onAdd ? (
             <EmptyActionButton size="sm" onClick={onAdd}>

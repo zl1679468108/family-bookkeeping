@@ -10,6 +10,7 @@ import './MemberComparison.scss';
 import { formatAmount } from '../../utils/common';
 import { getChartPalette } from '../../utils/themeColors'
 import { formatMonthDisplayCompact } from '../../utils/month'
+import { EMPTY_MEMBER_SPEND_PERIOD } from '../../utils/emptyCopy';
 
 interface MemberComparisonProps {
   monthFrom: string;
@@ -286,7 +287,7 @@ export const MemberComparison: React.FC<MemberComparisonProps> = ({
 
   if (data.length === 0) {
     return (
-      <EmptyState description="该时间段内还没有成员消费记录" />
+      <EmptyState description={EMPTY_MEMBER_SPEND_PERIOD} />
     );
   }
 

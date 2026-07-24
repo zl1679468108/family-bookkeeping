@@ -51,6 +51,7 @@ import { entityCreateButton } from "../../utils/entityCopy";
 import { DELETE_FAILED } from "../../utils/uploadCopy";
 import { ERROR_JOIN_FAILED, ERROR_INVITE_EMAIL, ERROR_GENERATE_FAILED, ERROR_REMOVE_FAILED } from "../../utils/errorCopy";
 import Icon, { ICON_COLOR } from "../../components/Icon";
+import { EMPTY_BOOKS_SHORT } from "../../utils/emptyCopy";
 
 type BookRow = Book & { is_default?: boolean };
 
@@ -331,7 +332,7 @@ export default function BooksPage() {
       {/* ====== 账本列表（双列网格）====== */}
       {!books || books.length === 0 ? (
         <View className="bk-empty">
-          <EmptyState description="暂无账本，点击右上角新建" />
+          <EmptyState description={EMPTY_BOOKS_SHORT} />
         </View>
       ) : (
         <View className="bk-grid">

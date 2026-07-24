@@ -18,6 +18,7 @@ import { platformUserRoleLabel, isPlatformAdmin } from '../../../utils/roles'
 import { queryKeys } from '../../../utils/queryKeys'
 import { STALE } from '../../../utils/cachePolicy'
 import { ERROR_ROLE_UPDATE, ERROR_STATUS_UPDATE } from '../../../utils/errorCopy'
+import { EMPTY_NO_USERS } from '../../../utils/emptyCopy'
 import {
   PLATFORM_USER_STATUS_OPTIONS,
   platformUserStatusLabel,
@@ -167,7 +168,7 @@ const AdminUsers: React.FC = () => {
             <TableRowsSkeleton columns={9} rows={10} />
           </div>
         ) : (data?.users || []).length === 0 ? (
-          <EmptyState description="暂无用户" variant="compact" />
+          <EmptyState description={EMPTY_NO_USERS} variant="compact" />
         ) : (
           <>
             <div className="data-table-wrapper">

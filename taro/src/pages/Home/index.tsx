@@ -22,6 +22,7 @@ import { getBudgetVariant } from "../../utils/budget";
 import { renderCategoryIcon } from "../../utils/renderCategoryIcon";
 import "./index.scss";
 import { ACTION_LOADING } from "../../utils/actionCopy";
+import { EMPTY_TRANSACTIONS_HOME, EMPTY_NO_BUDGET } from "../../utils/emptyCopy";
 
 interface BudgetStatus {
   category_id: string;
@@ -160,7 +161,7 @@ export default function Home() {
       >
         {txn.length === 0 ? (
           <EmptyState
-            description="暂无交易记录，记一笔开始掌握家庭收支"
+            description={EMPTY_TRANSACTIONS_HOME}
             action={
               <EmptyAddTransactionAction
                 onClick={() => Taro.navigateTo({ url: "/pages/AddTransaction/index" })}
@@ -265,7 +266,7 @@ export default function Home() {
           </View>
         ) : (
           <EmptyState
-            description="暂未设置预算，设置后可以更好地控制支出"
+            description={EMPTY_NO_BUDGET}
             action={
               <EmptyActionButton
                 variant="secondary"

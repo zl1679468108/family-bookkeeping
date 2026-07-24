@@ -28,6 +28,7 @@ import { queryKeys, TRANSACTION_IMPACT_ROOT_KEYS } from '../../utils/queryKeys'
 import { STALE } from '../../utils/cachePolicy'
 import { transactionTypeLabel, TRANSACTION_TYPE_OPTIONS, FILTER_ALL_TYPES, FILTER_ALL_CATEGORIES, FILTER_ALL_TIME, FILTER_LAST_7_DAYS, FILTER_LAST_30_DAYS } from '../../utils/transactionType'
 import { ERROR_DELETE_FAILED } from '../../utils/errorCopy'
+import { EMPTY_TRANSACTIONS } from '../../utils/emptyCopy'
 import {
   CONFIRM_DELETE_TITLE,
   CONFIRM_DELETE_TEXT,
@@ -314,7 +315,7 @@ const Transactions: React.FC = () => {
       ) : transactions.length === 0 ? (
         <Card>
           <EmptyState
-            description="暂无交易记录"
+            description={EMPTY_TRANSACTIONS}
             action={
               <EmptyAddTransactionAction onClick={() => navigate('/add?type=expense')} />
             }

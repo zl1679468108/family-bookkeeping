@@ -42,7 +42,7 @@ import {
 } from "../../utils/confirmCopy";
 import { SUCCESS_DELETED, successEntityUpsert, SUCCESS_ADDED_TO_CUSTOM } from "../../utils/successCopy";
 import { categoryTypeTabLabel } from "../../utils/transactionType";
-import { FORM_NAME_REQUIRED } from "../../utils/formCopy";
+import { FORM_NAME_REQUIRED, FORM_PRIVACY_REQUIRED } from "../../utils/formCopy";
 import { entityFormTitle } from "../../utils/entityCopy";
 import { UPLOAD_FAILED, DELETE_FAILED, IMAGE_SELECT_FAILED } from "../../utils/uploadCopy";
 import { failEntityUpsert } from "../../utils/errorCopy";
@@ -127,7 +127,7 @@ export default function CategoryEdit() {
         const msg = getErrorMessage(err, "");
         if (msg.indexOf("cancel") !== -1) return;
         if (isPrivacyError(err)) {
-          toastInfo("请先同意隐私协议");
+          toastInfo(FORM_PRIVACY_REQUIRED);
           openPrivacySetting();
           return;
         }

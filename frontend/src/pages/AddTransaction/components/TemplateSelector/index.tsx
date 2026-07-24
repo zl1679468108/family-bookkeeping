@@ -6,6 +6,7 @@ import { FooterActions } from '../../../../components/ui/FooterActions'
 import './index.scss'
 import { Icon } from '../../../../components/ui/Icon'
 import { transactionTypeLabel } from '../../../../utils/transactionType'
+import { EMPTY_TEMPLATES_SELECTOR } from '../../../../utils/emptyCopy'
 
 interface TemplateSelectorProps {
   visible: boolean
@@ -54,7 +55,7 @@ export const TemplateSelector: React.FC<TemplateSelectorProps> = ({
           ) : templates.length === 0 ? (
             <EmptyState
               variant="compact"
-              description="暂无模板，请先在「模板管理」中创建"
+              description={EMPTY_TEMPLATES_SELECTOR}
             />
           ) : (
             <div className="template-list">
