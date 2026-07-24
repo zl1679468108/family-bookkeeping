@@ -1,10 +1,7 @@
 import React from 'react'
 import { DropdownSelect } from '../Dropdown'
-
-/** 默认每页条数 */
-export const DEFAULT_PAGE_SIZE = 20
-/** 默认每页条数可选项 */
-export const DEFAULT_PAGE_SIZE_OPTIONS = [20, 50, 100]
+import { DEFAULT_PAGE_SIZE, DEFAULT_PAGE_SIZE_OPTIONS } from '../../../utils/pagination'
+export { DEFAULT_PAGE_SIZE, DEFAULT_PAGE_SIZE_OPTIONS } from '../../../utils/pagination'
 
 /**
  * 通用分页器组件（全局）

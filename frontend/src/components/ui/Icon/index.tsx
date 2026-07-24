@@ -1,4 +1,5 @@
 import React from 'react'
+export { ICON_COLOR } from '../../../utils/iconColor'
 
 /**
  * PC 端线框图标 — 统一 currentColor 着色，对齐 Taro ICON_COLOR 语义。
@@ -37,13 +38,6 @@ export type IconName =
   | 'monitor'
 
 /** 语义色快捷，避免业务层硬编码 hex */
-export const ICON_COLOR = {
-  primary: 'var(--pr)',
-  muted: 'var(--fg3)',
-  fg: 'var(--fg)',
-  danger: 'var(--exp)',
-  onPrimary: 'var(--on-pr)',
-} as const
 
 interface IconProps {
   name: IconName

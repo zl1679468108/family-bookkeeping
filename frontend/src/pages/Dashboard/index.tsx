@@ -29,6 +29,7 @@ import { ACTION_VIEW_ALL,
   ACTION_GO_SETTINGS,
 } from '../../utils/actionCopy'
 import { FIELD_MONTH_BALANCE, FIELD_MONTH_INCOME, FIELD_MONTH_EXPENSE } from '../../utils/fieldCopy'
+import { HOME_RECENT_TX_PAGE_SIZE } from '../../utils/pagination'
 
 const Dashboard: React.FC = () => {
   const navigate = useNavigate()
@@ -57,7 +58,7 @@ const Dashboard: React.FC = () => {
 
   const { data: recentPaginated, isLoading: recentLoading } = useQuery({
     queryKey: queryKeys.transactions.recent(bookId, monthStart, monthEnd),
-    queryFn: () => getTransactions({ pageSize: 5, startDate: monthStart, endDate: monthEnd }),
+    queryFn: () => getTransactions({ pageSize: HOME_RECENT_TX_PAGE_SIZE, startDate: monthStart, endDate: monthEnd }),
     enabled: hasBooks && !!bookId,
     staleTime: STALE.transactions,
   })

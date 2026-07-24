@@ -17,6 +17,7 @@ import {
   getAdminTransactions,
   getAdminBooks,
 } from '../services/adminApi'
+import { HOME_RECENT_TX_PAGE_SIZE } from './pagination'
 
 export function prefetchRoute(path: string, bookId: string): void {
   const isAdminPath = path === '/admin' || path.startsWith('/admin/')
@@ -79,7 +80,7 @@ export function prefetchRoute(path: string, bookId: string): void {
   if (path === '/' || path === '/transactions') {
     void queryClient.prefetchQuery({
       queryKey: queryKeys.transactions.recent(bookId, monthStart, monthEnd),
-      queryFn: () => getTransactions({ pageSize: 5, startDate: monthStart, endDate: monthEnd }),
+      queryFn: () => getTransactions({ pageSize: HOME_RECENT_TX_PAGE_SIZE, startDate: monthStart, endDate: monthEnd }),
       staleTime: STALE.transactions,
     })
   }

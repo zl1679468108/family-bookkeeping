@@ -85,6 +85,11 @@
 
 ### ✅ 已完成
 
+#### 2026-07-24 分页默认值与 ICON_COLOR shared 化
+- `pagination`：DEFAULT_PAGE_SIZE/OPTIONS、HOME_RECENT_TX_PAGE_SIZE；PC Pagination / 首页预取 / Taro 流水与首页接线
+- `iconColor.ICON_COLOR`：PC/Taro Icon 语义色同源
+- 验证：frontend / taro `tsc --noEmit`
+
 #### 2026-07-24 表单字段长度上限 shared 化
 - formCopy 补分类/模板/账本/邀请码/商户/用户名/验证码长度常量
 - PC + Taro 表单 maxlength 接线；Taro ImageUpload 默认张数对齐 MAX_RECEIPT_IMAGES

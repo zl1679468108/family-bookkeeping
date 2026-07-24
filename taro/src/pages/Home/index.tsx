@@ -27,6 +27,7 @@ import { EMPTY_TRANSACTIONS_HOME, EMPTY_NO_BUDGET } from "../../utils/emptyCopy"
 import { TITLE_RECENT_TXN_MONTH, TITLE_BUDGET_MONTH } from "../../utils/sectionCopy";
 import { FIELD_MONTH_BALANCE, FIELD_MONTH_INCOME, FIELD_MONTH_EXPENSE } from "../../utils/fieldCopy"
 import { CATEGORY_FALLBACK_OTHER } from "../../utils/categories"
+import { HOME_RECENT_TX_PAGE_SIZE } from "../../utils/pagination";
 
 interface BudgetStatus {
   category_id: string;
@@ -57,7 +58,7 @@ export default function Home() {
 
     const [summaryRes, txnRes, budgetRes] = await Promise.allSettled([
       fetchSummary({ startDate, endDate }),
-      getTransactions({ page: 1, pageSize: 5, startDate, endDate }),
+      getTransactions({ page: 1, pageSize: HOME_RECENT_TX_PAGE_SIZE, startDate, endDate }),
       fetchBudgetStatus(monthStr),
     ]);
 

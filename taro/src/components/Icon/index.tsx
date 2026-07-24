@@ -7,6 +7,7 @@
  */
 import { View, Image } from "@tarojs/components";
 import "./index.scss";
+export { ICON_COLOR } from "../../utils/iconColor";
 
 export type IconName =
   | "home"
@@ -63,13 +64,6 @@ interface IconProps {
 }
 
 /** 语义色快捷，避免业务层硬编码 hex */
-export const ICON_COLOR = {
-  primary: "var(--pr)",
-  muted: "var(--fg3)",
-  fg: "var(--fg)",
-  danger: "var(--exp)",
-  onPrimary: "var(--on-pr, #fff)",
-} as const;
 
 const FILE_MAP: Record<IconName, string> = {
   home: "home",

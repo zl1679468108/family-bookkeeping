@@ -30,11 +30,11 @@ import {
   formatTransactionDateLabel,
 } from "../../utils/transactionList";
 import { CATEGORY_FALLBACK_OTHER } from "../../utils/categories";
+import { DEFAULT_PAGE_SIZE } from "../../utils/pagination";
 
 const FILTER_OPTIONS = [...TRANSACTION_TYPE_FILTER_LABELS];
 const TIME_OPTIONS = [...TRANSACTION_TIME_FILTER_LABELS];
 
-const PAGE_SIZE = 20;
 
 // 请求序列号：并发/快速切换筛选时，只采用最新一次请求的结果，丢弃过期响应。
 // 小程序运行时无 AbortController，故用序列号做竞态兜底而非取消请求。
@@ -107,7 +107,7 @@ export default function Transactions() {
           category: catParam || undefined,
           search: s.trim() || undefined,
           page: targetPage,
-          pageSize: PAGE_SIZE,
+          pageSize: DEFAULT_PAGE_SIZE,
           view: "own",
         });
         // 已被更新的请求取代，丢弃过期响应（不动 loading 态，交给最新请求收口）
@@ -115,7 +115,7 @@ export default function Transactions() {
         const list: any[] = res?.data || [];
         const next = replace ? list : [...currentList, ...list];
         setTxn(next);
-        setHasMore(list.length === PAGE_SIZE);
+        setHasMore(list.length === DEFAULT_PAGE_SIZE);
         setPage(targetPage);
         setLoading(false);
         setLoadingMore(false);
