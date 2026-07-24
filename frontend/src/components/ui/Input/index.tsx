@@ -1,4 +1,5 @@
 import React, { InputHTMLAttributes, useState, useEffect, useRef, useId } from 'react'
+import { Icon } from '../Icon'
 
 /**
  * 通用输入框组件 —— 取代各页面手写的 `<input>` + `<div className="form-input">` 结构
@@ -91,15 +92,12 @@ export const Input: React.FC<InputProps> = ({
             tabIndex={-1}
             aria-label={showPassword ? '隐藏密码' : '显示密码'}
           >
-            {showPassword ? (<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19M14.12 14.12a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>) : (<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>)}
+            {showPassword ? <Icon name="eye-off" size={16} /> : <Icon name="eye" size={16} />}
           </button>
         )}
         {allowClear && currentValue && (
           <button type="button" className="ui-input-clear" onClick={handleClear} aria-label="清空">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="18" y1="6" x2="6" y2="18" />
-              <line x1="6" y1="6" x2="18" y2="18" />
-            </svg>
+            <Icon name="close" size={12} strokeWidth={2.5} />
           </button>
         )}
       </div>
@@ -154,10 +152,7 @@ export const SearchInput: React.FC<SearchInputProps> = ({
     >
       <span className="ui-search-icon">
         {icon || (
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <circle cx="11" cy="11" r="8" />
-            <line x1="21" y1="21" x2="16.65" y2="16.65" />
-          </svg>
+          <Icon name="search" size={14} />
         )}
       </span>
       <input
@@ -172,10 +167,7 @@ export const SearchInput: React.FC<SearchInputProps> = ({
       />
       {allowClear && value && (
         <span className="ui-search-clear" onClick={handleClear} role="button" aria-label="清空">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="18" y1="6" x2="6" y2="18" />
-            <line x1="6" y1="6" x2="18" y2="18" />
-          </svg>
+          <Icon name="close" size={12} strokeWidth={2.5} />
         </span>
       )}
     </div>

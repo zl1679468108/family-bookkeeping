@@ -4,6 +4,7 @@ import { GlobalModal, DetailItem, Space } from '../../../components/ui'
 import { Button } from '../../../components/ui/Button'
 import { renderCategoryIcon } from '../../../utils/renderCategoryIcon'
 import { formatMoney } from '../../../utils/budget'
+import { formatFrequency } from '../../../utils/frequency'
 
 interface TemplateDetailModalProps {
   template: any
@@ -88,17 +89,7 @@ export const TemplateDetailModal: React.FC<TemplateDetailModalProps> = ({
           <DetailItem label="排序" value={`第 ${template.sort_order + 1} 位`} />
         )}
         {template.frequency && (
-          <DetailItem
-            label="周期"
-            value={
-              template.frequency === 'daily' ? '每天'
-                : template.frequency === 'weekly' ? '每周'
-                : template.frequency === 'monthly' ? '每月'
-                : template.frequency === 'quarterly' ? '每季度'
-                : template.frequency === 'yearly' ? '每年'
-                : template.frequency
-            }
-          />
+          <DetailItem label="周期" value={formatFrequency(template.frequency)} />
         )}
         {template.start_date && (
           <DetailItem label="开始日期" value={template.start_date} />

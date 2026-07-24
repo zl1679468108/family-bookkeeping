@@ -98,6 +98,12 @@
 - `formatAmount`/`formatAmountWithType` 薄封装 `formatMoney`，单一金额格式实现。
 - 记一笔保存成功清除草稿；frontend `tsc --noEmit` 通过。
 
+#### 2026-07-24 密码框/频率/记一笔 payload 复用收口
+- PC 新增 `PasswordField`：Login/Register/Forgot/Reset/Profile 改密统一显隐切换，去掉分散 show* 状态。
+- `ui/Input` 眼标/清空/搜索改用 `Icon`；`formatFrequency` + `FREQUENCY_OPTIONS` 双端；模板详情/表单/Taro TemplateManager 收口。
+- Taro 记一笔抽取 `buildTransactionPayload` + `utils/parseImageList`（对齐 PC cleanUrl）。
+- 验证：frontend/taro `tsc --noEmit` 通过。
+
 #### 2026-07-24 PC 暗色第四轮 + Icon 体系 + 模板详情体验
 - 记一笔 `useTransactionForm` 提交统一 `useMutationAction`（payload/上传/invalidate 收口）。
 - PC 暗色第四轮：主色面上的 `white`/`rgba(255,255,255,*)` → `var(--on-pr)` / `color-mix`；Admin 粘性列阴影、地图 badge/marker、StatCard/Dashboard/Onboarding/Auth 英雄区收口。

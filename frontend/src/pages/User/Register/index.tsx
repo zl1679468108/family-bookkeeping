@@ -8,15 +8,13 @@ import { validatePasswordMatch, validatePasswordMinLength } from '../../../utils
 import AuthLayout from '../../../components/AuthLayout'
 import { RegisterIllustration } from '../../../components/AuthLayout/AuthIllustrations'
 import { Button } from '../../../components/ui/Button'
-import { Icon } from '../../../components/ui/Icon'
+import { PasswordField } from '../../../components/ui/PasswordField'
 
 const RegisterPage: React.FC = () => {
   const [username, setUsername] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
-  const [showPassword, setShowPassword] = useState(false)
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const { signUp } = useAuth()
   const navigate = useNavigate()
 
@@ -78,52 +76,24 @@ const RegisterPage: React.FC = () => {
         </div>
 
         <div className="form-row">
-          <div className="form-group">
-            <label htmlFor="regPass">密码</label>
-            <div className="password-wrapper">
-              <input
-                id="regPass"
-                type={showPassword ? 'text' : 'password'}
-                className="form-input"
-                placeholder="至少6位"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                autoComplete="new-password"
-              />
-              <button
-                type="button"
-                className="password-toggle"
-                onClick={() => setShowPassword(v => !v)}
-                tabIndex={-1}
-              >
-                {showPassword ? <Icon name="eye-off" size={16} /> : <Icon name="eye" size={16} />}
-              </button>
-            </div>
-          </div>
-          <div className="form-group">
-            <label htmlFor="regPass2">确认密码</label>
-            <div className="password-wrapper">
-              <input
-                id="regPass2"
-                type={showConfirmPassword ? 'text' : 'password'}
-                className="form-input"
-                placeholder="再次输入"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                required
-                autoComplete="new-password"
-              />
-              <button
-                type="button"
-                className="password-toggle"
-                onClick={() => setShowConfirmPassword(v => !v)}
-                tabIndex={-1}
-              >
-                {showConfirmPassword ? <Icon name="eye-off" size={16} /> : <Icon name="eye" size={16} />}
-              </button>
-            </div>
-          </div>
+          <PasswordField
+            id="regPass"
+            label="密码"
+            placeholder="至少6位"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            autoComplete="new-password"
+          />
+          <PasswordField
+            id="regPass2"
+            label="确认密码"
+            placeholder="再次输入"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            required
+            autoComplete="new-password"
+          />
         </div>
 
         <Button type="submit" variant="primary" block size="lg" className="btn-submit" disabled={loading}>

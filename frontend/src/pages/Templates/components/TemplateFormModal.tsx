@@ -7,6 +7,7 @@ import { DropdownSelect } from '../../../components/ui/Dropdown'
 import { LocationDisplay } from '../../../components/ui/LocationDisplay'
 import { LocationPicker } from '../../AddTransaction/components/LocationPicker'
 import type { LocationResult } from '@family-bookkeeping/shared-types'
+import { FREQUENCY_OPTIONS } from '../../../utils/frequency'
 
 interface TemplateFormProps {
   open: boolean
@@ -150,14 +151,7 @@ export const TemplateFormModal: React.FC<TemplateFormProps> = ({
                 label="频率"
                 value={form.frequency || ''}
                 onChange={(v) => setForm((prev: any) => ({ ...prev, frequency: v || undefined }))}
-                options={[
-                  { key: '', label: '不重复' },
-                  { key: 'daily', label: '每天' },
-                  { key: 'weekly', label: '每周' },
-                  { key: 'monthly', label: '每月' },
-                  { key: 'quarterly', label: '每季度' },
-                  { key: 'yearly', label: '每年' },
-                ]}
+                options={[{ key: '', label: '不重复' }, ...FREQUENCY_OPTIONS]}
                 placeholder="选择频率"
               />
             </div>

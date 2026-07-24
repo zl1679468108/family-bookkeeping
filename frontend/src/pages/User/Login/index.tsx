@@ -8,12 +8,11 @@ import { LoginIllustration } from '../../../components/AuthLayout/AuthIllustrati
 import { notifyError } from '../../../utils/notifyError'
 import { getCaptcha } from '../../../services/api'
 import { Button } from '../../../components/ui/Button'
-import { Icon } from '../../../components/ui/Icon'
+import { PasswordField } from '../../../components/ui/PasswordField'
 
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [showPassword, setShowPassword] = useState(false)
   const [captchaCode, setCaptchaCode] = useState('')
   const [captchaId, setCaptchaId] = useState('')
   const [captchaSvg, setCaptchaSvg] = useState('')
@@ -77,29 +76,15 @@ const LoginPage: React.FC = () => {
           />
         </div>
 
-        <div className="form-group">
-          <label htmlFor="loginPass">密码</label>
-          <div className="password-wrapper">
-            <input
-              id="loginPass"
-              type={showPassword ? 'text' : 'password'}
-              className="form-input"
-              placeholder="输入密码"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              autoComplete="current-password"
-            />
-            <button
-              type="button"
-              className="password-toggle"
-              onClick={() => setShowPassword(v => !v)}
-              tabIndex={-1}
-            >
-              {showPassword ? <Icon name="eye-off" size={16} /> : <Icon name="eye" size={16} />}
-            </button>
-          </div>
-        </div>
+        <PasswordField
+          id="loginPass"
+          label="密码"
+          placeholder="输入密码"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+          autoComplete="current-password"
+        />
 
         <div className="form-group">
           <label htmlFor="captchaCode">验证码</label>

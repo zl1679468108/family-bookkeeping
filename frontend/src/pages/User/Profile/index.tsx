@@ -5,7 +5,7 @@ import { updateProfile, changePassword } from '../../../services/api'
 import { useDebouncedAction } from '../../../hooks/useDebouncedAction'
 
 import { Button } from '../../../components/ui/Button'
-import { Icon } from '../../../components/ui/Icon'
+import { PasswordField } from '../../../components/ui/PasswordField'
 import { FooterActions } from '../../../components/ui/FooterActions'
 import './index.scss'
 import { notifySuccess, notifyError } from '../../../utils/notifyError'
@@ -56,9 +56,6 @@ const PasswordModal: React.FC<PasswordModalProps> = ({ visible, onClose }) => {
   const [oldPassword, setOldPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
-  const [showOld, setShowOld] = useState(false)
-  const [showNew, setShowNew] = useState(false)
-  const [showConfirm, setShowConfirm] = useState(false)
   const [error, setError] = useState('')
 
   const { run: handleSubmit, isRunning: loading } = useDebouncedAction(async () => {
@@ -93,71 +90,30 @@ const PasswordModal: React.FC<PasswordModalProps> = ({ visible, onClose }) => {
       <div className="modal-content" onClick={e => e.stopPropagation()}>
         <h3 className="modal-title">修改密码</h3>
         <form onSubmit={(e) => { e.preventDefault(); handleSubmit() }} className="modal-form">
-          <div className="form-group">
-            <label className="form-label field-required">当前密码</label>
-            <div className="password-wrapper">
-              <input
-                type={showOld ? 'text' : 'password'}
-                className="form-input"
-                value={oldPassword}
-                onChange={e => setOldPassword(e.target.value)}
-                placeholder="请输入当前密码"
-                autoComplete="current-password"
-              />
-              <button
-                type="button"
-                className="password-toggle"
-                onClick={() => setShowOld(v => !v)}
-                tabIndex={-1}
-              >
-                {showOld ? <Icon name="eye-off" size={16} /> : <Icon name="eye" size={16} />}
-              </button>
-            </div>
-          </div>
-
-          <div className="form-group">
-            <label className="form-label field-required">新密码</label>
-            <div className="password-wrapper">
-              <input
-                type={showNew ? 'text' : 'password'}
-                className="form-input"
-                value={newPassword}
-                onChange={e => setNewPassword(e.target.value)}
-                placeholder="至少 6 位，含大小写+数字"
-                autoComplete="new-password"
-              />
-              <button
-                type="button"
-                className="password-toggle"
-                onClick={() => setShowNew(v => !v)}
-                tabIndex={-1}
-              >
-                {showNew ? <Icon name="eye-off" size={16} /> : <Icon name="eye" size={16} />}
-              </button>
-            </div>
-          </div>
-
-          <div className="form-group">
-            <label className="form-label field-required">确认新密码</label>
-            <div className="password-wrapper">
-              <input
-                type={showConfirm ? 'text' : 'password'}
-                className="form-input"
-                value={confirmPassword}
-                onChange={e => setConfirmPassword(e.target.value)}
-                placeholder="请再次输入新密码"
-                autoComplete="new-password"
-              />
-              <button
-                type="button"
-                className="password-toggle"
-                onClick={() => setShowConfirm(v => !v)}
-                tabIndex={-1}
-              >
-                {showConfirm ? <Icon name="eye-off" size={16} /> : <Icon name="eye" size={16} />}
-              </button>
-            </div>
-          </div>
+          <PasswordField
+            label="当前密码"
+            labelClassName="form-label field-required"
+            value={oldPassword}
+            onChange={e => setOldPassword(e.target.value)}
+            placeholder="请输入当前密码"
+            autoComplete="current-password"
+          />
+          <PasswordField
+            label="新密码"
+            labelClassName="form-label field-required"
+            value={newPassword}
+            onChange={e => setNewPassword(e.target.value)}
+            placeholder="至少 6 位，含大小写+数字"
+            autoComplete="new-password"
+          />
+          <PasswordField
+            label="确认新密码"
+            labelClassName="form-label field-required"
+            value={confirmPassword}
+            onChange={e => setConfirmPassword(e.target.value)}
+            placeholder="请再次输入新密码"
+            autoComplete="new-password"
+          />
 
           {error && (
             <div className="form-error">{error}</div>

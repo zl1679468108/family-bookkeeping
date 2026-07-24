@@ -5,7 +5,7 @@ import { useDebouncedAction } from '../../../hooks/useDebouncedAction'
 import AuthLayout from '../../../components/AuthLayout'
 import { ForgotIllustration } from '../../../components/AuthLayout/AuthIllustrations'
 import { Button } from '../../../components/ui/Button'
-import { Icon } from '../../../components/ui/Icon'
+import { PasswordField } from '../../../components/ui/PasswordField'
 import { validatePasswordMatch, validatePasswordMinLength } from '../../../utils/validation'
 
 const ForgotPassword: React.FC = () => {
@@ -13,8 +13,6 @@ const ForgotPassword: React.FC = () => {
   const [code, setCode] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
-  const [showPassword, setShowPassword] = useState(false)
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [step, setStep] = useState<number>(1)
   const [countdown, setCountdown] = useState(0)
   const [message, setMessage] = useState('')
@@ -181,54 +179,26 @@ const ForgotPassword: React.FC = () => {
           </div>
 
           <div className="form-row">
-            <div className="form-group">
-              <label htmlFor="forgotNewPass">新密码</label>
-              <div className="password-wrapper">
-                <input
-                  id="forgotNewPass"
-                  type={showPassword ? 'text' : 'password'}
-                  className="form-input"
-                  placeholder="至少6位"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  autoComplete="new-password"
-                  disabled={submitLoading}
-                />
-                <button
-                  type="button"
-                  className="password-toggle"
-                  onClick={() => setShowPassword(v => !v)}
-                  tabIndex={-1}
-                >
-                  {showPassword ? <Icon name="eye-off" size={16} /> : <Icon name="eye" size={16} />}
-                </button>
-              </div>
-            </div>
-            <div className="form-group">
-              <label htmlFor="forgotNewPass2">确认密码</label>
-              <div className="password-wrapper">
-                <input
-                  id="forgotNewPass2"
-                  type={showConfirmPassword ? 'text' : 'password'}
-                  className="form-input"
-                  placeholder="再次输入"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  required
-                  autoComplete="new-password"
-                  disabled={submitLoading}
-                />
-                <button
-                  type="button"
-                  className="password-toggle"
-                  onClick={() => setShowConfirmPassword(v => !v)}
-                  tabIndex={-1}
-                >
-                  {showConfirmPassword ? <Icon name="eye-off" size={16} /> : <Icon name="eye" size={16} />}
-                </button>
-              </div>
-            </div>
+          <PasswordField
+            id="forgotNewPass"
+            label="新密码"
+            placeholder="至少6位"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            autoComplete="new-password"
+            disabled={submitLoading}
+          />
+          <PasswordField
+            id="forgotNewPass2"
+            label="确认密码"
+            placeholder="再次输入"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            required
+            autoComplete="new-password"
+            disabled={submitLoading}
+          />
           </div>
 
           <Button type="submit" variant="primary" block size="lg" className="btn-submit" disabled={submitLoading}>

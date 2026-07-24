@@ -26,6 +26,7 @@ import {
 import { useCategories } from "../../hooks/useCategories";
 import { useManualQuery } from "../../hooks/useManualQuery";
 import { useSubmit, toastError } from "../../hooks/useSubmit";
+import { FREQUENCY_LABELS } from "../../utils/frequency";
 import { useReorder } from "../../hooks/useReorder";
 import { isIconUrl } from "../../utils/renderCategoryIcon";
 import type { Template } from "../../types";
@@ -48,14 +49,6 @@ const EMPTY_FORM = {
   sort_order: 0,
 };
 
-
-const FREQ_LABEL: Record<string, string> = {
-  daily: "每天",
-  weekly: "每周",
-  monthly: "每月",
-  quarterly: "每季度",
-  yearly: "每年",
-};
 
 export default function TemplateManager() {
   const qc = useQueryClient();
@@ -495,7 +488,7 @@ export default function TemplateManager() {
               <View className="tpl-detail-item">
                 <Text className="tpl-detail-item__label">周期</Text>
                 <Text className="tpl-detail-item__value">
-                  {FREQ_LABEL[selectedTemplate.frequency] || selectedTemplate.frequency}
+                  {FREQUENCY_LABELS[selectedTemplate.frequency] || selectedTemplate.frequency}
                 </Text>
               </View>
             )}

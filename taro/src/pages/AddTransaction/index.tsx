@@ -17,6 +17,7 @@ import {
 import { getTemplates } from "../../services/templatesApi";
 import { useCategoryList } from "../../hooks/useCategories";
 import { useSubmit, toastError } from "../../hooks/useSubmit";
+import { buildTransactionPayload } from "./buildPayload";
 import FieldRow from "../../components/form/FieldRow";
 import SectionCard from "../../components/form/SectionCard";
 import NoteField from "../../components/form/NoteField";
@@ -25,6 +26,7 @@ import LocationField, {
 } from "../../components/form/LocationField";
 import ImageUpload from "../../components/form/ImageUpload";
 import { todayBeijing, toastSuccess, toastInfo, formatMoney } from "../../utils/format";
+import { parseImageList } from "../../utils/parseImageList";
 import "./index.scss";
 
 interface Template {
@@ -45,27 +47,6 @@ interface Template {
 
 const MAX_NOTE_LENGTH = 500;
 const MAX_IMAGES = 10; // 与 PC 端记一笔保持一致
-
-const parseImageList = (tx: any): string[] => {
-  if (
-    tx?.image_url_list &&
-    Array.isArray(tx.image_url_list) &&
-    tx.image_url_list.length > 0
-  ) {
-    return tx.image_url_list;
-  }
-  if (tx?.image_urls) {
-    try {
-      const parsed = JSON.parse(tx.image_urls);
-      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
-    } catch {
-      if (typeof tx.image_urls === "string" && tx.image_urls.includes(",")) {
-        return tx.image_urls.split(",").map((s) => s.trim()).filter(Boolean);
-      }
-    }
-  }
-  return [];
-};
 
 export default function AddTransaction() {
   const router = Taro.useRouter();
@@ -235,22 +216,17 @@ export default function AddTransaction() {
       return;
     }
 
-    const payload: any = {
+    const payload = buildTransactionPayload({
       type,
-      amount: parseFloat(amount),
-      category: categoryId,
+      amount,
+      categoryId,
       date,
-      brand: brand || undefined,
-      description: note || undefined,
-      latitude: location?.latitude,
-      longitude: location?.longitude,
-      location_name: location?.name || undefined,
-    };
-
-    // 编辑模式下先保存已有的图片 URL
-    if (isEdit && savedImages.length > 0) {
-      payload.image_urls = JSON.stringify(savedImages);
-    }
+      brand,
+      note,
+      location,
+      savedImages,
+      withSavedImages: isEdit,
+    });
 
     run(async () => {
       // 1. 创建/更新交易
