@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { renderCategoryIcon } from '../../utils/renderCategoryIcon';
 import { getChartPalette } from '../../utils/themeColors'
+import { formatMoney } from '../../utils/budget'
 
 interface CategoryItem {
   category_name: string;
@@ -16,13 +17,6 @@ interface ReportCategoryRankProps {
 
 export const ReportCategoryRank: React.FC<ReportCategoryRankProps> = ({ data }) => {
   const colors = useMemo(() => getChartPalette(), []);
-  const formatAmount = (n: number) => {
-    if (n >= 10000) {
-      return '¥' + (n / 10000).toFixed(1) + 'w';
-    }
-    return '¥' + n.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-  };
-
   return (
     <div style={{ marginBottom: '24px' }}>
       <h2
@@ -59,7 +53,7 @@ export const ReportCategoryRank: React.FC<ReportCategoryRankProps> = ({ data }) 
                   </span>
                   <div className="flex items-center gap-2">
                     <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--fg)' }}>
-                      {formatAmount(item.amount)}
+                      {formatMoney(item.amount, { compact: true })}
                     </span>
                     <span style={{ fontSize: '12px', color: 'var(--fg3)' }}>
                       {item.percentage}%

@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import { getChartPalette } from '../../utils/themeColors'
+import { formatMoney } from '../../utils/budget'
 
 interface BookItem {
   book_id: string;
@@ -26,7 +27,7 @@ const ReportBookBreakdown: React.FC<Props> = ({ data }) => {
             <div className="flex justify-between items-center mb-1">
               <span className="text-sm" style={{ color: 'var(--fg2)' }}>{book.book_name}</span>
               <span className="text-sm" style={{ color: 'var(--fg3)' }}>
-                ¥{book.amount.toFixed(0)} ({book.percentage}%)
+                {formatMoney(book.amount, { compact: true })} ({book.percentage}%)
               </span>
             </div>
             <div className="w-full rounded-full h-2.5" style={{ background: 'var(--bdL)' }}>

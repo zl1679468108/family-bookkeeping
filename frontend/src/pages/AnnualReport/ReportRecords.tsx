@@ -1,4 +1,5 @@
 import React from 'react';
+import { formatMoney } from '../../utils/budget';
 
 interface RecordItem {
   amount: number;
@@ -17,18 +18,11 @@ interface ReportRecordsProps {
 }
 
 export const ReportRecords: React.FC<ReportRecordsProps> = ({ data }) => {
-  const formatAmount = (n: number) => {
-    if (n >= 10000) {
-      return '¥' + (n / 10000).toFixed(1) + 'w';
-    }
-    return '¥' + n.toLocaleString('zh-CN', { minimumFractionDigits: 0 });
-  };
-
   const cards = [
     {
       icon: '💸',
       label: '单笔最高支出',
-      value: data.max_expense && data.max_expense.amount > 0 ? formatAmount(data.max_expense.amount) : '无',
+      value: data.max_expense && data.max_expense.amount > 0 ? formatMoney(data.max_expense.amount, { compact: true }) : '无',
       sub: data.max_expense?.description || '',
       sub2: data.max_expense?.date || '',
       bgColor: 'var(--warnBg)',
@@ -39,7 +33,7 @@ export const ReportRecords: React.FC<ReportRecordsProps> = ({ data }) => {
       label: '最忙碌消费日',
       value: data.max_expense_day?.count ? `${data.max_expense_day.count} 笔` : '无',
       sub: data.max_expense_day?.date || '',
-      sub2: data.max_expense_day?.amount && data.max_expense_day.amount > 0 ? `当日支出 ${formatAmount(data.max_expense_day.amount)}` : '',
+      sub2: data.max_expense_day?.amount && data.max_expense_day.amount > 0 ? `当日支出 ${formatMoney(data.max_expense_day.amount, { compact: true })}` : '',
       bgColor: 'var(--infoBg)',
       iconBg: 'var(--info)',
     },
@@ -47,7 +41,7 @@ export const ReportRecords: React.FC<ReportRecordsProps> = ({ data }) => {
       icon: '🏪',
       label: '最常消费商户',
       value: data.max_expense_merchant && data.max_expense_merchant.amount > 0
-        ? formatAmount(data.max_expense_merchant.amount)
+        ? formatMoney(data.max_expense_merchant.amount, { compact: true })
         : '无',
       sub: data.max_expense_merchant?.counterparty || data.max_expense_merchant?.description || '',
       sub2: data.max_expense_merchant?.count

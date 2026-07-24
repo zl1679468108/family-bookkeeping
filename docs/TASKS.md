@@ -87,7 +87,7 @@
 
 #### 2026-07-24 金额格式 + Taro toast 统一
 - 扩展 `taro/src/utils/toast.ts`（toastSuccess/Info/Warn/Error），页面几乎全部迁离直接 `Taro.showToast`；`useSubmit` re-export `toastError`。
-- PC 地图/日历金额改用 `formatAmount` / `formatMoney`，删除日历本地 formatAmount。
+- PC 地图/日历/年报金额改用 `formatAmount` / `formatMoney`，删除日历与年报本地 format 函数。
 - 验证：frontend/taro `tsc --noEmit` 通过。
 
 

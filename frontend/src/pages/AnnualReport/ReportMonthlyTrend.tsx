@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { echarts } from '../../utils/echarts';
 import type { ECharts } from '../../utils/echarts';
 import { getThemeColors } from '../../utils/themeColors'
+import { formatMoney } from '../../utils/budget'
 
 interface MonthlyItem {
   month: number;
@@ -45,7 +46,7 @@ export const ReportMonthlyTrend: React.FC<ReportMonthlyTrendProps> = ({ data }) 
           params.forEach((item: any) => {
             result += `<div style="display: flex; justify-content: space-between; gap: 20px; margin: 4px 0;">
               <span>${item.marker} ${item.seriesName}</span>
-              <span style="font-weight: 600;">¥${item.value.toLocaleString()}</span>
+              <span style="font-weight: 600;">${formatMoney(item.value, { compact: true })}</span>
             </div>`;
           });
           result += `</div>`;

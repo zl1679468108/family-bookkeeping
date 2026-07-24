@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import { getChartPalette } from '../../utils/themeColors'
+import { formatMoney } from '../../utils/budget'
 
 interface MemberItem {
   user_id: string;
@@ -40,7 +41,7 @@ const ReportMemberRanking: React.FC<Props> = ({ data }) => {
                   {member.nickname || '用户'}
                 </span>
                 <span className="text-sm font-bold" style={{ color: 'var(--fg2)' }}>
-                  ¥{member.expense.toFixed(0)}
+                  {formatMoney(member.expense, { compact: true })}
                 </span>
               </div>
               <div className="flex justify-between items-center mt-1">

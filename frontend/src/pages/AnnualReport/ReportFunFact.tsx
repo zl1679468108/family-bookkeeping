@@ -1,4 +1,5 @@
 import React from 'react';
+import { formatMoney } from '../../utils/budget';
 
 interface FunFactData {
   dining_total: number;
@@ -52,7 +53,7 @@ const ReportFunFact: React.FC<Props> = ({ data }) => {
                 这一年，你为奶茶付出了...
               </div>
               <div style={{ fontSize: '24px', fontWeight: 700, color: 'var(--exp)' }}>
-                ¥{data.dining_total.toLocaleString('zh-CN', { minimumFractionDigits: 0 })}
+                {formatMoney(data.dining_total, { compact: true })}
               </div>
               <div style={{ fontSize: '13px', color: 'var(--warn)', marginTop: '2px' }}>
                 相当于 {milkTeaCups.toLocaleString()} 杯奶茶（¥15/杯）
@@ -70,7 +71,7 @@ const ReportFunFact: React.FC<Props> = ({ data }) => {
                 <span style={{ fontSize: '12px', color: 'var(--fg3)' }}>日均支出</span>
               </div>
               <div style={{ fontSize: '18px', fontWeight: 700, color: 'var(--info)' }}>
-                ¥{data.daily_avg_expense.toFixed(0)}
+                {formatMoney(data.daily_avg_expense, { compact: true })}
               </div>
             </div>
 
