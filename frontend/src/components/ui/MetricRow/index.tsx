@@ -1,4 +1,5 @@
 import React from 'react'
+import { cx } from '../../../utils/cx'
 import './index.scss'
 
 /**
@@ -33,20 +34,18 @@ export const MetricRow: React.FC<MetricRowProps> = ({
 }) => {
   return (
     <div
-      className={[
+      className={cx(
         'metric-row',
         `metric-row--${size}`,
-        centered ? 'metric-row--centered' : '',
+        centered && 'metric-row--centered',
         className,
-      ]
-        .filter(Boolean)
-        .join(' ')}
+      )}
       style={style}
     >
       {items.map((item, index) => (
         <div
           key={item.key ?? (typeof item.label === 'string' ? item.label : index)}
-          className={`metric-row__item metric-row__item--${item.tone || 'default'}`}
+          className={cx('metric-row__item', `metric-row__item--${item.tone || 'default'}`)}
         >
           <div className="metric-row__label">{item.label}</div>
           <div className="metric-row__value">{item.value}</div>

@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { Icon } from '../Icon';
 import { ACTION_CLOSE } from '../../../utils/actionCopy'
+import { DRAWER_DEFAULT_WIDTH_PX, DRAWER_DEFAULT_PLACEMENT } from '../../../utils/drawer'
 
 export interface DrawerHandle {
   close: () => void;
@@ -26,8 +27,8 @@ export const Drawer: React.FC<DrawerProps> = ({
   onClose,
   title,
   children,
-  width = 420,
-  placement = 'right',
+  width = DRAWER_DEFAULT_WIDTH_PX,
+  placement = DRAWER_DEFAULT_PLACEMENT,
   mask = true,
   maskClosable = true,
 }) => {

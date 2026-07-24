@@ -1,11 +1,16 @@
 /**
  * TypeTabs — 支出 / 收入 类型切换
- * 参考 PC 端 form-tabs：双标签切换，激活态有背景色 + 阴影
+ * 选项文案同源 TRANSACTION_TYPE_OPTIONS，对齐 PC SegControl 数据
  */
 import { View, Text } from "@tarojs/components";
+import {
+  TRANSACTION_TYPE_OPTIONS,
+  type TransactionTypeCode,
+} from "../../../utils/transactionType";
+import { cx } from "../../../utils/cx";
 import "./index.scss";
 
-export type TxnType = "expense" | "income";
+export type TxnType = TransactionTypeCode;
 
 export interface TypeTabsProps {
   value: TxnType;
@@ -15,18 +20,22 @@ export interface TypeTabsProps {
 export default function TypeTabs({ value, onChange }: TypeTabsProps) {
   return (
     <View className="ft-tabs">
-      <View
-        className={`ft-tab ${value === "expense" ? "ft-tab--active ft-tab--expense" : ""}`}
-        onClick={() => onChange("expense")}
-      >
-        <Text className="ft-tab-text">支出</Text>
-      </View>
-      <View
-        className={`ft-tab ${value === "income" ? "ft-tab--active ft-tab--income" : ""}`}
-        onClick={() => onChange("income")}
-      >
-        <Text className="ft-tab-text">收入</Text>
-      </View>
+      {TRANSACTION_TYPE_OPTIONS.map((opt) => {
+        const active = value === opt.key;
+        return (
+          <View
+            key={opt.key}
+            className={cx(
+              "ft-tab",
+              active && "ft-tab--active",
+              active && `ft-tab--${opt.key}`,
+            )}
+            onClick={() => onChange(opt.key)}
+          >
+            <Text className="ft-tab-text">{opt.label}</Text>
+          </View>
+        );
+      })}
     </View>
   );
 }

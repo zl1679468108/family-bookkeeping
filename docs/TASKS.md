@@ -85,6 +85,11 @@
 
 ### ✅ 已完成
 
+#### 2026-07-24 TypeTabs / Metric·StatCard cx / Drawer 默认 shared
+- Taro TypeTabs 改用 TRANSACTION_TYPE_OPTIONS + cx，与 PC 记一笔类型选项同源
+- MetricRow/MetricGrid/StatCard className 双端 cx；Drawer 默认宽度/placement 入 shared
+- 验证：frontend / taro `tsc --noEmit`
+
 #### 2026-07-24 inputHelpers / StickyActionBar·Card cx 接线
 - `shouldShowInputClear` / `resolvePasswordInputType` 入 shared；PC/Taro Input 接线
 - StickyActionBar、Card 双端 className 改用 `cx`

@@ -1,4 +1,5 @@
 import React from 'react'
+import { cx } from '../../../utils/cx'
 
 /**
  * 统计卡片组件 —— Dashboard 等页面展示关键指标
@@ -26,12 +27,13 @@ export const StatCard: React.FC<StatCardProps> = ({
   className = '',
   onClick,
 }) => {
-  const variantClass =
-    variant === 'hero' ? 'hero' : variant === 'income' ? 'income' : variant === 'expense' ? 'expense' : ''
-
   return (
     <div
-      className={`stat-card ${variantClass} ${className}`.trim()}
+      className={cx(
+        'stat-card',
+        variant !== 'default' && variant,
+        className,
+      )}
       onClick={onClick}
       style={onClick ? { cursor: 'pointer' } : undefined}
     >

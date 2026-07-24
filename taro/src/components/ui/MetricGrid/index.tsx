@@ -2,6 +2,7 @@
  * MetricGrid — 统计指标栅格。
  */
 import { View, Text } from "@tarojs/components";
+import { cx } from "../../../utils/cx";
 import "./index.scss";
 
 export interface MetricItem {
@@ -23,9 +24,9 @@ export default function MetricGrid({
   className = "",
 }: MetricGridProps) {
   return (
-    <View className={`metric-grid metric-grid--${columns} ${className}`}>
+    <View className={cx(`metric-grid`, `metric-grid--${columns}`, className)}>
       {items.map((item) => (
-        <View key={item.label} className={`metric-card metric-card--${item.tone || "default"}`}>
+        <View key={item.label} className={cx("metric-card", `metric-card--${item.tone || "default"}`)}>
           <Text className="metric-card__label">{item.label}</Text>
           <Text className="metric-card__value">{item.value}</Text>
           {item.meta ? <Text className="metric-card__meta">{item.meta}</Text> : null}

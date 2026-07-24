@@ -3,6 +3,7 @@
  * variant: default/income/expense/hero（hero 用主色渐变 + 白字）
  */
 import { ReactNode } from "react";
+import { cx } from "../../../utils/cx";
 import { View, Text } from "@tarojs/components";
 import "./index.scss";
 
@@ -24,7 +25,7 @@ export function StatCard({
 }: StatCardProps) {
   return (
     <View
-      className={`ui-stat ui-stat--${variant} ${className}`}
+      className={cx("ui-stat", `ui-stat--${variant}`, className)}
       hoverClass={onClick ? "ui-stat--pressed" : ""}
       hoverStayTime={100}
       onClick={onClick}
