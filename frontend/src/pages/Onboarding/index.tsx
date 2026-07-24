@@ -8,7 +8,7 @@ import './index.scss';
 import { Button } from '../../components/ui/Button'
 import { Icon } from '../../components/ui/Icon'
 import { ACTION_LOGOUT } from '../../utils/actionCopy'
-import { TITLE_JOIN_BY_INVITE } from '../../utils/sectionCopy'
+import { TITLE_JOIN_BY_INVITE, ONBOARDING_CREATE_TITLE, ONBOARDING_CREATE_DESC, ONBOARDING_JOIN_DESC } from '../../utils/sectionCopy'
 
 const OnboardingPage: React.FC = () => {
   const navigate = useNavigate();
@@ -58,8 +58,8 @@ const OnboardingPage: React.FC = () => {
           >
             <span className="onboarding-btn-icon">📖</span>
             <div className="onboarding-btn-content">
-              <span className="onboarding-btn-title">我自己创建账本</span>
-              <span className="onboarding-btn-desc">新建一个空账本，开始记录收支</span>
+              <span className="onboarding-btn-title">{ONBOARDING_CREATE_TITLE}</span>
+              <span className="onboarding-btn-desc">{ONBOARDING_CREATE_DESC}</span>
             </div>
             <span className="onboarding-btn-arrow"><Icon name="chevron-right" size={18} /></span>
           </button>
@@ -72,7 +72,7 @@ const OnboardingPage: React.FC = () => {
             <span className="onboarding-btn-icon">✉️</span>
             <div className="onboarding-btn-content">
               <span className="onboarding-btn-title">{TITLE_JOIN_BY_INVITE}</span>
-              <span className="onboarding-btn-desc">输入他人分享的邀请码，加入已有账本</span>
+              <span className="onboarding-btn-desc">{ONBOARDING_JOIN_DESC}</span>
             </div>
             <span className="onboarding-btn-arrow"><Icon name="chevron-right" size={18} /></span>
           </button>

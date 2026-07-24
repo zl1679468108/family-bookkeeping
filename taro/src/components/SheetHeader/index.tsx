@@ -47,7 +47,7 @@ export function SheetHeader({
       </Text>
 
       <View className="sheet-header__side sheet-header__side--right">
-        <View className="sheet-header__icon" onClick={handleClose} aria-label="关闭">
+        <View className="sheet-header__icon" onClick={handleClose} aria-label={ACTION_CLOSE}>
           <Icon name="close" size={36} color={ICON_COLOR.muted} />
         </View>
       </View>
@@ -56,3 +56,4 @@ export function SheetHeader({
 }
 
 export default SheetHeader;
+import { ACTION_CLOSE } from "../../utils/actionCopy";

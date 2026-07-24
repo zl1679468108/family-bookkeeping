@@ -4,6 +4,7 @@ import type { PendingImage } from '../hooks/useTransactionForm'
 import { Button } from '../../../components/ui/Button'
 import { Icon } from '../../../components/ui/Icon'
 import { IMAGE_ACCEPT_WILDCARD, DELETE_THIS_IMAGE } from '../../../utils/uploadCopy'
+import { ACTION_CLEAR } from '../../../utils/actionCopy'
 
 interface ImageUploadSectionProps {
   savedImageUrls: string[]
@@ -28,7 +29,7 @@ export const ImageUploadSection: React.FC<ImageUploadSectionProps> = ({
           附件 ({allImageUrls.length} / {MAX_IMAGES})
         </span>
         {allImageUrls.length > 0 && (
-          <Button type="button" variant="ghost" size="sm" className="link-btn" onClick={onClearAll}>清空</Button>
+          <Button type="button" variant="ghost" size="sm" className="link-btn" onClick={onClearAll}>{ACTION_CLEAR}</Button>
         )}
       </div>
 

@@ -19,6 +19,7 @@ import { formatMonthDisplay } from '../../utils/month'
 import { EMPTY_NO_CATEGORY_DATA, EMPTY_NO_TRANSACTIONS_PERIOD, EMPTY_MEMBER_COMPARE_NEED_MULTI, EMPTY_SELECT_BOOK } from '../../utils/emptyCopy'
 import { TITLE_CATEGORY_RATIO, reportChartTitle } from '../../utils/sectionCopy'
 import { FORM_SEARCH_MONTH, FORM_SEARCH_YEAR } from '../../utils/formCopy'
+import { ACTION_START_BOOKKEEPING } from '../../utils/actionCopy'
 
 const Reports: React.FC = () => {
   const navigate = useNavigate()
@@ -174,7 +175,7 @@ const Reports: React.FC = () => {
                 />
                 {!chartHasData && (
                   <div style={{ position: 'relative', marginTop: '-300px', height: '300px', display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none', background: 'var(--srf)' }}>
-                    <EmptyState description={EMPTY_NO_TRANSACTIONS_PERIOD} action={<EmptyAddTransactionAction label="开始记账" onClick={() => navigate('/add?type=expense')} />} />
+                    <EmptyState description={EMPTY_NO_TRANSACTIONS_PERIOD} action={<EmptyAddTransactionAction label={ACTION_START_BOOKKEEPING} onClick={() => navigate('/add?type=expense')} />} />
                   </div>
                 )}
               </>

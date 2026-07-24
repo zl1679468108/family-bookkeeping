@@ -1,5 +1,6 @@
 import React from 'react'
 import { Button } from '../Button'
+import { ACTION_ADD_FIRST_TRANSACTION } from '../../../utils/actionCopy'
 
 type BtnSize = 'sm' | 'md' | 'lg'
 
@@ -27,7 +28,7 @@ export function EmptyActionButton({
 /** 常见空态：去记一笔 / 添加第一笔交易 */
 export function EmptyAddTransactionAction({
   onClick,
-  label = '添加第一笔交易',
+  label = ACTION_ADD_FIRST_TRANSACTION,
   size = 'md',
 }: {
   onClick: () => void

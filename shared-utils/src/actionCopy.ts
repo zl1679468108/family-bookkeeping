@@ -20,6 +20,11 @@ export const ACTION_LOGOUT = '退出登录'
 export const ACTION_LOGGING_OUT = '退出中...'
 export const ACTION_PROMOTE = '升级'
 export const ACTION_DEMOTE = '降级'
+export const ACTION_CLOSE = '关闭'
+export const ACTION_CLEAR = '清空'
+export const ACTION_START_BOOKKEEPING = '开始记账'
+export const ACTION_GO_ADD_TRANSACTION = '去记一笔'
+export const ACTION_ADD_FIRST_TRANSACTION = '添加第一笔交易'
 
 /** busy ? busyText : idleText */
 export function busyLabel(busy: boolean, busyText: string, idleText: string): string {

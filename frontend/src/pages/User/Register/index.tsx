@@ -12,6 +12,7 @@ import { PasswordField } from '../../../components/ui/PasswordField'
 import { FormField } from '../../../components/ui/FormField'
 import { FORM_NICKNAME_PLACEHOLDER, FORM_EMAIL_EXAMPLE, FORM_PASSWORD_MIN_SHORT, FORM_PASSWORD_CONFIRM_PLACEHOLDER } from '../../../utils/formCopy'
 import { FIELD_USERNAME, FIELD_EMAIL_ADDRESS, FIELD_PASSWORD, FIELD_CONFIRM_PASSWORD } from '../../../utils/fieldCopy'
+import { ACTION_START_BOOKKEEPING } from '../../../utils/actionCopy'
 
 const RegisterPage: React.FC = () => {
   const [username, setUsername] = useState('')
@@ -40,7 +41,7 @@ const RegisterPage: React.FC = () => {
   return (
     <AuthLayout
       illustration={<RegisterIllustration />}
-      title="开始记账"
+      title={ACTION_START_BOOKKEEPING}
       subtitle={
         <>
           <p>加入静记，开启智能记账之旅</p>

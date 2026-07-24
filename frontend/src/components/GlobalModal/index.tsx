@@ -4,6 +4,7 @@ import { Button } from '../ui/Button'
 import { Icon } from '../ui/Icon'
 import { FooterActions } from '../ui/FooterActions'
 import { Spinner } from '../ui/Spinner'
+import { ACTION_CLOSE } from '../../utils/actionCopy'
 
 export type GlobalModalType = 'confirm' | 'detail' | 'modal';
 
@@ -250,7 +251,7 @@ export const GlobalModal: React.FC<GlobalModalProps> = ({
               {description && <div id={`${type}-desc`} className="global-modal-dialog__desc">{description}</div>}
             </div>
             {closable && (
-              <button type="button" className="global-modal-dialog__close" onClick={onClose} aria-label="关闭">
+              <button type="button" className="global-modal-dialog__close" onClick={onClose} aria-label={ACTION_CLOSE}>
                 <Icon name="close" size={16} />
               </button>
             )}

@@ -1,5 +1,6 @@
 import { Icon } from '../Icon'
 import React, { TextareaHTMLAttributes, useState, useEffect, useRef, useId } from 'react'
+import { ACTION_CLEAR } from '../../../utils/actionCopy'
 
 /**
  * 通用文本域组件 —— 取代各页面手写的 `<textarea>` 结构
@@ -85,7 +86,7 @@ export const Textarea: React.FC<TextareaProps> = ({
           {...props}
         />
         {allowClear && currentValue && (
-          <button type="button" className="ui-textarea-clear" onClick={handleClear} aria-label="清空">
+          <button type="button" className="ui-textarea-clear" onClick={handleClear} aria-label={ACTION_CLEAR}>
             <Icon name="close" size={12} strokeWidth={2.5} />
           </button>
         )}

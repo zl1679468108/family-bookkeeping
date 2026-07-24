@@ -14,6 +14,7 @@ import { STALE } from '../../../../utils/cachePolicy';
 import { Icon } from '../../../../components/ui/Icon'
 import { transactionTypeShortLabel } from '../../../../utils/transactionType'
 import { EMPTY_TRANSACTIONS } from '../../../../utils/emptyCopy';
+import { ACTION_CLOSE } from '../../../../utils/actionCopy'
 
 interface TransactionHistoryModalProps {
   merchant: MerchantSummary;
@@ -57,7 +58,7 @@ export const TransactionHistoryModal: React.FC<TransactionHistoryModalProps> = (
               )}
             </div>
           </div>
-          <button type="button" className="merchant-history-close" onClick={onClose} aria-label="关闭"><Icon name="close" size={16} /></button>
+          <button type="button" className="merchant-history-close" onClick={onClose} aria-label={ACTION_CLOSE}><Icon name="close" size={16} /></button>
         </div>
 
         {/* 筛选标签 */}

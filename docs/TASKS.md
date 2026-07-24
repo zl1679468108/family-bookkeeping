@@ -85,6 +85,11 @@
 
 ### ✅ 已完成
 
+#### 2026-07-24 鉴权字段 + 关闭/清空/空态动作 shared
+- Taro Login/Register/Forgot 字段标签接 `fieldCopy`
+- `ACTION_CLOSE`/`CLEAR`/`START_BOOKKEEPING`/`GO_ADD_TRANSACTION`/`ADD_FIRST_TRANSACTION`；EmptyAddTransaction 默认与双端 close/clear aria-label 收口
+- Onboarding 创建/加入文案 `ONBOARDING_*` 双端统一
+
 #### 2026-07-24 鉴权/账本/统计字段标签接线
 - `fieldCopy` 补邮箱地址/密码/验证码/成员/交易笔数/本月结余收支/年报指标等
 - PC Login/Register/Forgot/Reset、账本创建/邀请/详情、模板表单、地图筛选、Dashboard、年报总览统一字段标签

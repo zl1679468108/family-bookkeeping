@@ -15,6 +15,7 @@ import { toastSuccess } from "../../../utils/toast";
 import { SUCCESS_LOGIN } from "../../../utils/successCopy";
 import { ERROR_LOGIN_FAILED } from "../../../utils/errorCopy";
 import { FORM_EMAIL_PASSWORD_REQUIRED, FORM_CAPTCHA_REQUIRED, FORM_CAPTCHA_PLACEHOLDER, FORM_PASSWORD_PLACEHOLDER, FORM_EMAIL_EXAMPLE } from "../../../utils/formCopy";
+import { FIELD_EMAIL, FIELD_PASSWORD, FIELD_CAPTCHA } from "../../../utils/fieldCopy";
 
 export default function Login() {
   const { isDark } = useTheme();
@@ -93,7 +94,7 @@ export default function Login() {
       {/* 表单 */}
       <View className="login-form">
         <View className="login-field">
-          <Text className="login-field-label">邮箱</Text>
+          <Text className="login-field-label">{FIELD_EMAIL}</Text>
           <Input
             className="login-input"
             value={email}
@@ -105,7 +106,7 @@ export default function Login() {
         </View>
 
         <View className="login-field">
-          <Text className="login-field-label">密码</Text>
+          <Text className="login-field-label">{FIELD_PASSWORD}</Text>
           <Input
             className="login-input"
             value={password}
@@ -118,7 +119,7 @@ export default function Login() {
         </View>
 
         <View className="login-field">
-          <Text className="login-field-label">验证码</Text>
+          <Text className="login-field-label">{FIELD_CAPTCHA}</Text>
           <View className="login-captcha-row">
             <Input
               className="login-input login-captcha-input"

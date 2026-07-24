@@ -15,6 +15,7 @@ import { validatePasswordMatch, validatePasswordMinLength } from "../../../utils
 import { SUCCESS_REGISTER } from "../../../utils/successCopy";
 import { ERROR_REGISTER_FAILED } from "../../../utils/errorCopy";
 import { FORM_NICKNAME_PLACEHOLDER, FORM_EMAIL_EXAMPLE, FORM_PASSWORD_MIN_SHORT, FORM_PASSWORD_CONFIRM_PLACEHOLDER } from "../../../utils/formCopy";
+import { FIELD_USERNAME, FIELD_EMAIL, FIELD_PASSWORD, FIELD_CONFIRM_PASSWORD } from "../../../utils/fieldCopy";
 
 export default function Register() {
   const { isDark } = useTheme();
@@ -67,7 +68,7 @@ export default function Register() {
       {/* 表单 */}
       <View className="register-form">
         <View className="register-field">
-          <Text className="register-field-label">用户名</Text>
+          <Text className="register-field-label">{FIELD_USERNAME}</Text>
           <Input
             className="register-input"
             value={username}
@@ -79,7 +80,7 @@ export default function Register() {
         </View>
 
         <View className="register-field">
-          <Text className="register-field-label">邮箱</Text>
+          <Text className="register-field-label">{FIELD_EMAIL}</Text>
           <Input
             className="register-input"
             value={email}
@@ -91,7 +92,7 @@ export default function Register() {
         </View>
 
         <View className="register-field">
-          <Text className="register-field-label">密码</Text>
+          <Text className="register-field-label">{FIELD_PASSWORD}</Text>
           <Input
             className="register-input"
             value={password}
@@ -104,7 +105,7 @@ export default function Register() {
         </View>
 
         <View className="register-field">
-          <Text className="register-field-label">确认密码</Text>
+          <Text className="register-field-label">{FIELD_CONFIRM_PASSWORD}</Text>
           <Input
             className="register-input"
             value={confirmPassword}

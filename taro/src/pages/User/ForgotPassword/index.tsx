@@ -16,6 +16,7 @@ import { validatePasswordMatch, validatePasswordMinLength } from "../../../utils
 import { ERROR_SEND_FAILED, ERROR_RESET_FAILED } from "../../../utils/errorCopy";
 import { SUCCESS_CODE_SENT, SUCCESS_PASSWORD_RESET, SUCCESS_CODE_RESENT } from "../../../utils/successCopy";
 import { FORM_BACK, FORM_BACK_LOGIN, FORM_REGISTERED_EMAIL_PLACEHOLDER, FORM_CAPTCHA_DIGITS_PLACEHOLDER, FORM_PASSWORD_MIN_SHORT, FORM_PASSWORD_CONFIRM_PLACEHOLDER } from "../../../utils/formCopy"
+import { FIELD_EMAIL, FIELD_CAPTCHA, FIELD_NEW_PASSWORD, FIELD_CONFIRM_PASSWORD } from "../../../utils/fieldCopy";
 
 type Step = "email" | "code" | "success";
 
@@ -148,7 +149,7 @@ export default function ForgotPassword() {
         {step === "email" && (
           <View className="forgot-content">
             <View className="forgot-field">
-              <Text className="forgot-field-label">邮箱</Text>
+              <Text className="forgot-field-label">{FIELD_EMAIL}</Text>
               <Input
                 className="forgot-input"
                 value={email}
@@ -177,12 +178,12 @@ export default function ForgotPassword() {
             {success ? <Text className="forgot-success">{success}</Text> : null}
 
             <View className="forgot-field">
-              <Text className="forgot-field-label">邮箱</Text>
+              <Text className="forgot-field-label">{FIELD_EMAIL}</Text>
               <Input className="forgot-input" value={email} disabled placeholderClass="text-hint" />
             </View>
 
             <View className="forgot-field">
-              <Text className="forgot-field-label">验证码</Text>
+              <Text className="forgot-field-label">{FIELD_CAPTCHA}</Text>
               <View className="forgot-captcha-row">
                 <Input
                   className="forgot-input forgot-captcha-input"
@@ -205,7 +206,7 @@ export default function ForgotPassword() {
             </View>
 
             <View className="forgot-field">
-              <Text className="forgot-field-label">新密码</Text>
+              <Text className="forgot-field-label">{FIELD_NEW_PASSWORD}</Text>
               <Input
                 className="forgot-input"
                 value={password}
@@ -217,7 +218,7 @@ export default function ForgotPassword() {
             </View>
 
             <View className="forgot-field">
-              <Text className="forgot-field-label">确认密码</Text>
+              <Text className="forgot-field-label">{FIELD_CONFIRM_PASSWORD}</Text>
               <Input
                 className="forgot-input"
                 value={confirmPassword}

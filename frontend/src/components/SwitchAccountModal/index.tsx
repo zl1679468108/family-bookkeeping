@@ -21,6 +21,7 @@ import { notifySuccess, notifyInfo } from '../../utils/notifyError'
 import { userDisplayName, userInitial } from '../../utils/userDisplay'
 import { SUCCESS_ACCOUNT_SWITCHED } from '../../utils/successCopy'
 import { FORM_ALREADY_CURRENT_ACCOUNT } from '../../utils/formCopy'
+import { ACTION_CLOSE } from '../../utils/actionCopy'
 
 interface SwitchAccountModalProps {
   visible: boolean
@@ -85,7 +86,7 @@ const SwitchAccountModal: React.FC<SwitchAccountModalProps> = ({ visible, onClos
       <div className="switch-account-modal" onClick={(e) => e.stopPropagation()}>
         <div className="switch-account-header">
           <h3>切换账号</h3>
-          <button type="button" className="switch-account-close" onClick={onClose} aria-label="关闭">
+          <button type="button" className="switch-account-close" onClick={onClose} aria-label={ACTION_CLOSE}>
             <Icon name="close" size={18} />
           </button>
         </div>

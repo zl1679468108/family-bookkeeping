@@ -25,7 +25,7 @@ import { validateInviteCode, normalizeInviteCode } from "../../utils/validation"
 import { ERROR_CREATE_FAILED_RETRY, ERROR_INVALID_INVITE } from "../../utils/errorCopy";
 import Icon, { ICON_COLOR } from "../../components/Icon";
 import { FIELD_BOOK_NAME, FIELD_DESC_OPTIONAL, FIELD_ICON, FIELD_INVITE_CODE } from "../../utils/fieldCopy";
-import { TITLE_JOIN_BY_INVITE } from "../../utils/sectionCopy";
+import { TITLE_JOIN_BY_INVITE, ONBOARDING_CREATE_TITLE, ONBOARDING_CREATE_DESC, ONBOARDING_JOIN_DESC } from "../../utils/sectionCopy"
 
 type Mode = "choice" | "create" | "join";
 
@@ -110,8 +110,8 @@ export default function Onboarding() {
               />
             </View>
             <View className="ob-opt__text">
-              <Text className="ob-opt__title">我自己创建账本</Text>
-              <Text className="ob-opt__desc">新建一个空账本，开始记录收支</Text>
+              <Text className="ob-opt__title">{ONBOARDING_CREATE_TITLE}</Text>
+              <Text className="ob-opt__desc">{ONBOARDING_CREATE_DESC}</Text>
             </View>
           </View>
 
@@ -122,7 +122,7 @@ export default function Onboarding() {
             <View className="ob-opt__text">
               <Text className="ob-opt__title">{TITLE_JOIN_BY_INVITE}</Text>
               <Text className="ob-opt__desc">
-                输入他人分享的邀请码，加入已有账本
+                {ONBOARDING_JOIN_DESC}
               </Text>
             </View>
           </View>

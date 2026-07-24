@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { Icon } from '../Icon'
 import { FILTER_ALL } from '../../../utils/transactionType'
+import { ACTION_CLEAR } from '../../../utils/actionCopy'
 
 /**
  * 通用下拉选择组件 —— 取代各页面手写的 <select> 和自定义下拉
@@ -143,7 +144,7 @@ export const DropdownSelect: React.FC<DropdownSelectProps> = ({
         {currentOption?.icon && <span className="dd-select__icon">{currentOption.icon}</span>}
         <span className="dd-select__value">{currentOption ? currentOption.label : placeholder}</span>
         {allowClear && hasValue && (
-          <span className="dd-select__clear" onClick={handleClear} role="button" aria-label="清空">
+          <span className="dd-select__clear" onClick={handleClear} role="button" aria-label={ACTION_CLEAR}>
             <Icon name="close" size={12} strokeWidth={2.5} />
           </span>
         )}

@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { Button } from "../Button";
 import type { ButtonSize, ButtonVariant } from "../Button";
+import { ACTION_GO_ADD_TRANSACTION } from "../../../utils/actionCopy";
 
 /**
  * 空状态主操作按钮（统一 variant/size）
@@ -26,7 +27,7 @@ export function EmptyActionButton({
 /** 常见空态：去记一笔 */
 export function EmptyAddTransactionAction({
   onClick,
-  label = "去记一笔",
+  label = ACTION_GO_ADD_TRANSACTION,
   size = "sm",
 }: {
   onClick: () => void;

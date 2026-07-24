@@ -1,5 +1,6 @@
 import React, { InputHTMLAttributes, useState, useEffect, useRef, useId } from 'react'
 import { Icon } from '../Icon'
+import { ACTION_CLEAR } from '../../../utils/actionCopy'
 
 /**
  * 通用输入框组件 —— 取代各页面手写的 `<input>` + `<div className="form-input">` 结构
@@ -96,7 +97,7 @@ export const Input: React.FC<InputProps> = ({
           </button>
         )}
         {allowClear && currentValue && (
-          <button type="button" className="ui-input-clear" onClick={handleClear} aria-label="清空">
+          <button type="button" className="ui-input-clear" onClick={handleClear} aria-label={ACTION_CLEAR}>
             <Icon name="close" size={12} strokeWidth={2.5} />
           </button>
         )}
@@ -166,7 +167,7 @@ export const SearchInput: React.FC<SearchInputProps> = ({
         name="search-field"
       />
       {allowClear && value && (
-        <span className="ui-search-clear" onClick={handleClear} role="button" aria-label="清空">
+        <span className="ui-search-clear" onClick={handleClear} role="button" aria-label={ACTION_CLEAR}>
           <Icon name="close" size={12} strokeWidth={2.5} />
         </span>
       )}

@@ -61,7 +61,7 @@ export function Textarea({
               <Text className="ui-textarea__count">{value.length}/{maxLength}</Text>
             ) : <Text />}
             {showClear ? (
-              <Text className="ui-textarea__clear" onClick={() => onChange?.("")}>清空</Text>
+              <Text className="ui-textarea__clear" onClick={() => onChange?.("")}>{ACTION_CLEAR}</Text>
             ) : null}
           </View>
         ) : null}
@@ -72,3 +72,4 @@ export function Textarea({
 }
 
 export default Textarea;
+import { ACTION_CLEAR } from "../../../utils/actionCopy";

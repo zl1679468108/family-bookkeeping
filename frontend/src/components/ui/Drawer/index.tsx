@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { Icon } from '../Icon';
+import { ACTION_CLOSE } from '../../../utils/actionCopy'
 
 export interface DrawerHandle {
   close: () => void;
@@ -69,7 +70,7 @@ export const Drawer: React.FC<DrawerProps> = ({
               type="button"
               className="ui-drawer-close"
               onClick={onClose}
-              aria-label="关闭"
+              aria-label={ACTION_CLOSE}
             >
               <Icon name="close" size={20} />
             </button>
