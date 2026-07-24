@@ -1,5 +1,7 @@
 import React from 'react';
 import { formatMoney } from '../../utils/budget';
+import { LABEL_NONE, transactionCountLabel, visitCountLabel, dayExpenseAmountLabel } from '../../utils/entityCopy'
+import { TITLE_REPORT_RECORDS, LABEL_REPORT_MAX_EXPENSE, LABEL_REPORT_BUSIEST_DAY, LABEL_REPORT_TOP_MERCHANT } from '../../utils/sectionCopy'
 
 interface RecordItem {
   amount: number;
@@ -21,8 +23,8 @@ export const ReportRecords: React.FC<ReportRecordsProps> = ({ data }) => {
   const cards = [
     {
       icon: '💸',
-      label: '单笔最高支出',
-      value: data.max_expense && data.max_expense.amount > 0 ? formatMoney(data.max_expense.amount, { compact: true }) : '无',
+      label: LABEL_REPORT_MAX_EXPENSE,
+      value: data.max_expense && data.max_expense.amount > 0 ? formatMoney(data.max_expense.amount, { compact: true }) : LABEL_NONE,
       sub: data.max_expense?.description || '',
       sub2: data.max_expense?.date || '',
       bgColor: 'var(--warnBg)',
@@ -30,22 +32,22 @@ export const ReportRecords: React.FC<ReportRecordsProps> = ({ data }) => {
     },
     {
       icon: '📅',
-      label: '最忙碌消费日',
-      value: data.max_expense_day?.count ? `${data.max_expense_day.count} 笔` : '无',
+      label: LABEL_REPORT_BUSIEST_DAY,
+      value: data.max_expense_day?.count ? transactionCountLabel(data.max_expense_day.count) : LABEL_NONE,
       sub: data.max_expense_day?.date || '',
-      sub2: data.max_expense_day?.amount && data.max_expense_day.amount > 0 ? `当日支出 ${formatMoney(data.max_expense_day.amount, { compact: true })}` : '',
+      sub2: data.max_expense_day?.amount && data.max_expense_day.amount > 0 ? dayExpenseAmountLabel(formatMoney(data.max_expense_day.amount, { compact: true })) : '',
       bgColor: 'var(--infoBg)',
       iconBg: 'var(--info)',
     },
     {
       icon: '🏪',
-      label: '最常消费商户',
+      label: LABEL_REPORT_TOP_MERCHANT,
       value: data.max_expense_merchant && data.max_expense_merchant.amount > 0
         ? formatMoney(data.max_expense_merchant.amount, { compact: true })
-        : '无',
+        : LABEL_NONE,
       sub: data.max_expense_merchant?.counterparty || data.max_expense_merchant?.description || '',
       sub2: data.max_expense_merchant?.count
-        ? `光顾 ${data.max_expense_merchant.count} 次`
+        ? visitCountLabel(data.max_expense_merchant.count)
         : '',
       bgColor: 'var(--incBg)',
       iconBg: 'var(--inc)',
@@ -62,7 +64,7 @@ export const ReportRecords: React.FC<ReportRecordsProps> = ({ data }) => {
           marginBottom: '16px',
         }}
       >
-        🏆 记录之最
+        {TITLE_REPORT_RECORDS}
       </h2>
       <div
         style={{

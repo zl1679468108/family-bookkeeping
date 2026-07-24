@@ -20,7 +20,7 @@ import { STALE } from '../../../utils/cachePolicy'
 import { SUCCESS_BOOK_CREATED, SUCCESS_ICON_DELETED, SUCCESS_ICON_UPLOADED, SUCCESS_UPDATED } from '../../../utils/successCopy'
 import { entityFormTitle, ENTITY_BOOK } from '../../../utils/entityCopy'
 import { failEntityUpsert } from '../../../utils/errorCopy'
-import { processingLabel, ACTION_CANCEL, ACTION_SAVE, ACTION_CREATE_BOOK } from '../../../utils/actionCopy'
+import { processingLabel, ACTION_CANCEL, ACTION_SAVE, ACTION_CREATE_BOOK, ACTION_CREATE } from '../../../utils/actionCopy'
 import { FORM_BOOK_NAME_EXAMPLE, FORM_BOOK_DESC_EXAMPLE, MAX_BOOK_NAME_LENGTH, MAX_BOOK_DESCRIPTION_LENGTH } from '../../../utils/formCopy'
 import { FIELD_BOOK_NAME, FIELD_DESC_OPTIONAL } from '../../../utils/fieldCopy'
 
@@ -113,7 +113,7 @@ export const BookCreateModal: React.FC<BookCreateModalProps> = ({ open, onClose,
     <GlobalModal
       open={open}
       onClose={onClose}
-      title={entityFormTitle(ENTITY_BOOK, isEdit, '创建')}
+      title={entityFormTitle(ENTITY_BOOK, isEdit, ACTION_CREATE)}
       width={520}
       footer={
         <FooterActions align="end" className="global-modal-dialog__footer-inner">

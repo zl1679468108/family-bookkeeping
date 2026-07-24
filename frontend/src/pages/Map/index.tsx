@@ -21,7 +21,7 @@ import { formatAmount } from '../../utils/common';
 import { queryKeys } from '../../utils/queryKeys';
 import { STALE } from '../../utils/cachePolicy';
 import { FILTER_ALL_CATEGORIES, FILTER_VIEW, FILTER_ALL_MEMBERS, FILTER_ALL, TRANSACTION_TYPE_OPTIONS_WITH_ICONS } from '../../utils/transactionType'
-import { ACTION_LOADING } from '../../utils/actionCopy';
+import { ACTION_LOADING, ACTION_VIEW_MERCHANT_LIST } from '../../utils/actionCopy';
 import { TITLE_MERCHANT_FOOTPRINT,
   MAP_VIEW_FOOTPRINTS,
   MAP_VIEW_HEATMAP,
@@ -273,7 +273,7 @@ const MapPage: React.FC = () => {
               type="button"
               className="map-stat-chip map-stat-chip--clickable"
               onClick={() => setDrawerOpen(true)}
-              title="点击查看商户列表"
+              title={ACTION_VIEW_MERCHANT_LIST}
             >
               📌 <strong>{merchants.length}</strong> 个商户
             </button>

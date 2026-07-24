@@ -22,6 +22,11 @@ export function appWelcomeTitle(name: string = APP_NAME): string {
 export function appPageTitle(page: string, name: string = APP_NAME): string {
   return `${page} - ${name}`
 }
+
+/** {APP_NAME}客服 */
+export function appCustomerServiceTitle(name: string = APP_NAME): string {
+  return `${name}客服`
+}
 export const APP_SLOGAN = '安静记录每一笔'
 export const APP_VERSION = '1.0.1'
 export const APP_BUILD_DATE = '2026-07-18'

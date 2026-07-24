@@ -90,3 +90,10 @@ export const FILTER_ALL_USERS = '全部用户'
 export const FILTER_ALL_ROLES = '全部角色'
 export const FILTER_ALL_STATUS = '全部状态'
 export const FILTER_VIEW = '视图'
+
+
+/** 模板页 eyebrow：支出模板 / 收入模板 / 模板 */
+export function templateTypeEyebrow(type?: string | null, fallback = '模板'): string {
+  const label = transactionTypeLabel(type)
+  return label ? `${label}模板` : fallback
+}

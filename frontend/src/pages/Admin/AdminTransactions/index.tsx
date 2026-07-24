@@ -26,6 +26,8 @@ import { transactionTypeLabel, transactionTypeStatusClass, transactionTypeAmount
 import { formatAmountByType } from '../../../utils/common'
 import { EMPTY_LOAD_FAILED_RETRY, EMPTY_TRANSACTIONS } from '../../../utils/emptyCopy';
 import { FORM_SEARCH_TXN_DESC } from '../../../utils/formCopy'
+import { LABEL_UNKNOWN } from '../../../utils/entityCopy'
+import { ACTION_OPEN_IN_NEW_WINDOW } from '../../../utils/actionCopy'
 
 const AdminTransactions: React.FC = () => {
   const [page, setPage] = useState(1);
@@ -163,7 +165,7 @@ const AdminTransactions: React.FC = () => {
                     <tr key={t.id}>
                       <td className="data-table__cell--muted">{t.id}</td>
                       <td>
-                        <div className="data-table__cell--primary">{t.users?.username || '未知'}</div>
+                        <div className="data-table__cell--primary">{t.users?.username || LABEL_UNKNOWN}</div>
                         <div className="data-table__sub">{t.users?.email || ''}</div>
                       </td>
                       <td>
@@ -246,7 +248,7 @@ const AdminTransactions: React.FC = () => {
               }}
               className="detail-image-item"
               style={{ cursor: 'pointer', display: 'block', borderRadius: '8px', overflow: 'hidden', border: '1px solid var(--bd)', aspectRatio: '1 / 1', backgroundColor: 'var(--bg)', padding: 0 }}
-              title="点击在新窗口打开"
+              title={ACTION_OPEN_IN_NEW_WINDOW}
             >
               <img src={url} alt={`图片 ${idx + 1}`} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
             </button>

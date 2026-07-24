@@ -20,7 +20,7 @@ import {
 import { useCategories } from "../../hooks/useCategories";
 import { useManualQuery } from "../../hooks/useManualQuery";
 import { useSubmit, toastError } from "../../hooks/useSubmit";
-import { transactionTypeLabel } from "../../utils/transactionType";
+import { transactionTypeLabel, templateTypeEyebrow } from "../../utils/transactionType";
 import { isIconUrl } from "../../utils/renderCategoryIcon";
 import LocationPicker, { LocationResult } from "../../components/LocationPicker";
 import Icon, { ICON_COLOR } from "../../components/Icon";
@@ -159,7 +159,7 @@ export default function TemplateEdit() {
   return (
     <PageContainer bottomSpace={180} loading={isLoading} loadingText={ACTION_LOADING}>
       <PageHero
-        eyebrow={form.type ? `${transactionTypeLabel(form.type)}模板` : "模板"}
+        eyebrow={templateTypeEyebrow(form.type)}
         title={title}
         meta={templateFormMeta(isEdit)}
         tone="surface"

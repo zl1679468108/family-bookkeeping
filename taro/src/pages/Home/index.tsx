@@ -28,6 +28,8 @@ import { TITLE_RECENT_TXN_MONTH, TITLE_BUDGET_MONTH } from "../../utils/sectionC
 import { FIELD_MONTH_BALANCE, FIELD_MONTH_INCOME, FIELD_MONTH_EXPENSE } from "../../utils/fieldCopy"
 import { CATEGORY_FALLBACK_OTHER } from "../../utils/categories"
 import { HOME_RECENT_TX_PAGE_SIZE } from "../../utils/pagination";
+import { transactionCountLabel } from "../../utils/entityCopy";
+import { transactionTypeShortLabel } from "../../utils/transactionType";
 
 interface BudgetStatus {
   category_id: string;
@@ -133,13 +135,13 @@ export default function Home() {
       label: FIELD_MONTH_INCOME,
       value: formatMoney(income, { wan: true }),
       tone: "income" as const,
-      meta: summary?.incomeCount != null ? `${summary.incomeCount} 笔` : "0 笔",
+      meta: transactionCountLabel(summary?.incomeCount ?? 0),
     },
     {
       label: FIELD_MONTH_EXPENSE,
       value: formatMoney(expense, { wan: true }),
       tone: "expense" as const,
-      meta: summary?.expenseCount != null ? `${summary.expenseCount} 笔` : "0 笔",
+      meta: transactionCountLabel(summary?.expenseCount ?? 0),
     },
   ];
 
@@ -191,7 +193,7 @@ export default function Home() {
                       renderCategoryIcon(catIcon, { size: 32, fontScale: 0.85 })
                     ) : (
                       <Text className="home-txn-icon__fallback">
-                        {isExpense ? "支" : "收"}
+                        {transactionTypeShortLabel(isExpense ? "expense" : "income")}
                       </Text>
                     )}
                   </View>

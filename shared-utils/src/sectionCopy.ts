@@ -91,3 +91,11 @@ export const TITLE_EDIT_PROFILE = '编辑资料'
 /** 地图视图 */
 export const MAP_VIEW_FOOTPRINTS = '足迹'
 export const MAP_VIEW_HEATMAP = '热力图'
+
+
+/** 年报区块标题 */
+export const TITLE_REPORT_RECORDS = '🏆 记录之最'
+export const TITLE_REPORT_MEMBER_SPEND = '👥 成员消费'
+export const LABEL_REPORT_MAX_EXPENSE = '单笔最高支出'
+export const LABEL_REPORT_BUSIEST_DAY = '最忙碌消费日'
+export const LABEL_REPORT_TOP_MERCHANT = '最常消费商户'

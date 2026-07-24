@@ -22,6 +22,7 @@ import { ERROR_REPORT_NOT_LOADED, ERROR_SAVE_IMAGE, ERROR_DATA_LOAD_FAILED_RETRY
 import { SUCCESS_REPORT_SAVED } from '../../utils/successCopy';
 import { FORM_SEARCH_YEAR } from '../../utils/formCopy'
 import { userDisplayName } from '../../utils/userDisplay'
+import { EMPTY_BOOK_UNSELECTED } from '../../utils/entityCopy'
 
 const CURRENT_YEAR = new Date().getFullYear();
 
@@ -89,7 +90,7 @@ const AnnualReport: React.FC = () => {
         >
           <span>📒</span>
           <span style={{ fontWeight: 500 }}>
-            {currentBook?.name || '未选择账本'}
+            {currentBook?.name || EMPTY_BOOK_UNSELECTED}
           </span>
         </div>
 

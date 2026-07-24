@@ -18,6 +18,7 @@ import {
   confirmDeleteBook,
   confirmRemoveMember,
 } from '../../utils/confirmCopy'
+import { ENTITY_BOOK_FALLBACK } from '../../utils/entityCopy'
 
 const BooksPage: React.FC = () => {
   const {
@@ -66,7 +67,7 @@ const BooksPage: React.FC = () => {
         type="confirm"
         open={!!deleteTarget}
         title={CONFIRM_DELETE_TITLE}
-        children={confirmDeleteBook(selectedBook?.name || books?.find((b: any) => b.id === deleteTarget)?.name || '该账本')}
+        children={confirmDeleteBook(selectedBook?.name || books?.find((b: any) => b.id === deleteTarget)?.name || ENTITY_BOOK_FALLBACK)}
         onConfirm={() => deleteTarget && deleteMutation.run(deleteTarget)}
         onClose={() => setDeleteTarget(null)}
         loading={deleteMutation.isPending}

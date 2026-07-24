@@ -34,7 +34,7 @@ import {
 } from '../../utils/transactionList'
 import { successEntityDeleted } from '../../utils/successCopy'
 import { ENTITY_TRANSACTION, DETAIL_TRANSACTION } from '../../utils/entityCopy'
-import { ERROR_DELETE_FAILED } from '../../utils/errorCopy'
+import { ERROR_DELETE_FAILED, ERROR_NO_TRANSACTION_SELECTED_DELETE } from '../../utils/errorCopy'
 import { EMPTY_TRANSACTIONS } from '../../utils/emptyCopy'
 import {
   CONFIRM_DELETE_TITLE,
@@ -157,7 +157,7 @@ const Transactions: React.FC = () => {
   const { run: handleDelete, isRunning: deleteLoading } = useMutationAction(
     async () => {
       if (!selectedTransaction) {
-        throw new Error('未选择要删除的交易')
+        throw new Error(ERROR_NO_TRANSACTION_SELECTED_DELETE)
       }
       await deleteTransaction(selectedTransaction.id)
     },

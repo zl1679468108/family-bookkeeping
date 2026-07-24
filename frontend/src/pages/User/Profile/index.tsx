@@ -231,7 +231,7 @@ const ProfilePage: React.FC = () => {
       navigate(-1)
     } catch (err: unknown) {
       console.error('更新个人信息失败:', err)
-      const message = err instanceof Error ? err.message : '保存失败，请检查网络或稍后重试'
+      const message = err instanceof Error ? err.message : AUTH_SAVE_PROFILE_FAILED
       setError(message)
     }
   })
@@ -248,7 +248,7 @@ const ProfilePage: React.FC = () => {
               onClick={() => fileInputRef.current?.click()}
             >
               {avatarPreview ? (
-                <img src={avatarPreview} alt="头像" className="avatar-image" />
+                <img src={avatarPreview} alt={FIELD_AVATAR_ALT} className="avatar-image" />
               ) : (
                 <div className="avatar-placeholder">
                   <Icon name="user" size={32} strokeWidth={1.5} />

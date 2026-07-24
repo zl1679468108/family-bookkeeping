@@ -45,7 +45,7 @@ import {
   successSwitchedBook,
 } from "../../utils/successCopy";
 import { copyToClipboard } from "../../utils/clipboard";
-import { entityCreateButton, ENTITY_BOOK, DETAIL_BOOK, DEFAULT_BOOK_NAME } from "../../utils/entityCopy";
+import { entityCreateButton, ENTITY_BOOK, DETAIL_BOOK, DEFAULT_BOOK_NAME, ENTITY_BOOK_FALLBACK } from "../../utils/entityCopy";
 import { DELETE_FAILED } from "../../utils/uploadCopy";
 import { ERROR_JOIN_FAILED, ERROR_INVITE_EMAIL, ERROR_GENERATE_FAILED, ERROR_REMOVE_FAILED } from "../../utils/errorCopy";
 import Icon, { ICON_COLOR } from "../../components/Icon";
@@ -708,7 +708,7 @@ export default function BooksPage() {
       <ConfirmDialog
         visible={showDeleteConfirm}
         title={CONFIRM_DELETE_BOOK_TITLE}
-        message={confirmDeleteBook(deletingBook?.name || detailBook?.name || "该账本")}
+        message={confirmDeleteBook(deletingBook?.name || detailBook?.name || ENTITY_BOOK_FALLBACK)}
         confirmText={ACTION_DELETE}
         danger
         onConfirm={handleDelete}

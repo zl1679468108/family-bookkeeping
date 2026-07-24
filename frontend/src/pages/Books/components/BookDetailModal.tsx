@@ -4,7 +4,7 @@ import { Button } from '../../../components/ui/Button';
 import { getBookIconByKey } from '../../../utils/bookIcons';
 import { BookMemberList } from './BookMemberList';
 import { formatDateTimeMinute } from '../../../utils/date'
-import { DETAIL_BOOK, DEFAULT_BOOK_NAME } from '../../../utils/entityCopy'
+import { DETAIL_BOOK, DEFAULT_BOOK_NAME, LABEL_ARCHIVED } from '../../../utils/entityCopy'
 import { FIELD_MEMBERS, FIELD_TXN_COUNT, FIELD_STATUS, FIELD_CREATED_AT, FIELD_UPDATED_AT, FIELD_OWNER_ID } from '../../../utils/fieldCopy'
 import { ACTION_EDIT, ACTION_DELETE, generatingLabel, ACTION_INVITE_MEMBER, ACTION_SWITCH_TO_BOOK } from '../../../utils/actionCopy'
 import { ACTION_GENERATE_INVITE_CODE } from '../../../utils/inviteCopy'
@@ -87,7 +87,7 @@ export const BookDetailModal: React.FC<BookDetailModalProps> = ({
       <div className="detail-grid">
         <DetailItem label={FIELD_MEMBERS} value={`${members.length || selectedBook.m || 1} 人`} />
         <DetailItem label={FIELD_TXN_COUNT} value={`${selectedBook.txn_count || 0} 笔`} />
-        {selectedBook.is_archived && <DetailItem label={FIELD_STATUS} value="已归档" />}
+        {selectedBook.is_archived && <DetailItem label={FIELD_STATUS} value={LABEL_ARCHIVED} />}
         {selectedBook.created_at && (
           <DetailItem label={FIELD_CREATED_AT} value={formatDateTimeMinute(selectedBook.created_at)} />
         )}

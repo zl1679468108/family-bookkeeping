@@ -30,6 +30,7 @@ import { ACTION_VIEW_ALL,
 } from '../../utils/actionCopy'
 import { FIELD_MONTH_BALANCE, FIELD_MONTH_INCOME, FIELD_MONTH_EXPENSE } from '../../utils/fieldCopy'
 import { HOME_RECENT_TX_PAGE_SIZE } from '../../utils/pagination'
+import { ENTITY_TRANSACTION, transactionCountLabel, totalTransactionCountLabel } from '../../utils/entityCopy'
 
 const Dashboard: React.FC = () => {
   const navigate = useNavigate()
@@ -111,19 +112,19 @@ const Dashboard: React.FC = () => {
             <StatCard
               label={FIELD_MONTH_BALANCE}
               value={formatAmount(summary?.balance || 0)}
-              sub={`共 ${(summary?.incomeCount || 0) + (summary?.expenseCount || 0)} 笔`}
+              sub={totalTransactionCountLabel((summary?.incomeCount || 0) + (summary?.expenseCount || 0))}
               variant="hero"
             />
             <StatCard
               label={FIELD_MONTH_INCOME}
               value={formatAmount(summary?.totalIncome || 0)}
-              sub={`${summary?.incomeCount || 0} 笔`}
+              sub={transactionCountLabel(summary?.incomeCount || 0)}
               variant="income"
             />
             <StatCard
               label={FIELD_MONTH_EXPENSE}
               value={formatAmount(summary?.totalExpense || 0)}
-              sub={`${summary?.expenseCount || 0} 笔`}
+              sub={transactionCountLabel(summary?.expenseCount || 0)}
               variant="expense"
             />
           </>
@@ -171,7 +172,7 @@ const Dashboard: React.FC = () => {
                 >
                   <div className="txn-icon">{getCategoryIconNode(txn.category, 24)}</div>
                   <div className="txn-info">
-                    <div className="txn-title">{txn.description || '交易'}</div>
+                    <div className="txn-title">{txn.description || ENTITY_TRANSACTION}</div>
                     <div className="txn-meta">
                       <span>{formatMonthDay(txn.date)}</span>
                     </div>

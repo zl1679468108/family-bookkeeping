@@ -3,6 +3,7 @@ import { getChartPalette } from '../../utils/themeColors'
 import { useTheme } from '../../utils/theme'
 import { formatMoney } from '../../utils/budget'
 import { userDisplayName } from '../../utils/userDisplay'
+import { TITLE_REPORT_MEMBER_SPEND } from '../../utils/sectionCopy'
 
 interface MemberItem {
   user_id: string;
@@ -23,7 +24,7 @@ const ReportMemberRanking: React.FC<Props> = ({ data }) => {
 
   return (
     <div className="mb-6 px-4">
-      <h2 className="text-lg font-bold mb-4" style={{ color: 'var(--fg)' }}>👥 成员消费</h2>
+      <h2 className="text-lg font-bold mb-4" style={{ color: 'var(--fg)' }}>{TITLE_REPORT_MEMBER_SPEND}</h2>
       <div className="space-y-3">
         {data.map((member, i) => (
           <div

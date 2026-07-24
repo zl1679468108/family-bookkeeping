@@ -66,3 +66,5 @@ export const ERROR_REQUEST_FAILED = '请求失败'
 export const ERROR_NETWORK = '网络错误，请检查网络连接'
 export const ERROR_NETWORK_REQUEST = '网络请求失败，请检查网络连接'
 export const ERROR_REQUEST_TIMEOUT_COLD_START = '请求超时，服务可能正在冷启动，请稍后重试'
+
+export const ERROR_NO_TRANSACTION_SELECTED_DELETE = '未选择要删除的交易'

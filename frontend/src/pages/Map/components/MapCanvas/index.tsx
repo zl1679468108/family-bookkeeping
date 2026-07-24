@@ -10,6 +10,7 @@ import { merchantBalanceColor, blendHexColors } from '../../../../utils/color'
 import { createFootprintMarkerHtml, merchantShortLabel } from '../../../../utils/mapMarkerHtml'
 import { ERROR_LOCATION_UNAVAILABLE, ERROR_MAP_UNAVAILABLE, ERROR_MAP_NETWORK_HINT } from '../../../../utils/errorCopy'
 import { ACTION_LOCATING_CURRENT_ELLIPSIS } from '../../../../utils/actionCopy'
+import { FORM_LOCATION_AUTH_HINT } from '../../../../utils/formCopy'
 
 /* ⚠️ 静态初值，永不随 state 变化，避免二次变更视口取消瓦片 */
 function getMerchantColor(expenseTotal: number, incomeTotal: number): string {
@@ -341,7 +342,7 @@ const _MapCanvas: React.ForwardRefRenderFunction<MapCanvasHandle, MapCanvasProps
         map.setCenter([result.position.lng, result.position.lat]);
         map.setZoom(12);
       } else {
-        setLocateError('无法获取当前位置，请确认已授权位置权限');
+        setLocateError(FORM_LOCATION_AUTH_HINT);
       }
       setMapVisible(true);
     });

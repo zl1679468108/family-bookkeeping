@@ -54,3 +54,39 @@ export const ACTION_DELETE_BUDGET = entityDeleteAction(ENTITY_BUDGET)
 
 /** 系统预置默认账本名称（不可删） */
 export const DEFAULT_BOOK_NAME = '默认账本'
+
+
+/** 删除确认等场景的账本名回退 */
+export const ENTITY_BOOK_FALLBACK = '该账本'
+
+/** 通用空值展示 */
+export const LABEL_NONE = '无'
+
+/** 通用未知展示（用户名等） */
+export const LABEL_UNKNOWN = '未知'
+
+/** 账本状态：已归档 */
+export const LABEL_ARCHIVED = '已归档'
+
+/** 年报等未选账本 */
+export const EMPTY_BOOK_UNSELECTED = '未选择账本'
+
+/** N 笔 */
+export function transactionCountLabel(count: number): string {
+  return `${Number(count) || 0} 笔`
+}
+
+/** 共 N 笔 */
+export function totalTransactionCountLabel(count: number): string {
+  return `共 ${Number(count) || 0} 笔`
+}
+
+/** 光顾 N 次 */
+export function visitCountLabel(count: number): string {
+  return `光顾 ${Number(count) || 0} 次`
+}
+
+/** 当日支出 {amountText} */
+export function dayExpenseAmountLabel(amountText: string): string {
+  return `当日支出 ${amountText}`
+}

@@ -33,6 +33,7 @@ import { ACTION_LOGGING_IN, ACTION_LOGIN, AUTH_LOGIN_EXPIRED_REENTER, AUTH_ADD_N
 } from '../../utils/authCopy'
 import { TITLE_ABOUT } from '../../utils/sectionCopy'
 import { ERROR_DEACTIVATE_FAILED } from '../../utils/errorCopy'
+import { appCustomerServiceTitle } from "../../config/version";
 
 export default function Profile() {
   const { user, signOut, signIn, switchByToken } = useAuth();
@@ -264,7 +265,7 @@ export default function Profile() {
         className="contact-btn"
         openType="contact"
         sessionFrom="profile"
-        sendMessageTitle="静记客服"
+        sendMessageTitle={appCustomerServiceTitle()}
         sendMessagePath="/pages/Profile/index"
       >
         <View className="contact-btn__inner">

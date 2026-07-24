@@ -216,6 +216,12 @@
 - 分类表单 meta helper；TemplateEdit 用 `transactionTypeLabel`；`confirmDeleteThis(ENTITY_*)` 收口
 - 验证：frontend / taro `tsc --noEmit`
 
+#### 2026-07-24 笔数/年报标签/实体回退/定位错误 shared 化
+- entityCopy：`transactionCountLabel`/`totalTransactionCountLabel`/`visitCountLabel`/`dayExpenseAmountLabel`、账本回退与归档/未知/无
+- sectionCopy 年报记录区块标题；transactionType `templateTypeEyebrow`；error/action/form 定位与删除未选中文案
+- version `appCustomerServiceTitle`；Dashboard/Home/年报/Books/Map/Admin/Profile/TemplateEdit 接线
+- 验证：frontend / taro `tsc --noEmit`
+
 #### 2026-07-24 品牌/类型选项/必填标记/导航分区 shared 化
 - version：`APP_BRAND_MARK` / `appWelcomeTitle` / `appPageTitle`；AuthLayout/Sidebar/登录注册/引导/App 标题接线
 - transactionType：`TRANSACTION_TYPE_OPTIONS_WITH_ICONS`；Map/Admin/年报趋势同源
