@@ -1,7 +1,6 @@
 import React, { useRef, useEffect, useMemo } from 'react'
 import { echarts } from '../../../utils/echarts'
 import type { ECharts, EChartsOption } from '../../../utils/echarts'
-import { format, parseISO } from 'date-fns'
 import { formatAmount } from '../../../utils/common'
 import type { PeriodType } from '../hooks/useReportData'
 import { getEchartsChrome, getThemeColors } from '../../../utils/themeColors'

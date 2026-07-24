@@ -167,6 +167,10 @@
 - 邀请/转移邮箱：FE InviteMemberModal、Taro Books/BookMembers/BookSettings 改用 `validateEmail`（空+格式）
 - 验证：frontend / taro `tsc --noEmit`
 
+#### 2026-07-24 去掉 PC date-fns + formatMonthDay
+- 新增 `formatMonthDay`；Dashboard/流水日期展示改用 shared date 工具
+- TrendChart 清理无用 date-fns；PC 依赖移除 `date-fns`（双端日期口径完全走 shared-utils）
+
 #### 2026-07-24 预算进度色 / 地图商户色 shared 化
 - `budgetProgressFillClass` / `budgetProgressColorVar`：PC/Taro 预算进度样式同源
 - 新增 `shared-utils/src/color`：`parseHexRgb` / `blendHexColors` / `merchantBalanceColor`；地图足迹色接线

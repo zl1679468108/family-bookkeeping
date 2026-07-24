@@ -1,7 +1,6 @@
 import React, { useState, useMemo, useEffect, useCallback } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
-import { format, parse } from 'date-fns'
 import { getTransactions, deleteTransaction } from '../../services/api'
 import { useCategoryLookup, useCategories } from '../../hooks/useCategories'
 import { useBook } from '../../hooks/useBook'
@@ -13,6 +12,7 @@ import { useDebounce } from '../../hooks/useDebounce'
 import { useMutationAction } from '../../hooks/useMutationAction'
 import { useFocusItem } from '../../hooks/useFocusItem'
 import { formatAmount, formatAmountByType } from '../../utils/common'
+import { formatDateYMD } from '../../utils/date'
 import { Skeleton } from '../../components/ui/Skeleton'
 import { GlobalModal, DetailItem, Space } from '../../components/ui'
 import { Card } from '../../components/ui/Card'
@@ -54,7 +54,7 @@ const Transactions: React.FC = () => {
   useFocusItem()
 
   const today = new Date()
-  const todayStr = format(today, 'yyyy-MM-dd')
+  const todayStr = formatDateYMD(today)
 
   const { data: allCategories = [] } = useCategories()
 
@@ -350,7 +350,7 @@ const Transactions: React.FC = () => {
                       aria-label={`查看交易详情：${t.description || getCategoryName(t.category)} ${formatAmountByType(t.amount, t.type)}`}
                       style={{ cursor: 'pointer' }}
                     >
-                      <td>{format(parse(t.date, 'yyyy-MM-dd', new Date()), 'yyyy-MM-dd')}</td>
+                      <td>{formatDateYMD(t.date)}</td>
                       <td><span className="cell-cat">{getCategoryIconNode(t.category, 16)} {getCategoryName(t.category)}</span></td>
                       <td>
                         {t.brand ? (
@@ -411,7 +411,7 @@ const Transactions: React.FC = () => {
             <div className="detail-content">
               <div className="detail-title">{getCategoryName(selectedTransaction.category)}</div>
               <div className="detail-subtitle">
-                {transactionTypeLabel(selectedTransaction.type)} · {format(new Date(selectedTransaction.date), 'yyyy-MM-dd')}
+                {transactionTypeLabel(selectedTransaction.type)} · {formatDateYMD(selectedTransaction.date)}
               </div>
               <div className="detail-amount">
                 <div className={`detail-amount-value ${selectedTransaction.type === 'income' ? 'income' : ''}`}>

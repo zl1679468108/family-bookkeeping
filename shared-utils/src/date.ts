@@ -22,6 +22,22 @@ export function formatDateYMD(input: string | Date): string {
   return `${y}-${m}-${d}`
 }
 
+/** MM-DD（列表摘要用） */
+export function formatMonthDay(input: string | Date): string {
+  if (typeof input === 'string') {
+    const s = input.trim()
+    // 已是 YYYY-MM-DD[...] 直接切片，避免时区偏移
+    if (/^\d{4}-\d{2}-\d{2}/.test(s)) return s.slice(5, 10)
+  }
+  const date = parseDateInput(input)
+  if (Number.isNaN(date.getTime())) {
+    return typeof input === 'string' ? input : ''
+  }
+  const m = String(date.getMonth() + 1).padStart(2, '0')
+  const d = String(date.getDate()).padStart(2, '0')
+  return `${m}-${d}`
+}
+
 /**
  * 友好日期：今天 / 昨天 / M月D日（同年） / YYYY-MM-DD（跨年）
  */

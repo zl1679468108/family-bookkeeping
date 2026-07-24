@@ -1,9 +1,9 @@
 import React, { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
-import { format, parse } from 'date-fns'
 import { monthBoundsFromDate } from '../../utils/reportPeriod'
 import { formatAmount } from '../../utils/common'
+import { formatMonthDay } from '../../utils/date'
 import { formatMoney, getBudgetVariant } from '../../utils/budget'
 import { useBudgetProgress } from '../../hooks/useBudgetProgress'
 import { getTransactions } from '../../services/api'
@@ -164,7 +164,7 @@ const Dashboard: React.FC = () => {
                   <div className="txn-info">
                     <div className="txn-title">{txn.description || '交易'}</div>
                     <div className="txn-meta">
-                      <span>{format(parse(txn.date, 'yyyy-MM-dd', new Date()), 'MM-dd')}</span>
+                      <span>{formatMonthDay(txn.date)}</span>
                     </div>
                   </div>
                   <div className={`txn-amount ${txn.type === 'expense' ? 'debit' : 'credit'}`}>
