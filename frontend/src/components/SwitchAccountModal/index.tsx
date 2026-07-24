@@ -27,6 +27,11 @@ import { ACTION_CLOSE, ACTION_SWITCH_ACCOUNT,
 } from '../../utils/actionCopy'
 import { EMPTY_NO_SAVED_ACCOUNTS } from '../../utils/emptyCopy'
 import { AUTH_LOGIN_EXPIRED, authLoginExpiredRelogin } from '../../utils/authCopy'
+import {
+  buildAccountItemClassName,
+  buildSwitchAccountOverlayClassName,
+  buildSwitchAccountModalClassName,
+} from '../../utils/switchAccount'
 
 interface SwitchAccountModalProps {
   visible: boolean
@@ -87,8 +92,8 @@ const SwitchAccountModal: React.FC<SwitchAccountModalProps> = ({ visible, onClos
   const currentEmail = accounts.find(a => a.email === user?.email)?.email
 
   return (
-    <div className="switch-account-overlay" onClick={onClose}>
-      <div className="switch-account-modal" onClick={(e) => e.stopPropagation()}>
+    <div className={buildSwitchAccountOverlayClassName()} onClick={onClose}>
+      <div className={buildSwitchAccountModalClassName()} onClick={(e) => e.stopPropagation()}>
         <div className="switch-account-header">
           <h3>{ACTION_SWITCH_ACCOUNT}</h3>
           <button type="button" className="switch-account-close" onClick={onClose} aria-label={ACTION_CLOSE}>
@@ -105,7 +110,7 @@ const SwitchAccountModal: React.FC<SwitchAccountModalProps> = ({ visible, onClos
                 return (
                   <div
                     key={account.email}
-                    className={`account-item${isCurrent ? ' current' : ''}`}
+                    className={buildAccountItemClassName({ current: isCurrent })}
                     onClick={() => !isCurrent && !switchLoading && handleSwitch(account)}
                   >
                     <div className="account-item-avatar">

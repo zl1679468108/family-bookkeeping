@@ -20,6 +20,12 @@ import { ACTION_LOGOUT, ACTION_LOGGING_OUT, ACTION_SWITCH_ACCOUNT,
   collapseToggleLabel,
 } from '../../utils/actionCopy'
 import { TITLE_ABOUT } from '../../utils/sectionCopy'
+import {
+  buildSidebarClassName,
+  buildSidebarNavItemClassName,
+  buildSidebarUserArrowClassName,
+  buildUserMenuItemClassName,
+} from '../../utils/sidebar'
 import { APP_NAME, APP_BRAND_MARK } from '../../config/version'
 
 const NAV_ITEMS = [
@@ -120,7 +126,7 @@ export const Sidebar: React.FC = () => {
   const overBudgetCount = budgetStatus?.categories?.filter(c => c.status === 'over').length || 0
 
   return (
-    <aside className={`app-sidebar${collapsed ? ' collapsed' : ''}`}>
+    <aside className={buildSidebarClassName({ collapsed })}>
       {/* Logo — 静记 */}
       <div className="sidebar-logo">
         <div className="sidebar-logo-icon">{APP_BRAND_MARK}</div>
@@ -138,7 +144,7 @@ export const Sidebar: React.FC = () => {
         {!collapsed && <div className="sidebar-nav-sep">{NAV_SECTION_MAIN}</div>}
         {NAV_ITEMS.map((item) => (
           <button key={item.id}
-            className={`sidebar-nav-item${activeId === item.id ? ' active' : ''}${item.type === 'add' ? ' sidebar-nav-item--add' : ''}`}
+            className={buildSidebarNavItemClassName({ active: activeId === item.id, add: item.type === 'add' })}
             onClick={() => navigate(item.path)}
             onMouseEnter={() => prefetchRoute(item.path)}
             onFocus={() => prefetchRoute(item.path)}
@@ -158,7 +164,7 @@ export const Sidebar: React.FC = () => {
             {!collapsed && <div className="sidebar-nav-sep">{NAV_SECTION_ADMIN}</div>}
             {ADMIN_ITEMS.map((item) => (
               <button key={item.id}
-                className={`sidebar-nav-item${activeId === item.id ? ' active' : ''}`}
+                className={buildSidebarNavItemClassName({ active: activeId === item.id })}
                 onClick={() => navigate(item.path)}
                 onMouseEnter={() => prefetchRoute(item.path)}
                 onFocus={() => prefetchRoute(item.path)}
@@ -201,7 +207,7 @@ export const Sidebar: React.FC = () => {
             {!collapsed && (
               <>
                 <span className="sidebar-user-name">{displayName}</span>
-                <Icon name="chevron-down" size={14} className={`sidebar-user-arrow${menuOpen ? ' open' : ''}`} />
+                <Icon name="chevron-down" size={14} className={buildSidebarUserArrowClassName({ open: menuOpen })} />
               </>
             )}
           </button>
@@ -232,20 +238,20 @@ export const Sidebar: React.FC = () => {
               <ThemeToggle />
             </div>
             <div className="user-menu-divider" />
-            <button className="user-menu-item" onClick={handleProfile}>
+            <button className={buildUserMenuItemClassName()} onClick={handleProfile}>
               <Icon name="user" size={16} />
               个人信息
             </button>
-            <button className="user-menu-item" onClick={() => { setMenuOpen(false); setShowSwitchModal(true) }}>
+            <button className={buildUserMenuItemClassName()} onClick={() => { setMenuOpen(false); setShowSwitchModal(true) }}>
               <Icon name="users" size={16} />
               {ACTION_SWITCH_ACCOUNT}
             </button>
-            <button className="user-menu-item" onClick={() => { setMenuOpen(false); navigate('/about') }}>
+            <button className={buildUserMenuItemClassName()} onClick={() => { setMenuOpen(false); navigate('/about') }}>
               <Icon name="info" size={16} />
               {TITLE_ABOUT}
             </button>
             <div className="user-menu-divider" />
-            <button className="user-menu-item user-menu-item--danger" onClick={handleLogout} disabled={logoutLoading}>
+            <button className={buildUserMenuItemClassName({ danger: true })} onClick={handleLogout} disabled={logoutLoading}>
               <Icon name="logout" size={16} />
               {logoutLoading ? ACTION_LOGGING_OUT : ACTION_LOGOUT}
             </button>

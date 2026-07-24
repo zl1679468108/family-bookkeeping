@@ -6,7 +6,11 @@ import { View, Text } from "@tarojs/components";
 import { Button } from "../ui/Button";
 import { FooterActions } from "../ui/FooterActions";
 import "./index.scss";
-import { ACTION_PROCESSING, ACTION_CANCEL, ACTION_CONFIRM } from "../../utils/actionCopy"
+import { ACTION_PROCESSING, ACTION_CANCEL, ACTION_CONFIRM } from "../../utils/actionCopy";
+import {
+  buildConfirmDialogMaskClassName,
+  buildConfirmDialogClassName,
+} from "../../utils/confirmDialog";
 
 export interface ConfirmDialogProps {
   visible: boolean;
@@ -18,6 +22,7 @@ export interface ConfirmDialogProps {
   danger?: boolean;
   onCancel: () => void;
   onConfirm: () => void;
+  className?: string;
 }
 
 export default function ConfirmDialog({
@@ -30,12 +35,16 @@ export default function ConfirmDialog({
   danger = true,
   onCancel,
   onConfirm,
+  className = "",
 }: ConfirmDialogProps) {
   if (!visible) return null;
 
   return (
-    <View className="cd-mask" onClick={onCancel}>
-      <View className="cd-dialog" onClick={(e: any) => e.stopPropagation()}>
+    <View className={buildConfirmDialogMaskClassName()} onClick={onCancel}>
+      <View
+        className={buildConfirmDialogClassName({ className })}
+        onClick={(e: any) => e.stopPropagation()}
+      >
         <Text className="cd-title">{title}</Text>
         <Text className="cd-message">{message}</Text>
         <FooterActions align="stretch" className="cd-actions">

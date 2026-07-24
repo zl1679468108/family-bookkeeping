@@ -85,6 +85,12 @@
 
 ### ✅ 已完成
 
+#### 2026-07-24 Sidebar/ConfirmDialog/切换账号 class shared 化
+- `sidebar`：侧栏折叠/导航项/用户箭头/菜单项 class
+- `confirmDialog`：Taro 确认弹层 mask/dialog class
+- `switchAccount`：切换账号遮罩/弹层/账号行 class
+- 验证：frontend / taro `tsc --noEmit`
+
 #### 2026-07-24 GlobalModal/Search·Select class shared 化
 - `globalModal`：PC/Taro 遮罩/对话框/body/按钮 class + 默认宽度
 - `inputHelpers`：Search/Number/Select/pc shell class；PC Input 接线
