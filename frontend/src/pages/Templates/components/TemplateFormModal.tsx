@@ -11,7 +11,7 @@ import { FREQUENCY_OPTIONS } from '../../../utils/frequency'
 import { TRANSACTION_TYPE_OPTIONS } from '../../../utils/transactionType'
 import { busyLabel, ACTION_SAVING } from '../../../utils/actionCopy'
 import { entityFormTitle, ENTITY_TEMPLATE } from '../../../utils/entityCopy'
-import { FORM_TEMPLATE_NAME_EXAMPLE, FORM_SELECT_TYPE, FORM_SELECT_CATEGORY, FORM_AMOUNT_PLACEHOLDER, FORM_NOTE_OPTIONAL } from '../../../utils/formCopy'
+import { FORM_TEMPLATE_NAME_EXAMPLE, FORM_SELECT_TYPE, FORM_SELECT_CATEGORY, FORM_AMOUNT_PLACEHOLDER, FORM_NOTE_OPTIONAL, FORM_SELECT_FREQUENCY } from '../../../utils/formCopy'
 
 interface TemplateFormProps {
   open: boolean
@@ -153,7 +153,7 @@ export const TemplateFormModal: React.FC<TemplateFormProps> = ({
                 value={form.frequency || ''}
                 onChange={(v) => setForm((prev: any) => ({ ...prev, frequency: v || undefined }))}
                 options={[{ key: '', label: '不重复' }, ...FREQUENCY_OPTIONS]}
-                placeholder="选择频率"
+                placeholder={FORM_SELECT_FREQUENCY}
               />
             </div>
             {form.frequency && (

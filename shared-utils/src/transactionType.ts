@@ -65,3 +65,11 @@ export function categoryTypeTabLabel(type?: string | null): string {
   if (type === 'income') return '收入分类'
   return '支出分类'
 }
+
+export const FILTER_ALL = '全部'
+export const FILTER_ALL_MEMBERS = '全部成员'
+export const FILTER_ALL_BOOKS = '全部账本'
+export const FILTER_ALL_USERS = '全部用户'
+export const FILTER_ALL_ROLES = '全部角色'
+export const FILTER_ALL_STATUS = '全部状态'
+export const FILTER_VIEW = '视图'

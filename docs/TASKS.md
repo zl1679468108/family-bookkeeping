@@ -85,6 +85,11 @@
 
 ### ✅ 已完成
 
+#### 2026-07-24 筛选/地图 Marker shared 化 + 双端占位收口
+- **filter/form 常量**：`FILTER_ALL*` / `FORM_MIN/MAX_AMOUNT` / `FORM_SELECT_MONTH|FREQUENCY` / `FORM_SEARCH_MERCHANT` / `FORM_ADMIN_PASSWORD` / `ACTION_VIEW_ALL`
+- **接线**：流水筛选、地图筛选、Admin 用户/交易、Dropdown 默认、Dashboard/Home「全部」、Taro 记一笔品牌与 NoteField 备注
+- **mapMarkerHtml**：成员气泡 + 足迹圆点 HTML 纯函数入 shared-utils；MapCanvas / MemberLocationLayer 改用
+
 #### 2026-07-24 PC 暗色全站硬编码色再扫 + 鉴权/version shared 化
 - **PC 暗色硬编码色再扫**：业务 SCSS/TSX 已无残留浅色硬编码；仅保留有意固定色（design-tokens 定义、Auth/年报插画、地图热力色带、头像压缩画布白底、图表多系列扩展色）。图表 chrome 已走 `getThemeColors/getEchartsChrome`。
 - **version shared 化**：`shared-utils/src/version.ts`，双端 `config/version.ts` facade。

@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { Icon } from '../Icon'
+import { FILTER_ALL } from '../../../utils/transactionType'
 
 /**
  * 通用下拉选择组件 —— 取代各页面手写的 <select> 和自定义下拉
@@ -41,7 +42,7 @@ export const DropdownSelect: React.FC<DropdownSelectProps> = ({
   options,
   value,
   onChange,
-  placeholder = '全部',
+  placeholder = FILTER_ALL,
   className = '',
   allowClear = true,
   width,

@@ -22,6 +22,7 @@ import { queryKeys } from '../../utils/queryKeys'
 import { GC_TIME_LONG, STALE } from '../../utils/cachePolicy'
 import { EMPTY_TRANSACTIONS_HOME, EMPTY_NO_BUDGET } from '../../utils/emptyCopy'
 import { TITLE_BUDGET_MONTH, TITLE_RECENT_TXN_MONTH } from '../../utils/sectionCopy'
+import { ACTION_VIEW_ALL } from '../../utils/actionCopy'
 
 const Dashboard: React.FC = () => {
   const navigate = useNavigate()
@@ -211,7 +212,7 @@ const Dashboard: React.FC = () => {
               title={TITLE_BUDGET_MONTH}
               action={
                 <Button type="button" variant="ghost" size="sm" className="card-action" onClick={() => navigate('/budgets')}>
-                  全部
+                  {ACTION_VIEW_ALL}
                 </Button>
               }
             />

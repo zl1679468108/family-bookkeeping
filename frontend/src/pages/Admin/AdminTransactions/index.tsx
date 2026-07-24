@@ -22,12 +22,7 @@ import { GlobalModal } from '../../../components/ui';
 import { renderCategoryIcon } from '../../../utils/renderCategoryIcon';
 import { queryKeys } from '../../../utils/queryKeys'
 import { STALE } from '../../../utils/cachePolicy'
-import {
-  transactionTypeLabel,
-  transactionTypeStatusClass,
-  transactionTypeAmountClass,
-  isIncomeType,
-} from '../../../utils/transactionType'
+import { transactionTypeLabel, transactionTypeStatusClass, transactionTypeAmountClass, isIncomeType, FILTER_ALL_BOOKS, FILTER_ALL_USERS, FILTER_ALL_TYPES } from '../../../utils/transactionType'
 import { formatAmountByType } from '../../../utils/common'
 import { EMPTY_LOAD_FAILED_RETRY, EMPTY_TRANSACTIONS } from '../../../utils/emptyCopy';
 
@@ -117,19 +112,19 @@ const AdminTransactions: React.FC = () => {
             options={bookOptions}
             value={bookFilter}
             onChange={handleBookChange}
-            placeholder="全部账本"
+            placeholder={FILTER_ALL_BOOKS}
           />
           <DropdownSelect
             options={userOptions}
             value={userFilter}
             onChange={handleUserChange}
-            placeholder="全部用户"
+            placeholder={FILTER_ALL_USERS}
           />
           <DropdownSelect
             options={typeOptions}
             value={typeFilter}
             onChange={handleTypeChange}
-            placeholder="全部类型"
+            placeholder={FILTER_ALL_TYPES}
           />
           <SearchInput
             value={search}

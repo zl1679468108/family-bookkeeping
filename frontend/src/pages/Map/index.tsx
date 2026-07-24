@@ -20,9 +20,10 @@ import { getThemeColors } from '../../utils/themeColors'
 import { formatAmount } from '../../utils/common';
 import { queryKeys } from '../../utils/queryKeys';
 import { STALE } from '../../utils/cachePolicy';
-import { FILTER_ALL_CATEGORIES } from '../../utils/transactionType'
+import { FILTER_ALL_CATEGORIES, FILTER_VIEW, FILTER_ALL_MEMBERS, FILTER_ALL } from '../../utils/transactionType'
 import { ACTION_LOADING } from '../../utils/actionCopy';
 import { TITLE_MERCHANT_FOOTPRINT } from '../../utils/sectionCopy'
+import { FORM_SELECT_MONTH } from '../../utils/formCopy'
 
 type ViewMode = 'footprints' | 'heatmap';
 
@@ -211,7 +212,7 @@ const MapPage: React.FC = () => {
                 setViewMode(key);
               }
             }}
-            placeholder="视图"
+            placeholder={FILTER_VIEW}
             allowClear={false}
           />
 
@@ -222,7 +223,7 @@ const MapPage: React.FC = () => {
               options={memberOptions}
               value={selectedMemberId}
               onChange={(key) => setSelectedMemberId(key)}
-              placeholder="全部成员"
+              placeholder={FILTER_ALL_MEMBERS}
             />
           )}
 
@@ -232,7 +233,7 @@ const MapPage: React.FC = () => {
             options={monthOptions.map((o) => ({ key: o.key, label: o.label, isHeader: o.isHeader, icon: o.isHeader ? undefined : '📅' }))}
             value={selectedMonth}
             onChange={(key) => key && setSelectedMonth(key)}
-            placeholder="选择月份"
+            placeholder={FORM_SELECT_MONTH}
             allowClear={false}
             showSearch
             searchPlaceholder="搜索月份..."
@@ -247,7 +248,7 @@ const MapPage: React.FC = () => {
               setSelectedType(key as '' | 'income' | 'expense');
               setSelectedCategory(''); // 类型切换时清空分类
             }}
-            placeholder="全部"
+            placeholder={FILTER_ALL}
           />
 
           {/* 分类（使用 renderCategoryIcon 渲染自定义图标） */}

@@ -8,6 +8,7 @@ import './index.scss';
 import { formatAmount } from '../../../../utils/common';
 import { Button } from '../../../../components/ui/Button'
 import { EMPTY_NO_MERCHANTS, EMPTY_NO_MERCHANT_MATCH } from '../../../../utils/emptyCopy';
+import { FORM_SEARCH_MERCHANT } from '../../../../utils/formCopy'
 
 interface MerchantDrawerProps {
   merchants: MerchantSummary[];
@@ -110,7 +111,7 @@ export const MerchantDrawer: React.FC<MerchantDrawerProps> = ({
         <SearchInput
           value={search}
           onChange={setSearch}
-          placeholder="搜索商户名称 / 地址"
+          placeholder={FORM_SEARCH_MERCHANT}
           allowClear
         />
         <div className="merchant-drawer__summary">

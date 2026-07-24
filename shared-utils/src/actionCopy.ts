@@ -1,6 +1,7 @@
 /** 异步操作文案（按钮 / loading / toast 标题） */
 
 export const ACTION_LOADING = '加载中...'
+export const ACTION_VIEW_ALL = '全部'
 export const ACTION_SAVING = '保存中...'
 export const ACTION_SAVE_EDIT = '保存修改'
 export const ACTION_CONFIRM_ADD = '确认添加'

@@ -5,6 +5,7 @@ import type { MemberLocation } from '@family-bookkeeping/shared-types'
 import { getThemeColors } from '../../../utils/themeColors'
 import { queryKeys } from '../../../utils/queryKeys'
 import { isMemberOffline } from '../../../utils/memberPresence'
+import { createMemberBubbleHtml } from '../../../utils/mapMarkerHtml'
 
 interface MemberLocationLayerProps {
   /** 当前账本 ID，undefined 时不渲染任何内容 */
@@ -14,34 +15,16 @@ interface MemberLocationLayerProps {
 }
 
 /**
- * 创建成员位置气泡的 HTML 内容字符串。
- *
- * @param loc - 成员位置数据
- * @param isOffline - 是否已离线
- * @returns 用于 AMap.Marker content 的 HTML 字符串
+ * 创建成员位置气泡的 HTML 内容字符串（模板见 shared-utils/mapMarkerHtml）。
  */
 function createBubbleContent(loc: MemberLocation, isOffline: boolean): string {
   const theme = getThemeColors();
-  const bgColor = isOffline ? theme.fg3 : theme.info;
-  const initial = loc.username.charAt(0).toUpperCase();
-  return `
-    <div style="display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;">
-      <div style="
-        width:32px;height:32px;border-radius:50%;
-        background:${bgColor};
-        border:2px solid ${theme.srf};box-shadow:0 2px 8px color-mix(in srgb, ${theme.fg} 28%, transparent);
-        display:flex;align-items:center;justify-content:center;
-        color:var(--on-pr);font-size:14px;font-weight:700;
-        ${isOffline ? 'opacity:0.6;' : ''}
-      ">${initial}</div>
-      <span style="
-        font-size:10px;color:${theme.fg};background:${theme.srf};
-        padding:1px 6px;border-radius:8px;white-space:nowrap;
-        max-width:80px;overflow:hidden;text-overflow:ellipsis;
-        text-shadow:0 0 2px ${theme.srf};
-      ">${loc.username}</span>
-    </div>
-  `;
+  return createMemberBubbleHtml(loc.username, isOffline, {
+    srf: theme.srf,
+    fg: theme.fg,
+    fg3: theme.fg3,
+    info: theme.info,
+  });
 }
 
 /**

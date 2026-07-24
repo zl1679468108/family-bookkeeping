@@ -6,6 +6,7 @@ import { AmapManager } from '../../../../services/amapManager';
 import './index.scss';
 import { getThemeColors } from '../../../../utils/themeColors'
 import { merchantBalanceColor } from '../../../../utils/color'
+import { createFootprintMarkerHtml, merchantShortLabel } from '../../../../utils/mapMarkerHtml'
 
 /* ⚠️ 静态初值，永不随 state 变化，避免二次变更视口取消瓦片 */
 function getMerchantColor(expenseTotal: number, incomeTotal: number): string {
@@ -18,7 +19,7 @@ function getMerchantColor(expenseTotal: number, incomeTotal: number): string {
 }
 
 /**
- * 创建足迹 Marker 的 HTML 内容。
+ * 创建足迹 Marker 的 HTML 内容（HTML 模板见 shared-utils/mapMarkerHtml）。
  */
 function createFootprintContent(
   merchant: MerchantSummary,
@@ -26,37 +27,22 @@ function createFootprintContent(
   colorMap?: Map<string, string>,
   members?: MapMember[],
 ): string {
-  const size = 36;
   const theme = getThemeColors();
-  const ring = theme.srf;
-  const onColor = 'var(--on-pr)';
   if (userId && colorMap && colorMap.has(userId)) {
-    const memberColor = colorMap.get(userId)!;
     const member = members?.find((m) => m.userId === userId);
-    const initial = member ? member.username.charAt(0).toUpperCase() : '?';
-    return `
-      <div style="
-        width: ${size}px; height: ${size}px;
-        border-radius: 50%; background: ${memberColor};
-        border: 3px solid ${ring}; box-shadow: 0 2px 10px color-mix(in srgb, ${theme.fg} 32%, transparent);
-        cursor: pointer; display: flex; align-items: center; justify-content: center;
-        color: ${onColor}; font-size: 16px; font-weight: 700; white-space: nowrap;
-      ">${initial}</div>
-    `;
+    return createFootprintMarkerHtml({
+      ring: theme.srf,
+      shadowFg: theme.fg,
+      memberColor: colorMap.get(userId)!,
+      memberInitial: member ? member.username.charAt(0).toUpperCase() : '?',
+    });
   }
-  const color = getMerchantColor(merchant.expense_total, merchant.income_total);
-  const shortName = merchant.location_name.length > 2
-    ? merchant.location_name.slice(0, 2)
-    : merchant.location_name;
-  return `
-    <div style="
-      width: ${size}px; height: ${size}px;
-      border-radius: 50%; background: ${color};
-      border: 3px solid ${ring}; box-shadow: 0 2px 10px color-mix(in srgb, ${theme.fg} 32%, transparent);
-      cursor: pointer; display: flex; align-items: center; justify-content: center;
-      color: ${onColor}; font-size: 12px; font-weight: 700; white-space: nowrap;
-    ">${shortName}</div>
-  `;
+  return createFootprintMarkerHtml({
+    ring: theme.srf,
+    shadowFg: theme.fg,
+    merchantColor: getMerchantColor(merchant.expense_total, merchant.income_total),
+    merchantShortName: merchantShortLabel(merchant.location_name),
+  });
 }
 
 /* ------------------------------------------------------------------ */

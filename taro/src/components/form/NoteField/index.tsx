@@ -3,6 +3,7 @@
  */
 import { View, Text, Textarea } from "@tarojs/components";
 import "./index.scss";
+import { FORM_DESC_EXAMPLE } from "../../../utils/formCopy";
 
 export interface NoteFieldProps {
   value: string;
@@ -25,7 +26,7 @@ export default function NoteField({
       </View>
       <Textarea
         className="ft-note-area"
-        placeholder="例如：小棕瓶 50ml，给妈妈买的礼物"
+        placeholder={FORM_DESC_EXAMPLE}
         value={value}
         onInput={(e: any) => {
           const v = (e.detail.value as string).slice(0, maxLength);

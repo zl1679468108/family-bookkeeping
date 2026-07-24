@@ -25,6 +25,8 @@ import {
   platformUserStatusClass,
   platformUserStatusActionLabel,
 } from '../../../utils/userStatus'
+import { FILTER_ALL_ROLES, FILTER_ALL_STATUS } from '../../../utils/transactionType'
+import { FORM_ADMIN_PASSWORD_PLACEHOLDER } from '../../../utils/formCopy'
 
 const AdminUsers: React.FC = () => {
   const queryClient = useQueryClient();
@@ -146,13 +148,13 @@ const AdminUsers: React.FC = () => {
             options={roleOptions}
             value={roleFilter}
             onChange={handleRoleFilterChange}
-            placeholder="全部角色"
+            placeholder={FILTER_ALL_ROLES}
           />
           <DropdownSelect
             options={statusOptions}
             value={statusFilter}
             onChange={handleStatusFilterChange}
-            placeholder="全部状态"
+            placeholder={FILTER_ALL_STATUS}
           />
           <SearchInput
             value={search}
@@ -267,7 +269,7 @@ const AdminUsers: React.FC = () => {
               showPasswordToggle
               name="admin-confirm-password"
               autoComplete="current-password"
-              placeholder="输入您的管理员密码"
+              placeholder={FORM_ADMIN_PASSWORD_PLACEHOLDER}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               error={errorMsg}
@@ -295,7 +297,7 @@ const AdminUsers: React.FC = () => {
               showPasswordToggle
               name="admin-confirm-password"
               autoComplete="current-password"
-              placeholder="输入您的管理员密码"
+              placeholder={FORM_ADMIN_PASSWORD_PLACEHOLDER}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               error={errorMsg}

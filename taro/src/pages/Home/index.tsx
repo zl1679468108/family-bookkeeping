@@ -22,7 +22,7 @@ import { formatMoney } from "../../utils/format";
 import { getBudgetVariant } from "../../utils/budget";
 import { renderCategoryIcon } from "../../utils/renderCategoryIcon";
 import "./index.scss";
-import { ACTION_LOADING } from "../../utils/actionCopy";
+import { ACTION_LOADING, ACTION_VIEW_ALL } from "../../utils/actionCopy";
 import { EMPTY_TRANSACTIONS_HOME, EMPTY_NO_BUDGET } from "../../utils/emptyCopy";
 import { TITLE_RECENT_TXN_MONTH, TITLE_BUDGET_MONTH } from "../../utils/sectionCopy";
 
@@ -154,7 +154,7 @@ export default function Home() {
       {/* ── 最近交易（卡片式，仅展示，不可点击） ── */}
       <AppSection
         title={TITLE_RECENT_TXN_MONTH}
-        actionText="全部"
+        actionText={ACTION_VIEW_ALL}
         onAction={() => Taro.switchTab({ url: "/pages/Transactions/index" }).catch(() =>
           Taro.navigateTo({ url: "/pages/Transactions/index" })
         )}

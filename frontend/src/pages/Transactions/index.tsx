@@ -40,6 +40,7 @@ import {
   CONFIRM_DELETE_TEXT,
   CONFIRM_DELETE_TRANSACTION,
 } from '../../utils/confirmCopy'
+import { FORM_SEARCH_TXN, FORM_MIN_AMOUNT, FORM_MAX_AMOUNT } from '../../utils/formCopy'
 
 const PAGE_SIZE = 20
 
@@ -226,7 +227,7 @@ const Transactions: React.FC = () => {
               <SearchInput
                 value={search}
                 onChange={handleSearchChange}
-                placeholder="搜索描述/品牌..."
+                placeholder={FORM_SEARCH_TXN}
               />
 
               <DropdownSelect
@@ -254,7 +255,7 @@ const Transactions: React.FC = () => {
                 <NumberInput
                   value={minAmount}
                   onChange={(v) => { setMinAmount(v); handleAmountFilterChange() }}
-                  placeholder="最小金额"
+                  placeholder={FORM_MIN_AMOUNT}
                   prefix="¥"
                   wrapperClassName="filter-amount-input"
                 />
@@ -262,7 +263,7 @@ const Transactions: React.FC = () => {
                 <NumberInput
                   value={maxAmount}
                   onChange={(v) => { setMaxAmount(v); handleAmountFilterChange() }}
-                  placeholder="最大金额"
+                  placeholder={FORM_MAX_AMOUNT}
                   prefix="¥"
                   wrapperClassName="filter-amount-input"
                 />

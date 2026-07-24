@@ -55,7 +55,8 @@
     "./memberPresence": "./src/memberPresence.ts",
     "./uploadReceipts": "./src/uploadReceipts.ts",
     "./monthState": "./src/monthState.ts",
-    "./version": "./src/version.ts"
+    "./version": "./src/version.ts",
+    "./mapMarkerHtml": "./src/mapMarkerHtml.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit"
