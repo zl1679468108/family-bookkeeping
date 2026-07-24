@@ -18,7 +18,7 @@ import { EmptyActionButton } from '../../components/ui/EmptyState/emptyActions'
 import { NumberInput } from '../../components/ui/Input'
 import { EmptyState } from '../../components/ui/EmptyState'
 import { DropdownSelect } from '../../components/ui/Dropdown'
-import { budgetStatusToVariant, budgetVariantLabel, formatMoney } from '../../utils/budget'
+import { budgetStatusToVariant, budgetVariantLabel, formatMoney, buildBudgetUpsertItems, parseNonNegativeAmount, buildSingleBudgetItem } from '../../utils/budget'
 import { useBook } from '../../hooks/useBook'
 import { queryKeys } from '../../utils/queryKeys'
 import { STALE } from '../../utils/cachePolicy'
@@ -124,26 +124,15 @@ const Budgets: React.FC = () => {
   }, [selectedMonth, budgetMap, expenseCategories])
 
   const handleAmountChange = (category: string, value: string) => {
-    const num = parseFloat(value)
     setEditValues((prev) => ({
       ...prev,
-      [category]: isNaN(num) ? 0 : Math.max(0, num),
+      [category]: parseNonNegativeAmount(value),
     }))
   }
 
   /** 构建需提交的预算列表：正数全量 + 原先有预算现清零的分类（amount=0 以落库） */
-  const buildBudgetPayload = (values: Record<string, number>) => {
-    return expenseCategories
-      .map((cat) => {
-        const amount = values[cat.name] || 0
-        const prev = budgetMap.get(cat.id) || 0
-        if (amount > 0 || prev > 0) {
-          return { category: cat.id, amount }
-        }
-        return null
-      })
-      .filter(Boolean) as { category: string; amount: number }[]
-  }
+  const buildBudgetPayload = (values: Record<string, number>) =>
+    buildBudgetUpsertItems(expenseCategories, values, budgetMap, { valueKey: 'name' })
 
   const { run: upsertBudgetRun, isRunning: upsertLoading } = useMutationAction(
     (input: UpsertBudgetInput) => upsertBudgets(input),
@@ -206,8 +195,7 @@ const Budgets: React.FC = () => {
   /** 单条编辑立即落库（含清零） */
   const handleEditFormSave = () => {
     if (!selectedBudget) return
-    const num = parseFloat(editFormValues.budget)
-    const newAmount = isNaN(num) ? 0 : Math.max(0, num)
+    const newAmount = parseNonNegativeAmount(editFormValues.budget)
     const catName = selectedBudget.category.name as string
     const catId = selectedBudget.category.id as string
 
@@ -221,7 +209,7 @@ const Budgets: React.FC = () => {
     handleAmountChange(catName, String(newAmount))
     void upsertBudgetRun({
       month: selectedMonth,
-      budgets: [{ category: catId, amount: newAmount }],
+      budgets: [buildSingleBudgetItem(catId, newAmount)],
     }).then(() => {
       notifySuccess(SUCCESS_BUDGET_SAVED)
       setSelectedBudget((prev: any) =>
@@ -248,7 +236,7 @@ const Budgets: React.FC = () => {
     handleAmountChange(catName, '0')
     void upsertBudgetRun({
       month: selectedMonth,
-      budgets: [{ category: catId, amount: 0 }],
+      budgets: [buildSingleBudgetItem(catId, 0)],
     }).then(() => {
       notifySuccess(SUCCESS_BUDGET_DELETED)
       setShowDetail(false)

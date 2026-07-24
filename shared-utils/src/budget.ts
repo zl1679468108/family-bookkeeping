@@ -138,3 +138,50 @@ export function formatMoneyByType(
   })
 }
 
+/** 解析非负金额（非法 → 0） */
+export function parseNonNegativeAmount(value: string | number | null | undefined): number {
+  if (value === null || value === undefined || value === '') return 0
+  const num = typeof value === 'number' ? value : parseFloat(String(value))
+  if (!Number.isFinite(num)) return 0
+  return Math.max(0, num)
+}
+
+export type BudgetCategoryRef = { id: string; name?: string }
+export type BudgetUpsertItem = { category: string; amount: number }
+
+/**
+ * 构建预算 upsert 列表：
+ * - 当前金额 > 0 的分类
+ * - 或原先有预算、现清零的分类（amount=0 以落库）
+ *
+ * @param valueKey 编辑态 Map 的 key：PC 用分类 name，Taro 用 id
+ */
+export function buildBudgetUpsertItems(
+  categories: readonly BudgetCategoryRef[],
+  values: Record<string, number>,
+  previousByCategoryId: Map<string, number> | Record<string, number>,
+  options: { valueKey?: 'id' | 'name' } = {},
+): BudgetUpsertItem[] {
+  const valueKey = options.valueKey ?? 'id'
+  const prevOf = (id: string): number => {
+    if (previousByCategoryId instanceof Map) return previousByCategoryId.get(id) || 0
+    return previousByCategoryId[id] || 0
+  }
+  return categories
+    .map((cat) => {
+      const key = valueKey === 'name' ? (cat.name || cat.id) : cat.id
+      const amount = values[key] || 0
+      const prev = prevOf(cat.id)
+      if (amount > 0 || prev > 0) return { category: cat.id, amount }
+      return null
+    })
+    .filter((x): x is BudgetUpsertItem => x !== null)
+}
+
+/** 单分类预算条目（详情编辑/清零） */
+export function buildSingleBudgetItem(
+  categoryId: string,
+  amount: string | number,
+): BudgetUpsertItem {
+  return { category: categoryId, amount: parseNonNegativeAmount(amount) }
+}

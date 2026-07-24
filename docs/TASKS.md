@@ -111,6 +111,11 @@
 - Taro 公共 UI Icon 收口：Input 清除、IconGrid 删除、DropdownSelect、List/MenuList 箭头、FieldRow/LocationField、ImageUpload；页面级 Profile/Books/About/Onboarding/MonthPicker 等。
 - 验证：frontend / taro `tsc --noEmit` 通过。
 
+#### 2026-07-24 预算 upsert / 账本 payload shared
+- `buildBudgetUpsertItems` / `parseNonNegativeAmount` / `buildSingleBudgetItem` 并入 shared budget
+- `bookPayload`：validateBookName + buildBookPayload（icon / icon_id 分流）
+- 双端预算页、账本创建/编辑/Onboarding 已接线
+
 #### 2026-07-24 模板 payload / 记一笔草稿 shared
 - `templatePayload`：build/validate/toForm/copy/empty/applyToTransaction/resolveCategoryDisplay
 - `addTransactionDraft`：key/parse/serialize 纯函数；PC 仍用 sessionStorage 适配

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useMutationAction } from '../../../hooks/useMutationAction';
 import { createBook, updateBook } from '../../../services/booksApi';
+import { buildBookPayload, validateBookName } from '../../../utils/bookPayload';
 import { fetchCustomIcons, uploadIcon, deleteIcon } from '../../../services/iconsApi';
 import { BOOK_ICONS, getBookIconByKey } from '../../../utils/bookIcons';
 
@@ -17,7 +18,6 @@ import './index.scss';
 import { queryKeys } from '../../../utils/queryKeys'
 import { STALE } from '../../../utils/cachePolicy'
 import { SUCCESS_BOOK_CREATED, SUCCESS_ICON_DELETED, SUCCESS_ICON_UPLOADED, SUCCESS_UPDATED } from '../../../utils/successCopy'
-import { FORM_NAME_REQUIRED } from '../../../utils/formCopy'
 import { entityFormTitle, ENTITY_BOOK } from '../../../utils/entityCopy'
 import { failEntityUpsert } from '../../../utils/errorCopy'
 import { processingLabel } from '../../../utils/actionCopy';
@@ -54,12 +54,11 @@ export const BookCreateModal: React.FC<BookCreateModalProps> = ({ open, onClose,
 
   const mutation = useMutationAction(
     () => {
-      const isCustomIcon = bookIconKey.length === 36 && bookIconKey.includes('-');
-      const payload = {
-        name: bookName.trim(),
-        description: bookDesc.trim(),
-        ...(isCustomIcon ? { icon_id: bookIconKey } : { icon: bookIconKey }),
-      };
+      const payload = buildBookPayload({
+        name: bookName,
+        description: bookDesc,
+        icon: bookIconKey,
+      });
       return isEdit && editTarget ? updateBook({ ...payload, id: editTarget.id }) : createBook(payload);
     },
     {
@@ -73,8 +72,9 @@ export const BookCreateModal: React.FC<BookCreateModalProps> = ({ open, onClose,
   );
 
   const handleSubmit = () => {
-    if (!bookName.trim()) {
-      notifyInfo(FORM_NAME_REQUIRED);
+    const nameErr = validateBookName(bookName);
+    if (nameErr) {
+      notifyInfo(nameErr);
       return;
     }
     mutation.run();

@@ -23,6 +23,7 @@ import {
   fetchBookMembers,
   transferOwner,
 } from "../../services/booksApi";
+import { buildBookPayload, validateBookName } from "../../utils/bookPayload";
 import { uploadIcon, fetchCustomIcons, deleteIcon } from "../../services/iconsApi";
 import {
   ensurePrivacyAuthorize,
@@ -40,7 +41,7 @@ import {
   CONFIRM_DELETE_TEXT,
   CONFIRM_DELETE_BOOK_GENERIC,
 } from "../../utils/confirmCopy";
-import { FORM_NAME_REQUIRED, FORM_PRIVACY_REQUIRED, FORM_OWNER_EMAIL_REQUIRED, FORM_PASSWORD_VERIFY } from "../../utils/formCopy";
+import { FORM_PRIVACY_REQUIRED, FORM_OWNER_EMAIL_REQUIRED, FORM_PASSWORD_VERIFY } from "../../utils/formCopy";
 import { SUCCESS_BOOK_CREATED, SUCCESS_CUSTOM_ICON_ADDED, SUCCESS_DELETED, SUCCESS_OWNERSHIP_TRANSFERRED, SUCCESS_UPDATED, successEntityDeleted } from "../../utils/successCopy";
 import { entityFormTitle, ENTITY_BOOK } from "../../utils/entityCopy";
 import { IMAGE_SELECT_FAILED, DELETE_FAILED, UPLOAD_FAILED } from "../../utils/uploadCopy";
@@ -198,15 +199,16 @@ export default function BookSettings() {
   const [addIcon, setAddIcon] = useState("default");
 
   const handleCreate = () => {
-    if (!addName.trim()) {
-      toastInfo(FORM_NAME_REQUIRED);
+    const nameErr = validateBookName(addName);
+    if (nameErr) {
+      toastInfo(nameErr);
       return;
     }
-    const data: { name: string; description?: string; icon?: string } = {
-      name: addName.trim(),
+    const data = buildBookPayload({
+      name: addName,
+      description: addDescription,
       icon: addIcon || "default",
-    };
-    if (addDescription.trim()) data.description = addDescription.trim();
+    });
     run(async () => {
       await createBook(data);
       qc.invalidateQueries({ queryKey: ["books"] });
@@ -219,16 +221,20 @@ export default function BookSettings() {
 
   // ===== 编辑模式：提交 =====
   const handleSubmitEdit = () => {
-    if (!editName.trim()) {
-      toastInfo(FORM_NAME_REQUIRED);
+    const nameErr = validateBookName(editName);
+    if (nameErr) {
+      toastInfo(nameErr);
       return;
     }
     run(async () => {
-      await updateBook(bookId, {
-        name: editName.trim(),
-        description: editDescription.trim(),
-        icon: editIcon,
-      });
+      await updateBook(
+        bookId,
+        buildBookPayload({
+          name: editName,
+          description: editDescription,
+          icon: editIcon,
+        }),
+      );
       qc.invalidateQueries({ queryKey: ["books"] });
       toastSuccess(SUCCESS_UPDATED);
       setTimeout(() => Taro.navigateBack(), 500);

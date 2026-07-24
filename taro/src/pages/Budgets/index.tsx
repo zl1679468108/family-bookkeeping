@@ -17,7 +17,7 @@ import { useSubmit, toastError } from "../../hooks/useSubmit";
 import { fetchBudgets, fetchBudgetStatus, upsertBudgets, copyBudgets } from "../../services/budgetsApi";
 import { fetchCategories } from "../../services/categoriesApi";
 import "./index.scss";
-import { budgetStatusToVariant, budgetVariantLabel, formatMoney } from "../../utils/budget";
+import { budgetStatusToVariant, budgetVariantLabel, formatMoney, buildBudgetUpsertItems, parseNonNegativeAmount, buildSingleBudgetItem } from "../../utils/budget";
 import { toastSuccess, toastInfo } from "../../utils/toast";
 import { ACTION_COPYING, ACTION_LOADING, ACTION_SAVING } from "../../utils/actionCopy";
 import {
@@ -157,14 +157,7 @@ export default function BudgetsPage() {
 
   /** 正数全量 + 原先有预算现为 0 的分类一并提交，确保清零可落库 */
   const handleSave = () => {
-    const items = expenseCats
-      .map((c) => {
-        const amount = editValues[c.id] || 0;
-        const prev = bm.get(c.id) || 0;
-        if (amount > 0 || prev > 0) return { category: c.id, amount };
-        return null;
-      })
-      .filter(Boolean) as Array<{ category: string; amount: number }>;
+    const items = buildBudgetUpsertItems(expenseCats, editValues, bm, { valueKey: "id" });
     if (items.length > 0) handleUpsert(items);
     else toastInfo(FORM_BUDGET_NONE);
   };
@@ -242,7 +235,7 @@ export default function BudgetsPage() {
   const handleDetailDelete = () => {
     if (!detailCat) return;
     // 设为 0 并立即提交
-    const items = [{ category: detailCat.category.id, amount: 0 }];
+    const items = [buildSingleBudgetItem(detailCat.category.id, 0)];
     handleUpsert(items);
     // 关闭弹窗
     setShowDeleteConfirm(false);
@@ -252,14 +245,13 @@ export default function BudgetsPage() {
   /** 编辑表单提交；金额为 0 且原有预算时走删除确认，避免误清零 */
   const handleEditFormSubmit = () => {
     if (!detailCat) return;
-    const num = parseFloat(editFormAmount);
-    const amount = isNaN(num) ? 0 : Math.max(0, num);
+    const amount = parseNonNegativeAmount(editFormAmount);
     if (amount === 0 && detailCat.budget > 0) {
       setShowEditForm(false);
       setShowDeleteConfirm(true);
       return;
     }
-    const items = [{ category: detailCat.category.id, amount }];
+    const items = [buildSingleBudgetItem(detailCat.category.id, amount)];
     handleUpsert(items);
     setShowEditForm(false);
     setDetailCat(null);
