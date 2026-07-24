@@ -241,6 +241,11 @@
 - 接线：PC/Taro IconGrid、DropdownSelect、Skeleton、FieldRow；CategoryEdit/BookSettings 上传图标文案
 - 验证：frontend / taro `tsc --noEmit`
 
+#### 2026-07-24 切换账本影响列表 + 联系客服 shared 化
+- `confirmCopy`：切换账本前后缀、`currentBookLabel`、PC/Taro 分端 impact 列表
+- `ACTION_CONTACT_SUPPORT`；接线 Books 切换确认弹窗与 Taro Profile 联系客服
+- 验证：frontend / taro `tsc --noEmit`
+
 #### 2026-07-24 年报标题/FunFact 与服务层错误 shared 化
 - `sectionCopy`：年报总览/分类TOP5/账本视角/趣味彩蛋/月趋势/封面标题与标签、奶茶/贴士/slogan
 - `annualReport`：年份标签、副标题、文件名、生成于、版权、奶茶杯数/等价文案、连续天数

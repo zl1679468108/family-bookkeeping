@@ -30,8 +30,8 @@ import { toastSuccess, toastInfo } from "../../utils/toast";
 import { bookMemberRoleLabel, isBookOwnerRole } from "../../utils/roles";
 import { INVITE_CODE_HELP_LABEL, INVITE_CODE_HELP_BODY, ACTION_GENERATE_INVITE_CODE, ACTION_SEND_INVITE, INVITE_CODE_SHARE_HINT, ACTION_COPY_INVITE_CODE } from "../../utils/inviteCopy";
 import { userDisplayName } from "../../utils/userDisplay";
-import { ACTION_DELETING, ACTION_LOADING, ACTION_JOINING_ELLIPSIS, ACTION_GENERATING_ELLIPSIS, ACTION_REMOVING_ELLIPSIS, ACTION_JOIN_BOOK, ACTION_DELETE, ACTION_EDIT, ACTION_INVITE_MEMBER, ACTION_SWITCH_TO_BOOK, ACTION_SWITCH_BOOK, ACTION_CONFIRM_SWITCH, ACTION_REMOVE } from "../../utils/actionCopy";
-import { CONFIRM_REMOVE_TITLE, confirmDeleteBook, confirmRemoveMember, CONFIRM_DELETE_BOOK_TITLE } from "../../utils/confirmCopy";
+import { ACTION_DELETING, ACTION_LOADING, ACTION_JOINING_ELLIPSIS, ACTION_GENERATING_ELLIPSIS, ACTION_REMOVING_ELLIPSIS, ACTION_JOIN_BOOK, ACTION_DELETE, ACTION_EDIT, ACTION_INVITE_MEMBER, ACTION_SWITCH_TO_BOOK, ACTION_SWITCH_BOOK, ACTION_CONFIRM_SWITCH, ACTION_REMOVE, ACTION_CANCEL } from "../../utils/actionCopy";
+import { CONFIRM_REMOVE_TITLE, confirmDeleteBook, confirmRemoveMember, CONFIRM_DELETE_BOOK_TITLE, SWITCH_BOOK_IMPACT_PREFIX, SWITCH_BOOK_IMPACT_SUFFIX, SWITCH_BOOK_IMPACT_TARO, currentBookLabel } from "../../utils/confirmCopy";
 import { FORM_ALREADY_CURRENT_BOOK, FORM_EMAIL_REQUIRED, FORM_PEER_EMAIL_PLACEHOLDER, FORM_INVITE_CODE_EXAMPLE, MAX_INVITE_CODE_LENGTH } from "../../utils/formCopy";
 import { validateEmail } from "../../utils/validation";
 import { validateInviteCode, normalizeInviteCode } from "../../utils/validation";
@@ -668,32 +668,22 @@ export default function BooksPage() {
           <View className="bk-switch-dialog" onClick={(e: any) => e.stopPropagation()}>
             <Text className="bk-switch-title">{ACTION_SWITCH_BOOK}</Text>
             <Text className="bk-switch-desc">
-              切换到账本 <Text className="bk-switch-name">{switchTarget.name}</Text>{" "}
-              后，以下模块数据将切换为该账本的维度：
+              {SWITCH_BOOK_IMPACT_PREFIX}<Text className="bk-switch-name">{switchTarget.name}</Text>
+              {SWITCH_BOOK_IMPACT_SUFFIX}
             </Text>
             <View className="bk-switch-list">
-              <View className="bk-switch-item">
-                <Text className="bk-switch-label">首页</Text>
-                <Text className="bk-switch-text"> — 收支概览与预算进度</Text>
-              </View>
-              <View className="bk-switch-item">
-                <Text className="bk-switch-label">流水</Text>
-                <Text className="bk-switch-text"> — 交易记录列表</Text>
-              </View>
-              <View className="bk-switch-item">
-                <Text className="bk-switch-label">工作台</Text>
-                <Text className="bk-switch-text"> — 账本 / 分类 / 模板 / 预算</Text>
-              </View>
-              <View className="bk-switch-item">
-                <Text className="bk-switch-label">我的</Text>
-                <Text className="bk-switch-text"> — 个人设置与账本入口</Text>
-              </View>
+              {SWITCH_BOOK_IMPACT_TARO.map((item) => (
+                <View className="bk-switch-item" key={item.label}>
+                  <Text className="bk-switch-label">{item.label}</Text>
+                  <Text className="bk-switch-text"> — {item.desc}</Text>
+                </View>
+              ))}
             </View>
-            <Text className="bk-switch-current">当前账本：{currentBook?.name}</Text>
+            <Text className="bk-switch-current">{currentBookLabel(currentBook?.name || "")}</Text>
             <View className="bk-switch-actions">
               <FooterActions align="stretch">
                 <Button variant="default" size="lg" block onClick={() => setSwitchTarget(null)}>
-                  取消
+                  {ACTION_CANCEL}
                 </Button>
                 <Button variant="primary" size="lg" block onClick={handleConfirmSwitch}>
                   {ACTION_CONFIRM_SWITCH}

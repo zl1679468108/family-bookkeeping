@@ -17,6 +17,10 @@ import {
   CONFIRM_REMOVE_TEXT,
   confirmDeleteBook,
   confirmRemoveMember,
+  SWITCH_BOOK_IMPACT_PREFIX,
+  SWITCH_BOOK_IMPACT_SUFFIX,
+  SWITCH_BOOK_IMPACT_PC,
+  currentBookLabel,
 } from '../../utils/confirmCopy'
 import { ENTITY_BOOK_FALLBACK } from '../../utils/entityCopy'
 
@@ -116,19 +120,13 @@ const BooksPage: React.FC = () => {
         confirmText={ACTION_CONFIRM_SWITCH}
       >
         <div>
-          <p>切换到账本 <strong>{switchTarget?.name}</strong> 后，以下模块数据将切换为该账本的维度：</p>
+          <p>{SWITCH_BOOK_IMPACT_PREFIX}<strong>{switchTarget?.name}</strong>{SWITCH_BOOK_IMPACT_SUFFIX}</p>
           <ul style={{ margin: '12px 0', paddingLeft: '20px', lineHeight: '1.8', color: 'var(--fg2)' }}>
-            <li><strong>首页</strong> — 收支概览与预算进度</li>
-            <li><strong>流水</strong> — 交易记录列表</li>
-            <li><strong>报表</strong> — 统计图表与分类分析</li>
-            <li><strong>日历</strong> — 日历视图中的交易</li>
-            <li><strong>地图</strong> — 交易位置与商户聚合</li>
-            <li><strong>模板</strong> — 快捷记账模板</li>
-            <li><strong>预算</strong> — 预算设置与消耗</li>
-            <li><strong>年报</strong> — 年度报告数据</li>
-            <li><strong>导出</strong> — 账单导出</li>
+            {SWITCH_BOOK_IMPACT_PC.map((item) => (
+              <li key={item.label}><strong>{item.label}</strong> — {item.desc}</li>
+            ))}
           </ul>
-          <p style={{ color: 'var(--fg3)', fontSize: '13px' }}>当前账本：{currentBook?.name}</p>
+          <p style={{ color: 'var(--fg3)', fontSize: '13px' }}>{currentBookLabel(currentBook?.name || '')}</p>
         </div>
       </GlobalModal>
 
