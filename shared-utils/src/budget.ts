@@ -138,6 +138,20 @@ export function formatMoneyByType(
   })
 }
 
+/** 兼容旧调用：固定 2 位小数；新代码优先 formatMoney */
+export function formatAmount(amount: number | string, showSign = false, sign: '+' | '-' = '+'): string {
+  return formatMoney(amount, { showSign, sign })
+}
+
+export function formatAmountWithType(amount: number | string, isIncome: boolean): string {
+  return formatMoney(amount, { showSign: true, sign: isIncome ? '+' : '-' })
+}
+
+/** 按收支类型加 +/- 前缀（与 formatMoneyByType 同语义，默认非 compact） */
+export function formatAmountByType(amount: number | string, type?: string | null): string {
+  return formatMoneyByType(amount, type)
+}
+
 /** 解析非负金额（非法 → 0） */
 export function parseNonNegativeAmount(value: string | number | null | undefined): number {
   if (value === null || value === undefined || value === '') return 0

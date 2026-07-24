@@ -1,27 +1,18 @@
-import { formatMoney } from './budget'
-import { isIncomeType } from './transactionType'
-
 /**
- * 金额展示（固定 2 位小数）— 兼容旧调用。
- * 新代码优先用 formatMoney；需要 +/- 前缀用 formatAmountWithType。
+ * 金额展示 — 实现见 shared-utils/budget（formatMoney / formatAmount*）
  */
-export function formatAmount(amount: number | string, showSign = false, sign: '+' | '-' = '+'): string {
-  return formatMoney(amount, { showSign, sign })
-}
+export {
+  formatAmount,
+  formatAmountWithType,
+  formatAmountByType,
+  formatMoney,
+  formatMoneyByType,
+} from './budget'
 
-export function formatAmountWithType(amount: number | string, isIncome: boolean): string {
-  return formatMoney(amount, { showSign: true, sign: isIncome ? '+' : '-' })
-}
-
-/** 按收支类型加 +/- 前缀 */
-export function formatAmountByType(amount: number | string, type?: string | null): string {
-  return formatAmountWithType(amount, isIncomeType(type))
-}
 // 预算语义（进度阈值 / 金额）— 详见 ./budget
 export {
   getBudgetVariant,
   isBudgetOver,
-  formatMoney,
   sortBudgetCategoriesByRisk,
   BUDGET_WARN_AT,
   BUDGET_OVER_AT,

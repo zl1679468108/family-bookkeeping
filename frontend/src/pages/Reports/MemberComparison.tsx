@@ -10,30 +10,13 @@ import './MemberComparison.scss';
 import { formatAmount } from '../../utils/common';
 import { getChartPalette, getEchartsChrome } from '../../utils/themeColors'
 import { useTheme } from '../../utils/theme'
-import { formatMonthDisplayCompact } from '../../utils/month'
+import { formatMonthDisplayCompact, generateMonthKeysBetween } from '../../utils/month'
 import { EMPTY_MEMBER_SPEND_PERIOD, EMPTY_LOAD_FAILED } from '../../utils/emptyCopy';
 
 interface MemberComparisonProps {
   monthFrom: string;
   monthTo: string;
 }
-
-const generateMonthRange = (from: string, to: string): string[] => {
-  const months: string[] = [];
-  const [fy, fm] = from.split('-').map(Number);
-  const [ty, tm] = to.split('-').map(Number);
-  let y = fy;
-  let m = fm;
-  while (y < ty || (y === ty && m <= tm)) {
-    months.push(`${y}-${String(m).padStart(2, '0')}`);
-    m += 1;
-    if (m > 12) {
-      m = 1;
-      y += 1;
-    }
-  }
-  return months;
-};
 
 // 统一的扇形图渲染函数
 const renderPieChart = (
@@ -182,7 +165,7 @@ const MonthlyBarChart: React.FC<{
   const { resolvedTheme } = useTheme();
   const palette = useMemo(() => getChartPalette(), [resolvedTheme]);
 
-  const months = useMemo(() => generateMonthRange(monthFrom, monthTo), [monthFrom, monthTo]);
+  const months = useMemo(() => generateMonthKeysBetween(monthFrom, monthTo), [monthFrom, monthTo]);
 
   // T-H7: API 仅返回成员总支出（无月度细分），改为均分展示并标注「估算」
   const memberMonthData = useMemo(() => {

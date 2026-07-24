@@ -167,6 +167,11 @@
 - 邀请/转移邮箱：FE InviteMemberModal、Taro Books/BookMembers/BookSettings 改用 `validateEmail`（空+格式）
 - 验证：frontend / taro `tsc --noEmit`
 
+#### 2026-07-24 年报归一 / 月份枚举 / 金额别名 shared 化
+- 新增 `shared-utils/src/annualReport`：`normalizeAnnualReport` + 年报安全结构类型；PC 年报页接线
+- `generateMonthKeysBetween` 入 `month`：成员对比月份轴复用
+- `formatAmount` / `formatAmountWithType` / `formatAmountByType` 入 budget：双端 common/format 同源 re-export
+
 #### 2026-07-24 月份区间接线扩展
 - Dashboard / Map / Sidebar 预取 / Calendar 今日：改用 `monthBoundsFromDate` / `monthBoundsFromKey` / `currentMonthKey` / `formatDateYMD`，减少 date-fns 区间拼装
 

@@ -165,3 +165,28 @@ export function generateYearOptions(
   }))
 }
 
+
+
+/**
+ * 枚举闭区间内的月份 key（YYYY-MM）
+ * from/to 支持 YYYY-MM 或 YYYY-MM-DD
+ */
+export function generateMonthKeysBetween(from: string, to: string): string[] {
+  const months: string[] = []
+  const [fy, fm] = String(from || '').split('-').map(Number)
+  const [ty, tm] = String(to || '').split('-').map(Number)
+  if (!fy || !fm || !ty || !tm) return months
+  let y = fy
+  let m = fm
+  // 防止死循环：最多 600 个月（50 年）
+  for (let i = 0; i < 600; i += 1) {
+    if (y > ty || (y === ty && m > tm)) break
+    months.push(`${y}-${String(m).padStart(2, '0')}`)
+    m += 1
+    if (m > 12) {
+      m = 1
+      y += 1
+    }
+  }
+  return months
+}
