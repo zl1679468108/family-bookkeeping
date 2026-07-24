@@ -25,6 +25,6 @@ const svgToDataUrl = (svg: string): string =>
  * 获取空状态图标 data:image/svg+xml URL（默认中性灰，自动适配深浅色背景）
  */
 export const getEmptyIconDataUrl = (
-  color: string = "#A6A9A4",
+  color: string = "#8B8E89" /* --fg3 */,
   strokeWidth: number = 1.5,
 ): string => svgToDataUrl(buildEmptyBoxSvg(color, strokeWidth));

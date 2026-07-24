@@ -5,6 +5,7 @@ import { useDebouncedAction } from '../../../hooks/useDebouncedAction'
 import { notify } from '../../../utils/notifications'
 import AuthLayout from '../../../components/AuthLayout'
 import { RegisterIllustration } from '../../../components/AuthLayout/AuthIllustrations'
+import { Button } from '../../../components/ui/Button'
 
 const RegisterPage: React.FC = () => {
   const [username, setUsername] = useState('')
@@ -123,9 +124,9 @@ const RegisterPage: React.FC = () => {
           </div>
         </div>
 
-        <button type="submit" className="btn-submit" disabled={loading}>
+        <Button type="submit" variant="primary" block size="lg" className="btn-submit" disabled={loading}>
           {loading ? '注册中...' : '注 册'}
-        </button>
+        </Button>
       </form>
 
       <div className="form-links" style={{ justifyContent: 'center' }}>

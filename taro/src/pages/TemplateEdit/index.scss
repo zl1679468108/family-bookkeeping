@@ -239,37 +239,18 @@
   border-top: 2rpx solid var(--bd);
   z-index: 50;
 }
-.tpledit-actions__save {
+/* 底栏使用 ui Button 等分 */
+.tpledit-actions .ui-btn {
   flex: 1;
+  min-width: 0;
   height: 88rpx;
-  border-radius: 16rpx;
-  background: var(--pr);
-  color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 30rpx;
   font-weight: 600;
 }
+
+.tpledit-actions .ui-btn--danger {
+  flex: 0 0 200rpx;
+}
+
 .tpledit-actions__save--full {
   flex: 1;
-}
-.tpledit-actions__save--disabled {
-  opacity: 0.6;
-}
-.tpledit-actions__delete {
-  width: 200rpx;
-  height: 88rpx;
-  border-radius: 16rpx;
-  background: var(--bg);
-  border: 2rpx solid var(--exp);
-  color: var(--exp);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 30rpx;
-  font-weight: 600;
-}
-.tpledit-actions__delete--pending {
-  opacity: 0.6;
 }

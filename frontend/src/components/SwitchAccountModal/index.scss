@@ -254,7 +254,8 @@
   display: flex;
   gap: 12px;
 
-  .expired-modal-btn {
+  .expired-modal-btn,
+.ui-btn.expired-modal-btn {
     flex: 1;
     height: 40px;
     border-radius: 8px;

@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { useModalZIndex } from '../../hooks/useModalZIndex';
+import { Button } from '../ui/Button'
 
 export type GlobalModalType = 'confirm' | 'detail' | 'modal';
 
@@ -196,16 +197,18 @@ export const GlobalModal: React.FC<GlobalModalProps> = ({
           {title && <h3 id={`${type}-title`} className="global-modal-dialog__title">{title}</h3>}
           {children && <div id={`${type}-desc`} className="global-modal-dialog__message">{children}</div>}
           <div className="global-modal-dialog__actions">
-            <button
+            <Button
               type="button"
+              variant="secondary"
               className="global-modal-btn global-modal-btn--cancel"
               onClick={onClose}
               disabled={loading}
             >
               {cancelText}
-            </button>
-            <button
+            </Button>
+            <Button
               type="button"
+              variant={confirmVariant === 'danger' ? 'danger' : 'primary'}
               className={`global-modal-btn global-modal-btn--confirm ${confirmVariant}`}
               onClick={onConfirm}
               disabled={loading}
@@ -222,7 +225,7 @@ export const GlobalModal: React.FC<GlobalModalProps> = ({
                 </svg>
               )}
               {confirmText}
-            </button>
+            </Button>
           </div>
         </div>
       </div>

@@ -307,7 +307,7 @@
   background-color: var(--surface, #ffffff);
   border-radius: var(--radius-sm, 16rpx);
   border: 2rpx solid transparent;
-  transition: all 0.15s ease;
+  transition: all var(--df, 0.15s) var(--ease, ease);
   gap: 6rpx;
 }
 
@@ -341,7 +341,7 @@
   background-color: var(--surface, #ffffff);
   border-radius: var(--radius-sm, 16rpx);
   border: 2rpx dashed var(--border, var(--bd));
-  transition: all 0.15s ease;
+  transition: all var(--df, 0.15s) var(--ease, ease);
   gap: 6rpx;
 }
 
@@ -422,7 +422,7 @@
   justify-content: center;
   border-radius: 50%;
   background: var(--bg, var(--bg));
-  transition: opacity 0.15s ease, transform 0.15s ease;
+  transition: opacity var(--df, 0.15s) var(--ease, ease), transform var(--df, 0.15s) var(--ease, ease);
 }
 
 .bk-detail-header__back:active {
@@ -454,7 +454,7 @@
   justify-content: center;
   border-radius: 50%;
   background: var(--bg, var(--bg));
-  transition: opacity 0.15s ease, transform 0.15s ease;
+  transition: opacity var(--df, 0.15s) var(--ease, ease), transform var(--df, 0.15s) var(--ease, ease);
 }
 
 .bk-detail-header__close:active {
@@ -859,7 +859,7 @@
   border-radius: 100rpx;
   background: var(--primary, var(--pr));
   box-shadow: 0 4rpx 14rpx rgba(45, 157, 138, 0.25);
-  transition: transform 0.15s ease, opacity 0.15s ease, box-shadow 0.15s ease;
+  transition: transform var(--df, 0.15s) var(--ease, ease), opacity var(--df, 0.15s) var(--ease, ease), box-shadow var(--df, 0.15s) var(--ease, ease);
 }
 
 .bk-invite-code-copy:active {
@@ -908,7 +908,7 @@
   align-items: center;
   justify-content: center;
   background-color: var(--ov);
-  animation: bkSwitchFadeIn 0.2s ease;
+  animation: bkSwitchFadeIn var(--dn, 0.25s) var(--ease, ease);
 }
 
 @keyframes bkSwitchFadeIn {

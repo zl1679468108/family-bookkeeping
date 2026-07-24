@@ -10,7 +10,7 @@ import Taro, { getCurrentInstance } from "@tarojs/taro";
 import { useQueryClient } from "@tanstack/react-query";
 import PageContainer from "../../components/PageContainer";
 import ConfirmDialog from "../../components/ConfirmDialog";
-import { AppSection, PageHero } from "../../components/ui";
+import { AppSection, PageHero, Button } from "../../components/ui";
 import {
   getTemplates,
   createTemplate,
@@ -22,6 +22,7 @@ import { useManualQuery } from "../../hooks/useManualQuery";
 import { useSubmit } from "../../hooks/useSubmit";
 import { isIconUrl } from "../../utils/renderCategoryIcon";
 import LocationPicker, { LocationResult } from "../../components/LocationPicker";
+import Icon, { ICON_COLOR } from "../../components/Icon";
 import "./index.scss";
 
 type TplType = "expense" | "income";
@@ -334,7 +335,7 @@ export default function TemplateEdit() {
             </View>
           ) : (
             <View className="tpl-location-btn" onClick={() => setShowLocationPicker(true)}>
-              <Text className="tpl-location-btn__icon">📍</Text>
+              <Icon name="location" size={36} color={ICON_COLOR.primary} />
               <Text className="tpl-location-btn__text">选择位置</Text>
             </View>
           )}
@@ -359,16 +360,19 @@ export default function TemplateEdit() {
       {/* 底部操作栏 */}
       <View className="tpledit-actions">
         {isEdit && (
-          <View className="tpledit-actions__delete" onClick={() => setShowDelete(true)}>
-            <Text>删除</Text>
-          </View>
+          <Button variant="danger" size="lg" block onClick={() => setShowDelete(true)}>
+            删除
+          </Button>
         )}
-        <View
-          className={`tpledit-actions__save ${isEdit ? "" : "tpledit-actions__save--full"}`}
+        <Button
+          variant="primary"
+          size="lg"
+          block
+          className={isEdit ? "" : "tpledit-actions__save--full"}
           onClick={handleSave}
         >
-          <Text>{isEdit ? "更新" : "创建"}</Text>
-        </View>
+          {isEdit ? "更新" : "创建"}
+        </Button>
       </View>
 
       {/* 位置选择弹窗 */}

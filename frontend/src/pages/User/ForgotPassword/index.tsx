@@ -4,6 +4,7 @@ import { resetPasswordByCode, sendResetCode } from '../../../services/api'
 import { useDebouncedAction } from '../../../hooks/useDebouncedAction'
 import AuthLayout from '../../../components/AuthLayout'
 import { ForgotIllustration } from '../../../components/AuthLayout/AuthIllustrations'
+import { Button } from '../../../components/ui/Button'
 
 const ForgotPassword: React.FC = () => {
   const [email, setEmail] = useState('')
@@ -126,14 +127,17 @@ const ForgotPassword: React.FC = () => {
               autoComplete="email"
             />
           </div>
-          <button
+          <Button
             type="button"
+            variant="primary"
+            block
+            size="lg"
             className="btn-submit"
             onClick={handleSendCode}
             disabled={sendLoading}
           >
             {sendLoading ? '发送中...' : '发送验证码'}
-          </button>
+          </Button>
         </div>
       )}
 
@@ -163,14 +167,16 @@ const ForgotPassword: React.FC = () => {
                 style={{ flex: 1 }}
                 disabled={submitLoading}
               />
-              <button
+              <Button
                 type="button"
+                variant="outline"
+                size="md"
                 className="btn-code"
                 onClick={handleResend}
                 disabled={countdown > 0 || resendLoading}
               >
                 {countdown > 0 ? `${countdown}s` : (resendLoading ? '发送中...' : '重新发送')}
-              </button>
+              </Button>
             </div>
           </div>
 
@@ -225,9 +231,9 @@ const ForgotPassword: React.FC = () => {
             </div>
           </div>
 
-          <button type="submit" className="btn-submit" disabled={submitLoading}>
+          <Button type="submit" variant="primary" block size="lg" className="btn-submit" disabled={submitLoading}>
             {submitLoading ? '重置中...' : '重置密码'}
-          </button>
+          </Button>
         </form>
       )}
 
@@ -239,9 +245,9 @@ const ForgotPassword: React.FC = () => {
             <p>请使用新密码登录账户</p>
           </div>
           <Link to="/login">
-            <button type="button" className="btn-submit" style={{ marginTop: 16 }}>
+            <Button type="button" variant="primary" block size="lg" className="btn-submit" style={{ marginTop: 16 }}>
               返回登录
-            </button>
+            </Button>
           </Link>
         </div>
       )}

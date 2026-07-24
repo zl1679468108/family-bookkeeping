@@ -114,6 +114,11 @@
 - Login / Register / ForgotPassword / EditProfile / About / Profile：与 PC 核心一致，无需改动（Profile 无主题切换，属可选差异）
 - 验证：`tsc --noEmit` 零错误；`build:weapp` 通过
 
+### ✅ 已完成（2026-07-24 全量 UI 收口）
+- **鉴权/弹窗按钮**：PC Login/Register/Forgot/Reset `btn-submit`、GlobalModal 确认、SwitchAccount 过期弹窗、Onboarding 退出 → `Button` ✅
+- **Taro 确认与模板**：ConfirmDialog / GlobalModal confirm、TemplateEdit 底栏与位置图标、BookCard 邀请添加、LocationPicker 底栏/定位图标/暗色 callout ✅
+- **设计令牌**：空态图标色对齐 `--fg3`；Books/BookSettings 过渡改 `var(--df)/var(--dn)` ✅
+
 ### ✅ 已完成（2026-07-24 续）
 - **PC Dashboard 预算卡**：总览进度 + 分类预警列表、超支优先排序、暗色令牌适配 ✅
 - **手写按钮收口（第二批）**：Taro Books 详情/加入/切换、BookSettings 底栏/转移、LocationPicker 底栏；PC 记一笔/流水详情/模板选择/个人资料 → `Button` ✅

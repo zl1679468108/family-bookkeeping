@@ -7,6 +7,7 @@ import AuthLayout from '../../../components/AuthLayout'
 import { LoginIllustration } from '../../../components/AuthLayout/AuthIllustrations'
 import { notify } from '../../../utils/notifications'
 import { getCaptcha } from '../../../services/api'
+import { Button } from '../../../components/ui/Button'
 
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('')
@@ -124,9 +125,9 @@ const LoginPage: React.FC = () => {
           </div>
         </div>
 
-        <button type="submit" className="btn-submit" disabled={loading}>
+        <Button type="submit" variant="primary" block size="lg" className="btn-submit" disabled={loading}>
           {loading ? '登录中...' : '登 录'}
-        </button>
+        </Button>
       </form>
 
       <div className="form-links">

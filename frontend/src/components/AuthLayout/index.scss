@@ -232,7 +232,8 @@
 }
 
 /* ── 按钮 ── */
-.auth-form .btn-submit {
+.auth-form .btn-submit,
+.auth-form .ui-btn.btn-submit {
   width: 100%;
   padding: 13px 24px;
   background: var(--prGr);
@@ -249,17 +250,20 @@
   overflow: hidden;
 }
 
-.auth-form .btn-submit:hover:not(:disabled) {
+.auth-form .btn-submit:hover:not(:disabled),
+.auth-form .ui-btn.btn-submit:hover:not(:disabled) {
   transform: translateY(-1px);
   box-shadow: 0 6px 20px rgba(45, 157, 138, 0.3);
 }
 
-.auth-form .btn-submit:active:not(:disabled) {
+.auth-form .btn-submit:active:not(:disabled),
+.auth-form .ui-btn.btn-submit:active:not(:disabled) {
   transform: translateY(0);
   box-shadow: 0 2px 8px rgba(45, 157, 138, 0.25);
 }
 
-.auth-form .btn-submit:disabled {
+.auth-form .btn-submit:disabled,
+.auth-form .ui-btn.btn-submit:disabled {
   opacity: 0.55;
   cursor: not-allowed;
   transform: none;
@@ -486,4 +490,14 @@
     font-size: 13px;
     margin-bottom: 24px;
   }
+}
+
+
+/* 验证码重发按钮（与 ui Button outline 兼容） */
+.auth-form .btn-code,
+.auth-form .ui-btn.btn-code {
+  flex-shrink: 0;
+  white-space: nowrap;
+  min-width: 104px;
+  height: 44px;
 }

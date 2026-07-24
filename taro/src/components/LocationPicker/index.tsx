@@ -12,6 +12,8 @@ import { apiGet } from "../../services/api";
 import { useManualQuery } from "../../hooks/useManualQuery";
 import { ensurePrivacyAuthorize, isPrivacyError } from "../../utils/privacy";
 import SheetHeader from "../SheetHeader";
+import { useTheme } from "../../context/ThemeContext";
+import Icon, { ICON_COLOR } from "../Icon";
 import { Spinner, Button } from "../ui";
 import "./index.scss";
 
@@ -36,6 +38,7 @@ export default function LocationPicker({
   onConfirm,
   initialLocation,
 }: LocationPickerProps) {
+  const { isDark } = useTheme();
   const [pos, setPos] = useState<{ lat: number; lng: number } | null>(null);
   const [address, setAddress] = useState("");
   const [poiId, setPoiId] = useState<string | null>(null);
@@ -341,11 +344,11 @@ export default function LocationPicker({
                       iconPath: "/assets/icons-png/location.png",
                       callout: {
                         content: address || "已选择位置",
-                        color: "#1a1c19",
+                        color: isDark ? "#F6F7F4" : "#1A1C19",
                         fontSize: 12,
                         borderRadius: 8,
                         borderWidth: 0,
-                        bgColor: "#ffffff",
+                        bgColor: isDark ? "#2A2C29" : "#FFFFFF",
                         padding: 6,
                         display: "ALWAYS",
                         textAlign: "center",
@@ -373,7 +376,9 @@ export default function LocationPicker({
 
         {/* Selected Address */}
         <View className="lp-address">
-          <Text className="lp-addr-icon">📍</Text>
+          <View className="lp-addr-icon">
+            <Icon name="location" size={32} color={ICON_COLOR.primary} />
+          </View>
           <Text className="lp-addr-text">
             {address || "在地图上点击选择位置，或使用搜索查找地址"}
           </Text>

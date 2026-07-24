@@ -8,7 +8,7 @@ import Taro from "@tarojs/taro";
 import { fetchBookMembers, inviteMember } from "../../../../services/booksApi";
 import { useManualQuery } from "../../../../hooks/useManualQuery";
 import type { Book } from "../../../../types";
-import { Spinner } from "../../../../components/ui";
+import { Button } from "../../../../components/ui";
 import "./index.scss";
 
 interface BookCardProps {
@@ -203,15 +203,15 @@ export default function BookCard({
                   placeholderClass="book-card__invite-input-placeholder"
                   focus
                 />
-                <View
-                  className={`book-card__invite-btn ${inviting ? "ui-spin-row" : ""}`}
+                <Button
+                  variant="primary"
+                  size="sm"
+                  loading={inviting}
+                  className="book-card__invite-btn"
                   onClick={handleInvite}
                 >
-                  {inviting && <Spinner />}
-                  <Text className="book-card__invite-btn-text">
-                    {inviting ? "添加中" : "添加"}
-                  </Text>
-                </View>
+                  {inviting ? "添加中" : "添加"}
+                </Button>
                 <View
                   className="book-card__action"
                   onClick={() => {

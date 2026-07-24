@@ -209,7 +209,8 @@
 }
 
 /* 退出登录按钮 */
-.onboarding-logout-btn {
+.onboarding-logout-btn,
+.ui-btn.onboarding-logout-btn {
   position: relative;
   z-index: 2;
   display: flex;

@@ -87,3 +87,12 @@
     display: flex; gap: 20rpx;
   }
 }
+
+
+/* confirm 区统一 Button */
+.ui-modal__confirm-actions .ui-btn {
+  flex: 1;
+  min-width: 0;
+  height: 76rpx;
+  font-weight: 600;
+}

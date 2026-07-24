@@ -8,7 +8,7 @@
   align-items: center;
   justify-content: center;
   background-color: var(--ov);
-  animation: cdFadeIn 0.2s ease;
+  animation: cdFadeIn var(--df, 0.15s) var(--ease, ease);
 }
 
 @keyframes cdFadeIn {
@@ -18,14 +18,14 @@
 
 .cd-dialog {
   width: 560rpx;
-  background-color: var(--surface);
+  background-color: var(--surface, var(--srf));
   border-radius: var(--rm);
   padding: 40rpx 32rpx 24rpx;
   display: flex;
   flex-direction: column;
   align-items: center;
   box-shadow: 0 20rpx 60rpx rgba(0, 0, 0, 0.2);
-  animation: cdScaleIn 0.2s cubic-bezier(0.25, 0, 0.2, 1);
+  animation: cdScaleIn var(--dn, 0.25s) var(--sp, cubic-bezier(0.25, 0, 0.2, 1));
 }
 
 @keyframes cdScaleIn {
@@ -57,50 +57,9 @@
   border-top: 1rpx solid var(--bdL);
 }
 
-.cd-btn {
+.cd-actions .ui-btn {
   flex: 1;
-  height: 88rpx; /* ≥44pt 点击热区 */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: var(--rs);
-  font-size: 28rpx;
+  min-width: 0;
+  height: 88rpx;
   font-weight: 600;
-  transition: opacity 0.15s ease, transform 0.15s ease;
-}
-
-.cd-btn:active {
-  transform: scale(0.97);
-}
-
-.cd-btn--cancel {
-  background-color: var(--bg);
-  color: var(--fg);
-}
-
-.cd-btn--danger {
-  background-color: var(--exp);
-  color: #fff;
-}
-
-.cd-btn--primary {
-  background-color: var(--pr);
-  color: #fff;
-}
-
-.cd-btn--loading {
-  opacity: 0.7;
-}
-
-.cd-btn-text {
-  font-size: 28rpx;
-  font-weight: 600;
-}
-
-.cd-btn-text--cancel {
-  color: var(--fg);
-}
-
-.cd-btn-text--confirm {
-  color: #fff;
 }

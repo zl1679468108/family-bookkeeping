@@ -9,6 +9,7 @@ import { ReactNode } from "react";
 import { View, Text, ScrollView } from "@tarojs/components";
 import { useModalZIndex } from "./useModalZIndex";
 import SheetHeader from "../../SheetHeader";
+import { Button } from "../Button";
 import "./index.scss";
 
 export type GlobalModalType = "confirm" | "detail" | "modal";
@@ -80,24 +81,18 @@ export function GlobalModal({
             {description ? <Text className="ui-modal__confirm-desc">{description}</Text> : null}
             {children}
             <View className="ui-modal__confirm-actions">
-              <View
-                className="ui-modal__btn ui-modal__btn--cancel"
-                hoverClass="ui-modal__btn--pressed"
-                onClick={onClose}
-              >
-                <Text>{cancelText}</Text>
-              </View>
-              <View
-                className={`ui-modal__btn ui-modal__btn--ok ${confirmDanger ? "ui-modal__btn--danger" : ""} ${loading ? "ui-modal__btn--loading" : ""}`}
-                hoverClass="ui-modal__btn--pressed"
+              <Button variant="default" size="lg" block onClick={onClose}>
+                {cancelText}
+              </Button>
+              <Button
+                variant={confirmDanger ? "danger" : "primary"}
+                size="lg"
+                block
+                loading={loading}
                 onClick={() => { if (!loading) onConfirm?.(); }}
               >
-                {loading ? (
-                  <View className="ui-modal__spinner" />
-                ) : (
-                  <Text>{confirmText}</Text>
-                )}
-              </View>
+                {confirmText}
+              </Button>
             </View>
           </View>
         </View>

@@ -156,7 +156,8 @@
 }
 
 /* 对话框按钮 */
-.global-modal-btn {
+.global-modal-btn,
+.ui-btn.global-modal-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;

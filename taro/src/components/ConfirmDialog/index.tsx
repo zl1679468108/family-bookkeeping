@@ -1,8 +1,9 @@
 /**
  * ConfirmDialog — 通用确认弹窗
- * 固定全屏遮罩 + 居中白色卡片 + 标题/描述 + 取消/确认按钮
+ * 固定全屏遮罩 + 居中卡片 + 标题/描述 + 取消/确认（统一 ui/Button）
  */
 import { View, Text } from "@tarojs/components";
+import { Button } from "../ui/Button";
 import "./index.scss";
 
 export interface ConfirmDialogProps {
@@ -36,20 +37,18 @@ export default function ConfirmDialog({
         <Text className="cd-title">{title}</Text>
         <Text className="cd-message">{message}</Text>
         <View className="cd-actions">
-          <View className="cd-btn cd-btn--cancel" onClick={onCancel}>
-            <Text className="cd-btn-text cd-btn-text--cancel">{cancelText}</Text>
-          </View>
-          <View
-            className={`cd-btn ${danger ? "cd-btn--danger" : "cd-btn--primary"} ${confirmLoading ? "cd-btn--loading" : ""}`}
-            onClick={() => {
-              if (confirmLoading) return;
-              onConfirm();
-            }}
+          <Button variant="default" size="lg" block onClick={onCancel}>
+            {cancelText}
+          </Button>
+          <Button
+            variant={danger ? "danger" : "primary"}
+            size="lg"
+            block
+            loading={confirmLoading}
+            onClick={onConfirm}
           >
-            <Text className="cd-btn-text cd-btn-text--confirm">
-              {confirmLoading ? "处理中..." : confirmText}
-            </Text>
-          </View>
+            {confirmLoading ? "处理中..." : confirmText}
+          </Button>
         </View>
       </View>
     </View>

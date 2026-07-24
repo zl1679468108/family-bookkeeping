@@ -157,8 +157,12 @@
 }
 
 .lp-addr-icon {
-  font-size: 32rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   flex-shrink: 0;
+  width: 40rpx;
+  height: 40rpx;
 }
 
 .lp-addr-text {
