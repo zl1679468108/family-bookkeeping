@@ -21,7 +21,9 @@ import { notifySuccess, notifyInfo } from '../../utils/notifyError'
 import { userDisplayName, userInitial } from '../../utils/userDisplay'
 import { SUCCESS_ACCOUNT_SWITCHED } from '../../utils/successCopy'
 import { FORM_ALREADY_CURRENT_ACCOUNT } from '../../utils/formCopy'
-import { ACTION_CLOSE, ACTION_SWITCH_ACCOUNT } from '../../utils/actionCopy'
+import { ACTION_CLOSE, ACTION_SWITCH_ACCOUNT,
+  ACTION_REMOVE_ACCOUNT,
+} from '../../utils/actionCopy'
 import { EMPTY_NO_SAVED_ACCOUNTS } from '../../utils/emptyCopy'
 import { AUTH_LOGIN_EXPIRED, authLoginExpiredRelogin } from '../../utils/authCopy'
 
@@ -123,7 +125,7 @@ const SwitchAccountModal: React.FC<SwitchAccountModalProps> = ({ visible, onClos
                       <button
                         className="account-item-remove"
                         onClick={(e) => handleRemove(account.email, e)}
-                        title="移除账号"
+                        title={ACTION_REMOVE_ACCOUNT}
                       >
                         <Icon name="close" size={14} />
                       </button>

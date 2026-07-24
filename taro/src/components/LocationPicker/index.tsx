@@ -17,9 +17,10 @@ import Icon, { ICON_COLOR } from "../Icon";
 import { Spinner, Button } from "../ui";
 import "./index.scss";
 import { toastInfo } from "../../utils/toast";
-import { FORM_PRIVACY_LOCATION, FORM_LOCATION_REQUIRED, FORM_LOCATION_UNAVAILABLE, FORM_LOCATION_DENIED, FORM_PRIVACY_REQUIRED, FORM_LOCATION_TIMEOUT, FORM_LOCATION_MANUAL_HINT } from "../../utils/formCopy";
+import { FORM_PRIVACY_LOCATION, FORM_LOCATION_REQUIRED, FORM_LOCATION_UNAVAILABLE, FORM_LOCATION_DENIED, FORM_PRIVACY_REQUIRED, FORM_LOCATION_TIMEOUT, FORM_LOCATION_MANUAL_HINT, FORM_SEARCH_LOCATION, FORM_LOCATION_SELECTED, FORM_LOCATION_MAP_HINT, FORM_LOCATION_PERMISSION_TITLE, FORM_LOCATION_PERMISSION_CONTENT, formLocationAccuracyHint } from "../../utils/formCopy";
 import { TITLE_SELECT_LOCATION } from "../../utils/sectionCopy";
-import { ACTION_SEARCHING_ELLIPSIS, ACTION_LOCATING, ACTION_LOCATE } from '../../utils/actionCopy'
+import { ACTION_SEARCHING_ELLIPSIS, ACTION_LOCATING, ACTION_LOCATE, ACTION_GO_SETTINGS, ACTION_DECLINE } from "../../utils/actionCopy";
+import { EMPTY_SEARCH_RESULTS } from "../../utils/emptyCopy";
 
 export interface LocationResult {
   latitude: number;
@@ -94,10 +95,10 @@ export default function LocationPicker({
       if (auth === false) {
         // 明确拒绝过，引导去设置
         Taro.showModal({
-          title: "位置权限提示",
-          content: "需要您授权位置权限才能定位，是否前往设置开启？",
-          confirmText: "去设置",
-          cancelText: "不了",
+          title: FORM_LOCATION_PERMISSION_TITLE,
+          content: FORM_LOCATION_PERMISSION_CONTENT,
+          confirmText: ACTION_GO_SETTINGS,
+          cancelText: ACTION_DECLINE,
           success: (res) => {
             if (res.confirm) {
               Taro.openSetting();
@@ -284,7 +285,7 @@ export default function LocationPicker({
         <View className="lp-search">
           <Input
             className="lp-search-input"
-            placeholder="搜索地址或商户名称..."
+            placeholder={FORM_SEARCH_LOCATION}
             value={searchText}
             onInput={(e: any) => setSearchText(e.detail.value)}
           />
@@ -318,7 +319,7 @@ export default function LocationPicker({
             </View>
           ) : (
             <View className="lp-results lp-results--hint">
-              <Text className="lp-results-tip">无搜索结果</Text>
+              <Text className="lp-results-tip">{EMPTY_SEARCH_RESULTS}</Text>
             </View>
           ))}
 
@@ -340,7 +341,7 @@ export default function LocationPicker({
                       height: 32,
                       iconPath: "/assets/icons-png/location.png",
                       callout: {
-                        content: address || "已选择位置",
+                        content: address || FORM_LOCATION_SELECTED,
                         color: isDark ? "#F6F7F4" : "#1A1C19",
                         fontSize: 12,
                         borderRadius: 8,
@@ -377,16 +378,14 @@ export default function LocationPicker({
             <Icon name="location" size={32} color={ICON_COLOR.primary} />
           </View>
           <Text className="lp-addr-text">
-            {address || "在地图上点击选择位置，或使用搜索查找地址"}
+            {address || FORM_LOCATION_MAP_HINT}
           </Text>
         </View>
 
         {/* 定位精度提示 */}
         {locAccuracy != null && (
           <View className={`lp-accuracy ${locAccuracy > 100 ? "lp-accuracy--low" : ""}`}>
-            {locAccuracy > 100
-              ? `定位精度约 ±${Math.round(locAccuracy)} 米，建议到开阔处或手动拖动微调`
-              : `定位精度约 ±${Math.round(locAccuracy)} 米`}
+            {formLocationAccuracyHint(locAccuracy, locAccuracy > 100)}
           </View>
         )}
 

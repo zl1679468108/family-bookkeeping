@@ -1,5 +1,6 @@
 import React, { useId, useState, type InputHTMLAttributes } from 'react'
 import { Icon } from '../Icon'
+import { passwordVisibilityLabel } from '../../../utils/actionCopy'
 
 /**
  * 鉴权/资料场景密码输入 —— 统一 password-wrapper + 显隐切换 + Icon。
@@ -51,7 +52,7 @@ export const PasswordField: React.FC<PasswordFieldProps> = ({
           onClick={() => setVisible((v) => !v)}
           tabIndex={-1}
           disabled={disabled}
-          aria-label={visible ? '隐藏密码' : '显示密码'}
+          aria-label={passwordVisibilityLabel(visible)}
         >
           <Icon name={visible ? 'eye-off' : 'eye'} size={16} />
         </button>

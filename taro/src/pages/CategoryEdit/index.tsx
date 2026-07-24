@@ -44,7 +44,7 @@ import {
 } from "../../utils/confirmCopy";
 import { SUCCESS_DELETED, successEntityUpsert, SUCCESS_ADDED_TO_CUSTOM } from "../../utils/successCopy";
 import { categoryTypeTabLabel } from "../../utils/transactionType";
-import { FORM_PRIVACY_REQUIRED, FORM_CATEGORY_NAME_PLACEHOLDER } from "../../utils/formCopy";
+import { FORM_PRIVACY_REQUIRED, FORM_CATEGORY_NAME_PLACEHOLDER, categoryFormMeta } from "../../utils/formCopy";
 import { buildCategoryPayload, validateCategoryName } from "../../utils/categoryPayload";
 import { entityFormTitle, ENTITY_CATEGORY } from "../../utils/entityCopy";
 import { UPLOAD_FAILED, DELETE_FAILED, IMAGE_SELECT_FAILED, PRIVACY_ALBUM_FOR_ICON } from "../../utils/uploadCopy";
@@ -195,7 +195,7 @@ export default function CategoryEdit() {
       <PageHero
         eyebrow={categoryTypeTabLabel(catType)}
         title={title}
-        meta={isEdit ? "修改名称或图标后保存" : "填写名称并选择图标"}
+        meta={categoryFormMeta(isEdit)}
         tone="surface"
       />
 
@@ -338,7 +338,7 @@ export default function CategoryEdit() {
       <ConfirmDialog
         visible={showDelete}
         title={CONFIRM_DELETE_TITLE}
-        message={confirmDeleteThis("分类")}
+        message={confirmDeleteThis(ENTITY_CATEGORY)}
         confirmText={CONFIRM_DELETE_TEXT}
         danger
         confirmLoading={false}

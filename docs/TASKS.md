@@ -111,6 +111,14 @@
 - `TITLE_DATA_ANALYSIS` / `TITLE_MEMBER_COMPARE` 报表 Tab
 - 验证：frontend / taro `tsc --noEmit`
 
+#### 2026-07-24 定位/密码/侧栏/分类 meta 文案 shared 化
+- 位置：权限弹窗、搜索 placeholder、已选/地图提示、精度 helper、无搜索结果；Taro LocationPicker/LocationField + PC LocationPicker 接线
+- 动作：显示/隐藏密码、展开/折叠、移除账号、去设置/不了、去设置预算、清除；密码 a11y / 侧栏 / SwitchAccount / 隐私授权 / 首页预算空态接线
+- 鉴权：品牌 tagline、验证码失败、登录校验失败；AuthLayout / Profile 接线
+- 成功：邀请码已生成（已复制）；BookMembers 接线
+- 分类表单 meta helper；TemplateEdit 用 `transactionTypeLabel`；`confirmDeleteThis(ENTITY_*)` 收口
+- 验证：frontend / taro `tsc --noEmit`
+
 #### 2026-07-24 PC 暗色第十轮（图表联动 / 地图样式 / 残留硬编码）
 - 年报图表/色条：`getChartPalette` 空依赖改为 `resolvedTheme`；`ReportMonthlyTrend` 切主题重绘
 - 扩展色随暗色提亮；年报封面亮色 `white`/`rgba(255,255,255,*)` → `onPr` / color-mix

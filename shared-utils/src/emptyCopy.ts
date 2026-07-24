@@ -33,3 +33,4 @@ export const EMPTY_NO_MERCHANTS = '暂无商户数据，记一笔时添加位置
 export const EMPTY_NO_MERCHANT_MATCH = '未找到匹配的商户，试试其他关键词'
 export const EMPTY_NO_DATA = '暂无数据'
 export const EMPTY_NO_SAVED_ACCOUNTS = '暂无已保存的账号'
+export const EMPTY_SEARCH_RESULTS = '无搜索结果'

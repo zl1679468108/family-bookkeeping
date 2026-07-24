@@ -25,7 +25,7 @@ import {
   CONFIRM_REMOVE_TEXT,
   confirmRemoveMember,
 } from "../../utils/confirmCopy";
-import { SUCCESS_INVITE_COPIED, SUCCESS_INVITE_SENT, SUCCESS_MEMBER_REMOVED } from "../../utils/successCopy";
+import { SUCCESS_INVITE_COPIED, SUCCESS_INVITE_SENT, SUCCESS_MEMBER_REMOVED, SUCCESS_INVITE_CODE_GENERATED_COPIED } from "../../utils/successCopy";
 import { FORM_PEER_EMAIL_PLACEHOLDER, FORM_EMAIL_REQUIRED } from "../../utils/formCopy";
 import { validateEmail } from "../../utils/validation";
 import { copyToClipboard } from "../../utils/clipboard";
@@ -268,7 +268,7 @@ export default function BookMembers() {
                     }}
                   >
                     <Text style={{ fontSize: "22rpx", color: "var(--fg3)" }}>
-                      邀请码已生成（已复制到剪贴板）
+                      {SUCCESS_INVITE_CODE_GENERATED_COPIED}
                     </Text>
                     <View
                       style={{

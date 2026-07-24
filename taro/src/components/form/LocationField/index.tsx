@@ -9,6 +9,8 @@ import LocationPicker from "../../LocationPicker";
 import type { LocationResult as PickerResult } from "../../LocationPicker";
 import "./index.scss";
 import Icon, { ICON_COLOR } from "../../Icon";
+import { FORM_LOCATION_SELECTED } from "../../../utils/formCopy";
+import { ACTION_CLEAR_SELECTION } from "../../../utils/actionCopy";
 
 export interface LocationResult {
   name: string;
@@ -52,7 +54,7 @@ export default function LocationField({ value, onChange }: LocationFieldProps) {
           <View className="ft-loc-info">
             <Text className="ft-loc-label">位置</Text>
             <View className="ft-loc-texts">
-              <Text className="ft-loc-name">{value.name || "已选择位置"}</Text>
+              <Text className="ft-loc-name">{value.name || FORM_LOCATION_SELECTED}</Text>
               {value.latitude !== undefined && value.longitude !== undefined && (
                 <Text className="ft-loc-coords">
                   {value.latitude.toFixed(4)}, {value.longitude.toFixed(4)}
@@ -67,7 +69,7 @@ export default function LocationField({ value, onChange }: LocationFieldProps) {
               onChange(null);
             }}
           >
-            清除
+            {ACTION_CLEAR_SELECTION}
           </Text>
         </View>
         <LocationPicker

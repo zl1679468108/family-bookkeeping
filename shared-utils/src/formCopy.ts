@@ -96,3 +96,24 @@ export const FORM_CAPTCHA_DIGITS_REQUIRED = '请输入6位验证码'
 export const FORM_ALL_REQUIRED = '请填写所有必填项'
 export const ERROR_CAPTCHA_LOAD = '获取验证码失败'
 export const FORM_AGREE_TERMS_PRIVACY = '请先阅读并同意《用户协议》和《隐私政策》'
+
+/** 位置选择器 */
+export const FORM_LOCATION_SELECTED = '已选择位置'
+export const FORM_LOCATION_MAP_HINT = '在地图上点击选择位置，或使用搜索查找地址'
+export const FORM_LOCATION_PERMISSION_TITLE = '位置权限提示'
+export const FORM_LOCATION_PERMISSION_CONTENT =
+  '需要您授权位置权限才能定位，是否前往设置开启？'
+export const FORM_PRIVACY_AUTH_TITLE = '隐私授权提示'
+export const FORM_CATEGORY_EDIT_META = '修改名称或图标后保存'
+export const FORM_CATEGORY_CREATE_META = '填写名称并选择图标'
+
+export function categoryFormMeta(isEdit: boolean): string {
+  return isEdit ? FORM_CATEGORY_EDIT_META : FORM_CATEGORY_CREATE_META
+}
+
+/** 定位精度约 ±N 米… */
+export function formLocationAccuracyHint(meters: number, lowAccuracy = false): string {
+  const m = Math.round(Number(meters) || 0)
+  if (lowAccuracy) return `定位精度约 ±${m} 米，建议到开阔处或手动拖动微调`
+  return `定位精度约 ±${m} 米`
+}

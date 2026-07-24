@@ -684,7 +684,7 @@ export default function TemplateManager() {
       <ConfirmDialog
         visible={showDelete}
         title={CONFIRM_DELETE_TITLE}
-        message={confirmDeleteThis("模板")}
+        message={confirmDeleteThis(ENTITY_TEMPLATE)}
         confirmText={CONFIRM_DELETE_TEXT}
         danger
         confirmLoading={false}

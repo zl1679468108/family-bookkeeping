@@ -435,7 +435,7 @@ const Budgets: React.FC = () => {
         type="confirm"
         open={showDeleteConfirm}
         title={CONFIRM_DELETE_TITLE}
-        children={selectedBudget ? confirmDeleteBudget(selectedBudget.category.name) : confirmDeleteThis("预算")}
+        children={selectedBudget ? confirmDeleteBudget(selectedBudget.category.name) : confirmDeleteThis(ENTITY_BUDGET)}
         onConfirm={handleDeleteBudget}
         onClose={() => setShowDeleteConfirm(false)}
         confirmText={CONFIRM_DELETE_TEXT}

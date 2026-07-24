@@ -26,7 +26,10 @@ import { userDisplayName, userInitial } from "../../utils/userDisplay";
 import { SUCCESS_ACCOUNT_SWITCHED, SUCCESS_ACCOUNT_DEACTIVATED, SUCCESS_SWITCHED } from "../../utils/successCopy";
 import { FORM_ALREADY_CURRENT_ACCOUNT, FORM_CAPTCHA_REQUIRED, FORM_EMAIL_PASSWORD_REQUIRED, FORM_DEACTIVATE_PASSWORD, FORM_PASSWORD_LOGIN_PLACEHOLDER, FORM_EMAIL_PLACEHOLDER, FORM_PASSWORD_PLACEHOLDER, FORM_CAPTCHA_PLACEHOLDER } from "../../utils/formCopy";
 import { ACTION_SWITCHING, ACTION_LOGOUT, ACTION_DEACTIVATING, ACTION_CONFIRM_DEACTIVATE, ACTION_SWITCH_THEME, THEME_DARK_MODE, THEME_LIGHT_MODE, ACTION_SWITCH_ACCOUNT, ACTION_DEACTIVATE_ACCOUNT } from "../../utils/actionCopy"
-import { ACTION_LOGGING_IN, ACTION_LOGIN, AUTH_LOGIN_EXPIRED_REENTER, AUTH_ADD_NEW_ACCOUNT_LOGIN } from '../../utils/authCopy'
+import { ACTION_LOGGING_IN, ACTION_LOGIN, AUTH_LOGIN_EXPIRED_REENTER, AUTH_ADD_NEW_ACCOUNT_LOGIN,
+  AUTH_CAPTCHA_FETCH_FAILED,
+  AUTH_LOGIN_CHECK_CREDENTIALS,
+} from '../../utils/authCopy'
 import { TITLE_ABOUT } from '../../utils/sectionCopy'
 import { ERROR_DEACTIVATE_FAILED } from '../../utils/errorCopy'
 
@@ -153,7 +156,7 @@ export default function Profile() {
       setCaptchaSrc(`data:image/svg+xml,${encodedSvg}`);
       setCaptchaCode("");
     } catch {
-      setLoginError("获取验证码失败");
+      setLoginError(AUTH_CAPTCHA_FETCH_FAILED);
     }
   };
 
@@ -184,7 +187,7 @@ export default function Profile() {
       setTokenExpiredEmail(null);
       setCaptchaCode("");
     } catch (err) {
-      setLoginError("登录失败，请检查账号密码和验证码");
+      setLoginError(AUTH_LOGIN_CHECK_CREDENTIALS);
       refreshCaptcha();
     } finally {
       setLoginLoading(false);

@@ -6,7 +6,9 @@ import type { LocationResult } from '@family-bookkeeping/shared-types'
 import { useMapInstance } from '../../../../hooks/useMapInstance';
 import { AmapManager } from '../../../../services/amapManager';
 import './index.scss';
-import { FORM_SEARCH_LOCATION, FORM_LOCATION_GET_FAILED_HINT } from '../../../../utils/formCopy'
+import { FORM_SEARCH_LOCATION, FORM_LOCATION_GET_FAILED_HINT,
+  FORM_LOCATION_MAP_HINT,
+} from '../../../../utils/formCopy'
 import { TITLE_SELECT_LOCATION, TITLE_LOCATE_CURRENT } from '../../../../utils/sectionCopy'
 import { ACTION_CANCEL, searchingLabel } from '../../../../utils/actionCopy'
 import { ERROR_LOCATION_UNAVAILABLE, ERROR_LOCATION_NO_MATCH, ERROR_LOCATION_SEARCH_FAILED } from '../../../../utils/errorCopy'
@@ -285,7 +287,7 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
           <span className="location-picker-info-text">{selectedAddress}</span>
         </div>
       ) : (
-        <div className="location-picker-hint">在地图上点击选择位置，或使用搜索查找地址</div>
+        <div className="location-picker-hint">{FORM_LOCATION_MAP_HINT}</div>
       )}
     </GlobalModal>
   );

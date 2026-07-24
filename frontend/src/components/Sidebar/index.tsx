@@ -16,7 +16,9 @@ import { queryKeys } from '../../utils/queryKeys'
 import { prefetchRoute as prefetchBookRoute } from '../../utils/prefetchRoute'
 import { STALE } from '../../utils/cachePolicy'
 import { NAV_HOME, NAV_TRANSACTIONS, NAV_ADD, NAV_REPORTS, NAV_CALENDAR, NAV_MAP, NAV_ANNUAL_REPORT, NAV_BOOKS, NAV_CATEGORIES, NAV_TEMPLATES, NAV_BUDGETS, NAV_ADMIN_DASHBOARD, NAV_ADMIN_USERS, NAV_ADMIN_TRANSACTIONS } from '../../utils/navCopy'
-import { ACTION_LOGOUT, ACTION_LOGGING_OUT, ACTION_SWITCH_ACCOUNT } from '../../utils/actionCopy'
+import { ACTION_LOGOUT, ACTION_LOGGING_OUT, ACTION_SWITCH_ACCOUNT,
+  collapseToggleLabel,
+} from '../../utils/actionCopy'
 import { TITLE_ABOUT } from '../../utils/sectionCopy'
 
 const NAV_ITEMS = [
@@ -126,7 +128,7 @@ export const Sidebar: React.FC = () => {
 
       {/* 折叠按钮 */}
       <button className="sidebar-toggle" onClick={() => setCollapsed(!collapsed)}
-        title={collapsed ? '展开' : '折叠'}>
+        title={collapseToggleLabel(collapsed)}>
         <Icon name={collapsed ? 'chevron-right' : 'chevron-left'} size={18} />
       </button>
 

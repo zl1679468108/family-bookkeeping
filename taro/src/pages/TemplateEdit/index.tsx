@@ -154,11 +154,6 @@ export default function TemplateEdit() {
     return `${displayIcon} ${cat.name}`;
   };
 
-  const formatTypeLabel = (type: string) => {
-    if (type === "expense") return "支出";
-    if (type === "income") return "收入";
-    return FORM_SELECT_TYPE;
-  };
 
   return (
     <PageContainer bottomSpace={180} loading={isLoading} loadingText={ACTION_LOADING}>
@@ -206,7 +201,7 @@ export default function TemplateEdit() {
                         : "tpl-picker-value--placeholder"
                     }`}
                   >
-                    {formatTypeLabel(form.type)}
+                    {transactionTypeLabel(form.type)}
                   </Text>
                 </View>
                 {!!form.type && (
@@ -378,7 +373,7 @@ export default function TemplateEdit() {
       <ConfirmDialog
         visible={showDelete}
         title={CONFIRM_DELETE_TITLE}
-        message={confirmDeleteThis("模板")}
+        message={confirmDeleteThis(ENTITY_TEMPLATE)}
         confirmText={CONFIRM_DELETE_TEXT}
         danger
         confirmLoading={false}

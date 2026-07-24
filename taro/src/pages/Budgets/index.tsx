@@ -33,7 +33,7 @@ import { SUCCESS_BUDGET_SAVED, successBudgetCopiedFromLastMonth } from "../../ut
 import { EMPTY_BUDGET_NO_EXPENSE_CATEGORIES } from "../../utils/emptyCopy";
 import { FORM_BUDGET_NONE, FORM_BUDGET_NO_LAST_MONTH, FORM_BUDGET_AMOUNT_PLACEHOLDER, FORM_AMOUNT_PLACEHOLDER } from "../../utils/formCopy";
 import { ERROR_BUDGET_SAVE_FAILED, ERROR_COPY_FAILED } from "../../utils/errorCopy";
-import { DETAIL_BUDGET } from "../../utils/entityCopy";
+import { DETAIL_BUDGET, ENTITY_BUDGET } from "../../utils/entityCopy";
 
 /* ---------- 类型 ---------- */
 interface BudgetDetail {
@@ -527,7 +527,7 @@ export default function BudgetsPage() {
         message={
           detailCat
             ? confirmDeleteBudget(detailCat.category.name)
-            : confirmDeleteThis("预算")
+            : confirmDeleteThis(ENTITY_BUDGET)
         }
         confirmText={CONFIRM_DELETE_TEXT}
         danger

@@ -24,6 +24,15 @@ export const ACTION_PROMOTE = '升级'
 export const ACTION_DEMOTE = '降级'
 export const ACTION_CLOSE = '关闭'
 export const ACTION_CLEAR = '清空'
+export const ACTION_CLEAR_SELECTION = '清除'
+export const ACTION_SHOW_PASSWORD = '显示密码'
+export const ACTION_HIDE_PASSWORD = '隐藏密码'
+export const ACTION_EXPAND = '展开'
+export const ACTION_COLLAPSE = '折叠'
+export const ACTION_REMOVE_ACCOUNT = '移除账号'
+export const ACTION_GO_SETTINGS = '去设置'
+export const ACTION_GO_SET_BUDGET = '去设置预算'
+export const ACTION_DECLINE = '不了'
 export const ACTION_START_BOOKKEEPING = '开始记账'
 export const ACTION_GO_ADD_TRANSACTION = '去记一笔'
 export const ACTION_ADD_FIRST_TRANSACTION = '添加第一笔交易'
@@ -131,4 +140,14 @@ export function searchingLabel(busy: boolean, idleText = ACTION_SEARCH): string 
 
 export function ocrLabel(busy: boolean): string {
   return busyLabel(busy, ACTION_OCR_PROCESSING, ACTION_OCR)
+}
+
+/** 密码显隐按钮 a11y */
+export function passwordVisibilityLabel(visible: boolean): string {
+  return visible ? ACTION_HIDE_PASSWORD : ACTION_SHOW_PASSWORD
+}
+
+/** 侧栏折叠 a11y/title */
+export function collapseToggleLabel(collapsed: boolean): string {
+  return collapsed ? ACTION_EXPAND : ACTION_COLLAPSE
 }

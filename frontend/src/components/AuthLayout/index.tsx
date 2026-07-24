@@ -1,5 +1,6 @@
 import React from 'react'
 import './index.scss'
+import { AUTH_BRAND_TAGLINE } from '../../utils/authCopy'
 
 interface AuthLayoutProps {
   illustration: React.ReactNode
@@ -14,7 +15,7 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({
   title,
   subtitle,
   children,
-  footer = '静记 · 让每一笔都清晰可见',
+  footer = AUTH_BRAND_TAGLINE,
 }) => {
   return (
     <div className="auth-page">

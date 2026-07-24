@@ -32,6 +32,7 @@ export function successEntityDeleted(entity: string): string {
 
 export const SUCCESS_INVITE_SENT = '邀请已发送'
 export const SUCCESS_INVITE_CODE_GENERATED = '邀请码已生成'
+export const SUCCESS_INVITE_CODE_GENERATED_COPIED = '邀请码已生成（已复制到剪贴板）'
 export const SUCCESS_MEMBER_REMOVED = '成员已移除'
 export const SUCCESS_BOOK_CREATED = '账本创建成功'
 export const SUCCESS_UPDATED = '更新成功'

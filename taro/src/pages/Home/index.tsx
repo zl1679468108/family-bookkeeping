@@ -22,7 +22,7 @@ import { formatMoney } from "../../utils/format";
 import { getBudgetVariant } from "../../utils/budget";
 import { renderCategoryIcon } from "../../utils/renderCategoryIcon";
 import "./index.scss";
-import { ACTION_LOADING, ACTION_VIEW_ALL } from "../../utils/actionCopy";
+import { ACTION_LOADING, ACTION_VIEW_ALL, ACTION_GO_SET_BUDGET } from "../../utils/actionCopy";
 import { EMPTY_TRANSACTIONS_HOME, EMPTY_NO_BUDGET } from "../../utils/emptyCopy";
 import { TITLE_RECENT_TXN_MONTH, TITLE_BUDGET_MONTH } from "../../utils/sectionCopy";
 import { FIELD_MONTH_BALANCE, FIELD_MONTH_INCOME, FIELD_MONTH_EXPENSE } from "../../utils/fieldCopy"
@@ -274,7 +274,7 @@ export default function Home() {
                 size="sm"
                 onClick={() => Taro.navigateTo({ url: "/pages/Budgets/index" })}
               >
-                去设置预算
+                {ACTION_GO_SET_BUDGET}
               </EmptyActionButton>
             }
           />

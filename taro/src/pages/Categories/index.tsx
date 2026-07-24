@@ -537,7 +537,7 @@ export default function CategoriesPage() {
         message={
           deletingCat
             ? confirmDeleteCategory(deletingCat.name)
-            : confirmDeleteThis("分类")
+            : confirmDeleteThis(ENTITY_CATEGORY)
         }
         confirmText={CONFIRM_DELETE_TEXT}
         danger

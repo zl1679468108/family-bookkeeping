@@ -19,6 +19,7 @@ import {
 } from '../../utils/templateRecurring'
 import { successRecurringExecuted } from '../../utils/successCopy'
 import { ERROR_EXECUTE_RECURRING_FAILED } from '../../utils/errorCopy'
+import { ENTITY_TEMPLATE } from '../../utils/entityCopy'
 
 const Templates: React.FC = () => {
   const {
@@ -122,7 +123,7 @@ const Templates: React.FC = () => {
         type="confirm"
         open={showDeleteConfirm}
         title={CONFIRM_DELETE_TITLE}
-        children={confirmDeleteThis("模板")}
+        children={confirmDeleteThis(ENTITY_TEMPLATE)}
         onConfirm={handleDeleteTemplate}
         onClose={() => setShowDeleteConfirm(false)}
         loading={deleteLoading}

@@ -1,3 +1,5 @@
+import { FORM_PRIVACY_AUTH_TITLE } from './formCopy'
+import { ACTION_GO_SETTINGS, ACTION_DECLINE } from './actionCopy'
 /**
  * 微信隐私协议授权工具
  *
@@ -131,10 +133,10 @@ export async function ensurePrivacyAuthorize(tip = "需要您同意隐私协议�
       return;
     }
     wx.showModal({
-      title: "隐私授权提示",
+      title: FORM_PRIVACY_AUTH_TITLE,
       content: `${tip}，是否前往设置页开启？`,
-      confirmText: "去设置",
-      cancelText: "不了",
+      confirmText: ACTION_GO_SETTINGS,
+      cancelText: ACTION_DECLINE,
       success: async (res) => {
         if (res.confirm) {
           await openPrivacySetting();

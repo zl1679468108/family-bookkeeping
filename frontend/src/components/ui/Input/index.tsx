@@ -1,6 +1,8 @@
 import React, { InputHTMLAttributes, useState, useEffect, useRef, useId } from 'react'
 import { Icon } from '../Icon'
-import { ACTION_CLEAR, ACTION_SEARCH_ELLIPSIS } from '../../../utils/actionCopy'
+import { ACTION_CLEAR, ACTION_SEARCH_ELLIPSIS,
+  passwordVisibilityLabel,
+} from '../../../utils/actionCopy'
 
 /**
  * 通用输入框组件 —— 取代各页面手写的 `<input>` + `<div className="form-input">` 结构
@@ -91,7 +93,7 @@ export const Input: React.FC<InputProps> = ({
             className="ui-input-password-toggle"
             onClick={() => setShowPassword(v => !v)}
             tabIndex={-1}
-            aria-label={showPassword ? '隐藏密码' : '显示密码'}
+            aria-label={passwordVisibilityLabel(showPassword)}
           >
             {showPassword ? <Icon name="eye-off" size={16} /> : <Icon name="eye" size={16} />}
           </button>

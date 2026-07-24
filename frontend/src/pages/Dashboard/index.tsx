@@ -22,7 +22,9 @@ import { queryKeys } from '../../utils/queryKeys'
 import { GC_TIME_LONG, STALE } from '../../utils/cachePolicy'
 import { EMPTY_TRANSACTIONS_HOME, EMPTY_NO_BUDGET } from '../../utils/emptyCopy'
 import { TITLE_BUDGET_MONTH, TITLE_RECENT_TXN_MONTH } from '../../utils/sectionCopy'
-import { ACTION_VIEW_ALL } from '../../utils/actionCopy'
+import { ACTION_VIEW_ALL,
+  ACTION_GO_SETTINGS,
+} from '../../utils/actionCopy'
 import { FIELD_MONTH_BALANCE, FIELD_MONTH_INCOME, FIELD_MONTH_EXPENSE } from '../../utils/fieldCopy'
 
 const Dashboard: React.FC = () => {
@@ -303,7 +305,7 @@ const Dashboard: React.FC = () => {
               description={EMPTY_NO_BUDGET}
               action={
                 <Button variant="primary" onClick={() => navigate('/budgets')}>
-                  去设置
+                  {ACTION_GO_SETTINGS}
                 </Button>
               }
             />
