@@ -5,6 +5,7 @@ import AdminLayout from '../AdminLayout'
 import { GlobalModal } from '../../../components/ui'
 import { useMutationAction } from '../../../hooks/useMutationAction'
 import { useDebounce } from '../../../hooks/useDebounce'
+import { DEBOUNCE_DEFAULT_MS } from '../../../utils/timing'
 import { FilterBar } from '../../../components/ui/FilterBar'
 import { SearchInput, Input } from '../../../components/ui/Input'
 import { DropdownSelect } from '../../../components/ui/Dropdown'
@@ -35,7 +36,7 @@ const AdminUsers: React.FC = () => {
 
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
-  const debouncedSearch = useDebounce(search, 300);
+  const debouncedSearch = useDebounce(search, DEBOUNCE_DEFAULT_MS);
   const [roleFilter, setRoleFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
 

@@ -5,13 +5,14 @@
 import Taro from "@tarojs/taro";
 import { getErrorMessage } from "./errorMessage";
 import { ERROR_OP_FAILED } from "./errorCopy";
+import { TOAST_DEFAULT_MS } from "./timing";
 
 export type ToastType = "success" | "error" | "info" | "warn";
 
 export function toast(
   message: string,
   type: ToastType = "info",
-  duration = 2000,
+  duration = TOAST_DEFAULT_MS,
 ): void {
   // Taro 原生 error icon 在部分基础库表现不稳定，错误统一 none + 文案
   const iconMap: Record<ToastType, "success" | "error" | "none" | "loading"> = {
@@ -28,15 +29,15 @@ export function toast(
   });
 }
 
-export function toastSuccess(message: string, duration = 2000): void {
+export function toastSuccess(message: string, duration = TOAST_DEFAULT_MS): void {
   toast(message, "success", duration);
 }
 
-export function toastInfo(message: string, duration = 2000): void {
+export function toastInfo(message: string, duration = TOAST_DEFAULT_MS): void {
   toast(message, "info", duration);
 }
 
-export function toastWarn(message: string, duration = 2000): void {
+export function toastWarn(message: string, duration = TOAST_DEFAULT_MS): void {
   toast(message, "warn", duration);
 }
 

@@ -9,6 +9,7 @@ import type { DropdownOption } from '../../components/ui/Dropdown'
 import type { Transaction } from '../../services/api'
 import type { Category } from '@family-bookkeeping/shared-types';
 import { useDebounce } from '../../hooks/useDebounce'
+import { DEBOUNCE_SEARCH_MS } from '../../utils/timing'
 import { useMutationAction } from '../../hooks/useMutationAction'
 import { useFocusItem } from '../../hooks/useFocusItem'
 import { formatAmount, formatAmountByType } from '../../utils/common'
@@ -75,7 +76,7 @@ const Transactions: React.FC = () => {
     const n = Number(searchParams.get('pageSize') || String(PAGE_SIZE))
     return Number.isFinite(n) && n > 0 ? n : PAGE_SIZE
   })
-  const debouncedSearch = useDebounce(search, 800)
+  const debouncedSearch = useDebounce(search, DEBOUNCE_SEARCH_MS)
 
   useEffect(() => {
     const next = new URLSearchParams()

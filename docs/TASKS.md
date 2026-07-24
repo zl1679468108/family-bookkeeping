@@ -85,6 +85,11 @@
 
 ### ✅ 已完成
 
+#### 2026-07-24 防抖/Toast 时序常量 shared 化
+- `timing`：DEBOUNCE_DEFAULT/SEARCH、TOAST_DEFAULT/SUCCESS
+- PC useDebounce / 流水搜索 / Admin 搜索；Taro toast 默认时长接线
+- 验证：frontend / taro `tsc --noEmit`
+
 #### 2026-07-24 formatAmountPair 与 Skeleton/Form 等 cx 收口
 - budget.formatAmountPair：RankList 进度金额对同源
 - Skeleton/FormField/PasswordField/Spinner/SectionCard 接线 cx
