@@ -1,4 +1,6 @@
 import React, { InputHTMLAttributes, useState, useEffect, useRef, useId } from 'react'
+import { shouldShowInputClear, resolvePasswordInputType } from '../../../utils/inputHelpers'
+import { cx } from '../../../utils/cx'
 import { Icon } from '../Icon'
 import { ACTION_CLEAR, ACTION_SEARCH_ELLIPSIS,
   passwordVisibilityLabel,
@@ -71,13 +73,13 @@ export const Input: React.FC<InputProps> = ({
   }
 
   return (
-    <div className={`ui-input-wrap ${wrapperClassName}`.trim()}>
+    <div className={cx('ui-input-wrap', wrapperClassName)}>
       {label && (
-        <label htmlFor={inputId} className={`ui-input-label${required ? ' field-required' : ''}`}>
+        <label htmlFor={inputId} className={cx('ui-input-label', required && 'field-required')}>
           {label}
         </label>
       )}
-      <div className={`ui-input ${error ? 'has-error' : ''} ${className}`.trim()}>
+      <div className={cx('ui-input', error && 'has-error', className)}>
         {icon && <span className="ui-input-icon">{icon}</span>}
         <input
           ref={inputRef}
@@ -85,7 +87,7 @@ export const Input: React.FC<InputProps> = ({
           value={currentValue}
           onChange={handleChange}
           {...props}
-          type={showPasswordToggle && props.type === 'password' ? (showPassword ? 'text' : 'password') : props.type}
+          type={resolvePasswordInputType(props.type, showPasswordToggle, showPassword)}
         />
         {showPasswordToggle && props.type === 'password' && (
           <button
@@ -98,7 +100,7 @@ export const Input: React.FC<InputProps> = ({
             {showPassword ? <Icon name="eye-off" size={16} /> : <Icon name="eye" size={16} />}
           </button>
         )}
-        {allowClear && currentValue && (
+        {shouldShowInputClear(allowClear, currentValue, props.disabled) && (
           <button type="button" className="ui-input-clear" onClick={handleClear} aria-label={ACTION_CLEAR}>
             <Icon name="close" size={12} strokeWidth={2.5} />
           </button>
@@ -168,7 +170,7 @@ export const SearchInput: React.FC<SearchInputProps> = ({
         autoComplete="off"
         name="search-field"
       />
-      {allowClear && value && (
+      {shouldShowInputClear(allowClear, value) && (
         <span className="ui-search-clear" onClick={handleClear} role="button" aria-label={ACTION_CLEAR}>
           <Icon name="close" size={12} strokeWidth={2.5} />
         </span>
@@ -215,8 +217,8 @@ export const NumberInput: React.FC<NumberInputProps> = ({
   required,
 }) => {
   return (
-    <div className={`ui-input-wrap ${wrapperClassName}`.trim()}>
-      {label && <label className={`ui-input-label${required ? ' field-required' : ''}`}>{label}</label>}
+    <div className={cx('ui-input-wrap', wrapperClassName)}>
+      {label && <label className={cx('ui-input-label', required && 'field-required')}>{label}</label>}
       <div className={`ui-input ${disabled ? 'is-disabled' : ''}`.trim()}>
         {prefix && <span className="ui-input-prefix">{prefix}</span>}
         <input

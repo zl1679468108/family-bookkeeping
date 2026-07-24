@@ -3,6 +3,7 @@
  * padding: sm(24rpx)/md(40rpx)/lg(56rpx)/none
  */
 import { ReactNode } from "react";
+import { cx } from "../../../utils/cx";
 import { View, Text } from "@tarojs/components";
 import "./index.scss";
 
@@ -18,7 +19,7 @@ export interface CardProps {
 export function Card({ padding = "md", children, className = "", onClick }: CardProps) {
   return (
     <View
-      className={`ui-card ui-card--pad-${padding} ${className}`}
+      className={cx("ui-card", `ui-card--pad-${padding}`, className)}
       hoverClass={onClick ? "ui-card--pressed" : ""}
       hoverStayTime={100}
       onClick={onClick}
@@ -37,7 +38,7 @@ export interface CardHeaderProps {
 
 export function CardHeader({ title, subTitle, action, className = "" }: CardHeaderProps) {
   return (
-    <View className={`ui-card__header ${className}`}>
+    <View className={cx("ui-card__header", className)}>
       <View className="ui-card__header-text">
         {title ? <Text className="ui-card__title">{title}</Text> : null}
         {subTitle ? <Text className="ui-card__subtitle">{subTitle}</Text> : null}

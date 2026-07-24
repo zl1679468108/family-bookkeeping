@@ -1,4 +1,5 @@
 import React from 'react'
+import { cx } from '../../../utils/cx'
 
 /**
  * 通用卡片容器
@@ -15,7 +16,7 @@ export function Card({
   padding?: 'sm' | 'md' | 'lg' | 'none'
 }) {
   return (
-    <div className={`dash-card dash-card--${padding} ${className}`.trim()} style={style}>
+    <div className={cx('dash-card', `dash-card--${padding}`, className)} style={style}>
       {children}
     </div>
   )
@@ -35,7 +36,7 @@ export function CardHeader({
   style?: React.CSSProperties
 }) {
   return (
-    <div className={`card-header ${className}`.trim()} style={style}>
+    <div className={cx('card-header', className)} style={style}>
       <div className="card-header-text">
         {title && <h3 className="card-title">{title}</h3>}
         {subTitle && <span className="card-subtitle">{subTitle}</span>}
@@ -55,7 +56,7 @@ export function CardContent({
   style?: React.CSSProperties
 }) {
   return (
-    <div className={`card-content ${className}`.trim()} style={style}>
+    <div className={cx('card-content', className)} style={style}>
       {children}
     </div>
   )

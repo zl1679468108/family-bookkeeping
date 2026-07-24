@@ -3,6 +3,7 @@
  * 统一 BookSettings / TemplateEdit / 表单页底栏布局与安全区
  */
 import { ReactNode } from "react";
+import { cx } from "../../../utils/cx";
 import { View } from "@tarojs/components";
 import "./index.scss";
 
@@ -21,14 +22,12 @@ export function StickyActionBar({
   row = false,
   className = "",
 }: StickyActionBarProps) {
-  const cls = [
+  const cls = cx(
     "ui-sticky-actions",
     `ui-sticky-actions--${tone}`,
-    row ? "ui-sticky-actions--row" : "",
+    row && "ui-sticky-actions--row",
     className,
-  ]
-    .filter(Boolean)
-    .join(" ");
+  );
 
   return <View className={cls}>{children}</View>;
 }

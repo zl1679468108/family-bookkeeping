@@ -85,6 +85,11 @@
 
 ### ✅ 已完成
 
+#### 2026-07-24 inputHelpers / StickyActionBar·Card cx 接线
+- `shouldShowInputClear` / `resolvePasswordInputType` 入 shared；PC/Taro Input 接线
+- StickyActionBar、Card 双端 className 改用 `cx`
+- 验证：frontend / taro `tsc --noEmit`
+
 #### 2026-07-24 EmptyState 纯逻辑 / cx / 空态插画主题 shared 化
 - `cx` className 拼接；`emptyState` 文案合并与插画尺寸；Button/Footer/Seg/FilterBar/Spinner 接线
 - themeTokens 补 `prBg`/`bdL`；`emptyIllustrationThemeFromMode`；Taro EmptyState 随暗色重着色

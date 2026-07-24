@@ -8,6 +8,8 @@ import { View, Text, Input as TaroInput } from "@tarojs/components";
 import "./index.scss";
 import Icon, { ICON_COLOR } from "../../Icon";
 import { ACTION_SEARCH } from "../../../utils/actionCopy"
+import { shouldShowInputClear } from "../../../utils/inputHelpers";
+import { cx } from "../../../utils/cx";
 
 export interface BaseInputProps {
   value?: string;
@@ -51,17 +53,17 @@ export function Input({
   onBlur,
 }: InputProps) {
   const [focused, setFocused] = useState(false);
-  const showClear = allowClear && !!value && !disabled;
+  const showClear = shouldShowInputClear(allowClear, value, disabled);
 
   return (
-    <View className={`ui-input-wrap ${error ? "ui-input-wrap--error" : ""} ${wrapperClassName}`}>
+    <View className={cx("ui-input-wrap", error && "ui-input-wrap--error", wrapperClassName)}>
       {label ? (
         <Text className="ui-input__label">
           {required ? <Text className="ui-input__required">*</Text> : null}
           {label}
         </Text>
       ) : null}
-      <View className={`ui-input ${focused ? "ui-input--focus" : ""} ${disabled ? "ui-input--disabled" : ""} ${className}`}>
+      <View className={cx("ui-input", focused && "ui-input--focus", disabled && "ui-input--disabled", className)}>
         {icon ? <View className="ui-input__icon">{icon}</View> : null}
         <TaroInput
           className="ui-input__field"

@@ -1,4 +1,5 @@
 import React from 'react'
+import { cx } from '../../../utils/cx'
 import './index.scss'
 
 /**
@@ -17,14 +18,12 @@ export const StickyActionBar: React.FC<StickyActionBarProps> = ({
   row = true,
   className = '',
 }) => {
-  const cls = [
+  const cls = cx(
     'ui-sticky-actions',
     `ui-sticky-actions--${tone}`,
-    row ? 'ui-sticky-actions--row' : '',
+    row && 'ui-sticky-actions--row',
     className,
-  ]
-    .filter(Boolean)
-    .join(' ')
+  )
   return <div className={cls}>{children}</div>
 }
 
