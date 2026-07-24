@@ -14,6 +14,7 @@ import { Pagination } from '../../../components/ui/Pagination'
 import { EmptyState } from '../../../components/ui/EmptyState'
 import { TableRowsSkeleton } from '../../../components/ui/Skeleton'
 import { formatDateTime } from '../../../utils/date';
+import { platformUserRoleLabel, isPlatformAdmin } from '../../../utils/roles'
 import { queryKeys } from '../../../utils/queryKeys'
 import { STALE } from '../../../utils/cachePolicy'
 
@@ -108,8 +109,8 @@ const AdminUsers: React.FC = () => {
   const total = data?.total || 0;
 
   const roleOptions = [
-    { key: 'user', label: '普通用户' },
-    { key: 'admin', label: '管理员' },
+    { key: 'user', label: platformUserRoleLabel('user') },
+    { key: 'admin', label: platformUserRoleLabel('admin') },
   ];
 
   const statusOptions = [
@@ -198,8 +199,8 @@ const AdminUsers: React.FC = () => {
                       <td className="data-table__cell--primary">{user.username}</td>
                       <td>{user.email}</td>
                       <td>
-                        <span className={`tag ${user.role === 'admin' ? 'tag--primary' : 'tag--default'}`}>
-                          {user.role === 'admin' ? '管理员' : '普通用户'}
+                        <span className={`tag ${isPlatformAdmin(user.role) ? 'tag--primary' : 'tag--default'}`}>
+                          {platformUserRoleLabel(user.role)}
                         </span>
                       </td>
                       <td>
@@ -221,7 +222,7 @@ const AdminUsers: React.FC = () => {
                       <td className="data-table__col--fixed">
                         <div className="action-buttons">
                           <Button variant="outline" size="sm" onClick={() => openRoleDialog(user)}>
-                            {user.role === 'admin' ? '降级' : '升级'}
+                            {isPlatformAdmin(user.role) ? '降级' : '升级'}
                           </Button>
                           <Button
                             variant={user.status === 'active' ? 'danger' : 'secondary'}
@@ -260,7 +261,7 @@ const AdminUsers: React.FC = () => {
       >
         <div>
           <p className="global-modal-dialog__message">
-            确认将用户 {selectedUserName} 的角色改为 {selectedUserRole === 'admin' ? '管理员' : '普通用户'}？需要输入您的密码确认。
+            确认将用户 {selectedUserName} 的角色改为 {platformUserRoleLabel(selectedUserRole)}？需要输入您的密码确认。
           </p>
           <div style={{ marginTop: '12px' }}>
             <Input

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Button } from '../../../components/ui/Button'
 import { Icon } from '../../../components/ui/Icon';
+import { bookMemberRoleLabel, isBookOwnerRole } from '../../../utils/roles'
 import { ListRowsSkeleton } from '../../../components/ui/Skeleton';
 import { EmptyState } from '../../../components/ui/EmptyState';
 
@@ -48,10 +49,12 @@ export const BookMemberList: React.FC<BookMemberListProps> = ({
               <div className="member-email">{member.email}</div>
             </div>
             <div className="member-role">
-              {member.role === 'owner' && <span className="role-badge owner">账主</span>}
-              {member.role === 'admin' && <span className="role-badge admin">管理员</span>}
-              {member.role === 'member' && <span className="role-badge member">成员</span>}
-              {member.role !== 'owner' && (
+              {member.role && (
+                <span className={`role-badge ${member.role}`}>
+                  {bookMemberRoleLabel(member.role)}
+                </span>
+              )}
+              {!isBookOwnerRole(member.role) && (
                 <Button
                   variant="ghost"
                   size="sm"

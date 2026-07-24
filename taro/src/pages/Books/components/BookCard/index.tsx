@@ -12,6 +12,7 @@ import { Button } from "../../../../components/ui";
 import "./index.scss";
 import { toastError } from "../../../../hooks/useSubmit";
 import { toastSuccess } from "../../../../utils/toast";
+import { isBookOwnerRole, bookMemberRoleLabel } from "../../../../utils/roles";
 
 interface BookCardProps {
   book: Book;
@@ -182,9 +183,9 @@ export default function BookCard({
                 <Text className="book-card__member-name">
                   {m.username || m.email}
                 </Text>
-                {m.role === "owner" && (
+                {isBookOwnerRole(m.role) && (
                   <View className="book-card__badge book-card__badge--current">
-                    <Text className="book-card__badge-text">所有者</Text>
+                    <Text className="book-card__badge-text">{bookMemberRoleLabel("owner")}</Text>
                   </View>
                 )}
               </View>

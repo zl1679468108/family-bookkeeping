@@ -27,6 +27,7 @@ import { renderBookIconSvg } from "../../utils/bookIcons";
 import type { Book } from "../../types";
 import "./index.scss";
 import { toastSuccess, toastInfo } from "../../utils/toast";
+import { bookMemberRoleLabel, isBookOwnerRole } from "../../utils/roles";
 
 type BookRow = Book & { is_default?: boolean };
 
@@ -499,11 +500,11 @@ export default function BooksPage() {
                           </View>
                           <View className="bk-member-role">
                             <Text
-                              className={`bk-member-role-tag ${m.role === "owner" ? "bk-member-role-tag--owner" : ""}`}
+                              className={`bk-member-role-tag ${isBookOwnerRole(m.role) ? "bk-member-role-tag--owner" : ""}`}
                             >
-                              {m.role === "owner" ? "账主" : "成员"}
+                              {bookMemberRoleLabel(m.role)}
                             </Text>
-                            {isOwner && m.role !== "owner" && m.id !== user?.id && (
+                            {isOwner && !isBookOwnerRole(m.role) && m.id !== user?.id && (
                               <View
                                 className="bk-member-remove"
                                 onClick={() => {

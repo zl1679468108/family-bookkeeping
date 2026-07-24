@@ -53,3 +53,12 @@ export function formatDate(dateStr: string, mode: "full" | "dashboard" = "full")
 /** 兼容旧名 */
 export const fmtDate = (d: Date): string => formatDateYMD(d);
 export const fmtFriendlyDate = (ds: string): string => formatFriendlyDate(ds);
+
+/** 日期时间展示（本地/浏览器；用于模板详情等非业务流水时间） */
+export function formatDateTime(input: string | Date | null | undefined): string {
+  if (!input) return "-";
+  const d = input instanceof Date ? input : new Date(input);
+  if (Number.isNaN(d.getTime())) return String(input);
+  return d.toLocaleString("zh-CN");
+}
+

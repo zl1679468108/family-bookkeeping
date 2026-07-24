@@ -17,6 +17,7 @@ import {
 import ConfirmDialog from "../../components/ConfirmDialog";
 import PageContainer from "../../components/PageContainer";
 import { toastSuccess } from "../../utils/toast";
+import { bookMemberRoleLabel, isBookOwnerRole } from "../../utils/roles";
 
 interface Member {
   id: string;
@@ -300,9 +301,8 @@ export default function BookMembers() {
         {(
           <View style={{ display: "flex", flexDirection: "column", gap: "16rpx" }}>
             {members.map((m: any) => {
-              const roleLabel =
-                m.role === "owner" ? "所有者" : m.role === "admin" ? "管理员" : "成员";
-              const isOwnerRole = m.role === "owner";
+              const roleLabel = bookMemberRoleLabel(m.role);
+              const isOwnerRole = isBookOwnerRole(m.role);
               return (
               <View
                 key={m.userId || m.id}
@@ -367,7 +367,7 @@ export default function BookMembers() {
                   </View>
                 </View>
 
-                {isOwner && m.role !== "owner" && (
+                {isOwner && !isBookOwnerRole(m.role) && (
                   <View
                     style={{
                       padding: "12rpx 24rpx",

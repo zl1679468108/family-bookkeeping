@@ -93,10 +93,16 @@
 - 验证：frontend `tsc --noEmit` 通过。
 
 #### 2026-07-24 KeepAlive / 预取 / 金额格式复用
-- 接入 `KeepAliveHost`：地图/日历访问后隐藏保留；`key={userId}` 切账号卸载；配套 SCSS。
+- ~~接入 `KeepAliveHost`~~ 已回滚：路由级 KeepAlive 与 AMap 冲突，统一改走 React Query 缓存 + 普通路由切换。
 - 抽取 `utils/prefetchRoute.ts`：侧栏 hover/focus 统一 query 预取 + 页面 chunk 预加载。
 - `formatAmount`/`formatAmountWithType` 薄封装 `formatMoney`，单一金额格式实现。
 - 记一笔保存成功清除草稿；frontend `tsc --noEmit` 通过。
+
+#### 2026-07-24 角色文案 + formatDateTime 复用
+- 双端新增 `utils/roles.ts`：`bookMemberRoleLabel` / `isBookOwnerRole` / `platformUserRoleLabel` / `isPlatformAdmin`；统一 owner → 账主。
+- PC 账本成员列表、Admin 用户角色；Taro Books/BookMembers/BookCard 角色展示收口。
+- Taro 补齐 `formatDateTime`，TemplateManager 详情时间展示对齐。
+- 验证：frontend/taro `tsc --noEmit` 通过。
 
 #### 2026-07-24 收支类型文案 + parseAmount 复用
 - 双端新增 `utils/transactionType.ts`：`transactionTypeLabel` / `TRANSACTION_TYPE_OPTIONS` / `TRANSACTION_TYPE_FILTER_LABELS`。

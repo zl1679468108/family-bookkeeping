@@ -34,6 +34,7 @@ import type { Template } from "../../types";
 import "./index.scss";
 import { toastSuccess, toastInfo } from "../../utils/toast";
 import { formatMoney } from "../../utils/format";
+import { formatDateTime } from "../../utils/date";
 import { sanitizeAmountInput } from "../../utils/budget";
 
 /* ---------- 空表单初始态 ---------- */
@@ -510,14 +511,14 @@ export default function TemplateManager() {
               <View className="tpl-detail-item">
                 <Text className="tpl-detail-item__label">上次执行</Text>
                 <Text className="tpl-detail-item__value">
-                  {String(selectedTemplate.last_executed_at).slice(0, 16).replace("T", " ")}
+                  {formatDateTime(selectedTemplate.last_executed_at)}
                 </Text>
               </View>
             )}
             {selectedTemplate.created_at && (
               <View className="tpl-detail-item">
                 <Text className="tpl-detail-item__label">创建时间</Text>
-                <Text className="tpl-detail-item__value">{selectedTemplate.created_at.slice(0, 16).replace("T", " ")}</Text>
+                <Text className="tpl-detail-item__value">{formatDateTime(selectedTemplate.created_at)}</Text>
               </View>
             )}
           </View>

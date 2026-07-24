@@ -7,6 +7,7 @@ import { StatCardsSkeleton, TableRowsSkeleton } from '../../../components/ui/Ske
 import { EmptyState } from '../../../components/ui/EmptyState';
 import { formatMoney } from '../../../utils/budget';
 import { formatDateTime } from '../../../utils/date';
+import { platformUserRoleLabel, isPlatformAdmin } from '../../../utils/roles'
 import { queryKeys } from '../../../utils/queryKeys'
 import { STALE } from '../../../utils/cachePolicy'
 
@@ -116,8 +117,8 @@ const AdminDashboard: React.FC = () => {
                     <td className="data-table__cell--primary">{user.username}</td>
                     <td className="data-table__cell--muted">{user.email}</td>
                     <td>
-                      <span className={`tag ${user.role === 'admin' ? 'tag--primary' : 'tag--default'}`}>
-                        {user.role === 'admin' ? '管理员' : '普通用户'}
+                      <span className={`tag ${isPlatformAdmin(user.role) ? 'tag--primary' : 'tag--default'}`}>
+                        {platformUserRoleLabel(user.role)}
                       </span>
                     </td>
                     <td>
