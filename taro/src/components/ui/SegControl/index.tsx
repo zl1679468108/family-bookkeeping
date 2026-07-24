@@ -3,6 +3,7 @@
  * size: sm/md；variant: default/pill
  */
 import { ReactNode } from "react";
+import { cx } from "../../../utils/cx";
 import { View, Text } from "@tarojs/components";
 import "./index.scss";
 
@@ -30,7 +31,7 @@ export function SegControl<T extends string>({
   className = "",
 }: SegControlProps<T>) {
   return (
-    <View className={`ui-seg ui-seg--${size} ui-seg--${variant} ${className}`}>
+    <View className={cx("ui-seg", `ui-seg--${size}`, `ui-seg--${variant}`, className)}>
       {options.map((opt) => {
         const active = opt.value === value;
         return (

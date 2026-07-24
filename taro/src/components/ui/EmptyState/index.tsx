@@ -1,13 +1,20 @@
 /**
  * EmptyState — 插画 + 一段描述（无标题层级）
  *
- * - 默认全局插画（人物 + 空箱子 + 问号）
+ * - 默认全局插画（人物 + 空箱子 + 问号），随主题重着色
  * - 文案优先 description；未传时回退 title（兼容旧调用）
  * - 可选 action
  */
-import { ReactNode } from "react";
+import { ReactNode, useMemo } from "react";
 import { View, Text, Image } from "@tarojs/components";
 import { getEmptyIconDataUrl } from "../../../utils/emptyIcons";
+import {
+  resolveEmptyStateText,
+  resolveEmptyIconSize,
+  type EmptyStateVariant,
+} from "../../../utils/emptyState";
+import { cx } from "../../../utils/cx";
+import { useTheme } from "../../../context/ThemeContext";
 import "./index.scss";
 
 export interface EmptyStateProps {
@@ -21,13 +28,11 @@ export interface EmptyStateProps {
   description?: ReactNode;
   /** 操作区（如按钮） */
   action?: ReactNode;
-  variant?: "default" | "compact" | "full";
+  variant?: EmptyStateVariant;
   /** 插画尺寸（rpx） */
   iconSize?: number;
   className?: string;
 }
-
-const EMPTY_ILLUSTRATION_SRC = getEmptyIconDataUrl();
 
 export function EmptyState({
   icon,
@@ -38,14 +43,16 @@ export function EmptyState({
   iconSize,
   className = "",
 }: EmptyStateProps) {
-  const resolvedIconSize =
-    iconSize ?? (variant === "compact" ? 200 : variant === "full" ? 360 : 300);
+  const { isDark } = useTheme();
+  const resolvedIconSize = resolveEmptyIconSize(variant, "taro", iconSize);
+  const illustrationSrc = useMemo(() => getEmptyIconDataUrl(isDark), [isDark]);
+  const text = resolveEmptyStateText(description, title);
 
   const renderIcon =
     icon ?? (
       <Image
         className="ui-empty__icon-img"
-        src={EMPTY_ILLUSTRATION_SRC}
+        src={illustrationSrc}
         mode="aspectFit"
         style={{
           width: `${resolvedIconSize}rpx`,
@@ -55,16 +62,8 @@ export function EmptyState({
       />
     );
 
-  // 单段文案：优先 description；两者皆有且为字符串时合并，避免旧调用丢标题
-  const text =
-    description != null && title != null && description !== title
-      ? typeof description === 'string' && typeof title === 'string'
-        ? `${title}。${description}`
-        : description
-      : description ?? title;
-
   return (
-    <View className={`ui-empty ui-empty--${variant} ${className}`}>
+    <View className={cx(`ui-empty`, `ui-empty--${variant}`, className)}>
       {renderIcon ? <View className="ui-empty__icon">{renderIcon}</View> : null}
       {text ? <Text className="ui-empty__desc">{text}</Text> : null}
       {action ? <View className="ui-empty__action">{action}</View> : null}

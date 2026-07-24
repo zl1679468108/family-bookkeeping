@@ -2,6 +2,7 @@
  * FooterActions — Sheet/弹窗底部按钮组（对齐 PC）
  */
 import { ReactNode } from "react";
+import { cx } from "../../../utils/cx";
 import { View } from "@tarojs/components";
 import "./index.scss";
 
@@ -16,13 +17,11 @@ export function FooterActions({
   align = "stretch",
   className = "",
 }: FooterActionsProps) {
-  const cls = [
+  const cls = cx(
     "ui-footer-actions",
     `ui-footer-actions--${align}`,
     className,
-  ]
-    .filter(Boolean)
-    .join(" ");
+  );
   return <View className={cls}>{children}</View>;
 }
 

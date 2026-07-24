@@ -1,4 +1,6 @@
 import React, { useMemo } from 'react'
+import { resolveEmptyStateText, resolveEmptyIconSize } from '../../../utils/emptyState'
+import { cx } from '../../../utils/cx'
 import { getEmptyIllustrationDataUrl } from './emptyIllustration'
 import { getThemeColors } from '../../../utils/themeColors'
 import { useTheme } from '../../../utils/theme'
@@ -62,22 +64,14 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
   variant = 'default',
   iconSize,
 }) => {
-  const resolvedIconSize =
-    iconSize ?? (variant === 'compact' ? 100 : variant === 'full' ? 180 : 150)
+  const resolvedIconSize = resolveEmptyIconSize(variant, 'web', iconSize)
 
   const renderIcon = icon ?? <EmptyIllustration size={resolvedIconSize} />
-  // 一段描述：优先 description，兼容旧 title
-  // 单段文案：优先 description；两者皆有且为字符串时合并，避免旧调用丢标题
-  const text =
-    description != null && title != null && description !== title
-      ? typeof description === 'string' && typeof title === 'string'
-        ? `${title}。${description}`
-        : description
-      : description ?? title
+  const text = resolveEmptyStateText(description, title)
 
   return (
     <div
-      className={`empty-state empty-state--${variant} ${className}`.trim()}
+      className={cx('empty-state', `empty-state--${variant}`, className)}
       style={style}
     >
       {renderIcon ? <div className="empty-state__icon">{renderIcon}</div> : null}

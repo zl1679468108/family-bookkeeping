@@ -5,6 +5,7 @@
  * 适配：div/button → 可点击 View；hover → active；新增 loading 内置态
  */
 import { ReactNode } from "react";
+import { cx } from "../../../utils/cx";
 import { View, Text } from "@tarojs/components";
 import "./index.scss";
 
@@ -40,17 +41,15 @@ export function Button({
   className = "",
   onClick,
 }: ButtonProps) {
-  const cls = [
+  const cls = cx(
     "ui-btn",
     `ui-btn--${variant}`,
     `ui-btn--${size}`,
-    block ? "ui-btn--block" : "",
-    loading ? "ui-btn--loading" : "",
-    disabled ? "ui-btn--disabled" : "",
+    block && "ui-btn--block",
+    loading && "ui-btn--loading",
+    disabled && "ui-btn--disabled",
     className,
-  ]
-    .filter(Boolean)
-    .join(" ");
+  );
 
   return (
     <View

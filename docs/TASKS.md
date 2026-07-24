@@ -85,6 +85,11 @@
 
 ### ✅ 已完成
 
+#### 2026-07-24 EmptyState 纯逻辑 / cx / 空态插画主题 shared 化
+- `cx` className 拼接；`emptyState` 文案合并与插画尺寸；Button/Footer/Seg/FilterBar/Spinner 接线
+- themeTokens 补 `prBg`/`bdL`；`emptyIllustrationThemeFromMode`；Taro EmptyState 随暗色重着色
+- 验证：frontend / taro `tsc --noEmit`
+
 #### 2026-07-24 图表主题调色板 / ECharts chrome shared 化
 - `chartTheme`：CHART_EXTRA_COLORS、buildChartPalette、buildEchartsChrome
 - PC themeColors 接线；Taro 预留 facade

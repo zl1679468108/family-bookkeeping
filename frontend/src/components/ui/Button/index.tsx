@@ -1,4 +1,5 @@
 import React from 'react'
+import { cx } from '../../../utils/cx'
 
 /**
  * 通用按钮组件 —— 取代各页面手写的 button + 内联样式
@@ -27,13 +28,13 @@ export const Button: React.FC<ButtonProps> = ({
   style,
   ...props
 }) => {
-  const classes = [
+  const classes = cx(
     'ui-btn',
     `ui-btn--${variant}`,
     `ui-btn--${size}`,
-    block ? 'ui-btn--block' : '',
+    block && 'ui-btn--block',
     className,
-  ].filter(Boolean).join(' ')
+  )
 
   return (
     <button className={classes} style={style} {...props}>

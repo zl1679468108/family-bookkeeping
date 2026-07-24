@@ -1,4 +1,5 @@
 import React from 'react'
+import { cx } from '../../../utils/cx'
 
 /**
  * 通用过滤栏容器 —— 取代各页面手写的 `<div className="filter-bar">` 结构
@@ -28,12 +29,12 @@ export const FilterBar: React.FC<FilterBarProps> = ({
   style,
   variant = 'default',
 }) => {
-  const classes = [
+  const classes = cx(
     'filter-bar',
-    variant === 'compact' ? 'filter-bar--compact' : '',
-    variant === 'header' ? 'filter-bar--header' : '',
+    variant === 'compact' && 'filter-bar--compact',
+    variant === 'header' && 'filter-bar--header',
     className,
-  ].filter(Boolean).join(' ')
+  )
 
   if (left || right) {
     return (

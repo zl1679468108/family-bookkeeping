@@ -1,4 +1,5 @@
 import React from 'react'
+import { cx } from '../../../utils/cx'
 import './index.scss'
 
 /**
@@ -17,9 +18,7 @@ export const FooterActions: React.FC<FooterActionsProps> = ({
   align = 'end',
   className = '',
 }) => {
-  const cls = ['ui-footer-actions', `ui-footer-actions--${align}`, className]
-    .filter(Boolean)
-    .join(' ')
+  const cls = cx('ui-footer-actions', `ui-footer-actions--${align}`, className)
   return <div className={cls}>{children}</div>
 }
 

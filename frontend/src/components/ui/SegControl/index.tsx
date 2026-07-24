@@ -1,4 +1,5 @@
 import React from 'react'
+import { cx } from '../../../utils/cx'
 
 /**
  * 通用分段控制器 —— 取代各页面手写的 tab 切换结构
@@ -39,7 +40,7 @@ export function SegControl<T extends string>({
   variant = 'default',
 }: SegControlProps<T>) {
   return (
-    <div className={`seg-control seg-control--${size} seg-control--${variant} ${className}`.trim()} style={style}>
+    <div className={cx('seg-control', `seg-control--${size}`, `seg-control--${variant}`, className)} style={style}>
       {options.map((opt) => (
         <button
           key={opt.value}

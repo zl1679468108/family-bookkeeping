@@ -19,11 +19,11 @@ export type EmptyIllustrationTheme = {
 
 const LIGHT_DEFAULT: EmptyIllustrationTheme = {
   pr: THEME_TOKEN_HEX.light.pr,
-  prBg: '#E7F5F2',
+  prBg: THEME_TOKEN_HEX.light.prBg,
   fg: THEME_TOKEN_HEX.light.fg,
   fg2: THEME_TOKEN_HEX.light.fg2,
-  bd: '#E0E2DD',
-  bdL: '#EDEEE9',
+  bd: THEME_TOKEN_HEX.light.bd,
+  bdL: THEME_TOKEN_HEX.light.bdL,
   srf: THEME_TOKEN_HEX.light.srf,
 }
 
@@ -51,6 +51,21 @@ export function recolorEmptyIllustrationSvg(
 }
 
 /** 无 theme 时返回原稿 data URL；传入 theme 时按令牌重着色 */
+
+/** 从静态 themeTokens 生成插画主题（小程序 / SSR 无 DOM） */
+export function emptyIllustrationThemeFromMode(isDark: boolean): EmptyIllustrationTheme {
+  const hex = isDark ? THEME_TOKEN_HEX.dark : THEME_TOKEN_HEX.light
+  return {
+    pr: hex.pr,
+    prBg: hex.prBg,
+    fg: hex.fg,
+    fg2: hex.fg2,
+    bd: hex.bd,
+    bdL: hex.bdL,
+    srf: hex.srf,
+  }
+}
+
 export function emptyIllustrationDataUrl(
   theme?: Partial<EmptyIllustrationTheme>,
 ): string {
