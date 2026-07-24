@@ -24,6 +24,7 @@ import {
   successEntityUpsert,
 } from '../../../utils/successCopy'
 import { ENTITY_CATEGORY } from '../../../utils/entityCopy'
+import { filterCategoriesByType, sortCategoriesByOrder } from '../../../utils/categories'
 
 export function useCategoriesPage() {
   const { currentBook } = useBook()
@@ -54,7 +55,7 @@ export function useCategoriesPage() {
   })
 
   const filteredCategories = React.useMemo(
-    () => (customCategories || []).filter((c: Category) => c.type === activeTab).sort((a: Category, b: Category) => a.sort_order - b.sort_order),
+    () => sortCategoriesByOrder(filterCategoriesByType(customCategories || [], activeTab)),
     [customCategories, activeTab],
   )
 

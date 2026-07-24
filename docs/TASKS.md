@@ -111,6 +111,11 @@
 - Taro 公共 UI Icon 收口：Input 清除、IconGrid 删除、DropdownSelect、List/MenuList 箭头、FieldRow/LocationField、ImageUpload；页面级 Profile/Books/About/Onboarding/MonthPicker 等。
 - 验证：frontend / taro `tsc --noEmit` 通过。
 
+#### 2026-07-24 savedAccounts / categories 纯逻辑 shared
+- `savedAccounts`：解析/序列化/upsert/patch/legacy 迁移与 token key 抽入 shared-utils；端侧仅保留 Storage 适配
+- `categories`：filter/lookup/options/sort 纯函数 shared；双端 useCategories/useCategoryLookup 接线
+- 附：`frontend|taro/src/utils/categories.ts` facade
+
 #### 2026-07-24 图标纯数据 shared + fmtAmount
 - `bookIcons` / `platformIcons` 纯数据与 SVG 工具抽入 `shared-utils`；PC 保留 React 渲染，Taro 保留 data URL 别名
 - `fmtAmount` 并入 shared budget；双端 `renderCategoryIcon` 统一 `isIconUrl/isPlatformIcon/isBookIconKey` 判定

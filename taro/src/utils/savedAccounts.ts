@@ -1,178 +1,141 @@
 /**
  * 已保存账号管理 — Taro Storage CRUD
- * T-C1: token 不再存在 saved_accounts JSON 中，改为独立 key 存储
+ * T-C1: token 不在 saved_accounts JSON 中，改为独立 key 存储
+ * 纯数组/类型逻辑见 shared-utils/src/savedAccounts.ts
  */
+import Taro from "@tarojs/taro";
+import {
+  SAVED_ACCOUNTS_KEY,
+  parseSavedAccounts,
+  serializeSavedAccounts,
+  buildSavedAccountEntry,
+  upsertSavedAccount,
+  removeSavedAccountByEmail,
+  patchSavedAccount,
+  migrateLegacySavedAccounts,
+  accountTokenKey,
+  accountRefreshTokenKey,
+  type SaveAccountInput,
+  type UpdateAccountInfoInput,
+} from "../../../shared-utils/src/savedAccounts";
 
-import Taro from '@tarojs/taro';
-
-export interface SavedAccount {
-  email: string;
-  username?: string;
-  avatar_url?: string;
-}
-
-const SAVED_ACCOUNTS_KEY = 'saved_accounts';
+export type {
+  SavedAccount,
+  SaveAccountInput,
+  UpdateAccountInfoInput,
+} from "../../../shared-utils/src/savedAccounts";
+export {
+  SAVED_ACCOUNTS_KEY,
+  emailHash,
+  accountTokenKey,
+  accountRefreshTokenKey,
+  resolveAccessToken,
+} from "../../../shared-utils/src/savedAccounts";
 
 // ---- Token 独立存储（T-C1）----
 
-/** 简单 hash 用于 key，避免 email 特殊字符 */
-function emailHash(email: string): string {
-  let h = 0;
-  for (let i = 0; i < email.length; i++) {
-    h = ((h << 5) - h + email.charCodeAt(i)) | 0;
-  }
-  return Math.abs(h).toString(36);
-}
-
-function tokenKey(email: string): string {
-  return `account_token_${emailHash(email)}`;
-}
-
-/** 刷新令牌独立存储 key（双 Token） */
-function refreshTokenKey(email: string): string {
-  return `account_refresh_token_${emailHash(email)}`;
-}
-
-/** 读取指定账号的 token */
 export function getAccountToken(email: string): string | null {
   try {
-    return Taro.getStorageSync(tokenKey(email)) || null;
+    return Taro.getStorageSync(accountTokenKey(email)) || null;
   } catch {
     return null;
   }
 }
 
-/** 保存指定账号的 token */
 export function setAccountToken(email: string, token: string): void {
   try {
-    Taro.setStorageSync(tokenKey(email), token);
-  } catch {}
+    Taro.setStorageSync(accountTokenKey(email), token);
+  } catch {
+    /* ignore */
+  }
 }
 
-/** 删除指定账号的 token */
 export function removeAccountToken(email: string): void {
   try {
-    Taro.removeStorageSync(tokenKey(email));
-  } catch {}
+    Taro.removeStorageSync(accountTokenKey(email));
+  } catch {
+    /* ignore */
+  }
 }
 
-/** 读取指定账号的刷新令牌 */
 export function getAccountRefreshToken(email: string): string | null {
   try {
-    return Taro.getStorageSync(refreshTokenKey(email)) || null;
+    return Taro.getStorageSync(accountRefreshTokenKey(email)) || null;
   } catch {
     return null;
   }
 }
 
-/** 保存指定账号的刷新令牌 */
 export function setAccountRefreshToken(email: string, token: string): void {
   try {
-    Taro.setStorageSync(refreshTokenKey(email), token);
-  } catch {}
+    Taro.setStorageSync(accountRefreshTokenKey(email), token);
+  } catch {
+    /* ignore */
+  }
 }
 
-/** 删除指定账号的刷新令牌 */
 export function removeAccountRefreshToken(email: string): void {
   try {
-    Taro.removeStorageSync(refreshTokenKey(email));
-  } catch {}
+    Taro.removeStorageSync(accountRefreshTokenKey(email));
+  } catch {
+    /* ignore */
+  }
 }
 
-// ---- Legacy 迁移（T-C1）----
-
-/** T-C1: Legacy 迁移 — 清除旧 saved_accounts 中的 password 和 token 字段，token 迁移到独立 key */
+/** T-C1: Legacy 迁移 — 清除 password/token 字段，token 迁到独立 key */
 export function migrateSavedAccounts(): void {
   try {
     const raw = Taro.getStorageSync(SAVED_ACCOUNTS_KEY);
     if (!raw) return;
-    const accounts = JSON.parse(raw);
-    if (!Array.isArray(accounts)) return;
-
-    let dirty = false;
-    for (const acc of accounts) {
-      // 迁移 token 到独立 key
-      if (acc.token && acc.email) {
-        setAccountToken(acc.email, acc.token);
-        delete acc.token;
-        dirty = true;
-      }
-      // 清除 password 字段
-      if ('password' in acc) {
-        delete (acc as Record<string, unknown>).password;
-        dirty = true;
-      }
+    const { accounts, migratedTokens, dirty } = migrateLegacySavedAccounts(
+      parseSavedAccounts(typeof raw === "string" ? raw : JSON.stringify(raw)),
+    );
+    for (const { email, token } of migratedTokens) {
+      setAccountToken(email, token);
     }
     if (dirty) {
-      Taro.setStorageSync(SAVED_ACCOUNTS_KEY, JSON.stringify(accounts));
+      Taro.setStorageSync(SAVED_ACCOUNTS_KEY, serializeSavedAccounts(accounts));
     }
   } catch {
-    // 静默失败，不影响启动
+    // 静默失败
   }
 }
 
-export const getSavedAccounts = (): SavedAccount[] => {
+export const getSavedAccounts = () => {
   try {
     const raw = Taro.getStorageSync(SAVED_ACCOUNTS_KEY);
     if (!raw) return [];
-    return JSON.parse(raw);
+    return parseSavedAccounts(typeof raw === "string" ? raw : JSON.stringify(raw));
   } catch {
     return [];
   }
 };
 
-const saveAccounts = (accounts: SavedAccount[]): void => {
-  Taro.setStorageSync(SAVED_ACCOUNTS_KEY, JSON.stringify(accounts));
+const saveAccounts = (accounts: ReturnType<typeof getSavedAccounts>): void => {
+  Taro.setStorageSync(SAVED_ACCOUNTS_KEY, serializeSavedAccounts(accounts));
 };
 
-/** 保存账号（T-C1: token 单独存储；双 Token 独立存 access + refresh） */
-export const saveAccount = (account: {
-  email: string;
-  token?: string;
-  accessToken?: string;
-  refreshToken?: string;
-  username?: string;
-  avatar_url?: string;
-}): void => {
-  // T-C1: token 单独存储
+/** 保存账号（token 单独存储） */
+export const saveAccount = (account: SaveAccountInput): void => {
   const accessToken = account.accessToken ?? account.token;
-  if (accessToken) {
-    setAccountToken(account.email, accessToken);
-  }
-  if (account.refreshToken) {
-    setAccountRefreshToken(account.email, account.refreshToken);
-  }
+  if (accessToken) setAccountToken(account.email, accessToken);
+  if (account.refreshToken) setAccountRefreshToken(account.email, account.refreshToken);
 
-  const accounts = getSavedAccounts();
-  const idx = accounts.findIndex((a) => a.email === account.email);
-  const entry: SavedAccount = {
-    email: account.email,
-    username: account.username,
-    avatar_url: account.avatar_url,
-  };
-  if (idx >= 0) {
-    accounts[idx] = entry;
-  } else {
-    accounts.push(entry);
-  }
-  saveAccounts(accounts);
+  const entry = buildSavedAccountEntry(account, { includeTokens: false });
+  saveAccounts(upsertSavedAccount(getSavedAccounts(), entry));
 };
 
-/** 删除已保存账号（T-C1: 同时删除独立存储的 token） */
+/** 删除已保存账号（同时删独立 token） */
 export const removeAccount = (email: string): void => {
-  const accounts = getSavedAccounts().filter((a) => a.email !== email);
-  saveAccounts(accounts);
+  saveAccounts(removeSavedAccountByEmail(getSavedAccounts(), email));
   removeAccountToken(email);
   removeAccountRefreshToken(email);
 };
 
-/** 更新账号信息（T-C1: token 通过 setAccountToken 单独更新） */
-export const updateAccountInfo = (email: string, info: { username?: string; avatar_url?: string }): void => {
-  const accounts = getSavedAccounts();
-  const idx = accounts.findIndex((a) => a.email === email);
-  if (idx >= 0) {
-    if (info.username !== undefined) accounts[idx].username = info.username;
-    if (info.avatar_url !== undefined) accounts[idx].avatar_url = info.avatar_url;
-    saveAccounts(accounts);
-  }
+/** 更新账号资料 */
+export const updateAccountInfo = (
+  email: string,
+  info: Pick<UpdateAccountInfoInput, "username" | "avatar_url">,
+): void => {
+  saveAccounts(patchSavedAccount(getSavedAccounts(), email, info));
 };

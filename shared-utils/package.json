@@ -30,7 +30,9 @@
     "./userDisplay": "./src/userDisplay.ts",
     "./validation": "./src/validation.ts",
     "./bookIcons": "./src/bookIcons.ts",
-    "./platformIcons": "./src/platformIcons.ts"
+    "./platformIcons": "./src/platformIcons.ts",
+    "./savedAccounts": "./src/savedAccounts.ts",
+    "./categories": "./src/categories.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit"
