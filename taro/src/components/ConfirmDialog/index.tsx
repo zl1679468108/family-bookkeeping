@@ -6,6 +6,7 @@ import { View, Text } from "@tarojs/components";
 import { Button } from "../ui/Button";
 import { FooterActions } from "../ui/FooterActions";
 import "./index.scss";
+import { ACTION_PROCESSING } from "../../utils/actionCopy";
 
 export interface ConfirmDialogProps {
   visible: boolean;
@@ -48,7 +49,7 @@ export default function ConfirmDialog({
             loading={confirmLoading}
             onClick={onConfirm}
           >
-            {confirmLoading ? "处理中..." : confirmText}
+            {confirmLoading ? ACTION_PROCESSING : confirmText}
           </Button>
         </FooterActions>
       </View>

@@ -53,8 +53,8 @@ const ForgotPassword: React.FC = () => {
       return
     }
     const pwdErr =
-      validatePasswordMinLength(password, { message: '密码至少6位' }) ||
-      validatePasswordMatch(password, confirmPassword, '两次密码不一致')
+      validatePasswordMinLength(password) ||
+      validatePasswordMatch(password, confirmPassword)
     if (pwdErr) {
       setMessage(pwdErr)
       setMessageType('error')

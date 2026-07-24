@@ -8,6 +8,7 @@ import { View, Text } from "@tarojs/components";
 import LocationPicker from "../../LocationPicker";
 import type { LocationResult as PickerResult } from "../../LocationPicker";
 import "./index.scss";
+import Icon, { ICON_COLOR } from "../../Icon";
 
 export interface LocationResult {
   name: string;
@@ -96,7 +97,7 @@ export default function LocationField({ value, onChange }: LocationFieldProps) {
         </View>
         <View className="ft-field-right">
           <Text className="ft-field-placeholder">选择地点</Text>
-          <Text className="ft-field-arrow">›</Text>
+          <Icon name="chevron-right" size={28} color={ICON_COLOR.muted} className="ft-field-arrow" />
         </View>
       </View>
       <LocationPicker

@@ -19,6 +19,7 @@ import {
   validatePasswordStrength,
 } from '../../../utils/validation'
 import { SUCCESS_AVATAR_SELECTED_HINT, SUCCESS_PASSWORD_CHANGED, SUCCESS_SAVED } from '../../../utils/successCopy'
+import { FORM_PASSWORD_MIN_NEW, FORM_PASSWORD_MISMATCH_NEW } from '../../../utils/formCopy'
 import {
   isWithinUploadSize,
   UPLOAD_IMAGE_SIZE_LIMIT,
@@ -73,8 +74,8 @@ const PasswordModal: React.FC<PasswordModalProps> = ({ visible, onClose }) => {
     setError('')
 
     const pwdErr =
-      validatePasswordMinLength(newPassword, { message: '新密码长度至少为 6 位' }) ||
-      validatePasswordMatch(newPassword, confirmPassword, '两次输入的新密码不一致') ||
+      validatePasswordMinLength(newPassword, { message: FORM_PASSWORD_MIN_NEW }) ||
+      validatePasswordMatch(newPassword, confirmPassword, FORM_PASSWORD_MISMATCH_NEW) ||
       validatePasswordStrength(newPassword)
     if (pwdErr) {
       setError(pwdErr)

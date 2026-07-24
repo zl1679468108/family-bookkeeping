@@ -247,7 +247,7 @@ export default function TemplateEdit() {
                     <Icon name="close" size={28} color={ICON_COLOR.muted} />
                   </View>
                 )}
-                <Text className="tpl-picker-chevron">▼</Text>
+                <Icon name="chevron-down" size={24} color={ICON_COLOR.muted} className="tpl-picker-chevron" />
               </View>
             </Picker>
           </View>
@@ -295,7 +295,7 @@ export default function TemplateEdit() {
                     <Icon name="close" size={28} color={ICON_COLOR.muted} />
                   </View>
                 )}
-                <Text className="tpl-picker-chevron">▼</Text>
+                <Icon name="chevron-down" size={24} color={ICON_COLOR.muted} className="tpl-picker-chevron" />
               </View>
             </Picker>
           </View>

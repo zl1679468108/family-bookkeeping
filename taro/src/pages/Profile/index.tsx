@@ -11,7 +11,7 @@ import { useAuth } from "../../context/AuthContext";
 import { useTheme } from "../../context/ThemeContext";
 import { getCaptcha, deactivateAccount } from "../../services/authApi";
 import PageContainer from "../../components/PageContainer";
-import Icon from "../../components/Icon";
+import Icon, { ICON_COLOR } from "../../components/Icon";
 import { MenuList } from "../../components/ui";
 import {
   getSavedAccounts,
@@ -25,6 +25,7 @@ import { toastSuccess, toastInfo } from "../../utils/toast";
 import { userDisplayName, userInitial } from "../../utils/userDisplay";
 import { SUCCESS_ACCOUNT_SWITCHED, SUCCESS_ACCOUNT_DEACTIVATED, SUCCESS_SWITCHED } from "../../utils/successCopy";
 import { FORM_ALREADY_CURRENT_ACCOUNT, FORM_CAPTCHA_REQUIRED, FORM_EMAIL_PASSWORD_REQUIRED, FORM_DEACTIVATE_PASSWORD } from "../../utils/formCopy";
+import { ACTION_SWITCHING } from "../../utils/actionCopy";
 
 export default function Profile() {
   const { user, signOut, signIn, switchByToken } = useAuth();
@@ -205,7 +206,7 @@ export default function Profile() {
           <Text className="profile-header__name">{user?.username || "用户"}</Text>
           <Text className="profile-header__email">{user?.email || ""}</Text>
         </View>
-        <Text className="profile-header__arrow">›</Text>
+        <Icon name="chevron-right" size={28} color={ICON_COLOR.muted} />
       </View>
 
       {/* ===== 菜单列表（与 PC 端对齐） ===== */}
@@ -264,7 +265,7 @@ export default function Profile() {
             <Icon name="email" size={48} color="var(--pr)" />
           </View>
           <Text className="contact-btn__label">联系客服</Text>
-          <Text className="contact-btn__arrow">›</Text>
+          <Icon name="chevron-right" size={28} color={ICON_COLOR.muted} />
         </View>
       </WxButton>
 
@@ -367,7 +368,7 @@ export default function Profile() {
                           </View>
                           {!isCurrent && switchingEmail === account.email && (
                             <View className="switch-account-loading">
-                              <Text className="switch-account-loading-text">切换中...</Text>
+                              <Text className="switch-account-loading-text">{ACTION_SWITCHING}</Text>
                             </View>
                           )}
                           {!isCurrent && switchingEmail !== account.email && (
@@ -375,7 +376,7 @@ export default function Profile() {
                               className="switch-account-remove"
                               onClick={(e) => { e.stopPropagation(); handleRemoveAccount(account.email); }}
                             >
-                              <Text className="switch-account-remove-text">✕</Text>
+                              <Icon name="close" size={28} color={ICON_COLOR.muted} />
                             </View>
                           )}
                         </View>

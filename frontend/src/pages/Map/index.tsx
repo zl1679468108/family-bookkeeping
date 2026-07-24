@@ -21,6 +21,7 @@ import { formatAmount } from '../../utils/common';
 import { queryKeys } from '../../utils/queryKeys';
 import { STALE } from '../../utils/cachePolicy';
 import { FILTER_ALL_CATEGORIES } from '../../utils/transactionType'
+import { ACTION_LOADING } from '../../utils/actionCopy';
 
 type ViewMode = 'footprints' | 'heatmap';
 
@@ -297,7 +298,7 @@ const MapPage: React.FC = () => {
           <MemberLocationLayer bookId={bookId} mapInstance={mapCanvasRef.current?.getMap?.() || null} />
           {/* 加载进度条 */}
           {mapLoading && (
-            <div className="map-loading-overlay" role="status" aria-label="加载中">
+            <div className="map-loading-overlay" role="status" aria-label={ACTION_LOADING}>
               <div className="map-loading-spinner" />
               <div className="map-loading-text">正在加载数据…</div>
               <div className="map-loading-bar">

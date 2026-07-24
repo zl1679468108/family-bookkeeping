@@ -13,6 +13,7 @@ import {
 import "./index.scss";
 import { getErrorMessage } from "../../../utils/errorMessage";
 import { toastInfo } from "../../../utils/toast";
+import Icon, { ICON_COLOR } from "../../Icon";
 
 export interface ImageUploadProps {
   /** 已上传的图片 URL（从服务器获取） */
@@ -127,12 +128,12 @@ export default function ImageUpload({
               mode="aspectFill"
               onClick={() => handlePreview(url, allImages)}
             />
-            <Text
+            <View
               className="ft-images-remove"
               onClick={() => handleRemoveSaved(idx)}
             >
-              ×
-            </Text>
+              <Icon name="close" size={24} color={ICON_COLOR.onPrimary} />
+            </View>
           </View>
         ))}
         {/* 待上传的本地图片 */}
@@ -147,12 +148,12 @@ export default function ImageUpload({
             <View className="ft-images-pending-tag">
               <Text className="ft-images-pending-tag-text">待上传</Text>
             </View>
-            <Text
+            <View
               className="ft-images-remove"
               onClick={() => handleRemovePending(idx)}
             >
-              ×
-            </Text>
+              <Icon name="close" size={24} color={ICON_COLOR.onPrimary} />
+            </View>
           </View>
         ))}
         {totalCount < maxCount && (

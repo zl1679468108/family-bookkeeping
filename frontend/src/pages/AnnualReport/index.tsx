@@ -16,6 +16,8 @@ import ReportFunFact from './ReportFunFact';
 import ReportFooter from './ReportFooter';
 import { notifySuccess, notifyError } from '../../utils/notifyError'
 import { Button } from '../../components/ui/Button'
+import { ERROR_REPORT_NOT_LOADED, ERROR_SAVE_IMAGE } from '../../utils/errorCopy';
+import { SUCCESS_REPORT_SAVED } from '../../utils/successCopy';
 
 interface AnnualOverview {
   total_income: number;
@@ -230,15 +232,15 @@ const AnnualReport: React.FC = () => {
 
   const handleSaveImage = async () => {
     if (!reportRef.current) {
-      notifyError('报告内容未加载');
+      notifyError(ERROR_REPORT_NOT_LOADED);
       return;
     }
     try {
       await captureLongImage(reportRef.current, `${year}年度报告.png`);
-      notifySuccess('年度报告已保存为图片');
+      notifySuccess(SUCCESS_REPORT_SAVED);
     } catch (err) {
       console.error('AnnualReport captureLongImage error:', err);
-      notifyError('保存图片失败，请重试');
+      notifyError(ERROR_SAVE_IMAGE);
     }
   };
 

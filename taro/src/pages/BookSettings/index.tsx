@@ -499,9 +499,7 @@ export default function BookSettings() {
               onClick={() => setShowMoreMenu(!showMoreMenu)}
             >
               <Text className="bs-more-row__text">更多操作</Text>
-              <Text className={`bs-more-row__arrow ${showMoreMenu ? "bs-more-row__arrow--open" : ""}`}>
-                ›
-              </Text>
+              <Icon name="chevron-right" size={28} color={ICON_COLOR.muted} className={`bs-more-row__arrow ${showMoreMenu ? "bs-more-row__arrow--open" : ""}`} />
             </View>
 
             {showMoreMenu && (
@@ -513,7 +511,7 @@ export default function BookSettings() {
                       icon: "profile",
                       right: (
                         <Text className="bs-info-row__value">
-                          {members.length} 人 ›
+                          {members.length} 人
                         </Text>
                       ),
                       onClick: () =>

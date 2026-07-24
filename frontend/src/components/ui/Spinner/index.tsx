@@ -1,5 +1,6 @@
 import React from 'react'
 import './index.scss'
+import { ACTION_LOADING } from '../../../utils/actionCopy'
 
 /**
  * 通用加载转圈 — GlobalModal / 切换账号等共用
@@ -14,7 +15,7 @@ export interface SpinnerProps {
 export const Spinner: React.FC<SpinnerProps> = ({
   size = 16,
   className = '',
-  label = '加载中',
+  label = ACTION_LOADING,
 }) => {
   const cls = ['ui-spinner', className].filter(Boolean).join(' ')
   return (

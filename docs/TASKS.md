@@ -85,6 +85,13 @@
 
 ### ✅ 已完成
 
+#### 2026-07-24 校验默认文案 + actionCopy 扩展 + 公共 Icon 收口
+- 双端 `formCopy`：密码/邮箱校验默认文案 + 返回/返回登录；`validation.ts` 默认值同源。
+- 双端 `actionCopy`：`ACTION_PROCESSING`/`ACTION_SWITCHING`/`processingLabel`；ConfirmDialog/useSubmit/BookCreateModal/Spinner/Map aria 收口。
+- 双端 `errorCopy`/`successCopy`：Admin 角色状态、切换账本、年报导出、刷新提示。
+- Taro 公共 UI Icon 收口：Input 清除、IconGrid 删除、DropdownSelect、List/MenuList 箭头、FieldRow/LocationField、ImageUpload；页面级 Profile/Books/About/Onboarding/MonthPicker 等。
+- 验证：frontend / taro `tsc --noEmit` 通过。
+
 #### 2026-07-24 errorCopy / 筛选文案接线 + 暗色第五轮 + Icon 收口
 - 新增双端 `utils/errorCopy`：操作失败/CRUD/邀请/预算/OCR/会话失效等统一；`failEntityUpsert` / `failUpdateOrSave`；`errorMessage`/`notifyError`/`toastError` 默认 fallback 走 `ERROR_OP_FAILED`。
 - 双端接线：Categories/Books/Templates/Budgets/记一笔/Auth/Profile/流水等 errorMessage 与 toast 改常量；`formCopy`/`successCopy` 补转移拥有者、注销、OCR、重发验证码等。

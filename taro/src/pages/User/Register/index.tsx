@@ -33,8 +33,8 @@ export default function Register() {
       return;
     }
     const pwdErr =
-      validatePasswordMatch(password, confirmPassword, "两次输入的密码不一致") ||
-      validatePasswordMinLength(password, { message: "密码长度至少为6位" });
+      validatePasswordMatch(password, confirmPassword) ||
+      validatePasswordMinLength(password);
     if (pwdErr) {
       setError(pwdErr);
       return;

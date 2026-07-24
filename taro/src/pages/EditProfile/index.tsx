@@ -39,9 +39,10 @@ import {
   validatePasswordStrength,
 } from "../../utils/validation";
 import { SUCCESS_AVATAR_UPDATED, SUCCESS_IMAGE_SELECTED, SUCCESS_PASSWORD_CHANGED, SUCCESS_SAVED } from "../../utils/successCopy";
-import { FORM_PASSWORD_CURRENT, FORM_PRIVACY_REQUIRED, FORM_USERNAME_REQUIRED } from "../../utils/formCopy";
+import { FORM_PASSWORD_CURRENT, FORM_PRIVACY_REQUIRED, FORM_USERNAME_REQUIRED, FORM_PASSWORD_MIN_NEW, FORM_PASSWORD_MISMATCH_NEW } from "../../utils/formCopy";
 import { IMAGE_SELECT_FAILED } from "../../utils/uploadCopy";
 import { ERROR_SAVE_FAILED_RETRY, ERROR_MODIFY_FAILED_RETRY } from "../../utils/errorCopy";
+import Icon, { ICON_COLOR } from "../../components/Icon";
 
 export default function EditProfile() {
   const { user, refreshUser } = useAuth();
@@ -162,8 +163,8 @@ export default function EditProfile() {
       return toastInfo(FORM_PASSWORD_CURRENT);
     }
     const pwdErr =
-      validatePasswordMinLength(newPwd, { message: "新密码长度至少为 6 位" }) ||
-      validatePasswordMatch(newPwd, confirmPwd, "两次输入的新密码不一致") ||
+      validatePasswordMinLength(newPwd, { message: FORM_PASSWORD_MIN_NEW }) ||
+      validatePasswordMatch(newPwd, confirmPwd, FORM_PASSWORD_MISMATCH_NEW) ||
       validatePasswordStrength(newPwd);
     if (pwdErr) {
       return toastInfo(pwdErr);
@@ -234,7 +235,7 @@ export default function EditProfile() {
       <View className="edit-section">
         <View className="edit-pwd-entry" onClick={openChangePwd}>
           <Text className="edit-pwd-text">修改密码</Text>
-          <Text className="edit-pwd-arrow">›</Text>
+          <Icon name="chevron-right" size={28} color={ICON_COLOR.muted} className="edit-pwd-arrow" />
         </View>
       </View>
 

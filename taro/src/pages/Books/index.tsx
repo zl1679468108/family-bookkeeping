@@ -50,6 +50,7 @@ import { copyToClipboard } from "../../utils/clipboard";
 import { entityCreateButton } from "../../utils/entityCopy";
 import { DELETE_FAILED } from "../../utils/uploadCopy";
 import { ERROR_JOIN_FAILED, ERROR_INVITE_EMAIL, ERROR_GENERATE_FAILED, ERROR_REMOVE_FAILED } from "../../utils/errorCopy";
+import Icon, { ICON_COLOR } from "../../components/Icon";
 
 type BookRow = Book & { is_default?: boolean };
 
@@ -442,7 +443,7 @@ export default function BooksPage() {
               </Text>
             </View>
             <View className="bk-detail-header__close" onClick={closeDetail}>
-              <Text>×</Text>
+              <Icon name="close" size={32} color={ICON_COLOR.muted} />
             </View>
           </View>
 
@@ -534,7 +535,7 @@ export default function BooksPage() {
                                   setShowRemoveConfirm(true);
                                 }}
                               >
-                                <Text>✕</Text>
+                                <Icon name="close" size={28} color={ICON_COLOR.muted} />
                               </View>
                             )}
                           </View>

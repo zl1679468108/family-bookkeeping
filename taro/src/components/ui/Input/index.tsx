@@ -6,6 +6,7 @@
 import { ReactNode, useState } from "react";
 import { View, Text, Input as TaroInput } from "@tarojs/components";
 import "./index.scss";
+import Icon, { ICON_COLOR } from "../../Icon";
 
 export interface BaseInputProps {
   value?: string;
@@ -76,7 +77,7 @@ export function Input({
         />
         {showClear ? (
           <View className="ui-input__clear" onClick={() => onChange?.("")}>
-            <Text className="ui-input__clear-icon">×</Text>
+            <Icon name="close" size={28} color={ICON_COLOR.muted} className="ui-input__clear-icon" />
           </View>
         ) : null}
       </View>

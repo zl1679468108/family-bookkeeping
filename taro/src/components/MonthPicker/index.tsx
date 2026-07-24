@@ -2,6 +2,7 @@
  * MonthPicker — 年月选择器，点击弹出 Picker 选择年月
  */
 import { View, Text, Picker } from "@tarojs/components";
+import Icon, { ICON_COLOR } from "../Icon";
 
 export interface MonthPickerProps {
   year: number;
@@ -46,9 +47,7 @@ export default function MonthPicker({
             <Text className="month-picker-text">
               {year} 年 {String(month).padStart(2, "0")} 月
             </Text>
-            <Text className={`month-picker-chevron ${light ? "light" : ""}`}>
-              ▼
-            </Text>
+            <Icon name="chevron-down" size={24} color={light ? ICON_COLOR.onPrimary : ICON_COLOR.muted} className={`month-picker-chevron ${light ? "light" : ""}`} />
           </View>
         </Picker>
     </View>

@@ -19,8 +19,9 @@ import "./index.scss";
 import { toastSuccess, toastInfo } from "../../utils/toast";
 import { INVITE_CODE_HELP } from "../../utils/inviteCopy";
 import { SUCCESS_CREATED, SUCCESS_JOINED } from "../../utils/successCopy";
-import { FORM_NAME_REQUIRED, FORM_INVITE_CODE_REQUIRED, FORM_INVITE_CODE_PLACEHOLDER } from "../../utils/formCopy";
+import { FORM_NAME_REQUIRED, FORM_INVITE_CODE_REQUIRED, FORM_INVITE_CODE_PLACEHOLDER, FORM_BACK } from "../../utils/formCopy";
 import { ERROR_CREATE_FAILED_RETRY, ERROR_INVALID_INVITE } from "../../utils/errorCopy";
+import Icon, { ICON_COLOR } from "../../components/Icon";
 
 type Mode = "choice" | "create" | "join";
 
@@ -127,9 +128,10 @@ export default function Onboarding() {
       {mode === "create" && (
         <View className="ob-form">
           <View className="ob-nav">
-            <Text className="ob-nav__back" onClick={goChoice}>
-              ‹ 返回
-            </Text>
+            <View className="ob-nav__back" onClick={goChoice}>
+              <Icon name="back" size={28} color={ICON_COLOR.muted} />
+              <Text>{FORM_BACK}</Text>
+            </View>
             <Text className="ob-nav__title">创建账本</Text>
             <View className="ob-nav__spacer" />
           </View>
@@ -198,9 +200,10 @@ export default function Onboarding() {
       {mode === "join" && (
         <View className="ob-form">
           <View className="ob-nav">
-            <Text className="ob-nav__back" onClick={goChoice}>
-              ‹ 返回
-            </Text>
+            <View className="ob-nav__back" onClick={goChoice}>
+              <Icon name="back" size={28} color={ICON_COLOR.muted} />
+              <Text>{FORM_BACK}</Text>
+            </View>
             <Text className="ob-nav__title">输入邀请码加入</Text>
             <View className="ob-nav__spacer" />
           </View>

@@ -36,7 +36,7 @@ export default function MenuList({ items, className = "" }: MenuListProps) {
           ) : null}
           <Text className="menu-list__label">{item.label}</Text>
           <View className="menu-list__right">
-            {item.right || <Text className="menu-list__arrow">›</Text>}
+            {item.right || <Icon name="chevron-right" size={28} color={ICON_COLOR.muted} className="menu-list__arrow" />}
           </View>
         </View>
       ))}

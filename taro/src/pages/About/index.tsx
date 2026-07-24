@@ -6,7 +6,7 @@ import { useState } from "react";
 import { View, Text } from "@tarojs/components";
 import Taro from "@tarojs/taro";
 import PageContainer from "../../components/PageContainer";
-import Icon from "../../components/Icon";
+import Icon, { ICON_COLOR } from "../../components/Icon";
 import {
   APP_NAME,
   APP_SLOGAN,
@@ -88,9 +88,7 @@ export default function About() {
                     </View>
                     <View className="timeline-header-right">
                       <Text className="timeline-date">{entry.date}</Text>
-                      <Text className={`timeline-chevron${isExpanded ? " expanded" : ""}`}>
-                        ›
-                      </Text>
+                      <Icon name="chevron-right" size={28} color={ICON_COLOR.muted} className={`timeline-chevron${isExpanded ? " expanded" : ""}`} />
                     </View>
                   </View>
 
@@ -147,14 +145,14 @@ export default function About() {
             onClick={() => Taro.navigateTo({ url: "/pages/Terms/index" })}
           >
             <Text className="about-info-label">用户协议</Text>
-            <Text className="about-info-arrow">›</Text>
+            <Icon name="chevron-right" size={28} color={ICON_COLOR.muted} className="about-info-arrow" />
           </View>
           <View
             className="about-info-row about-info-row--link"
             onClick={() => Taro.navigateTo({ url: "/pages/Privacy/index" })}
           >
             <Text className="about-info-label">隐私政策</Text>
-            <Text className="about-info-arrow">›</Text>
+            <Icon name="chevron-right" size={28} color={ICON_COLOR.muted} className="about-info-arrow" />
           </View>
         </View>
       </View>

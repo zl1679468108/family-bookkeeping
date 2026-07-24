@@ -8,6 +8,7 @@ import { notifyError } from '../utils/notifyError'
 import { queryKeys, BOOK_SCOPED_ROOT_KEYS } from '../utils/queryKeys'
 import { STALE } from '../utils/cachePolicy'
 import { clearAddTransactionDraft } from '../utils/addTransactionDraft'
+import { ERROR_SWITCH_BOOK } from '../utils/errorCopy';
 
 interface BookContextType {
   currentBook: Book | null;
@@ -80,7 +81,7 @@ export const BookProvider: React.FC<{ children: React.ReactNode }> = ({ children
       try {
         await setCurrentBookApi(book.id);
       } catch {
-        notifyError('设置当前账本失败，请重试');
+        notifyError(ERROR_SWITCH_BOOK);
       }
     }
     BOOK_SCOPED_ROOT_KEYS.forEach((key) => {

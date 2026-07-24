@@ -5,6 +5,7 @@
 import { ReactNode } from "react";
 import { View, Text } from "@tarojs/components";
 import "./index.scss";
+import Icon, { ICON_COLOR } from "../../Icon";
 
 export interface ListItemProps {
   icon?: ReactNode;
@@ -35,7 +36,7 @@ export function ListItem({
         {description ? <Text className="ui-list-item__desc">{description}</Text> : null}
       </View>
       {extra ? <View className="ui-list-item__extra">{extra}</View> : null}
-      {showArrow ? <Text className="ui-list-item__arrow">›</Text> : null}
+      {showArrow ? <Icon name="chevron-right" size={28} color={ICON_COLOR.muted} className="ui-list-item__arrow" /> : null}
     </View>
   );
 }

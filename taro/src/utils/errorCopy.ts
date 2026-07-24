@@ -32,6 +32,13 @@ export const ERROR_RECEIPTS_PARTIAL = (n: number) => `${n} 张图片上传失败
 export const ERROR_RECEIPTS_ALL = "图片上传失败，请检查网络后重试";
 
 /** 创建失败 / 更新失败 */
+export const ERROR_ROLE_UPDATE = "修改角色失败";
+export const ERROR_STATUS_UPDATE = "修改状态失败";
+export const ERROR_SWITCH_BOOK = "设置当前账本失败，请重试";
+export const ERROR_REPORT_NOT_LOADED = "报告内容未加载";
+export const ERROR_SAVE_IMAGE = "保存图片失败，请重试";
+export const ERROR_REFRESH = "刷新失败";
+
 export function failEntityUpsert(isEdit: boolean): string {
   return isEdit ? ERROR_UPDATE_FAILED : ERROR_CREATE_FAILED;
 }

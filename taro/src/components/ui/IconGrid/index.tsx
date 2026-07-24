@@ -13,6 +13,7 @@ import {
 } from "../../../utils/privacy";
 import "./index.scss";
 import { toastInfo } from "../../../utils/toast";
+import Icon, { ICON_COLOR } from "../../Icon";
 
 export interface IconGridOption {
   value: string;
@@ -120,7 +121,7 @@ export function IconGrid({
                     catchMove
                     onClick={() => onDelete?.(c.id)}
                   >
-                    <Text className="ui-icon-grid__del-icon">×</Text>
+                    <Icon name="close" size={24} color={ICON_COLOR.onPrimary} className="ui-icon-grid__del-icon" />
                   </View>
                 ) : null}
               </View>

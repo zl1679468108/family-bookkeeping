@@ -60,3 +60,5 @@ export const SUCCESS_ACCOUNT_DEACTIVATED = "账号已注销";
 export const SUCCESS_SWITCHED = "切换成功";
 export const SUCCESS_CODE_RESENT = "验证码已重新发送";
 export const SUCCESS_OCR = "OCR 识别成功，已自动填充表单";
+export const SUCCESS_REFRESH = "刷新成功";
+export const SUCCESS_REPORT_SAVED = "年度报告已保存为图片";

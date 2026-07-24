@@ -28,6 +28,8 @@ import { useNavBarTheme } from "../../hooks/useNavBarTheme";
 import "./index.scss";
 import { toastSuccess, toastInfo } from "../../utils/toast";
 import { ACTION_LOADING } from "../../utils/actionCopy";
+import { SUCCESS_REFRESH } from "../../utils/successCopy";
+import { ERROR_REFRESH } from "../../utils/errorCopy";
 
 interface PageLayoutProps {
   children: ReactNode;
@@ -185,7 +187,7 @@ export default function PageLayout({
               if (guard) clearTimeout(guard);
               setLocalRefreshing(false);
               if (refreshToast) {
-                if (ok) toastSuccess("刷新成功", 1200); else toastInfo("刷新失败", 1200);
+                if (ok) toastSuccess(SUCCESS_REFRESH, 1200); else toastInfo(ERROR_REFRESH, 1200);
               }
             };
             guard = setTimeout(() => finish(false), 8000);

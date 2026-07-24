@@ -15,6 +15,7 @@ import { toastSuccess, toastInfo } from "../../../utils/toast";
 import { validatePasswordMatch, validatePasswordMinLength } from "../../../utils/validation";
 import { ERROR_SEND_FAILED, ERROR_RESET_FAILED } from "../../../utils/errorCopy";
 import { SUCCESS_CODE_SENT, SUCCESS_PASSWORD_RESET, SUCCESS_CODE_RESENT } from "../../../utils/successCopy";
+import { FORM_BACK, FORM_BACK_LOGIN } from "../../../utils/formCopy";
 
 type Step = "email" | "code" | "success";
 
@@ -76,8 +77,8 @@ export default function ForgotPassword() {
       return;
     }
     const pwdErr =
-      validatePasswordMinLength(password, { message: "密码至少6位" }) ||
-      validatePasswordMatch(password, confirmPassword, "两次密码不一致");
+      validatePasswordMinLength(password) ||
+      validatePasswordMatch(password, confirmPassword);
     if (pwdErr) {
       setError(pwdErr);
       return;
@@ -166,7 +167,7 @@ export default function ForgotPassword() {
             </Button>
 
             <View className="forgot-back" onClick={handleGoBack}>
-              <Text className="link-muted">← 返回登录</Text>
+              <Text className="link-muted">{FORM_BACK_LOGIN}</Text>
             </View>
           </View>
         )}
@@ -235,7 +236,7 @@ export default function ForgotPassword() {
             </Button>
 
             <View className="forgot-back" onClick={handleGoBack}>
-              <Text className="link-muted">← 返回</Text>
+              <Text className="link-muted">{FORM_BACK}</Text>
             </View>
           </View>
         )}
@@ -253,9 +254,7 @@ export default function ForgotPassword() {
               size="lg"
               className="forgot-submit"
               onClick={() => Taro.navigateTo({ url: "/pages/User/Login/index" })}
-            >
-              返回登录
-            </Button>
+            >{FORM_BACK_LOGIN}</Button>
           </View>
         )}
       </View>

@@ -25,9 +25,9 @@ const ResetPassword: React.FC = () => {
 
   const { run: handleSubmit, isRunning: submitLoading } = useDebouncedAction(async () => {
     const pwdErr =
-      validatePasswordMinLength(password, { message: '密码至少6位' }) ||
+      validatePasswordMinLength(password) ||
       validatePasswordAlphaNumeric(password) ||
-      validatePasswordMatch(password, confirmPassword, '两次密码不一致')
+      validatePasswordMatch(password, confirmPassword)
     if (pwdErr) {
       setMessage(pwdErr)
       setMessageType('error')

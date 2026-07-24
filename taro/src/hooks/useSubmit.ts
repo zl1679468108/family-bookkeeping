@@ -32,6 +32,7 @@
  */
 import { useRef, useCallback } from "react";
 import Taro from "@tarojs/taro";
+import { ACTION_PROCESSING_ELLIPSIS } from "../utils/actionCopy";
 
 // 兼容旧 import 路径：toastError 统一实现在 utils/toast
 export { toastError } from "../utils/toast";
@@ -41,7 +42,7 @@ export function useSubmit() {
 
   const run = useCallback(async <T>(
     fn: () => Promise<T>,
-    title: string = "处理中…",
+    title: string = ACTION_PROCESSING_ELLIPSIS,
   ): Promise<T | undefined> => {
     if (ref.current) return undefined;
     ref.current = true;

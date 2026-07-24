@@ -17,6 +17,7 @@ import { formatDateTime } from '../../../utils/date';
 import { platformUserRoleLabel, isPlatformAdmin } from '../../../utils/roles'
 import { queryKeys } from '../../../utils/queryKeys'
 import { STALE } from '../../../utils/cachePolicy'
+import { ERROR_ROLE_UPDATE, ERROR_STATUS_UPDATE } from '../../../utils/errorCopy'
 import {
   PLATFORM_USER_STATUS_OPTIONS,
   platformUserStatusLabel,
@@ -61,7 +62,7 @@ const AdminUsers: React.FC = () => {
       updateUserRole(userId, role, pwd),
     {
       invalidateKeys: [queryKeys.admin.all],
-      errorMessage: '修改角色失败',
+      errorMessage: ERROR_ROLE_UPDATE,
       onSuccess: () => {
         setActionType(null);
         setPassword('');
@@ -76,7 +77,7 @@ const AdminUsers: React.FC = () => {
       updateUserStatus(userId, status, pwd),
     {
       invalidateKeys: [queryKeys.admin.all],
-      errorMessage: '修改状态失败',
+      errorMessage: ERROR_STATUS_UPDATE,
       onSuccess: () => {
         setActionType(null);
         setPassword('');

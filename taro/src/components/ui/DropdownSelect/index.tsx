@@ -9,6 +9,7 @@ import { useModalZIndex } from "../GlobalModal/useModalZIndex";
 import { SearchInput } from "../Input";
 import "./index.scss";
 import { FORM_SELECT_PLACEHOLDER } from "../../../utils/formCopy";
+import Icon, { ICON_COLOR } from "../../Icon";
 
 export interface DropdownOption {
   key: string;
@@ -73,7 +74,7 @@ export function DropdownSelect({
         ) : (
           <Text className="ui-dropdown__trigger-text">{placeholder}</Text>
         )}
-        <Text className="ui-dropdown__chevron">▾</Text>
+        <Icon name="chevron-down" size={28} color={ICON_COLOR.muted} className="ui-dropdown__chevron" />
       </View>
 
       {open ? (
@@ -83,7 +84,7 @@ export function DropdownSelect({
             <View className="ui-dropdown__sheet-header">
               <Text className="ui-dropdown__sheet-title">{placeholder}</Text>
               <View className="ui-dropdown__sheet-close" onClick={() => { setOpen(false); setKeyword(""); }}>
-                <Text className="ui-dropdown__close-icon">×</Text>
+                <Icon name="close" size={32} color={ICON_COLOR.muted} className="ui-dropdown__close-icon" />
               </View>
             </View>
             {showSearch ? (

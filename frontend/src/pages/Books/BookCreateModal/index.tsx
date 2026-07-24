@@ -20,6 +20,7 @@ import { SUCCESS_BOOK_CREATED, SUCCESS_ICON_DELETED, SUCCESS_ICON_UPLOADED, SUCC
 import { FORM_NAME_REQUIRED } from '../../../utils/formCopy'
 import { entityFormTitle } from '../../../utils/entityCopy'
 import { failEntityUpsert } from '../../../utils/errorCopy'
+import { processingLabel } from '../../../utils/actionCopy';
 
 interface BookCreateModalProps {
   open: boolean;
@@ -120,7 +121,7 @@ export const BookCreateModal: React.FC<BookCreateModalProps> = ({ open, onClose,
               onClick={handleSubmit}
               disabled={mutation.isPending || !bookName.trim()}
             >
-              {mutation.isPending ? '处理中...' : (isEdit ? '保存' : '创建账本')}
+              {processingLabel(mutation.isPending, isEdit ? '保存' : '创建账本')}
             </Button>
           </FooterActions>
       }
