@@ -1,20 +1,20 @@
 import { useState, useEffect, useMemo, useRef } from 'react'
 import { useSearchParams, useNavigate } from 'react-router-dom'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { createTransaction, getTransaction, updateTransaction, uploadReceipt, ocrReceipt } from '../../../services/api'
 import type { OcrResult } from '../../../services/api'
 import { useCategories } from '../../../hooks/useCategories'
 import { useTemplates } from '../../../hooks/useTemplates'
 import { renderCategoryIcon } from '../../../utils/renderCategoryIcon'
 import type { DropdownOption } from '../../../components/ui/Dropdown'
-import { useDebouncedAction } from '../../../hooks/useDebouncedAction'
+import { useMutationAction } from '../../../hooks/useMutationAction'
 import { notifyError, notifyInfo, notifySuccess } from '../../../utils/notifyError'
 import { parseImageList } from '../../../utils/parseImageList'
 import { compressImage } from '../../../utils/imageCompress'
 import type { LocationResult } from '@family-bookkeeping/shared-types'
 import type { Template } from '@family-bookkeeping/shared-types'
 import { useBook } from '../../../hooks/useBook'
-import { queryKeys, TRANSACTION_IMPACT_ROOT_KEYS, invalidateQueryRoots } from '../../../utils/queryKeys'
+import { queryKeys, TRANSACTION_IMPACT_ROOT_KEYS } from '../../../utils/queryKeys'
 import { STALE } from '../../../utils/cachePolicy'
 import {
   clearAddTransactionDraft,
@@ -44,7 +44,6 @@ export function useTransactionForm() {
   const bookId = currentBook?.id || ''
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
-  const queryClient = useQueryClient()
   const fileInputRef = useRef<HTMLInputElement>(null)
   // OCR 独立的文件输入：单选一张图，仅用于识别填充表单，不作为附件
   const ocrFileInputRef = useRef<HTMLInputElement>(null)
@@ -160,7 +159,7 @@ export function useTransactionForm() {
     [savedImageUrls, pendingImages],
   )
 
-  // 仅 updateMutation 使用 imageUrlsJson；新建时通过后续 updateTransaction 更新图片 URL（F-L7）
+  // 编辑时 payload 带已保存图片 URL；新建先建单再上传后写回 image_urls（F-L7）
   const imageUrlsJson = useMemo(() => {
     if (savedImageUrls.length === 0) return undefined
     return JSON.stringify(savedImageUrls)
@@ -176,106 +175,81 @@ export function useTransactionForm() {
       })) as DropdownOption[]
   }, [formData.type, categories])
 
-  // Mutations
-  const createMutation = useMutation({
-    mutationFn: async () => {
-      const payload = {
-        amount: parseFloat(formData.amount),
-        category: formData.category,
-        type: formData.type,
-        date: formData.date,
-        description: formData.note || undefined,
-        brand: formData.brand || undefined,
-        latitude: location?.latitude,
-        longitude: location?.longitude,
-        location_name: location?.locationName,
-        poi_id: location?.poiId,
+  /** 表单 → 交易 payload（新建/编辑共用） */
+  const buildTransactionPayload = (withSavedImages: boolean) => ({
+    amount: parseFloat(formData.amount),
+    category: formData.category,
+    type: formData.type,
+    date: formData.date,
+    description: formData.note || undefined,
+    brand: formData.brand || undefined,
+    latitude: location?.latitude,
+    longitude: location?.longitude,
+    location_name: location?.locationName,
+    poi_id: location?.poiId,
+    ...(withSavedImages && imageUrlsJson ? { image_urls: imageUrlsJson } : {}),
+  })
+
+  /** 并行上传待传图片，返回合并后的 URL 列表 */
+  const uploadPendingImages = async (transactionId: number, baseUrls: string[] = []) => {
+    if (pendingImages.length === 0) return baseUrls
+    const results = await Promise.all(
+      pendingImages.map((p) => uploadReceipt(transactionId, p.blob)),
+    )
+    const newUrls = results.map((r) => r?.image_url).filter((url): url is string => Boolean(url))
+    return newUrls.length > 0 ? [...baseUrls, ...newUrls] : baseUrls
+  }
+
+  type SubmitResult = 'updated' | 'created' | 'invalid'
+
+  // 统一提交：校验 + 创建/更新 + 图片上传 + 缓存失效
+  const { run: handleSubmit, isRunning: submitInProgress } = useMutationAction(
+    async (): Promise<SubmitResult> => {
+      const amountNum = parseFloat(formData.amount)
+      if (!formData.amount || isNaN(amountNum) || amountNum <= 0) {
+        notifyInfo('请输入有效金额')
+        return 'invalid'
       }
-      return createTransaction(payload)
-    },
-  })
-
-  const updateMutation = useMutation({
-    mutationFn: async () => {
-      const payload = {
-        amount: parseFloat(formData.amount),
-        category: formData.category,
-        type: formData.type,
-        date: formData.date,
-        description: formData.note || undefined,
-        brand: formData.brand || undefined,
-        latitude: location?.latitude,
-        longitude: location?.longitude,
-        location_name: location?.locationName,
-        poi_id: location?.poiId,
-        image_urls: imageUrlsJson,
+      if (!formData.category) {
+        notifyInfo('请选择分类')
+        return 'invalid'
       }
-      return updateTransaction(editIdNum, payload)
-    },
-  })
 
-  const uploadMutation = useMutation({
-    mutationFn: async ({ transactionId, file }: { transactionId: number; file: Blob }) => {
-      return uploadReceipt(transactionId, file)
-    },
-  })
-
-  // Submit handler
-  const { run: handleSubmit, isRunning: submitInProgress } = useDebouncedAction(async () => {
-    const amountNum = parseFloat(formData.amount)
-    if (!formData.amount || isNaN(amountNum) || amountNum <= 0) {
-      notifyInfo('请输入有效金额')
-      return
-    }
-    if (!formData.category) {
-      notifyInfo('请选择分类')
-      return
-    }
-
-    try {
       if (isEditMode) {
-        await updateMutation.mutateAsync()
-
+        await updateTransaction(editIdNum, buildTransactionPayload(true))
         if (pendingImages.length > 0 && editIdNum) {
-          // 并行上传多张图片（F-M12）
-          const results = await Promise.all(
-            pendingImages.map((p) => uploadMutation.mutateAsync({ transactionId: editIdNum, file: p.blob })),
-          )
-          const newUrls = results.map((r) => r?.image_url).filter((url): url is string => Boolean(url))
-          if (newUrls.length > 0) {
-            const merged = [...savedImageUrls, ...newUrls]
+          const merged = await uploadPendingImages(editIdNum, savedImageUrls)
+          if (merged.length > savedImageUrls.length) {
             await updateTransaction(editIdNum, { image_urls: JSON.stringify(merged) })
           }
         }
-
-        invalidateQueryRoots(queryClient, TRANSACTION_IMPACT_ROOT_KEYS)
-        if (bookId) clearAddTransactionDraft(bookId)
-        notifySuccess('交易已更新')
-      } else {
-        const result = await createMutation.mutateAsync()
-        const newTransactionId = result?.id
-
-        if (pendingImages.length > 0 && newTransactionId) {
-          // 并行上传多张图片（F-M12）
-          const results = await Promise.all(
-            pendingImages.map((p) => uploadMutation.mutateAsync({ transactionId: newTransactionId, file: p.blob })),
-          )
-          const uploadedUrls = results.map((r) => r?.image_url).filter((url): url is string => Boolean(url))
-          if (uploadedUrls.length > 0) {
-            await updateTransaction(newTransactionId, { image_urls: JSON.stringify(uploadedUrls) })
-          }
-        }
-
-        invalidateQueryRoots(queryClient, TRANSACTION_IMPACT_ROOT_KEYS)
-        if (bookId) clearAddTransactionDraft(bookId)
-        notifySuccess('交易已保存')
+        return 'updated'
       }
-      handleReset()
-      navigate('/transactions')
-    } catch (err: any) {
-      notifyError(err, (isEditMode ? '更新失败' : '保存失败') )
-    }
-  })
+
+      const result = await createTransaction(buildTransactionPayload(false))
+      const newTransactionId = result?.id
+      if (pendingImages.length > 0 && newTransactionId) {
+        const uploadedUrls = await uploadPendingImages(newTransactionId)
+        if (uploadedUrls.length > 0) {
+          await updateTransaction(newTransactionId, { image_urls: JSON.stringify(uploadedUrls) })
+        }
+      }
+      return 'created'
+    },
+    {
+      invalidateKeys: TRANSACTION_IMPACT_ROOT_KEYS,
+      shouldCommit: (result) => result === 'updated' || result === 'created',
+      successMessage: (result) =>
+        result === 'updated' ? '交易已更新' : result === 'created' ? '交易已保存' : null,
+      errorMessage: isEditMode ? '更新失败' : '保存失败',
+      onSuccess: (result) => {
+        if (result !== 'updated' && result !== 'created') return
+        if (bookId) clearAddTransactionDraft(bookId)
+        handleReset()
+        navigate('/transactions')
+      },
+    },
+  )
 
   // Template handler
   const handleTemplateConfirm = (template: Template) => {
@@ -424,7 +398,7 @@ export function useTransactionForm() {
     }
   }
 
-  const isSubmitting = submitInProgress || createMutation.isPending || updateMutation.isPending || uploadMutation.isPending
+  const isSubmitting = submitInProgress
   const canAddMore = allImageUrls.length < MAX_IMAGES
 
   return {
