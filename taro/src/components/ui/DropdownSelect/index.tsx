@@ -8,9 +8,15 @@ import { View, Text, ScrollView } from "@tarojs/components";
 import { useModalZIndex } from "../GlobalModal/useModalZIndex";
 import { SearchInput } from "../Input";
 import "./index.scss";
-import { FORM_SELECT_PLACEHOLDER } from "../../../utils/formCopy";
+import { FORM_SELECT_PLACEHOLDER, FORM_DROPDOWN_NO_MATCH, FORM_DROPDOWN_UNLIMITED } from "../../../utils/formCopy";
 import Icon, { ICON_COLOR } from "../../Icon";
 import { ACTION_SEARCH } from "../../../utils/actionCopy"
+import {
+  filterOptionsByLabelKeyword,
+  findOptionByKey,
+  hasDropdownValue,
+} from "../../../utils/dropdownHelpers";
+import { cx } from "../../../utils/cx";
 
 export interface DropdownOption {
   key: string;
@@ -41,12 +47,12 @@ export function DropdownSelect({
   const [keyword, setKeyword] = useState("");
   const z = useModalZIndex(open, "modal");
 
-  const selected = options.find((o) => o.key === value);
+  const selected = findOptionByKey(options, value);
 
-  const filtered = useMemo(() => {
-    if (!keyword) return options;
-    return options.filter((o) => o.label.includes(keyword));
-  }, [options, keyword]);
+  const filtered = useMemo(
+    () => filterOptionsByLabelKeyword(options, keyword),
+    [options, keyword],
+  );
 
   const handleSelect = (key: string) => {
     onChange?.(key);
@@ -55,7 +61,7 @@ export function DropdownSelect({
   };
 
   return (
-    <View className={`ui-dropdown ${className}`}>
+    <View className={cx("ui-dropdown", className)}>
       {label ? (
         <Text className="ui-dropdown__label">
           {required ? <Text className="ui-dropdown__required">*</Text> : null}
@@ -63,7 +69,7 @@ export function DropdownSelect({
         </Text>
       ) : null}
       <View
-        className={`ui-dropdown__trigger ${!selected ? "ui-dropdown__trigger--placeholder" : ""}`}
+        className={cx("ui-dropdown__trigger", !selected && "ui-dropdown__trigger--placeholder")}
         hoverClass="ui-dropdown__trigger--pressed"
         onClick={() => setOpen(true)}
       >
@@ -96,19 +102,19 @@ export function DropdownSelect({
             <ScrollView scrollY className="ui-dropdown__options">
               {allowClear ? (
                 <View
-                  className={`ui-dropdown__option ${!value ? "ui-dropdown__option--active" : ""}`}
+                  className={cx("ui-dropdown__option", !hasDropdownValue(value) && "ui-dropdown__option--active")}
                   onClick={() => handleSelect("")}
                 >
-                  <Text className="ui-dropdown__option-label ui-dropdown__option-label--muted">不限</Text>
+                  <Text className="ui-dropdown__option-label ui-dropdown__option-label--muted">{FORM_DROPDOWN_UNLIMITED}</Text>
                 </View>
               ) : null}
               {filtered.length === 0 ? (
-                <View className="ui-dropdown__empty"><Text>无匹配项</Text></View>
+                <View className="ui-dropdown__empty"><Text>{FORM_DROPDOWN_NO_MATCH}</Text></View>
               ) : (
                 filtered.map((opt) => (
                   <View
                     key={opt.key}
-                    className={`ui-dropdown__option ${opt.key === value ? "ui-dropdown__option--active" : ""}`}
+                    className={cx("ui-dropdown__option", opt.key === value && "ui-dropdown__option--active")}
                     onClick={() => handleSelect(opt.key)}
                   >
                     {opt.icon ? <View className="ui-dropdown__option-icon">{opt.icon}</View> : null}

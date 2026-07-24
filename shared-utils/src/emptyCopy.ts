@@ -34,3 +34,5 @@ export const EMPTY_NO_MERCHANT_MATCH = '未找到匹配的商户，试试其他�
 export const EMPTY_NO_DATA = '暂无数据'
 export const EMPTY_NO_SAVED_ACCOUNTS = '暂无已保存的账号'
 export const EMPTY_SEARCH_RESULTS = '无搜索结果'
+
+export const EMPTY_CUSTOM_ICONS_HINT = '还没有自定义图标，点击「＋ 上传图标」添加'

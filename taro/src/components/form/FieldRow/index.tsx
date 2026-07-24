@@ -8,6 +8,8 @@ import { ReactNode } from "react";
 import { View, Text, Input } from "@tarojs/components";
 import "./index.scss";
 import { FORM_SELECT_PLACEHOLDER } from "../../../utils/formCopy";
+import { fieldDisplayText, hasFieldText } from "../../../utils/inputHelpers";
+import { cx } from "../../../utils/cx";
 import Icon, { ICON_COLOR } from "../../Icon";
 
 export interface FieldRowProps {
@@ -81,8 +83,8 @@ export default function FieldRow({
     <View className="ft-field" onClick={onClick}>
       {labelEl}
       <View className="ft-field-right">
-        <Text className={value ? "ft-field-value" : "ft-field-placeholder"}>
-          {value || placeholder}
+        <Text className={cx(hasFieldText(value) ? "ft-field-value" : "ft-field-placeholder")}>
+          {fieldDisplayText(value, placeholder)}
         </Text>
         <Icon name="chevron-right" size={28} color={ICON_COLOR.muted} className="ft-field-arrow" />
       </View>

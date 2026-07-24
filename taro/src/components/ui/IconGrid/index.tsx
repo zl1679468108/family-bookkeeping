@@ -16,6 +16,14 @@ import { toastInfo } from "../../../utils/toast";
 import Icon, { ICON_COLOR } from "../../Icon";
 import { FORM_PRIVACY_REQUIRED } from "../../../utils/formCopy";
 import { IMAGE_SELECT_FAILED_SHORT, PRIVACY_ALBUM_FOR_ICON } from "../../../utils/uploadCopy";
+import { ACTION_UPLOAD } from "../../../utils/actionCopy";
+import { cx } from "../../../utils/cx";
+import {
+  isIconOptionActive,
+  isCustomIconActive,
+  hasCustomIconSection,
+  iconGridTemplateColumns,
+} from "../../../utils/iconGrid";
 
 export interface IconGridOption {
   value: string;
@@ -79,17 +87,17 @@ export function IconGrid({
     }
   };
 
-  const colStyle = { gridTemplateColumns: `repeat(${columns}, 1fr)` } as React.CSSProperties;
+  const colStyle = { gridTemplateColumns: iconGridTemplateColumns(columns) } as React.CSSProperties;
 
   return (
-    <View className={`ui-icon-grid ${className}`}>
+    <View className={cx("ui-icon-grid", className)}>
       <View className="ui-icon-grid__section" style={colStyle}>
         {options.map((opt) => {
-          const active = opt.value === value;
+          const active = isIconOptionActive(value, opt.value);
           return (
             <View
               key={opt.value}
-              className={`ui-icon-grid__item ${active ? "ui-icon-grid__item--active" : ""} ${opt.label ? "ui-icon-grid__item--labeled" : ""}`}
+              className={cx("ui-icon-grid__item", active && "ui-icon-grid__item--active", opt.label && "ui-icon-grid__item--labeled")}
               onClick={() => onChange?.(opt.value)}
             >
               {opt.isImage ? (
@@ -105,14 +113,14 @@ export function IconGrid({
         })}
       </View>
 
-      {customIcons.length > 0 || onUpload ? (
+      {hasCustomIconSection(Boolean(onUpload), customIcons.length) ? (
         <View className="ui-icon-grid__section ui-icon-grid__custom" style={colStyle}>
           {customIcons.map((c) => {
-            const active = c.icon_url === value;
+            const active = isCustomIconActive(value, c.id, c.icon_url);
             return (
               <View
                 key={c.id}
-                className={`ui-icon-grid__item ${active ? "ui-icon-grid__item--active" : ""}`}
+                className={cx("ui-icon-grid__item", active && "ui-icon-grid__item--active")}
                 onClick={() => onChange?.(c.icon_url)}
               >
                 <Image className="ui-icon-grid__img" src={c.icon_url} mode="aspectFit" />
@@ -132,7 +140,7 @@ export function IconGrid({
           {onUpload ? (
             <View className="ui-icon-grid__item ui-icon-grid__upload" onClick={handleUpload}>
               <Text className="ui-icon-grid__upload-icon">+</Text>
-              <Text className="ui-icon-grid__upload-text">上传</Text>
+              <Text className="ui-icon-grid__upload-text">{ACTION_UPLOAD}</Text>
             </View>
           ) : null}
         </View>

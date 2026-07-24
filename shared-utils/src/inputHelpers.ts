@@ -33,3 +33,18 @@ export function formatCharCountCompact(current: number, max: number): string {
   return `${Number(current) || 0}/${max}`
 }
 
+
+
+/** 字段展示：有值显示值，否则占位 */
+export function fieldDisplayText(
+  value: string | null | undefined,
+  placeholder: string,
+): string {
+  const v = String(value ?? '').trim()
+  return v || placeholder
+}
+
+/** 字段是否有非空文本 */
+export function hasFieldText(value: string | null | undefined): boolean {
+  return String(value ?? '').trim().length > 0
+}

@@ -3,6 +3,8 @@
  */
 import { View } from "@tarojs/components";
 import "./index.scss";
+import { cx } from "../../../utils/cx";
+import { skeletonDim, skeletonTextLineWidth } from "../../../utils/skeleton";
 
 export interface SkeletonProps {
   width?: string | number;
@@ -21,12 +23,12 @@ export function Skeleton({
 }: SkeletonProps) {
   return (
     <View
-      className={`ui-skeleton ${className}`}
+      className={cx("ui-skeleton", className)}
       style={{
-        width,
-        height,
-        borderRadius,
-        marginBottom: marginBottom || undefined,
+        width: skeletonDim(width),
+        height: skeletonDim(height),
+        borderRadius: skeletonDim(borderRadius),
+        marginBottom: marginBottom ? skeletonDim(marginBottom) : undefined,
       }}
     />
   );
@@ -49,7 +51,7 @@ export function TextParagraphSkeleton({ lines = 3 }: { lines?: number }) {
   return (
     <View>
       {Array.from({ length: lines }).map((_, i) => (
-        <TextLineSkeleton key={i} width={i === lines - 1 ? "60%" : "100%"} />
+        <TextLineSkeleton key={i} width={skeletonTextLineWidth(i)} />
       ))}
     </View>
   );

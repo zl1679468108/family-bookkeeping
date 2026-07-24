@@ -2,6 +2,12 @@ import React, { useState, useRef, useEffect } from 'react'
 import { Icon } from '../Icon'
 import { FILTER_ALL } from '../../../utils/transactionType'
 import { ACTION_CLEAR, ACTION_SEARCH_DOTS } from '../../../utils/actionCopy'
+import {
+  filterOptionsByLabelKeyword,
+  findOptionByKey,
+  hasDropdownValue,
+} from '../../../utils/dropdownHelpers'
+import { cx } from '../../../utils/cx'
 
 /**
  * 通用下拉选择组件 —— 取代各页面手写的 <select> 和自定义下拉
@@ -87,8 +93,7 @@ export const DropdownSelect: React.FC<DropdownSelectProps> = ({
   // 打开且有选中值时，自动滚动到选中项在面板中间（参考图1→图2效果）
   useEffect(() => {
     if (!open) return
-    const hasValue = internalValue !== null && internalValue !== ''
-    if (!hasValue) return
+    if (!hasDropdownValue(internalValue)) return
     // 等 DOM 渲染完成后再滚动（+100ms 确保面板已展开）
     const timer = setTimeout(() => {
       const panel = panelRef.current
@@ -107,12 +112,12 @@ export const DropdownSelect: React.FC<DropdownSelectProps> = ({
     return () => clearTimeout(timer)
   }, [open, internalValue])
 
-  const currentOption = options.find((o) => o.key === internalValue)
-  const hasValue = internalValue !== null && internalValue !== ''
+  const currentOption = findOptionByKey(options, internalValue)
+  const hasValue = hasDropdownValue(internalValue)
 
-  // 根据搜索关键词过滤选项
-  const filteredOptions = showSearch && searchKeyword
-    ? options.filter((o) => o.label.toLowerCase().includes(searchKeyword.toLowerCase()))
+  // 根据搜索关键词过滤选项（与 Taro 同源）
+  const filteredOptions = showSearch
+    ? filterOptionsByLabelKeyword(options, searchKeyword)
     : options
 
   const handleSelect = (key: string) => {
@@ -130,7 +135,7 @@ export const DropdownSelect: React.FC<DropdownSelectProps> = ({
 
   return (
     <div
-      className={`dd-select ${open ? 'is-open' : ''} ${className}`.trim()}
+      className={cx('dd-select', open && 'is-open', className)}
       ref={containerRef}
       style={width !== undefined ? { width: typeof width === 'number' ? `${width}px` : width } : undefined}
     >

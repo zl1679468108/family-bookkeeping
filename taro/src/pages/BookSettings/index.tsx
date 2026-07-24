@@ -35,7 +35,7 @@ import { useSubmit, toastError } from "../../hooks/useSubmit";
 import "./index.scss";
 import { getErrorMessage } from "../../utils/errorMessage";
 import { toastSuccess, toastInfo } from "../../utils/toast";
-import { ACTION_DELETING, ACTION_LOADING, ACTION_SAVING, ACTION_CANCEL, ACTION_SAVE, ACTION_DELETE_BOOK, ACTION_CREATE_BOOK, ACTION_CREATING_ELLIPSIS, ACTION_UPLOADING_ELLIPSIS, ACTION_TRANSFERRING_ELLIPSIS } from "../../utils/actionCopy"
+import { ACTION_DELETING, ACTION_LOADING, ACTION_SAVING, ACTION_CANCEL, ACTION_SAVE, ACTION_DELETE_BOOK, ACTION_CREATE_BOOK, ACTION_CREATING_ELLIPSIS, ACTION_UPLOADING_ELLIPSIS, ACTION_TRANSFERRING_ELLIPSIS, ACTION_UPLOAD_ICON } from "../../utils/actionCopy"
 import {
   CONFIRM_DELETE_TITLE,
   CONFIRM_DELETE_TEXT,
@@ -369,7 +369,7 @@ export default function BookSettings() {
                 className="bs-custom-icon-upload"
                 onClick={handleUploadCustomIcon}
               >
-                <Text>＋ 上传图标</Text>
+                <Text>{ACTION_UPLOAD_ICON}</Text>
               </View>
               {customIcons.map((item: any) => (
                 <View
@@ -479,7 +479,7 @@ export default function BookSettings() {
                 className="bs-custom-icon-upload"
                 onClick={handleUploadCustomIcon}
               >
-                <Text>＋ 上传图标</Text>
+                <Text>{ACTION_UPLOAD_ICON}</Text>
               </View>
               {customIcons.map((item: any) => (
                 <View

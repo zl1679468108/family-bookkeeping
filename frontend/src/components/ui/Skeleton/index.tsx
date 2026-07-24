@@ -1,5 +1,19 @@
 import React from 'react'
 import { cx } from '../../../utils/cx'
+import {
+  SKELETON_DEFAULT_WIDTH,
+  SKELETON_DEFAULT_HEIGHT,
+  SKELETON_DEFAULT_RADIUS,
+  SKELETON_AVATAR_SIZE,
+  SKELETON_BUTTON_WIDTH,
+  SKELETON_BUTTON_HEIGHT,
+  SKELETON_INPUT_HEIGHT,
+  SKELETON_TEXT_LINE_HEIGHT,
+  SKELETON_TEXT_LINE_RADIUS,
+  SKELETON_TEXT_LINE_GAP,
+  skeletonDim,
+  skeletonTextLineWidth,
+} from '../../../utils/skeleton'
 
 /**
  * 通用骨架屏组件
@@ -14,9 +28,9 @@ interface SkeletonProps {
 }
 
 export const Skeleton: React.FC<SkeletonProps> = ({
-  width = '100%',
-  height = '20px',
-  borderRadius = '8px',
+  width = SKELETON_DEFAULT_WIDTH,
+  height = SKELETON_DEFAULT_HEIGHT,
+  borderRadius = SKELETON_DEFAULT_RADIUS,
   marginBottom = '0',
   className = '',
   style,
@@ -24,8 +38,8 @@ export const Skeleton: React.FC<SkeletonProps> = ({
   <div
     className={cx('skeleton-shimmer', className)}
     style={{
-      width: typeof width === 'number' ? `${width}px` : width,
-      height: typeof height === 'number' ? `${height}px` : height,
+      width: skeletonDim(width),
+      height: skeletonDim(height),
       borderRadius,
       marginBottom,
       ...style,
@@ -33,25 +47,29 @@ export const Skeleton: React.FC<SkeletonProps> = ({
   />
 )
 
-export const AvatarSkeleton: React.FC<{ size?: string | number }> = ({ size = '40px' }) => (
+export const AvatarSkeleton: React.FC<{ size?: string | number }> = ({ size = SKELETON_AVATAR_SIZE }) => (
   <Skeleton width={size} height={size} borderRadius="50%" />
 )
 
 export const ButtonSkeleton: React.FC<{ width?: string | number; height?: string | number }> = ({
-  width = '80px',
-  height = '32px',
-}) => <Skeleton width={width} height={height} borderRadius="8px" />
+  width = SKELETON_BUTTON_WIDTH,
+  height = SKELETON_BUTTON_HEIGHT,
+}) => <Skeleton width={width} height={height} borderRadius={SKELETON_DEFAULT_RADIUS} />
 
-export const InputSkeleton: React.FC<{ width?: string | number }> = ({ width = '100%' }) => (
-  <Skeleton width={width} height="40px" borderRadius="8px" />
+export const InputSkeleton: React.FC<{ width?: string | number }> = ({ width = SKELETON_DEFAULT_WIDTH }) => (
+  <Skeleton width={width} height={SKELETON_INPUT_HEIGHT} borderRadius={SKELETON_DEFAULT_RADIUS} />
 )
 
 export const TextLineSkeleton: React.FC<{
   width?: string | number
   height?: string | number
   marginBottom?: string
-}> = ({ width = '100%', height = '14px', marginBottom = '8px' }) => (
-  <Skeleton width={width} height={height} borderRadius="4px" marginBottom={marginBottom} />
+}> = ({
+  width = SKELETON_DEFAULT_WIDTH,
+  height = SKELETON_TEXT_LINE_HEIGHT,
+  marginBottom = SKELETON_TEXT_LINE_GAP,
+}) => (
+  <Skeleton width={width} height={height} borderRadius={SKELETON_TEXT_LINE_RADIUS} marginBottom={marginBottom} />
 )
 
 export const TextParagraphSkeleton: React.FC<{ lines?: number }> = ({ lines = 3 }) => (
@@ -59,8 +77,8 @@ export const TextParagraphSkeleton: React.FC<{ lines?: number }> = ({ lines = 3 
     {Array.from({ length: lines }, (_, i) => (
       <TextLineSkeleton
         key={i}
-        width={i === 0 ? '100%' : i === 1 ? '90%' : '75%'}
-        marginBottom={i === lines - 1 ? '0' : '8px'}
+        width={skeletonTextLineWidth(i)}
+        marginBottom={i === lines - 1 ? '0' : SKELETON_TEXT_LINE_GAP}
       />
     ))}
   </div>

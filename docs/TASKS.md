@@ -216,6 +216,12 @@
 - 分类表单 meta helper；TemplateEdit 用 `transactionTypeLabel`；`confirmDeleteThis(ENTITY_*)` 收口
 - 验证：frontend / taro `tsc --noEmit`
 
+#### 2026-07-24 IconGrid/Dropdown/Skeleton 双端 pure shared
+- 新增 `iconGrid`（选中态/自定义区/栅格列）、`dropdownHelpers`（label 过滤/按 key 查找/hasValue）、`skeleton` 尺寸预设与 `skeletonDim`/`skeletonTextLineWidth`
+- `inputHelpers` 补 `fieldDisplayText`/`hasFieldText`；文案：`FORM_DROPDOWN_*`、`ACTION_UPLOAD_ICON`、`EMPTY_CUSTOM_ICONS_HINT`
+- 接线：PC/Taro IconGrid、DropdownSelect、Skeleton、FieldRow；CategoryEdit/BookSettings 上传图标文案
+- 验证：frontend / taro `tsc --noEmit`
+
 #### 2026-07-24 PC 暗色第十一轮（残留硬编码 / 冗余 dark 覆盖）
 - 全站再扫：业务 SCSS 无残留浅色 hex/rgba；Tailwind 色板均映射 CSS 变量
 - 去掉失效/重复 `[data-theme=dark]`：Drawer mask、地图 locating/loading 反色 hack、MerchantDrawer hover 双份阴影

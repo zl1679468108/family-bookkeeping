@@ -156,3 +156,8 @@ export const FORM_TEMPLATE_CREATE_META = '填写模板信息'
 export function templateFormMeta(isEdit: boolean): string {
   return isEdit ? FORM_TEMPLATE_EDIT_META : FORM_TEMPLATE_CREATE_META
 }
+
+
+/** 下拉：无搜索匹配 / 清除项「不限」 */
+export const FORM_DROPDOWN_NO_MATCH = '无匹配项'
+export const FORM_DROPDOWN_UNLIMITED = '不限'

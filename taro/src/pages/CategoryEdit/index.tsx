@@ -34,7 +34,9 @@ import { useSubmit, toastError } from "../../hooks/useSubmit";
 import "./index.scss";
 import { getErrorMessage } from "../../utils/errorMessage";
 import { toastSuccess, toastInfo } from "../../utils/toast";
-import { ACTION_DELETING, ACTION_LOADING, ACTION_SAVING, saveOrCreateLabel, ACTION_CREATE_CATEGORY, ACTION_DELETE, ACTION_UPLOADING_ELLIPSIS } from "../../utils/actionCopy"
+import { ACTION_DELETING, ACTION_LOADING, ACTION_SAVING, saveOrCreateLabel, ACTION_CREATE_CATEGORY, ACTION_DELETE, ACTION_UPLOADING_ELLIPSIS, ACTION_UPLOAD_ICON } from "../../utils/actionCopy"
+import { EMPTY_CUSTOM_ICONS_HINT } from "../../utils/emptyCopy"
+import { isCustomIconActive } from "../../utils/iconGrid"
 import { getThemeTokenHex } from "../../utils/themeTokens"
 import { useTheme } from "../../context/ThemeContext"
 import {
@@ -291,12 +293,12 @@ export default function CategoryEdit() {
             className="catedit-custom-icon-upload"
             onClick={handleUploadCustomIcon}
           >
-            <Text>＋ 上传图标</Text>
+            <Text>{ACTION_UPLOAD_ICON}</Text>
           </View>
           {customIcons.map((item) => (
             <View
               key={item.id}
-              className={`catedit-custom-icon-item ${form.icon === item.icon_url ? "catedit-custom-icon-item--selected" : ""}`}
+              className={`catedit-custom-icon-item ${isCustomIconActive(form.icon, item.id, item.icon_url) ? "catedit-custom-icon-item--selected" : ""}`}
               onClick={() => setForm((p) => ({ ...p, icon: item.icon_url }))}
             >
               <Image className="catedit-custom-icon-item__img" src={item.icon_url} mode="aspectFit" />
@@ -310,7 +312,7 @@ export default function CategoryEdit() {
           ))}
           {customIcons.length === 0 && (
             <View className="catedit-custom-empty">
-              <Text>还没有自定义图标，点击「＋ 上传图标」添加</Text>
+              <Text>{EMPTY_CUSTOM_ICONS_HINT}</Text>
             </View>
           )}
         </View>

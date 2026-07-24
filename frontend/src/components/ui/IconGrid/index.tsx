@@ -3,6 +3,14 @@ import { Icon } from '../Icon'
 
 import { notifyError } from '../../../utils/notifyError'
 import { busyLabel, ACTION_UPLOADING, ACTION_UPLOAD } from '../../../utils/actionCopy'
+import { cx } from '../../../utils/cx'
+import {
+  isIconOptionActive,
+  isCustomIconActive,
+  hasCustomIconSection,
+  iconGridTemplateColumns,
+} from '../../../utils/iconGrid'
+import { SECTION_CUSTOM_ICONS } from '../../../utils/sectionCopy'
 import {
   IMAGE_ACCEPT_ATTR,
   isAllowedImageMime,
@@ -123,17 +131,17 @@ export const IconGrid: React.FC<IconGridProps> = ({
     }
   }
 
-  const hasCustomSection = onUpload || customIcons.length > 0
+  const hasCustomSection = hasCustomIconSection(Boolean(onUpload), customIcons.length)
 
   return (
-    <div className={`icon-grid-wrapper ${className}`.trim()}>
+    <div className={cx('icon-grid-wrapper', className)}>
       {/* 预设图标区 */}
       <div
         className="icon-grid"
-        style={{ gridTemplateColumns: `repeat(${columns}, 1fr)` }}
+        style={{ gridTemplateColumns: iconGridTemplateColumns(columns) }}
       >
         {options.map((opt) => {
-          const active = opt.value === value
+          const active = isIconOptionActive(value, opt.value)
           return (
             <button
               key={opt.value}
@@ -159,13 +167,13 @@ export const IconGrid: React.FC<IconGridProps> = ({
       {/* 自定义图标区 */}
       {hasCustomSection && (
         <>
-          <div className="icon-grid-section-title">自定义图标</div>
+          <div className="icon-grid-section-title">{SECTION_CUSTOM_ICONS}</div>
           <div
             className="icon-grid"
-            style={{ gridTemplateColumns: `repeat(${columns}, 1fr)` }}
+            style={{ gridTemplateColumns: iconGridTemplateColumns(columns) }}
           >
             {customIcons.map((ci) => {
-              const active = ci.id === value || ci.icon_url === value
+              const active = isCustomIconActive(value, ci.id, ci.icon_url)
               return (
                 <button
                   key={ci.id}
@@ -175,7 +183,7 @@ export const IconGrid: React.FC<IconGridProps> = ({
                 >
                   <img
                     src={ci.icon_url}
-                    alt="自定义图标"
+                    alt={SECTION_CUSTOM_ICONS}
                     className="icon-btn-image"
                   />
                   {/* 删除按钮 */}
