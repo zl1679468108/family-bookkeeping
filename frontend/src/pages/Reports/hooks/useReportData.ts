@@ -1,5 +1,8 @@
 import { useState, useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
+import { useBook } from '../../../hooks/useBook'
+import { queryKeys } from '../../../utils/queryKeys'
+import { GC_TIME_LONG, STALE } from '../../../utils/cachePolicy'
 import { startOfMonth, endOfMonth, format, subMonths, parseISO } from 'date-fns'
 import { fetchMonthlyTrend, fetchCategoryBreakdown, fetchDailySummary, fetchYearOverYear } from '../../../services/statisticsApi'
 import type { CategoryBreakdownItem } from '@family-bookkeeping/shared-types'
@@ -16,6 +19,8 @@ export enum PeriodType {
 export type MergedBreakdownItem = CategoryBreakdownItem & { type: 'expense' | 'income' }
 
 export function useReportData() {
+  const { currentBook } = useBook()
+  const bookId = currentBook?.id || ''
   const [period, setPeriod] = useState<PeriodType>(PeriodType.Month)
   const [monthCompareTarget, setMonthCompareTarget] = useState(format(subMonths(new Date(), 1), 'yyyy-MM'))
   const [yearCompareTarget, setYearCompareTarget] = useState(new Date().getFullYear() - 1)
@@ -115,36 +120,40 @@ export function useReportData() {
 
   // Queries — T-M31: 统一加 staleTime 避免重复请求
   const { data: trendData = [], isLoading: trendLoading } = useQuery({
-    queryKey: ['statistics', 'monthly-trend', months, endDate],
+    queryKey: queryKeys.statistics.monthlyTrend(bookId, months, endDate),
     queryFn: () => fetchMonthlyTrend({ months, endDate, type: 'expense' }),
-    enabled: !isDailyView && !isMonthCompare && !isYearCompare,
-    staleTime: 5 * 60 * 1000,
+    enabled: !!bookId && !isDailyView && !isMonthCompare && !isYearCompare,
+    staleTime: STALE.statistics,
+    gcTime: GC_TIME_LONG,
   })
 
   const dailySummaryQueries = useQuery({
-    queryKey: ['statistics', 'daily-summary', dailyDataMonths],
+    queryKey: queryKeys.statistics.dailySummary(bookId, dailyDataMonths),
     queryFn: async () => {
       const results = await Promise.all(
         dailyDataMonths.map((month) => fetchDailySummary({ month })),
       )
       return results
     },
-    enabled: isDailyView || isMonthCompare,
-    staleTime: 5 * 60 * 1000,
+    enabled: !!bookId && (isDailyView || isMonthCompare),
+    staleTime: STALE.statistics,
+    gcTime: GC_TIME_LONG,
   })
 
   const { data: yoyExpenseData = [], isLoading: yoyExpenseLoading } = useQuery({
-    queryKey: ['statistics', 'yoy-comparison', yearCompare?.currentYear, yearCompare?.compareYear, 'expense'],
+    queryKey: queryKeys.statistics.yoy(bookId, yearCompare?.currentYear, yearCompare?.compareYear, 'expense'),
     queryFn: () => fetchYearOverYear({ year: yearCompare?.currentYear, compareYear: yearCompare?.compareYear, type: 'expense' }),
-    enabled: isYearCompare && !!yearCompare,
-    staleTime: 5 * 60 * 1000,
+    enabled: !!bookId && isYearCompare && !!yearCompare,
+    staleTime: STALE.statistics,
+    gcTime: GC_TIME_LONG,
   })
 
   const { data: yoyIncomeData = [], isLoading: yoyIncomeLoading } = useQuery({
-    queryKey: ['statistics', 'yoy-comparison', yearCompare?.currentYear, yearCompare?.compareYear, 'income'],
+    queryKey: queryKeys.statistics.yoy(bookId, yearCompare?.currentYear, yearCompare?.compareYear, 'income'),
     queryFn: () => fetchYearOverYear({ year: yearCompare?.currentYear, compareYear: yearCompare?.compareYear, type: 'income' }),
-    enabled: isYearCompare && !!yearCompare,
-    staleTime: 5 * 60 * 1000,
+    enabled: !!bookId && isYearCompare && !!yearCompare,
+    staleTime: STALE.statistics,
+    gcTime: GC_TIME_LONG,
   })
 
   // Date ranges for category breakdown
@@ -176,73 +185,83 @@ export function useReportData() {
 
   // Category breakdown queries — T-M31: 加 staleTime
   const { data: expenseBreakdown = [], isLoading: expenseBreakdownLoading } = useQuery({
-    queryKey: ['statistics', 'category-breakdown', startDate, endDate, 'expense'],
+    queryKey: queryKeys.statistics.categoryBreakdown(bookId, startDate, endDate, 'expense'),
     queryFn: () => fetchCategoryBreakdown({ startDate, endDate, type: 'expense' }),
-    enabled: !isMonthCompare && !isYearCompare,
-    staleTime: 5 * 60 * 1000,
+    enabled: !!bookId && (!isMonthCompare && !isYearCompare),
+    staleTime: STALE.statistics,
+    gcTime: GC_TIME_LONG,
   })
 
   const { data: incomeBreakdown = [], isLoading: incomeBreakdownLoading } = useQuery({
-    queryKey: ['statistics', 'category-breakdown', startDate, endDate, 'income'],
+    queryKey: queryKeys.statistics.categoryBreakdown(bookId, startDate, endDate, 'income'),
     queryFn: () => fetchCategoryBreakdown({ startDate, endDate, type: 'income' }),
-    enabled: !isMonthCompare && !isYearCompare,
-    staleTime: 5 * 60 * 1000,
+    enabled: !!bookId && (!isMonthCompare && !isYearCompare),
+    staleTime: STALE.statistics,
+    gcTime: GC_TIME_LONG,
   })
 
   const { data: currentMonthExpense = [], isLoading: currentMonthExpenseLoading } = useQuery({
-    queryKey: ['statistics', 'category-breakdown', currentMonthRange.startDate, currentMonthRange.endDate, 'expense'],
+    queryKey: queryKeys.statistics.categoryBreakdown(bookId, currentMonthRange.startDate, currentMonthRange.endDate, 'expense'),
     queryFn: () => fetchCategoryBreakdown({ startDate: currentMonthRange.startDate, endDate: currentMonthRange.endDate, type: 'expense' }),
-    enabled: isMonthCompare,
-    staleTime: 5 * 60 * 1000,
+    enabled: !!bookId && (isMonthCompare),
+    staleTime: STALE.statistics,
+    gcTime: GC_TIME_LONG,
   })
 
   const { data: currentMonthIncome = [], isLoading: currentMonthIncomeLoading } = useQuery({
-    queryKey: ['statistics', 'category-breakdown', currentMonthRange.startDate, currentMonthRange.endDate, 'income'],
+    queryKey: queryKeys.statistics.categoryBreakdown(bookId, currentMonthRange.startDate, currentMonthRange.endDate, 'income'),
     queryFn: () => fetchCategoryBreakdown({ startDate: currentMonthRange.startDate, endDate: currentMonthRange.endDate, type: 'income' }),
-    enabled: isMonthCompare,
-    staleTime: 5 * 60 * 1000,
+    enabled: !!bookId && (isMonthCompare),
+    staleTime: STALE.statistics,
+    gcTime: GC_TIME_LONG,
   })
 
   const { data: targetMonthExpense = [], isLoading: targetMonthExpenseLoading } = useQuery({
-    queryKey: ['statistics', 'category-breakdown', targetMonthRange.startDate, targetMonthRange.endDate, 'expense'],
+    queryKey: queryKeys.statistics.categoryBreakdown(bookId, targetMonthRange.startDate, targetMonthRange.endDate, 'expense'),
     queryFn: () => fetchCategoryBreakdown({ startDate: targetMonthRange.startDate, endDate: targetMonthRange.endDate, type: 'expense' }),
-    enabled: isMonthCompare,
-    staleTime: 5 * 60 * 1000,
+    enabled: !!bookId && (isMonthCompare),
+    staleTime: STALE.statistics,
+    gcTime: GC_TIME_LONG,
   })
 
   const { data: targetMonthIncome = [], isLoading: targetMonthIncomeLoading } = useQuery({
-    queryKey: ['statistics', 'category-breakdown', targetMonthRange.startDate, targetMonthRange.endDate, 'income'],
+    queryKey: queryKeys.statistics.categoryBreakdown(bookId, targetMonthRange.startDate, targetMonthRange.endDate, 'income'),
     queryFn: () => fetchCategoryBreakdown({ startDate: targetMonthRange.startDate, endDate: targetMonthRange.endDate, type: 'income' }),
-    enabled: isMonthCompare,
-    staleTime: 5 * 60 * 1000,
+    enabled: !!bookId && (isMonthCompare),
+    staleTime: STALE.statistics,
+    gcTime: GC_TIME_LONG,
   })
 
   const { data: currentYearExpense = [], isLoading: currentYearExpenseLoading } = useQuery({
-    queryKey: ['statistics', 'category-breakdown', currentYearRange.startDate, currentYearRange.endDate, 'expense'],
+    queryKey: queryKeys.statistics.categoryBreakdown(bookId, currentYearRange.startDate, currentYearRange.endDate, 'expense'),
     queryFn: () => fetchCategoryBreakdown({ startDate: currentYearRange.startDate, endDate: currentYearRange.endDate, type: 'expense' }),
-    enabled: isYearCompare,
-    staleTime: 5 * 60 * 1000,
+    enabled: !!bookId && (isYearCompare),
+    staleTime: STALE.statistics,
+    gcTime: GC_TIME_LONG,
   })
 
   const { data: currentYearIncome = [], isLoading: currentYearIncomeLoading } = useQuery({
-    queryKey: ['statistics', 'category-breakdown', currentYearRange.startDate, currentYearRange.endDate, 'income'],
+    queryKey: queryKeys.statistics.categoryBreakdown(bookId, currentYearRange.startDate, currentYearRange.endDate, 'income'),
     queryFn: () => fetchCategoryBreakdown({ startDate: currentYearRange.startDate, endDate: currentYearRange.endDate, type: 'income' }),
-    enabled: isYearCompare,
-    staleTime: 5 * 60 * 1000,
+    enabled: !!bookId && (isYearCompare),
+    staleTime: STALE.statistics,
+    gcTime: GC_TIME_LONG,
   })
 
   const { data: targetYearExpense = [], isLoading: targetYearExpenseLoading } = useQuery({
-    queryKey: ['statistics', 'category-breakdown', targetYearRange.startDate, targetYearRange.endDate, 'expense'],
+    queryKey: queryKeys.statistics.categoryBreakdown(bookId, targetYearRange.startDate, targetYearRange.endDate, 'expense'),
     queryFn: () => fetchCategoryBreakdown({ startDate: targetYearRange.startDate, endDate: targetYearRange.endDate, type: 'expense' }),
-    enabled: isYearCompare,
-    staleTime: 5 * 60 * 1000,
+    enabled: !!bookId && (isYearCompare),
+    staleTime: STALE.statistics,
+    gcTime: GC_TIME_LONG,
   })
 
   const { data: targetYearIncome = [], isLoading: targetYearIncomeLoading } = useQuery({
-    queryKey: ['statistics', 'category-breakdown', targetYearRange.startDate, targetYearRange.endDate, 'income'],
+    queryKey: queryKeys.statistics.categoryBreakdown(bookId, targetYearRange.startDate, targetYearRange.endDate, 'income'),
     queryFn: () => fetchCategoryBreakdown({ startDate: targetYearRange.startDate, endDate: targetYearRange.endDate, type: 'income' }),
-    enabled: isYearCompare,
-    staleTime: 5 * 60 * 1000,
+    enabled: !!bookId && (isYearCompare),
+    staleTime: STALE.statistics,
+    gcTime: GC_TIME_LONG,
   })
 
   // Merge and sort breakdown data

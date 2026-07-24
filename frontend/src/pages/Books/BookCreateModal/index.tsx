@@ -14,6 +14,8 @@ import { Textarea } from '../../../components/ui/Textarea';
 import { IconGrid } from '../../../components/ui/IconGrid';
 import type { CustomIconItem } from '../../../components/ui/IconGrid';
 import './index.scss';
+import { queryKeys } from '../../../utils/queryKeys'
+import { STALE } from '../../../utils/cachePolicy'
 
 interface BookCreateModalProps {
   open: boolean;
@@ -39,9 +41,9 @@ export const BookCreateModal: React.FC<BookCreateModalProps> = ({ open, onClose,
 
   // 获取账本自定义图标
   const { data: customIcons = [], refetch: refetchIcons } = useQuery({
-    queryKey: ['customIcons', 'book'],
+    queryKey: queryKeys.customIcons.byType('book'),
     queryFn: () => fetchCustomIcons('book'),
-    staleTime: 5 * 60 * 1000,
+    staleTime: STALE.customIcons,
     enabled: open, // 仅弹窗打开时请求
   });
 

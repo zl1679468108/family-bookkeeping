@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { fetchMemberLocations } from '../../../services/mapApi';
 import type { MemberLocation } from '@family-bookkeeping/shared-types'
 import { getThemeColors } from '../../../utils/themeColors'
+import { queryKeys } from '../../../utils/queryKeys'
 
 /** 离线判定阈值：2 分钟 */
 const OFFLINE_THRESHOLD_MS = 120_000;
@@ -62,9 +63,10 @@ export const MemberLocationLayer: React.FC<MemberLocationLayerProps> = ({
 
   // 轮询成员位置，每 60s，避免地图页长时间打开时把后端持续点亮
   const { data: locations = [] } = useQuery<MemberLocation[]>({
-    queryKey: ['memberLocations', bookId],
+    queryKey: queryKeys.map.memberLocations(bookId || ''),
     queryFn: fetchMemberLocations,
     enabled: !!bookId,
+    staleTime: 30_000,
     refetchInterval: 60_000,
     refetchIntervalInBackground: false,
   });

@@ -10,6 +10,8 @@ import { useBook } from '../../hooks/useBook'
 import { format, startOfMonth } from 'date-fns'
 import { useDebouncedAction } from '../../hooks/useDebouncedAction'
 import './index.scss'
+import { queryKeys } from '../../utils/queryKeys'
+import { STALE } from '../../utils/cachePolicy'
 
 // SVG 图标组件 - 直接定义SVG元素，与设计稿一致
 const Icons = {
@@ -174,11 +176,13 @@ export const Sidebar: React.FC = () => {
 
   // 获取预算状态，计算超预算数量
   const currentMonth = format(startOfMonth(new Date()), 'yyyy-MM-dd')
-  const { hasBooks } = useBook()
+  const { hasBooks, currentBook } = useBook()
+  const bookId = currentBook?.id || ''
   const { data: budgetStatus } = useQuery({
-    queryKey: ['budgets', 'status', currentMonth],
+    queryKey: queryKeys.budgets.status(bookId, currentMonth),
     queryFn: () => fetchBudgetStatus(currentMonth),
-    enabled: !collapsed && hasBooks, // 只在展开时且已有账本时获取数据
+    enabled: !collapsed && hasBooks && !!bookId,
+    staleTime: STALE.budgets,
   })
   const overBudgetCount = budgetStatus?.categories?.filter(c => c.status === 'over').length || 0
 

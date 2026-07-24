@@ -13,6 +13,9 @@ import {
   ApiError,
 } from '../services/api';
 import { saveAccount, updateAccountInfo } from './savedAccounts';
+import { queryKeys, USER_SCOPED_ROOT_KEYS, removeQueryRoots } from './queryKeys';
+import { clearAddTransactionDraft } from './addTransactionDraft';
+import { STALE } from './cachePolicy';
 
 interface AuthContextType {
   user: UserProfile | null;
@@ -32,19 +35,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // 登录后重置所有与用户相关的缓存：账本 / 交易 / 预算等
   const resetUserCache = useCallback(() => {
-    queryClient.removeQueries({ queryKey: ['books'] });
-    queryClient.removeQueries({ queryKey: ['transactions'] });
-    queryClient.removeQueries({ queryKey: ['statistics'] });
-    queryClient.removeQueries({ queryKey: ['budgets'] });
-    queryClient.removeQueries({ queryKey: ['categories'] });
-    queryClient.removeQueries({ queryKey: ['templates'] });
-    queryClient.removeQueries({ queryKey: ['reports'] });
+    removeQueryRoots(queryClient, USER_SCOPED_ROOT_KEYS);
+    clearAddTransactionDraft();
   }, [queryClient]);
 
   // 用 useQuery 管理 /auth/profile 请求，直接用 profileData 作为 user
   // 关键：不再经过额外的 useState 同步，避免渲染时序间隙导致误判登录状态
   const { data: profileData, refetch, isFetched } = useQuery({
-    queryKey: ['auth', 'profile'],
+    queryKey: queryKeys.auth.profile,
+    staleTime: STALE.authProfile,
     queryFn: async () => {
       try {
         const profile = await getProfile();
@@ -62,7 +61,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     },
     enabled: hasToken(),
-    staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
     retry: (failureCount, error) => {
@@ -97,7 +95,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // 与 signIn 保持一致：先清空所有缓存，再设置 profile 并 refetch
       // 避免 removeQueries 触发级联 refetch 时旧 token 残留导致 token 被清
       resetUserCache();
-      queryClient.setQueryData(['auth', 'profile'], profile);
+      queryClient.setQueryData(queryKeys.auth.profile, profile);
 
       // 切换成功：同步更新 savedAccounts 中该账号的 token、用户名、头像
       updateAccountInfo(email, {
@@ -130,7 +128,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       avatar_url: userData.avatar_url,
     });
     resetUserCache();
-    queryClient.setQueryData(['auth', 'profile'], userData);
+    queryClient.setQueryData(queryKeys.auth.profile, userData);
     await refetch();
   }, [queryClient, refetch, resetUserCache]);
 
@@ -146,7 +144,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       avatar_url: userData.avatar_url,
     });
     resetUserCache();
-    queryClient.setQueryData(['auth', 'profile'], userData);
+    queryClient.setQueryData(queryKeys.auth.profile, userData);
     await refetch();
   }, [queryClient, refetch, resetUserCache]);
 
@@ -157,7 +155,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     } finally {
       clearStoredToken();
-      queryClient.setQueryData(['auth', 'profile'], null);
+      queryClient.setQueryData(queryKeys.auth.profile, null);
       resetUserCache();
     }
   }, [queryClient, resetUserCache]);

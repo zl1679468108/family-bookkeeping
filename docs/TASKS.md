@@ -85,6 +85,14 @@
 
 ### ✅ 已完成
 
+#### 2026-07-24 React Query 缓存复用：queryKeys / cachePolicy / queryClient
+- 新增 `utils/queryKeys.ts`：全站 key 工厂 + book 维度隔离 + `BOOK_SCOPED`/`USER_SCOPED`/`TRANSACTION_IMPACT` 根 key 与 invalidate/remove 助手。
+- 新增 `cachePolicy.ts`（STALE/GC）、`queryClient.ts` 单例；`main.tsx` 共用。
+- 新增 `addTransactionDraft.ts`：记一笔按账本 sessionStorage 草稿。
+- 迁移 hooks（auth/useBook/categories/templates/annual/member*）与 Dashboard/流水/预算/日历/地图/报表/Admin/账本等调用点。
+- `useMutationAction`/`useSort` 支持只读 `QueryKey`。
+- 流水筛选状态同步 URL；验证 frontend `tsc --noEmit` 通过。
+
 #### 2026-07-24 UI 复用收口第三轮 + 暗色/图标/校验
 - EmptyState 剩余 `title=` 收口为单段 `description`（Transactions/Admin/Map/Calendar 等）。
 - 双端新增 `utils/validation.ts`：密码长度/匹配/强度/字母数字、邮箱校验；Profile/EditProfile/Register/Forgot/Reset 迁移。

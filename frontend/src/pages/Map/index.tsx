@@ -18,6 +18,8 @@ import { format, startOfMonth, endOfMonth } from 'date-fns';
 import './index.scss';
 import { getThemeColors } from '../../utils/themeColors'
 import { formatAmount } from '../../utils/common';
+import { queryKeys } from '../../utils/queryKeys';
+import { STALE } from '../../utils/cachePolicy';
 
 type ViewMode = 'footprints' | 'heatmap';
 
@@ -79,42 +81,31 @@ const MapPage: React.FC = () => {
   }, [isMultiMember, selectedMemberId, members]);
 
   // ---- 查询参数 ----
-  const transactionsQueryKey = useMemo(
-    () => [
-      'map',
-      'transactions',
-      filters.startDate,
-      filters.endDate,
-      filters.type,
-      filters.categories?.join(','),
-      memberIds?.join(','),
-    ],
-    [filters.startDate, filters.endDate, filters.type, filters.categories, memberIds],
-  );
-
-  const merchantsQueryKey = useMemo(
-    () => [
-      'map',
-      'merchants',
-      filters.startDate,
-      filters.endDate,
-      filters.type,
-      filters.categories?.join(','),
-      memberIds?.join(','),
-    ],
+  const mapFilterKey = useMemo(
+    () => ({
+      startDate: filters.startDate,
+      endDate: filters.endDate,
+      type: filters.type,
+      categories: filters.categories?.join(',') || '',
+      memberIds: memberIds?.join(',') || '',
+    }),
     [filters.startDate, filters.endDate, filters.type, filters.categories, memberIds],
   );
 
   // 获取交易数据（热力图需要原始交易数据）
   const { data: transactions = [], isLoading: isTxLoading } = useQuery({
-    queryKey: transactionsQueryKey,
+    queryKey: queryKeys.map.transactions(bookId || '', mapFilterKey),
     queryFn: () => fetchMapTransactions({ ...filters, memberIds }),
+    enabled: !!bookId,
+    staleTime: STALE.map,
   });
 
   // 获取商户汇总
   const { data: merchants = [], isLoading: isMerchantLoading } = useQuery({
-    queryKey: merchantsQueryKey,
+    queryKey: queryKeys.map.merchants(bookId || '', mapFilterKey),
     queryFn: () => fetchMerchantSummary({ ...filters, memberIds }),
+    enabled: !!bookId,
+    staleTime: STALE.map,
   });
 
   // 合并加载状态

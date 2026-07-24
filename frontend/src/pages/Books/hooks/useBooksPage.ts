@@ -10,6 +10,8 @@ import {
 } from '../../../services/booksApi';
 import { notify } from '../../../utils/notifications';
 import { useMutationAction } from '../../../hooks/useMutationAction';
+import { queryKeys } from '../../../utils/queryKeys'
+import { STALE } from '../../../utils/cachePolicy'
 
 export interface InviteCodeData {
   code: string;
@@ -50,17 +52,17 @@ export function useBooksPage() {
   }, []);
 
   const { data: members = [], isLoading: membersLoading } = useQuery({
-    queryKey: ['book-members', selectedBook?.id],
+    queryKey: queryKeys.books.members(selectedBook?.id || ''),
     queryFn: () => (selectedBook?.id ? fetchBookMembers(selectedBook.id) : []),
     enabled: !!selectedBook?.id && showDetail,
-    staleTime: 30 * 1000,
+    staleTime: STALE.bookMembers,
   });
 
   const inviteMutation = useMutationAction(
     ({ bookId, email }: { bookId: string; email: string }) =>
       inviteMember(bookId, email),
     {
-      invalidateKeys: [['book-members']],
+      invalidateKeys: [queryKeys.books.membersRoot],
       successMessage: '邀请已发送',
       errorMessage: '邀请失败，请检查邮箱',
       onSuccess: closeAllDialogs,
@@ -104,7 +106,7 @@ export function useBooksPage() {
     ({ bookId, userId }: { bookId: string; userId: string }) =>
       removeMember(bookId, userId),
     {
-      invalidateKeys: [['book-members']],
+      invalidateKeys: [queryKeys.books.membersRoot],
       successMessage: '成员已移除',
       errorMessage: '移除失败',
       onSuccess: () => {

@@ -21,6 +21,8 @@ import { TableRowsSkeleton } from '../../../components/ui/Skeleton'
 import { GlobalModal } from '../../../components/ui';
 import { renderCategoryIcon } from '../../../utils/renderCategoryIcon';
 import { formatMoney } from '../../../utils/budget';
+import { queryKeys } from '../../../utils/queryKeys'
+import { STALE } from '../../../utils/cachePolicy'
 
 const AdminTransactions: React.FC = () => {
   const [page, setPage] = useState(1);
@@ -35,21 +37,21 @@ const AdminTransactions: React.FC = () => {
   const [showPreview, setShowPreview] = useState(false);
 
   const { data: usersData } = useQuery<UsersListResponse>({
-    queryKey: ['admin', 'users-for-select'],
+    queryKey: queryKeys.admin.usersForSelect,
     queryFn: () => getAdminUsers({ page: 1, pageSize: 1000 }),
   });
 
   const usersForSelect = usersData?.users || [];
 
   const { data: booksData } = useQuery<AdminBookListResponse>({
-    queryKey: ['admin', 'books-for-select'],
+    queryKey: queryKeys.admin.booksForSelect,
     queryFn: () => getAdminBooks(),
   });
 
   const booksForSelect = booksData?.books || [];
 
   const { data, isLoading, error } = useQuery<AdminTransactionsResponse>({
-    queryKey: ['admin', 'transactions', page, debouncedSearch, typeFilter, bookFilter, userFilter, pageSize],
+    queryKey: queryKeys.admin.transactions(page, debouncedSearch, typeFilter, bookFilter, userFilter, pageSize),
     queryFn: () =>
       getAdminTransactions({
         page,

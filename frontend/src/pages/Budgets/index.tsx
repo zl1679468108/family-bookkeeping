@@ -20,6 +20,9 @@ import { NumberInput } from '../../components/ui/Input'
 import { EmptyState } from '../../components/ui/EmptyState'
 import { DropdownSelect } from '../../components/ui/Dropdown'
 import { budgetStatusToVariant, budgetVariantLabel, formatMoney } from '../../utils/budget'
+import { useBook } from '../../hooks/useBook'
+import { queryKeys } from '../../utils/queryKeys'
+import { STALE } from '../../utils/cachePolicy'
 
 const formatMonthToDisplay = (monthStr: string): string => {
   const date = new Date(monthStr)
@@ -37,6 +40,8 @@ const progressFillClass = (variant: 'safe' | 'warn' | 'danger'): string => {
 const Budgets: React.FC = () => {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
+  const { currentBook } = useBook()
+  const bookId = currentBook?.id || ''
   const { categories } = useCategoryLookup()
 
   const { focusId, hasFocus } = useFocusItem()
@@ -54,13 +59,17 @@ const Budgets: React.FC = () => {
 
 
   const { data: budgets = [], isLoading: budgetsLoading } = useQuery<BudgetRecord[]>({
-    queryKey: ['budgets', selectedMonth],
+    queryKey: queryKeys.budgets.list(bookId, selectedMonth),
     queryFn: () => fetchBudgets(selectedMonth),
+    enabled: !!bookId,
+    staleTime: STALE.budgets,
   })
 
   const { data: budgetStatus } = useQuery({
-    queryKey: ['budgets', 'status', selectedMonth],
+    queryKey: queryKeys.budgets.status(bookId, selectedMonth),
     queryFn: () => fetchBudgetStatus(selectedMonth),
+    enabled: !!bookId,
+    staleTime: STALE.budgets,
   })
 
   const budgetMap = useMemo(() => {
@@ -118,8 +127,7 @@ const Budgets: React.FC = () => {
       if (!isSingleClear) {
         notifySuccess('预算保存成功')
       }
-      queryClient.invalidateQueries({ queryKey: ['budgets', selectedMonth] })
-      queryClient.invalidateQueries({ queryKey: ['budgets', 'status', selectedMonth] })
+      queryClient.invalidateQueries({ queryKey: queryKeys.budgets.all })
     },
     onError: (err: any) => {
       notifyError(err, '预算保存失败')
@@ -162,8 +170,7 @@ const Budgets: React.FC = () => {
         return
       }
       notifySuccess(`已复制上月 ${result.length} 条预算`)
-      queryClient.invalidateQueries({ queryKey: ['budgets', selectedMonth] })
-      queryClient.invalidateQueries({ queryKey: ['budgets', 'status', selectedMonth] })
+      queryClient.invalidateQueries({ queryKey: queryKeys.budgets.all })
       setShowCopyConfirm(false)
     } catch (err: any) {
       notifyError(err, '复制上月预算失败')

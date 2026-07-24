@@ -3,10 +3,11 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../utils/auth';
 import { setCurrentBook as setCurrentBookApi } from '../services/api';
 import { fetchBooks } from '../services/booksApi';
-;
-
 import { Book } from '@family-bookkeeping/shared-types';
 import { notifyError } from '../utils/notifyError'
+import { queryKeys, BOOK_SCOPED_ROOT_KEYS } from '../utils/queryKeys'
+import { STALE } from '../utils/cachePolicy'
+import { clearAddTransactionDraft } from '../utils/addTransactionDraft'
 
 interface BookContextType {
   currentBook: Book | null;
@@ -35,12 +36,11 @@ export const BookProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const { user } = useAuth();
   const queryClient = useQueryClient();
 
-  // 关键修复：books 查询依赖 user.id。用户切换时，query key 变化会自动重新请求
   const { data: books = [], isLoading: booksLoading, refetch } = useQuery({
-    queryKey: ['books', user?.id || 'guest'],
+    queryKey: queryKeys.books.list(user?.id || 'guest'),
     queryFn: () => fetchBooks(),
-    // 移除 staleTime，避免长时间用旧缓存
-    enabled: !!user, // 只有登录用户才查询
+    staleTime: STALE.books,
+    enabled: !!user,
   });
 
   const refetchBooks = useCallback(async () => {
@@ -51,15 +51,12 @@ export const BookProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, [refetch]);
 
-  // 用户切换时必须重置 currentBook（避免显示旧账号选中的账本）
   useEffect(() => {
     setCurrentBook(null);
   }, [user?.id]);
 
-  // 账本列表加载完成后：按后端的 current_book_id 选中默认账本
   useEffect(() => {
     if (booksLoading || !user || books.length === 0) return;
-    // 如果当前已有选中的账本且仍在列表中，不做处理
     if (currentBook && books.some((b: Book) => b.id === currentBook.id)) return;
 
     const serverBookId = user?.current_book_id;
@@ -70,7 +67,6 @@ export const BookProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return;
       }
     }
-    // 否则选中列表中的第一个账本
     setCurrentBook(books[0]);
   }, [books, booksLoading, user, currentBook]);
 
@@ -78,6 +74,7 @@ export const BookProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const hasBooks = !booksLoading && books.length > 0;
 
   const switchBook = useCallback(async (book: Book | null) => {
+    const prevBookId = currentBook?.id;
     setCurrentBook(book);
     if (book?.id) {
       try {
@@ -86,11 +83,13 @@ export const BookProvider: React.FC<{ children: React.ReactNode }> = ({ children
         notifyError('设置当前账本失败，请重试');
       }
     }
-    // T-H6: await API 成功后再 invalidate，避免竞态
-    queryClient.invalidateQueries({ queryKey: ['transactions'] });
-    queryClient.invalidateQueries({ queryKey: ['statistics'] });
-    queryClient.invalidateQueries({ queryKey: ['budgets'] });
-  }, [queryClient]);
+    BOOK_SCOPED_ROOT_KEYS.forEach((key) => {
+      queryClient.invalidateQueries({ queryKey: [...key] });
+    });
+    if (prevBookId && prevBookId !== book?.id) {
+      clearAddTransactionDraft(prevBookId);
+    }
+  }, [queryClient, currentBook?.id]);
 
   const setCurrentBookId = useCallback(
     (bookId: string) => {
@@ -100,8 +99,6 @@ export const BookProvider: React.FC<{ children: React.ReactNode }> = ({ children
     [books, switchBook],
   );
 
-  // 关键：Provider value 必须缓存，否则每次渲染会生成新对象，
-  // 导致所有 useBook() 消费者重新渲染，进而触发大量 useEffect/useQuery 重新执行
   const contextValue = useMemo<BookContextType>(
     () => ({
       currentBook,

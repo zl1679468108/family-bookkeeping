@@ -17,10 +17,13 @@ import { EmptyState } from '../../components/ui/EmptyState'
 import { StatCard } from '../../components/ui/StatCard'
 import { Button } from '../../components/ui/Button'
 import { EmptyAddTransactionAction } from '../../components/ui/EmptyState/emptyActions'
+import { queryKeys } from '../../utils/queryKeys'
+import { GC_TIME_LONG, STALE } from '../../utils/cachePolicy'
 
 const Dashboard: React.FC = () => {
   const navigate = useNavigate()
-  const { hasBooks } = useBook()
+  const { hasBooks, currentBook } = useBook()
+  const bookId = currentBook?.id || ''
   const { getCategoryIconNode } = useCategoryLookup()
 
   // 关键：缓存本月日期范围字符串。若每次渲染都重新 format，
@@ -35,24 +38,25 @@ const Dashboard: React.FC = () => {
   }, [])
 
   const { data: summary, isLoading: summaryLoading } = useQuery({
-    queryKey: ['statistics', 'summary', monthStart, monthEnd],
+    queryKey: queryKeys.statistics.summary(bookId, monthStart, monthEnd),
     queryFn: () => fetchSummary({ startDate: monthStart, endDate: monthEnd }),
-    enabled: hasBooks,
-    staleTime: 5 * 60 * 1000, // T-M5: 5 分钟内不重新请求
+    enabled: hasBooks && !!bookId,
+    staleTime: STALE.statistics,
+    gcTime: GC_TIME_LONG,
   })
 
   const { data: recentPaginated, isLoading: recentLoading } = useQuery({
-    queryKey: ['transactions', 'recent', monthStart, monthEnd],
+    queryKey: queryKeys.transactions.recent(bookId, monthStart, monthEnd),
     queryFn: () => getTransactions({ pageSize: 5, startDate: monthStart, endDate: monthEnd }),
-    enabled: hasBooks,
-    staleTime: 5 * 60 * 1000, // T-M5: 5 分钟内不重新请求
+    enabled: hasBooks && !!bookId,
+    staleTime: STALE.transactions,
   })
 
   const { data: budgetStatus, isLoading: budgetLoading } = useQuery({
-    queryKey: ['budgets', 'status', monthStr],
+    queryKey: queryKeys.budgets.status(bookId, monthStr),
     queryFn: () => fetchBudgetStatus(monthStr),
-    enabled: hasBooks,
-    staleTime: 5 * 60 * 1000, // T-M5: 5 分钟内不重新请求
+    enabled: hasBooks && !!bookId,
+    staleTime: STALE.budgets,
   })
 
   const recentTransactions = recentPaginated?.data || []

@@ -13,6 +13,14 @@ import { parseImageList } from '../../../utils/parseImageList'
 import { compressImage } from '../../../utils/imageCompress'
 import type { LocationResult } from '@family-bookkeeping/shared-types'
 import type { Template } from '@family-bookkeeping/shared-types'
+import { useBook } from '../../../hooks/useBook'
+import { queryKeys, TRANSACTION_IMPACT_ROOT_KEYS, invalidateQueryRoots } from '../../../utils/queryKeys'
+import { STALE } from '../../../utils/cachePolicy'
+import {
+  clearAddTransactionDraft,
+  loadAddTransactionDraft,
+  saveAddTransactionDraft,
+} from '../../../utils/addTransactionDraft'
 
 export const MAX_NOTE_LENGTH = 500
 export const MAX_IMAGES = 10
@@ -32,12 +40,15 @@ export interface FormData {
 }
 
 export function useTransactionForm() {
+  const { currentBook } = useBook()
+  const bookId = currentBook?.id || ''
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const queryClient = useQueryClient()
   const fileInputRef = useRef<HTMLInputElement>(null)
   // OCR 独立的文件输入：单选一张图，仅用于识别填充表单，不作为附件
   const ocrFileInputRef = useRef<HTMLInputElement>(null)
+  const draftRestoredRef = useRef(false)
 
   const editIdRaw = searchParams.get('edit')
   const editIdNum = editIdRaw ? Number(editIdRaw) : NaN
@@ -64,9 +75,10 @@ export function useTransactionForm() {
 
   // Queries
   const { data: editData, isLoading: editLoading } = useQuery({
-    queryKey: ['transaction', editIdNum],
+    queryKey: queryKeys.transactions.detail(bookId, editIdNum),
     queryFn: () => getTransaction(editIdNum),
-    enabled: isEditMode,
+    enabled: isEditMode && !!bookId,
+    staleTime: STALE.transactionDetail,
   })
 
   const { data: categories = [] } = useCategories()
@@ -95,14 +107,52 @@ export function useTransactionForm() {
     }
   }, [editData])
 
-  // 从编辑模式切换到新建模式（或新建模式进入）时重置表单（F-M13）
+  // 新建模式：从 sessionStorage 恢复草稿（按账本隔离）
   useEffect(() => {
-    if (!isEditMode) {
-      handleReset()
+    if (isEditMode) {
+      draftRestoredRef.current = false
+      return
     }
-    // 仅依赖 isEditMode，切换时触发
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isEditMode])
+    if (!bookId || draftRestoredRef.current) return
+    draftRestoredRef.current = true
+    const draft = loadAddTransactionDraft(bookId)
+    if (!draft) return
+    setFormData({
+      amount: draft.formData.amount || '',
+      category: draft.formData.category || '',
+      type: draft.formData.type === 'income' ? 'income' : 'expense',
+      date: draft.formData.date || todayStr,
+      brand: draft.formData.brand || '',
+      note: draft.formData.note || '',
+    })
+    setLocation(draft.location || null)
+  }, [bookId, isEditMode, todayStr])
+
+  // 新建模式：表单变更时自动保存草稿
+  useEffect(() => {
+    if (isEditMode || !bookId || !draftRestoredRef.current) return
+    const isEmpty =
+      !formData.amount &&
+      !formData.category &&
+      !formData.brand &&
+      !formData.note &&
+      !location
+    if (isEmpty) {
+      clearAddTransactionDraft(bookId)
+      return
+    }
+    saveAddTransactionDraft(bookId, {
+      formData: {
+        amount: formData.amount,
+        category: formData.category,
+        type: formData.type,
+        date: formData.date,
+        brand: formData.brand,
+        note: formData.note,
+      },
+      location,
+    })
+  }, [formData, location, bookId, isEditMode])
 
   // Derived data
   const allImageUrls = useMemo(
@@ -198,9 +248,7 @@ export function useTransactionForm() {
           }
         }
 
-        queryClient.invalidateQueries({ queryKey: ['transactions'] })
-        queryClient.invalidateQueries({ queryKey: ['statistics'] })
-        queryClient.invalidateQueries({ queryKey: ['budgets'] })
+        invalidateQueryRoots(queryClient, TRANSACTION_IMPACT_ROOT_KEYS)
         notifySuccess('交易已更新')
       } else {
         const result = await createMutation.mutateAsync()
@@ -217,9 +265,7 @@ export function useTransactionForm() {
           }
         }
 
-        queryClient.invalidateQueries({ queryKey: ['transactions'] })
-        queryClient.invalidateQueries({ queryKey: ['statistics'] })
-        queryClient.invalidateQueries({ queryKey: ['budgets'] })
+        invalidateQueryRoots(queryClient, TRANSACTION_IMPACT_ROOT_KEYS)
         notifySuccess('交易已保存')
       }
       handleReset()
@@ -372,6 +418,7 @@ export function useTransactionForm() {
       setFormData({ amount: '', category: '', type: 'expense', date: todayStr, brand: '', note: '' })
       setLocation(null)
       handleClearAllImages()
+      if (bookId) clearAddTransactionDraft(bookId)
     }
   }
 

@@ -8,8 +8,13 @@ import { notify } from '../../../utils/notifications'
 import { notifyInfo } from '../../../utils/notifyError'
 import type { CreateTemplateInput } from '@family-bookkeeping/shared-types';
 import type { LocationResult } from '@family-bookkeeping/shared-types'
+import { useBook } from '../../../hooks/useBook'
+import { queryKeys } from '../../../utils/queryKeys'
+import { STALE } from '../../../utils/cachePolicy'
 
 export function useTemplatesPage() {
+  const { currentBook } = useBook()
+  const bookId = currentBook?.id || ''
   const queryClient = useQueryClient()
 
   const [selectedTemplate, setSelectedTemplate] = useState<any>(null)
@@ -35,8 +40,10 @@ export function useTemplatesPage() {
   })
 
   const { data: templates = [], isLoading } = useQuery({
-    queryKey: ['templates'],
+    queryKey: queryKeys.templates.list(bookId),
     queryFn: fetchTemplates,
+    enabled: !!bookId,
+    staleTime: STALE.templates,
   })
 
   const { data: categories = [] } = useCategories()
@@ -52,7 +59,7 @@ export function useTemplatesPage() {
     handleDrop,
     handleDragEnd,
     isSaving,
-  } = useSort(['templates'], templates, (orders) => {
+  } = useSort(queryKeys.templates.all, templates, (orders) => {
     const ids = orders.map(o => o.id)
     return reorderTemplates({ ids })
   })
@@ -60,7 +67,7 @@ export function useTemplatesPage() {
   const { run: handleDeleteTemplate, isRunning: deleteLoading } = useMutationAction(
     () => deleteTemplate(selectedTemplate.id),
     {
-      invalidateKeys: [['templates']],
+      invalidateKeys: [queryKeys.templates.all],
       successMessage: '模板已删除',
       errorMessage: '删除失败',
       onSuccess: () => {
@@ -74,7 +81,7 @@ export function useTemplatesPage() {
   const createMutation = useMutationAction(
     (data: CreateTemplateInput) => createTemplate(data),
     {
-      invalidateKeys: [['templates']],
+      invalidateKeys: [queryKeys.templates.all],
       successMessage: '模板已创建',
       errorMessage: '创建失败',
     },
@@ -83,7 +90,7 @@ export function useTemplatesPage() {
   const updateMutation = useMutationAction(
     ({ id, data }: { id: string; data: Partial<CreateTemplateInput> }) => updateTemplate(id, data),
     {
-      invalidateKeys: [['templates']],
+      invalidateKeys: [queryKeys.templates.all],
       successMessage: '模板已更新',
       errorMessage: '更新失败',
       onSuccess: () => {

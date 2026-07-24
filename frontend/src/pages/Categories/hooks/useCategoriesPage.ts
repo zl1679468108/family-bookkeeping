@@ -11,8 +11,13 @@ import { useMutationAction } from '../../../hooks/useMutationAction'
 import type { Category, CreateCategoryInput } from '@family-bookkeeping/shared-types'
 import type { CustomIconItem } from '../../../components/ui/IconGrid'
 import { notifySuccess } from '../../../utils/notifyError'
+import { useBook } from '../../../hooks/useBook'
+import { queryKeys } from '../../../utils/queryKeys'
+import { STALE } from '../../../utils/cachePolicy'
 
 export function useCategoriesPage() {
+  const { currentBook } = useBook()
+  const bookId = currentBook?.id || ''
   const queryClient = useQueryClient()
   const [activeTab, setActiveTab] = useState<'expense' | 'income'>('expense')
 
@@ -33,9 +38,9 @@ export function useCategoriesPage() {
   // Queries
   const { data: customCategories = [], isLoading } = useCategories()
   const { data: customIcons = [], refetch: refetchIcons } = useQuery({
-    queryKey: ['customIcons', 'category'],
+    queryKey: queryKeys.customIcons.byType('category'),
     queryFn: () => fetchCustomIcons('category'),
-    staleTime: 5 * 60 * 1000,
+    staleTime: STALE.customIcons,
   })
 
   const filteredCategories = React.useMemo(
@@ -56,7 +61,7 @@ export function useCategoriesPage() {
     handleDrop,
     handleDragEnd,
     isSaving,
-  } = useSort<Category>(['categories'], filteredCategories, reorderCategories) as {
+  } = useSort<Category>([...queryKeys.categories.all], filteredCategories, reorderCategories) as {
     sortingMode: boolean
     dragIndex: number | null
     orderedList: Category[]
@@ -74,7 +79,7 @@ export function useCategoriesPage() {
   const createMutation = useMutationAction(
     (input: CreateCategoryInput) => createCategory(input),
     {
-      invalidateKeys: [['categories']],
+      invalidateKeys: [queryKeys.categories.all],
       successMessage: '分类已创建',
       errorMessage: '创建失败',
       onSuccess: () => setModalOpen(false),
@@ -85,7 +90,7 @@ export function useCategoriesPage() {
     ({ id, name, icon, icon_id }: { id: string; name: string; icon?: string; icon_id?: string }) =>
       updateCategory(id, { name, icon, icon_id }),
     {
-      invalidateKeys: [['categories']],
+      invalidateKeys: [queryKeys.categories.all],
       successMessage: '分类已更新',
       errorMessage: '更新失败',
       onSuccess: () => {
@@ -100,7 +105,7 @@ export function useCategoriesPage() {
   const deleteMutation = useMutationAction(
     (id: string) => deleteCategory(id),
     {
-      invalidateKeys: [['categories']],
+      invalidateKeys: [queryKeys.categories.all],
       successMessage: '已删除',
       errorMessage: '删除失败',
       onSuccess: () => {

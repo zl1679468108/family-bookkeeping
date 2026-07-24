@@ -7,12 +7,14 @@ import { StatCardsSkeleton, TableRowsSkeleton } from '../../../components/ui/Ske
 import { EmptyState } from '../../../components/ui/EmptyState';
 import { formatMoney } from '../../../utils/budget';
 import { formatDateTime } from '../../../utils/date';
+import { queryKeys } from '../../../utils/queryKeys'
+import { STALE } from '../../../utils/cachePolicy'
 
 const AdminDashboard: React.FC = () => {
   const navigate = useNavigate();
 
   const { data: stats, isLoading, error } = useQuery<PlatformStats>({
-    queryKey: ['admin', 'stats'],
+    queryKey: queryKeys.admin.stats,
     queryFn: getAdminStats,
   });
 

@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react'
-import { useQueryClient } from '@tanstack/react-query'
+import { useQueryClient, type QueryKey } from '@tanstack/react-query'
 import { useDebouncedAction } from './useDebouncedAction'
 
 /**
@@ -36,7 +36,7 @@ interface UseSortReturn<T extends SortableItem> {
  * @returns 排序相关的状态和处理函数
  */
 export function useSort<T extends SortableItem>(
-  queryKey: string[],
+  queryKey: QueryKey,
   list: T[],
   reorderFn?: (orders: { id: string; sort_order: number }[]) => Promise<void>
 ): UseSortReturn<T> {

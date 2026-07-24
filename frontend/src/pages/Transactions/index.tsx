@@ -1,9 +1,10 @@
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useEffect, useCallback } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { useQuery } from '@tanstack/react-query'
+import { keepPreviousData, useQuery, useQueryClient } from '@tanstack/react-query'
 import { startOfMonth, format, parse } from 'date-fns'
 import { getTransactions, deleteTransaction } from '../../services/api'
 import { useCategoryLookup, useCategories } from '../../hooks/useCategories'
+import { useBook } from '../../hooks/useBook'
 import { renderCategoryIcon } from '../../utils/renderCategoryIcon'
 import type { DropdownOption } from '../../components/ui/Dropdown'
 import type { Transaction } from '../../services/api'
@@ -22,17 +23,19 @@ import { Button } from '../../components/ui/Button'
 import { EmptyAddTransactionAction } from '../../components/ui/EmptyState/emptyActions'
 import { FilterBar } from '../../components/ui/FilterBar'
 import { SearchInput, NumberInput } from '../../components/ui/Input'
-
-import { useQueryClient } from '@tanstack/react-query'
 import { parseImageList } from '../../utils/parseImageList'
 import { notifySuccess } from '../../utils/notifyError'
+import { queryKeys, TRANSACTION_IMPACT_ROOT_KEYS, invalidateQueryRoots } from '../../utils/queryKeys'
+import { STALE } from '../../utils/cachePolicy'
 
 const PAGE_SIZE = 20
 
 const Transactions: React.FC = () => {
   const navigate = useNavigate()
-  const [searchParams] = useSearchParams()
+  const [searchParams, setSearchParams] = useSearchParams()
   const queryClient = useQueryClient()
+  const { currentBook } = useBook()
+  const bookId = currentBook?.id || ''
   const { getCategoryName, getCategoryIconNode } = useCategoryLookup()
 
   // 高亮聚焦项
@@ -44,18 +47,48 @@ const Transactions: React.FC = () => {
 
   const { data: allCategories = [] } = useCategories()
 
-  const [typeFilter, setTypeFilter] = useState<string>(() => {
-    const t = searchParams.get('type')
-    return t || ''
+  // 筛选状态：从 URL 初始化，变更后写回 URL（刷新/返回不丢）
+  const [typeFilter, setTypeFilter] = useState<string>(() => searchParams.get('type') || '')
+  const [dateFilter, setDateFilter] = useState<string>(() => searchParams.get('date') || '')
+  const [categoryFilter, setCategoryFilter] = useState<string>(() => searchParams.get('category') || '')
+  const [search, setSearch] = useState(() => searchParams.get('q') || '')
+  const [minAmount, setMinAmount] = useState(() => searchParams.get('min') || '')
+  const [maxAmount, setMaxAmount] = useState(() => searchParams.get('max') || '')
+  const [page, setPage] = useState(() => {
+    const n = Number(searchParams.get('page') || '1')
+    return Number.isFinite(n) && n > 0 ? n : 1
   })
-  const [dateFilter, setDateFilter] = useState<string>('')
-  const [categoryFilter, setCategoryFilter] = useState<string>('')
-  const [search, setSearch] = useState('')
-  const [minAmount, setMinAmount] = useState('')
-  const [maxAmount, setMaxAmount] = useState('')
-  const [page, setPage] = useState(1)
-  const [pageSize, setPageSize] = useState(PAGE_SIZE)
+  const [pageSize, setPageSize] = useState(() => {
+    const n = Number(searchParams.get('pageSize') || String(PAGE_SIZE))
+    return Number.isFinite(n) && n > 0 ? n : PAGE_SIZE
+  })
   const debouncedSearch = useDebounce(search, 800)
+
+  useEffect(() => {
+    const next = new URLSearchParams()
+    if (typeFilter) next.set('type', typeFilter)
+    if (dateFilter) next.set('date', dateFilter)
+    if (categoryFilter) next.set('category', categoryFilter)
+    if (debouncedSearch) next.set('q', debouncedSearch)
+    if (minAmount) next.set('min', minAmount)
+    if (maxAmount) next.set('max', maxAmount)
+    if (page > 1) next.set('page', String(page))
+    if (pageSize !== PAGE_SIZE) next.set('pageSize', String(pageSize))
+    if (next.toString() !== searchParams.toString()) {
+      setSearchParams(next, { replace: true })
+    }
+  }, [
+    typeFilter,
+    dateFilter,
+    categoryFilter,
+    debouncedSearch,
+    minAmount,
+    maxAmount,
+    page,
+    pageSize,
+    searchParams,
+    setSearchParams,
+  ])
 
   const categoryOptions: DropdownOption[] = useMemo(() => {
     return allCategories
@@ -67,7 +100,6 @@ const Transactions: React.FC = () => {
       }))
   }, [typeFilter, allCategories])
 
-  // 过滤器变化时重置页码到第 1 页（F-M6）
   const handleTypeChange = (newType: string) => {
     setTypeFilter(newType)
     setPage(1)
@@ -98,6 +130,11 @@ const Transactions: React.FC = () => {
     setPage(1)
   }
 
+  const handlePageSizeChange = useCallback((size: number) => {
+    setPageSize(size)
+    setPage(1)
+  }, [])
+
   const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null)
   const [showDetail, setShowDetail] = useState(false)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
@@ -105,8 +142,7 @@ const Transactions: React.FC = () => {
   const { run: handleDelete, isRunning: deleteLoading } = useDebouncedAction(async () => {
     if (!selectedTransaction) return
     await deleteTransaction(selectedTransaction.id)
-    queryClient.invalidateQueries({ queryKey: ['transactions'] })
-    queryClient.invalidateQueries({ queryKey: ['statistics'] })
+    invalidateQueryRoots(queryClient, TRANSACTION_IMPACT_ROOT_KEYS)
     setShowDetail(false)
     setShowDeleteConfirm(false)
     notifySuccess('交易已删除')
@@ -122,8 +158,20 @@ const Transactions: React.FC = () => {
     return ''
   }, [dateFilter, monthStart])
 
+  const listFilters = useMemo(() => ({
+    type: typeFilter || '',
+    category: categoryFilter || '',
+    startDate: effectiveStartDate || '',
+    endDate: todayStr,
+    search: debouncedSearch || '',
+    minAmount: minAmount || '',
+    maxAmount: maxAmount || '',
+    page,
+    pageSize,
+  }), [typeFilter, categoryFilter, effectiveStartDate, todayStr, debouncedSearch, minAmount, maxAmount, page, pageSize])
+
   const { data: paginated, isLoading } = useQuery({
-    queryKey: ['transactions', typeFilter, categoryFilter, effectiveStartDate, todayStr, debouncedSearch, minAmount, maxAmount, page, pageSize],
+    queryKey: queryKeys.transactions.list(bookId, listFilters),
     queryFn: () => getTransactions({
       type: (typeFilter || undefined) as 'income' | 'expense' | undefined,
       category: categoryFilter || undefined,
@@ -135,6 +183,9 @@ const Transactions: React.FC = () => {
       page,
       pageSize,
     }),
+    enabled: !!bookId,
+    staleTime: STALE.transactions,
+    placeholderData: keepPreviousData,
   })
 
   const transactions = paginated?.data || []
@@ -319,7 +370,7 @@ const Transactions: React.FC = () => {
               pageSize={pageSize}
               total={total}
               onChange={setPage}
-              onPageSizeChange={setPageSize}
+              onPageSizeChange={handlePageSizeChange}
             />
           </div>
         </div>

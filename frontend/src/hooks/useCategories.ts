@@ -3,17 +3,24 @@ import { useQuery } from '@tanstack/react-query'
 import { fetchCategories } from '../services/categoriesApi'
 import type { Category } from '@family-bookkeeping/shared-types'
 import { renderCategoryIcon } from '../utils/renderCategoryIcon'
+import { useBook } from './useBook'
+import { queryKeys } from '../utils/queryKeys'
+import { STALE } from '../utils/cachePolicy'
 
 /**
  * 全局分类数据 hook
  * 数据来源：后端 /api/categories（用户自定义 + 默认分类）
- * staleTime 30 秒，保持数据新鲜的同时减少重复请求
+ * 按账本隔离，staleTime 5 分钟
  */
 export function useCategories(type?: 'expense' | 'income') {
+  const { currentBook } = useBook()
+  const bookId = currentBook?.id || ''
+
   return useQuery({
-    queryKey: ['categories'],
+    queryKey: queryKeys.categories.list(bookId),
     queryFn: () => fetchCategories(),
-    staleTime: 30 * 1000,
+    enabled: !!bookId,
+    staleTime: STALE.categories,
     select: (data) => {
       if (type) {
         return data.filter(c => c.type === type);
@@ -25,8 +32,6 @@ export function useCategories(type?: 'expense' | 'income') {
 
 /**
  * 分类查找工具 hook
- * 返回 { categories, lookupMap, getCategoryName, getCategoryIcon, getCategoryId }
- * 所有查找基于 category.id (UUID)
  */
 export function useCategoryLookup() {
   const { data: categories } = useCategories()
@@ -75,10 +80,6 @@ export function useCategoryLookup() {
   }
 }
 
-/**
- * 从 Categories 数据生成选择器选项
- * [{ value: 'uuid', label: '🛒 购物' }, ...]
- */
 export function buildCategoryOptions(
   categories: Array<{ id: string; name: string; icon: string; type: string }>,
   type: 'expense' | 'income',

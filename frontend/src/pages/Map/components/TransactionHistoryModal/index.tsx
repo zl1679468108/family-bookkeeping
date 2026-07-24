@@ -8,6 +8,9 @@ import { Skeleton } from '../../../../components/ui/Skeleton';
 import { EmptyState } from '../../../../components/ui/EmptyState';
 import { SegControl } from '../../../../components/ui/SegControl';
 import './index.scss';
+import { useBook } from '../../../../hooks/useBook';
+import { queryKeys } from '../../../../utils/queryKeys';
+import { STALE } from '../../../../utils/cachePolicy';
 
 interface TransactionHistoryModalProps {
   merchant: MerchantSummary;
@@ -15,14 +18,18 @@ interface TransactionHistoryModalProps {
 }
 
 export const TransactionHistoryModal: React.FC<TransactionHistoryModalProps> = ({ merchant, onClose }) => {
+  const { currentBook } = useBook();
+  const bookId = currentBook?.id || '';
   const [filterType, setFilterType] = useState<'all' | 'expense' | 'income'>('all');
 
   const { data: transactions = [], isLoading } = useQuery({
-    queryKey: ['merchant-transactions', merchant.poi_id, merchant.location_name],
+    queryKey: queryKeys.map.merchantTx(bookId, merchant.poi_id, merchant.location_name),
     queryFn: () => fetchMerchantTransactions(
       merchant.poi_id,
       merchant.location_name,
     ),
+    enabled: !!bookId,
+    staleTime: STALE.map,
   });
 
   const { getCategoryName, getCategoryIconNode } = useCategoryLookup();

@@ -9,6 +9,7 @@ import { FooterActions } from '../../../components/ui/FooterActions';
 import { Input } from '../../../components/ui/Input';
 import './index.scss';
 import { getErrorMessage } from '../../../utils/errorMessage'
+import { queryKeys } from '../../../utils/queryKeys'
 
 interface BookInviteModalProps {
   open: boolean;
@@ -54,7 +55,7 @@ export const BookInviteModal: React.FC<BookInviteModalProps> = ({ open, onClose,
     joinByInvitation(code.toUpperCase(), { notifyOnError: false })
       .then(() => {
         notifySuccess('加入成功');
-        queryClient.invalidateQueries({ queryKey: ['books'] });
+        queryClient.invalidateQueries({ queryKey: queryKeys.books.all });
         onClose();
         onSuccess?.();
       })

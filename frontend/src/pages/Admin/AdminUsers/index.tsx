@@ -14,6 +14,8 @@ import { Pagination } from '../../../components/ui/Pagination'
 import { EmptyState } from '../../../components/ui/EmptyState'
 import { TableRowsSkeleton } from '../../../components/ui/Skeleton'
 import { formatDateTime } from '../../../utils/date';
+import { queryKeys } from '../../../utils/queryKeys'
+import { STALE } from '../../../utils/cachePolicy'
 
 const AdminUsers: React.FC = () => {
   const queryClient = useQueryClient();
@@ -36,7 +38,7 @@ const AdminUsers: React.FC = () => {
   const [pageSize, setPageSize] = useState(20);
 
   const { data, isLoading } = useQuery({
-    queryKey: ['admin', 'users', page, debouncedSearch, roleFilter, statusFilter, pageSize],
+    queryKey: queryKeys.admin.users(page, debouncedSearch, roleFilter, statusFilter, pageSize),
     queryFn: () =>
       getAdminUsers({
         page,
@@ -51,7 +53,7 @@ const AdminUsers: React.FC = () => {
     ({ userId, role, pwd }: { userId: string; role: string; pwd: string }) =>
       updateUserRole(userId, role, pwd),
     {
-      invalidateKeys: [['admin', 'users']],
+      invalidateKeys: [queryKeys.admin.all],
       errorMessage: '修改角色失败',
       onSuccess: () => {
         setActionType(null);
@@ -66,7 +68,7 @@ const AdminUsers: React.FC = () => {
     ({ userId, status, pwd }: { userId: string; status: string; pwd: string }) =>
       updateUserStatus(userId, status, pwd),
     {
-      invalidateKeys: [['admin', 'users']],
+      invalidateKeys: [queryKeys.admin.all],
       errorMessage: '修改状态失败',
       onSuccess: () => {
         setActionType(null);

@@ -1,10 +1,11 @@
-import { useQueryClient } from '@tanstack/react-query'
+import { useQueryClient, type QueryKey } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import { useDebouncedAction } from './useDebouncedAction'
 import { notifySuccess, notifyError } from '../utils/notifyError'
 
 export interface MutationActionOptions {
-  invalidateKeys?: (string | number)[][]
+  /** 成功后失效的 query key（支持 as const / 工厂返回的只读元组） */
+  invalidateKeys?: readonly QueryKey[]
   onSuccess?: () => void
   onError?: (err: any) => void
   successMessage?: string
@@ -20,9 +21,8 @@ export interface MutationActionOptions {
  * @example
  * const { run, isRunning, isPending } = useMutationAction(
  *   (data) => createTemplate(data),
- *   { invalidateKeys: [['templates']], successMessage: '模板已创建' }
+ *   { invalidateKeys: [queryKeys.templates.all], successMessage: '模板已创建' }
  * )
- * // <button onClick={() => run(data)} disabled={isRunning}>保存</button>
  */
 export function useMutationAction<T extends any[], R>(
   mutationFn: (...args: T) => Promise<R>,

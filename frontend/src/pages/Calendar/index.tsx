@@ -1,5 +1,8 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { useBook } from '../../hooks/useBook';
+import { queryKeys } from '../../utils/queryKeys';
+import { STALE } from '../../utils/cachePolicy';
 import { fetchDailySummary } from '../../services/statisticsApi';
 import { getTransactions } from '../../services/api';
 import { Skeleton, DropdownSelect } from '../../components/ui';
@@ -10,6 +13,8 @@ import type { DailySummaryItem } from '@family-bookkeeping/shared-types';
 import { formatMoney } from '../../utils/budget';
 
 const Calendar: React.FC = () => {
+  const { currentBook } = useBook();
+  const bookId = currentBook?.id || '';
   const now = new Date();
   const [viewYear, setViewYear] = useState(now.getFullYear());
   const [viewMonth, setViewMonth] = useState(now.getMonth() + 1);
@@ -23,20 +28,22 @@ const Calendar: React.FC = () => {
   const currentMonthKey = useMemo(() => toMonthKey(viewYear, viewMonth), [viewYear, viewMonth]);
 
   const { data: dailyData = [], isLoading: summaryLoading } = useQuery({
-    queryKey: ['statistics', 'daily-summary', monthKey],
+    queryKey: queryKeys.statistics.dailySummary(bookId, monthKey),
     queryFn: () => fetchDailySummary({ month: monthKey }),
-    staleTime: 2 * 60 * 1000,
+    enabled: !!bookId,
+    staleTime: STALE.calendarDaily,
     refetchOnMount: false,
   });
 
   const { data: dayTransactions = [], isLoading: txsLoading } = useQuery({
-    queryKey: ['transactions', 'by-date', selectedDate],
+    queryKey: queryKeys.transactions.byDate(bookId, selectedDate || ''),
     queryFn: async () => {
       if (!selectedDate) return [];
       const result = await getTransactions({ startDate: selectedDate, endDate: selectedDate, pageSize: 200 });
       return result.data;
     },
-    enabled: !!selectedDate,
+    enabled: !!selectedDate && !!bookId,
+    staleTime: STALE.transactions,
   });
 
   const monthStats = useMemo(() => ({
