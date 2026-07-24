@@ -16,7 +16,7 @@ import { SUCCESS_LOGIN } from "../../../utils/successCopy";
 import { ERROR_LOGIN_FAILED } from "../../../utils/errorCopy";
 import { FORM_EMAIL_PASSWORD_REQUIRED, FORM_CAPTCHA_REQUIRED, FORM_CAPTCHA_PLACEHOLDER, FORM_PASSWORD_PLACEHOLDER, FORM_EMAIL_EXAMPLE, ERROR_CAPTCHA_LOAD } from "../../../utils/formCopy"
 import { FIELD_EMAIL, FIELD_PASSWORD, FIELD_CAPTCHA } from "../../../utils/fieldCopy";
-import { AUTH_FORGOT_LINK } from "../../../utils/authCopy";
+import { AUTH_FORGOT_LINK, ACTION_LOGGING_IN_ELLIPSIS } from "../../../utils/authCopy"
 
 export default function Login() {
   const { isDark } = useTheme();
@@ -75,7 +75,7 @@ export default function Login() {
           Taro.reLaunch({ url: "/pages/Home/index" });
         }
       }, 600);
-    }, "登录中…").catch((err: any) => {
+    }, ACTION_LOGGING_IN_ELLIPSIS).catch((err: any) => {
       console.error("[Login] signIn failed:", err);
       toastError(err, ERROR_LOGIN_FAILED);
       refreshCaptcha();

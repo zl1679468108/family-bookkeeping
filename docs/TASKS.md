@@ -85,6 +85,10 @@
 
 ### ✅ 已完成
 
+#### 2026-07-24 日历 monthState + 鉴权错误/协议文案
+- PC 日历初始年月改用 `currentYearMonth`
+- 协议勾选、登录/改密失败、Taro 鉴权 busy 省略号文案 shared 化
+
 #### 2026-07-24 通用按钮 + 鉴权副标题 shared
 - `ACTION_CANCEL/SAVE/DELETE/CONFIRM/EDIT/COPY/EXECUTE` 等；GlobalModal/ConfirmDialog 默认与双端表单脚/详情操作接线
 - `authCopy` 补找回/重置副标题与成功态；PC Forgot/Reset/Register 与 Taro Forgot 发送失败文案对齐

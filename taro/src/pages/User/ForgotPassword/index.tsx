@@ -17,7 +17,7 @@ import { ERROR_SEND_FAILED, ERROR_RESET_FAILED } from "../../../utils/errorCopy"
 import { SUCCESS_CODE_SENT, SUCCESS_PASSWORD_RESET, SUCCESS_CODE_RESENT } from "../../../utils/successCopy";
 import { FORM_BACK, FORM_BACK_LOGIN, FORM_REGISTERED_EMAIL_PLACEHOLDER, FORM_CAPTCHA_DIGITS_PLACEHOLDER, FORM_PASSWORD_MIN_SHORT, FORM_PASSWORD_CONFIRM_PLACEHOLDER, FORM_EMAIL_VALID_REQUIRED, FORM_CAPTCHA_DIGITS_REQUIRED } from "../../../utils/formCopy"
 import { FIELD_EMAIL, FIELD_CAPTCHA, FIELD_NEW_PASSWORD, FIELD_CONFIRM_PASSWORD } from "../../../utils/fieldCopy";
-import { ACTION_SEND_CODE, ACTION_RESEND_CODE, ACTION_RESET_PASSWORD, AUTH_TITLE_PASSWORD_RESET_DONE, AUTH_DESC_PASSWORD_RESET_DONE, AUTH_SEND_FAILED_CHECK_EMAIL } from "../../../utils/authCopy"
+import { ACTION_SEND_CODE, ACTION_RESEND_CODE, ACTION_RESET_PASSWORD, AUTH_TITLE_PASSWORD_RESET_DONE, AUTH_DESC_PASSWORD_RESET_DONE, AUTH_SEND_FAILED_CHECK_EMAIL, ACTION_SENDING_ELLIPSIS, ACTION_RESETTING_ELLIPSIS } from "../../../utils/authCopy"
 
 type Step = "email" | "code" | "success";
 
@@ -68,7 +68,7 @@ export default function ForgotPassword() {
       setSuccess(`验证码已发送至 ${email.trim()}`);
       setStep("code");
       startCountdown();
-    }, "发送中…").catch((err: any) => {
+    }, ACTION_SENDING_ELLIPSIS).catch((err: any) => {
       toastError(err, ERROR_SEND_FAILED);
     });
   }, [email]);
@@ -90,7 +90,7 @@ export default function ForgotPassword() {
       await resetPasswordByCode(email.trim(), code.trim(), password, confirmPassword);
       toastSuccess(SUCCESS_PASSWORD_RESET);
       setStep("success");
-    }, "重置中…").catch((err: any) => {
+    }, ACTION_RESETTING_ELLIPSIS).catch((err: any) => {
       toastError(err, ERROR_RESET_FAILED);
     });
   }, [email, code, password, confirmPassword]);

@@ -14,8 +14,9 @@ import { toastSuccess } from "../../../utils/toast";
 import { validatePasswordMatch, validatePasswordMinLength } from "../../../utils/validation";
 import { SUCCESS_REGISTER } from "../../../utils/successCopy";
 import { ERROR_REGISTER_FAILED } from "../../../utils/errorCopy";
-import { FORM_NICKNAME_PLACEHOLDER, FORM_EMAIL_EXAMPLE, FORM_PASSWORD_MIN_SHORT, FORM_PASSWORD_CONFIRM_PLACEHOLDER, FORM_ALL_REQUIRED } from "../../../utils/formCopy"
+import { FORM_NICKNAME_PLACEHOLDER, FORM_EMAIL_EXAMPLE, FORM_PASSWORD_MIN_SHORT, FORM_PASSWORD_CONFIRM_PLACEHOLDER, FORM_ALL_REQUIRED, FORM_AGREE_TERMS_PRIVACY } from "../../../utils/formCopy"
 import { FIELD_USERNAME, FIELD_EMAIL, FIELD_PASSWORD, FIELD_CONFIRM_PASSWORD } from "../../../utils/fieldCopy";
+import { ACTION_REGISTERING_ELLIPSIS } from "../../../utils/authCopy";
 
 export default function Register() {
   const { isDark } = useTheme();
@@ -42,7 +43,7 @@ export default function Register() {
       return;
     }
     if (!agreed) {
-      setError("请先阅读并同意《用户协议》和《隐私政策》");
+      setError(FORM_AGREE_TERMS_PRIVACY);
       return;
     }
     setError("");
@@ -50,7 +51,7 @@ export default function Register() {
       await signUp(email.trim(), password, username.trim());
       toastSuccess(SUCCESS_REGISTER);
       setTimeout(() => Taro.reLaunch({ url: "/pages/Home/index" }), 600);
-    }, "注册中…").catch((err: any) => {
+    }, ACTION_REGISTERING_ELLIPSIS).catch((err: any) => {
       toastError(err, ERROR_REGISTER_FAILED);
     });
   };

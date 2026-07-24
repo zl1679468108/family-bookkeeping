@@ -19,7 +19,7 @@ import {
   validatePasswordStrength,
 } from '../../../utils/validation'
 import { SUCCESS_AVATAR_SELECTED_HINT, SUCCESS_PASSWORD_CHANGED, SUCCESS_SAVED } from '../../../utils/successCopy'
-import { FORM_PASSWORD_MIN_NEW, FORM_PASSWORD_MISMATCH_NEW, FORM_PASSWORD_CURRENT, FORM_PASSWORD_CONFIRM_NEW_PLACEHOLDER, FORM_USERNAME_PLACEHOLDER, FORM_EMAIL_PLACEHOLDER, FORM_PASSWORD_STRENGTH_HINT } from '../../../utils/formCopy'
+import { FORM_PASSWORD_MIN_NEW, FORM_PASSWORD_MISMATCH_NEW, FORM_PASSWORD_CURRENT, FORM_PASSWORD_CONFIRM_NEW_PLACEHOLDER, FORM_USERNAME_PLACEHOLDER, FORM_EMAIL_PLACEHOLDER, FORM_PASSWORD_STRENGTH_HINT, FORM_USERNAME_REQUIRED } from '../../../utils/formCopy'
 import { fitWithinMaxSide } from '../../../utils/imageSize'
 import {
   isWithinUploadSize,
@@ -28,8 +28,8 @@ import {
   IMAGE_FILE_REQUIRED,
   IMAGE_ACCEPT_WILDCARD,
 } from '../../../utils/uploadCopy'
-import { FIELD_CURRENT_PASSWORD, FIELD_NEW_PASSWORD, FIELD_CONFIRM_NEW_PASSWORD, FIELD_USERNAME, FIELD_EMAIL } from '../../../utils/fieldCopy'
-import { ACTION_UPDATING, ACTION_UPDATE_INFO } from '../../../utils/authCopy'
+import { FIELD_CURRENT_PASSWORD, FIELD_NEW_PASSWORD, FIELD_CONFIRM_NEW_PASSWORD, FIELD_USERNAME, FIELD_EMAIL, FIELD_AVATAR_ALT } from '../../../utils/fieldCopy'
+import { ACTION_UPDATING, ACTION_UPDATE_INFO, AUTH_CHANGE_PASSWORD_FAILED, AUTH_SAVE_PROFILE_FAILED } from '../../../utils/authCopy'
 
 const compressImage = (file: File, maxSize = 128): Promise<string> =>
   new Promise((resolve, reject) => {
@@ -203,7 +203,7 @@ const ProfilePage: React.FC = () => {
     setError('')
 
     if (!username.trim()) {
-      setError('用户名不能为空')
+      setError(FORM_USERNAME_REQUIRED)
       return
     }
     const emailErr = validateEmail(email)

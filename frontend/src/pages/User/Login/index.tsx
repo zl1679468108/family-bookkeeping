@@ -11,9 +11,8 @@ import { Button } from '../../../components/ui/Button'
 import { PasswordField } from '../../../components/ui/PasswordField'
 import { FormField } from '../../../components/ui/FormField'
 import { FORM_CAPTCHA_PLACEHOLDER, FORM_EMAIL_EXAMPLE, FORM_PASSWORD_PLACEHOLDER } from '../../../utils/formCopy'
+import { AUTH_TITLE_WELCOME_BACK, AUTH_CAPTCHA_ALT, AUTH_CAPTCHA_REFRESH_TITLE, AUTH_FORGOT_LINK, ACTION_LOGGING_IN, ACTION_LOGIN_SPACED, AUTH_REGISTER_LINK, AUTH_LOGIN_FAILED } from '../../../utils/authCopy'
 import { FIELD_EMAIL_ADDRESS, FIELD_PASSWORD, FIELD_CAPTCHA } from '../../../utils/fieldCopy'
-import { AUTH_TITLE_WELCOME_BACK, AUTH_CAPTCHA_ALT, AUTH_CAPTCHA_REFRESH_TITLE, AUTH_FORGOT_LINK, ACTION_LOGGING_IN, ACTION_LOGIN_SPACED, AUTH_REGISTER_LINK } from '../../../utils/authCopy'
-
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -46,7 +45,7 @@ const LoginPage: React.FC = () => {
       const redirect = searchParams.get('redirect') || '/'
       navigate(redirect)
     } catch (error) {
-      const message = error instanceof Error ? error.message : '登录失败，请重试'
+      const message = error instanceof Error ? error.message : AUTH_LOGIN_FAILED
       notifyError(message)
       refreshCaptcha()
     }

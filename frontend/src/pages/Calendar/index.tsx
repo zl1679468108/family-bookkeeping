@@ -14,15 +14,16 @@ import { formatMoney } from '../../utils/budget';
 import { Icon } from '../../components/ui/Icon'
 import { formatDateYMD } from '../../utils/date'
 import { NAV_PREV_MONTH, NAV_NEXT_MONTH } from '../../utils/actionCopy'
-import { shiftYearMonth, parseYearMonthKey } from '../../utils/monthState'
+import { shiftYearMonth, parseYearMonthKey, currentYearMonth } from '../../utils/monthState'
 import { FORM_SEARCH_MONTH } from '../../utils/formCopy'
 
 const Calendar: React.FC = () => {
   const { currentBook } = useBook();
   const bookId = currentBook?.id || '';
   const now = new Date();
-  const [viewYear, setViewYear] = useState(now.getFullYear());
-  const [viewMonth, setViewMonth] = useState(now.getMonth() + 1);
+  const initialYm = currentYearMonth(now);
+  const [viewYear, setViewYear] = useState(initialYm.year);
+  const [viewMonth, setViewMonth] = useState(initialYm.month);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
 
