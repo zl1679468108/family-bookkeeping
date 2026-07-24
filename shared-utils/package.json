@@ -1,0 +1,37 @@
+{
+  "name": "@family-bookkeeping/shared-utils",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./actionCopy": "./src/actionCopy.ts",
+    "./budget": "./src/budget.ts",
+    "./confirmCopy": "./src/confirmCopy.ts",
+    "./date": "./src/date.ts",
+    "./emojiPresets": "./src/emojiPresets.ts",
+    "./emptyCopy": "./src/emptyCopy.ts",
+    "./entityCopy": "./src/entityCopy.ts",
+    "./errorCopy": "./src/errorCopy.ts",
+    "./errorMessage": "./src/errorMessage.ts",
+    "./formCopy": "./src/formCopy.ts",
+    "./frequency": "./src/frequency.ts",
+    "./inviteCopy": "./src/inviteCopy.ts",
+    "./month": "./src/month.ts",
+    "./roles": "./src/roles.ts",
+    "./sortCopy": "./src/sortCopy.ts",
+    "./successCopy": "./src/successCopy.ts",
+    "./transactionType": "./src/transactionType.ts",
+    "./uploadCopy": "./src/uploadCopy.ts",
+    "./userDisplay": "./src/userDisplay.ts",
+    "./validation": "./src/validation.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.0"
+  }
+}

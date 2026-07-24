@@ -17,6 +17,6 @@
     "baseUrl": ".",
     "skipLibCheck": true,
   },
-  "include": ["src/**/*", "types/**/*", "config/**/*", "../shared-types/src/**/*"],
+  "include": ["src/**/*", "types/**/*", "config/**/*", "../shared-types/src/**/*", "../shared-utils/src/**/*"],
   "exclude": ["node_modules", "dist"]
 }

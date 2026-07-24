@@ -20,6 +20,7 @@
   },
   "dependencies": {
     "@family-bookkeeping/shared-types": "file:../shared-types",
+    "@family-bookkeeping/shared-utils": "file:../shared-utils",
     "@fontsource/dm-mono": "^5.2.7",
     "@fontsource/dm-sans": "^5.2.8",
     "@tanstack/react-query": "^5.20.3",

@@ -146,6 +146,8 @@ taro/
 
 shared-types/
   src/               三端共享 TypeScript 类型（@family-bookkeeping/shared-types）
+shared-utils/
+  src/               双端共享纯函数与文案常量（@family-bookkeeping/shared-utils）
 
 docs/
   PRD.md             产品需求文档
@@ -317,6 +319,7 @@ docs/
 1. **数据库变更不能自动化**：无 migration 工具，DDL 必须手动在 Supabase SQL Editor 执行。修改 `docs/database-init.sql` 后提醒用户手动同步。
 
 2. **类型共享包**：实体类型优先改 `shared-types/`；后端 DTO 与端侧局部 UI 类型仍可能独立，改接口形状时检查三端调用处。
+2b. **工具共享包**：双端同构文案/纯函数优先改 `shared-utils/`（`frontend/src/utils` 与 `taro/src/utils` 对应文件为 re-export 门面）。
 
 3. **Taro 的 React Query 不完全兼容**：读操作用 `useManualQuery`（无缓存、无自动重取），写操作 `useMutation` 需在 `onSuccess` 手动调 `refetch()`。
 

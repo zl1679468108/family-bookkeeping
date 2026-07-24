@@ -34,7 +34,8 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "tailwindcss": "^3.4.19",
-    "weapp-tailwindcss": "^5.0.4"
+    "weapp-tailwindcss": "^5.0.4",
+    "@family-bookkeeping/shared-utils": "file:../shared-utils"
   },
   "devDependencies": {
     "@babel/core": "^7.24.0",

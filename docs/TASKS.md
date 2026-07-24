@@ -85,6 +85,12 @@
 
 ### ✅ 已完成
 
+#### 2026-07-24 shared-utils 双端纯函数/文案包
+- 新增 `@family-bookkeeping/shared-utils`：form/success/error/action/confirm/empty/entity/sort/invite/frequency/roles/userDisplay/validation/upload/errorMessage/emoji/transactionType/date/month/budget 等同源实现。
+- `frontend/src/utils/*` 与 `taro/src/utils/*` 对应文件改为 re-export 门面，消除双端漂移。
+- 统一 `EMPTY_BUDGET_NO_EXPENSE_CATEGORIES`；budget 补 `formatMoneyByType`；date 兼容 Taro `fmtDate`/`fmtFriendlyDate`。
+- 验证：frontend / taro `tsc --noEmit` 通过。
+
 #### 2026-07-24 entityCopy 实体名 + 空态/定位文案收口
 - 双端 `entityCopy`：`ENTITY_CATEGORY/TEMPLATE/BOOK/TRANSACTION/BUDGET`；列表标题、创建按钮、成功 toast 实体名统一。
 - 双端 `emptyCopy`：当天流水/成员/平台用户/商户空态；Dashboard、Map、Calendar、BookMemberList、Admin、MerchantDrawer 接线。
