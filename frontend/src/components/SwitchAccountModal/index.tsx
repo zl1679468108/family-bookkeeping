@@ -22,6 +22,7 @@ import { userDisplayName, userInitial } from '../../utils/userDisplay'
 import { SUCCESS_ACCOUNT_SWITCHED } from '../../utils/successCopy'
 import { FORM_ALREADY_CURRENT_ACCOUNT } from '../../utils/formCopy'
 import { ACTION_CLOSE } from '../../utils/actionCopy'
+import { EMPTY_NO_SAVED_ACCOUNTS } from '../../utils/emptyCopy'
 
 interface SwitchAccountModalProps {
   visible: boolean
@@ -138,7 +139,7 @@ const SwitchAccountModal: React.FC<SwitchAccountModalProps> = ({ visible, onClos
           )}
 
           {accounts.length === 0 && (
-            <div className="account-empty-hint">暂无已保存的账号</div>
+            <div className="account-empty-hint">{EMPTY_NO_SAVED_ACCOUNTS}</div>
           )}
         </div>
       </div>

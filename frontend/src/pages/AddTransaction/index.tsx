@@ -8,7 +8,7 @@ import { Skeleton, FormSkeleton } from '../../components/ui/Skeleton'
 import { LocationDisplay } from '../../components/ui/LocationDisplay'
 import { Button } from '../../components/ui/Button'
 import { FooterActions } from '../../components/ui/FooterActions'
-import { busyLabel, ACTION_SAVING, saveOrConfirmAddLabel } from '../../utils/actionCopy'
+import { busyLabel, ACTION_SAVING, saveOrConfirmAddLabel, ocrLabel } from '../../utils/actionCopy'
 import { SECTION_SHORTCUTS } from '../../utils/sectionCopy'
 
 const AddTransaction: React.FC = () => {
@@ -110,7 +110,7 @@ const AddTransaction: React.FC = () => {
               style={{ opacity: ocrProcessing ? 0.6 : 1, pointerEvents: ocrProcessing ? 'none' : 'auto' }}
             >
               <div className="sc-icon">📷</div>
-              <div className="sc-name">{ocrProcessing ? '识别中...' : 'OCR识别'}</div>
+              <div className="sc-name">{ocrLabel(ocrProcessing)}</div>
               <div className="sc-desc">拍照识别票据</div>
             </div>
           </div>

@@ -6,7 +6,8 @@ import { BookMemberList } from './BookMemberList';
 import { formatDateTimeMinute } from '../../../utils/date'
 import { DETAIL_BOOK } from '../../../utils/entityCopy'
 import { FIELD_MEMBERS, FIELD_TXN_COUNT, FIELD_STATUS, FIELD_CREATED_AT, FIELD_UPDATED_AT, FIELD_OWNER_ID } from '../../../utils/fieldCopy'
-import { ACTION_EDIT, ACTION_DELETE } from '../../../utils/actionCopy'
+import { ACTION_EDIT, ACTION_DELETE, generatingLabel, ACTION_INVITE_MEMBER, ACTION_SWITCH_TO_BOOK } from '../../../utils/actionCopy'
+import { ACTION_GENERATE_INVITE_CODE } from '../../../utils/inviteCopy'
 
 const DEFAULT_BOOK_NAME = '默认账本';
 
@@ -55,14 +56,14 @@ export const BookDetailModal: React.FC<BookDetailModalProps> = ({
       footer={
         <Space size="sm">
           <Button variant="secondary" onClick={onInviteMember}>
-            邀请成员
+            {ACTION_INVITE_MEMBER}
           </Button>
           <Button
             variant="secondary"
             onClick={onGenerateInviteCode}
             disabled={isGenerateInviteCodePending}
           >
-            {isGenerateInviteCodePending ? '生成中...' : '生成邀请码'}
+            {generatingLabel(isGenerateInviteCodePending, ACTION_GENERATE_INVITE_CODE)}
           </Button>
           <Button variant="secondary" onClick={onEdit}>{ACTION_EDIT}</Button>
           {selectedBook.name !== DEFAULT_BOOK_NAME && (
@@ -70,7 +71,7 @@ export const BookDetailModal: React.FC<BookDetailModalProps> = ({
           )}
           {currentBook?.id !== selectedBook.id && (
             <Button variant="primary" onClick={onSwitchBook}>
-              切换到此账本
+              {ACTION_SWITCH_TO_BOOK}
             </Button>
           )}
         </Space>

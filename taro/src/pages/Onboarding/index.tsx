@@ -26,7 +26,7 @@ import { ERROR_CREATE_FAILED_RETRY, ERROR_INVALID_INVITE } from "../../utils/err
 import Icon, { ICON_COLOR } from "../../components/Icon";
 import { FIELD_BOOK_NAME, FIELD_DESC_OPTIONAL, FIELD_ICON, FIELD_INVITE_CODE } from "../../utils/fieldCopy";
 import { TITLE_JOIN_BY_INVITE, ONBOARDING_CREATE_TITLE, ONBOARDING_CREATE_DESC, ONBOARDING_JOIN_DESC } from "../../utils/sectionCopy"
-import {  ACTION_CREATE_BOOK, ACTION_CREATING_ELLIPSIS } from "../../utils/actionCopy"
+import { ACTION_CREATE_BOOK, ACTION_CREATING_ELLIPSIS, ACTION_JOINING_ELLIPSIS, ACTION_JOIN_BOOK } from "../../utils/actionCopy"
 import { getThemeTokenHex } from "../../utils/themeTokens"
 
 type Mode = "choice" | "create" | "join";
@@ -84,7 +84,7 @@ export default function Onboarding() {
       if (target) switchBook(target);
       toastSuccess(SUCCESS_JOINED);
       setTimeout(() => Taro.reLaunch({ url: "/pages/Home/index" }), 600);
-    }, "加入中…").catch((err: any) => {
+    }, ACTION_JOINING_ELLIPSIS).catch((err: any) => {
       toastError(err, ERROR_INVALID_INVITE);
     });
   };
@@ -231,7 +231,7 @@ export default function Onboarding() {
           </Text>
 
           <Button variant="primary" block size="lg" onClick={handleJoin}>
-            加入账本
+            {ACTION_JOIN_BOOK}
           </Button>
         </View>
       )}

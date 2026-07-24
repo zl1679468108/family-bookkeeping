@@ -7,7 +7,9 @@ import { notifyError } from '../../../utils/notifyError'
 import { validateEmail } from '../../../utils/validation'
 import { FORM_EMAIL_REQUIRED, FORM_PEER_EMAIL_PLACEHOLDER } from '../../../utils/formCopy'
 import { FIELD_EMAIL_ADDRESS } from '../../../utils/fieldCopy'
-import { ACTION_CANCEL } from '../../../utils/actionCopy'
+import { ACTION_CANCEL, busyLabel, ACTION_INVITE_MEMBER } from '../../../utils/actionCopy'
+import { ACTION_SENDING } from '../../../utils/authCopy'
+import { ACTION_SEND_INVITE } from '../../../utils/inviteCopy'
 
 interface InviteMemberModalProps {
   open: boolean;
@@ -43,7 +45,7 @@ export const InviteMemberModal: React.FC<InviteMemberModalProps> = ({
     <GlobalModal
       open={open}
       onClose={onClose}
-      title="邀请成员"
+      title={ACTION_INVITE_MEMBER}
       width={400}
       footer={
         <FooterActions align="end" className="global-modal-dialog__footer-inner">
@@ -53,7 +55,7 @@ export const InviteMemberModal: React.FC<InviteMemberModalProps> = ({
             onClick={handleInvite}
             disabled={isPending}
           >
-            {isPending ? '发送中...' : '发送邀请'}
+            {busyLabel(isPending, ACTION_SENDING, ACTION_SEND_INVITE)}
           </Button>
         </FooterActions>
       }

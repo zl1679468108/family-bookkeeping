@@ -19,7 +19,7 @@ import PageContainer from "../../components/PageContainer";
 import { toastSuccess, toastInfo } from "../../utils/toast";
 import { bookMemberRoleLabel, isBookOwnerRole } from "../../utils/roles";
 import { userDisplayName, userInitial } from "../../utils/userDisplay";
-import { ACTION_LOADING, ACTION_CANCEL } from "../../utils/actionCopy"
+import { ACTION_LOADING, ACTION_CANCEL, ACTION_GENERATING_ELLIPSIS, ACTION_REMOVING_ELLIPSIS, ACTION_COPY } from "../../utils/actionCopy"
 import {
   CONFIRM_REMOVE_TITLE,
   CONFIRM_REMOVE_TEXT,
@@ -31,6 +31,8 @@ import { validateEmail } from "../../utils/validation";
 import { copyToClipboard } from "../../utils/clipboard";
 import { ERROR_GENERATE_FAILED, ERROR_REMOVE_FAILED, ERROR_INVITE_FAILED } from "../../utils/errorCopy";
 import { EMPTY_NO_MEMBERS } from "../../utils/emptyCopy";
+import { ACTION_SENDING_ELLIPSIS } from '../../utils/authCopy'
+import { ACTION_GENERATE_INVITE_CODE, ACTION_SEND_INVITE, INVITE_CODE_SHARE_HINT_SHORT } from '../../utils/inviteCopy'
 
 interface Member {
   id: string;
@@ -59,7 +61,7 @@ export default function BookMembers() {
       setInviteCode(res.code);
       void copyToClipboard(res.code);
       toastSuccess(SUCCESS_INVITE_COPIED);
-    }, "生成中…").catch((err: any) => {
+    }, ACTION_GENERATING_ELLIPSIS).catch((err: any) => {
       toastError(err, ERROR_GENERATE_FAILED);
     });
   };
@@ -95,7 +97,7 @@ export default function BookMembers() {
       toastSuccess(SUCCESS_MEMBER_REMOVED);
       setRemoveTarget(null);
       qc.invalidateQueries({ queryKey: ["books", bookId, "members"] });
-    }, "移除中…").catch((err: any) => {
+    }, ACTION_REMOVING_ELLIPSIS).catch((err: any) => {
       toastError(err, ERROR_REMOVE_FAILED);
       setRemoveTarget(null);
     });
@@ -113,7 +115,7 @@ export default function BookMembers() {
       setInviteEmail("");
       setShowInvite(false);
       qc.invalidateQueries({ queryKey: ["books", bookId, "members"] });
-    }, "发送中…").catch((err: any) => {
+    }, ACTION_SENDING_ELLIPSIS).catch((err: any) => {
       toastError(err, ERROR_INVITE_FAILED);
       setShowInvite(false);
     });
@@ -201,7 +203,7 @@ export default function BookMembers() {
                         fontWeight: 500,
                       }}
                     >
-                      发送邀请
+                      {ACTION_SEND_INVITE}
                     </Text>
                   </View>
                 </View>
@@ -249,7 +251,7 @@ export default function BookMembers() {
                       fontWeight: 500,
                     }}
                   >
-                    🔗 生成邀请码
+                    🔗 {ACTION_GENERATE_INVITE_CODE}
                   </Text>
                 </View>
 
@@ -300,12 +302,12 @@ export default function BookMembers() {
                         onClick={() => { void copyToClipboard(inviteCode) }}
                       >
                         <Text style={{ fontSize: "24rpx", color: "#fff", fontWeight: 500 }}>
-                          复制
+                          {ACTION_COPY}
                         </Text>
                       </View>
                     </View>
                     <Text style={{ fontSize: "22rpx", color: "var(--fg3)" }}>
-                      将以下邀请码分享给他人，对方在「加入账本」中输入即可加入账本
+                      {INVITE_CODE_SHARE_HINT_SHORT}
                     </Text>
                   </View>
                 )}

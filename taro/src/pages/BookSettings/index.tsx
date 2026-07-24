@@ -35,7 +35,7 @@ import { useSubmit, toastError } from "../../hooks/useSubmit";
 import "./index.scss";
 import { getErrorMessage } from "../../utils/errorMessage";
 import { toastSuccess, toastInfo } from "../../utils/toast";
-import {  ACTION_DELETING, ACTION_LOADING, ACTION_SAVING, ACTION_CANCEL, ACTION_SAVE, ACTION_DELETE_BOOK, ACTION_CREATE_BOOK, ACTION_CREATING_ELLIPSIS } from "../../utils/actionCopy"
+import { ACTION_DELETING, ACTION_LOADING, ACTION_SAVING, ACTION_CANCEL, ACTION_SAVE, ACTION_DELETE_BOOK, ACTION_CREATE_BOOK, ACTION_CREATING_ELLIPSIS, ACTION_UPLOADING_ELLIPSIS, ACTION_TRANSFERRING_ELLIPSIS } from "../../utils/actionCopy"
 import {
   CONFIRM_DELETE_TITLE,
   CONFIRM_DELETE_TEXT,
@@ -174,7 +174,7 @@ export default function BookSettings() {
           else setEditIcon(iconUrl);
           refreshCustomIcons();
           toastSuccess(SUCCESS_CUSTOM_ICON_ADDED);
-        }, "上传中…").catch((err: any) => {
+        }, ACTION_UPLOADING_ELLIPSIS).catch((err: any) => {
       toastError(err, UPLOAD_FAILED);
     });
       })
@@ -265,7 +265,7 @@ export default function BookSettings() {
       qc.invalidateQueries({ queryKey: ["books"] });
       toastSuccess(SUCCESS_OWNERSHIP_TRANSFERRED);
       setShowTransfer(false);
-    }, "转移中…").catch((err: any) => {
+    }, ACTION_TRANSFERRING_ELLIPSIS).catch((err: any) => {
       toastError(err, ERROR_TRANSFER_FAILED);
       setShowTransfer(false);
     });

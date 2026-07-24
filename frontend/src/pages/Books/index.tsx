@@ -9,6 +9,7 @@ import { InviteCodeModal } from './components/InviteCodeModal';
 import { GlobalModal } from '../../components/ui';
 import './index.scss';
 import { userDisplayName } from '../../utils/userDisplay'
+import { ACTION_SWITCH_BOOK, ACTION_CONFIRM_SWITCH } from '../../utils/actionCopy'
 import {
   CONFIRM_DELETE_TITLE,
   CONFIRM_DELETE_TEXT,
@@ -108,10 +109,10 @@ const BooksPage: React.FC = () => {
       <GlobalModal
         type="confirm"
         open={!!switchTarget}
-        title="切换账本"
+        title={ACTION_SWITCH_BOOK}
         onConfirm={() => { if (switchTarget) { switchBook(switchTarget); setSwitchTarget(null); } }}
         onClose={() => setSwitchTarget(null)}
-        confirmText="确认切换"
+        confirmText={ACTION_CONFIRM_SWITCH}
       >
         <div>
           <p>切换到账本 <strong>{switchTarget?.name}</strong> 后，以下模块数据将切换为该账本的维度：</p>

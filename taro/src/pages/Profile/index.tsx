@@ -25,7 +25,8 @@ import { toastSuccess, toastInfo } from "../../utils/toast";
 import { userDisplayName, userInitial } from "../../utils/userDisplay";
 import { SUCCESS_ACCOUNT_SWITCHED, SUCCESS_ACCOUNT_DEACTIVATED, SUCCESS_SWITCHED } from "../../utils/successCopy";
 import { FORM_ALREADY_CURRENT_ACCOUNT, FORM_CAPTCHA_REQUIRED, FORM_EMAIL_PASSWORD_REQUIRED, FORM_DEACTIVATE_PASSWORD, FORM_PASSWORD_LOGIN_PLACEHOLDER, FORM_EMAIL_PLACEHOLDER, FORM_PASSWORD_PLACEHOLDER, FORM_CAPTCHA_PLACEHOLDER } from "../../utils/formCopy";
-import { ACTION_SWITCHING, ACTION_LOGOUT } from "../../utils/actionCopy"
+import { ACTION_SWITCHING, ACTION_LOGOUT, ACTION_DEACTIVATING, ACTION_CONFIRM_DEACTIVATE } from "../../utils/actionCopy"
+import { ACTION_LOGGING_IN, ACTION_LOGIN } from '../../utils/authCopy'
 
 export default function Profile() {
   const { user, signOut, signIn, switchByToken } = useAuth();
@@ -326,7 +327,7 @@ export default function Profile() {
                 loading={deactivateLoading}
                 onClick={() => !deactivateLoading && handleConfirmDeactivate()}
               >
-                {deactivateLoading ? "注销中..." : "确认注销"}
+                {deactivateLoading ? ACTION_DEACTIVATING : ACTION_CONFIRM_DEACTIVATE}
               </Button>
             </View>
           </View>
@@ -453,7 +454,7 @@ export default function Profile() {
                       loading={loginLoading}
                       onClick={() => !loginLoading && handleLogin()}
                     >
-                      {loginLoading ? "登录中..." : "登录"}
+                      {loginLoading ? ACTION_LOGGING_IN : ACTION_LOGIN}
                     </Button>
                   </View>
                 </View>

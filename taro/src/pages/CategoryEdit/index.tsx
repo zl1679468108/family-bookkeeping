@@ -34,7 +34,7 @@ import { useSubmit, toastError } from "../../hooks/useSubmit";
 import "./index.scss";
 import { getErrorMessage } from "../../utils/errorMessage";
 import { toastSuccess, toastInfo } from "../../utils/toast";
-import { ACTION_DELETING, ACTION_LOADING, ACTION_SAVING, saveOrCreateLabel, ACTION_CREATE_CATEGORY, ACTION_DELETE } from "../../utils/actionCopy"
+import { ACTION_DELETING, ACTION_LOADING, ACTION_SAVING, saveOrCreateLabel, ACTION_CREATE_CATEGORY, ACTION_DELETE, ACTION_UPLOADING_ELLIPSIS } from "../../utils/actionCopy"
 import { getThemeTokenHex } from "../../utils/themeTokens"
 import { useTheme } from "../../context/ThemeContext"
 import {
@@ -126,7 +126,7 @@ export default function CategoryEdit() {
           } else {
             toastInfo(UPLOAD_FAILED);
           }
-        }, "上传中…").catch((err: any) => {
+        }, ACTION_UPLOADING_ELLIPSIS).catch((err: any) => {
       toastError(err, UPLOAD_FAILED);
     });
       })

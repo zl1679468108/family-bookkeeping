@@ -31,7 +31,7 @@ import "./index.scss";
 import { getErrorMessage } from "../../utils/errorMessage";
 import { toastSuccess, toastInfo } from "../../utils/toast";
 import { userInitial } from "../../utils/userDisplay";
-import { ACTION_SAVING, ACTION_SUBMITTING } from "../../utils/actionCopy";
+import { ACTION_SAVING, ACTION_SUBMITTING, ACTION_UPLOADING_ELLIPSIS } from "../../utils/actionCopy";
 import {
   validateEmail,
   validatePasswordMatch,
@@ -103,7 +103,7 @@ export default function EditProfile() {
             setAvatarUrl(path); // fallback：临时路径
             toastSuccess(SUCCESS_IMAGE_SELECTED);
           }
-        }, "上传中…").catch(() => {
+        }, ACTION_UPLOADING_ELLIPSIS).catch(() => {
           setAvatarUrl(path); // fallback
           toastSuccess(SUCCESS_IMAGE_SELECTED);
         });

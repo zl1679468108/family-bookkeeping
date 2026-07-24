@@ -11,6 +11,7 @@ import { useModalZIndex } from "./useModalZIndex";
 import SheetHeader from "../../SheetHeader";
 import { Button } from "../Button";
 import "./index.scss";
+import { ACTION_CONFIRM, ACTION_CANCEL } from '../../../utils/actionCopy'
 
 export type GlobalModalType = "confirm" | "detail" | "modal";
 
@@ -48,8 +49,8 @@ export function GlobalModal({
   closeOnMask = true,
   className = "",
   bodyClassName = "",
-  confirmText = "确认",
-  cancelText = "取消",
+  confirmText = ACTION_CONFIRM,
+  cancelText = ACTION_CANCEL,
   confirmDanger = false,
   loading = false,
   onConfirm,

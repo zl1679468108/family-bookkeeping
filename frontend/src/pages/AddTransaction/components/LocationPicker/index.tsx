@@ -8,7 +8,7 @@ import { AmapManager } from '../../../../services/amapManager';
 import './index.scss';
 import { FORM_SEARCH_LOCATION } from '../../../../utils/formCopy'
 import { TITLE_SELECT_LOCATION, TITLE_LOCATE_CURRENT } from '../../../../utils/sectionCopy'
-import { ACTION_CANCEL } from '../../../../utils/actionCopy'
+import { ACTION_CANCEL, searchingLabel } from '../../../../utils/actionCopy'
 
 interface LocationPickerProps {
   visible: boolean;
@@ -265,7 +265,7 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
           onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
         />
         <Button variant="secondary" onClick={handleSearch} disabled={searching}>
-          {searching ? '搜索中...' : '搜索'}
+          {searchingLabel(searching)}
         </Button>
         <Button variant="secondary" onClick={handleLocate} title={TITLE_LOCATE_CURRENT} style={{ padding: '0 10px' }}>
           📍

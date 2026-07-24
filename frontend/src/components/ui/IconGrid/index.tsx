@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { Icon } from '../Icon'
 
 import { notifyError } from '../../../utils/notifyError'
+import { busyLabel, ACTION_UPLOADING, ACTION_UPLOAD } from '../../../utils/actionCopy'
 import {
   IMAGE_ACCEPT_ATTR,
   isAllowedImageMime,
@@ -204,7 +205,7 @@ export const IconGrid: React.FC<IconGridProps> = ({
                     <Icon name="add" size={18} />
                   )}
                 </span>
-                <span className="icon-btn-label">{uploading ? '上传中' : '上传'}</span>
+                <span className="icon-btn-label">{busyLabel(uploading, ACTION_UPLOADING, ACTION_UPLOAD)}</span>
               </button>
             )}
           </div>

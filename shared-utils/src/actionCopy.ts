@@ -38,6 +38,28 @@ export const ACTION_COPY = '复制'
 export const ACTION_EXECUTE = '执行'
 export const ACTION_DELETE_BOOK = '删除账本'
 export const ACTION_DELETE_THIS_TXN = '删除此笔'
+export const ACTION_SEARCH = '搜索'
+export const ACTION_SEARCHING = '搜索中...'
+export const ACTION_SEARCHING_ELLIPSIS = '搜索中…'
+export const ACTION_UPLOADING_ELLIPSIS = '上传中…'
+export const ACTION_JOIN_BOOK = '加入账本'
+export const ACTION_JOINING = '加入中...'
+export const ACTION_JOINING_ELLIPSIS = '加入中…'
+export const ACTION_GENERATING = '生成中...'
+export const ACTION_GENERATING_ELLIPSIS = '生成中…'
+export const ACTION_REMOVING = '移除中...'
+export const ACTION_REMOVING_ELLIPSIS = '移除中…'
+export const ACTION_TRANSFERRING_ELLIPSIS = '转移中…'
+export const ACTION_DEACTIVATING = '注销中...'
+export const ACTION_CONFIRM_DEACTIVATE = '确认注销'
+export const ACTION_OCR = 'OCR识别'
+export const ACTION_OCR_PROCESSING = '识别中...'
+export const ACTION_UPLOAD = '上传'
+export const ACTION_UPLOADING = '上传中'
+export const ACTION_INVITE_MEMBER = '邀请成员'
+export const ACTION_SWITCH_BOOK = '切换账本'
+export const ACTION_SWITCH_TO_BOOK = '切换到此账本'
+export const ACTION_CONFIRM_SWITCH = '确认切换'
 
 /** busy ? busyText : idleText */
 export function busyLabel(busy: boolean, busyText: string, idleText: string): string {
@@ -52,15 +74,15 @@ export function deletingLabel(busy: boolean, idleText = ACTION_DELETE): string {
   return busyLabel(busy, ACTION_DELETING, idleText)
 }
 
-export function copyingLabel(busy: boolean, idleText = '复制'): string {
+export function copyingLabel(busy: boolean, idleText = ACTION_COPY): string {
   return busyLabel(busy, ACTION_COPYING, idleText)
 }
 
-export function submittingLabel(busy: boolean, idleText = '确认'): string {
+export function submittingLabel(busy: boolean, idleText = ACTION_CONFIRM): string {
   return busyLabel(busy, ACTION_SUBMITTING, idleText)
 }
 
-export function processingLabel(busy: boolean, idleText = '确认'): string {
+export function processingLabel(busy: boolean, idleText = ACTION_CONFIRM): string {
   return busyLabel(busy, ACTION_PROCESSING, idleText)
 }
 
@@ -77,4 +99,20 @@ export function saveOrConfirmAddLabel(isEdit: boolean): string {
 /** 表单脚：编辑 → 更新；新建 → 创建 */
 export function updateOrCreateLabel(isEdit: boolean): string {
   return isEdit ? ACTION_UPDATE : ACTION_CREATE
+}
+
+export function joiningLabel(busy: boolean, idleText = ACTION_JOIN_BOOK): string {
+  return busyLabel(busy, ACTION_JOINING, idleText)
+}
+
+export function generatingLabel(busy: boolean, idleText: string): string {
+  return busyLabel(busy, ACTION_GENERATING, idleText)
+}
+
+export function searchingLabel(busy: boolean, idleText = ACTION_SEARCH): string {
+  return busyLabel(busy, ACTION_SEARCHING, idleText)
+}
+
+export function ocrLabel(busy: boolean): string {
+  return busyLabel(busy, ACTION_OCR_PROCESSING, ACTION_OCR)
 }

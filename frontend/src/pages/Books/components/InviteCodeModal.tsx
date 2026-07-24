@@ -7,6 +7,7 @@ import { notifySuccess } from '../../../utils/notifyError'
 import { formatDateTimeMinute } from '../../../utils/date'
 import { SUCCESS_INVITE_COPIED } from '../../../utils/successCopy'
 import { copyToClipboard } from '../../../utils/clipboard'
+import { INVITE_CODE_SHARE_HINT_ONBOARDING } from '../../../utils/inviteCopy'
 
 interface InviteCodeModalProps {
   open: boolean;
@@ -42,7 +43,7 @@ export const InviteCodeModal: React.FC<InviteCodeModalProps> = ({
     >
       <div style={{ textAlign: 'center' }}>
         <div style={{ fontSize: '13px', color: 'var(--fg2)', marginBottom: '12px' }}>
-          将以下邀请码分享给他人，对方注册并进入 /onboarding 页面后输入邀请码即可加入账本
+          {INVITE_CODE_SHARE_HINT_ONBOARDING}
           <strong>「{inviteCode?.book_name}」</strong>
         </div>
         <div

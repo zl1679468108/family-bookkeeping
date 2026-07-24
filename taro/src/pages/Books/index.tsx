@@ -28,9 +28,9 @@ import type { Book } from "../../types";
 import "./index.scss";
 import { toastSuccess, toastInfo } from "../../utils/toast";
 import { bookMemberRoleLabel, isBookOwnerRole } from "../../utils/roles";
-import { INVITE_CODE_HELP_LABEL, INVITE_CODE_HELP_BODY } from "../../utils/inviteCopy";
+import { INVITE_CODE_HELP_LABEL, INVITE_CODE_HELP_BODY, ACTION_GENERATE_INVITE_CODE, ACTION_SEND_INVITE, INVITE_CODE_SHARE_HINT, ACTION_COPY_INVITE_CODE } from "../../utils/inviteCopy";
 import { userDisplayName } from "../../utils/userDisplay";
-import { ACTION_DELETING, ACTION_LOADING } from "../../utils/actionCopy";
+import { ACTION_DELETING, ACTION_LOADING, ACTION_JOINING_ELLIPSIS, ACTION_GENERATING_ELLIPSIS, ACTION_REMOVING_ELLIPSIS, ACTION_JOIN_BOOK, ACTION_DELETE, ACTION_EDIT, ACTION_INVITE_MEMBER, ACTION_SWITCH_TO_BOOK, ACTION_SWITCH_BOOK, ACTION_CONFIRM_SWITCH } from "../../utils/actionCopy";
 import { CONFIRM_REMOVE_TITLE, confirmDeleteBook, confirmRemoveMember, CONFIRM_DELETE_BOOK_TITLE } from "../../utils/confirmCopy";
 import { FORM_ALREADY_CURRENT_BOOK, FORM_EMAIL_REQUIRED, FORM_PEER_EMAIL_PLACEHOLDER, FORM_INVITE_CODE_EXAMPLE } from "../../utils/formCopy";
 import { validateEmail } from "../../utils/validation";
@@ -56,6 +56,7 @@ import { EMPTY_NO_MEMBERS } from "../../utils/emptyCopy";
 import { TITLE_JOIN_BY_INVITE } from "../../utils/sectionCopy";
 import { getThemeTokenHex } from "../../utils/themeTokens";
 import { useTheme } from "../../context/ThemeContext";
+import { ACTION_SENDING_ELLIPSIS } from '../../utils/authCopy'
 
 type BookRow = Book & { is_default?: boolean };
 
@@ -93,7 +94,7 @@ export default function BooksPage() {
       setJoinCode("");
       toastSuccess(SUCCESS_JOINED);
       refetch();
-    }, "加入中…").catch((err: any) => {
+    }, ACTION_JOINING_ELLIPSIS).catch((err: any) => {
       toastError(err, ERROR_JOIN_FAILED);
     });
   };
@@ -193,7 +194,7 @@ export default function BooksPage() {
       setDetailMode("info");
       refetchMembers();
       refetch(); // 刷新列表（成员数可能变化）
-    }, "发送中…").catch((err: any) => {
+    }, ACTION_SENDING_ELLIPSIS).catch((err: any) => {
       toastError(err, ERROR_INVITE_EMAIL);
       setInviteEmail("");
       setDetailMode("info");
@@ -212,7 +213,7 @@ export default function BooksPage() {
       const data = await createInvitation(detailBook!.id);
       setInviteCodeData(data);
       toastSuccess(SUCCESS_INVITE_CODE_GENERATED);
-    }, "生成中…").catch((err: any) => {
+    }, ACTION_GENERATING_ELLIPSIS).catch((err: any) => {
       toastError(err, ERROR_GENERATE_FAILED);
     });
   };
@@ -254,7 +255,7 @@ export default function BooksPage() {
       setShowRemoveConfirm(false);
       refetchMembers();
       refetch();
-    }, "移除中…").catch((err: any) => {
+    }, ACTION_REMOVING_ELLIPSIS).catch((err: any) => {
       toastError(err, ERROR_REMOVE_FAILED);
       setRemovingMember(null);
       setShowRemoveConfirm(false);
@@ -403,7 +404,7 @@ export default function BooksPage() {
                   取消
                 </Button>
                 <Button variant="primary" size="lg" block onClick={handleJoinSubmit}>
-                  加入账本
+                  {ACTION_JOIN_BOOK}
                 </Button>
               </FooterActions>
             </View>
@@ -429,7 +430,7 @@ export default function BooksPage() {
                 {detailMode === "info"
                   ? "账本详情"
                   : detailMode === "invite"
-                    ? "邀请成员"
+                    ? ACTION_INVITE_MEMBER
                     : "邀请码"}
               </Text>
             </View>
@@ -559,7 +560,7 @@ export default function BooksPage() {
                   {!inviteCodeData ? (
                     <View className="bk-invite-generate">
                       <Text className="bk-invite-generate__hint">
-                        将以下邀请码分享给他人，对方在「加入账本」中输入邀请码即可加入账本
+                        {INVITE_CODE_SHARE_HINT}
                       </Text>
                       <Button
                         variant="primary"
@@ -568,7 +569,7 @@ export default function BooksPage() {
                         className="bk-invite-generate__btn"
                         onClick={handleGenerateCode}
                       >
-                        生成邀请码
+                        {ACTION_GENERATE_INVITE_CODE}
                       </Button>
                     </View>
                   ) : (
@@ -577,14 +578,14 @@ export default function BooksPage() {
                         <View className="bk-invite-code-box">
                           <Text className="bk-invite-code">{inviteCodeData.code}</Text>
                           <View className="bk-invite-code-copy" onClick={handleCopyCode}>
-                            <Text className="bk-invite-code-copy__label">复制邀请码</Text>
+                            <Text className="bk-invite-code-copy__label">{ACTION_COPY_INVITE_CODE}</Text>
                           </View>
                         </View>
                         <Text className="bk-invite-hint">
                           有效期至：{formatDateTimeMinute(inviteCodeData.expires_at)}
                         </Text>
                         <Text className="bk-invite-tip">
-                          将以下邀请码分享给他人，对方在「加入账本」中输入邀请码即可加入账本
+                          {INVITE_CODE_SHARE_HINT}
                         </Text>
                       </View>
                     </View>
@@ -599,13 +600,13 @@ export default function BooksPage() {
                 {isOwner ? (
                   <>
                     <Button variant="default" size="md" onClick={() => setDetailMode("invite")}>
-                      邀请成员
+                      {ACTION_INVITE_MEMBER}
                     </Button>
                     <Button variant="default" size="md" onClick={() => setDetailMode("inviteCode")}>
-                      生成邀请码
+                      {ACTION_GENERATE_INVITE_CODE}
                     </Button>
                     <Button variant="default" size="md" onClick={handleEdit}>
-                      编辑
+                      {ACTION_EDIT}
                     </Button>
                     {detailBook.name !== "默认账本" && (
                       <Button
@@ -637,7 +638,7 @@ export default function BooksPage() {
                       closeDetail();
                     }}
                   >
-                    切换到此账本
+                    {ACTION_SWITCH_TO_BOOK}
                   </Button>
                 )}
               </View>
@@ -646,7 +647,7 @@ export default function BooksPage() {
             {detailMode === "invite" && (
               <View className="bk-detail-actions bk-detail-actions--sticky bk-detail-actions--single">
                 <Button variant="primary" size="md" block onClick={handleInviteSubmit}>
-                  发送邀请
+                  {ACTION_SEND_INVITE}
                 </Button>
               </View>
             )}
@@ -664,7 +665,7 @@ export default function BooksPage() {
       {switchTarget && (
         <View className="bk-switch-mask" onClick={() => setSwitchTarget(null)}>
           <View className="bk-switch-dialog" onClick={(e: any) => e.stopPropagation()}>
-            <Text className="bk-switch-title">切换账本</Text>
+            <Text className="bk-switch-title">{ACTION_SWITCH_BOOK}</Text>
             <Text className="bk-switch-desc">
               切换到账本 <Text className="bk-switch-name">{switchTarget.name}</Text>{" "}
               后，以下模块数据将切换为该账本的维度：
@@ -694,7 +695,7 @@ export default function BooksPage() {
                   取消
                 </Button>
                 <Button variant="primary" size="lg" block onClick={handleConfirmSwitch}>
-                  确认切换
+                  {ACTION_CONFIRM_SWITCH}
                 </Button>
               </FooterActions>
             </View>
@@ -707,7 +708,7 @@ export default function BooksPage() {
         visible={showDeleteConfirm}
         title={CONFIRM_DELETE_BOOK_TITLE}
         message={confirmDeleteBook(deletingBook?.name || detailBook?.name || "该账本")}
-        confirmText="删除"
+        confirmText={ACTION_DELETE}
         danger
         onConfirm={handleDelete}
         onCancel={() => {

@@ -85,6 +85,12 @@
 
 ### ✅ 已完成
 
+#### 2026-07-24 账本邀请/忙态动作文案 shared 化
+- `actionCopy` 补搜索/上传/加入/生成/移除/转移/注销/OCR/切换账本等 busy 与 idle 文案 + `joiningLabel`/`generatingLabel`/`searchingLabel`/`ocrLabel`
+- `inviteCopy` 补生成/发送邀请码与分享说明；`emptyCopy` 补暂无已保存账号
+- 接线 PC 账本/记一笔/IconGrid/切换账号 与 Taro 账本/成员/引导/资料/上传/GlobalModal 默认确认取消
+- 验证：frontend / taro `tsc --noEmit`
+
 #### 2026-07-24 模板更新/创建与报表 Tab 文案 shared
 - `ACTION_UPDATE` / `updateOrCreateLabel` / `ACTION_CREATING_ELLIPSIS`；PC TemplateFormModal 与 Taro TemplateManager/Edit、Onboarding/BookSettings 创建中… 接线
 - `TITLE_DATA_ANALYSIS` / `TITLE_MEMBER_COMPARE` 报表 Tab
