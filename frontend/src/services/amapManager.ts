@@ -192,14 +192,22 @@ class AmapManager {
         delete (m as any).__amapMarkers;
         delete (m as any).__amapHeatmap;
       } catch {}
-      // 容器重新挂到真实 DOM 后补一次 resize（双 rAF）
+      // 容器重新挂到真实 DOM：同步像素尺寸再 resize
       const m = pooled.map;
-      requestAnimationFrame(() => {
+      const parentH = Math.max(parentEl.clientHeight || 0, parentEl.offsetHeight || 0, 480);
+      const parentW = Math.max(parentEl.clientWidth || 0, parentEl.offsetWidth || 0, 320);
+      pooled.container.style.width = parentW ? `${parentW}px` : '100%';
+      pooled.container.style.height = `${parentH}px`;
+      parentEl.style.minHeight = parentEl.style.minHeight || '480px';
+      const doResize = () => {
         try { if (m && typeof m.resize === 'function') m.resize(); } catch {}
-        requestAnimationFrame(() => {
-          try { if (m && typeof m.resize === 'function') m.resize(); } catch {}
-        });
+      };
+      doResize();
+      requestAnimationFrame(() => {
+        doResize();
+        requestAnimationFrame(doResize);
       });
+      window.setTimeout(doResize, 200);
       return pooled.map;
     }
 
@@ -213,8 +221,11 @@ class AmapManager {
 
     // --- Create new instance ---
     const container = document.createElement('div');
-    container.style.width = '100%';
-    container.style.height = '100%';
+    const parentH = Math.max(parentEl.clientHeight || 0, parentEl.offsetHeight || 0, 480);
+    const parentW = Math.max(parentEl.clientWidth || 0, parentEl.offsetWidth || 0, 320);
+    container.style.width = parentW ? `${parentW}px` : '100%';
+    container.style.height = `${parentH}px`;
+    parentEl.style.minHeight = parentEl.style.minHeight || '480px';
     parentEl.appendChild(container);
 
     const defaultOpts = {

@@ -8,7 +8,6 @@ import { ThemeProvider } from './utils/theme'
 import { BookProvider, useBook } from './hooks/useBook'
 import { hasToken } from './services/api'
 import { PageProgressBar } from './components/PageProgressBar'
-import { KeepAliveHost, isKeepAlivePath } from './components/KeepAliveHost'
 
 const PROJECT_NAME = '静记'
 
@@ -120,36 +119,29 @@ const AppLayout: React.FC = () => {
       {!hideSidebar && <Sidebar />}
       <main className="main" style={hideSidebar ? { marginLeft: 0, maxWidth: '100%', padding: 0, height: '100vh', overflow: 'hidden' } : undefined}>
         <ErrorBoundary>
-          <PrivateRoute>
-            <KeepAliveHost key={user?.id || 'guest'} />
-          </PrivateRoute>
-          {!isKeepAlivePath(location.pathname) && (
-            <Suspense fallback={null}>
-              <Routes>
-                {routes
-                  .filter((route) => !isKeepAlivePath(route.path))
-                  .map((route) => {
-                    const isAdminRoute = route.path.startsWith('/admin')
-                    const element = isAdminRoute ? (
-                      <AdminRoute>{route.element}</AdminRoute>
-                    ) : route.isPrivate ? (
-                      <PrivateRoute>
-                        {route.element}
-                      </PrivateRoute>
-                    ) : (
-                      route.element
-                    )
-                    return (
-                      <Route
-                        key={route.path}
-                        path={route.path}
-                        element={element}
-                      />
-                    )
-                  })}
-              </Routes>
-            </Suspense>
-          )}
+          <Suspense fallback={null}>
+            <Routes>
+              {routes.map((route) => {
+                const isAdminRoute = route.path.startsWith('/admin')
+                const element = isAdminRoute ? (
+                  <AdminRoute>{route.element}</AdminRoute>
+                ) : route.isPrivate ? (
+                  <PrivateRoute>
+                    {route.element}
+                  </PrivateRoute>
+                ) : (
+                  route.element
+                )
+                return (
+                  <Route
+                    key={route.path}
+                    path={route.path}
+                    element={element}
+                  />
+                )
+              })}
+            </Routes>
+          </Suspense>
         </ErrorBoundary>
       </main>
     </div>

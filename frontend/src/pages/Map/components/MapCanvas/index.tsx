@@ -175,23 +175,37 @@ const _MapCanvas: React.ForwardRefRenderFunction<MapCanvasHandle, MapCanvasProps
     }
   }, [ready, map, onMapReady]);
 
-  // 地图 ready 后强制 resize + 兜底显示，避免 opacity:0 一直卡住
+  // 地图 ready 后立即显示并多次 resize（不再等定位/拟合，避免空白遮罩）
   useEffect(() => {
     if (!ready || !map) return;
+    setMapVisible(true);
     const doResize = () => {
       try {
+        const el = (map as any).getContainer?.() ?? (map as any)._container;
+        const parent = el?.parentElement as HTMLElement | null;
+        if (parent) {
+          const h = parent.clientHeight || parent.offsetHeight || 480;
+          const w = parent.clientWidth || parent.offsetWidth || parent.offsetWidth;
+          if (el && h > 0) {
+            el.style.width = '100%';
+            el.style.height = `${h}px`;
+          }
+          if (w > 0 && parent.style) {
+            // keep parent from collapsing
+            if (!parent.style.minHeight) parent.style.minHeight = '480px';
+          }
+        }
         if (typeof map.resize === 'function') map.resize();
       } catch { /* ignore */ }
     };
     doResize();
     const t1 = window.setTimeout(doResize, 50);
-    const t2 = window.setTimeout(doResize, 300);
-    // 最晚 1.5s 强制显示（定位/拟合失败时也不至于一直遮罩）
-    const showTimer = window.setTimeout(() => setMapVisible(true), 1500);
+    const t2 = window.setTimeout(doResize, 200);
+    const t3 = window.setTimeout(doResize, 500);
     return () => {
       window.clearTimeout(t1);
       window.clearTimeout(t2);
-      window.clearTimeout(showTimer);
+      window.clearTimeout(t3);
     };
   }, [ready, map]);
 
@@ -508,8 +522,10 @@ const _MapCanvas: React.ForwardRefRenderFunction<MapCanvasHandle, MapCanvasProps
             style={{
               width: '100%',
               height: '100%',
+              minHeight: 480,
               opacity: mapVisible ? 1 : 0,
-              transition: 'opacity 0.3s ease',
+              transition: 'opacity 0.25s ease',
+              background: 'var(--bg)',
             }}
           />
         )}
