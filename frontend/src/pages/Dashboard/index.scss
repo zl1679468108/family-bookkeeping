@@ -299,11 +299,11 @@
 }
 
 .dash-budget-summary__fill--warn {
-  background: linear-gradient(90deg, var(--warn) 0%, color-mix(in srgb, var(--warn) 70%, white) 100%);
+  background: linear-gradient(90deg, var(--warn) 0%, color-mix(in srgb, var(--warn) 70%, var(--srf)) 100%);
 }
 
 .dash-budget-summary__fill--danger {
-  background: linear-gradient(90deg, var(--exp) 0%, color-mix(in srgb, var(--exp) 70%, white) 100%);
+  background: linear-gradient(90deg, var(--exp) 0%, color-mix(in srgb, var(--exp) 70%, var(--srf)) 100%);
 }
 
 .dash-budget-summary__meta {
@@ -514,11 +514,11 @@
 }
 
 .dash-budget-item__fill--warn {
-  background: linear-gradient(90deg, var(--warn) 0%, color-mix(in srgb, var(--warn) 70%, white) 100%);
+  background: linear-gradient(90deg, var(--warn) 0%, color-mix(in srgb, var(--warn) 70%, var(--srf)) 100%);
 }
 
 .dash-budget-item__fill--danger {
-  background: linear-gradient(90deg, var(--exp) 0%, color-mix(in srgb, var(--exp) 70%, white) 100%);
+  background: linear-gradient(90deg, var(--exp) 0%, color-mix(in srgb, var(--exp) 70%, var(--srf)) 100%);
   /* 超支时也铺满轨道，用危险色强调 */
   min-width: 100%;
 }

@@ -1,8 +1,9 @@
 import { notify } from './notifications'
 import { getErrorMessage } from './errorMessage'
+import { ERROR_OP_FAILED } from './errorCopy'
 
 /** 统一错误通知（PC） */
-export function notifyError(err: unknown, fallback = '操作失败'): void {
+export function notifyError(err: unknown, fallback = ERROR_OP_FAILED): void {
   notify({ type: 'error', message: getErrorMessage(err, fallback) })
 }
 

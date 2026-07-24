@@ -40,7 +40,7 @@ const ReportCover: React.FC<Props> = ({ year, nickname }) => {
 
       <div className="relative z-10 text-center">
         <div className="text-sm opacity-90 mb-3">{year}年度</div>
-        <h1 className="text-3xl font-bold mb-4" style={{ textShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
+        <h1 className="text-3xl font-bold mb-4" style={{ textShadow: '0 2px 4px color-mix(in srgb, var(--fg) 12%, transparent)' }}>
           年度消费报告
         </h1>
         <div className="text-lg opacity-95 mb-6">{nickname || '用户'}，您的年度财务总结</div>

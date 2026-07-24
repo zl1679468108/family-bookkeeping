@@ -20,6 +20,7 @@ import { toastSuccess, toastInfo } from "../../utils/toast";
 import { INVITE_CODE_HELP } from "../../utils/inviteCopy";
 import { SUCCESS_CREATED, SUCCESS_JOINED } from "../../utils/successCopy";
 import { FORM_NAME_REQUIRED, FORM_INVITE_CODE_REQUIRED, FORM_INVITE_CODE_PLACEHOLDER } from "../../utils/formCopy";
+import { ERROR_CREATE_FAILED_RETRY, ERROR_INVALID_INVITE } from "../../utils/errorCopy";
 
 type Mode = "choice" | "create" | "join";
 
@@ -58,7 +59,7 @@ export default function Onboarding() {
       toastSuccess(SUCCESS_CREATED);
       setTimeout(() => Taro.reLaunch({ url: "/pages/Home/index" }), 600);
     }, "创建中…").catch((err: any) => {
-      toastError(err, "创建失败，请重试");
+      toastError(err, ERROR_CREATE_FAILED_RETRY);
     });
   };
 
@@ -76,7 +77,7 @@ export default function Onboarding() {
       toastSuccess(SUCCESS_JOINED);
       setTimeout(() => Taro.reLaunch({ url: "/pages/Home/index" }), 600);
     }, "加入中…").catch((err: any) => {
-      toastError(err, "邀请码无效或已过期");
+      toastError(err, ERROR_INVALID_INVITE);
     });
   };
 

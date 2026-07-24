@@ -29,7 +29,19 @@ export const TRANSACTION_TYPE_OPTIONS: ReadonlyArray<{
 ]
 
 /** 流水筛选：全部 + 支出 + 收入 */
-export const TRANSACTION_TYPE_FILTER_LABELS = ['全部类型', '支出', '收入'] as const
+export const FILTER_ALL_TYPES = '全部类型'
+export const FILTER_ALL_CATEGORIES = '全部分类'
+export const FILTER_ALL_TIME = '全部时间'
+export const FILTER_LAST_7_DAYS = '近 7 天'
+export const FILTER_LAST_30_DAYS = '近 30 天'
+
+export const TRANSACTION_TYPE_FILTER_LABELS = [FILTER_ALL_TYPES, '支出', '收入'] as const
+
+export const TRANSACTION_TIME_FILTER_LABELS = [
+  FILTER_ALL_TIME,
+  FILTER_LAST_7_DAYS,
+  FILTER_LAST_30_DAYS,
+] as const
 
 /** Admin / 列表 status 徽标 class */
 export function transactionTypeStatusClass(type?: string | null): string {

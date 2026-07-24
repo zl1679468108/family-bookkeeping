@@ -27,6 +27,7 @@ import { useSubmit, toastError } from "./useSubmit";
 import { toastSuccess, toastInfo } from "../utils/toast";
 import { ACTION_SAVING } from "../utils/actionCopy";
 import { SORT_SAVED } from "../utils/sortCopy";
+import { ERROR_SORT_SAVE_FAILED } from "../utils/errorCopy";
 
 export interface UseReorderOptions<T> {
   /** 非排序模式下的基准有序列表（已按 sort_order 排好） */
@@ -158,7 +159,7 @@ export function useReorder<T>({
       refetch();
     }, ACTION_SAVING).catch((err: any) => {
       console.error("[useReorder] 保存失败:", err);
-      toastError(err, "排序保存失败");
+      toastError(err, ERROR_SORT_SAVE_FAILED);
     });
   }, [sortOrder, items, getKey, onSave, queryClient, queryKey, refetch, successText, run]);
 

@@ -41,6 +41,7 @@ import { formatMonthDisplay } from '../../utils/month'
 import { SUCCESS_BUDGET_SAVED, SUCCESS_BUDGET_DELETED } from '../../utils/successCopy'
 import { FORM_BUDGET_NONE, FORM_BUDGET_NO_LAST_MONTH } from '../../utils/formCopy'
 import { EMPTY_BUDGET_NO_EXPENSE_CATEGORIES } from '../../utils/emptyCopy'
+import { ERROR_BUDGET_SAVE_FAILED, ERROR_COPY_BUDGET_FAILED } from '../../utils/errorCopy'
 
 const progressFillClass = (variant: 'safe' | 'warn' | 'danger'): string => {
   switch (variant) {
@@ -148,7 +149,7 @@ const Budgets: React.FC = () => {
     (input: UpsertBudgetInput) => upsertBudgets(input),
     {
       invalidateKeys: [queryKeys.budgets.all],
-      errorMessage: '预算保存失败',
+      errorMessage: ERROR_BUDGET_SAVE_FAILED,
     },
   )
 
@@ -179,7 +180,7 @@ const Budgets: React.FC = () => {
     },
     {
       invalidateKeys: [queryKeys.budgets.all],
-      errorMessage: '复制上月预算失败',
+      errorMessage: ERROR_COPY_BUDGET_FAILED,
       shouldCommit: (result) => Array.isArray(result) && result.length > 0,
       successMessage: (result) =>
         result ? `已复制上月 ${result.length} 条预算` : null,

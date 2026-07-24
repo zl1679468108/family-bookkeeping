@@ -15,6 +15,7 @@ import { useBook } from '../../../hooks/useBook'
 import { queryKeys } from '../../../utils/queryKeys'
 import { STALE } from '../../../utils/cachePolicy'
 import { transactionTypeLabel } from '../../../utils/transactionType'
+import { ERROR_CREATE_FAILED, ERROR_UPDATE_FAILED, ERROR_DELETE_FAILED } from '../../../utils/errorCopy'
 import {
   SUCCESS_ICON_UPLOADED,
   SUCCESS_ICON_DELETED,
@@ -88,7 +89,7 @@ export function useCategoriesPage() {
     {
       invalidateKeys: [queryKeys.categories.all],
       successMessage: successEntityUpsert('分类', false),
-      errorMessage: '创建失败',
+      errorMessage: ERROR_CREATE_FAILED,
       onSuccess: () => setModalOpen(false),
     },
   )
@@ -99,7 +100,7 @@ export function useCategoriesPage() {
     {
       invalidateKeys: [queryKeys.categories.all],
       successMessage: successEntityUpsert('分类', true),
-      errorMessage: '更新失败',
+      errorMessage: ERROR_UPDATE_FAILED,
       onSuccess: () => {
         setModalOpen(false)
         setShowDetail(false)
@@ -114,7 +115,7 @@ export function useCategoriesPage() {
     {
       invalidateKeys: [queryKeys.categories.all],
       successMessage: SUCCESS_DELETED,
-      errorMessage: '删除失败',
+      errorMessage: ERROR_DELETE_FAILED,
       onSuccess: () => {
         setDeleteTarget(null)
         setShowDetail(false)

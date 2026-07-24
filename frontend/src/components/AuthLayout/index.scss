@@ -84,7 +84,7 @@
   justify-content: center;
   margin: 0 auto 32px;
   /* 微妙投影让 SVG 浮起来 */
-  filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.12));
+  filter: drop-shadow(0 8px 24px color-mix(in srgb, var(--fg) 14%, transparent));
 }
 
 .illus-svg-wrap svg {

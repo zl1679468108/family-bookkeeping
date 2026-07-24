@@ -59,7 +59,7 @@ const OnboardingPage: React.FC = () => {
               <span className="onboarding-btn-title">我自己创建账本</span>
               <span className="onboarding-btn-desc">新建一个空账本，开始记录收支</span>
             </div>
-            <span className="onboarding-btn-arrow">→</span>
+            <span className="onboarding-btn-arrow"><Icon name="chevron-right" size={18} /></span>
           </button>
 
           <button
@@ -72,7 +72,7 @@ const OnboardingPage: React.FC = () => {
               <span className="onboarding-btn-title">使用邀请码加入</span>
               <span className="onboarding-btn-desc">输入他人分享的邀请码，加入已有账本</span>
             </div>
-            <span className="onboarding-btn-arrow">→</span>
+            <span className="onboarding-btn-arrow"><Icon name="chevron-right" size={18} /></span>
           </button>
         </div>
 

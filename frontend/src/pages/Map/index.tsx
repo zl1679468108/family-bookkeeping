@@ -20,6 +20,7 @@ import { getThemeColors } from '../../utils/themeColors'
 import { formatAmount } from '../../utils/common';
 import { queryKeys } from '../../utils/queryKeys';
 import { STALE } from '../../utils/cachePolicy';
+import { FILTER_ALL_CATEGORIES } from '../../utils/transactionType'
 
 type ViewMode = 'footprints' | 'heatmap';
 
@@ -256,7 +257,7 @@ const MapPage: React.FC = () => {
             options={categoryOptions}
             value={selectedCategory}
             onChange={(key) => setSelectedCategory(key)}
-            placeholder="全部分类"
+            placeholder={FILTER_ALL_CATEGORIES}
           />
 
           <div className="map-toolbar-spacer" />

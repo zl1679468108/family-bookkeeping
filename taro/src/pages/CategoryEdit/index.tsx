@@ -40,11 +40,13 @@ import {
   CONFIRM_DELETE_TEXT,
   confirmDeleteThis,
 } from "../../utils/confirmCopy";
-import { SUCCESS_DELETED, successEntityUpsert } from "../../utils/successCopy";
+import { SUCCESS_DELETED, successEntityUpsert, SUCCESS_ADDED_TO_CUSTOM } from "../../utils/successCopy";
 import { categoryTypeTabLabel } from "../../utils/transactionType";
 import { FORM_NAME_REQUIRED } from "../../utils/formCopy";
 import { entityFormTitle } from "../../utils/entityCopy";
 import { UPLOAD_FAILED, DELETE_FAILED, IMAGE_SELECT_FAILED } from "../../utils/uploadCopy";
+import { failEntityUpsert } from "../../utils/errorCopy";
+import Icon, { ICON_COLOR } from "../../components/Icon";
 
 interface CustomIconItem {
   id: string;
@@ -113,7 +115,7 @@ export default function CategoryEdit() {
           if (iconUrl) {
             setForm({ ...form, icon: iconUrl });
             refreshCustomIcons();
-            toastSuccess("已添加到自定义");
+            toastSuccess(SUCCESS_ADDED_TO_CUSTOM);
           } else {
             toastInfo(UPLOAD_FAILED);
           }
@@ -159,7 +161,7 @@ export default function CategoryEdit() {
       toastSuccess(successEntityUpsert("分类", isEdit));
       setTimeout(() => Taro.navigateBack(), 500);
     }, ACTION_SAVING).catch((err: any) => {
-      toastError(err, (isEdit ? "更新失败" : "创建失败"));
+      toastError(err, failEntityUpsert(isEdit));
     });
   };
 
@@ -290,7 +292,7 @@ export default function CategoryEdit() {
                 className="catedit-custom-icon-item__del"
                 onClick={(e: any) => handleDeleteCustomIcon(item.id, e)}
               >
-                <Text>×</Text>
+                <Icon name="close" size={28} color={ICON_COLOR.muted} />
               </View>
             </View>
           ))}

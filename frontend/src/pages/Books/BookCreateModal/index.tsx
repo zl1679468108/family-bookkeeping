@@ -19,6 +19,7 @@ import { STALE } from '../../../utils/cachePolicy'
 import { SUCCESS_BOOK_CREATED, SUCCESS_ICON_DELETED, SUCCESS_ICON_UPLOADED, SUCCESS_UPDATED } from '../../../utils/successCopy'
 import { FORM_NAME_REQUIRED } from '../../../utils/formCopy'
 import { entityFormTitle } from '../../../utils/entityCopy'
+import { failEntityUpsert } from '../../../utils/errorCopy'
 
 interface BookCreateModalProps {
   open: boolean;
@@ -62,7 +63,7 @@ export const BookCreateModal: React.FC<BookCreateModalProps> = ({ open, onClose,
     },
     {
       successMessage: isEdit ? SUCCESS_UPDATED : SUCCESS_BOOK_CREATED,
-      errorMessage: isEdit ? '更新失败' : '创建失败',
+      errorMessage: failEntityUpsert(isEdit),
       onSuccess: () => {
         onClose();
         onSuccess?.();

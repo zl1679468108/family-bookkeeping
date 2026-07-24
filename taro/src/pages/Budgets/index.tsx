@@ -32,6 +32,7 @@ import {
 import { SUCCESS_BUDGET_SAVED, successCopiedCount } from "../../utils/successCopy";
 import { EMPTY_BUDGET_NO_EXPENSE_CATEGORIES } from "../../utils/emptyCopy";
 import { FORM_BUDGET_NONE, FORM_BUDGET_NO_LAST_MONTH } from "../../utils/formCopy";
+import { ERROR_BUDGET_SAVE_FAILED, ERROR_COPY_FAILED } from "../../utils/errorCopy";
 
 /* ---------- 类型 ---------- */
 interface BudgetDetail {
@@ -149,7 +150,7 @@ export default function BudgetsPage() {
       refetchStatus();
       setEditingId(null);
     }, ACTION_SAVING).catch((err: any) => {
-      toastError(err, "预算保存失败");
+      toastError(err, ERROR_BUDGET_SAVE_FAILED);
       setEditingId(null);
     });
   };
@@ -181,7 +182,7 @@ export default function BudgetsPage() {
       refetchBudgets();
       refetchStatus();
     }, ACTION_COPYING).catch((err: any) => {
-      toastError(err, "复制失败");
+      toastError(err, ERROR_COPY_FAILED);
     });
   };
 

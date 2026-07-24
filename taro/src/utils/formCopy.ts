@@ -20,3 +20,7 @@ export const FORM_BUDGET_NO_LAST_MONTH = "上月暂无预算可复制";
 export const FORM_ALREADY_CURRENT_ACCOUNT = "当前已是该账号";
 export const FORM_ALREADY_CURRENT_BOOK = "当前已是该账本";
 export const FORM_PRIVACY_REQUIRED = "请先同意隐私协议";
+
+export const FORM_OWNER_EMAIL_REQUIRED = "请输入新拥有者邮箱";
+export const FORM_PASSWORD_VERIFY = "请输入密码验证";
+export const FORM_DEACTIVATE_PASSWORD = "请输入密码以确认注销";

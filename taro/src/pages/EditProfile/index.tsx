@@ -41,6 +41,7 @@ import {
 import { SUCCESS_AVATAR_UPDATED, SUCCESS_IMAGE_SELECTED, SUCCESS_PASSWORD_CHANGED, SUCCESS_SAVED } from "../../utils/successCopy";
 import { FORM_PASSWORD_CURRENT, FORM_PRIVACY_REQUIRED, FORM_USERNAME_REQUIRED } from "../../utils/formCopy";
 import { IMAGE_SELECT_FAILED } from "../../utils/uploadCopy";
+import { ERROR_SAVE_FAILED_RETRY, ERROR_MODIFY_FAILED_RETRY } from "../../utils/errorCopy";
 
 export default function EditProfile() {
   const { user, refreshUser } = useAuth();
@@ -140,7 +141,7 @@ export default function EditProfile() {
       toastSuccess(SUCCESS_SAVED);
       setTimeout(() => Taro.navigateBack(), 600);
     }, ACTION_SAVING).catch((err: any) => {
-      toastError(err, "保存失败，请重试");
+      toastError(err, ERROR_SAVE_FAILED_RETRY);
     });
   }, [username, email, avatarUrl, refreshUser]);
 
@@ -180,7 +181,7 @@ export default function EditProfile() {
       setNewPwd("");
       setConfirmPwd("");
     }, ACTION_SUBMITTING).catch((err: any) => {
-      toastError(err, "修改失败，请重试");
+      toastError(err, ERROR_MODIFY_FAILED_RETRY);
     });
   }, [oldPwd, newPwd, confirmPwd]);
 

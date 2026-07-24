@@ -4,6 +4,7 @@
  */
 import Taro from "@tarojs/taro";
 import { getErrorMessage } from "./errorMessage";
+import { ERROR_OP_FAILED } from "./errorCopy";
 
 export type ToastType = "success" | "error" | "info" | "warn";
 
@@ -40,6 +41,6 @@ export function toastWarn(message: string, duration = 2000): void {
 }
 
 /** 错误提示：支持 unknown err 或纯文案 */
-export function toastError(err: unknown, fallback = "操作失败"): void {
+export function toastError(err: unknown, fallback = ERROR_OP_FAILED): void {
   toast(getErrorMessage(err, fallback), "error");
 }

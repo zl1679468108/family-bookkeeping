@@ -14,6 +14,7 @@ import "./index.scss";
 import { toastSuccess } from "../../../utils/toast";
 import { FORM_EMAIL_PASSWORD_REQUIRED, FORM_CAPTCHA_REQUIRED } from "../../../utils/formCopy";
 import { SUCCESS_LOGIN } from "../../../utils/successCopy";
+import { ERROR_LOGIN_FAILED } from "../../../utils/errorCopy";
 
 export default function Login() {
   const { isDark } = useTheme();
@@ -74,7 +75,7 @@ export default function Login() {
       }, 600);
     }, "登录中…").catch((err: any) => {
       console.error("[Login] signIn failed:", err);
-      toastError(err, "登录失败");
+      toastError(err, ERROR_LOGIN_FAILED);
       refreshCaptcha();
     });
   };

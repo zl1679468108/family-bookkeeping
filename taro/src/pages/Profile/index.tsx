@@ -23,8 +23,8 @@ import {
 import "./index.scss";
 import { toastSuccess, toastInfo } from "../../utils/toast";
 import { userDisplayName, userInitial } from "../../utils/userDisplay";
-import { SUCCESS_ACCOUNT_SWITCHED } from "../../utils/successCopy";
-import { FORM_ALREADY_CURRENT_ACCOUNT, FORM_CAPTCHA_REQUIRED, FORM_EMAIL_PASSWORD_REQUIRED } from "../../utils/formCopy";
+import { SUCCESS_ACCOUNT_SWITCHED, SUCCESS_ACCOUNT_DEACTIVATED, SUCCESS_SWITCHED } from "../../utils/successCopy";
+import { FORM_ALREADY_CURRENT_ACCOUNT, FORM_CAPTCHA_REQUIRED, FORM_EMAIL_PASSWORD_REQUIRED, FORM_DEACTIVATE_PASSWORD } from "../../utils/formCopy";
 
 export default function Profile() {
   const { user, signOut, signIn, switchByToken } = useAuth();
@@ -69,7 +69,7 @@ export default function Profile() {
 
   const handleConfirmDeactivate = async () => {
     if (!deactivatePassword) {
-      setDeactivateError("请输入密码以确认注销");
+      setDeactivateError(FORM_DEACTIVATE_PASSWORD);
       return;
     }
     setDeactivateError("");
@@ -78,7 +78,7 @@ export default function Profile() {
       await deactivateAccount(deactivatePassword);
       // 清理本地保存的当前账号
       if (user?.email) removeAccount(user.email);
-      toastSuccess("账号已注销");
+      toastSuccess(SUCCESS_ACCOUNT_DEACTIVATED);
       // 本地清理（不再走 apiLogout，后端 session 已被清）
       try { await signOut(); } catch {}
       setTimeout(() => {
@@ -170,7 +170,7 @@ export default function Profile() {
     setLoginLoading(true);
     try {
       await signIn(loginEmail.trim(), loginPassword, captchaId, captchaCode);
-      toastSuccess("切换成功");
+      toastSuccess(SUCCESS_SWITCHED);
       setAccounts(getSavedAccounts());
       setSwitchModal(false);
       setShowLoginForm(false);

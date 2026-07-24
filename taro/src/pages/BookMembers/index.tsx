@@ -28,6 +28,7 @@ import {
 import { SUCCESS_INVITE_COPIED, SUCCESS_INVITE_SENT, SUCCESS_MEMBER_REMOVED } from "../../utils/successCopy";
 import { FORM_PEER_EMAIL_PLACEHOLDER } from "../../utils/formCopy";
 import { copyToClipboard } from "../../utils/clipboard";
+import { ERROR_GENERATE_FAILED, ERROR_REMOVE_FAILED, ERROR_INVITE_FAILED } from "../../utils/errorCopy";
 
 interface Member {
   id: string;
@@ -57,7 +58,7 @@ export default function BookMembers() {
       void copyToClipboard(res.code);
       toastSuccess(SUCCESS_INVITE_COPIED);
     }, "生成中…").catch((err: any) => {
-      toastError(err, "生成失败");
+      toastError(err, ERROR_GENERATE_FAILED);
     });
   };
 
@@ -93,7 +94,7 @@ export default function BookMembers() {
       setRemoveTarget(null);
       qc.invalidateQueries({ queryKey: ["books", bookId, "members"] });
     }, "移除中…").catch((err: any) => {
-      toastError(err, "移除失败");
+      toastError(err, ERROR_REMOVE_FAILED);
       setRemoveTarget(null);
     });
   };
@@ -107,7 +108,7 @@ export default function BookMembers() {
       setShowInvite(false);
       qc.invalidateQueries({ queryKey: ["books", bookId, "members"] });
     }, "发送中…").catch((err: any) => {
-      toastError(err, "邀请失败");
+      toastError(err, ERROR_INVITE_FAILED);
       setShowInvite(false);
     });
   };

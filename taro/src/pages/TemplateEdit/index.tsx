@@ -36,6 +36,7 @@ import { successEntityDeleted, successEntityUpsert } from "../../utils/successCo
 import { FORM_TEMPLATE_NAME_REQUIRED, FORM_CATEGORY_REQUIRED } from "../../utils/formCopy";
 import { entityFormTitle } from "../../utils/entityCopy";
 import { DELETE_FAILED } from "../../utils/uploadCopy";
+import { failEntityUpsert } from "../../utils/errorCopy";
 
 type TplType = "expense" | "income";
 
@@ -130,7 +131,7 @@ export default function TemplateEdit() {
       toastSuccess(successEntityUpsert("模板", isEdit));
       setTimeout(() => Taro.navigateBack(), 500);
     }, ACTION_SAVING).catch((err: any) => {
-      toastError(err, isEdit ? "更新失败" : "创建失败");
+      toastError(err, failEntityUpsert(isEdit));
     });
   };
 
@@ -243,7 +244,7 @@ export default function TemplateEdit() {
                       setForm((p) => ({ ...p, type: "" as TplType, category_id: "" }))
                     }
                   >
-                    <Text>×</Text>
+                    <Icon name="close" size={28} color={ICON_COLOR.muted} />
                   </View>
                 )}
                 <Text className="tpl-picker-chevron">▼</Text>
@@ -291,7 +292,7 @@ export default function TemplateEdit() {
                     // @ts-ignore
                     catchClick={() => setForm((p) => ({ ...p, category_id: "" }))}
                   >
-                    <Text>×</Text>
+                    <Icon name="close" size={28} color={ICON_COLOR.muted} />
                   </View>
                 )}
                 <Text className="tpl-picker-chevron">▼</Text>

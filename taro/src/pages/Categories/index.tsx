@@ -56,6 +56,7 @@ import { FORM_NAME_REQUIRED } from "../../utils/formCopy";
 import { emptyCategories } from "../../utils/emptyCopy";
 import { entityCreateButton } from "../../utils/entityCopy";
 import { UPLOAD_FAILED, DELETE_FAILED } from "../../utils/uploadCopy";
+import { failEntityUpsert } from "../../utils/errorCopy";
 
 /* ---------- 类型 ---------- */
 interface Category {
@@ -226,7 +227,7 @@ export default function CategoriesPage() {
       closeForm();
       refetch();
     }, ACTION_SAVING).catch((err: any) => {
-      toastError(err, (isEdit ? "更新失败" : "创建失败"));
+      toastError(err, failEntityUpsert(isEdit));
       // 失败也关闭表单，避免 loading 卡住
       closeForm();
     });

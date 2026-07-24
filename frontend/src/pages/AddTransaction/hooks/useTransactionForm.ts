@@ -22,9 +22,10 @@ import {
   loadAddTransactionDraft,
   saveAddTransactionDraft,
 } from '../../../utils/addTransactionDraft'
-import { successTemplateApplied } from '../../../utils/successCopy'
+import { successTemplateApplied, SUCCESS_OCR } from '../../../utils/successCopy'
 import { FORM_AMOUNT_INVALID, FORM_CATEGORY_REQUIRED } from '../../../utils/formCopy'
 import { maxImagesMessage, IMAGE_PROCESS_FAILED, MAX_RECEIPT_IMAGES } from '../../../utils/uploadCopy'
+import { failUpdateOrSave, ERROR_OCR_FAILED } from '../../../utils/errorCopy'
 
 export const MAX_NOTE_LENGTH = 500
 export const MAX_IMAGES = MAX_RECEIPT_IMAGES
@@ -244,7 +245,7 @@ export function useTransactionForm() {
       shouldCommit: (result) => result === 'updated' || result === 'created',
       successMessage: (result) =>
         result === 'updated' ? '交易已更新' : result === 'created' ? '交易已保存' : null,
-      errorMessage: isEditMode ? '更新失败' : '保存失败',
+      errorMessage: failUpdateOrSave(isEditMode),
       onSuccess: (result) => {
         if (result !== 'updated' && result !== 'created') return
         if (bookId) clearAddTransactionDraft(bookId)
@@ -331,9 +332,9 @@ export function useTransactionForm() {
           next.note = ocrResult.note || prev.note
           return next
         })
-        notifySuccess('OCR 识别成功，已自动填充表单')
+        notifySuccess(SUCCESS_OCR)
       } else {
-        notifyError('未能识别票据内容，请重试或手动填写')
+        notifyError(ERROR_OCR_FAILED)
       }
     } catch {
       // 后端已返回中文错误提示（含免费额度用完的场景），前端不需要额外通知

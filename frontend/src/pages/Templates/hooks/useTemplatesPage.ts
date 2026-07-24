@@ -13,6 +13,7 @@ import { queryKeys } from '../../../utils/queryKeys'
 import { STALE } from '../../../utils/cachePolicy'
 import { successEntityDeleted, successEntityUpsert } from '../../../utils/successCopy'
 import { FORM_TEMPLATE_NAME_REQUIRED } from '../../../utils/formCopy'
+import { ERROR_DELETE_FAILED, ERROR_CREATE_FAILED, ERROR_UPDATE_FAILED } from '../../../utils/errorCopy'
 
 export function useTemplatesPage() {
   const { currentBook } = useBook()
@@ -71,7 +72,7 @@ export function useTemplatesPage() {
     {
       invalidateKeys: [queryKeys.templates.all],
       successMessage: successEntityDeleted('模板'),
-      errorMessage: '删除失败',
+      errorMessage: ERROR_DELETE_FAILED,
       onSuccess: () => {
         setShowDetail(false)
         setShowDeleteConfirm(false)
@@ -85,7 +86,7 @@ export function useTemplatesPage() {
     {
       invalidateKeys: [queryKeys.templates.all],
       successMessage: successEntityUpsert('模板', false),
-      errorMessage: '创建失败',
+      errorMessage: ERROR_CREATE_FAILED,
     },
   )
 
@@ -94,7 +95,7 @@ export function useTemplatesPage() {
     {
       invalidateKeys: [queryKeys.templates.all],
       successMessage: successEntityUpsert('模板', true),
-      errorMessage: '更新失败',
+      errorMessage: ERROR_UPDATE_FAILED,
       onSuccess: () => {
         setShowForm(false)
         setShowDetail(false)

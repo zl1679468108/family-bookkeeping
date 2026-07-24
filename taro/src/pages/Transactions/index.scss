@@ -51,11 +51,11 @@
   right: 18rpx;
   width: 38rpx;
   height: 38rpx;
-  line-height: 36rpx;
-  text-align: center;
-  font-size: 22rpx;
-  color: var(--fg-3, var(--fg3));
-  background-color: var(--border-light, #f0f1ee);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--fg3);
+  background-color: var(--bdL);
   border-radius: 50%;
 }
 
@@ -95,7 +95,7 @@
 
 .picker-arrow {
   font-size: 18rpx;
-  color: var(--fg-3, var(--fg3));
+  color: var(--fg3);
   flex-shrink: 0;
 }
 
@@ -109,7 +109,7 @@
 
 .stats-text {
   font-size: 22rpx;
-  color: var(--fg-3, var(--fg3));
+  color: var(--fg3);
   font-weight: 500;
   letter-spacing: 0.5rpx;
 }
@@ -142,7 +142,7 @@
 
 .date-full {
   font-size: 22rpx;
-  color: var(--fg-3, var(--fg3));
+  color: var(--fg3);
   font-weight: 500;
 }
 

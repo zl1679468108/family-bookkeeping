@@ -85,6 +85,15 @@
 
 ### ✅ 已完成
 
+#### 2026-07-24 errorCopy / 筛选文案接线 + 暗色第五轮 + Icon 收口
+- 新增双端 `utils/errorCopy`：操作失败/CRUD/邀请/预算/OCR/会话失效等统一；`failEntityUpsert` / `failUpdateOrSave`；`errorMessage`/`notifyError`/`toastError` 默认 fallback 走 `ERROR_OP_FAILED`。
+- 双端接线：Categories/Books/Templates/Budgets/记一笔/Auth/Profile/流水等 errorMessage 与 toast 改常量；`formCopy`/`successCopy` 补转移拥有者、注销、OCR、重发验证码等。
+- 流水筛选：`FILTER_ALL_*` + `TRANSACTION_TIME_FILTER_LABELS` 双端复用（PC Transactions/Map + Taro Transactions）。
+- PC 暗色第五轮：年报图表阴影 `--sh2`、Auth 插图 drop-shadow 随 `--fg`、Dashboard 进度渐变 `white`→`var(--srf)`、地图 marker 阴影随主题 `fg`。
+- Icon 收口：Onboarding 箭头 `chevron-right`；Taro 流水搜索清除/筛选箭头、自定义图标删除、模板选择关闭等 `×/✕` → `Icon close`。
+- 验证：frontend / taro `tsc --noEmit` 通过。
+
+
 #### 2026-07-24 上传限制/实体标题/鉴权按钮复用
 - 双端 `uploadCopy`：5MB/MIME/失败文案与 `isAllowedImageMime`/`isWithinUploadSize`/`maxImagesMessage`；IconGrid/头像/记一笔附件收口。
 - 双端 `entityCopy`：新建/编辑标题与「+ 新建X」按钮文案；分类/模板/账本列表与表单。

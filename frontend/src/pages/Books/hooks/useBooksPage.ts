@@ -12,6 +12,7 @@ import { notify } from '../../../utils/notifications';
 import { useMutationAction } from '../../../hooks/useMutationAction';
 import { queryKeys } from '../../../utils/queryKeys'
 import { STALE } from '../../../utils/cachePolicy'
+import { ERROR_DELETE_FAILED, ERROR_INVITE_EMAIL, ERROR_GENERATE_INVITE_FAILED, ERROR_REMOVE_FAILED } from '../../../utils/errorCopy'
 import {
   SUCCESS_INVITE_SENT,
   SUCCESS_INVITE_CODE_GENERATED,
@@ -70,7 +71,7 @@ export function useBooksPage() {
     {
       invalidateKeys: [queryKeys.books.membersRoot],
       successMessage: SUCCESS_INVITE_SENT,
-      errorMessage: '邀请失败，请检查邮箱',
+      errorMessage: ERROR_INVITE_EMAIL,
       onSuccess: closeAllDialogs,
     },
   );
@@ -79,7 +80,7 @@ export function useBooksPage() {
     (bookId: string) => createInvitation(bookId),
     {
       successMessage: SUCCESS_INVITE_CODE_GENERATED,
-      errorMessage: '生成邀请码失败',
+      errorMessage: ERROR_GENERATE_INVITE_FAILED,
     },
   )
 
@@ -100,7 +101,7 @@ export function useBooksPage() {
     (bookId: string) => deleteBook(bookId),
     {
       successMessage: successEntityDeleted('账本'),
-      errorMessage: '删除失败',
+      errorMessage: ERROR_DELETE_FAILED,
       onSuccess: () => {
         closeAllDialogs();
         refetchBooks();
@@ -114,7 +115,7 @@ export function useBooksPage() {
     {
       invalidateKeys: [queryKeys.books.membersRoot],
       successMessage: SUCCESS_MEMBER_REMOVED,
-      errorMessage: '移除失败',
+      errorMessage: ERROR_REMOVE_FAILED,
       onSuccess: () => {
         setShowMemberConfirm(false);
         setRemovingMember(null);

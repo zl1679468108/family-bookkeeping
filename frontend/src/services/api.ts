@@ -16,6 +16,7 @@ import type {
   ApiEnvelope,
   ApiErrorPayload,
 } from '@family-bookkeeping/shared-types'
+import { ERROR_SESSION_EXPIRED } from '../utils/errorCopy'
 
 // 兼容：重新导出常用类型（供已有 import 使用）
 export type { Transaction, TransactionFilters, PaginatedResponse, UserProfile, TokenPair, OcrResult, CategorySuggestion, ApiEnvelope, ApiErrorPayload } from '@family-bookkeeping/shared-types'
@@ -110,7 +111,7 @@ const tryRefresh = (): Promise<TokenPair> => {
     refreshPromise = (async () => {
       const refreshToken = getRefreshToken()
       if (!refreshToken) {
-        throw new ApiError('登录状态已失效，请重新登录', 401)
+        throw new ApiError(ERROR_SESSION_EXPIRED, 401)
       }
       const data = await request<TokenPair>('/auth/refresh', {
         method: 'POST',
@@ -140,7 +141,7 @@ const redirectToLogin = (): void => {
 const handleUnauthorized = (notifyOnError: boolean): void => {
   clearStoredToken()
   if (notifyOnError) {
-    notifyError('登录状态已失效，请重新登录')
+    notifyError(ERROR_SESSION_EXPIRED)
   }
   redirectToLogin()
 }
@@ -201,7 +202,7 @@ export const request = async <T>(path: string, options: RequestOptions = {}): Pr
       if (!silent) {
         handleUnauthorized(effectiveNotify)
       }
-      throw new ApiError('登录状态已失效，请重新登录', 401)
+      throw new ApiError(ERROR_SESSION_EXPIRED, 401)
     }
     const trimmedToken = token.trim()
     requestHeaders.Authorization = `Bearer ${trimmedToken}`

@@ -40,10 +40,12 @@ import {
   CONFIRM_DELETE_TEXT,
   CONFIRM_DELETE_BOOK_GENERIC,
 } from "../../utils/confirmCopy";
-import { FORM_NAME_REQUIRED, FORM_PRIVACY_REQUIRED } from "../../utils/formCopy";
+import { FORM_NAME_REQUIRED, FORM_PRIVACY_REQUIRED, FORM_OWNER_EMAIL_REQUIRED, FORM_PASSWORD_VERIFY } from "../../utils/formCopy";
 import { SUCCESS_BOOK_CREATED, SUCCESS_CUSTOM_ICON_ADDED, SUCCESS_DELETED, SUCCESS_OWNERSHIP_TRANSFERRED, SUCCESS_UPDATED, successEntityDeleted } from "../../utils/successCopy";
 import { entityFormTitle } from "../../utils/entityCopy";
 import { IMAGE_SELECT_FAILED, DELETE_FAILED, UPLOAD_FAILED } from "../../utils/uploadCopy";
+import { ERROR_CREATE_FAILED, ERROR_SAVE_FAILED, ERROR_TRANSFER_FAILED } from "../../utils/errorCopy";
+import Icon, { ICON_COLOR } from "../../components/Icon";
 
 interface Member {
   id: string;
@@ -211,7 +213,7 @@ export default function BookSettings() {
       toastSuccess(SUCCESS_BOOK_CREATED);
       setTimeout(() => Taro.navigateBack(), 500);
     }, "创建中…").catch((err: any) => {
-      toastError(err, "创建失败");
+      toastError(err, ERROR_CREATE_FAILED);
     });
   };
 
@@ -231,17 +233,17 @@ export default function BookSettings() {
       toastSuccess(SUCCESS_UPDATED);
       setTimeout(() => Taro.navigateBack(), 500);
     }, ACTION_SAVING).catch((err: any) => {
-      toastError(err, "保存失败");
+      toastError(err, ERROR_SAVE_FAILED);
     });
   };
 
   const handleSubmitTransfer = () => {
     if (!transferEmail.trim()) {
-      toastInfo("请输入新拥有者邮箱");
+      toastInfo(FORM_OWNER_EMAIL_REQUIRED);
       return;
     }
     if (!transferPassword) {
-      toastInfo("请输入密码验证");
+      toastInfo(FORM_PASSWORD_VERIFY);
       return;
     }
     run(async () => {
@@ -250,7 +252,7 @@ export default function BookSettings() {
       toastSuccess(SUCCESS_OWNERSHIP_TRANSFERRED);
       setShowTransfer(false);
     }, "转移中…").catch((err: any) => {
-      toastError(err, "转移失败");
+      toastError(err, ERROR_TRANSFER_FAILED);
       setShowTransfer(false);
     });
   };
@@ -371,7 +373,7 @@ export default function BookSettings() {
                     className="bs-custom-icon-item__del"
                     onClick={(e: any) => handleDeleteCustomIcon(item.id, e)}
                   >
-                    <Text>×</Text>
+                    <Icon name="close" size={28} color={ICON_COLOR.muted} />
                   </View>
                 </View>
               ))}
@@ -481,7 +483,7 @@ export default function BookSettings() {
                     className="bs-custom-icon-item__del"
                     onClick={(e: any) => handleDeleteCustomIcon(item.id, e)}
                   >
-                    <Text>×</Text>
+                    <Icon name="close" size={28} color={ICON_COLOR.muted} />
                   </View>
                 </View>
               ))}

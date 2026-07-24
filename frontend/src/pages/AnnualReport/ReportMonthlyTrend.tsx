@@ -162,7 +162,7 @@ export const ReportMonthlyTrend: React.FC<ReportMonthlyTrendProps> = ({ data }) 
           borderRadius: '16px',
           padding: '16px',
           border: '1px solid var(--bd)',
-          boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
+          boxShadow: 'var(--sh2)',
         }}
       />
     </div>

@@ -49,6 +49,7 @@ import {
 import { copyToClipboard } from "../../utils/clipboard";
 import { entityCreateButton } from "../../utils/entityCopy";
 import { DELETE_FAILED } from "../../utils/uploadCopy";
+import { ERROR_JOIN_FAILED, ERROR_INVITE_EMAIL, ERROR_GENERATE_FAILED, ERROR_REMOVE_FAILED } from "../../utils/errorCopy";
 
 type BookRow = Book & { is_default?: boolean };
 
@@ -102,7 +103,7 @@ export default function BooksPage() {
       toastSuccess(SUCCESS_JOINED);
       refetch();
     }, "加入中…").catch((err: any) => {
-      toastError(err, "加入失败");
+      toastError(err, ERROR_JOIN_FAILED);
     });
   };
 
@@ -201,7 +202,7 @@ export default function BooksPage() {
       refetchMembers();
       refetch(); // 刷新列表（成员数可能变化）
     }, "发送中…").catch((err: any) => {
-      toastError(err, "邀请失败，请检查邮箱");
+      toastError(err, ERROR_INVITE_EMAIL);
       setInviteEmail("");
       setDetailMode("info");
     });
@@ -220,7 +221,7 @@ export default function BooksPage() {
       setInviteCodeData(data);
       toastSuccess(SUCCESS_INVITE_CODE_GENERATED);
     }, "生成中…").catch((err: any) => {
-      toastError(err, "生成失败");
+      toastError(err, ERROR_GENERATE_FAILED);
     });
   };
 
@@ -262,7 +263,7 @@ export default function BooksPage() {
       refetchMembers();
       refetch();
     }, "移除中…").catch((err: any) => {
-      toastError(err, "移除失败");
+      toastError(err, ERROR_REMOVE_FAILED);
       setRemovingMember(null);
       setShowRemoveConfirm(false);
     });

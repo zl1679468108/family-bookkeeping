@@ -31,7 +31,7 @@ function createBubbleContent(loc: MemberLocation, isOffline: boolean): string {
       <div style="
         width:32px;height:32px;border-radius:50%;
         background:${bgColor};
-        border:2px solid ${theme.srf};box-shadow:0 2px 8px rgba(0,0,0,0.3);
+        border:2px solid ${theme.srf};box-shadow:0 2px 8px color-mix(in srgb, ${theme.fg} 28%, transparent);
         display:flex;align-items:center;justify-content:center;
         color:var(--on-pr);font-size:14px;font-weight:700;
         ${isOffline ? 'opacity:0.6;' : ''}

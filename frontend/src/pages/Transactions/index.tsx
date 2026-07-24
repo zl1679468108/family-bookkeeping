@@ -26,7 +26,8 @@ import { SearchInput, NumberInput } from '../../components/ui/Input'
 import { parseImageList } from '../../utils/parseImageList'
 import { queryKeys, TRANSACTION_IMPACT_ROOT_KEYS } from '../../utils/queryKeys'
 import { STALE } from '../../utils/cachePolicy'
-import { transactionTypeLabel, TRANSACTION_TYPE_OPTIONS } from '../../utils/transactionType'
+import { transactionTypeLabel, TRANSACTION_TYPE_OPTIONS, FILTER_ALL_TYPES, FILTER_ALL_CATEGORIES, FILTER_ALL_TIME, FILTER_LAST_7_DAYS, FILTER_LAST_30_DAYS } from '../../utils/transactionType'
+import { ERROR_DELETE_FAILED } from '../../utils/errorCopy'
 import {
   CONFIRM_DELETE_TITLE,
   CONFIRM_DELETE_TEXT,
@@ -153,7 +154,7 @@ const Transactions: React.FC = () => {
     {
       invalidateKeys: TRANSACTION_IMPACT_ROOT_KEYS,
       successMessage: '交易已删除',
-      errorMessage: '删除失败',
+      errorMessage: ERROR_DELETE_FAILED,
       onSuccess: () => {
         setShowDetail(false)
         setShowDeleteConfirm(false)
@@ -214,8 +215,8 @@ const Transactions: React.FC = () => {
   const typeOptions = useMemo(() => [...TRANSACTION_TYPE_OPTIONS], [])
 
   const dateOptions = useMemo(() => [
-    { key: 'week', label: '近 7 天' },
-    { key: 'month', label: '近 30 天' },
+    { key: 'week', label: FILTER_LAST_7_DAYS },
+    { key: 'month', label: FILTER_LAST_30_DAYS },
   ], []);
 
   return (
@@ -233,21 +234,21 @@ const Transactions: React.FC = () => {
               <DropdownSelect
                 options={typeOptions}
                 value={typeFilter}
-                placeholder="全部类型"
+                placeholder={FILTER_ALL_TYPES}
                 onChange={handleTypeChange}
               />
 
               <DropdownSelect
                 options={categoryOptions}
                 value={categoryFilter}
-                placeholder="全部分类"
+                placeholder={FILTER_ALL_CATEGORIES}
                 onChange={handleCategoryChange}
               />
 
               <DropdownSelect
                 options={dateOptions}
                 value={dateFilter}
-                placeholder="全部时间"
+                placeholder={FILTER_ALL_TIME}
                 onChange={handleDateChange}
               />
 

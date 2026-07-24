@@ -47,6 +47,8 @@ import { SUCCESS_TEMPLATE_APPLIED, successEntityDeleted, successEntityUpsert } f
 import { FORM_TEMPLATE_NAME_REQUIRED } from "../../utils/formCopy";
 import { EMPTY_TEMPLATES } from "../../utils/emptyCopy";
 import { entityCreateButton, entityFormTitle } from "../../utils/entityCopy";
+import { ERROR_DELETE_FAILED, ERROR_OP_FAILED, ERROR_EXECUTE_FAILED } from "../../utils/errorCopy";
+import Icon, { ICON_COLOR } from "../../components/Icon";
 
 /* ---------- 空表单初始态 ---------- */
 const EMPTY_FORM = {
@@ -198,7 +200,7 @@ export default function TemplateManager() {
       setDeleteId(null);
       refetch();
     }, ACTION_DELETING).catch((err: any) => {
-      toastError(err, "删除失败");
+      toastError(err, ERROR_DELETE_FAILED);
       setShowDelete(false);
       setDeleteId(null);
     });
@@ -248,7 +250,7 @@ export default function TemplateManager() {
       setEditingId(null);
       refetch();
     }, ACTION_SAVING).catch((err: any) => {
-      toastError(err, "操作失败");
+      toastError(err, ERROR_OP_FAILED);
       setShowForm(false);
       setEditingId(null);
     });
@@ -286,7 +288,7 @@ export default function TemplateManager() {
       setTimeout(() => Taro.navigateTo({ url: "/pages/AddTransaction/index" }), 600);
     } catch (err: any) {
       Taro.hideLoading();
-      toastError(err, "执行失败");
+      toastError(err, ERROR_EXECUTE_FAILED);
     }
   };
 
@@ -576,13 +578,15 @@ export default function TemplateManager() {
                   <Text className={`tpl-fg__select-val tpl-fg__select-val--${form.type}`}>
                     {transactionTypeLabel(form.type)}
                   </Text>
-                  <Text
+                  <View
                     className="tpl-fg__select-cls"
                     onClick={(e: any) => {
                       e.stopPropagation();
                       setForm((p) => ({ ...p, type: p.type === "expense" ? "income" : "expense", category_id: "" }));
                     }}
-                  >×</Text>
+                  >
+                    <Icon name="close" size={28} color={ICON_COLOR.muted} />
+                  </View>
                   <Text className="tpl-fg__select-arrow">·</Text>
                 </View>
               </Picker>

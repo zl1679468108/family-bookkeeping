@@ -8,6 +8,7 @@ import { View, Text, Input, Picker } from "@tarojs/components";
 import Taro from "@tarojs/taro";
 import PageContainer from "../../components/PageContainer";
 import { EmptyState, EmptyAddTransactionAction } from "../../components/ui";
+import Icon, { ICON_COLOR } from "../../components/Icon";
 import TransactionItem from "../../components/TransactionItem";
 import { getTransactions } from "../../services/transactionsApi";
 import { useCategoryLookup } from "../../hooks/useCategories";
@@ -16,12 +17,12 @@ import { useAuth } from "../../context/AuthContext";
 import { useBookContext } from "../../context/BookContext";
 import { formatMoney } from "../../utils/format";
 import "./index.scss";
-import { TRANSACTION_TYPE_FILTER_LABELS } from "../../utils/transactionType";
+import { TRANSACTION_TYPE_FILTER_LABELS, TRANSACTION_TIME_FILTER_LABELS, FILTER_ALL_CATEGORIES } from "../../utils/transactionType";
 import { parseAmount } from "../../utils/budget";
 import { ACTION_LOADING } from "../../utils/actionCopy";
 
 const FILTER_OPTIONS = [...TRANSACTION_TYPE_FILTER_LABELS];
-const TIME_OPTIONS = ["全部时间", "近 7 天", "近 30 天"];
+const TIME_OPTIONS = [...TRANSACTION_TIME_FILTER_LABELS];
 
 const PAGE_SIZE = 20;
 
@@ -115,7 +116,7 @@ export default function Transactions() {
     const cats = typeFilter
       ? categories.filter((c) => c.type === typeFilter)
       : categories;
-    return ["全部分类", ...cats.map((c) => c.name)];
+    return [FILTER_ALL_CATEGORIES, ...cats.map((c) => c.name)];
   }, [categories, typeIdx]);
 
   const filteredCategoriesForSelection = useMemo(() => {
@@ -286,7 +287,7 @@ export default function Transactions() {
               onConfirm={handleSearch}
             />
             {searchKeyword && (
-              <Text className="search-clear-btn" onClick={handleClearSearch}>✕</Text>
+              <View className="search-clear-btn" onClick={handleClearSearch}><Icon name="close" size={28} color={ICON_COLOR.muted} /></View>
             )}
           </View>
 
@@ -295,19 +296,19 @@ export default function Transactions() {
             <Picker mode="selector" range={FILTER_OPTIONS} value={typeIdx} onChange={handleTypeChange}>
               <View className="picker-chip">
                 <Text className="picker-chip-text">{FILTER_OPTIONS[typeIdx]}</Text>
-                <Text className="picker-arrow">▾</Text>
+                <Icon name="chevron-down" size={24} color={ICON_COLOR.muted} />
               </View>
             </Picker>
             <Picker mode="selector" range={TIME_OPTIONS} value={timeIdx} onChange={handleTimeChange}>
               <View className="picker-chip">
                 <Text className="picker-chip-text">{TIME_OPTIONS[timeIdx]}</Text>
-                <Text className="picker-arrow">▾</Text>
+                <Icon name="chevron-down" size={24} color={ICON_COLOR.muted} />
               </View>
             </Picker>
             <Picker mode="selector" range={categoryOptions} value={catIdx} onChange={handleCatChange}>
               <View className="picker-chip">
-                <Text className="picker-chip-text">{categoryOptions[catIdx] || "全部分类"}</Text>
-                <Text className="picker-arrow">▾</Text>
+                <Text className="picker-chip-text">{categoryOptions[catIdx] || FILTER_ALL_CATEGORIES}</Text>
+                <Icon name="chevron-down" size={24} color={ICON_COLOR.muted} />
               </View>
             </Picker>
           </View>

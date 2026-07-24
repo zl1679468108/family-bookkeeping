@@ -13,7 +13,8 @@ import { ApiError } from "../../../services/api";
 import "./index.scss";
 import { toastSuccess, toastInfo } from "../../../utils/toast";
 import { validatePasswordMatch, validatePasswordMinLength } from "../../../utils/validation";
-import { SUCCESS_CODE_SENT, SUCCESS_PASSWORD_RESET } from "../../../utils/successCopy";
+import { ERROR_SEND_FAILED, ERROR_RESET_FAILED } from "../../../utils/errorCopy";
+import { SUCCESS_CODE_SENT, SUCCESS_PASSWORD_RESET, SUCCESS_CODE_RESENT } from "../../../utils/successCopy";
 
 type Step = "email" | "code" | "success";
 
@@ -65,7 +66,7 @@ export default function ForgotPassword() {
       setStep("code");
       startCountdown();
     }, "发送中…").catch((err: any) => {
-      toastError(err, "发送失败");
+      toastError(err, ERROR_SEND_FAILED);
     });
   }, [email]);
 
@@ -87,7 +88,7 @@ export default function ForgotPassword() {
       toastSuccess(SUCCESS_PASSWORD_RESET);
       setStep("success");
     }, "重置中…").catch((err: any) => {
-      toastError(err, "重置失败");
+      toastError(err, ERROR_RESET_FAILED);
     });
   }, [email, code, password, confirmPassword]);
 
@@ -99,8 +100,8 @@ export default function ForgotPassword() {
     setError("");
     try {
       await sendResetCode(email.trim());
-      setSuccess("验证码已重新发送");
-      toastSuccess("验证码已重新发送");
+      setSuccess(SUCCESS_CODE_RESENT);
+      toastSuccess(SUCCESS_CODE_RESENT);
       startCountdown();
     } catch (err) {
       const msg = err instanceof ApiError ? err.message : "发送失败，请检查邮箱地址";

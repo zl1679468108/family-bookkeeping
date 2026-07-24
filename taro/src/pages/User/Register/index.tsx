@@ -13,6 +13,7 @@ import "./index.scss";
 import { toastSuccess } from "../../../utils/toast";
 import { validatePasswordMatch, validatePasswordMinLength } from "../../../utils/validation";
 import { SUCCESS_REGISTER } from "../../../utils/successCopy";
+import { ERROR_REGISTER_FAILED } from "../../../utils/errorCopy";
 
 export default function Register() {
   const { isDark } = useTheme();
@@ -48,7 +49,7 @@ export default function Register() {
       toastSuccess(SUCCESS_REGISTER);
       setTimeout(() => Taro.reLaunch({ url: "/pages/Home/index" }), 600);
     }, "注册中…").catch((err: any) => {
-      toastError(err, "注册失败");
+      toastError(err, ERROR_REGISTER_FAILED);
     });
   };
 

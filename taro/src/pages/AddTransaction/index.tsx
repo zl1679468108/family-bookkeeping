@@ -39,6 +39,8 @@ import {
 import { successEntityDeleted, successTemplateApplied, successTransactionSaved } from "../../utils/successCopy";
 import { FORM_AMOUNT_INVALID, FORM_CATEGORY_REQUIRED } from "../../utils/formCopy";
 import { MAX_RECEIPT_IMAGES, DELETE_FAILED } from "../../utils/uploadCopy";
+import { ERROR_SAVE_FAILED } from "../../utils/errorCopy";
+import Icon, { ICON_COLOR } from "../../components/Icon";
 
 interface Template {
   id: string;
@@ -281,7 +283,7 @@ export default function AddTransaction() {
       toastSuccess(successTransactionSaved(isEdit));
       setTimeout(() => Taro.navigateBack(), 600);
     }, ACTION_SAVING).catch((err: any) => {
-      toastError(err, "保存失败");
+      toastError(err, ERROR_SAVE_FAILED);
     });
   };
 
@@ -392,7 +394,7 @@ export default function AddTransaction() {
         <View className="template-dialog" onClick={(e) => e.stopPropagation()}>
           <View className="template-header">
             <Text className="template-title">选择模板</Text>
-            <Text className="template-close" onClick={() => setShowTemplates(false)}>✕</Text>
+            <View className="template-close" onClick={() => setShowTemplates(false)}><Icon name="close" size={32} color={ICON_COLOR.muted} /></View>
           </View>
           <ScrollView className="template-list" scrollY>
             {templates.length === 0 ? (

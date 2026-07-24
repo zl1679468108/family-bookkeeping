@@ -8,6 +8,7 @@ import { Button } from '../../../components/ui/Button'
 import { PasswordField } from '../../../components/ui/PasswordField'
 import { FormField } from '../../../components/ui/FormField'
 import { validatePasswordMatch, validatePasswordMinLength } from '../../../utils/validation'
+import { SUCCESS_CODE_RESENT } from '../../../utils/successCopy'
 
 const ForgotPassword: React.FC = () => {
   const [email, setEmail] = useState('')
@@ -72,7 +73,7 @@ const ForgotPassword: React.FC = () => {
     try {
       await sendResetCode(email)
       setCountdown(60)
-      setMessage('验证码已重新发送')
+      setMessage(SUCCESS_CODE_RESENT)
       setMessageType('success')
     } catch {
       // 忽略
