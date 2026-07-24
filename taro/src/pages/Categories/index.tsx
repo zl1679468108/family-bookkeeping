@@ -57,7 +57,7 @@ import { UPLOAD_FAILED, DELETE_FAILED } from "../../utils/uploadCopy";
 import { failEntityUpsert } from "../../utils/errorCopy";
 import { buildCategoryIconOptionSpecs } from "../../utils/categories";
 import { FORM_CATEGORY_NAME_PLACEHOLDER } from "../../utils/formCopy";
-import { FIELD_CATEGORY_ID, FIELD_SORT, FIELD_CREATED_AT, FIELD_UPDATED_AT, FIELD_NAME, FIELD_ICON, sortOrderLabel } from "../../utils/fieldCopy";
+import { FIELD_CATEGORY_ID, FIELD_SORT, FIELD_CREATED_AT, FIELD_UPDATED_AT, FIELD_NAME, FIELD_ICON, sortOrderLabel, FIELD_DEFAULT, FIELD_CUSTOM } from "../../utils/fieldCopy";
 
 /* ---------- 类型 ---------- */
 interface Category {
@@ -436,7 +436,7 @@ export default function CategoriesPage() {
                       detailCat.is_default ? "catds-badge--default" : "catds-badge--custom"
                     }`}
                   >
-                    {detailCat.is_default ? "默认" : "自定义"}
+                    {detailCat.is_default ? FIELD_DEFAULT : FIELD_CUSTOM}
                   </Text>
                 </View>
               </View>

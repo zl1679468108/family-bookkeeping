@@ -47,7 +47,7 @@ import { categoryTypeTabLabel } from "../../utils/transactionType";
 import { FORM_PRIVACY_REQUIRED, FORM_CATEGORY_NAME_PLACEHOLDER } from "../../utils/formCopy";
 import { buildCategoryPayload, validateCategoryName } from "../../utils/categoryPayload";
 import { entityFormTitle, ENTITY_CATEGORY } from "../../utils/entityCopy";
-import { UPLOAD_FAILED, DELETE_FAILED, IMAGE_SELECT_FAILED } from "../../utils/uploadCopy";
+import { UPLOAD_FAILED, DELETE_FAILED, IMAGE_SELECT_FAILED, PRIVACY_ALBUM_FOR_ICON } from "../../utils/uploadCopy";
 import { failEntityUpsert } from "../../utils/errorCopy";
 import Icon, { ICON_COLOR } from "../../components/Icon";
 import { SECTION_CATEGORY_TYPE, SECTION_BASIC_INFO, SECTION_EMOJI_ICONS, SECTION_SHOPPING_ICONS, SECTION_CUSTOM_ICONS } from "../../utils/sectionCopy";
@@ -105,7 +105,7 @@ export default function CategoryEdit() {
   }, [isEdit, existing]);
 
   const handleUploadCustomIcon = async () => {
-    const ok = await ensurePrivacyAuthorize("选择图标需要访问您的相册");
+    const ok = await ensurePrivacyAuthorize(PRIVACY_ALBUM_FOR_ICON);
     if (!ok) return;
     Taro.chooseMedia({
       count: 1,

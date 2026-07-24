@@ -43,7 +43,7 @@ import { entityFormTitle, ENTITY_TEMPLATE } from "../../utils/entityCopy";
 import { DELETE_FAILED } from "../../utils/uploadCopy";
 import { failEntityUpsert } from "../../utils/errorCopy";
 import { EMPTY_NO_CATEGORIES_SHORT } from "../../utils/emptyCopy";
-import { SECTION_TEMPLATE_INFO } from "../../utils/sectionCopy";
+import { SECTION_TEMPLATE_INFO, TITLE_SELECT_LOCATION } from "../../utils/sectionCopy";
 import { FORM_TEMPLATE_NAME_EXAMPLE, FORM_AMOUNT_PLACEHOLDER, FORM_NOTE_OPTIONAL } from "../../utils/formCopy";
 import { FIELD_TYPE, FIELD_CATEGORY, FIELD_AMOUNT, FIELD_NOTE, FIELD_TEMPLATE_NAME, FIELD_LOCATION_INFO, FIELD_SORT } from "../../utils/fieldCopy";
 
@@ -322,7 +322,7 @@ export default function TemplateEdit() {
           ) : (
             <View className="tpl-location-btn" onClick={() => setShowLocationPicker(true)}>
               <Icon name="location" size={36} color={ICON_COLOR.primary} />
-              <Text className="tpl-location-btn__text">选择位置</Text>
+              <Text className="tpl-location-btn__text">{TITLE_SELECT_LOCATION}</Text>
             </View>
           )}
         </View>

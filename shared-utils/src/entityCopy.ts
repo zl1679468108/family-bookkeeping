@@ -51,3 +51,6 @@ export function entityDeleteAction(entity: string): string {
 
 export const ACTION_EDIT_BUDGET = entityEditTitle(ENTITY_BUDGET)
 export const ACTION_DELETE_BUDGET = entityDeleteAction(ENTITY_BUDGET)
+
+/** 系统预置默认账本名称（不可删） */
+export const DEFAULT_BOOK_NAME = '默认账本'

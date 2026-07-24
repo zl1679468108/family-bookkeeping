@@ -16,7 +16,8 @@ import { queryKeys } from '../../utils/queryKeys'
 import { prefetchRoute as prefetchBookRoute } from '../../utils/prefetchRoute'
 import { STALE } from '../../utils/cachePolicy'
 import { NAV_HOME, NAV_TRANSACTIONS, NAV_ADD, NAV_REPORTS, NAV_CALENDAR, NAV_MAP, NAV_ANNUAL_REPORT, NAV_BOOKS, NAV_CATEGORIES, NAV_TEMPLATES, NAV_BUDGETS, NAV_ADMIN_DASHBOARD, NAV_ADMIN_USERS, NAV_ADMIN_TRANSACTIONS } from '../../utils/navCopy'
-import { ACTION_LOGOUT, ACTION_LOGGING_OUT } from '../../utils/actionCopy'
+import { ACTION_LOGOUT, ACTION_LOGGING_OUT, ACTION_SWITCH_ACCOUNT } from '../../utils/actionCopy'
+import { TITLE_ABOUT } from '../../utils/sectionCopy'
 
 const NAV_ITEMS = [
   { id: 'dashboard', name: NAV_HOME, path: '/', type: 'normal', group: 'main' as const },
@@ -234,11 +235,11 @@ export const Sidebar: React.FC = () => {
             </button>
             <button className="user-menu-item" onClick={() => { setMenuOpen(false); setShowSwitchModal(true) }}>
               <Icon name="users" size={16} />
-              切换账号
+              {ACTION_SWITCH_ACCOUNT}
             </button>
             <button className="user-menu-item" onClick={() => { setMenuOpen(false); navigate('/about') }}>
               <Icon name="info" size={16} />
-              关于静记
+              {TITLE_ABOUT}
             </button>
             <div className="user-menu-divider" />
             <button className="user-menu-item user-menu-item--danger" onClick={handleLogout} disabled={logoutLoading}>

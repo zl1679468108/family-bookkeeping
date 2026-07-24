@@ -47,7 +47,7 @@ import { SUCCESS_BOOK_CREATED, SUCCESS_CUSTOM_ICON_ADDED, SUCCESS_DELETED, SUCCE
 import { entityFormTitle, ENTITY_BOOK } from "../../utils/entityCopy";
 import { getThemeTokenHex } from "../../utils/themeTokens";
 import { useTheme } from "../../context/ThemeContext";
-import { IMAGE_SELECT_FAILED, DELETE_FAILED, UPLOAD_FAILED } from "../../utils/uploadCopy";
+import { IMAGE_SELECT_FAILED, DELETE_FAILED, UPLOAD_FAILED, PRIVACY_ALBUM_FOR_ICON } from "../../utils/uploadCopy";
 import { ERROR_CREATE_FAILED, ERROR_SAVE_FAILED, ERROR_TRANSFER_FAILED } from "../../utils/errorCopy";
 import Icon, { ICON_COLOR } from "../../components/Icon";
 import { TITLE_TRANSFER_OWNERSHIP, TITLE_MEMBER_MANAGE } from "../../utils/sectionCopy"
@@ -155,7 +155,7 @@ export default function BookSettings() {
   }, []);
 
   const handleUploadCustomIcon = async () => {
-    const ok = await ensurePrivacyAuthorize("选择图标需要访问您的相册");
+    const ok = await ensurePrivacyAuthorize(PRIVACY_ALBUM_FOR_ICON);
     if (!ok) return;
     Taro.chooseMedia({
       count: 1,

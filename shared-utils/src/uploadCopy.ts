@@ -40,3 +40,8 @@ export function isWithinUploadSize(size: number, maxBytes = MAX_UPLOAD_BYTES): b
 export function maxImagesMessage(max: number): string {
   return `最多只能上传 ${max} 张图片`
 }
+
+/** 微信隐私授权说明（相册） */
+export const PRIVACY_ALBUM_FOR_ICON = '选择图标需要访问您的相册'
+export const PRIVACY_ALBUM_FOR_AVATAR = '选择头像需要访问您的相册'
+export const PRIVACY_ALBUM_FOR_IMAGE = '选择图片需要访问您的相册'

@@ -6,7 +6,7 @@ import type { Category } from '@family-bookkeeping/shared-types'
 import { transactionTypeLabel } from '../../../utils/transactionType'
 import { formatDateTimeMinute } from '../../../utils/date'
 import { DETAIL_CATEGORY } from '../../../utils/entityCopy'
-import { FIELD_SORT, sortOrderLabel, FIELD_CATEGORY_ID, FIELD_CREATED_AT, FIELD_UPDATED_AT } from '../../../utils/fieldCopy'
+import { FIELD_SORT, sortOrderLabel, FIELD_CATEGORY_ID, FIELD_CREATED_AT, FIELD_UPDATED_AT, FIELD_DEFAULT, FIELD_CUSTOM } from '../../../utils/fieldCopy'
 import { ACTION_EDIT, ACTION_DELETE } from '../../../utils/actionCopy'
 
 interface CategoryDetailModalProps {
@@ -63,7 +63,7 @@ export const CategoryDetailModal: React.FC<CategoryDetailModalProps> = ({
               {transactionTypeLabel(selectedCategory.type)}
             </span>
             <span className={`detail-tag ${selectedCategory.is_default ? 'tag-default' : 'tag-custom'}`}>
-              {selectedCategory.is_default ? '默认' : '自定义'}
+              {selectedCategory.is_default ? FIELD_DEFAULT : FIELD_CUSTOM}
             </span>
           </div>
         </div>

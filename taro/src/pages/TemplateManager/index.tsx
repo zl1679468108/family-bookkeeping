@@ -58,6 +58,7 @@ import { ERROR_DELETE_FAILED, ERROR_OP_FAILED, ERROR_EXECUTE_FAILED } from "../.
 import Icon, { ICON_COLOR } from "../../components/Icon";
 import { FORM_TEMPLATE_NAME_EXAMPLE, FORM_AMOUNT_PLACEHOLDER, FORM_NOTE_OPTIONAL, FORM_SELECT_CATEGORY } from "../../utils/formCopy";
 import { FIELD_NOTE, FIELD_LOCATION, FIELD_ADDRESS, FIELD_MERCHANT_ID, FIELD_MERCHANT_NAME, FIELD_BOOK_ID, FIELD_SORT, FIELD_CYCLE, FIELD_START_DATE, FIELD_END_DATE, FIELD_LAST_EXECUTED, FIELD_NEXT_EXECUTED, FIELD_CREATED_AT, FIELD_TEMPLATE_NAME, FIELD_TYPE, FIELD_CATEGORY, FIELD_AMOUNT, FIELD_LOCATION_INFO, sortOrderLabel } from "../../utils/fieldCopy";
+import { TITLE_SELECT_LOCATION } from "../../utils/sectionCopy"
 
 /* ---------- 空表单初始态 ---------- */
 
@@ -641,7 +642,7 @@ export default function TemplateManager() {
               </View>
             ) : (
               <View className="tpl-location-empty" onClick={() => setShowLocationPicker(true)}>
-                <Text>📍 选择位置</Text>
+                <Text>📍 {TITLE_SELECT_LOCATION}</Text>
               </View>
             )}
           </View>

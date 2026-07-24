@@ -21,6 +21,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetchBooks } from "../services/booksApi";
 import { getStoredBookId, setStoredBookId } from "../services/api";
 import type { Book } from "../types";
+import { DEFAULT_BOOK_NAME } from "../utils/entityCopy"
 
 export function useBook() {
   const [currentBook, setCurrentBook] = useState<Book | null>(null);
@@ -45,7 +46,7 @@ export function useBook() {
     }
     // Default to first book
     const defaultBook =
-      books.find((b: Book) => b.name === "默认账本") || books[0];
+      books.find((b: Book) => b.name === DEFAULT_BOOK_NAME) || books[0];
     if (defaultBook) {
       setCurrentBook(defaultBook);
       setStoredBookId(defaultBook.id);

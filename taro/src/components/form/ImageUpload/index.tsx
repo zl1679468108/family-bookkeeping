@@ -15,7 +15,7 @@ import { getErrorMessage } from "../../../utils/errorMessage";
 import { toastInfo } from "../../../utils/toast";
 import Icon, { ICON_COLOR } from "../../Icon";
 import { FORM_PRIVACY_REQUIRED } from "../../../utils/formCopy";
-import { IMAGE_SELECT_FAILED } from "../../../utils/uploadCopy";
+import { IMAGE_SELECT_FAILED, PRIVACY_ALBUM_FOR_IMAGE } from "../../../utils/uploadCopy";
 
 export interface ImageUploadProps {
   /** 已上传的图片 URL（从服务器获取） */
@@ -54,7 +54,7 @@ export default function ImageUpload({
       return;
     }
     // 先触发微信隐私授权（开启 __usePrivacyCheck__ 时必须）
-    const ok = await ensurePrivacyAuthorize("选择图片需要访问您的相册");
+    const ok = await ensurePrivacyAuthorize(PRIVACY_ALBUM_FOR_IMAGE);
     if (!ok) return;
     Taro.chooseMedia({
       count: remaining,

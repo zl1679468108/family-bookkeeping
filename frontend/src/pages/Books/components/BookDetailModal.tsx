@@ -4,12 +4,10 @@ import { Button } from '../../../components/ui/Button';
 import { getBookIconByKey } from '../../../utils/bookIcons';
 import { BookMemberList } from './BookMemberList';
 import { formatDateTimeMinute } from '../../../utils/date'
-import { DETAIL_BOOK } from '../../../utils/entityCopy'
+import { DETAIL_BOOK, DEFAULT_BOOK_NAME } from '../../../utils/entityCopy'
 import { FIELD_MEMBERS, FIELD_TXN_COUNT, FIELD_STATUS, FIELD_CREATED_AT, FIELD_UPDATED_AT, FIELD_OWNER_ID } from '../../../utils/fieldCopy'
 import { ACTION_EDIT, ACTION_DELETE, generatingLabel, ACTION_INVITE_MEMBER, ACTION_SWITCH_TO_BOOK } from '../../../utils/actionCopy'
 import { ACTION_GENERATE_INVITE_CODE } from '../../../utils/inviteCopy'
-
-const DEFAULT_BOOK_NAME = '默认账本';
 
 interface BookDetailModalProps {
   open: boolean;

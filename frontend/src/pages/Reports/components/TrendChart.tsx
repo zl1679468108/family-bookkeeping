@@ -6,6 +6,7 @@ import type { PeriodType } from '../hooks/useReportData'
 import { getEchartsChrome, getThemeColors } from '../../../utils/themeColors'
 import { useTheme } from '../../../utils/theme'
 import { formatMonthDisplay } from '../../../utils/month'
+import { FIELD_TOTAL_INCOME, FIELD_TOTAL_EXPENSE } from '../../../utils/fieldCopy'
 import {
   buildDailyTrendSeries,
   buildMonthCompareSeries,
@@ -84,18 +85,18 @@ export const TrendChart: React.FC<TrendChartProps> = ({
       option = {
         tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, ...chrome.tooltip,
           formatter: (params: any) => {
-            const exp = params.find((p: any) => p.seriesName === '总支出')?.value || 0
-            const inc = params.find((p: any) => p.seriesName === '总收入')?.value || 0
-            return `${params[0].name}<br/>总支出：${formatAmount(exp)}<br/>总收入：${formatAmount(inc)}`
+            const exp = params.find((p: any) => p.seriesName === FIELD_TOTAL_EXPENSE)?.value || 0
+            const inc = params.find((p: any) => p.seriesName === FIELD_TOTAL_INCOME)?.value || 0
+            return `${params[0].name}<br/>${FIELD_TOTAL_EXPENSE}：${formatAmount(exp)}<br/>${FIELD_TOTAL_INCOME}：${formatAmount(inc)}`
           },
         },
         grid: { left: '3%', right: '4%', bottom: '3%', top: '15%', containLabel: true },
         xAxis: axisX,
         yAxis: axisY,
-        legend: { data: ['总支出', '总收入'], top: 5, textStyle: chrome.legendText },
+        legend: { data: [FIELD_TOTAL_EXPENSE, FIELD_TOTAL_INCOME], top: 5, textStyle: chrome.legendText },
         series: [
-          { name: '总支出', type: 'bar', data: chartData.expenses, itemStyle: { color: getThemeColors().exp } },
-          { name: '总收入', type: 'bar', data: chartData.incomes, itemStyle: { color: getThemeColors().inc } },
+          { name: FIELD_TOTAL_EXPENSE, type: 'bar', data: chartData.expenses, itemStyle: { color: getThemeColors().exp } },
+          { name: FIELD_TOTAL_INCOME, type: 'bar', data: chartData.incomes, itemStyle: { color: getThemeColors().inc } },
         ],
       }
     } else if (isMonthCompare) {
@@ -104,11 +105,11 @@ export const TrendChart: React.FC<TrendChartProps> = ({
       option = {
         tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, ...chrome.tooltip,
           formatter: (params: any) => {
-            const ce = params.find((p: any) => p.seriesName === `${curLabel} 总支出`)?.value || 0
-            const ci = params.find((p: any) => p.seriesName === `${curLabel} 总收入`)?.value || 0
-            const te = params.find((p: any) => p.seriesName === `${tgtLabel} 总支出`)?.value || 0
-            const ti = params.find((p: any) => p.seriesName === `${tgtLabel} 总收入`)?.value || 0
-            return `${params[0].name}<br/>${curLabel} 总支出：${formatAmount(ce)}<br/>${curLabel} 总收入：${formatAmount(ci)}<br/>${tgtLabel} 总支出：${formatAmount(te)}<br/>${tgtLabel} 总收入：${formatAmount(ti)}`
+            const ce = params.find((p: any) => p.seriesName === `${curLabel} ${FIELD_TOTAL_EXPENSE}`)?.value || 0
+            const ci = params.find((p: any) => p.seriesName === `${curLabel} ${FIELD_TOTAL_INCOME}`)?.value || 0
+            const te = params.find((p: any) => p.seriesName === `${tgtLabel} ${FIELD_TOTAL_EXPENSE}`)?.value || 0
+            const ti = params.find((p: any) => p.seriesName === `${tgtLabel} ${FIELD_TOTAL_INCOME}`)?.value || 0
+            return `${params[0].name}<br/>${curLabel} ${FIELD_TOTAL_EXPENSE}：${formatAmount(ce)}<br/>${curLabel} ${FIELD_TOTAL_INCOME}：${formatAmount(ci)}<br/>${tgtLabel} ${FIELD_TOTAL_EXPENSE}：${formatAmount(te)}<br/>${tgtLabel} ${FIELD_TOTAL_INCOME}：${formatAmount(ti)}`
           },
         },
         grid: { left: '3%', right: '4%', bottom: '3%', top: '15%', containLabel: true },
@@ -116,21 +117,21 @@ export const TrendChart: React.FC<TrendChartProps> = ({
         yAxis: axisY,
         legend: { top: 5, textStyle: chrome.legendText },
         series: [
-          { name: `${curLabel} 总支出`, type: 'bar', data: chartData.currExpenses, itemStyle: { color: getThemeColors().exp }, barGap: '20%' },
-          { name: `${curLabel} 总收入`, type: 'bar', data: chartData.currIncomes, itemStyle: { color: getThemeColors().inc } },
-          { name: `${tgtLabel} 总支出`, type: 'bar', data: chartData.targetExpenses, itemStyle: { color: getThemeColors().exp } },
-          { name: `${tgtLabel} 总收入`, type: 'bar', data: chartData.targetIncomes, itemStyle: { color: getThemeColors().inc } },
+          { name: `${curLabel} ${FIELD_TOTAL_EXPENSE}`, type: 'bar', data: chartData.currExpenses, itemStyle: { color: getThemeColors().exp }, barGap: '20%' },
+          { name: `${curLabel} ${FIELD_TOTAL_INCOME}`, type: 'bar', data: chartData.currIncomes, itemStyle: { color: getThemeColors().inc } },
+          { name: `${tgtLabel} ${FIELD_TOTAL_EXPENSE}`, type: 'bar', data: chartData.targetExpenses, itemStyle: { color: getThemeColors().exp } },
+          { name: `${tgtLabel} ${FIELD_TOTAL_INCOME}`, type: 'bar', data: chartData.targetIncomes, itemStyle: { color: getThemeColors().inc } },
         ],
       }
     } else if (isYearCompare) {
       option = {
         tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, ...chrome.tooltip,
           formatter: (params: any) => {
-            const ce = params.find((p: any) => p.seriesName === `${currentYear}年 总支出`)?.value || 0
-            const ci = params.find((p: any) => p.seriesName === `${currentYear}年 总收入`)?.value || 0
-            const te = params.find((p: any) => p.seriesName === `${yearCompareTarget}年 总支出`)?.value || 0
-            const ti = params.find((p: any) => p.seriesName === `${yearCompareTarget}年 总收入`)?.value || 0
-            return `${params[0].name}<br/>${currentYear}年 总支出：${formatAmount(ce)}<br/>${currentYear}年 总收入：${formatAmount(ci)}<br/>${yearCompareTarget}年 总支出：${formatAmount(te)}<br/>${yearCompareTarget}年 总收入：${formatAmount(ti)}`
+            const ce = params.find((p: any) => p.seriesName === `${currentYear}年 ${FIELD_TOTAL_EXPENSE}`)?.value || 0
+            const ci = params.find((p: any) => p.seriesName === `${currentYear}年 ${FIELD_TOTAL_INCOME}`)?.value || 0
+            const te = params.find((p: any) => p.seriesName === `${yearCompareTarget}年 ${FIELD_TOTAL_EXPENSE}`)?.value || 0
+            const ti = params.find((p: any) => p.seriesName === `${yearCompareTarget}年 ${FIELD_TOTAL_INCOME}`)?.value || 0
+            return `${params[0].name}<br/>${currentYear}年 ${FIELD_TOTAL_EXPENSE}：${formatAmount(ce)}<br/>${currentYear}年 ${FIELD_TOTAL_INCOME}：${formatAmount(ci)}<br/>${yearCompareTarget}年 ${FIELD_TOTAL_EXPENSE}：${formatAmount(te)}<br/>${yearCompareTarget}年 ${FIELD_TOTAL_INCOME}：${formatAmount(ti)}`
           },
         },
         grid: { left: '3%', right: '4%', bottom: '3%', top: '15%', containLabel: true },
@@ -138,28 +139,28 @@ export const TrendChart: React.FC<TrendChartProps> = ({
         yAxis: axisY,
         legend: { top: 5, textStyle: chrome.legendText },
         series: [
-          { name: `${currentYear}年 总支出`, type: 'bar', data: chartData.currentYearExpenses, itemStyle: { color: getThemeColors().exp }, barGap: '20%' },
-          { name: `${currentYear}年 总收入`, type: 'bar', data: chartData.currentYearIncomes, itemStyle: { color: getThemeColors().inc } },
-          { name: `${yearCompareTarget}年 总支出`, type: 'bar', data: chartData.targetYearExpenses, itemStyle: { color: getThemeColors().exp } },
-          { name: `${yearCompareTarget}年 总收入`, type: 'bar', data: chartData.targetYearIncomes, itemStyle: { color: getThemeColors().inc } },
+          { name: `${currentYear}年 ${FIELD_TOTAL_EXPENSE}`, type: 'bar', data: chartData.currentYearExpenses, itemStyle: { color: getThemeColors().exp }, barGap: '20%' },
+          { name: `${currentYear}年 ${FIELD_TOTAL_INCOME}`, type: 'bar', data: chartData.currentYearIncomes, itemStyle: { color: getThemeColors().inc } },
+          { name: `${yearCompareTarget}年 ${FIELD_TOTAL_EXPENSE}`, type: 'bar', data: chartData.targetYearExpenses, itemStyle: { color: getThemeColors().exp } },
+          { name: `${yearCompareTarget}年 ${FIELD_TOTAL_INCOME}`, type: 'bar', data: chartData.targetYearIncomes, itemStyle: { color: getThemeColors().inc } },
         ],
       }
     } else {
       option = {
         tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, ...chrome.tooltip,
           formatter: (params: any) => {
-            const exp = params.find((p: any) => p.seriesName === '总支出')?.value || 0
-            const inc = params.find((p: any) => p.seriesName === '总收入')?.value || 0
-            return `${params[0].name}<br/>总支出：${formatAmount(exp)}<br/>总收入：${formatAmount(inc)}`
+            const exp = params.find((p: any) => p.seriesName === FIELD_TOTAL_EXPENSE)?.value || 0
+            const inc = params.find((p: any) => p.seriesName === FIELD_TOTAL_INCOME)?.value || 0
+            return `${params[0].name}<br/>${FIELD_TOTAL_EXPENSE}：${formatAmount(exp)}<br/>${FIELD_TOTAL_INCOME}：${formatAmount(inc)}`
           },
         },
         grid: { left: '3%', right: '4%', bottom: '3%', top: '15%', containLabel: true },
         xAxis: axisX,
         yAxis: axisY,
-        legend: { data: ['总支出', '总收入'], top: 5, textStyle: chrome.legendText },
+        legend: { data: [FIELD_TOTAL_EXPENSE, FIELD_TOTAL_INCOME], top: 5, textStyle: chrome.legendText },
         series: [
-          { name: '总支出', type: 'bar', data: chartData.expenses, itemStyle: { color: getThemeColors().exp } },
-          { name: '总收入', type: 'bar', data: chartData.incomes, itemStyle: { color: getThemeColors().inc } },
+          { name: FIELD_TOTAL_EXPENSE, type: 'bar', data: chartData.expenses, itemStyle: { color: getThemeColors().exp } },
+          { name: FIELD_TOTAL_INCOME, type: 'bar', data: chartData.incomes, itemStyle: { color: getThemeColors().inc } },
         ],
       }
     }

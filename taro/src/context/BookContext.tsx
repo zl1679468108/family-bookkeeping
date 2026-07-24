@@ -17,6 +17,7 @@ import { getStoredBookId, setStoredBookId } from "../services/api";
 import { useAuth } from "./AuthContext";
 import type { Book } from "../types";
 import { clearAddTransactionDraft } from "../utils/addTransactionDraft";
+import { DEFAULT_BOOK_NAME } from "../utils/entityCopy"
 
 interface BookContextType {
   currentBook: Book | null;
@@ -94,7 +95,7 @@ export const BookProvider: React.FC<{ children: React.ReactNode }> = ({
     }
 
     // 3. 默认账本
-    const defaultBook = books.find((b) => b.name === "默认账本") || books[0];
+    const defaultBook = books.find((b) => b.name === DEFAULT_BOOK_NAME) || books[0];
     if (defaultBook) {
       setCurrentBook(defaultBook);
       setStoredBookId(defaultBook.id);
@@ -107,7 +108,7 @@ export const BookProvider: React.FC<{ children: React.ReactNode }> = ({
     const stillExists = books.some((b) => b.id === currentBook.id);
     if (!stillExists) {
       const fallback =
-        books.find((b) => b.name === "默认账本") || books[0] || null;
+        books.find((b) => b.name === DEFAULT_BOOK_NAME) || books[0] || null;
       setCurrentBook(fallback);
       setStoredBookId(fallback?.id ?? null);
     }

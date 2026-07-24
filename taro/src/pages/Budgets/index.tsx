@@ -19,7 +19,7 @@ import { fetchCategories } from "../../services/categoriesApi";
 import "./index.scss";
 import { budgetStatusToVariant, budgetVariantLabel, formatMoney, buildBudgetUpsertItems, parseNonNegativeAmount, buildSingleBudgetItem, budgetProgressColorVar } from "../../utils/budget";
 import { toastSuccess, toastInfo } from "../../utils/toast";
-import { ACTION_COPYING, ACTION_LOADING, ACTION_SAVING } from "../../utils/actionCopy";
+import { ACTION_COPYING, ACTION_LOADING, ACTION_SAVING, ACTION_COPY_LAST_MONTH } from "../../utils/actionCopy";
 import {
   CONFIRM_DELETE_TITLE,
   CONFIRM_DELETE_TEXT,
@@ -288,7 +288,7 @@ export default function BudgetsPage() {
           />
           <View className="bdg-toolbar__actions">
             <Button variant="outline" size="sm" onClick={() => setShowCopyConfirm(true)}>
-              复制上月
+              {ACTION_COPY_LAST_MONTH}
             </Button>
             <Button variant="primary" size="sm" onClick={handleSave}>
               保存

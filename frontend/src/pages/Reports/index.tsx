@@ -20,6 +20,7 @@ import { EMPTY_NO_CATEGORY_DATA, EMPTY_NO_TRANSACTIONS_PERIOD, EMPTY_MEMBER_COMP
 import { TITLE_CATEGORY_RATIO, TITLE_DATA_ANALYSIS, TITLE_MEMBER_COMPARE, reportChartTitle } from '../../utils/sectionCopy'
 import { FORM_SEARCH_MONTH, FORM_SEARCH_YEAR } from '../../utils/formCopy'
 import { ACTION_START_BOOKKEEPING } from '../../utils/actionCopy'
+import { FIELD_TOTAL_INCOME, FIELD_TOTAL_EXPENSE } from '../../utils/fieldCopy'
 
 const Reports: React.FC = () => {
   const navigate = useNavigate()
@@ -109,8 +110,8 @@ const Reports: React.FC = () => {
               ) : (
                 <MetricRow
                   items={[
-                    { label: '总收入', value: formatAmount(totalIncome), tone: 'income' },
-                    { label: '总支出', value: formatAmount(totalExpense), tone: 'expense' },
+                    { label: FIELD_TOTAL_INCOME, value: formatAmount(totalIncome), tone: 'income' },
+                    { label: FIELD_TOTAL_EXPENSE, value: formatAmount(totalExpense), tone: 'expense' },
                   ]}
                 />
               )}

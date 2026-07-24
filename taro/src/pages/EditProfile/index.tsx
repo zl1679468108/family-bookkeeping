@@ -40,7 +40,7 @@ import {
 } from "../../utils/validation";
 import { SUCCESS_AVATAR_UPDATED, SUCCESS_IMAGE_SELECTED, SUCCESS_PASSWORD_CHANGED, SUCCESS_SAVED } from "../../utils/successCopy";
 import { FORM_PASSWORD_CURRENT, FORM_PRIVACY_REQUIRED, FORM_USERNAME_REQUIRED, FORM_PASSWORD_MIN_NEW, FORM_PASSWORD_MISMATCH_NEW, FORM_USERNAME_PLACEHOLDER, FORM_EMAIL_PLACEHOLDER, FORM_PASSWORD_CONFIRM_NEW_PLACEHOLDER, FORM_PASSWORD_STRENGTH_HINT } from "../../utils/formCopy";
-import { IMAGE_SELECT_FAILED } from "../../utils/uploadCopy";
+import { IMAGE_SELECT_FAILED, PRIVACY_ALBUM_FOR_AVATAR } from "../../utils/uploadCopy";
 import { ERROR_SAVE_FAILED_RETRY, ERROR_MODIFY_FAILED_RETRY } from "../../utils/errorCopy";
 import Icon, { ICON_COLOR } from "../../components/Icon";
 import { FIELD_USERNAME, FIELD_EMAIL, FIELD_CURRENT_PASSWORD, FIELD_NEW_PASSWORD, FIELD_CONFIRM_NEW_PASSWORD } from "../../utils/fieldCopy";
@@ -78,7 +78,7 @@ export default function EditProfile() {
 
   // ---- 头像：选择 → 上传到 custom icons 服务 → 使用返回的 URL ----
   const handleChangeAvatar = useCallback(async () => {
-    const ok = await ensurePrivacyAuthorize("选择头像需要访问您的相册");
+    const ok = await ensurePrivacyAuthorize(PRIVACY_ALBUM_FOR_AVATAR);
     if (!ok) return;
     Taro.chooseMedia({
       count: 1,

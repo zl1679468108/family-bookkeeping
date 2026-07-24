@@ -85,6 +85,11 @@
 
 ### ✅ 已完成
 
+#### 2026-07-24 分类/报表/个人中心/隐私授权文案 shared 化
+- `FIELD_DEFAULT/TOTAL_INCOME/TOTAL_EXPENSE/RATIO`；`ACTION_COPY_LAST_MONTH/SWITCH_ACCOUNT/SWITCH_THEME/DEACTIVATE_ACCOUNT` + 主题亮暗文案；`TITLE_ABOUT`；`DEFAULT_BOOK_NAME`；相册隐私三句
+- 接线分类默认/自定义、报表总收支与趋势图、预算复制上月、默认账本、账本详情/邀请码标题、个人中心与侧栏菜单、隐私授权与选择位置
+- 验证：frontend / taro `tsc --noEmit`
+
 #### 2026-07-24 搜索默认值/列表标题/首页指标 shared 化
 - `ACTION_SEARCH_ELLIPSIS/DOTS/REMOVE/REMOVE_MEMBER/BOOKKEEPING_ELLIPSIS`；`TITLE_MY_BOOKS` / `TITLE_TRANSACTION_TEMPLATES`
 - 接线 PC SearchInput/Dropdown、账本/模板列表标题、邀请码/移除成员、Admin 本月指标；Taro SearchInput/Dropdown/SheetHeader/PullRefresh/Home 指标/移除确认

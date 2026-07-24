@@ -45,7 +45,7 @@ import {
   successSwitchedBook,
 } from "../../utils/successCopy";
 import { copyToClipboard } from "../../utils/clipboard";
-import { entityCreateButton, ENTITY_BOOK } from "../../utils/entityCopy";
+import { entityCreateButton, ENTITY_BOOK, DETAIL_BOOK, DEFAULT_BOOK_NAME } from "../../utils/entityCopy";
 import { DELETE_FAILED } from "../../utils/uploadCopy";
 import { ERROR_JOIN_FAILED, ERROR_INVITE_EMAIL, ERROR_GENERATE_FAILED, ERROR_REMOVE_FAILED } from "../../utils/errorCopy";
 import Icon, { ICON_COLOR } from "../../components/Icon";
@@ -57,6 +57,7 @@ import { TITLE_JOIN_BY_INVITE } from "../../utils/sectionCopy";
 import { getThemeTokenHex } from "../../utils/themeTokens";
 import { useTheme } from "../../context/ThemeContext";
 import { ACTION_SENDING_ELLIPSIS } from '../../utils/authCopy'
+import { FIELD_INVITE_CODE } from '../../utils/fieldCopy'
 
 type BookRow = Book & { is_default?: boolean };
 
@@ -428,10 +429,10 @@ export default function BooksPage() {
               )}
               <Text className="bk-detail-header__title" numberOfLines={1}>
                 {detailMode === "info"
-                  ? "账本详情"
+                  ? DETAIL_BOOK
                   : detailMode === "invite"
                     ? ACTION_INVITE_MEMBER
-                    : "邀请码"}
+                    : FIELD_INVITE_CODE}
               </Text>
             </View>
             <View className="bk-detail-header__close" onClick={closeDetail}>
@@ -608,7 +609,7 @@ export default function BooksPage() {
                     <Button variant="default" size="md" onClick={handleEdit}>
                       {ACTION_EDIT}
                     </Button>
-                    {detailBook.name !== "默认账本" && (
+                    {detailBook.name !== DEFAULT_BOOK_NAME && (
                       <Button
                         variant="danger"
                         size="md"

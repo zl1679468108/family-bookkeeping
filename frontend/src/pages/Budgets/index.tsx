@@ -22,7 +22,7 @@ import { budgetStatusToVariant, budgetVariantLabel, formatMoney, buildBudgetUpse
 import { useBook } from '../../hooks/useBook'
 import { queryKeys } from '../../utils/queryKeys'
 import { STALE } from '../../utils/cachePolicy'
-import { ACTION_COPYING, savingLabel, copyingLabel, busyLabel, ACTION_CANCEL } from '../../utils/actionCopy'
+import { ACTION_COPYING, savingLabel, copyingLabel, busyLabel, ACTION_CANCEL, ACTION_COPY_LAST_MONTH } from '../../utils/actionCopy'
 import {
   CONFIRM_DELETE_TITLE,
   CONFIRM_DELETE_TEXT,
@@ -265,7 +265,7 @@ const Budgets: React.FC = () => {
                   onClick={() => setShowCopyConfirm(true)}
                   disabled={copyLoading || upsertLoading}
                 >
-                  {copyingLabel(copyLoading, '复制上月')}
+                  {copyingLabel(copyLoading, ACTION_COPY_LAST_MONTH)}
                 </Button>
                 <Button variant="primary" size="sm" onClick={handleSave} disabled={upsertLoading || copyLoading}>
                   {savingLabel(upsertLoading)}

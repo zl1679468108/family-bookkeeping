@@ -13,6 +13,7 @@ import { useTheme } from '../../utils/theme'
 import { formatMonthDisplayCompact, generateMonthKeysBetween } from '../../utils/month'
 import { EMPTY_MEMBER_SPEND_PERIOD, EMPTY_LOAD_FAILED } from '../../utils/emptyCopy';
 import { TITLE_MEMBER_SPEND, TITLE_CATEGORY_COMPARE, TITLE_MONTHLY_ESTIMATE, withPeriodLabel } from '../../utils/sectionCopy';
+import { FIELD_RATIO } from '../../utils/fieldCopy'
 
 interface MemberComparisonProps {
   monthFrom: string;
@@ -51,7 +52,7 @@ const renderPieChart = (
     },
     series: [
       {
-        name: '占比',
+        name: FIELD_RATIO,
         type: 'pie',
         radius: ['40%', '70%'],
         center: ['35%', '50%'],

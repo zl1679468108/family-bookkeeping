@@ -25,8 +25,10 @@ import { toastSuccess, toastInfo } from "../../utils/toast";
 import { userDisplayName, userInitial } from "../../utils/userDisplay";
 import { SUCCESS_ACCOUNT_SWITCHED, SUCCESS_ACCOUNT_DEACTIVATED, SUCCESS_SWITCHED } from "../../utils/successCopy";
 import { FORM_ALREADY_CURRENT_ACCOUNT, FORM_CAPTCHA_REQUIRED, FORM_EMAIL_PASSWORD_REQUIRED, FORM_DEACTIVATE_PASSWORD, FORM_PASSWORD_LOGIN_PLACEHOLDER, FORM_EMAIL_PLACEHOLDER, FORM_PASSWORD_PLACEHOLDER, FORM_CAPTCHA_PLACEHOLDER } from "../../utils/formCopy";
-import { ACTION_SWITCHING, ACTION_LOGOUT, ACTION_DEACTIVATING, ACTION_CONFIRM_DEACTIVATE } from "../../utils/actionCopy"
+import { ACTION_SWITCHING, ACTION_LOGOUT, ACTION_DEACTIVATING, ACTION_CONFIRM_DEACTIVATE, ACTION_SWITCH_THEME, THEME_DARK_MODE, THEME_LIGHT_MODE, ACTION_SWITCH_ACCOUNT, ACTION_DEACTIVATE_ACCOUNT } from "../../utils/actionCopy"
 import { ACTION_LOGGING_IN, ACTION_LOGIN } from '../../utils/authCopy'
+import { TITLE_ABOUT } from '../../utils/sectionCopy'
+import { ERROR_DEACTIVATE_FAILED } from '../../utils/errorCopy'
 
 export default function Profile() {
   const { user, signOut, signIn, switchByToken } = useAuth();
@@ -88,7 +90,7 @@ export default function Profile() {
       }, 800);
     } catch (err: unknown) {
       const e = err as { message?: string };
-      setDeactivateError(e?.message || "注销失败，请检查密码后重试");
+      setDeactivateError(e?.message || ERROR_DEACTIVATE_FAILED);
     } finally {
       setDeactivateLoading(false);
     }
@@ -214,12 +216,12 @@ export default function Profile() {
       <MenuList
         items={[
           {
-            label: "切换主题",
+            label: ACTION_SWITCH_THEME,
             icon: isDark ? "moon" : "sun",
             right: (
               <View className="theme-toggle" onClick={(e) => { e.stopPropagation(); toggleTheme(); }}>
                 <Text className={`theme-toggle__label ${isDark ? "theme-toggle__label--dark" : ""}`}>
-                  {isDark ? "暗色模式" : "亮色模式"}
+                  {isDark ? THEME_DARK_MODE : THEME_LIGHT_MODE}
                 </Text>
                 <View className={`theme-toggle__switch ${isDark ? "theme-toggle__switch--on" : ""}`}>
                   <View className="theme-toggle__knob" />
@@ -229,17 +231,17 @@ export default function Profile() {
             onClick: toggleTheme,
           },
           {
-            label: "切换账号",
+            label: ACTION_SWITCH_ACCOUNT,
             icon: "switch-account",
             onClick: handleOpenSwitch,
           },
           {
-            label: "关于静记",
+            label: TITLE_ABOUT,
             icon: "info",
             onClick: () => Taro.navigateTo({ url: "/pages/About/index" }),
           },
           {
-            label: "注销账号",
+            label: ACTION_DEACTIVATE_ACCOUNT,
             icon: "delete-red",
             danger: true,
             onClick: handleOpenDeactivate,
