@@ -330,3 +330,30 @@ export function getLineIconSvgDataUrl(
   return `data:image/svg+xml;utf8,${encodeURIComponent(buildLineIconSvgString(name, color, strokeWidth))}`
 }
 
+/**
+ * Taro IconName → LineIconName 别名（仅几何可复用的线框图标）
+ * 不映射 home/workbench/clock 等小程序专用资产
+ */
+export const TARO_LINE_ICON_ALIASES: Record<string, LineIconName> = {
+  statistics: 'reports',
+  profile: 'user',
+  back: 'chevron-left',
+  annual: 'annual-report',
+  book: 'books',
+  budget: 'budgets',
+  category: 'categories',
+  template: 'templates',
+}
+
+/**
+ * 解析 Taro / 通用图标名到线框规格名；无法复用返回 null（走端侧本地资源）
+ */
+export function resolveTaroLineIconName(name: string): LineIconName | null {
+  const raw = String(name || '').trim()
+  if (!raw) return null
+  const base = raw.replace(/-gray$/, '').replace(/-red$/, '')
+  if (isLineIconName(base)) return base
+  const aliased = TARO_LINE_ICON_ALIASES[base]
+  return aliased && isLineIconName(aliased) ? aliased : null
+}
+

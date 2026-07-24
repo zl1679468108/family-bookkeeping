@@ -1,5 +1,8 @@
 import React from 'react'
-import { cx } from '../../../utils/cx'
+import {
+  buildFooterActionsClassName,
+  type FooterActionsAlign,
+} from '../../../utils/footerActions'
 import './index.scss'
 
 /**
@@ -9,7 +12,7 @@ import './index.scss'
 export interface FooterActionsProps {
   children: React.ReactNode
   /** end: 右对齐（弹窗）；stretch: 均分拉满；start: 左对齐 */
-  align?: 'end' | 'stretch' | 'start'
+  align?: FooterActionsAlign
   className?: string
 }
 
@@ -18,7 +21,7 @@ export const FooterActions: React.FC<FooterActionsProps> = ({
   align = 'end',
   className = '',
 }) => {
-  const cls = cx('ui-footer-actions', `ui-footer-actions--${align}`, className)
+  const cls = buildFooterActionsClassName({ align, className })
   return <div className={cls}>{children}</div>
 }
 

@@ -3,9 +3,15 @@
  * size: sm/md；variant: default/pill
  */
 import { ReactNode } from "react";
-import { cx } from "../../../utils/cx";
+import {
+  buildSegControlClassName,
+  type SegControlSize,
+  type SegControlVariant,
+} from "../../../utils/segControl";
 import { View, Text } from "@tarojs/components";
 import "./index.scss";
+
+export type { SegControlSize, SegControlVariant };
 
 export interface SegOption<T extends string> {
   value: T;
@@ -17,8 +23,8 @@ export interface SegControlProps<T extends string> {
   options: SegOption<T>[];
   value?: T;
   onChange?: (value: T) => void;
-  size?: "sm" | "md";
-  variant?: "default" | "pill";
+  size?: SegControlSize;
+  variant?: SegControlVariant;
   className?: string;
 }
 
@@ -31,7 +37,14 @@ export function SegControl<T extends string>({
   className = "",
 }: SegControlProps<T>) {
   return (
-    <View className={cx("ui-seg", `ui-seg--${size}`, `ui-seg--${variant}`, className)}>
+    <View
+      className={buildSegControlClassName({
+        size,
+        variant,
+        className,
+        prefix: "ui-seg",
+      })}
+    >
       {options.map((opt) => {
         const active = opt.value === value;
         return (

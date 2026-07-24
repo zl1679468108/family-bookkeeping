@@ -1,5 +1,9 @@
 import React from 'react'
-import { cx } from '../../../utils/cx'
+import {
+  buildSegControlClassName,
+  type SegControlSize,
+  type SegControlVariant,
+} from '../../../utils/segControl'
 
 /**
  * 通用分段控制器 —— 取代各页面手写的 tab 切换结构
@@ -26,8 +30,8 @@ interface SegControlProps<T extends string = string> {
   onChange?: (value: T) => void
   className?: string
   style?: React.CSSProperties
-  size?: 'sm' | 'md'
-  variant?: 'default' | 'pill'
+  size?: SegControlSize
+  variant?: SegControlVariant
 }
 
 export function SegControl<T extends string>({
@@ -40,7 +44,10 @@ export function SegControl<T extends string>({
   variant = 'default',
 }: SegControlProps<T>) {
   return (
-    <div className={cx('seg-control', `seg-control--${size}`, `seg-control--${variant}`, className)} style={style}>
+    <div
+      className={buildSegControlClassName({ size, variant, className, prefix: 'seg-control' })}
+      style={style}
+    >
       {options.map((opt) => (
         <button
           key={opt.value}

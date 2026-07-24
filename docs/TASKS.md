@@ -85,6 +85,12 @@
 
 ### ✅ 已完成
 
+#### 2026-07-24 Taro 线框图标对齐 + Seg/Footer class shared
+- `resolveTaroLineIconName` / 别名：Taro Icon 可映射名走 `lineIcons` dataURL（mask/Image），专用图标仍走 assets
+- 无 color 时按主题 storage 选 stroke；`chevron-right` 用真路径不再旋转 down
+- `buildSegControlClassName` / `buildFooterActionsClassName` 双端 SegControl、FooterActions 接线
+- 验证：frontend / taro `tsc --noEmit`
+
 #### 2026-07-24 线框图标/按钮 class/关于页与选模板 shared 化
 - 新增 `shared-utils/lineIcons`：PC 线框 Icon 规格纯数据 + SVG/dataURL；PC Icon 改读规格渲染
 - 新增 `shared-utils/button.buildUiButtonClassName`；双端 Button 接线
