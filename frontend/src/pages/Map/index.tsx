@@ -14,7 +14,7 @@ import { useBook } from '../../hooks/useBook';
 import { renderCategoryIcon } from '../../utils/renderCategoryIcon';
 import { fetchMapTransactions, fetchMerchantSummary } from '../../services/mapApi';
 import type { MapFilters, MerchantSummary } from '@family-bookkeeping/shared-types'
-import { format, startOfMonth, endOfMonth } from 'date-fns';
+import { monthBoundsFromKey } from '../../utils/reportPeriod';
 import './index.scss';
 import { getThemeColors } from '../../utils/themeColors'
 import { formatAmount } from '../../utils/common';
@@ -57,13 +57,10 @@ const MapPage: React.FC = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   // ---- 根据年月计算起止日期 ----
-  const { startDate, endDate } = useMemo(() => {
-    const date = new Date(selectedMonth);
-    return {
-      startDate: format(startOfMonth(date), 'yyyy-MM-dd'),
-      endDate: format(endOfMonth(date), 'yyyy-MM-dd'),
-    };
-  }, [selectedMonth]);
+  const { startDate, endDate } = useMemo(
+    () => monthBoundsFromKey(selectedMonth),
+    [selectedMonth],
+  );
 
   // ---- 构建 filters 传给 API ----
   const filters: MapFilters = useMemo(() => {

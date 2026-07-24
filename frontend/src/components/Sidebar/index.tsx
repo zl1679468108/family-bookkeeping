@@ -9,7 +9,7 @@ import SwitchAccountModal from '../SwitchAccountModal'
 import { useQuery } from '@tanstack/react-query'
 import { fetchBudgetStatus } from '../../services/budgetsApi'
 import { useBook } from '../../hooks/useBook'
-import { format, startOfMonth } from 'date-fns'
+import { currentMonthKey } from '../../utils/month'
 import { useDebouncedAction } from '../../hooks/useDebouncedAction'
 import './index.scss'
 import { queryKeys } from '../../utils/queryKeys'
@@ -95,7 +95,7 @@ export const Sidebar: React.FC = () => {
   const avatarChar = userInitial(user, 'U')
 
   // 获取预算状态，计算超预算数量
-  const currentMonth = format(startOfMonth(new Date()), 'yyyy-MM-dd')
+  const currentMonth = currentMonthKey()
   const { hasBooks, currentBook } = useBook()
   const bookId = currentBook?.id || ''
   const { data: budgetStatus } = useQuery({

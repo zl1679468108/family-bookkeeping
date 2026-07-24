@@ -1,7 +1,8 @@
 /**
  * 侧栏/路由预取：统一 query 预取 + 页面 chunk 预加载，避免 Sidebar 内联大块逻辑。
  */
-import { format, startOfMonth, endOfMonth } from 'date-fns'
+import { monthBoundsFromDate } from './reportPeriod'
+import { formatDateYMD } from './date'
 import { queryClient } from './queryClient'
 import { queryKeys } from './queryKeys'
 import { GC_TIME_LONG, STALE } from './cachePolicy'
@@ -62,10 +63,9 @@ export function prefetchRoute(path: string, bookId: string): void {
   if (!bookId) return
 
   const now = new Date()
-  const monthStart = format(startOfMonth(now), 'yyyy-MM-dd')
-  const monthEnd = format(endOfMonth(now), 'yyyy-MM-dd')
-  const today = format(now, 'yyyy-MM-dd')
-  const monthKey = format(startOfMonth(now), 'yyyy-MM-dd')
+  const { startDate: monthStart, endDate: monthEnd } = monthBoundsFromDate(now)
+  const today = formatDateYMD(now)
+  const monthKey = monthStart
 
   if (path === '/' || path === '/reports') {
     void queryClient.prefetchQuery({

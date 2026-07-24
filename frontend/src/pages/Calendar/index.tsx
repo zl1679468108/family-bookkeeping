@@ -12,6 +12,7 @@ import { daysInMonth, firstDayOfWeek, toMonthKey, generateMonthOptions } from '.
 import type { DailySummaryItem } from '@family-bookkeeping/shared-types';
 import { formatMoney } from '../../utils/budget';
 import { Icon } from '../../components/ui/Icon'
+import { formatDateYMD } from '../../utils/date'
 
 const Calendar: React.FC = () => {
   const { currentBook } = useBook();
@@ -23,7 +24,7 @@ const Calendar: React.FC = () => {
   const [showDetailModal, setShowDetailModal] = useState(false);
 
   const monthKey = toMonthKey(viewYear, viewMonth);
-  const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+  const todayStr = formatDateYMD(now);
 
   const monthOptions = useMemo(() => generateMonthOptions(), []);
   const currentMonthKey = useMemo(() => toMonthKey(viewYear, viewMonth), [viewYear, viewMonth]);

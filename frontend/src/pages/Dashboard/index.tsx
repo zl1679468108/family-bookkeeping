@@ -1,7 +1,8 @@
 import React, { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
-import { startOfMonth, endOfMonth, format, parse } from 'date-fns'
+import { format, parse } from 'date-fns'
+import { monthBoundsFromDate } from '../../utils/reportPeriod'
 import { formatAmount } from '../../utils/common'
 import { formatMoney, getBudgetVariant } from '../../utils/budget'
 import { useBudgetProgress } from '../../hooks/useBudgetProgress'
@@ -30,11 +31,11 @@ const Dashboard: React.FC = () => {
   // 关键：缓存本月日期范围字符串。若每次渲染都重新 format，
   // 依赖这些值的 useQuery queryKey 会每次不同，触发重复请求
   const { monthStart, monthEnd, monthStr } = useMemo(() => {
-    const now = new Date()
+    const bounds = monthBoundsFromDate(new Date())
     return {
-      monthStart: format(startOfMonth(now), 'yyyy-MM-dd'),
-      monthEnd: format(endOfMonth(now), 'yyyy-MM-dd'),
-      monthStr: format(startOfMonth(now), 'yyyy-MM-dd'),
+      monthStart: bounds.startDate,
+      monthEnd: bounds.endDate,
+      monthStr: bounds.startDate,
     }
   }, [])
 

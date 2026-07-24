@@ -167,6 +167,9 @@
 - 邀请/转移邮箱：FE InviteMemberModal、Taro Books/BookMembers/BookSettings 改用 `validateEmail`（空+格式）
 - 验证：frontend / taro `tsc --noEmit`
 
+#### 2026-07-24 月份区间接线扩展
+- Dashboard / Map / Sidebar 预取 / Calendar 今日：改用 `monthBoundsFromDate` / `monthBoundsFromKey` / `currentMonthKey` / `formatDateYMD`，减少 date-fns 区间拼装
+
 #### 2026-07-24 报表周期区间 shared 化
 - 新增 `shared-utils/src/reportPeriod`：`REPORT_PERIOD` / `PeriodType` / `REPORT_PERIOD_OPTIONS`、`resolveReportPeriodRange`、`trailingCalendarMonthsRange`、`monthToDateRange`、`monthBoundsFrom*`、`trailingYearRangeEndingAt` 等
 - PC `useReportData` / 报表周期 tabs 接线；Taro Home 本月摘要区间改 `monthToDateRange`
