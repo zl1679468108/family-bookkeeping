@@ -219,3 +219,323 @@
   font-size: 11px;
   font-weight: 600;
 }
+
+/* ═══════════════════════════════════════════
+   本月预算卡片（首页右侧）
+   ═══════════════════════════════════════════ */
+
+.dash-budget-card {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+
+.dash-budget-summary {
+  padding: 12px 14px;
+  margin-bottom: 12px;
+  border-radius: var(--rm);
+  background: linear-gradient(135deg, var(--prBg) 0%, var(--srf) 100%);
+  border: 1px solid var(--prBd);
+}
+
+.dash-budget-summary--warn {
+  background: linear-gradient(135deg, var(--warnBg) 0%, var(--srf) 100%);
+  border-color: rgba(232, 168, 56, 0.28);
+}
+
+.dash-budget-summary--danger {
+  background: linear-gradient(135deg, var(--expBg) 0%, var(--srf) 100%);
+  border-color: rgba(224, 96, 85, 0.25);
+}
+
+.dash-budget-summary--skeleton {
+  background: var(--bg);
+  border-color: var(--bdL);
+}
+
+.dash-budget-summary__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.dash-budget-summary__label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--fg2);
+}
+
+.dash-budget-summary__pct {
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  color: var(--pr);
+}
+
+.dash-budget-summary__pct--warn {
+  color: var(--warn);
+}
+
+.dash-budget-summary__pct--danger {
+  color: var(--exp);
+}
+
+.dash-budget-summary__bar {
+  height: 8px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--srf) 80%, transparent);
+  border: 1px solid var(--bdL);
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.dash-budget-summary__fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width var(--dn) var(--ease);
+  background: var(--prGr);
+}
+
+.dash-budget-summary__fill--warn {
+  background: linear-gradient(90deg, var(--warn) 0%, color-mix(in srgb, var(--warn) 70%, white) 100%);
+}
+
+.dash-budget-summary__fill--danger {
+  background: linear-gradient(90deg, var(--exp) 0%, color-mix(in srgb, var(--exp) 70%, white) 100%);
+}
+
+.dash-budget-summary__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 6px;
+  font-size: 11px;
+  color: var(--fg3);
+  line-height: 1.4;
+}
+
+.dash-budget-summary__meta strong {
+  font-weight: 600;
+  color: var(--fg2);
+  font-variant-numeric: tabular-nums;
+}
+
+.dash-budget-summary__meta .is-over,
+.dash-budget-summary__meta .is-over strong {
+  color: var(--exp);
+}
+
+.dash-budget-summary__dot {
+  color: var(--bd);
+}
+
+.dash-budget-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+
+.dash-budget-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: var(--rs);
+  background: var(--bg);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition:
+    background var(--df) var(--ease),
+    border-color var(--df) var(--ease),
+    box-shadow var(--df) var(--ease),
+    transform var(--df) var(--ease);
+}
+
+.dash-budget-item:hover {
+  background: var(--srfH);
+  border-color: var(--bd);
+  box-shadow: var(--sh1);
+  transform: translateY(-1px);
+}
+
+.dash-budget-item:focus-visible {
+  outline: 2px solid var(--pr);
+  outline-offset: 2px;
+}
+
+.dash-budget-item--warn {
+  background: linear-gradient(90deg, rgba(232, 168, 56, 0.08) 0%, var(--bg) 48%);
+}
+
+.dash-budget-item--danger {
+  background: linear-gradient(90deg, rgba(224, 96, 85, 0.08) 0%, var(--bg) 48%);
+}
+
+.dash-budget-item--warn:hover {
+  border-color: rgba(232, 168, 56, 0.28);
+}
+
+.dash-budget-item--danger:hover {
+  border-color: rgba(224, 96, 85, 0.28);
+}
+
+.dash-budget-item__icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: var(--srf);
+  border: 1px solid var(--bdL);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 16px;
+  box-shadow: var(--sh1);
+}
+
+.dash-budget-item--danger .dash-budget-item__icon {
+  background: var(--expBg);
+  border-color: rgba(224, 96, 85, 0.16);
+}
+
+.dash-budget-item--warn .dash-budget-item__icon {
+  background: var(--warnBg);
+  border-color: rgba(232, 168, 56, 0.18);
+}
+
+.dash-budget-item__body {
+  flex: 1;
+  min-width: 0;
+}
+
+.dash-budget-item__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.dash-budget-item__name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--fg);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dash-budget-item__badge {
+  flex-shrink: 0;
+  min-width: 40px;
+  height: 20px;
+  padding: 0 8px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--pr);
+  background: var(--prBg);
+}
+
+.dash-budget-item__badge--warn {
+  color: var(--warn);
+  background: var(--warnBg);
+}
+
+.dash-budget-item__badge--danger {
+  color: var(--exp);
+  background: var(--expBg);
+}
+
+.dash-budget-item__meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 7px;
+}
+
+.dash-budget-item__amount {
+  font-size: 11px;
+  color: var(--fg3);
+  font-variant-numeric: tabular-nums;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dash-budget-item__amount em {
+  font-style: normal;
+  font-weight: 600;
+  color: var(--fg2);
+}
+
+.dash-budget-item--danger .dash-budget-item__amount em {
+  color: var(--exp);
+}
+
+.dash-budget-item__sep {
+  margin: 0 3px;
+  color: var(--bd);
+}
+
+.dash-budget-item__pct {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--exp);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.dash-budget-item__bar {
+  height: 6px;
+  border-radius: 999px;
+  background: var(--bdL);
+  overflow: hidden;
+}
+
+.dash-budget-item__fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width var(--dn) var(--ease);
+  background: var(--prGr);
+  min-width: 0;
+}
+
+.dash-budget-item__fill--safe {
+  background: var(--prGr);
+}
+
+.dash-budget-item__fill--warn {
+  background: linear-gradient(90deg, var(--warn) 0%, color-mix(in srgb, var(--warn) 70%, white) 100%);
+}
+
+.dash-budget-item__fill--danger {
+  background: linear-gradient(90deg, var(--exp) 0%, color-mix(in srgb, var(--exp) 70%, white) 100%);
+  /* 超支时也铺满轨道，用危险色强调 */
+  min-width: 100%;
+}
+
+/* 卡片内「全部」链接 */
+.dash-budget-card .card-action {
+  border: none;
+  background: transparent;
+  padding: 0;
+  font-size: 12px;
+  color: var(--pr);
+  font-weight: 500;
+  cursor: pointer;
+  font-family: inherit;
+  line-height: 1;
+}
+
+.dash-budget-card .card-action:hover {
+  opacity: 0.8;
+}

@@ -15,6 +15,21 @@ import { EmptyState } from '../../components/ui/EmptyState'
 import { StatCard } from '../../components/ui/StatCard'
 import { Button } from '../../components/ui/Button'
 
+type BudgetVariant = 'safe' | 'warn' | 'danger'
+
+function getBudgetVariant(progress: number): BudgetVariant {
+  if (progress >= 100) return 'danger'
+  if (progress >= 80) return 'warn'
+  return 'safe'
+}
+
+function formatBudgetMoney(amount: number): string {
+  return `¥${amount.toLocaleString('zh-CN', {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  })}`
+}
+
 const Dashboard: React.FC = () => {
   const navigate = useNavigate()
   const { hasBooks } = useBook()
@@ -54,6 +69,21 @@ const Dashboard: React.FC = () => {
 
   const recentTransactions = recentPaginated?.data || []
   const hasBudget = budgetStatus && budgetStatus.totalBudget > 0
+
+  const topBudgetCategories = useMemo(() => {
+    if (!budgetStatus?.categories?.length) return []
+    return [...budgetStatus.categories]
+      .filter((cat) => cat.budget > 0)
+      .sort((a, b) => {
+        const aOver = a.progress >= 100 ? 1 : 0
+        const bOver = b.progress >= 100 ? 1 : 0
+        if (aOver !== bOver) return bOver - aOver
+        return b.progress - a.progress
+      })
+      .slice(0, 4)
+  }, [budgetStatus])
+
+  const overallVariant = getBudgetVariant(budgetStatus?.overallProgress ?? 0)
 
   return (
     <div className="page-container">
@@ -168,55 +198,126 @@ const Dashboard: React.FC = () => {
 
         {/* 右侧 - 预算进度 */}
         {budgetLoading ? (
-          <Card>
+          <Card className="dash-budget-card">
             <CardHeader title="本月预算" />
-            {[0, 1, 2].map((i) => (
-              <div key={i} className="budget-item" style={{ pointerEvents: 'none' }}>
-                <div className="budget-info">
-                  <Skeleton width="30%" height="13px" />
-                  <Skeleton width="25%" height="12px" />
+            <div className="dash-budget-summary dash-budget-summary--skeleton">
+              <Skeleton width="40%" height="12px" marginBottom="10px" />
+              <Skeleton width="100%" height="8px" borderRadius="999px" marginBottom="10px" />
+              <Skeleton width="70%" height="11px" />
+            </div>
+            <div className="dash-budget-list">
+              {[0, 1, 2].map((i) => (
+                <div key={i} className="dash-budget-item" style={{ pointerEvents: 'none' }}>
+                  <div className="dash-budget-item__icon">
+                    <Skeleton width="100%" height="100%" borderRadius="10px" />
+                  </div>
+                  <div className="dash-budget-item__body">
+                    <div className="dash-budget-item__top">
+                      <Skeleton width="40%" height="13px" />
+                      <Skeleton width="36px" height="18px" borderRadius="999px" />
+                    </div>
+                    <Skeleton width="55%" height="11px" marginBottom="8px" />
+                    <Skeleton width={[70, 45, 90][i] + '%'} height="6px" borderRadius="999px" />
+                  </div>
                 </div>
-                <div className="budget-bar">
-                  <Skeleton width={[60, 85, 45][i] + '%'} height="5px" borderRadius="3px" />
-                </div>
-                <Skeleton width="20%" height="11px" />
-              </div>
-            ))}
+              ))}
+            </div>
           </Card>
         ) : hasBudget ? (
-          <Card>
-            <CardHeader title="本月预算" />
-            {budgetStatus.categories.slice(0, 4).map((cat) => (
-              <div
-                key={cat.category_id}
-                className="budget-item"
-                onClick={() => navigate(`/budgets?focus=${cat.category_id}`)}
-              >
-                <div className="budget-info">
-                  <span className="budget-name">
-                    <span style={{ marginRight: '6px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '18px', height: '18px' }}>
-                      {renderCategoryIcon(cat.category_icon, { size: 18 })}
-                    </span>
-                    {cat.category_name}
-                  </span>
-                  <span className="budget-amount">
-                    ¥{cat.spent.toLocaleString('zh-CN')} / ¥{cat.budget.toLocaleString('zh-CN')}
-                  </span>
-                </div>
-                <div className="budget-bar">
-                  <div
-                    className={`fill ${cat.progress >= 100 ? 'danger' : cat.progress >= 80 ? 'warn' : 'safe'}`}
-                    style={{ width: `${Math.min(cat.progress, 105)}%` }}
-                  />
-                </div>
-                <div className="budget-percent">
-                  {cat.progress}% {cat.progress >= 100 ? '超支!' : ''}
-                </div>
+          <Card className="dash-budget-card">
+            <CardHeader
+              title="本月预算"
+              action={
+                <button
+                  type="button"
+                  className="card-action"
+                  onClick={() => navigate('/budgets')}
+                >
+                  全部
+                </button>
+              }
+            />
+
+            <div className={`dash-budget-summary dash-budget-summary--${overallVariant}`}>
+              <div className="dash-budget-summary__row">
+                <span className="dash-budget-summary__label">本月总进度</span>
+                <span className={`dash-budget-summary__pct dash-budget-summary__pct--${overallVariant}`}>
+                  {budgetStatus.overallProgress}%
+                </span>
               </div>
-            ))}
+              <div className="dash-budget-summary__bar">
+                <div
+                  className={`dash-budget-summary__fill dash-budget-summary__fill--${overallVariant}`}
+                  style={{ width: `${Math.min(budgetStatus.overallProgress, 100)}%` }}
+                />
+              </div>
+              <div className="dash-budget-summary__meta">
+                <span>
+                  已用 <strong>{formatBudgetMoney(budgetStatus.totalSpent)}</strong>
+                </span>
+                <span className="dash-budget-summary__dot">·</span>
+                <span>
+                  预算 <strong>{formatBudgetMoney(budgetStatus.totalBudget)}</strong>
+                </span>
+                <span className="dash-budget-summary__dot">·</span>
+                <span className={budgetStatus.remaining < 0 ? 'is-over' : ''}>
+                  {budgetStatus.remaining < 0 ? '超支' : '剩余'}{' '}
+                  <strong>{formatBudgetMoney(Math.abs(budgetStatus.remaining))}</strong>
+                </span>
+              </div>
+            </div>
+
+            <div className="dash-budget-list">
+              {topBudgetCategories.map((cat) => {
+                const variant = getBudgetVariant(cat.progress)
+                return (
+                  <div
+                    key={cat.category_id}
+                    className={`dash-budget-item dash-budget-item--${variant}`}
+                    onClick={() => navigate(`/budgets?focus=${cat.category_id}`)}
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault()
+                        navigate(`/budgets?focus=${cat.category_id}`)
+                      }
+                    }}
+                  >
+                    <div className="dash-budget-item__icon">
+                      {renderCategoryIcon(cat.category_icon, { size: 18 })}
+                    </div>
+                    <div className="dash-budget-item__body">
+                      <div className="dash-budget-item__top">
+                        <span className="dash-budget-item__name">{cat.category_name}</span>
+                        <span className={`dash-budget-item__badge dash-budget-item__badge--${variant}`}>
+                          {variant === 'danger' ? '超支' : `${cat.progress}%`}
+                        </span>
+                      </div>
+                      <div className="dash-budget-item__meta">
+                        <span className="dash-budget-item__amount">
+                          <em>{formatBudgetMoney(cat.spent)}</em>
+                          <span className="dash-budget-item__sep">/</span>
+                          {formatBudgetMoney(cat.budget)}
+                        </span>
+                        {variant === 'danger' && (
+                          <span className="dash-budget-item__pct">{cat.progress}%</span>
+                        )}
+                      </div>
+                      <div className="dash-budget-item__bar">
+                        <div
+                          className={`dash-budget-item__fill dash-budget-item__fill--${variant}`}
+                          style={{ width: `${Math.min(Math.max(cat.progress, 0), 100)}%` }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
           </Card>
         ) : (
-          <Card>
+          <Card className="dash-budget-card">
             <CardHeader title="本月预算" />
             <EmptyState
               title="暂无预算设置"
