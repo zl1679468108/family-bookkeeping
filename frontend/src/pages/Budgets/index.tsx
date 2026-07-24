@@ -17,18 +17,11 @@ import { Button } from '../../components/ui/Button'
 import { NumberInput } from '../../components/ui/Input'
 import { EmptyState } from '../../components/ui/EmptyState'
 import { DropdownSelect } from '../../components/ui/Dropdown'
+import { budgetStatusToVariant, budgetVariantLabel } from '../../utils/budget'
 
 const formatMonthToDisplay = (monthStr: string): string => {
   const date = new Date(monthStr)
   return format(date, 'yyyy 年 MM 月')
-}
-
-const getStatusVariant = (status: string): 'safe' | 'warn' | 'danger' => {
-  switch (status) {
-    case 'over': return 'danger'
-    case 'warning': return 'warn'
-    default: return 'safe'
-  }
 }
 
 const progressFillClass = (variant: 'safe' | 'warn' | 'danger'): string => {
@@ -326,9 +319,9 @@ const Budgets: React.FC = () => {
               const status = catStatus?.status || 'safe'
               const isFocused = hasFocus && focusId === catKey
               const remaining = budget - spent
-              const variant = getStatusVariant(status)
+              const variant = budgetStatusToVariant(status)
               const fillCls = progressFillClass(variant)
-              const statusClass = status === 'over' ? ' budget-card--over' : status === 'warning' ? ' budget-card--warn' : ''
+              const statusClass = variant === 'danger' ? ' budget-card--over' : variant === 'warn' ? ' budget-card--warn' : ''
 
               return (
                 <div
@@ -409,10 +402,7 @@ const Budgets: React.FC = () => {
             <DetailItem label="剩余" value={`¥${selectedBudget.remaining.toLocaleString('zh-CN')}`} />
             <DetailItem
               label="状态"
-              value={
-                selectedBudget.status === 'over' ? '超预算' :
-                  selectedBudget.status === 'warning' ? '接近预算' : '正常'
-              }
+              value={budgetVariantLabel(budgetStatusToVariant(selectedBudget.status))}
             />
             {selectedBudget.month && (
               <DetailItem label="月份" value={formatMonthToDisplay(selectedBudget.month)} />

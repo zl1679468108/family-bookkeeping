@@ -17,6 +17,7 @@ import { useSubmit } from "../../hooks/useSubmit";
 import { fetchBudgets, fetchBudgetStatus, upsertBudgets, copyBudgets } from "../../services/budgetsApi";
 import { fetchCategories } from "../../services/categoriesApi";
 import "./index.scss";
+import { budgetStatusToVariant, budgetVariantLabel } from "../../utils/budget";
 
 /* ---------- 类型 ---------- */
 interface BudgetDetail {
@@ -250,15 +251,14 @@ export default function BudgetsPage() {
   };
 
   /* ---- 辅助函数 ---- */
-  const statusColor = (status: string) =>
-    status === "over"
-      ? "#E06055"   /* danger — 对齐 PC --exp */
-      : status === "warning"
-        ? "#E8A838"   /* warn — 对齐 PC RankRow warn 起始色 */
-        : "#2D9D8A";  /* safe — 对齐 PC --primary */
+  const statusColor = (status: string) => {
+    const v = budgetStatusToVariant(status);
+    if (v === "danger") return "var(--exp)";
+    if (v === "warn") return "var(--warn)";
+    return "var(--pr)";
+  };
 
-  const statusLabel = (status: string) =>
-    status === "over" ? "超预算" : status === "warning" ? "接近预算" : "正常";
+  const statusLabel = (status: string) => budgetVariantLabel(budgetStatusToVariant(status));
 
   const fmt = (n: number) => (n >= 0 ? n.toFixed(2) : "0.00");
 

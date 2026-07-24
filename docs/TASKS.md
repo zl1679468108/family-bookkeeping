@@ -114,6 +114,11 @@
 - Login / Register / ForgotPassword / EditProfile / About / Profile：与 PC 核心一致，无需改动（Profile 无主题切换，属可选差异）
 - 验证：`tsc --noEmit` 零错误；`build:weapp` 通过
 
+### ✅ 已完成（2026-07-24 公共复用抽离）
+- **budget utils + useBudgetProgress**（PC/Taro 对齐）：进度变体、金额 formatMoney、分类风险排序、status→variant 映射 ✅
+- **StickyActionBar**：BookSettings / TemplateEdit / EditProfile 底栏统一 ✅
+- Dashboard / Home / Budgets 改为消费公共能力，去掉页内重复阈值判断 ✅
+
 ### ✅ 已完成（2026-07-24 PC 暗色硬编码色扫尾）
 - 地图/Profile/账本弹窗/记一笔/鉴权/SwitchAccount 等 SCSS：浅色硬编码与错误 token fallback → 设计令牌 ✅
 - 报表/年报/地图 marker：新增 `themeColors.ts`，ECharts 与 inline style 读 `--exp/--inc/--srf` 等 ✅

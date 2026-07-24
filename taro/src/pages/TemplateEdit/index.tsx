@@ -10,7 +10,7 @@ import Taro, { getCurrentInstance } from "@tarojs/taro";
 import { useQueryClient } from "@tanstack/react-query";
 import PageContainer from "../../components/PageContainer";
 import ConfirmDialog from "../../components/ConfirmDialog";
-import { AppSection, PageHero, Button } from "../../components/ui";
+import { AppSection, PageHero, Button, StickyActionBar } from "../../components/ui";
 import {
   getTemplates,
   createTemplate,
@@ -358,22 +358,16 @@ export default function TemplateEdit() {
       </AppSection>
 
       {/* 底部操作栏 */}
-      <View className="tpledit-actions">
+      <StickyActionBar row>
         {isEdit && (
           <Button variant="danger" size="lg" block onClick={() => setShowDelete(true)}>
             删除
           </Button>
         )}
-        <Button
-          variant="primary"
-          size="lg"
-          block
-          className={isEdit ? "" : "tpledit-actions__save--full"}
-          onClick={handleSave}
-        >
+        <Button variant="primary" size="lg" block onClick={handleSave}>
           {isEdit ? "更新" : "创建"}
         </Button>
-      </View>
+      </StickyActionBar>
 
       {/* 位置选择弹窗 */}
       {showLocationPicker && (

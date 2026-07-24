@@ -14,7 +14,7 @@ import { useState, useEffect, useCallback } from "react";
 import { View, Text, Input, Image } from "@tarojs/components";
 import Taro from "@tarojs/taro";
 import PageContainer from "../../components/PageContainer";
-import { Button } from "../../components/ui";
+import { Button, StickyActionBar } from "../../components/ui";
 import { useAuth } from "../../context/AuthContext";
 import {
   updateProfile as apiUpdateProfile,
@@ -183,7 +183,7 @@ export default function EditProfile() {
   }, [oldPwd, newPwd, confirmPwd]);
 
   return (
-    <PageContainer contentClassName="edit-profile-page">
+    <PageContainer bottomSpace={160} contentClassName="edit-profile-page">
       {/* ===== 头像区 ===== */}
       <View className="edit-avatar-wrap" onClick={handleChangeAvatar}>
         <View className="edit-avatar-container">
@@ -236,11 +236,11 @@ export default function EditProfile() {
       </View>
 
       {/* ===== 保存按钮 ===== */}
-      <View className="edit-save-wrap">
+      <StickyActionBar tone="blur">
         <Button variant="primary" block size="lg" onClick={handleSave}>
           更新信息
         </Button>
-      </View>
+      </StickyActionBar>
 
       {/* ===== 修改密码弹窗 ===== */}
       {showPwd && (

@@ -18,6 +18,7 @@ import { useCategoryLookup } from "../../hooks/useCategories";
 import { useAuth } from "../../context/AuthContext";
 import { useBookContext } from "../../context/BookContext";
 import { fmtAmount } from "../../utils/format";
+import { getBudgetVariant } from "../../utils/budget";
 import { renderCategoryIcon } from "../../utils/renderCategoryIcon";
 import "./index.scss";
 
@@ -227,7 +228,7 @@ export default function Home() {
         {totalBudget > 0 && (
           <View className="budget-card__bar-wrap">
             <View
-              className={`budget-card__bar ${budgetPercent >= 100 ? "budget-card__bar--over" : ""}`}
+              className={`budget-card__bar budget-card__bar--${getBudgetVariant(budgetPercent)}`}
               style={{ width: `${Math.min(budgetPercent, 100)}%` }}
             />
           </View>

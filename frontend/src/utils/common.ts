@@ -54,3 +54,17 @@ export function formatDate(dateStr: string, mode: 'full' | 'dashboard' = 'full')
   // full 模式：仅展示 年-月-日（交易数据只有年月日，没有时分秒）
   return `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`
 }
+
+// 预算语义（进度阈值 / 金额）— 详见 ./budget
+export {
+  getBudgetVariant,
+  isBudgetOver,
+  formatMoney,
+  sortBudgetCategoriesByRisk,
+  BUDGET_WARN_AT,
+  BUDGET_OVER_AT,
+  budgetStatusToVariant,
+  budgetVariantLabel,
+} from './budget'
+export type { BudgetVariant, BudgetCategoryLike } from './budget'
+

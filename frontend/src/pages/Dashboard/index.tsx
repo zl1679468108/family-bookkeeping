@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { startOfMonth, endOfMonth, format, parse } from 'date-fns'
 import { formatAmount } from '../../utils/common'
+import { formatMoney, getBudgetVariant } from '../../utils/budget'
+import { useBudgetProgress } from '../../hooks/useBudgetProgress'
 import { getTransactions } from '../../services/api'
 import { fetchSummary } from '../../services/statisticsApi'
 import { fetchBudgetStatus } from '../../services/budgetsApi'
@@ -14,21 +16,6 @@ import { Card, CardHeader } from '../../components/ui/Card'
 import { EmptyState } from '../../components/ui/EmptyState'
 import { StatCard } from '../../components/ui/StatCard'
 import { Button } from '../../components/ui/Button'
-
-type BudgetVariant = 'safe' | 'warn' | 'danger'
-
-function getBudgetVariant(progress: number): BudgetVariant {
-  if (progress >= 100) return 'danger'
-  if (progress >= 80) return 'warn'
-  return 'safe'
-}
-
-function formatBudgetMoney(amount: number): string {
-  return `¥${amount.toLocaleString('zh-CN', {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 2,
-  })}`
-}
 
 const Dashboard: React.FC = () => {
   const navigate = useNavigate()
@@ -70,20 +57,11 @@ const Dashboard: React.FC = () => {
   const recentTransactions = recentPaginated?.data || []
   const hasBudget = budgetStatus && budgetStatus.totalBudget > 0
 
-  const topBudgetCategories = useMemo(() => {
-    if (!budgetStatus?.categories?.length) return []
-    return [...budgetStatus.categories]
-      .filter((cat) => cat.budget > 0)
-      .sort((a, b) => {
-        const aOver = a.progress >= 100 ? 1 : 0
-        const bOver = b.progress >= 100 ? 1 : 0
-        if (aOver !== bOver) return bOver - aOver
-        return b.progress - a.progress
-      })
-      .slice(0, 4)
-  }, [budgetStatus])
-
-  const overallVariant = getBudgetVariant(budgetStatus?.overallProgress ?? 0)
+  const { overallVariant, topCategories: topBudgetCategories } = useBudgetProgress(
+    budgetStatus?.overallProgress,
+    budgetStatus?.categories,
+    4,
+  )
 
   return (
     <div className="page-container">
@@ -253,16 +231,16 @@ const Dashboard: React.FC = () => {
               </div>
               <div className="dash-budget-summary__meta">
                 <span>
-                  已用 <strong>{formatBudgetMoney(budgetStatus.totalSpent)}</strong>
+                  已用 <strong>{formatMoney(budgetStatus.totalSpent, { compact: true })}</strong>
                 </span>
                 <span className="dash-budget-summary__dot">·</span>
                 <span>
-                  预算 <strong>{formatBudgetMoney(budgetStatus.totalBudget)}</strong>
+                  预算 <strong>{formatMoney(budgetStatus.totalBudget, { compact: true })}</strong>
                 </span>
                 <span className="dash-budget-summary__dot">·</span>
                 <span className={budgetStatus.remaining < 0 ? 'is-over' : ''}>
                   {budgetStatus.remaining < 0 ? '超支' : '剩余'}{' '}
-                  <strong>{formatBudgetMoney(Math.abs(budgetStatus.remaining))}</strong>
+                  <strong>{formatMoney(Math.abs(budgetStatus.remaining), { compact: true })}</strong>
                 </span>
               </div>
             </div>
@@ -296,9 +274,9 @@ const Dashboard: React.FC = () => {
                       </div>
                       <div className="dash-budget-item__meta">
                         <span className="dash-budget-item__amount">
-                          <em>{formatBudgetMoney(cat.spent)}</em>
+                          <em>{formatMoney(cat.spent, { compact: true })}</em>
                           <span className="dash-budget-item__sep">/</span>
-                          {formatBudgetMoney(cat.budget)}
+                          {formatMoney(cat.budget, { compact: true })}
                         </span>
                         {variant === 'danger' && (
                           <span className="dash-budget-item__pct">{cat.progress}%</span>

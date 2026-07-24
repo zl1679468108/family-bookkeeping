@@ -11,7 +11,7 @@ import Taro, { getCurrentInstance } from "@tarojs/taro";
 import { useQueryClient } from "@tanstack/react-query";
 import PageContainer from "../../components/PageContainer";
 import ConfirmDialog from "../../components/ConfirmDialog";
-import { AppSection, MenuList, Button } from "../../components/ui";
+import { AppSection, MenuList, Button, StickyActionBar } from "../../components/ui";
 import SheetHeader from "../../components/SheetHeader";
 import { BOOK_ICONS, renderBookIconSvg } from "../../utils/bookIcons";
 import {
@@ -268,7 +268,7 @@ export default function BookSettings() {
   // ===== 新增模式：新建账本表单 =====
   if (isAdd) {
     return (
-      <PageContainer>
+      <PageContainer bottomSpace={180}>
         <AppSection compact>
           {/* 名称 */}
           <View className="bs-form-row">
@@ -367,18 +367,18 @@ export default function BookSettings() {
           </View>
         </AppSection>
 
-        <View className="bs-actions">
+        <StickyActionBar tone="blur">
           <Button variant="primary" size="lg" block onClick={handleCreate}>
             创建账本
           </Button>
-        </View>
+        </StickyActionBar>
       </PageContainer>
     );
   }
 
   // ===== 编辑模式：编辑表单（主视图） =====
   return (
-    <PageContainer>
+    <PageContainer bottomSpace={180}>
       <AppSection compact>
         {/* 名称 */}
           <View className="bs-form-row">
@@ -527,16 +527,14 @@ export default function BookSettings() {
       </AppSection>
 
       {/* 底部按钮 */}
-      <View className="bs-actions">
-        <View className="bs-actions__row">
-          <Button variant="outline" size="lg" block onClick={() => Taro.navigateBack()}>
-            取消
-          </Button>
-          <Button variant="primary" size="lg" block onClick={handleSubmitEdit}>
-            保存
-          </Button>
-        </View>
-      </View>
+      <StickyActionBar tone="blur" row>
+        <Button variant="outline" size="lg" block onClick={() => Taro.navigateBack()}>
+          取消
+        </Button>
+        <Button variant="primary" size="lg" block onClick={handleSubmitEdit}>
+          保存
+        </Button>
+      </StickyActionBar>
 
       {/* ===== 转移所有权 Sheet ===== */}
       {showTransfer && (

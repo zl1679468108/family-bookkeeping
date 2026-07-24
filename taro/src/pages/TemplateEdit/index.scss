@@ -227,30 +227,8 @@
 }
 
 /* 底部操作栏 */
-.tpledit-actions {
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  display: flex;
-  gap: 16rpx;
-  padding: 16rpx 32rpx calc(16rpx + env(safe-area-inset-bottom));
-  background: var(--surface);
-  border-top: 2rpx solid var(--bd);
-  z-index: 50;
-}
-/* 底栏使用 ui Button 等分 */
-.tpledit-actions .ui-btn {
-  flex: 1;
-  min-width: 0;
-  height: 88rpx;
-  font-weight: 600;
+/* 底栏改用 ui StickyActionBar；页面预留底部空间 */
+.tpledit-page-pad-bottom {
+  padding-bottom: calc(140rpx + env(safe-area-inset-bottom, 0));
 }
 
-.tpledit-actions .ui-btn--danger {
-  flex: 0 0 200rpx;
-}
-
-.tpledit-actions__save--full {
-  flex: 1;
-}

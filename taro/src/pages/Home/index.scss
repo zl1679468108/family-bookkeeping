@@ -128,9 +128,14 @@
   transition: width 0.4s ease;
 }
 
+.budget-card__bar--danger,
 .budget-card__bar--over {
   background: linear-gradient(90deg, var(--exp), var(--exp));
 }
+.budget-card__bar--warn {
+  background: linear-gradient(90deg, var(--warn) 0%, color-mix(in srgb, var(--warn) 70%, white) 100%);
+}
+
 
 /* 分类明细列表 */
 .budget-card__list {

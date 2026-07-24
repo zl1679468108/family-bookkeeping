@@ -1,0 +1,48 @@
+/* StickyActionBar — 全站底部固定操作栏 */
+.ui-sticky-actions {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 50;
+  display: flex;
+  gap: 16rpx;
+  padding: 16rpx 32rpx calc(16rpx + env(safe-area-inset-bottom, 0));
+  border-top: 1rpx solid var(--bdL, var(--bd));
+  background: var(--srf, var(--surface, #fff));
+  box-sizing: border-box;
+
+  &--blur {
+    background: color-mix(in srgb, var(--srf, #fff) 92%, transparent);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+  }
+
+  &--row {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  /* 默认子按钮均分；危险按钮可单独收窄 */
+  > .ui-btn {
+    flex: 1;
+    min-width: 0;
+    height: 88rpx;
+    font-weight: 600;
+  }
+
+  > .ui-btn--lg {
+    height: 92rpx;
+    border-radius: 46rpx;
+    font-weight: 700;
+  }
+
+  > .ui-btn--primary.ui-btn--lg {
+    box-shadow: 0 8rpx 24rpx rgba(45, 157, 138, 0.28),
+      0 2rpx 6rpx rgba(45, 157, 138, 0.12);
+  }
+
+  > .ui-btn--danger {
+    flex: 0 0 200rpx;
+  }
+}

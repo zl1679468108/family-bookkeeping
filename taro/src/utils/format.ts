@@ -35,3 +35,17 @@ export function fmtFriendlyDate(ds: string): string {
   if (d.toDateString() === y.toDateString()) return "昨天";
   return `${d.getMonth() + 1}月${d.getDate()}日`;
 }
+
+// 预算语义：统一从 budget 工具导出，避免页面内各自判断阈值
+export {
+  getBudgetVariant,
+  isBudgetOver,
+  formatMoney,
+  sortBudgetCategoriesByRisk,
+  BUDGET_WARN_AT,
+  BUDGET_OVER_AT,
+  budgetStatusToVariant,
+  budgetVariantLabel,
+} from "./budget";
+export type { BudgetVariant, BudgetCategoryLike } from "./budget";
+
