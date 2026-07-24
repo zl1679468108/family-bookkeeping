@@ -6,8 +6,10 @@ import {
   filterOptionsByLabelKeyword,
   findOptionByKey,
   hasDropdownValue,
+  buildDropdownRootClassName,
+  buildDropdownPanelClassName,
+  buildDropdownItemClassName,
 } from '../../../utils/dropdownHelpers'
-import { cx } from '../../../utils/cx'
 import { fieldRequiredClassName } from '../../../utils/inputHelpers'
 
 /**
@@ -136,7 +138,7 @@ export const DropdownSelect: React.FC<DropdownSelectProps> = ({
 
   return (
     <div
-      className={cx('dd-select', open && 'is-open', className)}
+      className={buildDropdownRootClassName({ open, className })}
       ref={containerRef}
       style={width !== undefined ? { width: typeof width === 'number' ? `${width}px` : width } : undefined}
     >
@@ -158,7 +160,7 @@ export const DropdownSelect: React.FC<DropdownSelectProps> = ({
       </button>
 
       {open && (
-        <div ref={panelRef} className={`dd-select__panel dd-select__panel--${align}`} role="listbox">
+        <div ref={panelRef} className={buildDropdownPanelClassName({ align })} role="listbox">
           {showSearch && (
             <div className="dd-select__search">
               <input
@@ -174,7 +176,7 @@ export const DropdownSelect: React.FC<DropdownSelectProps> = ({
           )}
           {allowClear && (
             <div
-              className={`dd-select__item ${!hasValue ? 'is-active' : ''}`}
+              className={buildDropdownItemClassName({ active: !hasValue })}
               onClick={() => handleSelect('')}
               role="option"
               aria-selected={!hasValue}
@@ -195,7 +197,7 @@ export const DropdownSelect: React.FC<DropdownSelectProps> = ({
             return (
               <div
                 key={opt.key}
-                className={`dd-select__item ${active ? 'is-active' : ''}`}
+                className={buildDropdownItemClassName({ active })}
                 onClick={() => handleSelect(opt.key)}
                 role="option"
                 aria-selected={active}

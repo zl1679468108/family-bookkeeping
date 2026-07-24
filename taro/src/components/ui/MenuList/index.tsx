@@ -4,6 +4,10 @@
 import { ReactNode } from "react";
 import { View, Text } from "@tarojs/components";
 import Icon, { IconName, ICON_COLOR } from "../../Icon";
+import {
+  buildMenuListClassName,
+  buildMenuListItemClassName,
+} from "../../../utils/menuList";
 import "./index.scss";
 
 export interface MenuListItem {
@@ -22,11 +26,11 @@ interface MenuListProps {
 
 export default function MenuList({ items, className = "" }: MenuListProps) {
   return (
-    <View className={`menu-list ${className}`}>
+    <View className={buildMenuListClassName({ className })}>
       {items.map((item) => (
         <View
           key={item.key || item.label}
-          className={`menu-list__item ${item.danger ? "menu-list__item--danger" : ""}`}
+          className={buildMenuListItemClassName({ danger: item.danger, className: "" })}
           onClick={item.onClick}
         >
           {item.icon ? (

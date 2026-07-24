@@ -1,5 +1,8 @@
 import React from 'react'
-import { cx } from '../../../utils/cx'
+import {
+  buildFilterBarClassName,
+  type FilterBarVariant,
+} from '../../../utils/filterBar'
 
 /**
  * 通用过滤栏容器 —— 取代各页面手写的 `<div className="filter-bar">` 结构
@@ -18,7 +21,7 @@ interface FilterBarProps {
   right?: React.ReactNode
   className?: string
   style?: React.CSSProperties
-  variant?: 'default' | 'compact' | 'header'
+  variant?: FilterBarVariant
 }
 
 export const FilterBar: React.FC<FilterBarProps> = ({
@@ -29,12 +32,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
   style,
   variant = 'default',
 }) => {
-  const classes = cx(
-    'filter-bar',
-    variant === 'compact' && 'filter-bar--compact',
-    variant === 'header' && 'filter-bar--header',
-    className,
-  )
+  const classes = buildFilterBarClassName({ variant, className })
 
   if (left || right) {
     return (

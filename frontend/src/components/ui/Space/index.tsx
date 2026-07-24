@@ -1,10 +1,16 @@
-import React from 'react';
+import React from 'react'
+import {
+  buildSpaceClassName,
+  resolveSpaceGap,
+  type SpaceSize,
+  type SpaceDirection,
+} from '../../../utils/space'
 
 interface SpaceProps {
-  size?: 'xs' | 'sm' | 'md' | 'lg';
-  direction?: 'horizontal' | 'vertical';
-  className?: string;
-  children: React.ReactNode;
+  size?: SpaceSize
+  direction?: SpaceDirection
+  className?: string
+  children: React.ReactNode
 }
 
 export const Space: React.FC<SpaceProps> = ({
@@ -13,25 +19,16 @@ export const Space: React.FC<SpaceProps> = ({
   className = '',
   children,
 }) => {
-  const sizeMap = {
-    xs: '4px',
-    sm: '8px',
-    md: '12px',
-    lg: '16px',
-  };
-
   return (
     <div
-      className={`space space--${direction} space--${size} ${className}`}
-      style={{
-        gap: sizeMap[size],
-      }}
+      className={buildSpaceClassName({ size, direction, className })}
+      style={{ gap: resolveSpaceGap(size) }}
     >
       {React.Children.map(children, (child, index) => (
         child && <div key={index}>{child}</div>
       ))}
     </div>
-  );
-};
+  )
+}
 
-export default Space;
+export default Space

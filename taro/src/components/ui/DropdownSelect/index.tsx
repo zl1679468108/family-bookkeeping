@@ -15,8 +15,10 @@ import {
   filterOptionsByLabelKeyword,
   findOptionByKey,
   hasDropdownValue,
+  buildUiDropdownClassName,
+  buildUiDropdownTriggerClassName,
+  buildUiDropdownOptionClassName,
 } from "../../../utils/dropdownHelpers";
-import { cx } from "../../../utils/cx";
 import { FIELD_REQUIRED_MARK } from "../../../utils/inputHelpers";
 
 export interface DropdownOption {
@@ -62,7 +64,7 @@ export function DropdownSelect({
   };
 
   return (
-    <View className={cx("ui-dropdown", className)}>
+    <View className={buildUiDropdownClassName({ className })}>
       {label ? (
         <Text className="ui-dropdown__label">
           {required ? <Text className="ui-dropdown__required">{FIELD_REQUIRED_MARK.trim()}</Text> : null}
@@ -70,7 +72,7 @@ export function DropdownSelect({
         </Text>
       ) : null}
       <View
-        className={cx("ui-dropdown__trigger", !selected && "ui-dropdown__trigger--placeholder")}
+        className={buildUiDropdownTriggerClassName({ placeholder: !selected })}
         hoverClass="ui-dropdown__trigger--pressed"
         onClick={() => setOpen(true)}
       >
@@ -103,7 +105,7 @@ export function DropdownSelect({
             <ScrollView scrollY className="ui-dropdown__options">
               {allowClear ? (
                 <View
-                  className={cx("ui-dropdown__option", !hasDropdownValue(value) && "ui-dropdown__option--active")}
+                  className={buildUiDropdownOptionClassName({ active: !hasDropdownValue(value) })}
                   onClick={() => handleSelect("")}
                 >
                   <Text className="ui-dropdown__option-label ui-dropdown__option-label--muted">{FORM_DROPDOWN_UNLIMITED}</Text>
@@ -115,7 +117,7 @@ export function DropdownSelect({
                 filtered.map((opt) => (
                   <View
                     key={opt.key}
-                    className={cx("ui-dropdown__option", opt.key === value && "ui-dropdown__option--active")}
+                    className={buildUiDropdownOptionClassName({ active: opt.key === value })}
                     onClick={() => handleSelect(opt.key)}
                   >
                     {opt.icon ? <View className="ui-dropdown__option-icon">{opt.icon}</View> : null}

@@ -1,3 +1,5 @@
+import { cx, type ClassValue } from './cx'
+
 /**
  * Dropdown / DropdownSelect 纯逻辑
  * 过滤、选中查找、是否有值
@@ -51,3 +53,64 @@ export function findOptionByKey<T extends KeyedOption>(
 export function hasDropdownValue(value: string | null | undefined): boolean {
   return value != null && value !== ''
 }
+
+/** PC dd-select 根 */
+export function buildDropdownRootClassName(opts: {
+  open?: boolean
+  className?: ClassValue
+  prefix?: string
+} = {}): string {
+  const prefix = opts.prefix || 'dd-select'
+  return cx(prefix, opts.open && 'is-open', opts.className)
+}
+
+/** PC 下拉面板 */
+export function buildDropdownPanelClassName(opts: {
+  align?: 'left' | 'right'
+  className?: ClassValue
+  prefix?: string
+} = {}): string {
+  const align = opts.align || 'left'
+  const prefix = opts.prefix || 'dd-select__panel'
+  return cx(prefix, `${prefix}--${align}`, opts.className)
+}
+
+/** PC 下拉项 */
+export function buildDropdownItemClassName(opts: {
+  active?: boolean
+  className?: ClassValue
+  prefix?: string
+} = {}): string {
+  const prefix = opts.prefix || 'dd-select__item'
+  return cx(prefix, opts.active && 'is-active', opts.className)
+}
+
+/** Taro ui-dropdown 根 */
+export function buildUiDropdownClassName(opts: {
+  className?: ClassValue
+  prefix?: string
+} = {}): string {
+  const prefix = opts.prefix || 'ui-dropdown'
+  return cx(prefix, opts.className)
+}
+
+/** Taro 触发器 */
+export function buildUiDropdownTriggerClassName(opts: {
+  placeholder?: boolean
+  className?: ClassValue
+  prefix?: string
+} = {}): string {
+  const prefix = opts.prefix || 'ui-dropdown__trigger'
+  return cx(prefix, opts.placeholder && `${prefix}--placeholder`, opts.className)
+}
+
+/** Taro 选项 */
+export function buildUiDropdownOptionClassName(opts: {
+  active?: boolean
+  className?: ClassValue
+  prefix?: string
+} = {}): string {
+  const prefix = opts.prefix || 'ui-dropdown__option'
+  return cx(prefix, opts.active && `${prefix}--active`, opts.className)
+}
+

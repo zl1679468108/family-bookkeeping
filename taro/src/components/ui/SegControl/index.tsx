@@ -5,6 +5,7 @@
 import { ReactNode } from "react";
 import {
   buildSegControlClassName,
+  buildSegOptionClassName,
   type SegControlSize,
   type SegControlVariant,
 } from "../../../utils/segControl";
@@ -50,7 +51,7 @@ export function SegControl<T extends string>({
         return (
           <View
             key={opt.value}
-            className={`ui-seg__item ${active ? "ui-seg__item--active" : ""}`}
+            className={buildSegOptionClassName({ active, mode: "bem" })}
             hoverClass={active ? "" : "ui-seg__item--pressed"}
             hoverStayTime={80}
             onClick={() => onChange?.(opt.value)}

@@ -85,6 +85,12 @@
 
 ### ✅ 已完成
 
+#### 2026-07-24 UI kit class 大面积 shared 化
+- 新增/扩展：space、switchControl、list、appSection、menuList、loadingOverlay、pageHero、floatingAction、filterBar、uiIcon
+- dropdownHelpers 增 PC/Taro dropdown class；segControl 增 option class
+- 接线：Space/Seg/Dropdown/FilterBar/PasswordField/Icon + Taro Switch/List/AppSection/MenuList/LoadingOverlay/PageHero/FloatingAction/DropdownSelect
+- 验证：frontend / taro `tsc --noEmit`
+
 #### 2026-07-24 Input/Textarea/FormField class shared 化
 - `inputHelpers` 增 buildInput/Textarea/FormGroup class 构建（pc/bem）
 - 双端 Input/Textarea、PC FormField 接线

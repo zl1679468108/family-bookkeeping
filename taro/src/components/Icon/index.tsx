@@ -14,6 +14,7 @@ import {
   resolveTaroLineIconName,
   getLineIconSvgDataUrl,
 } from "../../utils/lineIcons";
+import { buildUiIconClassName } from "../../utils/uiIcon";
 import { THEME_TOKEN_HEX } from "../../utils/themeTokens";
 import { STORAGE_THEME_TARO } from "../../utils/storageKeys";
 import Taro from "@tarojs/taro";
@@ -155,7 +156,7 @@ export default function Icon({
       const maskUrl = getLineIconSvgDataUrl(lineName, "#000000");
       return (
         <View
-          className={`ui-icon ui-icon--mask ${className}`.trim()}
+          className={buildUiIconClassName({ mask: true, className })}
           style={{
             width: `${s}rpx`,
             height: `${s}rpx`,
@@ -177,7 +178,7 @@ export default function Icon({
     const svgUrl = getLineIconSvgDataUrl(lineName, defaultLineStrokeColor());
     return (
       <View
-        className={`ui-icon ${className}`.trim()}
+        className={buildUiIconClassName({ className })}
         style={{
           width: `${s}rpx`,
           height: `${s}rpx`,
@@ -206,7 +207,7 @@ export default function Icon({
   if (color) {
     return (
       <View
-        className={`ui-icon ui-icon--mask ${className}`.trim()}
+        className={buildUiIconClassName({ mask: true, className })}
         style={{
           width: `${s}rpx`,
           height: `${s}rpx`,
@@ -221,7 +222,7 @@ export default function Icon({
 
   return (
     <View
-      className={`ui-icon ${className}`.trim()}
+      className={buildUiIconClassName({ className })}
       style={{
         width: `${s}rpx`,
         height: `${s}rpx`,

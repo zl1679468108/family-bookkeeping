@@ -26,3 +26,21 @@ export function buildSegControlClassName(
   } = opts
   return cx(prefix, `${prefix}--${size}`, `${prefix}--${variant}`, className)
 }
+
+/** 分段选项 class：PC seg-opt / Taro ui-seg__item */
+export function buildSegOptionClassName(opts: {
+  active?: boolean
+  className?: ClassValue
+  /** PC: seg-opt；Taro: ui-seg__item */
+  prefix?: string
+  /** pc: `active` 修饰；bem: `--active` */
+  mode?: 'pc' | 'bem'
+} = {}): string {
+  const mode = opts.mode || 'pc'
+  const prefix = opts.prefix || (mode === 'bem' ? 'ui-seg__item' : 'seg-opt')
+  if (mode === 'bem') {
+    return cx(prefix, opts.active && `${prefix}--active`, opts.className)
+  }
+  return cx(prefix, opts.active && 'active', opts.className)
+}
+

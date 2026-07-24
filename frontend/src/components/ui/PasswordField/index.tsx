@@ -1,7 +1,10 @@
 import React, { useId, useState, type InputHTMLAttributes } from 'react'
 import { Icon } from '../Icon'
 import { passwordVisibilityLabel } from '../../../utils/actionCopy'
-import { cx } from '../../../utils/cx'
+import {
+  buildFormGroupClassName,
+  resolvePasswordInputType,
+} from '../../../utils/inputHelpers'
 
 /**
  * 鉴权/资料场景密码输入 —— 统一 password-wrapper + 显隐切换 + Icon。
@@ -33,7 +36,7 @@ export const PasswordField: React.FC<PasswordFieldProps> = ({
   const [visible, setVisible] = useState(false)
 
   return (
-    <div className={cx('form-group', groupClassName)}>
+    <div className={buildFormGroupClassName({ className: groupClassName })}>
       {label != null && label !== '' && (
         <label htmlFor={inputId} className={labelClassName}>
           {label}
@@ -43,7 +46,7 @@ export const PasswordField: React.FC<PasswordFieldProps> = ({
         <input
           {...inputProps}
           id={inputId}
-          type={visible ? 'text' : 'password'}
+          type={resolvePasswordInputType('password', true, visible)}
           className={inputClassName}
           disabled={disabled}
         />

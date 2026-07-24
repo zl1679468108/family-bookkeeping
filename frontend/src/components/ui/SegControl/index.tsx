@@ -1,6 +1,7 @@
 import React from 'react'
 import {
   buildSegControlClassName,
+  buildSegOptionClassName,
   type SegControlSize,
   type SegControlVariant,
 } from '../../../utils/segControl'
@@ -52,7 +53,7 @@ export function SegControl<T extends string>({
         <button
           key={opt.value}
           type="button"
-          className={`seg-opt ${value === opt.value ? 'active' : ''}`}
+          className={buildSegOptionClassName({ active: value === opt.value, mode: 'pc' })}
           onClick={() => onChange?.(opt.value)}
         >
           {opt.icon && <span className="seg-opt__icon">{opt.icon}</span>}

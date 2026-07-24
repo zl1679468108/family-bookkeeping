@@ -8,6 +8,7 @@
 import { View, Text } from "@tarojs/components";
 import "./index.scss";
 import { ACTION_LOADING } from "../../../utils/actionCopy";
+import { buildLoadingOverlayClassName } from "../../../utils/loadingOverlay";
 
 export interface LoadingOverlayProps {
   /** 提示文字，传空字符串可只显示 spinner */
@@ -18,7 +19,7 @@ export interface LoadingOverlayProps {
 
 export function LoadingOverlay({ tip = ACTION_LOADING, className = "" }: LoadingOverlayProps) {
   return (
-    <View className={`ui-loading-overlay ${className}`}>
+    <View className={buildLoadingOverlayClassName({ className })}>
       <View className="ui-loading-overlay__spinner" />
       {tip ? <Text className="ui-loading-overlay__tip">{tip}</Text> : null}
     </View>

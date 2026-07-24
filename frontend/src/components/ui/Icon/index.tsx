@@ -5,6 +5,7 @@ import {
   isLineIconName,
   type LineIconName,
 } from '../../../utils/lineIcons'
+import { buildUiIconClassName } from '../../../utils/uiIcon'
 
 /**
  * PC 端线框图标 — 规格见 shared-utils/lineIcons，统一 currentColor 着色。
@@ -45,7 +46,7 @@ export const Icon: React.FC<IconProps> = ({
       strokeWidth={strokeWidth}
       strokeLinecap="round"
       strokeLinejoin="round"
-      className={className ? `ui-icon ${className}` : 'ui-icon'}
+      className={buildUiIconClassName({ className })}
       aria-hidden={title ? undefined : true}
       role={title ? 'img' : undefined}
       focusable="false"

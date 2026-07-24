@@ -2,6 +2,7 @@
  * Switch — 开关（小程序新增，对齐视觉）
  */
 import { View } from "@tarojs/components";
+import { buildSwitchClassName } from "../../../utils/switchControl";
 import "./index.scss";
 
 export interface SwitchProps {
@@ -14,7 +15,7 @@ export interface SwitchProps {
 export function Switch({ checked = false, onChange, disabled = false, className = "" }: SwitchProps) {
   return (
     <View
-      className={`ui-switch ${checked ? "ui-switch--on" : ""} ${disabled ? "ui-switch--disabled" : ""} ${className}`}
+      className={buildSwitchClassName({ checked, disabled, className })}
       onClick={() => {
         if (disabled) return;
         onChange?.(!checked);

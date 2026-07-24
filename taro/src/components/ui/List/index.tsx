@@ -6,6 +6,10 @@ import { ReactNode } from "react";
 import { View, Text } from "@tarojs/components";
 import "./index.scss";
 import Icon, { ICON_COLOR } from "../../Icon";
+import {
+  buildListClassName,
+  buildListItemClassName,
+} from "../../../utils/list";
 
 export interface ListItemProps {
   icon?: ReactNode;
@@ -25,7 +29,7 @@ export function ListItem({
   const clickable = !!onClick;
   return (
     <View
-      className={`ui-list-item ${divider ? "ui-list-item--divider" : ""} ${clickable ? "ui-list-item--clickable" : ""} ${className}`}
+      className={buildListItemClassName({ divider, clickable, className })}
       hoverClass={clickable ? "ui-list-item--pressed" : ""}
       hoverStayTime={80}
       onClick={onClick}
@@ -49,7 +53,7 @@ export interface ListProps {
 
 export function List({ children, inset = false, className = "" }: ListProps) {
   return (
-    <View className={`ui-list ${inset ? "ui-list--inset" : ""} ${className}`}>
+    <View className={buildListClassName({ inset, className })}>
       {children}
     </View>
   );

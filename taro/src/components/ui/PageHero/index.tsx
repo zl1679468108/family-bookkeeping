@@ -3,6 +3,10 @@
  */
 import { ReactNode } from "react";
 import { View, Text } from "@tarojs/components";
+import {
+  buildPageHeroClassName,
+  type PageHeroTone,
+} from "../../../utils/pageHero";
 import "./index.scss";
 
 interface PageHeroProps {
@@ -12,7 +16,7 @@ interface PageHeroProps {
   meta?: string;
   aside?: ReactNode;
   children?: ReactNode;
-  tone?: "primary" | "surface";
+  tone?: PageHeroTone;
   className?: string;
 }
 
@@ -27,7 +31,7 @@ export default function PageHero({
   className = "",
 }: PageHeroProps) {
   return (
-    <View className={`page-hero page-hero--${tone} ${className}`}>
+    <View className={buildPageHeroClassName({ tone, className })}>
       <View className="page-hero__main">
         {eyebrow ? <Text className="page-hero__eyebrow">{eyebrow}</Text> : null}
         <Text className="page-hero__title">{title}</Text>

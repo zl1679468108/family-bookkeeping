@@ -5,6 +5,10 @@
 import { ReactNode } from "react";
 import { View, Text } from "@tarojs/components";
 import { Skeleton } from "../Skeleton";
+import {
+  buildAppSectionClassName,
+  buildAppSectionBodyClassName,
+} from "../../../utils/appSection";
 import "./index.scss";
 
 interface AppSectionProps {
@@ -36,7 +40,7 @@ export default function AppSection({
 }: AppSectionProps) {
   return (
     <View
-      className={`app-section ${compact ? "app-section--compact" : ""} ${flush ? "app-section--flush" : ""} ${className}`}
+      className={buildAppSectionClassName({ compact, flush, className })}
     >
       {(title || actionText || headerRight) && (
         <View className="app-section__header">
@@ -55,7 +59,7 @@ export default function AppSection({
           ) : null}
         </View>
       )}
-      <View className={`app-section__body ${bodyClassName}`}>
+      <View className={buildAppSectionBodyClassName({ className: bodyClassName })}>
         {loading ? <Skeleton height="200rpx" /> : children}
       </View>
     </View>
