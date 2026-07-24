@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect, useCallback } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
-import { startOfMonth, format, parse } from 'date-fns'
+import { format, parse } from 'date-fns'
 import { getTransactions, deleteTransaction } from '../../services/api'
 import { useCategoryLookup, useCategories } from '../../hooks/useCategories'
 import { useBook } from '../../hooks/useBook'
@@ -27,6 +27,12 @@ import { parseImageList } from '../../utils/parseImageList'
 import { queryKeys, TRANSACTION_IMPACT_ROOT_KEYS } from '../../utils/queryKeys'
 import { STALE } from '../../utils/cachePolicy'
 import { transactionTypeLabel, TRANSACTION_TYPE_OPTIONS, FILTER_ALL_TYPES, FILTER_ALL_CATEGORIES, FILTER_ALL_TIME, FILTER_LAST_7_DAYS, FILTER_LAST_30_DAYS } from '../../utils/transactionType'
+import {
+  transactionTimeDateRange,
+  sumTransactionsByType,
+} from '../../utils/transactionList'
+import { successEntityDeleted } from '../../utils/successCopy'
+import { ENTITY_TRANSACTION } from '../../utils/entityCopy'
 import { ERROR_DELETE_FAILED } from '../../utils/errorCopy'
 import { EMPTY_TRANSACTIONS } from '../../utils/emptyCopy'
 import {
@@ -48,7 +54,6 @@ const Transactions: React.FC = () => {
   useFocusItem()
 
   const today = new Date()
-  const monthStart = format(startOfMonth(today), 'yyyy-MM-dd')
   const todayStr = format(today, 'yyyy-MM-dd')
 
   const { data: allCategories = [] } = useCategories()
@@ -154,7 +159,7 @@ const Transactions: React.FC = () => {
     },
     {
       invalidateKeys: TRANSACTION_IMPACT_ROOT_KEYS,
-      successMessage: '交易已删除',
+      successMessage: successEntityDeleted(ENTITY_TRANSACTION),
       errorMessage: ERROR_DELETE_FAILED,
       onSuccess: () => {
         setShowDetail(false)
@@ -164,27 +169,24 @@ const Transactions: React.FC = () => {
     },
   )
 
-  const effectiveStartDate = useMemo(() => {
-    if (dateFilter === 'week') {
-      const d = new Date()
-      d.setDate(d.getDate() - 7)
-      return format(d, 'yyyy-MM-dd')
-    }
-    if (dateFilter === 'month') return monthStart
-    return ''
-  }, [dateFilter, monthStart])
+  const timeRange = useMemo(
+    () => transactionTimeDateRange(dateFilter),
+    [dateFilter],
+  )
+  const effectiveStartDate = timeRange.startDate || ''
+  const effectiveEndDate = timeRange.endDate || todayStr
 
   const listFilters = useMemo(() => ({
     type: typeFilter || '',
     category: categoryFilter || '',
     startDate: effectiveStartDate || '',
-    endDate: todayStr,
+    endDate: effectiveEndDate || '',
     search: debouncedSearch || '',
     minAmount: minAmount || '',
     maxAmount: maxAmount || '',
     page,
     pageSize,
-  }), [typeFilter, categoryFilter, effectiveStartDate, todayStr, debouncedSearch, minAmount, maxAmount, page, pageSize])
+  }), [typeFilter, categoryFilter, effectiveStartDate, effectiveEndDate, debouncedSearch, minAmount, maxAmount, page, pageSize])
 
   const { data: paginated, isLoading } = useQuery({
     queryKey: queryKeys.transactions.list(bookId, listFilters),
@@ -192,7 +194,7 @@ const Transactions: React.FC = () => {
       type: (typeFilter || undefined) as 'income' | 'expense' | undefined,
       category: categoryFilter || undefined,
       startDate: effectiveStartDate || undefined,
-      endDate: todayStr,
+      endDate: effectiveEndDate || undefined,
       search: debouncedSearch || undefined,
       min_amount: minAmount ? Number(minAmount) : undefined,
       max_amount: maxAmount ? Number(maxAmount) : undefined,
@@ -206,12 +208,7 @@ const Transactions: React.FC = () => {
 
   const transactions = paginated?.data || []
   const total = paginated?.total || 0
-  const totalExpense = transactions
-    .filter(t => t.type === 'expense')
-    .reduce((sum, t) => sum + Number(t.amount), 0)
-  const totalIncome = transactions
-    .filter(t => t.type === 'income')
-    .reduce((sum, t) => sum + Number(t.amount), 0)
+  const { expense: totalExpense, income: totalIncome } = sumTransactionsByType(transactions)
 
   const typeOptions = useMemo(() => [...TRANSACTION_TYPE_OPTIONS], [])
 

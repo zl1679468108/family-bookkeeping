@@ -31,6 +31,7 @@ import { todayBeijing } from '../../../utils/common'
 import { successTemplateApplied, SUCCESS_OCR } from '../../../utils/successCopy'
 import { maxImagesMessage, IMAGE_PROCESS_FAILED, MAX_RECEIPT_IMAGES } from '../../../utils/uploadCopy'
 import { failUpdateOrSave, ERROR_OCR_FAILED } from '../../../utils/errorCopy'
+import { applyOcrResultToForm, isOcrResultUseful } from '../../../utils/ocrForm'
 
 export const MAX_NOTE_LENGTH = 500
 export const MAX_IMAGES = MAX_RECEIPT_IMAGES
@@ -330,18 +331,8 @@ export function useTransactionForm() {
     try {
       const compressed = await compressImage(file, 1200, 0.7)
       const ocrResult: OcrResult | null = await ocrReceipt(compressed)
-      if (ocrResult && (ocrResult.amount || ocrResult.date)) {
-        setFormData((prev) => {
-          let next = { ...prev }
-          if (ocrResult.type && ocrResult.type !== prev.type) {
-            next.type = ocrResult.type
-            next.category = ''
-          }
-          next.amount = ocrResult.amount !== undefined ? ocrResult.amount : prev.amount
-          next.date = ocrResult.date || prev.date
-          next.note = ocrResult.note || prev.note
-          return next
-        })
+      if (isOcrResultUseful(ocrResult)) {
+        setFormData((prev) => applyOcrResultToForm(prev, ocrResult))
         notifySuccess(SUCCESS_OCR)
       } else {
         notifyError(ERROR_OCR_FAILED)

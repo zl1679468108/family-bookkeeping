@@ -21,6 +21,13 @@ import { TRANSACTION_TYPE_FILTER_LABELS, TRANSACTION_TIME_FILTER_LABELS, FILTER_
 import { parseAmount } from "../../utils/budget";
 import { ACTION_LOADING } from "../../utils/actionCopy";
 import { EMPTY_TRANSACTIONS_HINT } from "../../utils/emptyCopy";
+import {
+  typeFilterFromIndex,
+  transactionTimeDateRange,
+  groupTransactionsByDate,
+  sortedTransactionDateKeys,
+  formatTransactionDateLabel,
+} from "../../utils/transactionList";
 
 const FILTER_OPTIONS = [...TRANSACTION_TYPE_FILTER_LABELS];
 const TIME_OPTIONS = [...TRANSACTION_TIME_FILTER_LABELS];
@@ -30,64 +37,6 @@ const PAGE_SIZE = 20;
 // 请求序列号：并发/快速切换筛选时，只采用最新一次请求的结果，丢弃过期响应。
 // 小程序运行时无 AbortController，故用序列号做竞态兜底而非取消请求。
 let reqSeq = 0;
-
-function dateRange(timeIdx: number): { start?: string; end?: string } {
-  const now = new Date();
-  const pad = (n: number) => String(n).padStart(2, "0");
-  const fmt = (d: Date) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
-  const end = fmt(now);
-
-  if (timeIdx === 1) {
-    const d = new Date(now);
-    d.setDate(now.getDate() - 6);
-    return { start: fmt(d), end };
-  }
-  if (timeIdx === 2) {
-    const d = new Date(now);
-    d.setDate(now.getDate() - 29);
-    return { start: fmt(d), end };
-  }
-  return {};
-}
-
-function getTypeFromFilter(typeIdx: number): "expense" | "income" | undefined {
-  if (typeIdx === 1) return "expense";
-  if (typeIdx === 2) return "income";
-  return undefined;
-}
-
-/** 按日期分组 */
-function groupByDate(txns: any[]): Record<string, any[]> {
-  const groups: Record<string, any[]> = {};
-  txns.forEach((t) => {
-    const key = (t.date || "").slice(0, 10) || "未知日期";
-    if (!groups[key]) groups[key] = [];
-    groups[key].push(t);
-  });
-  return groups;
-}
-
-/** 格式化日期显示 */
-function formatDateLabel(dateStr: string): string {
-  if (!dateStr || dateStr === "未知日期") return dateStr;
-  const d = new Date(dateStr);
-  const today = new Date();
-  const yesterday = new Date(today);
-  yesterday.setDate(yesterday.getDate() - 1);
-
-  const ds = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-  const td = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
-  const yd = `${yesterday.getFullYear()}-${String(yesterday.getMonth() + 1).padStart(2, "0")}-${String(yesterday.getDate()).padStart(2, "0")}`;
-
-  if (ds === td) return "今天";
-  if (ds === yd) return "昨天";
-
-  const weekDays = ["日", "一", "二", "三", "四", "五", "六"];
-  const diffDays = Math.floor((today.getTime() - d.getTime()) / 86400000);
-  if (diffDays > 0 && diffDays < 7) return `周${weekDays[d.getDay()]}`;
-
-  return `${d.getMonth() + 1}月${d.getDate()}日`;
-}
 
 export default function Transactions() {
   const { user, loading: authLoading } = useAuth();
@@ -113,7 +62,7 @@ export default function Transactions() {
 
   // 分类 Picker 数据源
   const categoryOptions = useMemo(() => {
-    const typeFilter = getTypeFromFilter(typeIdx);
+    const typeFilter = typeFilterFromIndex(typeIdx);
     const cats = typeFilter
       ? categories.filter((c) => c.type === typeFilter)
       : categories;
@@ -121,7 +70,7 @@ export default function Transactions() {
   }, [categories, typeIdx]);
 
   const filteredCategoriesForSelection = useMemo(() => {
-    const type = getTypeFromFilter(typeIdx);
+    const type = typeFilterFromIndex(typeIdx);
     return type ? categories.filter((c) => c.type === type) : categories;
   }, [categories, typeIdx]);
 
@@ -138,8 +87,8 @@ export default function Transactions() {
       const ci = overrides?.catIdx ?? catIdx;
       const s = overrides?.searchKeyword ?? searchKeyword;
 
-      const r = dateRange(tmi);
-      const typeParam = getTypeFromFilter(ti);
+      const r = transactionTimeDateRange(tmi);
+      const typeParam = typeFilterFromIndex(ti);
       const catParam = ci > 0 && filteredCategoriesForSelection[ci - 1]
         ? filteredCategoriesForSelection[ci - 1].id
         : undefined;
@@ -151,8 +100,8 @@ export default function Transactions() {
       try {
         const res: any = await getTransactions({
           type: typeParam,
-          startDate: r.start,
-          endDate: r.end,
+          startDate: r.startDate,
+          endDate: r.endDate,
           category: catParam || undefined,
           search: s.trim() || undefined,
           page: targetPage,
@@ -260,8 +209,8 @@ export default function Transactions() {
   }, [txn]);
 
   // 日期分组
-  const groupedTxns = useMemo(() => groupByDate(txn), [txn]);
-  const dates = useMemo(() => Object.keys(groupedTxns).sort().reverse(), [groupedTxns]);
+  const groupedTxns = useMemo(() => groupTransactionsByDate(txn), [txn]);
+  const dates = useMemo(() => sortedTransactionDateKeys(groupedTxns), [groupedTxns]);
 
   return (
     <>
@@ -342,7 +291,7 @@ export default function Transactions() {
               {dates.map((date) => (
                 <View key={date} className="date-group">
                   <View className="date-header">
-                    <Text className="date-label">{formatDateLabel(date)}</Text>
+                    <Text className="date-label">{formatTransactionDateLabel(date)}</Text>
                   </View>
                   {groupedTxns[date].map((t: any) => {
                     const catName = getCategoryName(t.category) || "其他";

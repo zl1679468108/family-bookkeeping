@@ -34,6 +34,8 @@
     "./savedAccounts": "./src/savedAccounts.ts",
     "./categories": "./src/categories.ts",
     "./transactionPayload": "./src/transactionPayload.ts",
+    "./transactionList": "./src/transactionList.ts",
+    "./ocrForm": "./src/ocrForm.ts",
     "./clipboard": "./src/clipboard.ts",
     "./categoryColors": "./src/categoryColors.ts",
     "./templatePayload": "./src/templatePayload.ts",

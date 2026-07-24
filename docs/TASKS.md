@@ -136,6 +136,12 @@
 - `fmtAmount` 并入 shared budget；双端 `renderCategoryIcon` 统一 `isIconUrl/isPlatformIcon/isBookIconKey` 判定
 - 附：PC 暗色第六轮与 sortOrder 已在上一提交
 
+#### 2026-07-24 流水筛选/分组 + OCR 表单补丁 shared 化
+- 新增 `transactionList`：时间筛选区间（近7/30天口径统一）、类型索引、按日分组、日期标题、收支汇总
+- 新增 `ocrForm`：`applyOcrResultToForm` / `isOcrResultUseful`；PC 记一笔 OCR 接线
+- 双端流水页接线；PC「近30天」与标签对齐（原自然月起点）
+- 验证：frontend / taro `tsc --noEmit`
+
 #### 2026-07-24 周期模板 nextDate + 预算复制文案 shared 化
 - 新增 `templateRecurring`：`getNextExecutionDate` / `isRecurringDue` / filter·count·has
 - `formatBeijingYMD` 统一北京日口径；PC 模板页到期判定与执行成功文案接线
