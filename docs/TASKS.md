@@ -98,6 +98,12 @@
 - `formatAmount`/`formatAmountWithType` 薄封装 `formatMoney`，单一金额格式实现。
 - 记一笔保存成功清除草稿；frontend `tsc --noEmit` 通过。
 
+#### 2026-07-24 FormField + Icon 关闭收口 + Taro 上传 helper
+- PC 新增 `FormField`：Login/Register/Forgot/Profile 文本字段统一 form-group+label；验证码行走 children。
+- Textarea/Dropdown 清空、SwitchAccount 移除/过期、Calendar 月份导航、模板选择/商家历史关闭 → `Icon`。
+- Taro 记一笔抽取 `uploadPendingReceipts`（进度 loading + 失败计数）。
+- 验证：frontend/taro `tsc --noEmit` 通过。
+
 #### 2026-07-24 密码框/频率/记一笔 payload 复用收口
 - PC 新增 `PasswordField`：Login/Register/Forgot/Reset/Profile 改密统一显隐切换，去掉分散 show* 状态。
 - `ui/Input` 眼标/清空/搜索改用 `Icon`；`formatFrequency` + `FREQUENCY_OPTIONS` 双端；模板详情/表单/Taro TemplateManager 收口。

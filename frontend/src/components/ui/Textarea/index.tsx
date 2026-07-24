@@ -1,3 +1,4 @@
+import { Icon } from '../Icon'
 import React, { TextareaHTMLAttributes, useState, useEffect, useRef, useId } from 'react'
 
 /**
@@ -85,10 +86,7 @@ export const Textarea: React.FC<TextareaProps> = ({
         />
         {allowClear && currentValue && (
           <button type="button" className="ui-textarea-clear" onClick={handleClear} aria-label="清空">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="18" y1="6" x2="6" y2="18" />
-              <line x1="6" y1="6" x2="18" y2="18" />
-            </svg>
+            <Icon name="close" size={12} strokeWidth={2.5} />
           </button>
         )}
       </div>

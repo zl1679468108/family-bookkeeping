@@ -9,6 +9,7 @@ import AuthLayout from '../../../components/AuthLayout'
 import { RegisterIllustration } from '../../../components/AuthLayout/AuthIllustrations'
 import { Button } from '../../../components/ui/Button'
 import { PasswordField } from '../../../components/ui/PasswordField'
+import { FormField } from '../../../components/ui/FormField'
 
 const RegisterPage: React.FC = () => {
   const [username, setUsername] = useState('')
@@ -49,31 +50,27 @@ const RegisterPage: React.FC = () => {
       <p className="form-desc">填写以下信息注册新账户</p>
 
       <form onSubmit={(e) => { e.preventDefault(); handleSubmit() }}>
-        <div className="form-group">
-          <label htmlFor="regUser">用户名</label>
-          <input
-            id="regUser"
-            type="text"
-            placeholder="您的昵称"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            required
-            autoComplete="name"
-          />
-        </div>
+        <FormField
+          id="regUser"
+          label="用户名"
+          type="text"
+          placeholder="您的昵称"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          required
+          autoComplete="name"
+        />
 
-        <div className="form-group">
-          <label htmlFor="regEmail">邮箱地址</label>
-          <input
-            id="regEmail"
-            type="email"
-            placeholder="your@email.com"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            autoComplete="email"
-          />
-        </div>
+        <FormField
+          id="regEmail"
+          label="邮箱地址"
+          type="email"
+          placeholder="your@email.com"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+          autoComplete="email"
+        />
 
         <div className="form-row">
           <PasswordField

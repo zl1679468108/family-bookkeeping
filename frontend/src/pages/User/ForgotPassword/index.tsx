@@ -6,6 +6,7 @@ import AuthLayout from '../../../components/AuthLayout'
 import { ForgotIllustration } from '../../../components/AuthLayout/AuthIllustrations'
 import { Button } from '../../../components/ui/Button'
 import { PasswordField } from '../../../components/ui/PasswordField'
+import { FormField } from '../../../components/ui/FormField'
 import { validatePasswordMatch, validatePasswordMinLength } from '../../../utils/validation'
 
 const ForgotPassword: React.FC = () => {
@@ -113,18 +114,16 @@ const ForgotPassword: React.FC = () => {
 
       {step === 1 && (
         <div>
-          <div className="form-group">
-            <label htmlFor="forgotEmail">邮箱地址</label>
-            <input
-              id="forgotEmail"
-              type="email"
-              placeholder="注册时使用的邮箱"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              autoComplete="email"
-            />
-          </div>
+          <FormField
+            id="forgotEmail"
+            label="邮箱地址"
+            type="email"
+            placeholder="注册时使用的邮箱"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            autoComplete="email"
+          />
           <Button
             type="button"
             variant="primary"
@@ -141,18 +140,15 @@ const ForgotPassword: React.FC = () => {
 
       {step === 2 && (
         <form onSubmit={(e) => { e.preventDefault(); handleSubmit() }}>
-          <div className="form-group">
-            <label htmlFor="forgotEmailDisplay">邮箱地址</label>
-            <input
-              id="forgotEmailDisplay"
-              type="email"
-              value={email}
-              disabled
-            />
-          </div>
+          <FormField
+            id="forgotEmailDisplay"
+            label="邮箱地址"
+            type="email"
+            value={email}
+            disabled
+          />
 
-          <div className="form-group">
-            <label htmlFor="forgotCode">验证码</label>
+          <FormField id="forgotCode" label="验证码">
             <div style={{ display: 'flex', gap: 8 }}>
               <input
                 id="forgotCode"
@@ -176,7 +172,7 @@ const ForgotPassword: React.FC = () => {
                 {countdown > 0 ? `${countdown}s` : (resendLoading ? '发送中...' : '重新发送')}
               </Button>
             </div>
-          </div>
+          </FormField>
 
           <div className="form-row">
           <PasswordField

@@ -118,10 +118,7 @@ const SwitchAccountModal: React.FC<SwitchAccountModalProps> = ({ visible, onClos
                         onClick={(e) => handleRemove(account.email, e)}
                         title="移除账号"
                       >
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                          <line x1="18" y1="6" x2="6" y2="18" />
-                          <line x1="6" y1="6" x2="18" y2="18" />
-                        </svg>
+                        <Icon name="close" size={14} />
                       </button>
                     )}
                     {!isCurrent && switchingEmail === account.email && (
@@ -148,11 +145,7 @@ const SwitchAccountModal: React.FC<SwitchAccountModalProps> = ({ visible, onClos
         <div className="expired-modal-overlay" onClick={() => setExpiredEmail(null)}>
           <div className="expired-modal" onClick={(e) => e.stopPropagation()}>
             <div className="expired-modal-icon">
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="12" r="10" />
-                <line x1="12" y1="8" x2="12" y2="12" />
-                <line x1="12" y1="16" x2="12.01" y2="16" />
-              </svg>
+              <Icon name="info" size={32} />
             </div>
             <div className="expired-modal-title">登录已过期</div>
             <div className="expired-modal-desc">

@@ -9,7 +9,6 @@ import Taro from "@tarojs/taro";
 import PageContainer from "../../components/PageContainer";
 import {
   getTransaction,
-  uploadReceipt,
   deleteTransaction,
   createTransaction,
   updateTransaction,
@@ -18,6 +17,7 @@ import { getTemplates } from "../../services/templatesApi";
 import { useCategoryList } from "../../hooks/useCategories";
 import { useSubmit, toastError } from "../../hooks/useSubmit";
 import { buildTransactionPayload } from "./buildPayload";
+import { uploadPendingReceipts } from "./uploadPendingReceipts";
 import FieldRow from "../../components/form/FieldRow";
 import SectionCard from "../../components/form/SectionCard";
 import NoteField from "../../components/form/NoteField";
@@ -239,30 +239,13 @@ export default function AddTransaction() {
         transactionId = (result as any)?.id ?? 0;
       }
 
-      // 2. 上传新图片（保留图片上传进度的 showLoading）
+      // 2. 上传新图片（进度 loading 在 uploadPendingReceipts 内）
       let uploadedUrls: string[] = [];
       let failedCount = 0;
       if (pendingImages.length > 0 && transactionId) {
-        Taro.showLoading({ title: `上传图片 0/${pendingImages.length}...` });
-        for (let i = 0; i < pendingImages.length; i++) {
-          const filePath = pendingImages[i];
-          try {
-            const res = await uploadReceipt(transactionId, filePath);
-            if (res?.image_url) {
-              uploadedUrls.push(res.image_url);
-            } else {
-              failedCount++;
-              console.error("图片上传无返回 URL:", filePath);
-            }
-            Taro.showLoading({ title: `上传图片 ${i + 1}/${pendingImages.length}...` });
-          } catch (err: any) {
-            failedCount++;
-            console.error("图片上传失败:", filePath, err);
-          }
-        }
-        Taro.hideLoading();
-
-        // 如果有图片上传失败，提示用户
+        const result = await uploadPendingReceipts(transactionId, pendingImages);
+        uploadedUrls = result.uploadedUrls;
+        failedCount = result.failedCount;
         if (failedCount > 0) {
           toastInfo(`${failedCount} 张图片上传失败，其余已保存`);
         }

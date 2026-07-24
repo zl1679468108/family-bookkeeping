@@ -6,6 +6,7 @@ import { useDebouncedAction } from '../../../hooks/useDebouncedAction'
 
 import { Button } from '../../../components/ui/Button'
 import { PasswordField } from '../../../components/ui/PasswordField'
+import { FormField } from '../../../components/ui/FormField'
 import { FooterActions } from '../../../components/ui/FooterActions'
 import './index.scss'
 import { notifySuccess, notifyError } from '../../../utils/notifyError'
@@ -261,28 +262,26 @@ const ProfilePage: React.FC = () => {
           {/* 右侧信息 */}
           <div className="profile-info">
             <form className="profile-form" onSubmit={(e) => { e.preventDefault(); handleSubmit() }}>
-              <div className="form-group">
-                <label className="form-label field-required">用户名</label>
-                <input
-                  type="text"
-                  className="form-input"
-                  value={username}
-                  onChange={e => setUsername(e.target.value)}
-                  placeholder="请输入用户名"
-                  maxLength={100}
-                />
-              </div>
+              <FormField
+                label="用户名"
+                labelClassName="form-label field-required"
+                type="text"
+                className="form-input"
+                value={username}
+                onChange={e => setUsername(e.target.value)}
+                placeholder="请输入用户名"
+                maxLength={100}
+              />
 
-              <div className="form-group">
-                <label className="form-label field-required">邮箱</label>
-                <input
-                  type="email"
-                  className="form-input"
-                  value={email}
-                  onChange={e => setEmail(e.target.value)}
-                  placeholder="请输入邮箱"
-                />
-              </div>
+              <FormField
+                label="邮箱"
+                labelClassName="form-label field-required"
+                type="email"
+                className="form-input"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                placeholder="请输入邮箱"
+              />
 
               {error && <div className="form-error">{error}</div>}
 

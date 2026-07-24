@@ -4,6 +4,7 @@ import { EmptyState } from '../../../../components/ui/EmptyState'
 import { Button } from '../../../../components/ui/Button'
 import { FooterActions } from '../../../../components/ui/FooterActions'
 import './index.scss'
+import { Icon } from '../../../../components/ui/Icon'
 
 interface TemplateSelectorProps {
   visible: boolean
@@ -43,7 +44,7 @@ export const TemplateSelector: React.FC<TemplateSelectorProps> = ({
       <div className="template-selector-modal" onClick={(e) => e.stopPropagation()}>
         <div className="template-selector-header">
           <h3>选择模板</h3>
-          <button type="button" className="template-selector-close" onClick={handleClose} aria-label="关闭">✕</button>
+          <button type="button" className="template-selector-close" onClick={handleClose} aria-label="关闭"><Icon name="close" size={16} /></button>
         </div>
 
         <div className="template-selector-body">

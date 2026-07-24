@@ -9,6 +9,7 @@ import { notifyError } from '../../../utils/notifyError'
 import { getCaptcha } from '../../../services/api'
 import { Button } from '../../../components/ui/Button'
 import { PasswordField } from '../../../components/ui/PasswordField'
+import { FormField } from '../../../components/ui/FormField'
 
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('')
@@ -63,18 +64,16 @@ const LoginPage: React.FC = () => {
       <p className="form-desc">欢迎回来，请输入您的账户信息</p>
 
       <form onSubmit={(e) => { e.preventDefault(); handleSubmit() }}>
-        <div className="form-group">
-          <label htmlFor="loginEmail">邮箱地址</label>
-          <input
-            id="loginEmail"
-            type="email"
-            placeholder="your@email.com"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            autoComplete="email"
-          />
-        </div>
+        <FormField
+          id="loginEmail"
+          label="邮箱地址"
+          type="email"
+          placeholder="your@email.com"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+          autoComplete="email"
+        />
 
         <PasswordField
           id="loginPass"
@@ -86,8 +85,7 @@ const LoginPage: React.FC = () => {
           autoComplete="current-password"
         />
 
-        <div className="form-group">
-          <label htmlFor="captchaCode">验证码</label>
+        <FormField id="captchaCode" label="验证码">
           <div className="captcha-row">
             <input
               id="captchaCode"
@@ -109,7 +107,7 @@ const LoginPage: React.FC = () => {
               />
             )}
           </div>
-        </div>
+        </FormField>
 
         <Button type="submit" variant="primary" block size="lg" className="btn-submit" disabled={loading}>
           {loading ? '登录中...' : '登 录'}
