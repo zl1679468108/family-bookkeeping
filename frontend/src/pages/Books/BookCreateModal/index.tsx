@@ -16,7 +16,8 @@ import type { CustomIconItem } from '../../../components/ui/IconGrid';
 import './index.scss';
 import { queryKeys } from '../../../utils/queryKeys'
 import { STALE } from '../../../utils/cachePolicy'
-import { SUCCESS_ICON_UPLOADED, SUCCESS_ICON_DELETED } from '../../../utils/successCopy'
+import { SUCCESS_BOOK_CREATED, SUCCESS_ICON_DELETED, SUCCESS_ICON_UPLOADED, SUCCESS_UPDATED } from '../../../utils/successCopy'
+import { FORM_NAME_REQUIRED } from '../../../utils/formCopy'
 
 interface BookCreateModalProps {
   open: boolean;
@@ -59,7 +60,7 @@ export const BookCreateModal: React.FC<BookCreateModalProps> = ({ open, onClose,
       return isEdit && editTarget ? updateBook({ ...payload, id: editTarget.id }) : createBook(payload);
     },
     {
-      successMessage: isEdit ? '更新成功' : '账本创建成功',
+      successMessage: isEdit ? SUCCESS_UPDATED : SUCCESS_BOOK_CREATED,
       errorMessage: isEdit ? '更新失败' : '创建失败',
       onSuccess: () => {
         onClose();
@@ -70,7 +71,7 @@ export const BookCreateModal: React.FC<BookCreateModalProps> = ({ open, onClose,
 
   const handleSubmit = () => {
     if (!bookName.trim()) {
-      notifyInfo('请输入名称');
+      notifyInfo(FORM_NAME_REQUIRED);
       return;
     }
     mutation.run();

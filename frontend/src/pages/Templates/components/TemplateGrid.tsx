@@ -8,6 +8,7 @@ import { formatAmount } from '../../../utils/common'
 import { transactionTypeLabel } from '../../../utils/transactionType'
 import { busyLabel, ACTION_SAVING } from '../../../utils/actionCopy'
 import { sortModeLabel } from '../../../utils/sortCopy'
+import { EMPTY_TEMPLATES } from '../../../utils/emptyCopy'
 
 interface TemplateGridProps {
   isLoading: boolean
@@ -93,7 +94,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
       />
       {orderedList.length === 0 ? (
         <EmptyState
-          description="还没有交易模板，创建后记账可一键套用"
+          description={EMPTY_TEMPLATES}
         />
       ) : (
         <div className={`list-card-grid${sortingMode ? ' sort-mode' : ''}`}>

@@ -44,6 +44,8 @@ import {
   confirmDeleteThis,
 } from "../../utils/confirmCopy";
 import { successEntityDeleted, successEntityUpsert } from "../../utils/successCopy";
+import { FORM_TEMPLATE_NAME_REQUIRED } from "../../utils/formCopy";
+import { EMPTY_TEMPLATES } from "../../utils/emptyCopy";
 
 /* ---------- 空表单初始态 ---------- */
 const EMPTY_FORM = {
@@ -216,7 +218,7 @@ export default function TemplateManager() {
 
   const handleFormSave = () => {
     if (!form.name.trim()) {
-      toastInfo("请输入模板名称");
+      toastInfo(FORM_TEMPLATE_NAME_REQUIRED);
       return;
     }
     const data: any = {
@@ -326,7 +328,7 @@ export default function TemplateManager() {
       {orderedTemplates.length === 0 ? (
         <View className="tpl-empty">
           <EmptyState
-            description="还没有交易模板，创建后记账可一键套用"
+            description={EMPTY_TEMPLATES}
           />
         </View>
       ) : sortMode ? (

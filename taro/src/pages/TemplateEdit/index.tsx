@@ -33,6 +33,7 @@ import {
   confirmDeleteThis,
 } from "../../utils/confirmCopy";
 import { successEntityDeleted, successEntityUpsert } from "../../utils/successCopy";
+import { FORM_TEMPLATE_NAME_REQUIRED, FORM_CATEGORY_REQUIRED } from "../../utils/formCopy";
 
 type TplType = "expense" | "income";
 
@@ -97,11 +98,11 @@ export default function TemplateEdit() {
   // --- 保存/删除 ---
   const handleSave = () => {
     if (!form.name.trim()) {
-      toastInfo("请输入模板名称");
+      toastInfo(FORM_TEMPLATE_NAME_REQUIRED);
       return;
     }
     if (!form.category_id) {
-      toastInfo("请选择分类");
+      toastInfo(FORM_CATEGORY_REQUIRED);
       return;
     }
     const data: any = {

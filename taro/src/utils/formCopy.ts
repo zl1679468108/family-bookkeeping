@@ -1,0 +1,17 @@
+/** 表单校验 / placeholder 高频文案 — 与 PC 对齐 */
+
+export const FORM_NAME_REQUIRED = "请输入名称";
+export const FORM_INVITE_CODE_REQUIRED = "请输入邀请码";
+export const FORM_INVITE_CODE_MIN = "邀请码至少需要4位";
+export const FORM_AMOUNT_INVALID = "请输入有效金额";
+export const FORM_CATEGORY_REQUIRED = "请选择分类";
+export const FORM_TEMPLATE_NAME_REQUIRED = "请输入模板名称";
+export const FORM_EMAIL_REQUIRED = "请输入邮箱地址";
+export const FORM_EMAIL_PASSWORD_REQUIRED = "请输入邮箱和密码";
+export const FORM_CAPTCHA_REQUIRED = "请输入验证码";
+export const FORM_PASSWORD_CURRENT = "请输入当前密码";
+export const FORM_USERNAME_REQUIRED = "用户名不能为空";
+export const FORM_BUDGET_NONE = "请至少设置一个分类的预算金额";
+export const FORM_SELECT_PLACEHOLDER = "请选择";
+export const FORM_PEER_EMAIL_PLACEHOLDER = "请输入对方的邮箱";
+export const FORM_INVITE_CODE_PLACEHOLDER = "请输入邀请码";

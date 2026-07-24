@@ -24,6 +24,7 @@ import "./index.scss";
 import { toastSuccess, toastInfo } from "../../utils/toast";
 import { userDisplayName, userInitial } from "../../utils/userDisplay";
 import { SUCCESS_ACCOUNT_SWITCHED } from "../../utils/successCopy";
+import { FORM_EMAIL_PASSWORD_REQUIRED, FORM_CAPTCHA_REQUIRED } from "../../utils/formCopy";
 
 export default function Profile() {
   const { user, signOut, signIn, switchByToken } = useAuth();
@@ -158,11 +159,11 @@ export default function Profile() {
 
   const handleLogin = async () => {
     if (!loginEmail.trim() || !loginPassword.trim()) {
-      setLoginError("请输入邮箱和密码");
+      setLoginError(FORM_EMAIL_PASSWORD_REQUIRED);
       return;
     }
     if (!captchaCode.trim()) {
-      setLoginError("请输入验证码");
+      setLoginError(FORM_CAPTCHA_REQUIRED);
       return;
     }
     setLoginError("");

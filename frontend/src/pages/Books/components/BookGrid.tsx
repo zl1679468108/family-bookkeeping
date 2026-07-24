@@ -4,6 +4,7 @@ import { Button } from '../../../components/ui/Button';
 import { Skeleton } from '../../../components/ui/Skeleton';
 import { EmptyState } from '../../../components/ui/EmptyState';
 import { getBookIconByKey } from '../../../utils/bookIcons';
+import { EMPTY_BOOKS } from '../../../utils/emptyCopy'
 
 interface BookGridProps {
   loading: boolean;
@@ -69,7 +70,7 @@ export const BookGrid: React.FC<BookGridProps> = ({
       />
       {books.length === 0 ? (
         <EmptyState
-          description="还没有任何账本，创建第一个或等待他人邀请加入"
+          description={EMPTY_BOOKS}
         />
       ) : (
         <div className="list-card-grid">

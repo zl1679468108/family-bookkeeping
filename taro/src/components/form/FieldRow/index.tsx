@@ -7,6 +7,7 @@
 import { ReactNode } from "react";
 import { View, Text, Input } from "@tarojs/components";
 import "./index.scss";
+import { FORM_SELECT_PLACEHOLDER } from "../../../utils/formCopy";
 
 export interface FieldRowProps {
   label: string;
@@ -31,7 +32,7 @@ export default function FieldRow({
   required = false,
   variant = "picker",
   value,
-  placeholder = "请选择",
+  placeholder = FORM_SELECT_PLACEHOLDER,
   onClick,
   inputValue,
   inputPlaceholder,

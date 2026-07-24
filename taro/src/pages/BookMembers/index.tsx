@@ -3,7 +3,7 @@
  */
 import { useState, useCallback } from "react";
 import { View, Text, Input } from "@tarojs/components";
-import Taro, { getCurrentInstance } from "@tarojs/taro";
+import {  getCurrentInstance  } from "@tarojs/taro";
 import { useQueryClient } from "@tanstack/react-query";
 import { useManualQuery } from "../../hooks/useManualQuery";
 import { useSubmit, toastError } from "../../hooks/useSubmit";
@@ -25,7 +25,9 @@ import {
   CONFIRM_REMOVE_TEXT,
   confirmRemoveMember,
 } from "../../utils/confirmCopy";
-import { SUCCESS_INVITE_COPIED } from "../../utils/successCopy";
+import { SUCCESS_INVITE_COPIED, SUCCESS_INVITE_SENT, SUCCESS_MEMBER_REMOVED } from "../../utils/successCopy";
+import { FORM_PEER_EMAIL_PLACEHOLDER } from "../../utils/formCopy";
+import { copyToClipboard } from "../../utils/clipboard";
 
 interface Member {
   id: string;
@@ -52,7 +54,7 @@ export default function BookMembers() {
     run(async () => {
       const res = await createInvitation(bookId);
       setInviteCode(res.code);
-      Taro.setClipboardData({ data: res.code });
+      void copyToClipboard(res.code);
       toastSuccess(SUCCESS_INVITE_COPIED);
     }, "生成中…").catch((err: any) => {
       toastError(err, "生成失败");
@@ -87,7 +89,7 @@ export default function BookMembers() {
     if (!removeTarget) return;
     run(async () => {
       await removeMember(bookId, removeTarget.userId);
-      toastSuccess("成员已移除");
+      toastSuccess(SUCCESS_MEMBER_REMOVED);
       setRemoveTarget(null);
       qc.invalidateQueries({ queryKey: ["books", bookId, "members"] });
     }, "移除中…").catch((err: any) => {
@@ -100,7 +102,7 @@ export default function BookMembers() {
     if (!inviteEmail.trim()) return;
     run(async () => {
       await inviteMember(bookId, inviteEmail.trim());
-      toastSuccess("邀请已发送");
+      toastSuccess(SUCCESS_INVITE_SENT);
       setInviteEmail("");
       setShowInvite(false);
       qc.invalidateQueries({ queryKey: ["books", bookId, "members"] });
@@ -151,7 +153,7 @@ export default function BookMembers() {
                   }}
                   value={inviteEmail}
                   onInput={(e: any) => setInviteEmail(e.detail.value)}
-                  placeholder="请输入对方的邮箱"
+                  placeholder={FORM_PEER_EMAIL_PLACEHOLDER}
                   placeholderStyle="color: #999"
                 />
                 <View style={{ display: "flex", gap: "16rpx" }}>
@@ -288,7 +290,7 @@ export default function BookMembers() {
                           backgroundColor: "var(--pr)",
                           boxShadow: "0 4rpx 14rpx rgba(45, 157, 138, 0.25)",
                         }}
-                        onClick={() => Taro.setClipboardData({ data: inviteCode })}
+                        onClick={() => { void copyToClipboard(inviteCode) }}
                       >
                         <Text style={{ fontSize: "24rpx", color: "#fff", fontWeight: 500 }}>
                           复制

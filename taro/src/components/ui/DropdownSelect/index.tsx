@@ -8,6 +8,7 @@ import { View, Text, ScrollView } from "@tarojs/components";
 import { useModalZIndex } from "../GlobalModal/useModalZIndex";
 import { SearchInput } from "../Input";
 import "./index.scss";
+import { FORM_SELECT_PLACEHOLDER } from "../../../utils/formCopy";
 
 export interface DropdownOption {
   key: string;
@@ -30,7 +31,7 @@ export interface DropdownSelectProps {
 }
 
 export function DropdownSelect({
-  options, value, onChange, placeholder = "请选择",
+  options, value, onChange, placeholder = FORM_SELECT_PLACEHOLDER,
   allowClear = false, showSearch = false, searchPlaceholder = "搜索",
   label, required = false, className = "",
 }: DropdownSelectProps) {

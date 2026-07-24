@@ -85,6 +85,12 @@
 
 ### ✅ 已完成
 
+#### 2026-07-24 表单/空态/成功文案扩展与剪贴板复用
+- 双端 `formCopy`：名称/金额/分类/模板/邮箱/验证码等高频校验与 placeholder。
+- 双端 `emptyCopy`：模板/账本/分类/预算/报表空态描述统一。
+- `successCopy` 扩展邀请/账本/成员/登录注册/验证码等；`copyToClipboard` 双端剪贴板 helper。
+- 验证：frontend / taro `tsc --noEmit` 通过。
+
 #### 2026-07-24 月份展示 / 排序文案 / 成功提示 / 类型短标签复用
 - 双端 `formatMonthDisplay` / `formatMonthDisplayCompact`：预算·报表·成员对比月份展示统一。
 - 双端 `sortCopy`：编辑/完成/保存排序与「排序已保存」；PC/Taro 分类·模板工具栏收口。

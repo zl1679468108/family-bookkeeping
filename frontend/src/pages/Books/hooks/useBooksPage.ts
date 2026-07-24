@@ -12,6 +12,12 @@ import { notify } from '../../../utils/notifications';
 import { useMutationAction } from '../../../hooks/useMutationAction';
 import { queryKeys } from '../../../utils/queryKeys'
 import { STALE } from '../../../utils/cachePolicy'
+import {
+  SUCCESS_INVITE_SENT,
+  SUCCESS_INVITE_CODE_GENERATED,
+  SUCCESS_MEMBER_REMOVED,
+  successEntityDeleted,
+} from '../../../utils/successCopy'
 
 export interface InviteCodeData {
   code: string;
@@ -63,7 +69,7 @@ export function useBooksPage() {
       inviteMember(bookId, email),
     {
       invalidateKeys: [queryKeys.books.membersRoot],
-      successMessage: '邀请已发送',
+      successMessage: SUCCESS_INVITE_SENT,
       errorMessage: '邀请失败，请检查邮箱',
       onSuccess: closeAllDialogs,
     },
@@ -72,7 +78,7 @@ export function useBooksPage() {
   const inviteCodeMutation = useMutationAction(
     (bookId: string) => createInvitation(bookId),
     {
-      successMessage: '邀请码已生成',
+      successMessage: SUCCESS_INVITE_CODE_GENERATED,
       errorMessage: '生成邀请码失败',
     },
   )
@@ -93,7 +99,7 @@ export function useBooksPage() {
   const deleteMutation = useMutationAction(
     (bookId: string) => deleteBook(bookId),
     {
-      successMessage: '账本已删除',
+      successMessage: successEntityDeleted('账本'),
       errorMessage: '删除失败',
       onSuccess: () => {
         closeAllDialogs();
@@ -107,7 +113,7 @@ export function useBooksPage() {
       removeMember(bookId, userId),
     {
       invalidateKeys: [queryKeys.books.membersRoot],
-      successMessage: '成员已移除',
+      successMessage: SUCCESS_MEMBER_REMOVED,
       errorMessage: '移除失败',
       onSuccess: () => {
         setShowMemberConfirm(false);

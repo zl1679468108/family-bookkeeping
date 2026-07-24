@@ -14,6 +14,7 @@ import { toastError } from "../../../../hooks/useSubmit";
 import { toastSuccess } from "../../../../utils/toast";
 import { isBookOwnerRole, bookMemberRoleLabel } from "../../../../utils/roles";
 import { userDisplayName } from "../../../../utils/userDisplay";
+import { SUCCESS_INVITE_SENT } from "../../../../utils/successCopy";
 
 interface BookCardProps {
   book: Book;
@@ -55,7 +56,7 @@ export default function BookCard({
       .then(() => {
         setInviteEmail("");
         setInviting(false);
-        toastSuccess("邀请已发送");
+        toastSuccess(SUCCESS_INVITE_SENT);
       })
       .catch((err: any) => {
         toastError(err, "邀请失败");

@@ -42,6 +42,7 @@ import {
 } from "../../utils/confirmCopy";
 import { SUCCESS_DELETED, successEntityUpsert } from "../../utils/successCopy";
 import { categoryTypeTabLabel } from "../../utils/transactionType";
+import { FORM_NAME_REQUIRED } from "../../utils/formCopy";
 
 interface CustomIconItem {
   id: string;
@@ -143,7 +144,7 @@ export default function CategoryEdit() {
   // --- 提交/删除（手动 Promise 链，规避 Taro 下 useMutation 卡死）---
   const handleSave = () => {
     if (!form.name.trim()) {
-      toastInfo("请输入名称");
+      toastInfo(FORM_NAME_REQUIRED);
       return;
     }
     const payload = { name: form.name.trim(), icon: form.icon };

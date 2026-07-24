@@ -5,6 +5,7 @@ import { FooterActions } from '../../../components/ui/FooterActions';
 import { Input } from '../../../components/ui/Input';
 ;
 import { notifyError } from '../../../utils/notifyError'
+import { FORM_EMAIL_REQUIRED } from '../../../utils/formCopy'
 
 interface InviteMemberModalProps {
   open: boolean;
@@ -27,7 +28,7 @@ export const InviteMemberModal: React.FC<InviteMemberModalProps> = ({
 }) => {
   const handleInvite = () => {
     if (!inviteEmail.trim()) {
-      notifyError('请输入邮箱地址');
+      notifyError(FORM_EMAIL_REQUIRED);
       return;
     }
     if (selectedBook) {

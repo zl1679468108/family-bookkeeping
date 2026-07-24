@@ -12,6 +12,7 @@ import { useSubmit, toastError } from "../../../hooks/useSubmit";
 import "./index.scss";
 import { toastSuccess } from "../../../utils/toast";
 import { validatePasswordMatch, validatePasswordMinLength } from "../../../utils/validation";
+import { SUCCESS_REGISTER } from "../../../utils/successCopy";
 
 export default function Register() {
   const { isDark } = useTheme();
@@ -44,7 +45,7 @@ export default function Register() {
     setError("");
     run(async () => {
       await signUp(email.trim(), password, username.trim());
-      toastSuccess("注册成功");
+      toastSuccess(SUCCESS_REGISTER);
       setTimeout(() => Taro.reLaunch({ url: "/pages/Home/index" }), 600);
     }, "注册中…").catch((err: any) => {
       toastError(err, "注册失败");

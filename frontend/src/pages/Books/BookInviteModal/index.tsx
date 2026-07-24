@@ -12,6 +12,7 @@ import { getErrorMessage } from '../../../utils/errorMessage'
 import { queryKeys } from '../../../utils/queryKeys'
 import { INVITE_CODE_HELP_LABEL, INVITE_CODE_HELP_BODY } from '../../../utils/inviteCopy'
 import { SUCCESS_JOINED } from '../../../utils/successCopy'
+import { FORM_INVITE_CODE_MIN } from '../../../utils/formCopy'
 
 interface BookInviteModalProps {
   open: boolean;
@@ -42,7 +43,7 @@ export const BookInviteModal: React.FC<BookInviteModalProps> = ({ open, onClose,
   const handleSubmit = () => {
     const code = inviteCode.trim();
     if (code.length < 4) {
-      notifyInfo('邀请码至少需要4位');
+      notifyInfo(FORM_INVITE_CODE_MIN);
       return;
     }
     if (joiningRef.current) return;

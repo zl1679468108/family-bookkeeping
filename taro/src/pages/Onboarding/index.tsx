@@ -19,6 +19,7 @@ import "./index.scss";
 import { toastSuccess, toastInfo } from "../../utils/toast";
 import { INVITE_CODE_HELP } from "../../utils/inviteCopy";
 import { SUCCESS_CREATED, SUCCESS_JOINED } from "../../utils/successCopy";
+import { FORM_NAME_REQUIRED, FORM_INVITE_CODE_REQUIRED, FORM_INVITE_CODE_PLACEHOLDER } from "../../utils/formCopy";
 
 type Mode = "choice" | "create" | "join";
 
@@ -42,7 +43,7 @@ export default function Onboarding() {
 
   const handleCreate = () => {
     if (!name.trim()) {
-      toastInfo("请输入名称");
+      toastInfo(FORM_NAME_REQUIRED);
       return;
     }
     run(async () => {
@@ -64,7 +65,7 @@ export default function Onboarding() {
   const handleJoin = () => {
     const trimmed = code.trim().toUpperCase();
     if (!trimmed) {
-      toastInfo("请输入邀请码");
+      toastInfo(FORM_INVITE_CODE_REQUIRED);
       return;
     }
     run(async () => {
@@ -207,7 +208,7 @@ export default function Onboarding() {
             <Text className="ob-label">邀请码</Text>
             <Input
               className="ob-input ob-input--code"
-              placeholder="请输入邀请码"
+              placeholder={FORM_INVITE_CODE_PLACEHOLDER}
               maxlength={32}
               value={code}
               onInput={(e: any) => setCode(e.detail.value.toUpperCase())}

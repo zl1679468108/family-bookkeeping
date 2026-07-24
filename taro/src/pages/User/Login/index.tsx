@@ -12,6 +12,8 @@ import { useSubmit, toastError } from "../../../hooks/useSubmit";
 import { getCaptcha } from "../../../services/authApi";
 import "./index.scss";
 import { toastSuccess } from "../../../utils/toast";
+import { FORM_EMAIL_PASSWORD_REQUIRED, FORM_CAPTCHA_REQUIRED } from "../../../utils/formCopy";
+import { SUCCESS_LOGIN } from "../../../utils/successCopy";
 
 export default function Login() {
   const { isDark } = useTheme();
@@ -46,17 +48,17 @@ export default function Login() {
 
   const handleSubmit = () => {
     if (!email.trim() || !password.trim()) {
-      setError("请输入邮箱和密码");
+      setError(FORM_EMAIL_PASSWORD_REQUIRED);
       return;
     }
     if (!captchaCode.trim()) {
-      setError("请输入验证码");
+      setError(FORM_CAPTCHA_REQUIRED);
       return;
     }
     setError("");
     run(async () => {
       await signIn(email.trim(), password, captchaId, captchaCode);
-      toastSuccess("登录成功");
+      toastSuccess(SUCCESS_LOGIN);
       setTimeout(() => {
         try {
           const pages = Taro.getCurrentPages();

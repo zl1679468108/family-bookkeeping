@@ -40,6 +40,14 @@ import {
   CONFIRM_DELETE_TEXT,
   CONFIRM_DELETE_BOOK_GENERIC,
 } from "../../utils/confirmCopy";
+import { FORM_NAME_REQUIRED } from "../../utils/formCopy";
+import {
+  SUCCESS_BOOK_CREATED,
+  SUCCESS_UPDATED,
+  SUCCESS_OWNERSHIP_TRANSFERRED,
+  SUCCESS_DELETED,
+  successEntityDeleted,
+} from "../../utils/successCopy";
 
 interface Member {
   id: string;
@@ -181,7 +189,7 @@ export default function BookSettings() {
     deleteIcon(iconId)
       .then(() => {
         refreshCustomIcons();
-        toastSuccess("已删除");
+        toastSuccess(SUCCESS_DELETED);
       })
       .catch(() => toastInfo("删除失败"));
   };
@@ -193,7 +201,7 @@ export default function BookSettings() {
 
   const handleCreate = () => {
     if (!addName.trim()) {
-      toastInfo("请输入名称");
+      toastInfo(FORM_NAME_REQUIRED);
       return;
     }
     const data: { name: string; description?: string; icon?: string } = {
@@ -204,7 +212,7 @@ export default function BookSettings() {
     run(async () => {
       await createBook(data);
       qc.invalidateQueries({ queryKey: ["books"] });
-      toastSuccess("账本创建成功");
+      toastSuccess(SUCCESS_BOOK_CREATED);
       setTimeout(() => Taro.navigateBack(), 500);
     }, "创建中…").catch((err: any) => {
       toastError(err, "创建失败");
@@ -214,7 +222,7 @@ export default function BookSettings() {
   // ===== 编辑模式：提交 =====
   const handleSubmitEdit = () => {
     if (!editName.trim()) {
-      toastInfo("请输入名称");
+      toastInfo(FORM_NAME_REQUIRED);
       return;
     }
     run(async () => {
@@ -224,7 +232,7 @@ export default function BookSettings() {
         icon: editIcon,
       });
       qc.invalidateQueries({ queryKey: ["books"] });
-      toastSuccess("更新成功");
+      toastSuccess(SUCCESS_UPDATED);
       setTimeout(() => Taro.navigateBack(), 500);
     }, ACTION_SAVING).catch((err: any) => {
       toastError(err, "保存失败");
@@ -243,7 +251,7 @@ export default function BookSettings() {
     run(async () => {
       await transferOwner(bookId, transferEmail.trim(), transferPassword);
       qc.invalidateQueries({ queryKey: ["books"] });
-      toastSuccess("所有权已转移");
+      toastSuccess(SUCCESS_OWNERSHIP_TRANSFERRED);
       setShowTransfer(false);
     }, "转移中…").catch((err: any) => {
       toastError(err, "转移失败");
@@ -255,7 +263,7 @@ export default function BookSettings() {
     run(async () => {
       await deleteBook(bookId);
       qc.invalidateQueries({ queryKey: ["books"] });
-      toastSuccess("账本已删除");
+      toastSuccess(successEntityDeleted("账本"));
       setTimeout(() => Taro.navigateBack(), 500);
     }, ACTION_DELETING).catch((err: any) => {
       toastError(err, "删除失败");

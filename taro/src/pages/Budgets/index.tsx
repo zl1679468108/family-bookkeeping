@@ -29,7 +29,8 @@ import {
   CONFIRM_COPY_BUDGET_MESSAGE,
   CONFIRM_COPY_BUDGET_TEXT,
 } from "../../utils/confirmCopy";
-import { SUCCESS_BUDGET_SAVED } from "../../utils/successCopy";
+import { SUCCESS_BUDGET_SAVED, successCopiedCount } from "../../utils/successCopy";
+import { EMPTY_BUDGET_NO_EXPENSE_CATEGORIES } from "../../utils/emptyCopy";
 
 /* ---------- 类型 ---------- */
 interface BudgetDetail {
@@ -175,7 +176,7 @@ export default function BudgetsPage() {
         toastInfo("上月暂无预算可复制");
         return;
       }
-      toastSuccess(`已复制 ${result.length} 条`);
+      toastSuccess(successCopiedCount(result.length));
       refetchBudgets();
       refetchStatus();
     }, ACTION_COPYING).catch((err: any) => {
@@ -309,7 +310,7 @@ export default function BudgetsPage() {
       {expenseCats.length === 0 ? (
         <View className="bdg-empty">
           <EmptyState
-            description="暂无支出分类，先添加分类再设置本月预算"
+            description={EMPTY_BUDGET_NO_EXPENSE_CATEGORIES}
             action={
               <Button
                 variant="primary"

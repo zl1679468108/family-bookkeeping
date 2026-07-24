@@ -13,6 +13,7 @@ import { ApiError } from "../../../services/api";
 import "./index.scss";
 import { toastSuccess, toastInfo } from "../../../utils/toast";
 import { validatePasswordMatch, validatePasswordMinLength } from "../../../utils/validation";
+import { SUCCESS_CODE_SENT, SUCCESS_PASSWORD_RESET } from "../../../utils/successCopy";
 
 type Step = "email" | "code" | "success";
 
@@ -59,7 +60,7 @@ export default function ForgotPassword() {
     setError("");
     run(async () => {
       await sendResetCode(email.trim());
-      toastSuccess("验证码已发送");
+      toastSuccess(SUCCESS_CODE_SENT);
       setSuccess(`验证码已发送至 ${email.trim()}`);
       setStep("code");
       startCountdown();
@@ -83,7 +84,7 @@ export default function ForgotPassword() {
     setError("");
     run(async () => {
       await resetPasswordByCode(email.trim(), code.trim(), password, confirmPassword);
-      toastSuccess("密码重置成功");
+      toastSuccess(SUCCESS_PASSWORD_RESET);
       setStep("success");
     }, "重置中…").catch((err: any) => {
       toastError(err, "重置失败");

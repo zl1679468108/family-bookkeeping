@@ -36,6 +36,17 @@ import {
   confirmDeleteBook,
   confirmRemoveMember,
 } from "../../utils/confirmCopy";
+import { FORM_EMAIL_REQUIRED, FORM_PEER_EMAIL_PLACEHOLDER } from "../../utils/formCopy";
+import {
+  SUCCESS_JOINED,
+  SUCCESS_INVITE_SENT,
+  SUCCESS_INVITE_CODE_GENERATED,
+  SUCCESS_INVITE_COPIED,
+  SUCCESS_MEMBER_REMOVED,
+  successEntityDeleted,
+  successSwitchedBook,
+} from "../../utils/successCopy";
+import { copyToClipboard } from "../../utils/clipboard";
 
 type BookRow = Book & { is_default?: boolean };
 
@@ -86,7 +97,7 @@ export default function BooksPage() {
       await joinByInvitation(code.toUpperCase());
       setShowJoinSheet(false);
       setJoinCode("");
-      toastSuccess("加入成功");
+      toastSuccess(SUCCESS_JOINED);
       refetch();
     }, "加入中…").catch((err: any) => {
       toastError(err, "加入失败");
@@ -177,12 +188,12 @@ export default function BooksPage() {
   const handleInviteSubmit = () => {
     const email = inviteEmail.trim();
     if (!email) {
-      toastInfo("请输入邮箱地址");
+      toastInfo(FORM_EMAIL_REQUIRED);
       return;
     }
     run(async () => {
       await inviteMember(detailBook!.id, email);
-      toastSuccess("邀请已发送");
+      toastSuccess(SUCCESS_INVITE_SENT);
       setInviteEmail("");
       setDetailMode("info");
       refetchMembers();
@@ -205,7 +216,7 @@ export default function BooksPage() {
     run(async () => {
       const data = await createInvitation(detailBook!.id);
       setInviteCodeData(data);
-      toastSuccess("邀请码已生成");
+      toastSuccess(SUCCESS_INVITE_CODE_GENERATED);
     }, "生成中…").catch((err: any) => {
       toastError(err, "生成失败");
     });
@@ -213,8 +224,8 @@ export default function BooksPage() {
 
   const handleCopyCode = async () => {
     if (inviteCodeData?.code) {
-      await Taro.setClipboardData({ data: inviteCodeData.code });
-      toastSuccess("已复制邀请码");
+      await copyToClipboard(inviteCodeData.code);
+      toastSuccess(SUCCESS_INVITE_COPIED);
     }
   };
 
@@ -229,7 +240,7 @@ export default function BooksPage() {
     if (!target) return;
     run(async () => {
       await deleteBook(target.id);
-      toastSuccess("账本已删除");
+      toastSuccess(successEntityDeleted("账本"));
       setDeletingBook(null);
       closeDetail();
       refetch();
@@ -243,7 +254,7 @@ export default function BooksPage() {
     if (!removingMember || !detailBook) return;
     run(async () => {
       await removeMember(detailBook.id, removingMember.id);
-      toastSuccess("成员已移除");
+      toastSuccess(SUCCESS_MEMBER_REMOVED);
       setRemovingMember(null);
       setShowRemoveConfirm(false);
       refetchMembers();
@@ -262,7 +273,7 @@ export default function BooksPage() {
       return;
     }
     switchBook(book);
-    toastSuccess(`已切换到「${book.name}」`);
+    toastSuccess(successSwitchedBook(book.name));
   };
 
   const handleConfirmSwitch = () => {
@@ -538,7 +549,7 @@ export default function BooksPage() {
                     <Text className="bk-form-label bk-form-label--required">邮箱地址</Text>
                     <Input
                       className="bk-form-input bk-form-input--underlined"
-                      placeholder="请输入对方的邮箱"
+                      placeholder={FORM_PEER_EMAIL_PLACEHOLDER}
                       value={inviteEmail}
                       onInput={(e: any) => setInviteEmail(e.detail.value)}
                       type="text"

@@ -39,6 +39,8 @@ import {
 } from '../../utils/confirmCopy'
 import { formatMonthDisplay } from '../../utils/month'
 import { SUCCESS_BUDGET_SAVED, SUCCESS_BUDGET_DELETED } from '../../utils/successCopy'
+import { FORM_BUDGET_NONE } from '../../utils/formCopy'
+import { EMPTY_BUDGET_NO_EXPENSE_CATEGORIES } from '../../utils/emptyCopy'
 
 const progressFillClass = (variant: 'safe' | 'warn' | 'danger'): string => {
   switch (variant) {
@@ -153,7 +155,7 @@ const Budgets: React.FC = () => {
   const handleSave = () => {
     const budgetsArray = buildBudgetPayload(editValues)
     if (budgetsArray.length === 0) {
-      notifyInfo('请至少设置一个分类的预算金额')
+      notifyInfo(FORM_BUDGET_NONE)
       return
     }
     void upsertBudgetRun({
@@ -316,7 +318,7 @@ const Budgets: React.FC = () => {
           </div>
         ) : expenseCategories.length === 0 ? (
           <EmptyState
-            description="暂无支出分类，请先在分类管理中添加"
+            description={EMPTY_BUDGET_NO_EXPENSE_CATEGORIES}
             action={
               <EmptyActionButton size="sm" onClick={() => navigate('/categories')}>
                 去添加分类

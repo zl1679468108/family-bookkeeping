@@ -16,6 +16,7 @@ import { CategoryRankChart } from './components/CategoryRankChart'
 import { useReportData, PeriodType } from './hooks/useReportData'
 import { formatAmount } from '../../utils/common'
 import { formatMonthDisplay } from '../../utils/month'
+import { EMPTY_NO_CATEGORY_DATA, EMPTY_NO_TRANSACTIONS_PERIOD } from '../../utils/emptyCopy'
 
 const Reports: React.FC = () => {
   const navigate = useNavigate()
@@ -133,7 +134,7 @@ const Reports: React.FC = () => {
                   {mergedDefaultBreakdown.length > 0 ? (
                     <CategoryRankChart data={mergedDefaultBreakdown} height="280px" />
                   ) : (
-                    <EmptyState variant="compact" description="暂无分类数据，请等待加载或切换时间段" />
+                    <EmptyState variant="compact" description={EMPTY_NO_CATEGORY_DATA} />
                   )}
                 </>
               )}
@@ -175,7 +176,7 @@ const Reports: React.FC = () => {
                 />
                 {!chartHasData && (
                   <div style={{ position: 'relative', marginTop: '-300px', height: '300px', display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none', background: 'var(--bg-card)' }}>
-                    <EmptyState description="当前时间段内没有交易记录" action={<EmptyAddTransactionAction label="开始记账" onClick={() => navigate('/add?type=expense')} />} />
+                    <EmptyState description={EMPTY_NO_TRANSACTIONS_PERIOD} action={<EmptyAddTransactionAction label="开始记账" onClick={() => navigate('/add?type=expense')} />} />
                   </div>
                 )}
               </>

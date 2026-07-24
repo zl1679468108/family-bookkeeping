@@ -29,3 +29,22 @@ export function successTemplateApplied(name: string): string {
 export function successEntityDeleted(entity: string): string {
   return `${entity}已删除`;
 }
+
+export const SUCCESS_INVITE_SENT = "邀请已发送";
+export const SUCCESS_INVITE_CODE_GENERATED = "邀请码已生成";
+export const SUCCESS_MEMBER_REMOVED = "成员已移除";
+export const SUCCESS_BOOK_CREATED = "账本创建成功";
+export const SUCCESS_UPDATED = "更新成功";
+export const SUCCESS_LOGIN = "登录成功";
+export const SUCCESS_REGISTER = "注册成功";
+export const SUCCESS_CODE_SENT = "验证码已发送";
+export const SUCCESS_PASSWORD_RESET = "密码重置成功";
+export const SUCCESS_OWNERSHIP_TRANSFERRED = "所有权已转移";
+
+export function successSwitchedBook(name: string): string {
+  return `已切换到「${name}」`;
+}
+
+export function successCopiedCount(count: number, noun = "条"): string {
+  return `已复制 ${count} ${noun}`;
+}

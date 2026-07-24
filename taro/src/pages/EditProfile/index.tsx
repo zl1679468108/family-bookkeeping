@@ -39,6 +39,7 @@ import {
   validatePasswordStrength,
 } from "../../utils/validation";
 import { SUCCESS_PASSWORD_CHANGED, SUCCESS_SAVED } from "../../utils/successCopy";
+import { FORM_USERNAME_REQUIRED, FORM_PASSWORD_CURRENT } from "../../utils/formCopy";
 
 export default function EditProfile() {
   const { user, refreshUser } = useAuth();
@@ -118,7 +119,7 @@ export default function EditProfile() {
   // ---- 保存资料 ----
   const handleSave = useCallback(() => {
     if (!username.trim()) {
-      return toastInfo("用户名不能为空");
+      return toastInfo(FORM_USERNAME_REQUIRED);
     }
 
     const emailErr = validateEmail(email);
@@ -156,7 +157,7 @@ export default function EditProfile() {
 
   const handleChangePwd = useCallback(() => {
     if (!oldPwd) {
-      return toastInfo("请输入当前密码");
+      return toastInfo(FORM_PASSWORD_CURRENT);
     }
     const pwdErr =
       validatePasswordMinLength(newPwd, { message: "新密码长度至少为 6 位" }) ||

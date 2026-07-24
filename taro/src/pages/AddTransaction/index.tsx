@@ -37,6 +37,7 @@ import {
   CONFIRM_DELETE_LOADING,
 } from "../../utils/confirmCopy";
 import { successEntityDeleted, successTemplateApplied, successTransactionSaved } from "../../utils/successCopy";
+import { FORM_AMOUNT_INVALID, FORM_CATEGORY_REQUIRED } from "../../utils/formCopy";
 
 interface Template {
   id: string;
@@ -217,11 +218,11 @@ export default function AddTransaction() {
   // 提交
   const handleSubmit = () => {
     if (!isValidPositiveAmount(amount)) {
-      toastInfo("请输入有效金额");
+      toastInfo(FORM_AMOUNT_INVALID);
       return;
     }
     if (!categoryId) {
-      toastInfo("请选择分类");
+      toastInfo(FORM_CATEGORY_REQUIRED);
       return;
     }
 

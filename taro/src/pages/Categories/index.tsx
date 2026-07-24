@@ -52,6 +52,8 @@ import {
   confirmDeleteCategory,
 } from "../../utils/confirmCopy";
 import { SUCCESS_DELETED, SUCCESS_ICON_UPLOADED, successEntityUpsert } from "../../utils/successCopy";
+import { FORM_NAME_REQUIRED } from "../../utils/formCopy";
+import { emptyCategories } from "../../utils/emptyCopy";
 
 /* ---------- 类型 ---------- */
 interface Category {
@@ -206,7 +208,7 @@ export default function CategoriesPage() {
   // ---- 表单提交（手动 Promise 链，规避 Taro 下 useMutation 卡死）----
   const handleFormSubmit = () => {
     if (!formName.trim()) {
-      toastInfo("请输入名称");
+      toastInfo(FORM_NAME_REQUIRED);
       return;
     }
     const name = formName.trim();
@@ -331,7 +333,7 @@ export default function CategoriesPage() {
         {filtered.length === 0 ? (
           <View className="cats-empty">
             <EmptyState
-              description={`暂无${transactionTypeLabel(catType)}分类，添加第一个让收支归类更清晰`}
+              description={emptyCategories(transactionTypeLabel(catType))}
             />
           </View>
         ) : sortMode ? (

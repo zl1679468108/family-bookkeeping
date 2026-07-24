@@ -6,6 +6,7 @@ import type { InviteCodeData } from '../hooks/useBooksPage';
 import { notifySuccess } from '../../../utils/notifyError'
 import { formatDateTimeMinute } from '../../../utils/date'
 import { SUCCESS_INVITE_COPIED } from '../../../utils/successCopy'
+import { copyToClipboard } from '../../../utils/clipboard'
 
 interface InviteCodeModalProps {
   open: boolean;
@@ -20,7 +21,7 @@ export const InviteCodeModal: React.FC<InviteCodeModalProps> = ({
 }) => {
   const handleCopy = () => {
     if (inviteCode) {
-      navigator.clipboard?.writeText(inviteCode.code);
+      void copyToClipboard(inviteCode.code)
       notifySuccess(SUCCESS_INVITE_COPIED);
     }
   };

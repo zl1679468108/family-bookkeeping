@@ -23,6 +23,7 @@ import {
   saveAddTransactionDraft,
 } from '../../../utils/addTransactionDraft'
 import { successTemplateApplied } from '../../../utils/successCopy'
+import { FORM_AMOUNT_INVALID, FORM_CATEGORY_REQUIRED } from '../../../utils/formCopy'
 
 export const MAX_NOTE_LENGTH = 500
 export const MAX_IMAGES = 10
@@ -208,11 +209,11 @@ export function useTransactionForm() {
   const { run: handleSubmit, isRunning: submitInProgress } = useMutationAction(
     async (): Promise<SubmitResult> => {
       if (!isValidPositiveAmount(formData.amount)) {
-        notifyInfo('请输入有效金额')
+        notifyInfo(FORM_AMOUNT_INVALID)
         return 'invalid'
       }
       if (!formData.category) {
-        notifyInfo('请选择分类')
+        notifyInfo(FORM_CATEGORY_REQUIRED)
         return 'invalid'
       }
 

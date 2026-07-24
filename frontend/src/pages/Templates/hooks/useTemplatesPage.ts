@@ -12,6 +12,7 @@ import { useBook } from '../../../hooks/useBook'
 import { queryKeys } from '../../../utils/queryKeys'
 import { STALE } from '../../../utils/cachePolicy'
 import { successEntityDeleted, successEntityUpsert } from '../../../utils/successCopy'
+import { FORM_TEMPLATE_NAME_REQUIRED } from '../../../utils/formCopy'
 
 export function useTemplatesPage() {
   const { currentBook } = useBook()
@@ -112,7 +113,7 @@ export function useTemplatesPage() {
 
   const { run: handleSave, isRunning: saveLoading } = useMutationAction(async () => {
     if (!form.name.trim()) {
-      notifyInfo('请输入模板名称')
+      notifyInfo(FORM_TEMPLATE_NAME_REQUIRED)
       return
     }
     const data: CreateTemplateInput = {
