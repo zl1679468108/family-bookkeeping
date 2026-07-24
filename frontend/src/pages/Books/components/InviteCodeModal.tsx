@@ -2,6 +2,7 @@ import React from 'react';
 import { format } from 'date-fns';
 import { GlobalModal } from '../../../components/ui';
 import { Button } from '../../../components/ui/Button';
+import { FooterActions } from '../../../components/ui/FooterActions';
 import { notify } from '../../../utils/notifications';
 import type { InviteCodeData } from '../hooks/useBooksPage';
 
@@ -30,11 +31,11 @@ export const InviteCodeModal: React.FC<InviteCodeModalProps> = ({
       title="邀请码已生成"
       width={460}
       footer={
-        <div className="global-modal-dialog__footer-inner">
+        <FooterActions align="end" className="global-modal-dialog__footer-inner">
           <Button variant="primary" onClick={handleCopy}>
             复制邀请码
           </Button>
-        </div>
+        </FooterActions>
       }
     >
       <div style={{ textAlign: 'center' }}>

@@ -20,7 +20,7 @@ import { EmptyActionButton } from '../../components/ui/EmptyState/emptyActions'
 import { NumberInput } from '../../components/ui/Input'
 import { EmptyState } from '../../components/ui/EmptyState'
 import { DropdownSelect } from '../../components/ui/Dropdown'
-import { budgetStatusToVariant, budgetVariantLabel } from '../../utils/budget'
+import { budgetStatusToVariant, budgetVariantLabel, formatMoney } from '../../utils/budget'
 
 const formatMonthToDisplay = (monthStr: string): string => {
   const date = new Date(monthStr)
@@ -343,8 +343,8 @@ const Budgets: React.FC = () => {
                   <div className="budget-card__amount">
                     {budget > 0 ? (
                       <>
-                        <span>¥{spent.toLocaleString('zh-CN')} / ¥{budget.toLocaleString('zh-CN')}</span>
-                        <span className="budget-card__remaining">剩余 ¥{remaining.toLocaleString('zh-CN')}</span>
+                        <span>{formatMoney(spent)} / {formatMoney(budget)}</span>
+                        <span className="budget-card__remaining">剩余 {formatMoney(remaining)}</span>
                       </>
                     ) : (
                       <span className="budget-card__unset">未设置预算</span>
@@ -400,9 +400,9 @@ const Budgets: React.FC = () => {
           <div className="detail-divider" />
           <div className="detail-grid">
             <DetailItem label="使用进度" value={`${selectedBudget.progress}%`} />
-            <DetailItem label="已使用" value={`¥${selectedBudget.spent.toLocaleString('zh-CN')}`} />
-            <DetailItem label="预算" value={`¥${selectedBudget.budget.toLocaleString('zh-CN')}`} />
-            <DetailItem label="剩余" value={`¥${selectedBudget.remaining.toLocaleString('zh-CN')}`} />
+            <DetailItem label="已使用" value={formatMoney(selectedBudget.spent)} />
+            <DetailItem label="预算" value={formatMoney(selectedBudget.budget)} />
+            <DetailItem label="剩余" value={formatMoney(selectedBudget.remaining)} />
             <DetailItem
               label="状态"
               value={budgetVariantLabel(budgetStatusToVariant(selectedBudget.status))}
