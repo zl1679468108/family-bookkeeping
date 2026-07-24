@@ -30,6 +30,11 @@ import { toastSuccess, toastInfo } from "../../utils/toast";
 import { ACTION_LOADING, ACTION_PULL_LOAD_MORE, ACTION_LIST_END } from "../../utils/actionCopy";
 import { SUCCESS_REFRESH } from "../../utils/successCopy";
 import { ERROR_REFRESH } from "../../utils/errorCopy";
+import {
+  buildPageLayoutClassName,
+  buildPageLayoutContentClassName,
+  buildPageLayoutInnerClassName,
+} from "../../utils/pageLayout";
 
 interface PageLayoutProps {
   children: ReactNode;
@@ -142,12 +147,13 @@ export default function PageLayout({
       ) : null;
 
     return (
-      <View className={`min-h-screen bg-bg flex flex-col page-layout ${themeClass} ${className}`}>
+      <View className={buildPageLayoutClassName({ themeClass, className })}>
         {header}
         <View
-          className={`page-layout-content ${
-            loadingVariant === "overlay" ? "page-layout-content--overlay" : ""
-          } ${contentClassName}`}
+          className={buildPageLayoutContentClassName({
+            className: contentClassName,
+            extra: loadingVariant === "overlay" ? "page-layout-content--overlay" : "",
+          })}
           style={contentStyle}
         >
           {loadingVariant === "overlay" || !skeletonBody ? (
@@ -163,7 +169,7 @@ export default function PageLayout({
   // 下拉刷新 + 上拉加载
   if (enableRefresh || onLoadMore) {
     return (
-      <View className={`min-h-screen bg-bg flex flex-col page-layout ${themeClass} ${className}`}>
+      <View className={buildPageLayoutClassName({ themeClass, className })}>
         {header}
         <ScrollView
           className="flex-1 overflow-y-auto page-layout-scroll"
@@ -215,7 +221,7 @@ export default function PageLayout({
           onScrollToLower={onLoadMore ? handleScrollToLower : undefined}
           lowerThreshold={lowerThreshold}
         >
-          <View className={`page-layout-inner ${contentClassName}`} style={contentStyle}>
+          <View className={buildPageLayoutInnerClassName({ className: contentClassName })} style={contentStyle}>
             {children}
             {onLoadMore && (
               <View className="page-loadmore">
@@ -240,10 +246,10 @@ export default function PageLayout({
   // 普通滚动容器
   if (scrollable) {
     return (
-      <View className={`min-h-screen bg-bg flex flex-col page-layout ${themeClass} ${className}`}>
+      <View className={buildPageLayoutClassName({ themeClass, className })}>
         {header}
         <View
-          className={`flex-1 overflow-y-auto page-layout-content ${contentClassName}`}
+          className={buildPageLayoutContentClassName({ className: contentClassName, extra: "flex-1 overflow-y-auto" })}
           style={contentStyle}
         >
           {children}
@@ -253,9 +259,9 @@ export default function PageLayout({
   }
 
   return (
-    <View className={`min-h-screen bg-bg flex flex-col page-layout ${themeClass} ${className}`}>
+    <View className={buildPageLayoutClassName({ themeClass, className })}>
       {header}
-      <View className={`page-layout-content ${contentClassName}`} style={contentStyle}>
+      <View className={buildPageLayoutContentClassName({ className: contentClassName })} style={contentStyle}>
         {children}
       </View>
     </View>

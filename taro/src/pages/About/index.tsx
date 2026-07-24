@@ -26,6 +26,10 @@ import {
 } from "../../config/version";
 import { TITLE_USER_AGREEMENT, TITLE_PRIVACY_POLICY } from "../../utils/sectionCopy";
 import "./index.scss";
+import {
+  buildTimelineItemClassName,
+  buildTimelineChevronClassName,
+} from "../../utils/timeline";
 
 export default function About() {
   const [expandedVersions, setExpandedVersions] = useState<Set<string>>(
@@ -78,7 +82,7 @@ export default function About() {
             return (
               <View
                 key={entry.version}
-                className={`timeline-item${isLatest ? " timeline-item--latest" : ""}`}
+                className={buildTimelineItemClassName({ latest: isLatest })}
               >
                 <View className="timeline-dot" />
                 <View className="timeline-body">
@@ -94,7 +98,7 @@ export default function About() {
                     </View>
                     <View className="timeline-header-right">
                       <Text className="timeline-date">{entry.date}</Text>
-                      <Icon name="chevron-right" size={28} color={ICON_COLOR.muted} className={`timeline-chevron${isExpanded ? " expanded" : ""}`} />
+                      <Icon name="chevron-right" size={28} color={ICON_COLOR.muted} className={buildTimelineChevronClassName({ expanded: isExpanded })} />
                     </View>
                   </View>
 

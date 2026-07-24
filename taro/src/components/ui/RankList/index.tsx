@@ -6,7 +6,7 @@ import { ReactNode } from "react";
 import { View, Text } from "@tarojs/components";
 import "./index.scss";
 import { clampPercent, type RankType, type RankStatus } from "../../../utils/rankProgress";
-import { buildRankRowClassName } from "../../../utils/rankRow";
+import { buildRankRowClassName, buildRankListAmountClassName } from "../../../utils/rankRow";
 import { EMPTY_NO_DATA } from "../../../utils/emptyCopy";
 
 export type { RankType, RankStatus };
@@ -78,7 +78,7 @@ export function ReportRankList({ items, emptyText = EMPTY_NO_DATA }: { items: Re
             <Text className="ui-rank-list__label">{it.label}</Text>
             {it.tag ? <View className="ui-rank-list__tag">{it.tag}</View> : null}
           </View>
-          <Text className={`ui-rank-list__amount ui-rank-list__amount--${it.type || "neutral"}`}>{it.amount}</Text>
+          <Text className={buildRankListAmountClassName({ type: it.type })}>{it.amount}</Text>
         </View>
       ))}
     </View>

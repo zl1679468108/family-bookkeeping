@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { formatAmount, formatAmountPair } from '../../../utils/common'
 import { resolveRankProgress, clampPercent, rankFillTone, type RankType, type RankStatus } from '../../../utils/rankProgress'
-import { buildRankRowClassName } from '../../../utils/rankRow'
+import { buildRankRowClassName, buildRankFillClassName } from '../../../utils/rankRow'
 import { BUDGET_LABEL_OVER_BANG } from '../../../utils/budget'
 
 /**
@@ -57,7 +57,7 @@ export const RankRow: React.FC<RankRowItem> = ({
         <div className="rank-row__progress">
           {progressPercent !== undefined && (
             <div className="rank-row__bar">
-              <div className={`fill ${fillClass}`} style={{ width: `${clampPercent(progressPercent)}%` }} />
+              <div className={buildRankFillClassName({ tone: fillClass })} style={{ width: `${clampPercent(progressPercent)}%` }} />
             </div>
           )}
           <div className="rank-row__meta">

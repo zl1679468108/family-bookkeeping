@@ -13,6 +13,7 @@ import { NAV_HOME, NAV_TRANSACTIONS, NAV_WORKBENCH, NAV_PROFILE } from "../../ut
 import { STORAGE_THEME_TARO } from "../../utils/storageKeys";
 import { getThemeTokenHex } from "../../utils/themeTokens";
 import "./index.scss";
+import { buildTabBarItemClassName } from "../../utils/tabBar";
 
 const THEME_STORAGE_KEY = STORAGE_THEME_TARO;
 
@@ -79,7 +80,7 @@ export default function TabBar() {
         return (
           <View
             key={it.path}
-            className={`tab-bar-item ${active ? "tab-bar-item--active" : ""}`}
+            className={buildTabBarItemClassName({ active })}
             onClick={() => handleClick(it.path)}
           >
             <Icon name={it.icon} size={44} color={iconColor(active, isDark)} />

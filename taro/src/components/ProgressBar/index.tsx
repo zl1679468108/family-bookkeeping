@@ -1,5 +1,6 @@
 import { View, Text } from "@tarojs/components";
 import "./index.scss";
+import { buildProgressBarFillClassName } from "../../utils/progressBar";
 
 interface ProgressBarProps {
   label: string;
@@ -30,7 +31,7 @@ export default function ProgressBar({
       )}
       <View className="progress-bar">
         <View
-          className={`progress-bar-fill ${danger ? "progress-bar-fill--danger" : ""}`}
+          className={buildProgressBarFillClassName({ danger })}
           style={{ width: `${pct}%` }}
         />
       </View>

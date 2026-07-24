@@ -85,6 +85,11 @@
 
 ### ✅ 已完成
 
+#### 2026-07-24 页面展示 class 与 Taro 壳组件 shared 化
+- timeline / transactionDisplay / budgetDisplay / listCard：About、Dashboard、流水、预算卡、list-card
+- tabBar / progressBar / dragSortList / pageLayout / Rank fill·amount；Taro Home/TransactionItem 接线
+- 验证：frontend / taro `tsc --noEmit`
+
 #### 2026-07-24 图片附件区/AuthLayout shared 化
 - `imageUpload`：容量判断 + PC/Taro 附件区 class；ImageUploadSection / ImageUpload 接线
 - `authLayout`：装饰圆常量/style + auth-page/illus/form class；AuthLayout 接线

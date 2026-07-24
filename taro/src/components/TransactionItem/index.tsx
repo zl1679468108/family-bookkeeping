@@ -9,6 +9,12 @@ import { View, Text, Image } from "@tarojs/components";
 import "./index.scss";
 import { ACTION_DELETE } from "../../utils/actionCopy";
 import { FIELD_ATTACHMENT } from "../../utils/fieldCopy";
+import {
+  buildTxiAmountClassName,
+  buildTxiIconClassName,
+  buildTxiMainClassName,
+  buildTxiDeleteClassName,
+} from "../../utils/transactionDisplay";
 
 export interface TransactionItemProps {
   icon: string;
@@ -82,7 +88,7 @@ export default function TransactionItem({
       {/* 滑动删除按钮 */}
       {onDelete && (
         <View
-          className={`txi-delete ${swiped ? "txi-delete--show" : ""}`}
+          className={buildTxiDeleteClassName({ show: swiped })}
           onClick={handleDelete}
         >
           <Text className="txi-delete-text">{ACTION_DELETE}</Text>
@@ -91,7 +97,7 @@ export default function TransactionItem({
 
       {/* 主内容区 */}
       <View
-        className={`txi-main ${swiped ? "txi-main--swiped" : ""}`}
+        className={buildTxiMainClassName({ swiped })}
         onClick={() => {
           if (swiped) {
             setSwiped(false);
@@ -106,7 +112,7 @@ export default function TransactionItem({
       >
         {/* 左侧：分类图标 */}
         <View className="txi-left">
-          <View className={`txi-icon ${isExpense ? "txi-icon--expense" : "txi-icon--income"}`}>
+          <View className={buildTxiIconClassName({ isExpense })}>
             {icon && (icon.startsWith("http://") || icon.startsWith("https://")) ? (
               <Image className="txi-icon-img" src={icon} mode="aspectFit" />
             ) : (
@@ -138,7 +144,7 @@ export default function TransactionItem({
 
         {/* 右侧：金额 */}
         <View className="txi-right">
-          <Text className={`txi-amount ${isExpense ? "txi-amount--expense" : "txi-amount--income"}`}>
+          <Text className={buildTxiAmountClassName({ isExpense })}>
             {amountStr}
           </Text>
         </View>

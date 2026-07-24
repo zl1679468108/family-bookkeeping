@@ -28,3 +28,25 @@ export function buildRankRowClassName(opts: {
   }
   return cx(prefix, opts.className)
 }
+
+/** PC RankList 进度条 fill + tone */
+export function buildRankFillClassName(opts: {
+  tone?: string
+  className?: ClassValue
+  prefix?: string
+} = {}): string {
+  const prefix = opts.prefix || 'fill'
+  return cx(prefix, opts.tone, opts.className)
+}
+
+/** Taro ReportRank 金额 tone */
+export function buildRankListAmountClassName(opts: {
+  type?: RankType | string
+  className?: ClassValue
+  prefix?: string
+} = {}): string {
+  const prefix = opts.prefix || 'ui-rank-list__amount'
+  const type = opts.type || 'neutral'
+  return cx(prefix, `${prefix}--${type}`, opts.className)
+}
+

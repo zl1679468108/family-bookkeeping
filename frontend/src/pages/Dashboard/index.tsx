@@ -31,6 +31,17 @@ import { ACTION_VIEW_ALL,
 import { FIELD_MONTH_BALANCE, FIELD_MONTH_INCOME, FIELD_MONTH_EXPENSE } from '../../utils/fieldCopy'
 import { HOME_RECENT_TX_PAGE_SIZE } from '../../utils/pagination'
 import { ENTITY_TRANSACTION, transactionCountLabel, totalTransactionCountLabel } from '../../utils/entityCopy'
+import {
+  buildTxnAmountClassName,
+} from '../../utils/transactionDisplay'
+import {
+  buildBudgetSummaryClassName,
+  buildBudgetSummaryPctClassName,
+  buildBudgetSummaryFillClassName,
+  buildBudgetItemClassName,
+  buildBudgetItemBadgeClassName,
+  buildBudgetItemFillClassName,
+} from '../../utils/budgetDisplay'
 
 const Dashboard: React.FC = () => {
   const navigate = useNavigate()
@@ -177,7 +188,7 @@ const Dashboard: React.FC = () => {
                       <span>{formatMonthDay(txn.date)}</span>
                     </div>
                   </div>
-                  <div className={`txn-amount ${txn.type === 'expense' ? 'debit' : 'credit'}`}>
+                  <div className={buildTxnAmountClassName({ type: txn.type, prefix: 'txn-amount' })}>
                     <span className="txn-sign">{txn.type === 'expense' ? '−' : '+'}</span>
                     {formatAmount(txn.amount)}
                   </div>
@@ -225,16 +236,16 @@ const Dashboard: React.FC = () => {
               }
             />
 
-            <div className={`dash-budget-summary dash-budget-summary--${overallVariant}`}>
+            <div className={buildBudgetSummaryClassName({ variant: overallVariant })}>
               <div className="dash-budget-summary__row">
                 <span className="dash-budget-summary__label">本月总进度</span>
-                <span className={`dash-budget-summary__pct dash-budget-summary__pct--${overallVariant}`}>
+                <span className={buildBudgetSummaryPctClassName({ variant: overallVariant })}>
                   {budgetStatus.overallProgress}%
                 </span>
               </div>
               <div className="dash-budget-summary__bar">
                 <div
-                  className={`dash-budget-summary__fill dash-budget-summary__fill--${overallVariant}`}
+                  className={buildBudgetSummaryFillClassName({ variant: overallVariant })}
                   style={{ width: `${Math.min(budgetStatus.overallProgress, 100)}%` }}
                 />
               </div>
@@ -260,7 +271,7 @@ const Dashboard: React.FC = () => {
                 return (
                   <div
                     key={cat.category_id}
-                    className={`dash-budget-item dash-budget-item--${variant}`}
+                    className={buildBudgetItemClassName({ variant })}
                     onClick={() => navigate(`/budgets?focus=${cat.category_id}`)}
                     role="button"
                     tabIndex={0}
@@ -277,7 +288,7 @@ const Dashboard: React.FC = () => {
                     <div className="dash-budget-item__body">
                       <div className="dash-budget-item__top">
                         <span className="dash-budget-item__name">{cat.category_name}</span>
-                        <span className={`dash-budget-item__badge dash-budget-item__badge--${variant}`}>
+                        <span className={buildBudgetItemBadgeClassName({ variant })}>
                           {variant === 'danger' ? BUDGET_LABEL_OVER : `${cat.progress}%`}
                         </span>
                       </div>
@@ -293,7 +304,7 @@ const Dashboard: React.FC = () => {
                       </div>
                       <div className="dash-budget-item__bar">
                         <div
-                          className={`dash-budget-item__fill dash-budget-item__fill--${variant}`}
+                          className={buildBudgetItemFillClassName({ variant })}
                           style={{ width: `${Math.min(Math.max(cat.progress, 0), 100)}%` }}
                         />
                       </div>

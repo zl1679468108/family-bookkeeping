@@ -30,6 +30,14 @@ import { CATEGORY_FALLBACK_OTHER } from "../../utils/categories"
 import { HOME_RECENT_TX_PAGE_SIZE } from "../../utils/pagination";
 import { transactionCountLabel } from "../../utils/entityCopy";
 import { transactionTypeShortLabel } from "../../utils/transactionType";
+import {
+  buildHomeTxnAmountClassName,
+  buildHomeTxnIconClassName,
+} from "../../utils/transactionDisplay";
+import {
+  buildBudgetCardBarClassName,
+  buildBudgetCardRowOverClassName,
+} from "../../utils/budgetDisplay";
 
 interface BudgetStatus {
   category_id: string;
@@ -188,7 +196,7 @@ export default function Home() {
                   }
                 >
                   {/* 图标容器：圆角方形背景 */}
-                  <View className={`home-txn-icon ${isExpense ? "home-txn-icon--exp" : "home-txn-icon--inc"}`}>
+                  <View className={buildHomeTxnIconClassName({ isExpense })}>
                     {catIcon ? (
                       renderCategoryIcon(catIcon, { size: 32, fontScale: 0.85 })
                     ) : (
@@ -205,7 +213,7 @@ export default function Home() {
                   </View>
 
                   {/* 金额 */}
-                  <Text className={`home-txn-amt ${isExpense ? "home-txn-amt--exp" : "home-txn-amt--inc"}`}>
+                  <Text className={buildHomeTxnAmountClassName({ isExpense })}>
                     {formatMoney(Number(t.amount), { wan: true, showSign: true, sign: isExpense ? "-" : "+" })}
                   </Text>
                 </View>
@@ -230,7 +238,7 @@ export default function Home() {
         {totalBudget > 0 && (
           <View className="budget-card__bar-wrap">
             <View
-              className={`budget-card__bar budget-card__bar--${getBudgetVariant(budgetPercent)}`}
+              className={buildBudgetCardBarClassName({ variant: getBudgetVariant(budgetPercent) })}
               style={{ width: `${Math.min(budgetPercent, 100)}%` }}
             />
           </View>
@@ -250,19 +258,19 @@ export default function Home() {
                 <View className="budget-card__row-info">
                   <Text className="budget-card__row-name">{b.category_name}</Text>
                   <Text
-                    className={`budget-card__row-amt ${b.is_over_budget ? "budget-card__row-amt--over" : ""}`}
+                    className={buildBudgetCardRowOverClassName({ over: b.is_over_budget, part: "amt" })}
                   >
                     {formatMoney(b.spent_amount, { wan: true })} / {formatMoney(b.budget_amount, { wan: true })}
                   </Text>
                 </View>
                 <View className="budget-card__row-bar-wrap">
                   <View
-                    className={`budget-card__row-bar ${b.is_over_budget ? "budget-card__row-bar--over" : ""}`}
+                    className={buildBudgetCardRowOverClassName({ over: b.is_over_budget, part: "bar" })}
                     style={{ width: `${Math.min(b.percentage, 100)}%` }}
                   />
                 </View>
                 <Text
-                  className={`budget-card__row-pct ${b.is_over_budget ? "budget-card__row-pct--over" : ""}`}
+                  className={buildBudgetCardRowOverClassName({ over: b.is_over_budget, part: "pct" })}
                 >
                   {(b.percentage ?? 0).toFixed(0)}%
                 </Text>

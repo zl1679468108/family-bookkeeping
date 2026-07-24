@@ -11,6 +11,10 @@ import { sortModeLabel } from '../../../utils/sortCopy'
 import { EMPTY_TEMPLATES } from '../../../utils/emptyCopy'
 import { entityCreateButton, ENTITY_TEMPLATE } from '../../../utils/entityCopy'
 import { TITLE_TRANSACTION_TEMPLATES } from "../../../utils/sectionCopy"
+import {
+  buildListCardClassName,
+  buildListCardGridClassName,
+} from '../../../utils/listCard'
 
 interface TemplateGridProps {
   isLoading: boolean
@@ -99,14 +103,14 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
           description={EMPTY_TEMPLATES}
         />
       ) : (
-        <div className={`list-card-grid${sortingMode ? ' sort-mode' : ''}`}>
+        <div className={buildListCardGridClassName({ sortMode: sortingMode })}>
           {orderedList.map((t, idx) => {
           const cat = getCategoryInfo(t.category_id)
           const isDragging = dragIndex === idx
           return (
             <div
               key={t.id}
-              className={`list-card${isDragging ? ' dragging' : ''}`}
+              className={buildListCardClassName({ dragging: isDragging })}
               draggable={sortingMode}
               onDragStart={() => onDragStart(idx)}
               onDragOver={(e) => onDragOver(e, idx)}

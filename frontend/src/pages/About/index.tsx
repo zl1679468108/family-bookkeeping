@@ -17,6 +17,11 @@ import {
 } from '../../config/version'
 import { Icon } from '../../components/ui/Icon'
 import './index.scss'
+import {
+  buildTimelineItemClassName,
+  buildTimelineChevronClassName,
+  buildTimelineChangesClassName,
+} from '../../utils/timeline'
 
 const AboutPage: React.FC = () => {
   const [expandedVersions, setExpandedVersions] = useState<Set<string>>(
@@ -101,7 +106,7 @@ const AboutPage: React.FC = () => {
                 return (
                   <div
                     key={entry.version}
-                    className={`timeline-item${isLatest ? ' timeline-item--latest' : ''}`}
+                    className={buildTimelineItemClassName({ latest: isLatest })}
                   >
                     <div className="timeline-dot" />
                     <div className="timeline-content">
@@ -120,12 +125,12 @@ const AboutPage: React.FC = () => {
                           <Icon
                             name="chevron-down"
                             size={14}
-                            className={`timeline-chevron${isExpanded ? ' expanded' : ''}`}
+                            className={buildTimelineChevronClassName({ expanded: isExpanded })}
                           />
                         </div>
                       </button>
 
-                      <div className={`timeline-changes${isExpanded ? ' expanded' : ''}`}>
+                      <div className={buildTimelineChangesClassName({ expanded: isExpanded })}>
                         <ul className="timeline-list">
                           {entry.changes.map((change, i) => (
                             <li key={i} className="timeline-change">{change}</li>

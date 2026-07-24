@@ -4,6 +4,9 @@ import { EmptyState } from '../../../components/ui/EmptyState'
 import { EmptyActionButton } from '../../../components/ui/EmptyState/emptyActions'
 import type { Category } from '@family-bookkeeping/shared-types'
 import { EMPTY_CATEGORIES_GENERIC } from '../../../utils/emptyCopy'
+import {
+  buildListCardClassName,
+} from '../../../utils/listCard'
 
 interface CategoryListProps {
   orderedList: Category[]
@@ -52,7 +55,7 @@ export const CategoryList: React.FC<CategoryListProps> = ({
         return (
           <div
             key={cat.id}
-            className={`list-card${isDragging ? ' dragging' : ''}`}
+            className={buildListCardClassName({ dragging: isDragging })}
             draggable={sortingMode}
             onDragStart={() => handleDragStart(idx)}
             onDragOver={(e) => handleDragOver(e, idx)}

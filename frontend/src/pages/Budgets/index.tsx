@@ -39,6 +39,9 @@ import { EMPTY_BUDGET_NO_EXPENSE_CATEGORIES } from '../../utils/emptyCopy'
 import { ERROR_BUDGET_SAVE_FAILED, ERROR_COPY_BUDGET_FAILED } from '../../utils/errorCopy'
 import { DETAIL_BUDGET, ENTITY_BUDGET, entityEditNamedTitle, ACTION_EDIT_BUDGET, ACTION_DELETE_BUDGET } from '../../utils/entityCopy'
 import { FIELD_PROGRESS, FIELD_SPENT, FIELD_BUDGET_AMOUNT, FIELD_REMAINING, FIELD_STATUS, FIELD_MONTH } from '../../utils/fieldCopy'
+import {
+  buildListCardClassName,
+} from '../../utils/listCard'
 
 const Budgets: React.FC = () => {
   const navigate = useNavigate()
@@ -322,7 +325,7 @@ const Budgets: React.FC = () => {
                 <div
                   key={cat.name}
                   data-focus={catKey}
-                  className={`list-card${statusClass}${isFocused ? ' spotlight--focused' : ''}`}
+                  className={buildListCardClassName({ statusClass, focused: isFocused })}
                   onClick={() => {
                     setSelectedBudget({ category: cat, spent, budget, progress, status, remaining })
                     setShowDetail(true)

@@ -24,6 +24,10 @@
 import { useState, useRef, useCallback, ReactNode } from "react";
 import { View } from "@tarojs/components";
 import "./index.scss";
+import {
+  buildDragSortListClassName,
+  buildDragSortItemClassName,
+} from "../../utils/dragSortList";
 
 export interface DragSortListProps<T> {
   items: T[];
@@ -135,7 +139,7 @@ export function DragSortList<T>({
   };
 
   return (
-    <View className={`drag-sort-list ${className}`}>
+    <View className={buildDragSortListClassName({ className })}>
       <View
         style={{
           position: "relative",
@@ -164,7 +168,7 @@ export function DragSortList<T>({
           return (
             <View
               key={getKey(item)}
-              className={`drag-sort-list__item ${isActive ? "drag-sort-list__item--active" : ""}`}
+              className={buildDragSortItemClassName({ active: isActive })}
               style={{
                 height: `${itemHeight}rpx`,
                 transform: isActive

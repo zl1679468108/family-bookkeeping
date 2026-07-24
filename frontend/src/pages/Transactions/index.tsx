@@ -44,6 +44,9 @@ import {
 import { FORM_SEARCH_TXN, FORM_MIN_AMOUNT, FORM_MAX_AMOUNT } from '../../utils/formCopy'
 import { FIELD_BRAND, FIELD_DESCRIPTION, FIELD_PLACE, FIELD_COORDINATES, FIELD_CREATED_AT, FIELD_ATTACHMENT, fieldAttachmentCount } from '../../utils/fieldCopy'
 import { attachmentImageAlt } from '../../utils/uploadCopy'
+import {
+  buildTxnAmountClassName,
+} from '../../utils/transactionDisplay'
 
 const PAGE_SIZE = 20
 
@@ -368,7 +371,7 @@ const Transactions: React.FC = () => {
                           {t.description || getCategoryName(t.category)}
                         </span>
                       </td>
-                      <td className={`cell-amount ${t.type === 'expense' ? 'debit' : 'credit'}`}>
+                      <td className={buildTxnAmountClassName({ type: t.type })}>
                         {formatAmountByType(t.amount, t.type)}
                       </td>
                     </tr>
