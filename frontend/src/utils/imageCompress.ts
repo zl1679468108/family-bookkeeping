@@ -2,6 +2,9 @@
  * Canvas 图片压缩工具
  * 将图片缩放至指定宽度，输出 JPEG Blob
  */
+import { fitWithinMaxWidth } from './imageSize'
+import { IMAGE_COMPRESS_FAILED, IMAGE_LOAD_FAILED } from './uploadCopy'
+
 export function compressImage(
   file: File,
   maxWidth: number = 1200,
@@ -19,11 +22,9 @@ export function compressImage(
     img.onload = () => {
       URL.revokeObjectURL(url);
 
-      let { width, height } = img;
-      if (width > maxWidth) {
-        height = (height / width) * maxWidth;
-        width = maxWidth;
-      }
+      const size = fitWithinMaxWidth(img.width, img.height, maxWidth)
+      const width = size.width
+      const height = size.height
 
       const canvas = document.createElement('canvas');
       canvas.width = width;
@@ -36,7 +37,7 @@ export function compressImage(
           if (blob) {
             resolve(blob);
           } else {
-            reject(new Error('图片压缩失败'));
+            reject(new Error(IMAGE_COMPRESS_FAILED));
           }
         },
         'image/jpeg',
@@ -46,7 +47,7 @@ export function compressImage(
 
     img.onerror = () => {
       URL.revokeObjectURL(url);
-      reject(new Error('图片加载失败'));
+      reject(new Error(IMAGE_LOAD_FAILED));
     };
 
     img.src = url;

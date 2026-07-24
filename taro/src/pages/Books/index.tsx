@@ -31,11 +31,7 @@ import { bookMemberRoleLabel, isBookOwnerRole } from "../../utils/roles";
 import { INVITE_CODE_HELP_LABEL, INVITE_CODE_HELP_BODY } from "../../utils/inviteCopy";
 import { userDisplayName } from "../../utils/userDisplay";
 import { ACTION_DELETING, ACTION_LOADING } from "../../utils/actionCopy";
-import {
-  CONFIRM_REMOVE_TITLE,
-  confirmDeleteBook,
-  confirmRemoveMember,
-} from "../../utils/confirmCopy";
+import { CONFIRM_REMOVE_TITLE, confirmDeleteBook, confirmRemoveMember, CONFIRM_DELETE_BOOK_TITLE } from "../../utils/confirmCopy";
 import { FORM_ALREADY_CURRENT_BOOK, FORM_EMAIL_REQUIRED, FORM_PEER_EMAIL_PLACEHOLDER } from "../../utils/formCopy";
 import { validateEmail } from "../../utils/validation";
 import { validateInviteCode, normalizeInviteCode } from "../../utils/validation";
@@ -704,7 +700,7 @@ export default function BooksPage() {
       {/* 删除确认弹窗 */}
       <ConfirmDialog
         visible={showDeleteConfirm}
-        title="删除账本"
+        title={CONFIRM_DELETE_BOOK_TITLE}
         message={confirmDeleteBook(deletingBook?.name || detailBook?.name || "该账本")}
         confirmText="删除"
         danger

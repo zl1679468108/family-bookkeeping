@@ -41,7 +41,7 @@ import {
   CONFIRM_DELETE_TEXT,
   CONFIRM_DELETE_BOOK_GENERIC,
 } from "../../utils/confirmCopy";
-import { FORM_PRIVACY_REQUIRED, FORM_OWNER_EMAIL_REQUIRED, FORM_PASSWORD_VERIFY } from "../../utils/formCopy";
+import { FORM_PRIVACY_REQUIRED, FORM_OWNER_EMAIL_REQUIRED, FORM_PASSWORD_VERIFY, FORM_MEMBER_EMAIL_PLACEHOLDER } from "../../utils/formCopy";
 import { validateEmail } from "../../utils/validation";
 import { SUCCESS_BOOK_CREATED, SUCCESS_CUSTOM_ICON_ADDED, SUCCESS_DELETED, SUCCESS_OWNERSHIP_TRANSFERRED, SUCCESS_UPDATED, successEntityDeleted } from "../../utils/successCopy";
 import { entityFormTitle, ENTITY_BOOK } from "../../utils/entityCopy";
@@ -573,7 +573,7 @@ export default function BookSettings() {
                 <Text className="bs-form-label">新拥有者邮箱</Text>
                 <Input
                   className="bs-form-input"
-                  placeholder="请输入该成员的账号邮箱"
+                  placeholder={FORM_MEMBER_EMAIL_PLACEHOLDER}
                   value={transferEmail}
                   onInput={(e: any) => setTransferEmail(e.detail.value)}
                 />

@@ -5,7 +5,7 @@ import { FooterActions } from '../../../components/ui/FooterActions';
 import { Input } from '../../../components/ui/Input';
 import { notifyError } from '../../../utils/notifyError'
 import { validateEmail } from '../../../utils/validation'
-import { FORM_EMAIL_REQUIRED } from '../../../utils/formCopy'
+import { FORM_EMAIL_REQUIRED, FORM_PEER_EMAIL_PLACEHOLDER } from '../../../utils/formCopy'
 
 interface InviteMemberModalProps {
   open: boolean;
@@ -60,7 +60,7 @@ export const InviteMemberModal: React.FC<InviteMemberModalProps> = ({
         <Input
           label="邮箱地址"
           type="email"
-          placeholder="请输入对方的邮箱"
+          placeholder={FORM_PEER_EMAIL_PLACEHOLDER}
           value={inviteEmail}
           onChange={(e) => onEmailChange(e.target.value)}
           autoFocus

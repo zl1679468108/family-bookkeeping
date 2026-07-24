@@ -19,7 +19,8 @@ import {
   validatePasswordStrength,
 } from '../../../utils/validation'
 import { SUCCESS_AVATAR_SELECTED_HINT, SUCCESS_PASSWORD_CHANGED, SUCCESS_SAVED } from '../../../utils/successCopy'
-import { FORM_PASSWORD_MIN_NEW, FORM_PASSWORD_MISMATCH_NEW } from '../../../utils/formCopy'
+import { FORM_PASSWORD_MIN_NEW, FORM_PASSWORD_MISMATCH_NEW, FORM_PASSWORD_CURRENT, FORM_PASSWORD_CONFIRM_NEW_PLACEHOLDER, FORM_USERNAME_PLACEHOLDER, FORM_EMAIL_PLACEHOLDER } from '../../../utils/formCopy'
+import { fitWithinMaxSide } from '../../../utils/imageSize'
 import {
   isWithinUploadSize,
   UPLOAD_IMAGE_SIZE_LIMIT,
@@ -35,14 +36,8 @@ const compressImage = (file: File, maxSize = 128): Promise<string> =>
       const img = new Image()
       img.onload = () => {
         const canvas = document.createElement('canvas')
-        let { width, height } = img
-        if (width > height) {
-          height = (height / width) * maxSize
-          width = maxSize
-        } else {
-          width = (width / height) * maxSize
-          height = maxSize
-        }
+        const size = fitWithinMaxSide(img.width, img.height, maxSize)
+        let { width, height } = size
         canvas.width = width
         canvas.height = height
         const ctx = canvas.getContext('2d')
@@ -107,7 +102,7 @@ const PasswordModal: React.FC<PasswordModalProps> = ({ visible, onClose }) => {
             labelClassName="form-label field-required"
             value={oldPassword}
             onChange={e => setOldPassword(e.target.value)}
-            placeholder="请输入当前密码"
+            placeholder={FORM_PASSWORD_CURRENT}
             autoComplete="current-password"
           />
           <PasswordField
@@ -123,7 +118,7 @@ const PasswordModal: React.FC<PasswordModalProps> = ({ visible, onClose }) => {
             labelClassName="form-label field-required"
             value={confirmPassword}
             onChange={e => setConfirmPassword(e.target.value)}
-            placeholder="请再次输入新密码"
+            placeholder={FORM_PASSWORD_CONFIRM_NEW_PLACEHOLDER}
             autoComplete="new-password"
           />
 
@@ -277,7 +272,7 @@ const ProfilePage: React.FC = () => {
                 className="form-input"
                 value={username}
                 onChange={e => setUsername(e.target.value)}
-                placeholder="请输入用户名"
+                placeholder={FORM_USERNAME_PLACEHOLDER}
                 maxLength={100}
               />
 
@@ -288,7 +283,7 @@ const ProfilePage: React.FC = () => {
                 className="form-input"
                 value={email}
                 onChange={e => setEmail(e.target.value)}
-                placeholder="请输入邮箱"
+                placeholder={FORM_EMAIL_PLACEHOLDER}
               />
 
               {error && <div className="form-error">{error}</div>}

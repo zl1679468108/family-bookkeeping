@@ -167,6 +167,11 @@
 - 邀请/转移邮箱：FE InviteMemberModal、Taro Books/BookMembers/BookSettings 改用 `validateEmail`（空+格式）
 - 验证：frontend / taro `tsc --noEmit`
 
+#### 2026-07-24 表单占位/图片缩放/账本删除标题 shared 化
+- formCopy 补验证码/用户名/邮箱/密码确认/成员邮箱 placeholder；双端登录/资料/邀请/设置接线
+- 新增 `imageSize`：`fitWithinMaxWidth` / `fitWithinMaxSide`；PC 压缩与头像缩放接线
+- `CONFIRM_DELETE_BOOK_TITLE`；Taro 删除账本标题对齐
+
 #### 2026-07-24 报表序列/占比合并/进度行 shared 化
 - 新增 `reportChart`：日报/月对比/年对比/月趋势序列映射；TrendChart 接线
 - 新增 `categoryBreakdown`：`mergeSortedBreakdowns` / `sumBreakdownAmounts`；useReportData 接线

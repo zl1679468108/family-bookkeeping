@@ -10,6 +10,7 @@ import { getCaptcha } from '../../../services/api'
 import { Button } from '../../../components/ui/Button'
 import { PasswordField } from '../../../components/ui/PasswordField'
 import { FormField } from '../../../components/ui/FormField'
+import { FORM_CAPTCHA_PLACEHOLDER } from '../../../utils/formCopy'
 
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('')
@@ -90,7 +91,7 @@ const LoginPage: React.FC = () => {
             <input
               id="captchaCode"
               type="text"
-              placeholder="请输入验证码"
+              placeholder={FORM_CAPTCHA_PLACEHOLDER}
               value={captchaCode}
               onChange={(e) => setCaptchaCode(e.target.value)}
               required

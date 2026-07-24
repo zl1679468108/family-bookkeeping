@@ -39,7 +39,7 @@ import {
   validatePasswordStrength,
 } from "../../utils/validation";
 import { SUCCESS_AVATAR_UPDATED, SUCCESS_IMAGE_SELECTED, SUCCESS_PASSWORD_CHANGED, SUCCESS_SAVED } from "../../utils/successCopy";
-import { FORM_PASSWORD_CURRENT, FORM_PRIVACY_REQUIRED, FORM_USERNAME_REQUIRED, FORM_PASSWORD_MIN_NEW, FORM_PASSWORD_MISMATCH_NEW } from "../../utils/formCopy";
+import { FORM_PASSWORD_CURRENT, FORM_PRIVACY_REQUIRED, FORM_USERNAME_REQUIRED, FORM_PASSWORD_MIN_NEW, FORM_PASSWORD_MISMATCH_NEW, FORM_USERNAME_PLACEHOLDER, FORM_EMAIL_PLACEHOLDER, FORM_PASSWORD_CONFIRM_NEW_PLACEHOLDER } from "../../utils/formCopy";
 import { IMAGE_SELECT_FAILED } from "../../utils/uploadCopy";
 import { ERROR_SAVE_FAILED_RETRY, ERROR_MODIFY_FAILED_RETRY } from "../../utils/errorCopy";
 import Icon, { ICON_COLOR } from "../../components/Icon";
@@ -214,7 +214,7 @@ export default function EditProfile() {
             className="edit-input"
             value={username}
             maxlength={50}
-            placeholder="请输入用户名"
+            placeholder={FORM_USERNAME_PLACEHOLDER}
             placeholderClass="edit-input-placeholder"
             onInput={(e: any) => setUsername(e.detail.value)}
           />
@@ -224,7 +224,7 @@ export default function EditProfile() {
           <Input
             className="edit-input"
             value={email}
-            placeholder="请输入邮箱"
+            placeholder={FORM_EMAIL_PLACEHOLDER}
             placeholderClass="edit-input-placeholder"
             onInput={(e: any) => setEmail(e.detail.value)}
           />
@@ -261,7 +261,7 @@ export default function EditProfile() {
                 className="pwd-input"
                 password
                 value={oldPwd}
-                placeholder="请输入当前密码"
+                placeholder={FORM_PASSWORD_CURRENT}
                 placeholderClass="pwd-input-placeholder"
                 onInput={(e: any) => setOldPwd(e.detail.value)}
               />
@@ -285,7 +285,7 @@ export default function EditProfile() {
                 className="pwd-input"
                 password
                 value={confirmPwd}
-                placeholder="请再次输入新密码"
+                placeholder={FORM_PASSWORD_CONFIRM_NEW_PLACEHOLDER}
                 placeholderClass="pwd-input-placeholder"
                 onInput={(e: any) => setConfirmPwd(e.detail.value)}
               />

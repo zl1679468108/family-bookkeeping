@@ -3,6 +3,7 @@ import { ACTION_DELETING } from './actionCopy'
 /** 删除 / 移除 / 预算复制 确认弹窗文案（PC + 与 Taro 对齐） */
 
 export const CONFIRM_DELETE_TITLE = '确认删除'
+export const CONFIRM_DELETE_BOOK_TITLE = '删除账本'
 export const CONFIRM_DELETE_TEXT = '确认删除'
 export const CONFIRM_DELETE_LOADING = ACTION_DELETING
 

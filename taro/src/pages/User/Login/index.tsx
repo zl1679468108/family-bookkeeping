@@ -12,7 +12,7 @@ import { useSubmit, toastError } from "../../../hooks/useSubmit";
 import { getCaptcha } from "../../../services/authApi";
 import "./index.scss";
 import { toastSuccess } from "../../../utils/toast";
-import { FORM_EMAIL_PASSWORD_REQUIRED, FORM_CAPTCHA_REQUIRED } from "../../../utils/formCopy";
+import { FORM_EMAIL_PASSWORD_REQUIRED, FORM_CAPTCHA_REQUIRED, FORM_CAPTCHA_PLACEHOLDER } from "../../../utils/formCopy";
 import { SUCCESS_LOGIN } from "../../../utils/successCopy";
 import { ERROR_LOGIN_FAILED } from "../../../utils/errorCopy";
 
@@ -124,7 +124,7 @@ export default function Login() {
               className="login-input login-captcha-input"
               value={captchaCode}
               onInput={(e) => setCaptchaCode(e.detail.value)}
-              placeholder="请输入验证码"
+              placeholder={FORM_CAPTCHA_PLACEHOLDER}
               placeholderClass="text-hint"
               confirmType="done"
               maxlength={4}
