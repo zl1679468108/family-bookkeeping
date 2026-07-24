@@ -1,5 +1,6 @@
 import * as React from 'react'
 import { formatAmount } from '../../../utils/common'
+import { resolveRankProgress, clampPercent, rankFillTone } from '../../../utils/rankProgress'
 
 /**
  * 排行/预算进度行组件 —— Reports / Budgets 等页面通用
@@ -28,21 +29,8 @@ export const RankRow: React.FC<RankRowItem> = ({
   status,
   onClick,
 }) => {
-  const progressPercent =
-    progress !== undefined
-      ? progress
-      : totalAmount !== undefined && totalAmount > 0 && amount !== undefined
-        ? Math.round((amount / totalAmount) * 100)
-        : undefined
-
-  const fillClass =
-    status === 'danger'
-      ? 'danger'
-      : status === 'warn'
-        ? 'warn'
-        : type === 'income'
-          ? 'income'
-          : 'safe'
+  const progressPercent = resolveRankProgress(amount, totalAmount, progress)
+  const fillClass = rankFillTone(status, type === 'neutral' ? 'expense' : type)
 
   return (
     <div
@@ -67,7 +55,7 @@ export const RankRow: React.FC<RankRowItem> = ({
         <div className="rank-row__progress">
           {progressPercent !== undefined && (
             <div className="rank-row__bar">
-              <div className={`fill ${fillClass}`} style={{ width: `${Math.min(progressPercent, 100)}%` }} />
+              <div className={`fill ${fillClass}`} style={{ width: `${clampPercent(progressPercent)}%` }} />
             </div>
           )}
           <div className="rank-row__meta">

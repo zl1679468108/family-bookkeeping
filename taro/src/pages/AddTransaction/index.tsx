@@ -32,7 +32,7 @@ import { validateTransactionFormFields } from "../../utils/validation";
 import { transactionTypeLabel, TRANSACTION_TYPE_OPTIONS } from "../../utils/transactionType";
 import { parseImageList } from "../../utils/parseImageList";
 import "./index.scss";
-import { ACTION_LOADING, ACTION_SAVING } from "../../utils/actionCopy";
+import { ACTION_LOADING, ACTION_SAVING, saveOrConfirmAddLabel } from "../../utils/actionCopy";
 import {
   CONFIRM_DELETE_TITLE,
   CONFIRM_DELETE_TRANSACTION,
@@ -453,7 +453,7 @@ export default function AddTransaction() {
           className={`addtx-actions__save ${isEdit ? "" : "addtx-actions__save--full"}`}
           onClick={handleSubmit}
         >
-          <Text>{isEdit ? "保存修改" : "确认添加"}</Text>
+          <Text>{saveOrConfirmAddLabel(isEdit)}</Text>
         </View>
       </View>
     </PageContainer>

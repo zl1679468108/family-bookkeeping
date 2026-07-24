@@ -5,6 +5,8 @@
 import { ReactNode } from "react";
 import { View, Text } from "@tarojs/components";
 import "./index.scss";
+import { clampPercent } from "../../../utils/rankProgress";
+import { EMPTY_NO_DATA } from "../../../utils/emptyCopy";
 
 export type RankStatus = "safe" | "warn" | "danger";
 export type RankType = "income" | "expense" | "neutral";
@@ -42,7 +44,7 @@ export function RankRow({
       </View>
       {progress != null ? (
         <View className="ui-rank-row__bar">
-          <View className="ui-rank-row__bar-fill" style={{ width: `${Math.min(100, Math.max(0, progress))}%` }} />
+          <View className="ui-rank-row__bar-fill" style={{ width: `${clampPercent(progress)}%` }} />
         </View>
       ) : null}
       {meta ? <Text className="ui-rank-row__meta">{meta}</Text> : null}
@@ -59,7 +61,7 @@ export interface ReportRankItem {
   onClick?: () => void;
 }
 
-export function ReportRankList({ items, emptyText = "暂无数据" }: { items: ReportRankItem[]; emptyText?: string }) {
+export function ReportRankList({ items, emptyText = EMPTY_NO_DATA }: { items: ReportRankItem[]; emptyText?: string }) {
   if (!items || items.length === 0) {
     return (
       <View className="ui-rank-empty">

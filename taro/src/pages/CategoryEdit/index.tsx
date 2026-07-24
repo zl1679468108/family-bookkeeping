@@ -34,7 +34,7 @@ import { useSubmit, toastError } from "../../hooks/useSubmit";
 import "./index.scss";
 import { getErrorMessage } from "../../utils/errorMessage";
 import { toastSuccess, toastInfo } from "../../utils/toast";
-import { ACTION_DELETING, ACTION_LOADING, ACTION_SAVING } from "../../utils/actionCopy";
+import { ACTION_DELETING, ACTION_LOADING, ACTION_SAVING, saveOrCreateLabel, ACTION_CREATE_CATEGORY } from "../../utils/actionCopy";
 import {
   CONFIRM_DELETE_TITLE,
   CONFIRM_DELETE_TEXT,
@@ -325,7 +325,7 @@ export default function CategoryEdit() {
           }`}
           onClick={handleSave}
         >
-          <Text>{isEdit ? "保存修改" : "创建分类"}</Text>
+          <Text>{saveOrCreateLabel(isEdit, ACTION_CREATE_CATEGORY)}</Text>
         </View>
       </View>
 

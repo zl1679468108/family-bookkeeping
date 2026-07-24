@@ -5,6 +5,7 @@ import { queryKeys } from '../../../utils/queryKeys'
 import { GC_TIME_LONG, STALE } from '../../../utils/cachePolicy'
 import { fetchMonthlyTrend, fetchCategoryBreakdown, fetchDailySummary, fetchYearOverYear } from '../../../services/statisticsApi'
 import type { CategoryBreakdownItem } from '@family-bookkeeping/shared-types'
+import { mergeSortedBreakdowns, sumBreakdownAmounts } from '../../../utils/categoryBreakdown'
 import { generateMonthOptions, generateYearOptions } from '../../../utils/month'
 import {
   PeriodType,
@@ -23,7 +24,6 @@ import {
 export { PeriodType, REPORT_PERIOD_OPTIONS }
 
 export type MergedBreakdownItem = CategoryBreakdownItem & { type: 'expense' | 'income' }
-
 export function useReportData() {
   const { currentBook } = useBook()
   const bookId = currentBook?.id || ''
@@ -214,27 +214,29 @@ export function useReportData() {
   })
 
   // Merge and sort breakdown data
-  const mergeSorted = (exp: CategoryBreakdownItem[], inc: CategoryBreakdownItem[]): MergedBreakdownItem[] => {
-    const merged: MergedBreakdownItem[] = [
-      ...exp.map((d) => ({ ...d, type: 'expense' as const })),
-      ...inc.map((d) => ({ ...d, type: 'income' as const })),
-    ]
-    return merged.sort((a, b) => Number(b.amount) - Number(a.amount))
-  }
+  const mergedDefaultBreakdown = useMemo(
+    () => mergeSortedBreakdowns(expenseBreakdown, incomeBreakdown) as MergedBreakdownItem[],
+    [expenseBreakdown, incomeBreakdown],
+  )
+  const currentMonthMerged = useMemo(
+    () => mergeSortedBreakdowns(currentMonthExpense, currentMonthIncome) as MergedBreakdownItem[],
+    [currentMonthExpense, currentMonthIncome],
+  )
+  const targetMonthMerged = useMemo(
+    () => mergeSortedBreakdowns(targetMonthExpense, targetMonthIncome) as MergedBreakdownItem[],
+    [targetMonthExpense, targetMonthIncome],
+  )
+  const currentYearMerged = useMemo(
+    () => mergeSortedBreakdowns(currentYearExpense, currentYearIncome) as MergedBreakdownItem[],
+    [currentYearExpense, currentYearIncome],
+  )
+  const targetYearMerged = useMemo(
+    () => mergeSortedBreakdowns(targetYearExpense, targetYearIncome) as MergedBreakdownItem[],
+    [targetYearExpense, targetYearIncome],
+  )
 
-  const mergedDefaultBreakdown = useMemo(() => mergeSorted(expenseBreakdown, incomeBreakdown), [expenseBreakdown, incomeBreakdown])
-  const currentMonthMerged = useMemo(() => mergeSorted(currentMonthExpense, currentMonthIncome), [currentMonthExpense, currentMonthIncome])
-  const targetMonthMerged = useMemo(() => mergeSorted(targetMonthExpense, targetMonthIncome), [targetMonthExpense, targetMonthIncome])
-  const currentYearMerged = useMemo(() => mergeSorted(currentYearExpense, currentYearIncome), [currentYearExpense, currentYearIncome])
-  const targetYearMerged = useMemo(() => mergeSorted(targetYearExpense, targetYearIncome), [targetYearExpense, targetYearIncome])
-
-  const totalExpense = useMemo(() => {
-    return expenseBreakdown.reduce((sum, item) => sum + Number(item.amount || 0), 0)
-  }, [expenseBreakdown])
-
-  const totalIncome = useMemo(() => {
-    return incomeBreakdown.reduce((sum, item) => sum + Number(item.amount || 0), 0)
-  }, [incomeBreakdown])
+  const totalExpense = useMemo(() => sumBreakdownAmounts(expenseBreakdown), [expenseBreakdown])
+  const totalIncome = useMemo(() => sumBreakdownAmounts(incomeBreakdown), [incomeBreakdown])
 
   const mainLoading = trendLoading || dailySummaryQueries.isLoading || yoyExpenseLoading || yoyIncomeLoading
   const categoryLoading = isMonthCompare

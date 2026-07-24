@@ -6,6 +6,13 @@ import type { PeriodType } from '../hooks/useReportData'
 import { getEchartsChrome, getThemeColors } from '../../../utils/themeColors'
 import { useTheme } from '../../../utils/theme'
 import { formatMonthDisplay } from '../../../utils/month'
+import {
+  buildDailyTrendSeries,
+  buildMonthCompareSeries,
+  buildYearCompareSeries,
+  buildMonthlyTrendSeries,
+  type ReportTrendSeriesLoose,
+} from '../../../utils/reportChart'
 
 interface TrendChartProps {
   period: PeriodType
@@ -34,38 +41,11 @@ export const TrendChart: React.FC<TrendChartProps> = ({
   const chartInstance = useRef<ECharts | null>(null)
   const { resolvedTheme } = useTheme()
 
-  const chartData = useMemo(() => {
-    if (isDailyView) {
-      return {
-        dates: dailyData.map((d) => `${parseInt(d.date.slice(8, 10), 10)}日`),
-        expenses: dailyData.map((d) => Number(d.total_expense || 0)),
-        incomes: dailyData.map((d) => Number(d.total_income || 0)),
-      }
-    }
-    if (isMonthCompare) {
-      const maxDays = Math.max(monthCompareData.currentMonth.length, monthCompareData.targetMonth.length)
-      return {
-        dates: Array.from({ length: maxDays }, (_, i) => `${i + 1}日`),
-        currExpenses: monthCompareData.currentMonth.map((d) => Number(d.total_expense || 0)),
-        currIncomes: monthCompareData.currentMonth.map((d) => Number(d.total_income || 0)),
-        targetExpenses: monthCompareData.targetMonth.map((d) => Number(d.total_expense || 0)),
-        targetIncomes: monthCompareData.targetMonth.map((d) => Number(d.total_income || 0)),
-      }
-    }
-    if (isYearCompare) {
-      return {
-        dates: yoyExpenseData.map((d) => d.monthLabel),
-        currentYearExpenses: yoyExpenseData.map((d) => Number(d.currentYear || 0)),
-        targetYearExpenses: yoyExpenseData.map((d) => Number(d.lastYear || 0)),
-        currentYearIncomes: yoyIncomeData.map((d) => Number(d.currentYear || 0)),
-        targetYearIncomes: yoyIncomeData.map((d) => Number(d.lastYear || 0)),
-      }
-    }
-    return {
-      dates: trendData.map((d) => d.month.slice(5) + '月'),
-      expenses: trendData.map((d) => Number(d.expense || 0)),
-      incomes: trendData.map((d) => Number(d.income || 0)),
-    }
+  const chartData = useMemo((): ReportTrendSeriesLoose => {
+    if (isDailyView) return buildDailyTrendSeries(dailyData)
+    if (isMonthCompare) return buildMonthCompareSeries(monthCompareData)
+    if (isYearCompare) return buildYearCompareSeries(yoyExpenseData, yoyIncomeData)
+    return buildMonthlyTrendSeries(trendData)
   }, [isDailyView, isMonthCompare, isYearCompare, dailyData, monthCompareData, yoyExpenseData, yoyIncomeData, trendData])
 
   useEffect(() => {

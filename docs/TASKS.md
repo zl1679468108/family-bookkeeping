@@ -167,6 +167,12 @@
 - 邀请/转移邮箱：FE InviteMemberModal、Taro Books/BookMembers/BookSettings 改用 `validateEmail`（空+格式）
 - 验证：frontend / taro `tsc --noEmit`
 
+#### 2026-07-24 报表序列/占比合并/进度行 shared 化
+- 新增 `reportChart`：日报/月对比/年对比/月趋势序列映射；TrendChart 接线
+- 新增 `categoryBreakdown`：`mergeSortedBreakdowns` / `sumBreakdownAmounts`；useReportData 接线
+- 新增 `rankProgress`：`resolveRankProgress` / `clampPercent` / `rankFillTone`；双端 RankList
+- `saveOrConfirmAddLabel` / `saveOrCreateLabel` / `DELETE_THIS_IMAGE` / `EMPTY_NO_DATA` 文案收口
+
 #### 2026-07-24 去掉 PC date-fns + formatMonthDay
 - 新增 `formatMonthDay`；Dashboard/流水日期展示改用 shared date 工具
 - TrendChart 清理无用 date-fns；PC 依赖移除 `date-fns`（双端日期口径完全走 shared-utils）

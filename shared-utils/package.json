@@ -20,7 +20,6 @@
     "./frequency": "./src/frequency.ts",
     "./inviteCopy": "./src/inviteCopy.ts",
     "./month": "./src/month.ts",
-    "./reportPeriod": "./src/reportPeriod.ts",
     "./annualReport": "./src/annualReport.ts",
     "./parseImageList": "./src/parseImageList.ts",
     "./roles": "./src/roles.ts",
@@ -46,7 +45,11 @@
     "./templateRecurring": "./src/templateRecurring.ts",
     "./addTransactionDraft": "./src/addTransactionDraft.ts",
     "./bookPayload": "./src/bookPayload.ts",
-    "./categoryPayload": "./src/categoryPayload.ts"
+    "./categoryPayload": "./src/categoryPayload.ts",
+    "./reportChart": "./src/reportChart.ts",
+    "./categoryBreakdown": "./src/categoryBreakdown.ts",
+    "./rankProgress": "./src/rankProgress.ts",
+    "./reportPeriod": "./src/reportPeriod.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit"

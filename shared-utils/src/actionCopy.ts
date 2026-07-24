@@ -2,6 +2,10 @@
 
 export const ACTION_LOADING = '加载中...'
 export const ACTION_SAVING = '保存中...'
+export const ACTION_SAVE_EDIT = '保存修改'
+export const ACTION_CONFIRM_ADD = '确认添加'
+export const ACTION_CREATE_CATEGORY = '创建分类'
+export const ACTION_CREATE_BOOK = '创建账本'
 export const ACTION_DELETING = '删除中...'
 export const ACTION_COPYING = '复制中...'
 export const ACTION_SUBMITTING = '提交中...'
@@ -33,4 +37,14 @@ export function submittingLabel(busy: boolean, idleText = '确认'): string {
 
 export function processingLabel(busy: boolean, idleText = '确认'): string {
   return busyLabel(busy, ACTION_PROCESSING, idleText)
+}
+
+/** 编辑态 → 保存修改；新建态 → createText */
+export function saveOrCreateLabel(isEdit: boolean, createText = ACTION_CREATE_CATEGORY): string {
+  return isEdit ? ACTION_SAVE_EDIT : createText
+}
+
+/** 记一笔：编辑 → 保存修改；新建 → 确认添加 */
+export function saveOrConfirmAddLabel(isEdit: boolean): string {
+  return isEdit ? ACTION_SAVE_EDIT : ACTION_CONFIRM_ADD
 }
