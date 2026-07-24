@@ -37,6 +37,8 @@ export const TITLE_CATEGORY_MANAGE = entityManageTitle(ENTITY_CATEGORY)
 export const TITLE_TEMPLATE_MANAGE = entityManageTitle(ENTITY_TEMPLATE)
 export const TITLE_BUDGET_MANAGE = entityManageTitle(ENTITY_BUDGET)
 export const TITLE_BOOK_MANAGE = entityManageTitle(ENTITY_BOOK)
+export const TITLE_MY_BOOKS = '我的账本'
+export const TITLE_TRANSACTION_TEMPLATES = '交易模板'
 export const TITLE_TRANSACTION_MANAGE = entityManageTitle(ENTITY_TRANSACTION)
 export const TITLE_MEMBER_MANAGE = entityManageTitle('成员')
 

@@ -10,6 +10,7 @@ import { busyLabel, ACTION_SAVING } from '../../../utils/actionCopy'
 import { sortModeLabel } from '../../../utils/sortCopy'
 import { EMPTY_TEMPLATES } from '../../../utils/emptyCopy'
 import { entityCreateButton, ENTITY_TEMPLATE } from '../../../utils/entityCopy'
+import { TITLE_TRANSACTION_TEMPLATES } from "../../../utils/sectionCopy"
 
 interface TemplateGridProps {
   isLoading: boolean
@@ -76,7 +77,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
   return (
     <>
       <CardHeader
-        title="交易模板"
+        title={TITLE_TRANSACTION_TEMPLATES}
         action={
           <div className="list-card-grid__header-actions">
             <Button

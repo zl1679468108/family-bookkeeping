@@ -6,6 +6,7 @@ import { ListRowsSkeleton } from '../../../components/ui/Skeleton';
 import { EmptyState } from '../../../components/ui/EmptyState';
 import { userDisplayName } from '../../../utils/userDisplay'
 import { EMPTY_NO_OTHER_MEMBERS } from '../../../utils/emptyCopy';
+import { ACTION_REMOVE_MEMBER } from "../../../utils/actionCopy"
 
 interface BookMemberListProps {
   members: any[];
@@ -61,7 +62,7 @@ export const BookMemberList: React.FC<BookMemberListProps> = ({
                   variant="ghost"
                   size="sm"
                   onClick={() => onRemoveMember(member)}
-                  title="移除成员"
+                  title={ACTION_REMOVE_MEMBER}
                 >
                   <Icon name="close" size={14} />
                 </Button>

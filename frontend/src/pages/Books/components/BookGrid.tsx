@@ -6,7 +6,7 @@ import { EmptyState } from '../../../components/ui/EmptyState';
 import { getBookIconByKey } from '../../../utils/bookIcons';
 import { EMPTY_BOOKS } from '../../../utils/emptyCopy'
 import { entityCreateButton, ENTITY_BOOK } from '../../../utils/entityCopy'
-import { TITLE_JOIN_BY_INVITE } from '../../../utils/sectionCopy'
+import { TITLE_JOIN_BY_INVITE, TITLE_MY_BOOKS } from '../../../utils/sectionCopy'
 
 interface BookGridProps {
   loading: boolean;
@@ -58,7 +58,7 @@ export const BookGrid: React.FC<BookGridProps> = ({
   return (
     <Card>
       <CardHeader
-        title="我的账本"
+        title={TITLE_MY_BOOKS}
         action={
           <div className="list-card-grid__header-actions">
             <Button variant="secondary" size="sm" onClick={onJoinByCode}>

@@ -85,6 +85,11 @@
 
 ### ✅ 已完成
 
+#### 2026-07-24 搜索默认值/列表标题/首页指标 shared 化
+- `ACTION_SEARCH_ELLIPSIS/DOTS/REMOVE/REMOVE_MEMBER/BOOKKEEPING_ELLIPSIS`；`TITLE_MY_BOOKS` / `TITLE_TRANSACTION_TEMPLATES`
+- 接线 PC SearchInput/Dropdown、账本/模板列表标题、邀请码/移除成员、Admin 本月指标；Taro SearchInput/Dropdown/SheetHeader/PullRefresh/Home 指标/移除确认
+- 验证：frontend / taro `tsc --noEmit`
+
 #### 2026-07-24 账本邀请/忙态动作文案 shared 化
 - `actionCopy` 补搜索/上传/加入/生成/移除/转移/注销/OCR/切换账本等 busy 与 idle 文案 + `joiningLabel`/`generatingLabel`/`searchingLabel`/`ocrLabel`
 - `inviteCopy` 补生成/发送邀请码与分享说明；`emptyCopy` 补暂无已保存账号

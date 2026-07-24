@@ -4,6 +4,7 @@
  */
 import { View, Text } from "@tarojs/components";
 import "./index.scss";
+import { ACTION_BOOKKEEPING_ELLIPSIS } from "../../utils/actionCopy"
 
 interface PullRefreshProps {
   loading?: boolean;
@@ -12,7 +13,7 @@ interface PullRefreshProps {
 
 export default function PullRefresh({
   loading = true,
-  text = "记账中…",
+  text = ACTION_BOOKKEEPING_ELLIPSIS,
 }: PullRefreshProps) {
   if (!loading) return null;
 

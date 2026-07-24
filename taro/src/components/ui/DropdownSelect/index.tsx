@@ -10,6 +10,7 @@ import { SearchInput } from "../Input";
 import "./index.scss";
 import { FORM_SELECT_PLACEHOLDER } from "../../../utils/formCopy";
 import Icon, { ICON_COLOR } from "../../Icon";
+import { ACTION_SEARCH } from "../../../utils/actionCopy"
 
 export interface DropdownOption {
   key: string;
@@ -33,7 +34,7 @@ export interface DropdownSelectProps {
 
 export function DropdownSelect({
   options, value, onChange, placeholder = FORM_SELECT_PLACEHOLDER,
-  allowClear = false, showSearch = false, searchPlaceholder = "搜索",
+  allowClear = false, showSearch = false, searchPlaceholder = ACTION_SEARCH,
   label, required = false, className = "",
 }: DropdownSelectProps) {
   const [open, setOpen] = useState(false);

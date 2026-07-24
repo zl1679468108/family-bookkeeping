@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { Icon } from '../Icon'
 import { FILTER_ALL } from '../../../utils/transactionType'
-import { ACTION_CLEAR } from '../../../utils/actionCopy'
+import { ACTION_CLEAR, ACTION_SEARCH_DOTS } from '../../../utils/actionCopy'
 
 /**
  * 通用下拉选择组件 —— 取代各页面手写的 <select> 和自定义下拉
@@ -50,7 +50,7 @@ export const DropdownSelect: React.FC<DropdownSelectProps> = ({
   align = 'left',
   required,
   showSearch = false,
-  searchPlaceholder = '搜索...',
+  searchPlaceholder = ACTION_SEARCH_DOTS,
 }) => {
   const [open, setOpen] = useState(false)
   const [internalValue, setInternalValue] = useState<string | null>(value ?? null)

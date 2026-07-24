@@ -15,6 +15,7 @@ import {
   platformUserStatusClass,
 } from '../../../utils/userStatus'
 import { EMPTY_NO_PLATFORM_USERS } from '../../../utils/emptyCopy';
+import { FIELD_MONTH_BALANCE, FIELD_MONTH_INCOME, FIELD_MONTH_EXPENSE } from "../../../utils/fieldCopy"
 
 const AdminDashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -69,7 +70,7 @@ const AdminDashboard: React.FC = () => {
       ) : (
         <div className="stat-grid">
           <div className="stat-card stat-card--hero">
-            <div className="stat-card__label">本月结余</div>
+            <div className="stat-card__label">{FIELD_MONTH_BALANCE}</div>
             <div
               className={`stat-card__value ${(stats?.monthNet || 0) >= 0 ? 'stat-card__value--success' : 'stat-card__value--danger'}`}>
               {formatMoney(stats?.monthNet ?? 0, {
@@ -80,14 +81,14 @@ const AdminDashboard: React.FC = () => {
           </div>
 
           <div className="stat-card stat-card--income">
-            <div className="stat-card__label">本月收入</div>
+            <div className="stat-card__label">{FIELD_MONTH_INCOME}</div>
             <div className="stat-card__value stat-card__value--success">
               {formatMoney(stats?.monthIncome ?? 0, { showSign: true, sign: '+' })}
             </div>
           </div>
 
           <div className="stat-card stat-card--expense">
-            <div className="stat-card__label">本月支出</div>
+            <div className="stat-card__label">{FIELD_MONTH_EXPENSE}</div>
             <div className="stat-card__value stat-card__value--danger">
               {formatMoney(stats?.monthExpense ?? 0, { showSign: true, sign: '-' })}
             </div>

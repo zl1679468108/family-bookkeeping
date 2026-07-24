@@ -1,6 +1,6 @@
 import React, { InputHTMLAttributes, useState, useEffect, useRef, useId } from 'react'
 import { Icon } from '../Icon'
-import { ACTION_CLEAR } from '../../../utils/actionCopy'
+import { ACTION_CLEAR, ACTION_SEARCH_ELLIPSIS } from '../../../utils/actionCopy'
 
 /**
  * 通用输入框组件 —— 取代各页面手写的 `<input>` + `<div className="form-input">` 结构
@@ -127,7 +127,7 @@ interface SearchInputProps {
 export const SearchInput: React.FC<SearchInputProps> = ({
   value,
   onChange,
-  placeholder = '搜索…',
+  placeholder = ACTION_SEARCH_ELLIPSIS,
   className = '',
   wrapperClassName = '',
   allowClear = true,

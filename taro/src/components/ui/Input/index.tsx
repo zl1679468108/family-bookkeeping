@@ -7,6 +7,7 @@ import { ReactNode, useState } from "react";
 import { View, Text, Input as TaroInput } from "@tarojs/components";
 import "./index.scss";
 import Icon, { ICON_COLOR } from "../../Icon";
+import { ACTION_SEARCH } from "../../../utils/actionCopy"
 
 export interface BaseInputProps {
   value?: string;
@@ -93,7 +94,7 @@ export interface SearchInputProps {
   className?: string;
 }
 
-export function SearchInput({ value, onChange, placeholder = "搜索", className = "" }: SearchInputProps) {
+export function SearchInput({ value, onChange, placeholder = ACTION_SEARCH, className = "" }: SearchInputProps) {
   return (
     <Input
       value={value}

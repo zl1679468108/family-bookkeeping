@@ -30,7 +30,7 @@ import { toastSuccess, toastInfo } from "../../utils/toast";
 import { bookMemberRoleLabel, isBookOwnerRole } from "../../utils/roles";
 import { INVITE_CODE_HELP_LABEL, INVITE_CODE_HELP_BODY, ACTION_GENERATE_INVITE_CODE, ACTION_SEND_INVITE, INVITE_CODE_SHARE_HINT, ACTION_COPY_INVITE_CODE } from "../../utils/inviteCopy";
 import { userDisplayName } from "../../utils/userDisplay";
-import { ACTION_DELETING, ACTION_LOADING, ACTION_JOINING_ELLIPSIS, ACTION_GENERATING_ELLIPSIS, ACTION_REMOVING_ELLIPSIS, ACTION_JOIN_BOOK, ACTION_DELETE, ACTION_EDIT, ACTION_INVITE_MEMBER, ACTION_SWITCH_TO_BOOK, ACTION_SWITCH_BOOK, ACTION_CONFIRM_SWITCH } from "../../utils/actionCopy";
+import { ACTION_DELETING, ACTION_LOADING, ACTION_JOINING_ELLIPSIS, ACTION_GENERATING_ELLIPSIS, ACTION_REMOVING_ELLIPSIS, ACTION_JOIN_BOOK, ACTION_DELETE, ACTION_EDIT, ACTION_INVITE_MEMBER, ACTION_SWITCH_TO_BOOK, ACTION_SWITCH_BOOK, ACTION_CONFIRM_SWITCH, ACTION_REMOVE } from "../../utils/actionCopy";
 import { CONFIRM_REMOVE_TITLE, confirmDeleteBook, confirmRemoveMember, CONFIRM_DELETE_BOOK_TITLE } from "../../utils/confirmCopy";
 import { FORM_ALREADY_CURRENT_BOOK, FORM_EMAIL_REQUIRED, FORM_PEER_EMAIL_PLACEHOLDER, FORM_INVITE_CODE_EXAMPLE } from "../../utils/formCopy";
 import { validateEmail } from "../../utils/validation";
@@ -722,7 +722,7 @@ export default function BooksPage() {
         visible={showRemoveConfirm}
         title={CONFIRM_REMOVE_TITLE}
         message={confirmRemoveMember(userDisplayName(removingMember))}
-        confirmText="移除"
+        confirmText={ACTION_REMOVE}
         danger
         onConfirm={handleRemoveMember}
         onCancel={() => {

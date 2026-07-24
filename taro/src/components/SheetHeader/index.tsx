@@ -7,6 +7,8 @@
 import { View, Text } from "@tarojs/components";
 import Icon, { ICON_COLOR } from "../Icon";
 import "./index.scss";
+import { ACTION_CLOSE } from "../../utils/actionCopy";
+import { FORM_BACK } from "../../utils/formCopy";
 
 interface SheetHeaderProps {
   title: string;
@@ -36,7 +38,7 @@ export function SheetHeader({
     <View className="sheet-header">
       <View className="sheet-header__side sheet-header__side--left">
         {onBack ? (
-          <View className="sheet-header__icon" onClick={handleBack} aria-label="返回">
+          <View className="sheet-header__icon" onClick={handleBack} aria-label={FORM_BACK}>
             <Icon name="back" size={36} color={ICON_COLOR.muted} />
           </View>
         ) : null}
@@ -56,4 +58,3 @@ export function SheetHeader({
 }
 
 export default SheetHeader;
-import { ACTION_CLOSE } from "../../utils/actionCopy";

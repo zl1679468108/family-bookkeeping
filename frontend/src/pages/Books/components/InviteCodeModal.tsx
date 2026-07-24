@@ -5,9 +5,9 @@ import { FooterActions } from '../../../components/ui/FooterActions';
 import type { InviteCodeData } from '../hooks/useBooksPage';
 import { notifySuccess } from '../../../utils/notifyError'
 import { formatDateTimeMinute } from '../../../utils/date'
-import { SUCCESS_INVITE_COPIED } from '../../../utils/successCopy'
+import { SUCCESS_INVITE_COPIED, SUCCESS_INVITE_CODE_GENERATED } from '../../../utils/successCopy'
 import { copyToClipboard } from '../../../utils/clipboard'
-import { INVITE_CODE_SHARE_HINT_ONBOARDING } from '../../../utils/inviteCopy'
+import { INVITE_CODE_SHARE_HINT_ONBOARDING, ACTION_COPY_INVITE_CODE } from '../../../utils/inviteCopy'
 
 interface InviteCodeModalProps {
   open: boolean;
@@ -31,12 +31,12 @@ export const InviteCodeModal: React.FC<InviteCodeModalProps> = ({
     <GlobalModal
       open={open}
       onClose={onClose}
-      title="邀请码已生成"
+      title={SUCCESS_INVITE_CODE_GENERATED}
       width={460}
       footer={
         <FooterActions align="end" className="global-modal-dialog__footer-inner">
           <Button variant="primary" onClick={handleCopy}>
-            复制邀请码
+            {ACTION_COPY_INVITE_CODE}
           </Button>
         </FooterActions>
       }
