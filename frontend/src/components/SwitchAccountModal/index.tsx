@@ -23,6 +23,7 @@ import { SUCCESS_ACCOUNT_SWITCHED } from '../../utils/successCopy'
 import { FORM_ALREADY_CURRENT_ACCOUNT } from '../../utils/formCopy'
 import { ACTION_CLOSE, ACTION_SWITCH_ACCOUNT } from '../../utils/actionCopy'
 import { EMPTY_NO_SAVED_ACCOUNTS } from '../../utils/emptyCopy'
+import { AUTH_LOGIN_EXPIRED, authLoginExpiredRelogin } from '../../utils/authCopy'
 
 interface SwitchAccountModalProps {
   visible: boolean
@@ -151,9 +152,9 @@ const SwitchAccountModal: React.FC<SwitchAccountModalProps> = ({ visible, onClos
             <div className="expired-modal-icon">
               <Icon name="info" size={32} />
             </div>
-            <div className="expired-modal-title">登录已过期</div>
+            <div className="expired-modal-title">{AUTH_LOGIN_EXPIRED}</div>
             <div className="expired-modal-desc">
-              {expiredEmail} 的登录状态已失效，请重新登录
+              {authLoginExpiredRelogin(expiredEmail)}
             </div>
             <FooterActions align="stretch" className="expired-modal-actions">
               <Button

@@ -44,7 +44,7 @@ import { DELETE_FAILED } from "../../utils/uploadCopy";
 import { failEntityUpsert } from "../../utils/errorCopy";
 import { EMPTY_NO_CATEGORIES_SHORT } from "../../utils/emptyCopy";
 import { SECTION_TEMPLATE_INFO, TITLE_SELECT_LOCATION } from "../../utils/sectionCopy";
-import { FORM_TEMPLATE_NAME_EXAMPLE, FORM_AMOUNT_PLACEHOLDER, FORM_NOTE_OPTIONAL } from "../../utils/formCopy";
+import { FORM_TEMPLATE_NAME_EXAMPLE, FORM_AMOUNT_PLACEHOLDER, FORM_NOTE_OPTIONAL, FORM_SELECT_TYPE, FORM_SELECT_CATEGORY } from "../../utils/formCopy";
 import { FIELD_TYPE, FIELD_CATEGORY, FIELD_AMOUNT, FIELD_NOTE, FIELD_TEMPLATE_NAME, FIELD_LOCATION_INFO, FIELD_SORT } from "../../utils/fieldCopy";
 
 type TplType = "expense" | "income";
@@ -121,7 +121,7 @@ export default function TemplateEdit() {
   };
 
   const typeOpts = ["expense", "income"];
-  const typeDisplayRange = ["选择类型", ...typeOpts.map((t) => transactionTypeLabel(t))];
+  const typeDisplayRange = [FORM_SELECT_TYPE, ...typeOpts.map((t) => transactionTypeLabel(t))];
   const catOpts = (cats || []).filter((c: any) => c.type === form.type);
   const selectedCat = (cats || []).find((c: any) => c.id === form.category_id);
 
@@ -148,7 +148,7 @@ export default function TemplateEdit() {
   const title = entityFormTitle(ENTITY_TEMPLATE, isEdit);
 
   const formatCategoryLabel = (cat: any) => {
-    if (!cat) return "选择分类";
+    if (!cat) return FORM_SELECT_CATEGORY;
     const icon = cat.icon || "";
     const displayIcon = isIconUrl(icon) ? "📌" : icon;
     return `${displayIcon} ${cat.name}`;
@@ -157,7 +157,7 @@ export default function TemplateEdit() {
   const formatTypeLabel = (type: string) => {
     if (type === "expense") return "支出";
     if (type === "income") return "收入";
-    return "选择类型";
+    return FORM_SELECT_TYPE;
   };
 
   return (

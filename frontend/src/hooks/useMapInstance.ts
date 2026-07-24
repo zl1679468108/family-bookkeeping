@@ -14,6 +14,7 @@
 
 import { useRef, useEffect, useState, useCallback, useMemo } from 'react';
 import { AmapManager } from '../services/amapManager';
+import { ERROR_MAP_SDK_LOAD_FAILED } from '../utils/errorCopy'
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -68,7 +69,7 @@ export function useMapInstance(
       .catch((err) => {
         if (!cancelled) {
           console.error('[useMapInstance] SDK load failed:', err)
-          setError(err instanceof Error ? err.message : '地图 SDK 加载失败')
+          setError(err instanceof Error ? err.message : ERROR_MAP_SDK_LOAD_FAILED)
         }
       });
     return () => { cancelled = true; };

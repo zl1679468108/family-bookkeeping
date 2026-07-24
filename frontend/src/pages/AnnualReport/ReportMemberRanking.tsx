@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { getChartPalette } from '../../utils/themeColors'
 import { formatMoney } from '../../utils/budget'
+import { userDisplayName } from '../../utils/userDisplay'
 
 interface MemberItem {
   user_id: string;
@@ -38,7 +39,7 @@ const ReportMemberRanking: React.FC<Props> = ({ data }) => {
             <div className="flex-1 min-w-0">
               <div className="flex justify-between items-center">
                 <span className="text-sm font-medium" style={{ color: 'var(--fg)' }}>
-                  {member.nickname || '用户'}
+                  {userDisplayName({ username: member.nickname, name: member.nickname })}
                 </span>
                 <span className="text-sm font-bold" style={{ color: 'var(--fg2)' }}>
                   {formatMoney(member.expense, { compact: true })}

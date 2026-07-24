@@ -18,7 +18,7 @@ import { SUCCESS_INVITE_SENT } from "../../../../utils/successCopy";
 import { ERROR_INVITE_FAILED } from "../../../../utils/errorCopy";
 import { EMPTY_NO_MEMBERS } from "../../../../utils/emptyCopy";
 import { FORM_MEMBER_EMAIL_SHORT } from "../../../../utils/formCopy";
-import { ACTION_CANCEL } from "../../../../utils/actionCopy";
+import { ACTION_CANCEL, ACTION_ADDING, ACTION_ADD } from "../../../../utils/actionCopy";
 
 interface BookCardProps {
   book: Book;
@@ -216,7 +216,7 @@ export default function BookCard({
                   className="book-card__invite-btn"
                   onClick={handleInvite}
                 >
-                  {inviting ? "添加中" : "添加"}
+                  {inviting ? ACTION_ADDING : ACTION_ADD}
                 </Button>
                 <View
                   className="book-card__action"

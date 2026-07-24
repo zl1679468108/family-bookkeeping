@@ -6,9 +6,10 @@ import type { LocationResult } from '@family-bookkeeping/shared-types'
 import { useMapInstance } from '../../../../hooks/useMapInstance';
 import { AmapManager } from '../../../../services/amapManager';
 import './index.scss';
-import { FORM_SEARCH_LOCATION } from '../../../../utils/formCopy'
+import { FORM_SEARCH_LOCATION, FORM_LOCATION_GET_FAILED_HINT } from '../../../../utils/formCopy'
 import { TITLE_SELECT_LOCATION, TITLE_LOCATE_CURRENT } from '../../../../utils/sectionCopy'
 import { ACTION_CANCEL, searchingLabel } from '../../../../utils/actionCopy'
+import { ERROR_LOCATION_UNAVAILABLE, ERROR_LOCATION_NO_MATCH, ERROR_LOCATION_SEARCH_FAILED } from '../../../../utils/errorCopy'
 
 interface LocationPickerProps {
   visible: boolean;
@@ -149,7 +150,7 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
     if (locating.current) return;
     const AMap = AmapManager.getInstance().AMap;
     const m = mapRef.current;
-    if (!m || !AMap?.Geolocation) { setError('定位功能不可用'); return; }
+    if (!m || !AMap?.Geolocation) { setError(ERROR_LOCATION_UNAVAILABLE); return; }
     setError('');
     locating.current = true;
     const geo = new AMap.Geolocation({ enableHighAccuracy: true, timeout: 8000 });
@@ -161,7 +162,7 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
         if (m) { m.setCenter(pos); m.setZoom(15); }
         reverseGeocode(pos[0], pos[1]);
       } else {
-        setError('无法获取当前位置，请确认已授权位置权限后手动搜索或点击地图选择位置');
+        setError(FORM_LOCATION_GET_FAILED_HINT);
       }
     });
   }, [reverseGeocode]);
@@ -202,7 +203,7 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
         const m = mapRef.current;
         if (m) { m.setCenter(pos); m.setZoom(15); }
       } else {
-        setError(status === 'complete' ? '未找到匹配的地点' : '搜索失败，请重试');
+        setError(status === 'complete' ? ERROR_LOCATION_NO_MATCH : ERROR_LOCATION_SEARCH_FAILED);
       }
     });
   }, [searchText]);

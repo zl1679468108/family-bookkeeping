@@ -26,7 +26,7 @@ import { userDisplayName, userInitial } from "../../utils/userDisplay";
 import { SUCCESS_ACCOUNT_SWITCHED, SUCCESS_ACCOUNT_DEACTIVATED, SUCCESS_SWITCHED } from "../../utils/successCopy";
 import { FORM_ALREADY_CURRENT_ACCOUNT, FORM_CAPTCHA_REQUIRED, FORM_EMAIL_PASSWORD_REQUIRED, FORM_DEACTIVATE_PASSWORD, FORM_PASSWORD_LOGIN_PLACEHOLDER, FORM_EMAIL_PLACEHOLDER, FORM_PASSWORD_PLACEHOLDER, FORM_CAPTCHA_PLACEHOLDER } from "../../utils/formCopy";
 import { ACTION_SWITCHING, ACTION_LOGOUT, ACTION_DEACTIVATING, ACTION_CONFIRM_DEACTIVATE, ACTION_SWITCH_THEME, THEME_DARK_MODE, THEME_LIGHT_MODE, ACTION_SWITCH_ACCOUNT, ACTION_DEACTIVATE_ACCOUNT } from "../../utils/actionCopy"
-import { ACTION_LOGGING_IN, ACTION_LOGIN } from '../../utils/authCopy'
+import { ACTION_LOGGING_IN, ACTION_LOGIN, AUTH_LOGIN_EXPIRED_REENTER, AUTH_ADD_NEW_ACCOUNT_LOGIN } from '../../utils/authCopy'
 import { TITLE_ABOUT } from '../../utils/sectionCopy'
 import { ERROR_DEACTIVATE_FAILED } from '../../utils/errorCopy'
 
@@ -52,7 +52,7 @@ export default function Profile() {
   const [deactivateError, setDeactivateError] = useState("");
   const [deactivateLoading, setDeactivateLoading] = useState(false);
 
-  const initial = (user?.username || "U").charAt(0).toUpperCase();
+  const initial = userInitial(user);
   const hasAvatar = user?.avatar_url && user.avatar_url.startsWith('data:') || user?.avatar_url?.startsWith('http');
 
   const handleLogout = async () => {
@@ -206,7 +206,7 @@ export default function Profile() {
           )}
         </View>
         <View className="profile-header__info">
-          <Text className="profile-header__name">{user?.username || "用户"}</Text>
+          <Text className="profile-header__name">{userDisplayName(user)}</Text>
           <Text className="profile-header__email">{user?.email || ""}</Text>
         </View>
         <Icon name="chevron-right" size={28} color={ICON_COLOR.muted} />
@@ -400,7 +400,7 @@ export default function Profile() {
               <>
                 <View className="switch-login-form">
                   <Text className="switch-login-hint">
-                    {tokenExpiredEmail ? "登录已过期，请重新输入密码" : "添加新账号登录"}
+                    {tokenExpiredEmail ? AUTH_LOGIN_EXPIRED_REENTER : AUTH_ADD_NEW_ACCOUNT_LOGIN}
                   </Text>
                   <View className="switch-form-group">
                     <Text className="switch-form-label">邮箱地址</Text>

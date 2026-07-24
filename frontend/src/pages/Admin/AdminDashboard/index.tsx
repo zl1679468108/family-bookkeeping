@@ -16,6 +16,7 @@ import {
 } from '../../../utils/userStatus'
 import { EMPTY_NO_PLATFORM_USERS } from '../../../utils/emptyCopy';
 import { FIELD_MONTH_BALANCE, FIELD_MONTH_INCOME, FIELD_MONTH_EXPENSE } from "../../../utils/fieldCopy"
+import { ERROR_LOAD_FAILED_RETRY } from '../../../utils/errorCopy'
 
 const AdminDashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -28,7 +29,7 @@ const AdminDashboard: React.FC = () => {
   if (error) {
     return (
       <AdminLayout>
-        <div className="empty-state empty-state--error">加载失败，请重试</div>
+        <div className="empty-state empty-state--error">{ERROR_LOAD_FAILED_RETRY}</div>
       </AdminLayout>
     );
   }

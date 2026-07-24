@@ -8,6 +8,7 @@ import { DETAIL_BOOK, DEFAULT_BOOK_NAME } from '../../../utils/entityCopy'
 import { FIELD_MEMBERS, FIELD_TXN_COUNT, FIELD_STATUS, FIELD_CREATED_AT, FIELD_UPDATED_AT, FIELD_OWNER_ID } from '../../../utils/fieldCopy'
 import { ACTION_EDIT, ACTION_DELETE, generatingLabel, ACTION_INVITE_MEMBER, ACTION_SWITCH_TO_BOOK } from '../../../utils/actionCopy'
 import { ACTION_GENERATE_INVITE_CODE } from '../../../utils/inviteCopy'
+import { FORM_NEWLY_CREATED } from '../../../utils/formCopy'
 
 interface BookDetailModalProps {
   open: boolean;
@@ -79,7 +80,7 @@ export const BookDetailModal: React.FC<BookDetailModalProps> = ({
         <div className="detail-icon">{getIconNode(selectedBook.icon)}</div>
         <div className="detail-content">
           <div className="detail-title">{selectedBook.name}</div>
-          <div className="detail-subtitle">{selectedBook.description || '新创建'}</div>
+          <div className="detail-subtitle">{selectedBook.description || FORM_NEWLY_CREATED}</div>
         </div>
       </div>
       <div className="detail-divider" />

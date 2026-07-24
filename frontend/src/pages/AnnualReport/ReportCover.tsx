@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { getThemeColors } from '../../utils/themeColors';
 import { useTheme } from '../../utils/theme';
+import { USER_FALLBACK } from '../../utils/userDisplay'
 
 interface Props {
   year: number;
@@ -78,7 +79,7 @@ const ReportCover: React.FC<Props> = ({ year, nickname }) => {
         <h1 className="text-3xl font-bold mb-4" style={{ textShadow: '0 2px 4px color-mix(in srgb, var(--fg) 12%, transparent)' }}>
           年度消费报告
         </h1>
-        <div className="text-lg opacity-95 mb-6">{nickname || '用户'}，您的年度财务总结</div>
+        <div className="text-lg opacity-95 mb-6">{nickname || USER_FALLBACK}，您的年度财务总结</div>
         <div className="flex justify-center gap-3">
           <span
             className="inline-flex items-center justify-center w-10 h-10 rounded-full backdrop-blur-sm"

@@ -18,9 +18,10 @@ import ReportFunFact from './ReportFunFact';
 import ReportFooter from './ReportFooter';
 import { notifySuccess, notifyError } from '../../utils/notifyError'
 import { Button } from '../../components/ui/Button'
-import { ERROR_REPORT_NOT_LOADED, ERROR_SAVE_IMAGE } from '../../utils/errorCopy';
+import { ERROR_REPORT_NOT_LOADED, ERROR_SAVE_IMAGE, ERROR_DATA_LOAD_FAILED_RETRY } from '../../utils/errorCopy';
 import { SUCCESS_REPORT_SAVED } from '../../utils/successCopy';
 import { FORM_SEARCH_YEAR } from '../../utils/formCopy'
+import { userDisplayName } from '../../utils/userDisplay'
 
 const CURRENT_YEAR = new Date().getFullYear();
 
@@ -148,7 +149,7 @@ const AnnualReport: React.FC = () => {
             fontSize: '14px',
           }}
         >
-          {error?.message || '数据加载失败，请稍后重试'}
+          {error?.message || ERROR_DATA_LOAD_FAILED_RETRY}
         </div>
       )}
 
@@ -169,7 +170,7 @@ const AnnualReport: React.FC = () => {
                 background: 'var(--bg)',
               }}
             >
-              <ReportCover year={year} nickname={user?.username || '用户'} />
+              <ReportCover year={year} nickname={userDisplayName(user)} />
               <ReportOverview data={reportData.overview} />
               <ReportMonthlyTrend data={reportData.monthly} />
               <ReportCategoryRank data={reportData.top_categories} />

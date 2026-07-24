@@ -19,7 +19,7 @@ import "./index.scss";
 import { toastInfo } from "../../utils/toast";
 import { FORM_PRIVACY_LOCATION, FORM_LOCATION_REQUIRED, FORM_LOCATION_UNAVAILABLE, FORM_LOCATION_DENIED, FORM_PRIVACY_REQUIRED, FORM_LOCATION_TIMEOUT, FORM_LOCATION_MANUAL_HINT } from "../../utils/formCopy";
 import { TITLE_SELECT_LOCATION } from "../../utils/sectionCopy";
-import { ACTION_SEARCHING_ELLIPSIS } from '../../utils/actionCopy'
+import { ACTION_SEARCHING_ELLIPSIS, ACTION_LOCATING, ACTION_LOCATE } from '../../utils/actionCopy'
 
 export interface LocationResult {
   latitude: number;
@@ -292,7 +292,7 @@ export default function LocationPicker({
             className={`lp-locate ${locating ? "lp-locate--loading" : ""}`}
             onClick={handleLocate}
           >
-            {locating ? "定位中" : "定位"}
+            {locating ? ACTION_LOCATING : ACTION_LOCATE}
           </Text>
         </View>
 

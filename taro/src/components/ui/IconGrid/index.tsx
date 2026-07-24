@@ -15,7 +15,7 @@ import "./index.scss";
 import { toastInfo } from "../../../utils/toast";
 import Icon, { ICON_COLOR } from "../../Icon";
 import { FORM_PRIVACY_REQUIRED } from "../../../utils/formCopy";
-import { IMAGE_SELECT_FAILED_SHORT } from "../../../utils/uploadCopy";
+import { IMAGE_SELECT_FAILED_SHORT, PRIVACY_ALBUM_FOR_ICON } from "../../../utils/uploadCopy";
 
 export interface IconGridOption {
   value: string;
@@ -52,7 +52,7 @@ export function IconGrid({
 }: IconGridProps) {
   const handleUpload = async () => {
     // 先触发微信隐私授权
-    const ok = await ensurePrivacyAuthorize("选择图标需要访问您的相册");
+    const ok = await ensurePrivacyAuthorize(PRIVACY_ALBUM_FOR_ICON);
     if (!ok) return;
     try {
       const res = await Taro.chooseMedia({

@@ -7,6 +7,8 @@ import './index.scss';
 import { getThemeColors } from '../../../../utils/themeColors'
 import { merchantBalanceColor } from '../../../../utils/color'
 import { createFootprintMarkerHtml, merchantShortLabel } from '../../../../utils/mapMarkerHtml'
+import { ERROR_LOCATION_UNAVAILABLE, ERROR_MAP_UNAVAILABLE, ERROR_MAP_NETWORK_HINT } from '../../../../utils/errorCopy'
+import { ACTION_LOCATING_CURRENT_ELLIPSIS } from '../../../../utils/actionCopy'
 
 /* ⚠️ 静态初值，永不随 state 变化，避免二次变更视口取消瓦片 */
 function getMerchantColor(expenseTotal: number, incomeTotal: number): string {
@@ -319,7 +321,7 @@ const _MapCanvas: React.ForwardRefRenderFunction<MapCanvasHandle, MapCanvasProps
 
     const AMap = AmapManager.getInstance().AMap;
     if (!AMap?.Geolocation) {
-      setLocateError('定位功能不可用');
+      setLocateError(ERROR_LOCATION_UNAVAILABLE);
       setMapVisible(true);
       locateDone.current = true;
       return;
@@ -464,8 +466,8 @@ const _MapCanvas: React.ForwardRefRenderFunction<MapCanvasHandle, MapCanvasProps
         {mapError && (
           <div className="map-error-fallback">
             <div className="map-error-icon">🗺️</div>
-            <div className="map-error-title">地图功能暂不可用</div>
-            <div className="map-error-desc">地图服务需要网络环境，请检查网络连接后刷新页面</div>
+            <div className="map-error-title">{ERROR_MAP_UNAVAILABLE}</div>
+            <div className="map-error-desc">{ERROR_MAP_NETWORK_HINT}</div>
           </div>
         )}
 
@@ -475,7 +477,7 @@ const _MapCanvas: React.ForwardRefRenderFunction<MapCanvasHandle, MapCanvasProps
         {!mapVisible && !locateError && !mapError && (
           <div className="map-locating-overlay">
             <div className="map-locating-spinner" />
-            <div className="map-locating-text">正在定位当前位置…</div>
+            <div className="map-locating-text">{ACTION_LOCATING_CURRENT_ELLIPSIS}</div>
           </div>
         )}
 

@@ -41,6 +41,9 @@ export const FORM_LOCATION_UNAVAILABLE = '无法获取当前位置'
 export const FORM_LOCATION_DENIED = '位置权限被拒绝，请在设置中开启'
 export const FORM_LOCATION_TIMEOUT = '定位超时，请检查网络或到开阔处重试'
 export const FORM_LOCATION_MANUAL_HINT = '，可手动搜索或点击地图选择'
+export const FORM_LOCATION_GET_FAILED_HINT =
+  '无法获取当前位置，请确认已授权位置权限后手动搜索或点击地图选择位置'
+export const FORM_NEWLY_CREATED = '新创建'
 
 export const FORM_CAPTCHA_PLACEHOLDER = '请输入验证码'
 export const FORM_USERNAME_PLACEHOLDER = '请输入用户名'

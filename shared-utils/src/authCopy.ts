@@ -47,3 +47,12 @@ export const ACTION_RESETTING_ELLIPSIS = '重置中…'
 export const AUTH_LOGIN_FAILED = '登录失败，请重试'
 export const AUTH_CHANGE_PASSWORD_FAILED = '修改密码失败'
 export const AUTH_SAVE_PROFILE_FAILED = '保存失败，请检查网络或稍后重试'
+
+export const AUTH_LOGIN_EXPIRED = '登录已过期'
+export const AUTH_LOGIN_EXPIRED_REENTER = '登录已过期，请重新输入密码'
+export const AUTH_ADD_NEW_ACCOUNT_LOGIN = '添加新账号登录'
+
+/** email 的登录状态已失效，请重新登录 */
+export function authLoginExpiredRelogin(email: string): string {
+  return `${email} 的登录状态已失效，请重新登录`
+}

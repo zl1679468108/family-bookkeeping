@@ -48,3 +48,14 @@ export function failEntityUpsert(isEdit: boolean): string {
 export function failUpdateOrSave(isEdit: boolean): string {
   return isEdit ? ERROR_UPDATE_FAILED : ERROR_SAVE_FAILED
 }
+
+/** 定位 / 地图 */
+export const ERROR_LOCATION_UNAVAILABLE = '定位功能不可用'
+export const ERROR_LOCATION_NO_MATCH = '未找到匹配的地点'
+export const ERROR_LOCATION_SEARCH_FAILED = '搜索失败，请重试'
+export const ERROR_MAP_SDK_LOAD_FAILED = '地图 SDK 加载失败'
+export const ERROR_MAP_UNAVAILABLE = '地图功能暂不可用'
+export const ERROR_MAP_NETWORK_HINT = '地图服务需要网络环境，请检查网络连接后刷新页面'
+export const ERROR_JOIN_FAILED_RETRY = '加入失败，请重试'
+export const ERROR_LOAD_FAILED_RETRY = '加载失败，请重试'
+export const ERROR_DATA_LOAD_FAILED_RETRY = '数据加载失败，请稍后重试'

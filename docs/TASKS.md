@@ -85,6 +85,11 @@
 
 ### ✅ 已完成
 
+#### 2026-07-24 定位/地图错误与用户展示文案 shared 化
+- `errorCopy` 定位/地图/加载/加入失败文案；`actionCopy` 定位/添加；`formCopy` 定位失败提示/新创建；`userDisplay` USER_FALLBACK/UNNAMED；`authCopy` 登录过期
+- 接线 PC LocationPicker/Map/年报/Admin/切换账号，Taro LocationPicker/BookCard/模板选择/IconGrid/Profile/成员列表
+- 验证：frontend / taro `tsc --noEmit`
+
 #### 2026-07-24 分类/报表/个人中心/隐私授权文案 shared 化
 - `FIELD_DEFAULT/TOTAL_INCOME/TOTAL_EXPENSE/RATIO`；`ACTION_COPY_LAST_MONTH/SWITCH_ACCOUNT/SWITCH_THEME/DEACTIVATE_ACCOUNT` + 主题亮暗文案；`TITLE_ABOUT`；`DEFAULT_BOOK_NAME`；相册隐私三句
 - 接线分类默认/自定义、报表总收支与趋势图、预算复制上月、默认账本、账本详情/邀请码标题、个人中心与侧栏菜单、隐私授权与选择位置

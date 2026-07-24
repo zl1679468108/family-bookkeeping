@@ -17,6 +17,7 @@ import { FORM_INVITE_CODE_EXAMPLE } from '../../../utils/formCopy'
 import { TITLE_JOIN_BY_INVITE } from '../../../utils/sectionCopy'
 import { FIELD_INVITE_CODE } from '../../../utils/fieldCopy'
 import { ACTION_CANCEL, joiningLabel } from '../../../utils/actionCopy'
+import { ERROR_JOIN_FAILED_RETRY } from '../../../utils/errorCopy'
 
 interface BookInviteModalProps {
   open: boolean;
@@ -68,7 +69,7 @@ export const BookInviteModal: React.FC<BookInviteModalProps> = ({ open, onClose,
         onSuccess?.();
       })
       .catch((err: any) => {
-        const msg = getErrorMessage(err, '加入失败，请重试');
+        const msg = getErrorMessage(err, ERROR_JOIN_FAILED_RETRY);
         notifyError(Array.isArray(msg) ? msg[0] : msg);
       })
       .finally(() => {

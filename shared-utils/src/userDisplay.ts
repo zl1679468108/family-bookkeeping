@@ -6,8 +6,11 @@ export type UserLike = {
   name?: string | null
 } | null | undefined
 
+export const USER_FALLBACK = '用户'
+export const USER_UNNAMED = '未命名用户'
+
 /** 优先 username，其次 email / name */
-export function userDisplayName(user: UserLike, fallback = '用户'): string {
+export function userDisplayName(user: UserLike, fallback = USER_FALLBACK): string {
   if (!user) return fallback
   return user.username || user.email || user.name || fallback
 }

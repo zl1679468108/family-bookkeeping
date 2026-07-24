@@ -18,7 +18,7 @@ import ConfirmDialog from "../../components/ConfirmDialog";
 import PageContainer from "../../components/PageContainer";
 import { toastSuccess, toastInfo } from "../../utils/toast";
 import { bookMemberRoleLabel, isBookOwnerRole } from "../../utils/roles";
-import { userDisplayName, userInitial } from "../../utils/userDisplay";
+import { userDisplayName, userInitial, USER_UNNAMED } from "../../utils/userDisplay";
 import { ACTION_LOADING, ACTION_CANCEL, ACTION_GENERATING_ELLIPSIS, ACTION_REMOVING_ELLIPSIS, ACTION_COPY } from "../../utils/actionCopy"
 import {
   CONFIRM_REMOVE_TITLE,
@@ -354,7 +354,7 @@ export default function BookMembers() {
                   <View>
                     <View style={{ display: "flex", alignItems: "center", gap: "12rpx" }}>
                       <Text style={{ fontSize: "30rpx", fontWeight: 600 }}>
-                        {m.username || "未命名用户"}
+                        {userDisplayName(m, USER_UNNAMED)}
                       </Text>
                       <View
                         style={{
