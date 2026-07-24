@@ -15,6 +15,7 @@ import { TrendChart } from './components/TrendChart'
 import { CategoryRankChart } from './components/CategoryRankChart'
 import { useReportData, PeriodType } from './hooks/useReportData'
 import { formatAmount } from '../../utils/common'
+import { formatMonthDisplay } from '../../utils/month'
 
 const Reports: React.FC = () => {
   const navigate = useNavigate()
@@ -153,7 +154,7 @@ const Reports: React.FC = () => {
                 <CardHeader title={chartTitle} action={
                   isMonthCompare ? (
                     <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                      <span style={{ padding: '4px 8px', fontSize: '12px', fontWeight: 600, color: 'var(--fg)' }}>{format(now, 'yyyy 年 MM 月')}</span>
+                      <span style={{ padding: '4px 8px', fontSize: '12px', fontWeight: 600, color: 'var(--fg)' }}>{formatMonthDisplay(now)}</span>
                       <span style={{ fontSize: '12px', color: 'var(--fg3)' }}>vs</span>
                       <DropdownSelect options={monthOptions} value={monthCompareTarget} onChange={(k) => k && setMonthCompareTarget(k)} showSearch searchPlaceholder="搜索月份..." />
                     </div>

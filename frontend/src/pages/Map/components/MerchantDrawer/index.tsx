@@ -6,6 +6,7 @@ import { EmptyState } from '../../../../components/ui/EmptyState';
 import { Pagination } from '../../../../components/ui/Pagination';
 import './index.scss';
 import { formatAmount } from '../../../../utils/common';
+import { Button } from '../../../../components/ui/Button'
 
 interface MerchantDrawerProps {
   merchants: MerchantSummary[];
@@ -140,8 +141,10 @@ export const MerchantDrawer: React.FC<MerchantDrawerProps> = ({
               当前页全选{selectedCount > 0 && <span className="merchant-drawer__checkbox-count">已选 {selectedCount}</span>}
             </span>
             {selectedCount > 0 && (
-              <button
+              <Button
                 type="button"
+                variant="ghost"
+                size="sm"
                 className="merchant-drawer__clear-btn"
                 onClick={(e) => {
                   e.stopPropagation();
@@ -149,7 +152,7 @@ export const MerchantDrawer: React.FC<MerchantDrawerProps> = ({
                 }}
               >
                 清除
-              </button>
+              </Button>
             )}
           </div>
         </div>

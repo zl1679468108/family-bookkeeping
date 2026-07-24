@@ -11,6 +11,7 @@ import type { LocationResult } from '@family-bookkeeping/shared-types'
 import { useBook } from '../../../hooks/useBook'
 import { queryKeys } from '../../../utils/queryKeys'
 import { STALE } from '../../../utils/cachePolicy'
+import { successEntityDeleted, successEntityUpsert } from '../../../utils/successCopy'
 
 export function useTemplatesPage() {
   const { currentBook } = useBook()
@@ -68,7 +69,7 @@ export function useTemplatesPage() {
     () => deleteTemplate(selectedTemplate.id),
     {
       invalidateKeys: [queryKeys.templates.all],
-      successMessage: '模板已删除',
+      successMessage: successEntityDeleted('模板'),
       errorMessage: '删除失败',
       onSuccess: () => {
         setShowDetail(false)
@@ -82,7 +83,7 @@ export function useTemplatesPage() {
     (data: CreateTemplateInput) => createTemplate(data),
     {
       invalidateKeys: [queryKeys.templates.all],
-      successMessage: '模板已创建',
+      successMessage: successEntityUpsert('模板', false),
       errorMessage: '创建失败',
     },
   )
@@ -91,7 +92,7 @@ export function useTemplatesPage() {
     ({ id, data }: { id: string; data: Partial<CreateTemplateInput> }) => updateTemplate(id, data),
     {
       invalidateKeys: [queryKeys.templates.all],
-      successMessage: '模板已更新',
+      successMessage: successEntityUpsert('模板', true),
       errorMessage: '更新失败',
       onSuccess: () => {
         setShowForm(false)

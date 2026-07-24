@@ -12,6 +12,7 @@ import { useBook } from '../../../../hooks/useBook';
 import { queryKeys } from '../../../../utils/queryKeys';
 import { STALE } from '../../../../utils/cachePolicy';
 import { Icon } from '../../../../components/ui/Icon'
+import { transactionTypeShortLabel } from '../../../../utils/transactionType'
 
 interface TransactionHistoryModalProps {
   merchant: MerchantSummary;
@@ -95,7 +96,7 @@ export const TransactionHistoryModal: React.FC<TransactionHistoryModalProps> = (
               <div key={tx.id} className={`merchant-history-item ${tx.type}`}>
                 <div className="history-item-left">
                   <span className={`history-item-type ${tx.type}`}>
-                    {tx.type === 'income' ? '收' : '支'}
+                    {transactionTypeShortLabel(tx.type)}
                   </span>
                   <div className="history-item-info">
                     <span className="history-item-category">

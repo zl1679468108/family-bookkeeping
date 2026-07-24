@@ -40,7 +40,7 @@ export type { BudgetVariant, BudgetCategoryLike } from "./budget";
 
 export { getErrorMessage } from "./errorMessage";
 
-export { monthDateRange, toMonthKey, parseMonthKey } from "./month";
+export { monthDateRange, toMonthKey, parseMonthKey, formatMonthDisplay, formatMonthDisplayCompact } from "./month";
 
 // 轻提示 — 详见 ./toast
 export { toast, toastSuccess, toastInfo, toastWarn, toastError } from "./toast";

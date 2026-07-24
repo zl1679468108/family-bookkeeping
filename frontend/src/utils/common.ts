@@ -45,4 +45,4 @@ export { getErrorMessage } from './errorMessage'
 
 export { notifyError, notifySuccess, notifyInfo } from './notifyError'
 
-export { monthDateRange, toMonthKey, parseMonthKey } from './month'
+export { monthDateRange, toMonthKey, parseMonthKey, formatMonthDisplay, formatMonthDisplayCompact } from './month'

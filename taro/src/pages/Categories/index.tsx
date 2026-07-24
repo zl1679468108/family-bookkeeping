@@ -43,12 +43,15 @@ import { useReorder } from "../../hooks/useReorder";
 import "./index.scss";
 import { toastSuccess, toastInfo } from "../../utils/toast";
 import { ACTION_DELETING, ACTION_LOADING, ACTION_SAVING } from "../../utils/actionCopy";
+import { SORT_DONE, SORT_EDIT } from "../../utils/sortCopy";
+import { categoryTypeTabLabel } from "../../utils/transactionType";
 import {
   CONFIRM_DELETE_TITLE,
   CONFIRM_DELETE_TEXT,
   confirmDeleteThis,
   confirmDeleteCategory,
 } from "../../utils/confirmCopy";
+import { SUCCESS_DELETED, SUCCESS_ICON_UPLOADED, successEntityUpsert } from "../../utils/successCopy";
 
 /* ---------- 类型 ---------- */
 interface Category {
@@ -215,7 +218,7 @@ export default function CategoriesPage() {
         : createCategory({ name, icon, type: catType });
       await apiCall;
       qc.invalidateQueries({ queryKey: ["categories"] });
-      toastSuccess(isEdit ? "分类已更新" : "分类已创建");
+      toastSuccess(successEntityUpsert("分类", isEdit));
       closeForm();
       refetch();
     }, ACTION_SAVING).catch((err: any) => {
@@ -238,7 +241,7 @@ export default function CategoriesPage() {
         // 刷新自定义图标列表
         const list = await fetchCustomIcons("category");
         setCustomIcons(list || []);
-        toastSuccess("上传成功");
+        toastSuccess(SUCCESS_ICON_UPLOADED);
       } else {
         toastInfo("上传失败");
       }
@@ -252,7 +255,7 @@ export default function CategoriesPage() {
       await deleteIcon(iconId);
       const list = await fetchCustomIcons("category");
       setCustomIcons(list || []);
-      toastSuccess("已删除");
+      toastSuccess(SUCCESS_DELETED);
     } catch {
       toastInfo("删除失败");
     }
@@ -287,8 +290,8 @@ export default function CategoriesPage() {
             setTabIndex(v === "income" ? 1 : 0);
           }}
           options={[
-            { value: "expense", label: "支出分类" },
-            { value: "income", label: "收入分类" },
+            { value: "expense", label: categoryTypeTabLabel("expense") },
+            { value: "income", label: categoryTypeTabLabel("income") },
           ]}
         />
         <View className="cats-actions">
@@ -298,14 +301,14 @@ export default function CategoriesPage() {
                 取消
               </Button>
               <Button variant="primary" size="sm" onClick={handleSaveSort}>
-                完成排序
+                {SORT_DONE}
               </Button>
             </>
           ) : (
             <>
               {!isLoading && filtered.length > 1 && (
                 <Button variant="outline" size="sm" onClick={handleEnterSortMode}>
-                  编辑排序
+                  {SORT_EDIT}
                 </Button>
               )}
               <Button variant="primary" size="sm" onClick={handleAdd}>
@@ -538,7 +541,7 @@ export default function CategoriesPage() {
           run(async () => {
             await deleteCategory(deletingCat.id);
             qc.invalidateQueries({ queryKey: ["categories"] });
-            toastSuccess("已删除");
+            toastSuccess(SUCCESS_DELETED);
             setShowDeleteConfirm(false);
             setDetailCat(null);
             setDeletingCat(null);

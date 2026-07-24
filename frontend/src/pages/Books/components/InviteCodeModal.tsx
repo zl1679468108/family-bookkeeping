@@ -5,6 +5,7 @@ import { FooterActions } from '../../../components/ui/FooterActions';
 import type { InviteCodeData } from '../hooks/useBooksPage';
 import { notifySuccess } from '../../../utils/notifyError'
 import { formatDateTimeMinute } from '../../../utils/date'
+import { SUCCESS_INVITE_COPIED } from '../../../utils/successCopy'
 
 interface InviteCodeModalProps {
   open: boolean;
@@ -20,7 +21,7 @@ export const InviteCodeModal: React.FC<InviteCodeModalProps> = ({
   const handleCopy = () => {
     if (inviteCode) {
       navigator.clipboard?.writeText(inviteCode.code);
-      notifySuccess('邀请码已复制');
+      notifySuccess(SUCCESS_INVITE_COPIED);
     }
   };
 

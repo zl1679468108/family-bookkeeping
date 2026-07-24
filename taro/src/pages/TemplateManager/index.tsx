@@ -37,11 +37,13 @@ import { formatMoney } from "../../utils/format";
 import { formatDateTime } from "../../utils/date";
 import { sanitizeAmountInput } from "../../utils/budget";
 import { ACTION_DELETING, ACTION_LOADING, ACTION_SAVING } from "../../utils/actionCopy";
+import { sortModeLabel, SORT_SAVE } from "../../utils/sortCopy";
 import {
   CONFIRM_DELETE_TITLE,
   CONFIRM_DELETE_TEXT,
   confirmDeleteThis,
 } from "../../utils/confirmCopy";
+import { successEntityDeleted, successEntityUpsert } from "../../utils/successCopy";
 
 /* ---------- 空表单初始态 ---------- */
 const EMPTY_FORM = {
@@ -188,7 +190,7 @@ export default function TemplateManager() {
     run(async () => {
       await deleteTemplate(deleteId);
       qc.invalidateQueries({ queryKey: ["templates"] });
-      toastSuccess("模板已删除");
+      toastSuccess(successEntityDeleted("模板"));
       setShowDelete(false);
       setDeleteId(null);
       refetch();
@@ -238,7 +240,7 @@ export default function TemplateManager() {
         await createTemplate(data);
       }
       qc.invalidateQueries({ queryKey: ["templates"] });
-      toastSuccess(editingId ? "模板已更新" : "模板已创建");
+      toastSuccess(successEntityUpsert("模板", Boolean(editingId)));
       setShowForm(false);
       setEditingId(null);
       refetch();
@@ -304,7 +306,7 @@ export default function TemplateManager() {
             size="sm"
             onClick={sortMode ? handleCancelSortMode : handleEnterSortMode}
           >
-            {sortMode ? "完成排序" : "编辑排序"}
+            {sortModeLabel(sortMode)}
           </Button>
         )}
         <Button variant="primary" size="sm" onClick={openCreateForm}>
@@ -316,9 +318,7 @@ export default function TemplateManager() {
       {sortMode && (
         <View className="tpl-sort-hint">
           <Text>长按卡片拖动调整顺序，完成后点击保存</Text>
-          <Button variant="primary" size="sm" onClick={handleSaveSort}>
-            保存排序
-          </Button>
+          <Button variant="primary" size="sm" onClick={handleSaveSort}>{SORT_SAVE}</Button>
         </View>
       )}
 

@@ -38,6 +38,7 @@ import {
   validatePasswordMinLength,
   validatePasswordStrength,
 } from "../../utils/validation";
+import { SUCCESS_PASSWORD_CHANGED, SUCCESS_SAVED } from "../../utils/successCopy";
 
 export default function EditProfile() {
   const { user, refreshUser } = useAuth();
@@ -134,7 +135,7 @@ export default function EditProfile() {
           : avatarUrl,
       });
       await refreshUser?.();
-      toastSuccess("保存成功");
+      toastSuccess(SUCCESS_SAVED);
       setTimeout(() => Taro.navigateBack(), 600);
     }, ACTION_SAVING).catch((err: any) => {
       toastError(err, "保存失败，请重试");
@@ -171,7 +172,7 @@ export default function EditProfile() {
         newPassword: newPwd,
         confirmPassword: confirmPwd,
       });
-      toastSuccess("密码修改成功");
+      toastSuccess(SUCCESS_PASSWORD_CHANGED);
       setShowPwd(false);
       setOldPwd("");
       setNewPwd("");

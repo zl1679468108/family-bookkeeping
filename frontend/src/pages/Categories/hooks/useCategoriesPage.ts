@@ -15,6 +15,12 @@ import { useBook } from '../../../hooks/useBook'
 import { queryKeys } from '../../../utils/queryKeys'
 import { STALE } from '../../../utils/cachePolicy'
 import { transactionTypeLabel } from '../../../utils/transactionType'
+import {
+  SUCCESS_ICON_UPLOADED,
+  SUCCESS_ICON_DELETED,
+  SUCCESS_DELETED,
+  successEntityUpsert,
+} from '../../../utils/successCopy'
 
 export function useCategoriesPage() {
   const { currentBook } = useBook()
@@ -81,7 +87,7 @@ export function useCategoriesPage() {
     (input: CreateCategoryInput) => createCategory(input),
     {
       invalidateKeys: [queryKeys.categories.all],
-      successMessage: '分类已创建',
+      successMessage: successEntityUpsert('分类', false),
       errorMessage: '创建失败',
       onSuccess: () => setModalOpen(false),
     },
@@ -92,7 +98,7 @@ export function useCategoriesPage() {
       updateCategory(id, { name, icon, icon_id }),
     {
       invalidateKeys: [queryKeys.categories.all],
-      successMessage: '分类已更新',
+      successMessage: successEntityUpsert('分类', true),
       errorMessage: '更新失败',
       onSuccess: () => {
         setModalOpen(false)
@@ -107,7 +113,7 @@ export function useCategoriesPage() {
     (id: string) => deleteCategory(id),
     {
       invalidateKeys: [queryKeys.categories.all],
-      successMessage: '已删除',
+      successMessage: SUCCESS_DELETED,
       errorMessage: '删除失败',
       onSuccess: () => {
         setDeleteTarget(null)
@@ -193,14 +199,14 @@ export function useCategoriesPage() {
   const handleIconUpload = useCallback(async (file: File, iconType: 'category' | 'book' | 'avatar') => {
     await uploadIcon(file, iconType)
     refetchIcons()
-    notifySuccess('图标上传成功')
+    notifySuccess(SUCCESS_ICON_UPLOADED)
   }, [refetchIcons])
 
   // Icon delete handler
   const handleIconDelete = useCallback(async (iconId: string) => {
     await deleteIcon(iconId)
     refetchIcons()
-    notifySuccess('图标已删除')
+    notifySuccess(SUCCESS_ICON_DELETED)
   }, [refetchIcons])
 
   return {

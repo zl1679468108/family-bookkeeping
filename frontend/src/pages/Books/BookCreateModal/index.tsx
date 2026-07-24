@@ -16,6 +16,7 @@ import type { CustomIconItem } from '../../../components/ui/IconGrid';
 import './index.scss';
 import { queryKeys } from '../../../utils/queryKeys'
 import { STALE } from '../../../utils/cachePolicy'
+import { SUCCESS_ICON_UPLOADED, SUCCESS_ICON_DELETED } from '../../../utils/successCopy'
 
 interface BookCreateModalProps {
   open: boolean;
@@ -92,14 +93,14 @@ export const BookCreateModal: React.FC<BookCreateModalProps> = ({ open, onClose,
   const handleIconUpload = useCallback(async (file: File, iconType: 'category' | 'book' | 'avatar') => {
     await uploadIcon(file, iconType);
     refetchIcons();
-    notifySuccess('图标上传成功');
+    notifySuccess(SUCCESS_ICON_UPLOADED);
   }, [refetchIcons]);
 
   // 删除图标处理
   const handleIconDelete = useCallback(async (iconId: string) => {
     await deleteIcon(iconId);
     refetchIcons();
-    notifySuccess('图标已删除');
+    notifySuccess(SUCCESS_ICON_DELETED);
   }, [refetchIcons]);
 
   return (

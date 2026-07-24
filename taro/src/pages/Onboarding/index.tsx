@@ -18,6 +18,7 @@ import { BOOK_ICONS, renderBookIconSvg } from "../../utils/bookIcons";
 import "./index.scss";
 import { toastSuccess, toastInfo } from "../../utils/toast";
 import { INVITE_CODE_HELP } from "../../utils/inviteCopy";
+import { SUCCESS_CREATED, SUCCESS_JOINED } from "../../utils/successCopy";
 
 type Mode = "choice" | "create" | "join";
 
@@ -53,7 +54,7 @@ export default function Onboarding() {
       const list = await refetchBooks();
       const target = list.find((b) => b.id === newBook.id) || newBook;
       switchBook(target);
-      toastSuccess("创建成功");
+      toastSuccess(SUCCESS_CREATED);
       setTimeout(() => Taro.reLaunch({ url: "/pages/Home/index" }), 600);
     }, "创建中…").catch((err: any) => {
       toastError(err, "创建失败，请重试");
@@ -71,7 +72,7 @@ export default function Onboarding() {
       const list = await refetchBooks();
       const target = list.find((b) => b.id === joined.book_id) || list[0] || null;
       if (target) switchBook(target);
-      toastSuccess("加入成功");
+      toastSuccess(SUCCESS_JOINED);
       setTimeout(() => Taro.reLaunch({ url: "/pages/Home/index" }), 600);
     }, "加入中…").catch((err: any) => {
       toastError(err, "邀请码无效或已过期");

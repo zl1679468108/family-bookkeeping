@@ -1,6 +1,5 @@
 import React, { useMemo, useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { format } from 'date-fns'
 import { useQuery } from '@tanstack/react-query'
 import { fetchBudgets, fetchBudgetStatus, upsertBudgets, copyBudgets } from '../../services/budgetsApi'
 import { useMutationAction } from '../../hooks/useMutationAction'
@@ -38,11 +37,8 @@ import {
   CONFIRM_COPY_BUDGET_MESSAGE,
   CONFIRM_COPY_BUDGET_TEXT,
 } from '../../utils/confirmCopy'
-
-const formatMonthToDisplay = (monthStr: string): string => {
-  const date = new Date(monthStr)
-  return format(date, 'yyyy 年 MM 月')
-}
+import { formatMonthDisplay } from '../../utils/month'
+import { SUCCESS_BUDGET_SAVED, SUCCESS_BUDGET_DELETED } from '../../utils/successCopy'
 
 const progressFillClass = (variant: 'safe' | 'warn' | 'danger'): string => {
   switch (variant) {
@@ -164,7 +160,7 @@ const Budgets: React.FC = () => {
       month: selectedMonth,
       budgets: budgetsArray,
     })
-      .then(() => notifySuccess('预算保存成功'))
+      .then(() => notifySuccess(SUCCESS_BUDGET_SAVED))
       .catch(() => {
         // 错误已由 useMutationAction 通知
       })
@@ -224,7 +220,7 @@ const Budgets: React.FC = () => {
       month: selectedMonth,
       budgets: [{ category: catId, amount: newAmount }],
     }).then(() => {
-      notifySuccess('预算保存成功')
+      notifySuccess(SUCCESS_BUDGET_SAVED)
       setSelectedBudget((prev: any) =>
         prev
           ? {
@@ -251,7 +247,7 @@ const Budgets: React.FC = () => {
       month: selectedMonth,
       budgets: [{ category: catId, amount: 0 }],
     }).then(() => {
-      notifySuccess('预算已删除')
+      notifySuccess(SUCCESS_BUDGET_DELETED)
       setShowDetail(false)
       setShowDeleteConfirm(false)
       setSelectedBudget(null)
@@ -424,7 +420,7 @@ const Budgets: React.FC = () => {
               value={budgetVariantLabel(budgetStatusToVariant(selectedBudget.status))}
             />
             {selectedBudget.month && (
-              <DetailItem label="月份" value={formatMonthToDisplay(selectedBudget.month)} />
+              <DetailItem label="月份" value={formatMonthDisplay(selectedBudget.month)} />
             )}
           </div>
         </GlobalModal>

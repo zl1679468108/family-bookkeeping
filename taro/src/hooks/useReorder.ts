@@ -26,6 +26,7 @@ import type { QueryClient } from "@tanstack/react-query";
 import { useSubmit, toastError } from "./useSubmit";
 import { toastSuccess, toastInfo } from "../utils/toast";
 import { ACTION_SAVING } from "../utils/actionCopy";
+import { SORT_SAVED } from "../utils/sortCopy";
 
 export interface UseReorderOptions<T> {
   /** 非排序模式下的基准有序列表（已按 sort_order 排好） */
@@ -72,7 +73,7 @@ export function useReorder<T>({
   queryKey,
   queryClient,
   refetch,
-  successText = "排序已保存",
+  successText = SORT_SAVED,
 }: UseReorderOptions<T>): UseReorderResult<T> {
   const { run } = useSubmit();
   const [sortMode, setSortMode] = useState(false);

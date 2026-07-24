@@ -9,6 +9,7 @@ import { Card, CardHeader } from '../../components/ui/Card';
 import './MemberComparison.scss';
 import { formatAmount } from '../../utils/common';
 import { getChartPalette } from '../../utils/themeColors'
+import { formatMonthDisplayCompact } from '../../utils/month'
 
 interface MemberComparisonProps {
   monthFrom: string;
@@ -16,14 +17,6 @@ interface MemberComparisonProps {
 }
 
 const MEMBER_COLORS: string[] = getChartPalette();
-
-const formatMonth = (ym: string): string => {
-  const parts = ym.split('-');
-  if (parts.length === 2) {
-    return `${parseInt(parts[0], 10)}年${parseInt(parts[1], 10)}月`;
-  }
-  return ym;
-};
 
 const generateMonthRange = (from: string, to: string): string[] => {
   const months: string[] = [];
@@ -218,7 +211,7 @@ const MonthlyBarChart: React.FC<{
       grid: { left: '3%', right: '4%', bottom: '3%', top: '12%', containLabel: true },
       xAxis: {
         type: 'category',
-        data: months.map((m) => formatMonth(m)),
+        data: months.map((m) => formatMonthDisplayCompact(m)),
         axisLabel: { fontSize: 11 },
       },
       yAxis: {
@@ -297,7 +290,7 @@ export const MemberComparison: React.FC<MemberComparisonProps> = ({
     );
   }
 
-  const periodLabel = `${formatMonth(monthFrom)} ~ ${formatMonth(monthTo)}`;
+  const periodLabel = `${formatMonthDisplayCompact(monthFrom)} ~ ${formatMonthDisplayCompact(monthTo)}`;
 
   return (
     <div className="mc-container">

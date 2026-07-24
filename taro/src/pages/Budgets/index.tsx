@@ -29,6 +29,7 @@ import {
   CONFIRM_COPY_BUDGET_MESSAGE,
   CONFIRM_COPY_BUDGET_TEXT,
 } from "../../utils/confirmCopy";
+import { SUCCESS_BUDGET_SAVED } from "../../utils/successCopy";
 
 /* ---------- 类型 ---------- */
 interface BudgetDetail {
@@ -141,7 +142,7 @@ export default function BudgetsPage() {
     run(async () => {
       await upsertBudgets({ month: monthKey, budgets: items });
       invalidateManualQuery(`budgets-`);
-      toastSuccess("预算保存成功");
+      toastSuccess(SUCCESS_BUDGET_SAVED);
       refetchBudgets();
       refetchStatus();
       setEditingId(null);

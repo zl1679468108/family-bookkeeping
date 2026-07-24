@@ -25,6 +25,7 @@ import {
   CONFIRM_REMOVE_TEXT,
   confirmRemoveMember,
 } from "../../utils/confirmCopy";
+import { SUCCESS_INVITE_COPIED } from "../../utils/successCopy";
 
 interface Member {
   id: string;
@@ -52,7 +53,7 @@ export default function BookMembers() {
       const res = await createInvitation(bookId);
       setInviteCode(res.code);
       Taro.setClipboardData({ data: res.code });
-      toastSuccess("邀请码已复制");
+      toastSuccess(SUCCESS_INVITE_COPIED);
     }, "生成中…").catch((err: any) => {
       toastError(err, "生成失败");
     });

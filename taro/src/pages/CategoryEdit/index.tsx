@@ -40,6 +40,8 @@ import {
   CONFIRM_DELETE_TEXT,
   confirmDeleteThis,
 } from "../../utils/confirmCopy";
+import { SUCCESS_DELETED, successEntityUpsert } from "../../utils/successCopy";
+import { categoryTypeTabLabel } from "../../utils/transactionType";
 
 interface CustomIconItem {
   id: string;
@@ -133,7 +135,7 @@ export default function CategoryEdit() {
     deleteIcon(iconId)
       .then(() => {
         refreshCustomIcons();
-        toastSuccess("已删除");
+        toastSuccess(SUCCESS_DELETED);
       })
       .catch(() => toastInfo("删除失败"));
   };
@@ -151,7 +153,7 @@ export default function CategoryEdit() {
         : createCategory({ ...payload, type: catType });
       await apiCall;
       qc.invalidateQueries({ queryKey: ["categories"] });
-      toastSuccess(isEdit ? "分类已更新" : "分类已创建");
+      toastSuccess(successEntityUpsert("分类", isEdit));
       setTimeout(() => Taro.navigateBack(), 500);
     }, ACTION_SAVING).catch((err: any) => {
       toastError(err, (isEdit ? "更新失败" : "创建失败"));
@@ -162,7 +164,7 @@ export default function CategoryEdit() {
     run(async () => {
       await deleteCategory(id);
       qc.invalidateQueries({ queryKey: ["categories"] });
-      toastSuccess("已删除");
+      toastSuccess(SUCCESS_DELETED);
       setTimeout(() => Taro.navigateBack(), 500);
     }, ACTION_DELETING).catch((err: any) => {
       toastError(err, "删除失败");
@@ -175,7 +177,7 @@ export default function CategoryEdit() {
   return (
     <PageContainer bottomSpace={180} loading={isLoading} loadingText={ACTION_LOADING}>
       <PageHero
-        eyebrow={catType === "expense" ? "支出分类" : "收入分类"}
+        eyebrow={categoryTypeTabLabel(catType)}
         title={title}
         meta={isEdit ? "修改名称或图标后保存" : "填写名称并选择图标"}
         tone="surface"

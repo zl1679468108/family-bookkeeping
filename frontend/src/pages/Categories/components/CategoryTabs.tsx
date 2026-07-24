@@ -1,5 +1,6 @@
 import React from 'react'
 import { SegControl } from '../../../components/ui/SegControl'
+import { categoryTypeTabLabel } from '../../../utils/transactionType'
 
 interface CategoryTabsProps {
   activeTab: 'expense' | 'income'
@@ -18,8 +19,8 @@ export const CategoryTabs: React.FC<CategoryTabsProps> = ({
     <SegControl
       variant="pill"
       options={[
-        { value: 'expense', label: '支出分类' },
-        { value: 'income', label: '收入分类' },
+        { value: 'expense', label: categoryTypeTabLabel('expense') },
+        { value: 'income', label: categoryTypeTabLabel('income') },
       ]}
       value={activeTab}
       onChange={(v) => {

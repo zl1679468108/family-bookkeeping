@@ -18,6 +18,7 @@ import {
   validatePasswordMinLength,
   validatePasswordStrength,
 } from '../../../utils/validation'
+import { SUCCESS_PASSWORD_CHANGED, SUCCESS_SAVED } from '../../../utils/successCopy'
 
 const compressImage = (file: File, maxSize = 128): Promise<string> =>
   new Promise((resolve, reject) => {
@@ -75,7 +76,7 @@ const PasswordModal: React.FC<PasswordModalProps> = ({ visible, onClose }) => {
 
     try {
       await changePassword({ oldPassword, newPassword, confirmPassword })
-      notifySuccess('密码修改成功')
+      notifySuccess(SUCCESS_PASSWORD_CHANGED)
       setOldPassword('')
       setNewPassword('')
       setConfirmPassword('')
@@ -216,7 +217,7 @@ const ProfilePage: React.FC = () => {
       }
       await updateProfile(payload)
       await refreshUser()
-      notifySuccess('保存成功')
+      notifySuccess(SUCCESS_SAVED)
       navigate(-1)
     } catch (err: unknown) {
       console.error('更新个人信息失败:', err)

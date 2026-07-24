@@ -4,6 +4,7 @@ import { CardHeader } from '../../../components/ui/Card'
 
 import { notifySuccess } from '../../../utils/notifyError'
 import { busyLabel, ACTION_SAVING } from '../../../utils/actionCopy'
+import { sortModeLabel, SORT_SAVED } from '../../../utils/sortCopy'
 
 interface CategoryHeaderProps {
   sortingMode: boolean
@@ -31,14 +32,14 @@ export const CategoryHeader: React.FC<CategoryHeaderProps> = ({
             onClick={() => {
               if (sortingMode) {
                 handleSaveSort()
-                notifySuccess('排序已保存')
+                notifySuccess(SORT_SAVED)
               } else {
                 handleEnterSortMode()
               }
             }}
             disabled={isSaving}
           >
-            {busyLabel(isSaving, ACTION_SAVING, sortingMode ? '完成排序' : '编辑排序')}
+            {busyLabel(isSaving, ACTION_SAVING, sortModeLabel(sortingMode))}
           </Button>
           <Button variant="primary" size="sm" onClick={handleOpenAdd}>
             + 新建分类

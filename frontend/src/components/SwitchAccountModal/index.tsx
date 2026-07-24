@@ -19,6 +19,7 @@ import { Spinner } from '../ui/Spinner'
 import { FooterActions } from '../ui/FooterActions'
 import { notifySuccess, notifyInfo } from '../../utils/notifyError'
 import { userDisplayName, userInitial } from '../../utils/userDisplay'
+import { SUCCESS_ACCOUNT_SWITCHED } from '../../utils/successCopy'
 
 interface SwitchAccountModalProps {
   visible: boolean
@@ -44,7 +45,7 @@ const SwitchAccountModal: React.FC<SwitchAccountModalProps> = ({ visible, onClos
         const accessToken = account.accessToken ?? account.token
         if (accessToken) {
           await switchByToken(account.email, accessToken, account.refreshToken)
-          notifySuccess('账号切换成功')
+          notifySuccess(SUCCESS_ACCOUNT_SWITCHED)
           setAccounts(getSavedAccounts())
           onClose()
           navigate('/')

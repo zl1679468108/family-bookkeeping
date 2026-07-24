@@ -23,6 +23,7 @@ import {
 import "./index.scss";
 import { toastSuccess, toastInfo } from "../../utils/toast";
 import { userDisplayName, userInitial } from "../../utils/userDisplay";
+import { SUCCESS_ACCOUNT_SWITCHED } from "../../utils/successCopy";
 
 export default function Profile() {
   const { user, signOut, signIn, switchByToken } = useAuth();
@@ -113,7 +114,7 @@ export default function Profile() {
       setSwitchingEmail(account.email);
       try {
         await switchByToken(account.email, token, refreshToken ?? undefined);
-        toastSuccess("账号切换成功");
+        toastSuccess(SUCCESS_ACCOUNT_SWITCHED);
         setAccounts(getSavedAccounts());
         setSwitchModal(false);
         return;

@@ -40,3 +40,16 @@ export function transactionTypeStatusClass(type?: string | null): string {
 export function transactionTypeAmountClass(type?: string | null): string {
   return type === "income" ? "amount amount--income" : "amount amount--expense";
 }
+
+/** 短标签：收 / 支（地图气泡等窄位） */
+export function transactionTypeShortLabel(type?: string | null): string {
+  if (type === "income") return "收";
+  if (type === "expense") return "支";
+  return "";
+}
+
+/** Tab：支出分类 / 收入分类 */
+export function categoryTypeTabLabel(type?: string | null): string {
+  if (type === "income") return "收入分类";
+  return "支出分类";
+}

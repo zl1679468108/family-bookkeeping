@@ -32,6 +32,7 @@ import {
   CONFIRM_DELETE_TEXT,
   confirmDeleteThis,
 } from "../../utils/confirmCopy";
+import { successEntityDeleted, successEntityUpsert } from "../../utils/successCopy";
 
 type TplType = "expense" | "income";
 
@@ -123,7 +124,7 @@ export default function TemplateEdit() {
         await createTemplate(data);
       }
       qc.invalidateQueries({ queryKey: ["templates"] });
-      toastSuccess(isEdit ? "模板已更新" : "模板已创建");
+      toastSuccess(successEntityUpsert("模板", isEdit));
       setTimeout(() => Taro.navigateBack(), 500);
     }, ACTION_SAVING).catch((err: any) => {
       toastError(err, isEdit ? "更新失败" : "创建失败");
@@ -134,7 +135,7 @@ export default function TemplateEdit() {
     run(async () => {
       await deleteTemplate(id);
       qc.invalidateQueries({ queryKey: ["templates"] });
-      toastSuccess("模板已删除");
+      toastSuccess(successEntityDeleted("模板"));
       setTimeout(() => Taro.navigateBack(), 500);
     }, ACTION_DELETING).catch((err: any) => {
       toastError(err, "删除失败");

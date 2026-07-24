@@ -6,6 +6,7 @@ import { GC_TIME_LONG, STALE } from '../../../utils/cachePolicy'
 import { startOfMonth, endOfMonth, format, subMonths, parseISO } from 'date-fns'
 import { fetchMonthlyTrend, fetchCategoryBreakdown, fetchDailySummary, fetchYearOverYear } from '../../../services/statisticsApi'
 import type { CategoryBreakdownItem } from '@family-bookkeeping/shared-types'
+import { formatMonthDisplay } from '../../../utils/month'
 
 export enum PeriodType {
   Month = 'month',
@@ -45,7 +46,7 @@ export function useReportData() {
         const date = new Date(y, i, 1)
         months.push({
           key: format(date, 'yyyy-MM'),
-          label: format(date, 'yyyy 年 MM 月'),
+          label: formatMonthDisplay(date),
         })
       }
     }

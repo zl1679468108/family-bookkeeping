@@ -85,6 +85,13 @@
 
 ### ✅ 已完成
 
+#### 2026-07-24 月份展示 / 排序文案 / 成功提示 / 类型短标签复用
+- 双端 `formatMonthDisplay` / `formatMonthDisplayCompact`：预算·报表·成员对比月份展示统一。
+- 双端 `sortCopy`：编辑/完成/保存排序与「排序已保存」；PC/Taro 分类·模板工具栏收口。
+- 双端 `successCopy`：高频成功 toast（删除/创建更新/预算/图标/邀请/账号等）统一。
+- `transactionTypeShortLabel` / `categoryTypeTabLabel`；Taro `formatMoneyByType`；MerchantDrawer「清除」改 `Button`。
+- 验证：frontend / taro `tsc --noEmit` 通过。
+
 #### 2026-07-24 actionCopy / Spinner / 类型样式 / 时间分钟格式复用
 - 双端 `utils/actionCopy`：加载/保存/删除/复制/提交文案 + `busyLabel` 系 helper；`confirmCopy.CONFIRM_DELETE_LOADING` 同源。
 - PC `ui/Spinner`：GlobalModal 确认 loading、SwitchAccount 切换中复用。

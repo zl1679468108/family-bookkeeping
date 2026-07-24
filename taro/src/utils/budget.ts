@@ -1,3 +1,4 @@
+import { isIncomeType } from "./transactionType";
 /**
  * 预算相关纯函数 — 与 PC frontend/src/utils/budget.ts API 对齐
  */
@@ -107,3 +108,11 @@ export function parseAmount(amount: string | number | null | undefined): number 
   return Number.isFinite(num) ? num : 0;
 }
 
+/** 按收支类型加 +/- 前缀 */
+export function formatMoneyByType(amount: number | string, type?: string | null, options: { compact?: boolean; wan?: boolean } = {}): string {
+  return formatMoney(amount, {
+    ...options,
+    showSign: true,
+    sign: isIncomeType(type) ? "+" : "-",
+  });
+}

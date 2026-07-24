@@ -25,8 +25,8 @@ import LocationField, {
   LocationResult,
 } from "../../components/form/LocationField";
 import ImageUpload from "../../components/form/ImageUpload";
-import { todayBeijing, toastSuccess, toastInfo, formatMoney } from "../../utils/format";
-import { sanitizeAmountInput, isValidPositiveAmount } from "../../utils/budget";
+import { todayBeijing, toastSuccess, toastInfo } from "../../utils/format";
+import { formatMoneyByType, isValidPositiveAmount, sanitizeAmountInput } from "../../utils/budget";
 import { transactionTypeLabel, TRANSACTION_TYPE_OPTIONS } from "../../utils/transactionType";
 import { parseImageList } from "../../utils/parseImageList";
 import "./index.scss";
@@ -36,6 +36,7 @@ import {
   CONFIRM_DELETE_TRANSACTION,
   CONFIRM_DELETE_LOADING,
 } from "../../utils/confirmCopy";
+import { successEntityDeleted, successTemplateApplied, successTransactionSaved } from "../../utils/successCopy";
 
 interface Template {
   id: string;
@@ -187,7 +188,7 @@ export default function AddTransaction() {
     }
     setSelectedTemplate(template);
     setShowTemplates(false);
-    toastSuccess(`已应用模板：${template.name}`);
+    toastSuccess(successTemplateApplied(template.name));
   };
 
   // 删除
@@ -202,7 +203,7 @@ export default function AddTransaction() {
             Taro.showLoading({ title: CONFIRM_DELETE_LOADING });
             await deleteTransaction(Number(editId));
             Taro.hideLoading();
-            toastSuccess("交易已删除");
+            toastSuccess(successEntityDeleted("交易"));
             setTimeout(() => Taro.navigateBack(), 500);
           } catch {
             Taro.hideLoading();
@@ -275,7 +276,7 @@ export default function AddTransaction() {
         setPendingImages([]);
       }
 
-      toastSuccess(isEdit ? "交易已更新" : "交易已保存");
+      toastSuccess(successTransactionSaved(isEdit));
       setTimeout(() => Taro.navigateBack(), 600);
     }, ACTION_SAVING).catch((err: any) => {
       toastError(err, "保存失败");
@@ -409,7 +410,7 @@ export default function AddTransaction() {
                   </View>
                   <View className="template-amount">
                     <Text className={template.type === "income" ? "income" : "expense"}>
-                      {formatMoney(Number(template.amount ?? 0), { compact: false, showSign: true, sign: template.type === "income" ? "+" : "-" })}
+                      {formatMoneyByType(Number(template.amount ?? 0), template.type, { compact: false })}
                     </Text>
                   </View>
                 </View>

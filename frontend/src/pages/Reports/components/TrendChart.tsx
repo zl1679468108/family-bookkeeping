@@ -5,6 +5,7 @@ import { format, parseISO } from 'date-fns'
 import { formatAmount } from '../../../utils/common'
 import type { PeriodType } from '../hooks/useReportData'
 import { getThemeColors } from '../../../utils/themeColors'
+import { formatMonthDisplay } from '../../../utils/month'
 
 interface TrendChartProps {
   period: PeriodType
@@ -108,8 +109,8 @@ export const TrendChart: React.FC<TrendChartProps> = ({
         ],
       }
     } else if (isMonthCompare) {
-      const curLabel = format(now, 'yyyy 年 MM 月')
-      const tgtLabel = format(parseISO(monthCompareTarget), 'yyyy 年 MM 月')
+      const curLabel = formatMonthDisplay(now)
+      const tgtLabel = formatMonthDisplay(monthCompareTarget)
       option = {
         tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' },
           formatter: (params: any) => {

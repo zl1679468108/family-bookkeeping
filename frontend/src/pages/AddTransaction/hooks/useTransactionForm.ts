@@ -22,6 +22,7 @@ import {
   loadAddTransactionDraft,
   saveAddTransactionDraft,
 } from '../../../utils/addTransactionDraft'
+import { successTemplateApplied } from '../../../utils/successCopy'
 
 export const MAX_NOTE_LENGTH = 500
 export const MAX_IMAGES = 10
@@ -270,7 +271,7 @@ export function useTransactionForm() {
       })
     }
     setShowTemplateSelector(false)
-    notifySuccess(`已应用模板：${template.name}`)
+    notifySuccess(successTemplateApplied(template.name))
   }
 
   // Location handler
