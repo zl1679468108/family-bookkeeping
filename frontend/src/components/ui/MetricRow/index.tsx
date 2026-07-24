@@ -1,12 +1,16 @@
 import React from 'react'
-import { cx } from '../../../utils/cx'
+import {
+  buildMetricItemClassName,
+  buildMetricRowClassName,
+  type MetricTone,
+} from '../../../utils/metric'
 import './index.scss'
 
 /**
  * MetricRow — 横向指标行（报表总收入/总支出等）
  * 与 Taro MetricGrid 的 tone 语义对齐：default | income | expense | accent
  */
-export type MetricTone = 'default' | 'income' | 'expense' | 'accent'
+export type { MetricTone }
 
 export interface MetricItem {
   label: React.ReactNode
@@ -34,18 +38,16 @@ export const MetricRow: React.FC<MetricRowProps> = ({
 }) => {
   return (
     <div
-      className={cx(
-        'metric-row',
-        `metric-row--${size}`,
-        centered && 'metric-row--centered',
-        className,
-      )}
+      className={buildMetricRowClassName({ size, centered, className })}
       style={style}
     >
       {items.map((item, index) => (
         <div
           key={item.key ?? (typeof item.label === 'string' ? item.label : index)}
-          className={cx('metric-row__item', `metric-row__item--${item.tone || 'default'}`)}
+          className={buildMetricItemClassName({
+            tone: item.tone,
+            prefix: 'metric-row__item',
+          })}
         >
           <div className="metric-row__label">{item.label}</div>
           <div className="metric-row__value">{item.value}</div>

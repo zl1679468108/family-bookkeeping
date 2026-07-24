@@ -85,6 +85,11 @@
 
 ### ✅ 已完成
 
+#### 2026-07-24 StatCard/Metric tone 与 class shared 化
+- `statCard`：`StatCardVariant` + `buildStatCardClassName`（pc/bem 双模式）；双端 StatCard 接线
+- `metric`：`MetricTone` + row/grid/item class 构建；PC MetricRow / Taro MetricGrid 接线
+- 验证：frontend / taro `tsc --noEmit`
+
 #### 2026-07-24 Taro 线框图标对齐 + Seg/Footer class shared
 - `resolveTaroLineIconName` / 别名：Taro Icon 可映射名走 `lineIcons` dataURL（mask/Image），专用图标仍走 assets
 - 无 color 时按主题 storage 选 stroke；`chevron-right` 用真路径不再旋转 down

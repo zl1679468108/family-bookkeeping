@@ -1,5 +1,8 @@
 import React from 'react'
-import { cx } from '../../../utils/cx'
+import {
+  buildStatCardClassName,
+  type StatCardVariant,
+} from '../../../utils/statCard'
 
 /**
  * 统计卡片组件 —— Dashboard 等页面展示关键指标
@@ -13,7 +16,7 @@ interface StatCardProps {
   value: React.ReactNode
   sub?: React.ReactNode
   icon?: React.ReactNode
-  variant?: 'default' | 'income' | 'expense' | 'hero'
+  variant?: StatCardVariant
   className?: string
   onClick?: () => void
 }
@@ -29,11 +32,7 @@ export const StatCard: React.FC<StatCardProps> = ({
 }) => {
   return (
     <div
-      className={cx(
-        'stat-card',
-        variant !== 'default' && variant,
-        className,
-      )}
+      className={buildStatCardClassName({ variant, className, mode: 'pc' })}
       onClick={onClick}
       style={onClick ? { cursor: 'pointer' } : undefined}
     >
