@@ -10,29 +10,38 @@ import { hasToken } from './services/api'
 import { PageProgressBar } from './components/PageProgressBar'
 import { ACTION_LOADING } from './utils/actionCopy'
 import { APP_NAME, appPageTitle } from './config/version'
+import {
+  NAV_HOME, NAV_ADD, NAV_REPORTS, NAV_CALENDAR, NAV_MAP, NAV_BOOKS,
+  NAV_CATEGORIES, NAV_TEMPLATES, NAV_BUDGETS, NAV_ADMIN_USERS, NAV_ADMIN_TRANSACTIONS,
+} from './utils/navCopy'
+import {
+  PAGE_TITLE_TRANSACTIONS_FULL, PAGE_TITLE_PROFILE_CENTER, PAGE_TITLE_ANNUAL_BILL,
+  PAGE_TITLE_ONBOARDING, PAGE_TITLE_ADMIN,
+} from './utils/sectionCopy'
+import { AUTH_NAV_LOGIN, AUTH_NAV_REGISTER, AUTH_TITLE_RECOVER } from './utils/authCopy'
 
 
 // 路由 → 页面标题映射（F-L2）
 const PAGE_TITLES: Record<string, string> = {
-  '/': appPageTitle('首页'),
-  '/transactions': appPageTitle('交易流水'),
-  '/add': appPageTitle('记一笔'),
-  '/reports': appPageTitle('报表'),
-  '/calendar': appPageTitle('日历'),
-  '/map': appPageTitle('地图'),
-  '/annual-report': appPageTitle('年度账单'),
-  '/books': appPageTitle('账本'),
-  '/categories': appPageTitle('分类'),
-  '/templates': appPageTitle('模板'),
-  '/budgets': appPageTitle('预算'),
-  '/profile': appPageTitle('个人中心'),
-  '/onboarding': appPageTitle('开始使用'),
-  '/admin': appPageTitle('管理后台'),
-  '/admin/users': appPageTitle('用户管理'),
-  '/admin/transactions': appPageTitle('交易监控'),
-  '/login': appPageTitle('登录'),
-  '/register': appPageTitle('注册'),
-  '/forgot-password': appPageTitle('找回密码'),
+  '/': appPageTitle(NAV_HOME),
+  '/transactions': appPageTitle(PAGE_TITLE_TRANSACTIONS_FULL),
+  '/add': appPageTitle(NAV_ADD),
+  '/reports': appPageTitle(NAV_REPORTS),
+  '/calendar': appPageTitle(NAV_CALENDAR),
+  '/map': appPageTitle(NAV_MAP),
+  '/annual-report': appPageTitle(PAGE_TITLE_ANNUAL_BILL),
+  '/books': appPageTitle(NAV_BOOKS),
+  '/categories': appPageTitle(NAV_CATEGORIES),
+  '/templates': appPageTitle(NAV_TEMPLATES),
+  '/budgets': appPageTitle(NAV_BUDGETS),
+  '/profile': appPageTitle(PAGE_TITLE_PROFILE_CENTER),
+  '/onboarding': appPageTitle(PAGE_TITLE_ONBOARDING),
+  '/admin': appPageTitle(PAGE_TITLE_ADMIN),
+  '/admin/users': appPageTitle(NAV_ADMIN_USERS),
+  '/admin/transactions': appPageTitle(NAV_ADMIN_TRANSACTIONS),
+  '/login': appPageTitle(AUTH_NAV_LOGIN),
+  '/register': appPageTitle(AUTH_NAV_REGISTER),
+  '/forgot-password': appPageTitle(AUTH_TITLE_RECOVER),
 }
 
 // 当用户已登录但没有账本时允许访问的路由（引导性页面）

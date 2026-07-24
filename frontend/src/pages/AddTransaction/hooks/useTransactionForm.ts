@@ -29,7 +29,7 @@ import {
   restoreAddTransactionFormData,
 } from '../../../utils/addTransactionDraft'
 import { todayBeijing } from '../../../utils/common'
-import { successTemplateApplied, SUCCESS_OCR } from '../../../utils/successCopy'
+import { successTemplateApplied, SUCCESS_OCR, successTransactionSaved } from '../../../utils/successCopy'
 import { maxImagesMessage, IMAGE_PROCESS_FAILED, MAX_RECEIPT_IMAGES } from '../../../utils/uploadCopy'
 import { MAX_NOTE_LENGTH } from '../../../utils/formCopy'
 import { failUpdateOrSave, ERROR_OCR_FAILED } from '../../../utils/errorCopy'
@@ -256,7 +256,7 @@ export function useTransactionForm() {
       invalidateKeys: TRANSACTION_IMPACT_ROOT_KEYS,
       shouldCommit: (result) => result === 'updated' || result === 'created',
       successMessage: (result) =>
-        result === 'updated' ? '交易已更新' : result === 'created' ? '交易已保存' : null,
+        result === 'updated' || result === 'created' ? successTransactionSaved(result === 'updated') : null,
       errorMessage: failUpdateOrSave(isEditMode),
       onSuccess: (result) => {
         if (result !== 'updated' && result !== 'created') return

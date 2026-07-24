@@ -87,6 +87,14 @@ export const ONBOARDING_CREATE_DESC = '新建一个空账本，开始记录收�
 export const ONBOARDING_JOIN_DESC = '输入他人分享的邀请码，加入已有账本'
 
 export const TITLE_EDIT_PROFILE = '编辑资料'
+export const TITLE_BOOK_SETTINGS = '账本设置'
+export const TITLE_PRIVACY_POLICY = '隐私政策'
+export const TITLE_USER_AGREEMENT = '用户协议'
+export const PAGE_TITLE_TRANSACTIONS_FULL = '交易流水'
+export const PAGE_TITLE_PROFILE_CENTER = '个人中心'
+export const PAGE_TITLE_ANNUAL_BILL = '年度账单'
+export const PAGE_TITLE_ONBOARDING = '开始使用'
+export const PAGE_TITLE_ADMIN = '管理后台'
 
 /** 地图视图 */
 export const MAP_VIEW_FOOTPRINTS = '足迹'

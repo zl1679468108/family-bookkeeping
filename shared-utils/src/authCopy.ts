@@ -2,6 +2,10 @@
 
 export const AUTH_TITLE_WELCOME_BACK = '欢迎回来'
 export const AUTH_TITLE_LOGIN = '登录账户'
+export const AUTH_NAV_LOGIN = '登录'
+export const AUTH_NAV_CREATE_ACCOUNT = '创建账号'
+/** PC 浏览器标题等短标签 */
+export const AUTH_NAV_REGISTER = '注册'
 export const AUTH_TITLE_REGISTER = '注册账户'
 export const AUTH_TITLE_FORGOT = '忘记密码'
 export const AUTH_TITLE_RECOVER = '找回密码'

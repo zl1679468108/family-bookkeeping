@@ -1,5 +1,7 @@
+import { NAV_BUDGETS } from '../../utils/navCopy'
+
 export default definePageConfig({
-  navigationBarTitleText: "预算",
+  navigationBarTitleText: NAV_BUDGETS,
   navigationBarBackgroundColor: "#FFFFFF",
   navigationBarTextStyle: "black",
   usingComponents: {},

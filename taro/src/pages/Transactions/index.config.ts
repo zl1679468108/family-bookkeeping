@@ -1,5 +1,7 @@
+import { NAV_TRANSACTIONS } from '../../utils/navCopy'
+
 export default definePageConfig({
-  navigationBarTitleText: "流水",
+  navigationBarTitleText: NAV_TRANSACTIONS,
   navigationBarBackgroundColor: "#FFFFFF",
   navigationBarTextStyle: "black",
 });

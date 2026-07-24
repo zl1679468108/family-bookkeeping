@@ -1,5 +1,7 @@
+import { APP_NAME } from '../../config/version'
+
 export default definePageConfig({
-  navigationBarTitleText: "静记",
+  navigationBarTitleText: APP_NAME,
   navigationBarBackgroundColor: "#FFFFFF",
   navigationBarTextStyle: "black",
   usingComponents: {},

@@ -1,3 +1,5 @@
+import { NAV_TEMPLATES } from '../../utils/navCopy'
+
 export default definePageConfig({
-  navigationBarTitleText: "模版",
-});
+  navigationBarTitleText: NAV_TEMPLATES,
+})

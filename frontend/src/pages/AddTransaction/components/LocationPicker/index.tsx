@@ -12,6 +12,7 @@ import { FORM_SEARCH_LOCATION, FORM_LOCATION_GET_FAILED_HINT,
 import { TITLE_SELECT_LOCATION, TITLE_LOCATE_CURRENT } from '../../../../utils/sectionCopy'
 import { ACTION_CANCEL, searchingLabel } from '../../../../utils/actionCopy'
 import { ERROR_LOCATION_UNAVAILABLE, ERROR_LOCATION_NO_MATCH, ERROR_LOCATION_SEARCH_FAILED } from '../../../../utils/errorCopy'
+import { LOCATION_SEARCH_CITY_NATIONWIDE } from '../../../../utils/locationHelpers'
 
 interface LocationPickerProps {
   visible: boolean;
@@ -191,7 +192,7 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
     if (!AMap?.PlaceSearch) return;
     setSearching(true);
     setError('');
-    const placeSearch = new AMap.PlaceSearch({ pageSize: 10, pageIndex: 1, city: '全国' });
+    const placeSearch = new AMap.PlaceSearch({ pageSize: 10, pageIndex: 1, city: LOCATION_SEARCH_CITY_NATIONWIDE });
     placeSearch.search(searchText, (status: string, result: any) => {
       setSearching(false);
       if (status === 'complete' && result.poiList?.pois?.length > 0) {

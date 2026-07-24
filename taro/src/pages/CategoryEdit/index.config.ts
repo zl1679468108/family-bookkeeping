@@ -1,5 +1,7 @@
+import { entityEditTitle, ENTITY_CATEGORY } from '../../utils/entityCopy'
+
 export default definePageConfig({
-  navigationBarTitleText: "编辑分类",
+  navigationBarTitleText: entityEditTitle(ENTITY_CATEGORY),
   navigationBarBackgroundColor: "#FFFFFF",
   navigationBarTextStyle: "black",
 });

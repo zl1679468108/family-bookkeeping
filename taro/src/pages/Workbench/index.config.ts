@@ -1,3 +1,5 @@
+import { NAV_WORKBENCH } from '../../utils/navCopy'
+
 export default definePageConfig({
-  navigationBarTitleText: "工作台",
-});
+  navigationBarTitleText: NAV_WORKBENCH,
+})

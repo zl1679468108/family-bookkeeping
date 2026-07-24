@@ -34,6 +34,7 @@ import { ACTION_LOGGING_IN, ACTION_LOGIN, AUTH_LOGIN_EXPIRED_REENTER, AUTH_ADD_N
 import { TITLE_ABOUT } from '../../utils/sectionCopy'
 import { ERROR_DEACTIVATE_FAILED } from '../../utils/errorCopy'
 import { appCustomerServiceTitle } from "../../config/version";
+import { CONFIRM_DEACTIVATE_WARNING } from "../../utils/confirmCopy";
 
 export default function Profile() {
   const { user, signOut, signIn, switchByToken } = useAuth();
@@ -299,9 +300,9 @@ export default function Profile() {
       {deactivateModal && (
         <View className="deactivate-mask" onClick={() => !deactivateLoading && setDeactivateModal(false)}>
           <View className="deactivate-dialog" onClick={(e) => e.stopPropagation()}>
-            <Text className="deactivate-title">注销账号</Text>
+            <Text className="deactivate-title">{ACTION_DEACTIVATE_ACCOUNT}</Text>
             <Text className="deactivate-warning">
-              注销后账号将无法登录，且相关数据将无法恢复。请谨慎操作。
+              {CONFIRM_DEACTIVATE_WARNING}
             </Text>
             <View className="deactivate-field">
               <Text className="deactivate-label">请输入密码以确认</Text>

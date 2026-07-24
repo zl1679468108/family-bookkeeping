@@ -1,5 +1,7 @@
+import { AUTH_NAV_CREATE_ACCOUNT } from '../../../utils/authCopy'
+
 export default definePageConfig({
-  navigationBarTitleText: "创建账号",
+  navigationBarTitleText: AUTH_NAV_CREATE_ACCOUNT,
   navigationBarBackgroundColor: "#FFFFFF",
   navigationBarTextStyle: "black",
   usingComponents: {},

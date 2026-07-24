@@ -1,3 +1,5 @@
+import { TITLE_ABOUT } from '../../utils/sectionCopy'
+
 export default definePageConfig({
-  navigationBarTitleText: '关于静记',
+  navigationBarTitleText: TITLE_ABOUT,
 })

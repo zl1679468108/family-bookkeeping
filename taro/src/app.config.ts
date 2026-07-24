@@ -1,4 +1,5 @@
 import { NAV_HOME, NAV_TRANSACTIONS, NAV_WORKBENCH, NAV_PROFILE } from './utils/navCopy'
+import { APP_NAME } from './config/version'
 export default defineAppConfig({
   pages: [
     "pages/Home/index",
@@ -26,7 +27,7 @@ export default defineAppConfig({
   window: {
     backgroundTextStyle: "dark",
     navigationBarBackgroundColor: "#FFFFFF",
-    navigationBarTitleText: "静记",
+    navigationBarTitleText: APP_NAME,
     navigationBarTextStyle: "black",
     backgroundColor: "#F6F7F4",
     enablePullDownRefresh: false,

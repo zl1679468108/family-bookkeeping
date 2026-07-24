@@ -85,6 +85,12 @@
 
 ### ✅ 已完成
 
+#### 2026-07-24 页标题/交易成功/定位城市/注销说明 shared 化
+- `successTransactionSaved` 接线记一笔；`LOCATION_SEARCH_CITY_NATIONWIDE`；`CONFIRM_DEACTIVATE_WARNING`
+- 页标题常量：`PAGE_TITLE_*` / `TITLE_BOOK_SETTINGS` / 隐私协议 / `AUTH_NAV_*`
+- PC `App.tsx` 路由标题与 Taro 各页 `index.config` / `app.config` 导航栏标题接线（模板「模版」→ `NAV_TEMPLATES`）
+- 验证：frontend / taro `tsc --noEmit`
+
 #### 2026-07-24 选择地点文案 shared 化
 - `ACTION_SELECT_LOCATION` 入 actionCopy；PC LocationDisplay / Taro LocationField 接线
 - 验证：frontend / taro `tsc --noEmit`

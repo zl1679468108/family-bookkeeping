@@ -1,3 +1,5 @@
+import { TITLE_USER_AGREEMENT } from '../../utils/sectionCopy'
+
 export default definePageConfig({
-  navigationBarTitleText: '用户协议',
-});
+  navigationBarTitleText: TITLE_USER_AGREEMENT,
+})

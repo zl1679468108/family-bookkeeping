@@ -84,3 +84,6 @@ export function currentBookLabel(name: string): string {
   return `当前账本：${name || ''}`
 }
 
+/** 注销账号二次确认说明 */
+export const CONFIRM_DEACTIVATE_WARNING =
+  '注销后账号将无法登录，且相关数据将无法恢复。请谨慎操作。'

@@ -1,3 +1,5 @@
+import { TITLE_PRIVACY_POLICY } from '../../utils/sectionCopy'
+
 export default definePageConfig({
-  navigationBarTitleText: '隐私政策',
-});
+  navigationBarTitleText: TITLE_PRIVACY_POLICY,
+})

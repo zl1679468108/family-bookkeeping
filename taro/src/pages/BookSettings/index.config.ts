@@ -1,5 +1,7 @@
+import { TITLE_BOOK_SETTINGS } from '../../utils/sectionCopy'
+
 export default definePageConfig({
-  navigationBarTitleText: "账本设置",
+  navigationBarTitleText: TITLE_BOOK_SETTINGS,
   navigationBarBackgroundColor: "#FFFFFF",
   navigationBarTextStyle: "black",
 });

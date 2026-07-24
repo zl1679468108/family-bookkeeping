@@ -1,5 +1,8 @@
 /** 位置字段纯逻辑 — LocationDisplay / LocationField 共用 */
 
+/** 高德 PlaceSearch 全国检索 */
+export const LOCATION_SEARCH_CITY_NATIONWIDE = '全国'
+
 export type LocationLike = {
   name?: string | null
   locationName?: string | null

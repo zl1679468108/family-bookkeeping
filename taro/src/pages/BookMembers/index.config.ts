@@ -1,5 +1,7 @@
+import { TITLE_MEMBER_MANAGE } from '../../utils/sectionCopy'
+
 export default definePageConfig({
-  navigationBarTitleText: "成员管理",
+  navigationBarTitleText: TITLE_MEMBER_MANAGE,
   navigationBarBackgroundColor: "#FFFFFF",
   navigationBarTextStyle: "black",
 });

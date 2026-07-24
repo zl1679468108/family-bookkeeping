@@ -1,5 +1,7 @@
+import { NAV_ADD } from '../../utils/navCopy'
+
 export default definePageConfig({
-  navigationBarTitleText: "记一笔",
+  navigationBarTitleText: NAV_ADD,
   navigationBarBackgroundColor: "#FFFFFF",
   navigationBarTextStyle: "black",
 });
