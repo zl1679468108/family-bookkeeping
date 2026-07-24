@@ -1,7 +1,8 @@
 import * as React from 'react'
 import { getPlatformIconByKey } from './shoppingPlatformIcons'
-import { isIconUrl, isPlatformIcon } from '../../../shared-utils/src/platformIcons'
-import { isBookIconKey, renderBookIcon } from './bookIcons'
+import { isIconUrl } from '../../../shared-utils/src/platformIcons'
+import { renderBookIcon } from './bookIcons'
+import { resolveCategoryIconKind, platformIconKey } from './categoryIcon'
 
 /**
  * 根据 icon 值渲染正确的图标：
@@ -14,11 +15,12 @@ export const renderCategoryIcon = (
   icon: string | undefined,
   options: { size?: number; className?: string } = {},
 ): React.ReactNode => {
-  if (!icon) return null
+  const kind = resolveCategoryIconKind(icon)
+  if (kind === 'empty' || !icon) return null
 
   const { size = 20, className = '' } = options
 
-  if (isIconUrl(icon)) {
+  if (kind === 'url') {
     return (
       <img
         src={icon}
@@ -35,14 +37,13 @@ export const renderCategoryIcon = (
     )
   }
 
-  if (isPlatformIcon(icon)) {
-    const key = icon.replace('platform_', '')
-    const svg = getPlatformIconByKey(key)
+  if (kind === 'platform') {
+    const svg = getPlatformIconByKey(platformIconKey(icon))
     if (svg) return svg
     return '📌'
   }
 
-  if (isBookIconKey(icon)) {
+  if (kind === 'book') {
     return renderBookIcon(icon)
   }
 

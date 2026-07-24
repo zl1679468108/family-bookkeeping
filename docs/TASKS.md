@@ -111,6 +111,11 @@
 - `TITLE_DATA_ANALYSIS` / `TITLE_MEMBER_COMPARE` 报表 Tab
 - 验证：frontend / taro `tsc --noEmit`
 
+#### 2026-07-24 分类图标 kind 判定 shared 化
+- 新增 `shared-utils/categoryIcon`：`resolveCategoryIconKind` / `platformIconKey`
+- PC/Taro `renderCategoryIcon` 共用决策树，端侧只负责渲染
+- 验证：frontend / taro `tsc --noEmit`
+
 #### 2026-07-24 预算进度视图/频率/分类兜底 shared 化
 - `selectBudgetProgressView`：双端 `useBudgetProgress` 共用纯计算
 - `FREQUENCY_NONE` / `FREQUENCY_OPTIONS_WITH_NONE`；模板表单接线

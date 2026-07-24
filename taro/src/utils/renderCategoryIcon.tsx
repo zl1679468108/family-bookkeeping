@@ -10,12 +10,9 @@
  * 避免直接 <Text>{icon}</Text> 把 URL / SVG key 当文本渲染。
  */
 import { Image, Text } from "@tarojs/components";
-import { renderBookIconSvg, isBookIconKey } from "./bookIcons";
-import {
-  renderPlatformIconSvg,
-  isPlatformIcon,
-  isIconUrl,
-} from "./platformIcons";
+import { renderBookIconSvg } from "./bookIcons";
+import { renderPlatformIconSvg } from "./platformIcons";
+import { resolveCategoryIconKind, platformIconKey } from "./categoryIcon";
 
 interface RenderCategoryIconOptions {
   /** 图标尺寸（px），同时作用于 Image 尺寸和 emoji 字号 */
@@ -30,12 +27,13 @@ export const renderCategoryIcon = (
   icon: string | undefined,
   options: RenderCategoryIconOptions = {},
 ) => {
-  if (!icon) return null;
+  const kind = resolveCategoryIconKind(icon);
+  if (kind === "empty" || !icon) return null;
 
   const { size = 24, className = "", fontScale = 1 } = options;
 
   // 1. URL → <Image>
-  if (isIconUrl(icon)) {
+  if (kind === "url") {
     return (
       <Image
         src={icon}
@@ -51,8 +49,8 @@ export const renderCategoryIcon = (
   }
 
   // 2. platform_xxx → 购物平台 SVG
-  if (isPlatformIcon(icon)) {
-    const key = icon.replace("platform_", "");
+  if (kind === "platform") {
+    const key = platformIconKey(icon);
     return (
       <Image
         src={renderPlatformIconSvg(key, Math.round(size * 0.75))}
@@ -68,7 +66,7 @@ export const renderCategoryIcon = (
   }
 
   // 3. 账本图标 key（default/home/work ...）
-  if (isBookIconKey(icon)) {
+  if (kind === "book") {
     return (
       <Image
         src={renderBookIconSvg(icon, Math.round(size * 0.75))}
