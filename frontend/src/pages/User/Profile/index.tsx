@@ -19,7 +19,7 @@ import {
   validatePasswordStrength,
 } from '../../../utils/validation'
 import { SUCCESS_AVATAR_SELECTED_HINT, SUCCESS_PASSWORD_CHANGED, SUCCESS_SAVED } from '../../../utils/successCopy'
-import { FORM_PASSWORD_MIN_NEW, FORM_PASSWORD_MISMATCH_NEW, FORM_PASSWORD_CURRENT, FORM_PASSWORD_CONFIRM_NEW_PLACEHOLDER, FORM_USERNAME_PLACEHOLDER, FORM_EMAIL_PLACEHOLDER } from '../../../utils/formCopy'
+import { FORM_PASSWORD_MIN_NEW, FORM_PASSWORD_MISMATCH_NEW, FORM_PASSWORD_CURRENT, FORM_PASSWORD_CONFIRM_NEW_PLACEHOLDER, FORM_USERNAME_PLACEHOLDER, FORM_EMAIL_PLACEHOLDER, FORM_PASSWORD_STRENGTH_HINT } from '../../../utils/formCopy'
 import { fitWithinMaxSide } from '../../../utils/imageSize'
 import {
   isWithinUploadSize,
@@ -110,7 +110,7 @@ const PasswordModal: React.FC<PasswordModalProps> = ({ visible, onClose }) => {
             labelClassName="form-label field-required"
             value={newPassword}
             onChange={e => setNewPassword(e.target.value)}
-            placeholder="至少 6 位，含大小写+数字"
+            placeholder={FORM_PASSWORD_STRENGTH_HINT}
             autoComplete="new-password"
           />
           <PasswordField

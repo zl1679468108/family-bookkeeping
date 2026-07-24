@@ -10,6 +10,7 @@ import { RegisterIllustration } from '../../../components/AuthLayout/AuthIllustr
 import { Button } from '../../../components/ui/Button'
 import { PasswordField } from '../../../components/ui/PasswordField'
 import { FormField } from '../../../components/ui/FormField'
+import { FORM_NICKNAME_PLACEHOLDER, FORM_EMAIL_EXAMPLE, FORM_PASSWORD_MIN_SHORT, FORM_PASSWORD_CONFIRM_PLACEHOLDER } from '../../../utils/formCopy'
 
 const RegisterPage: React.FC = () => {
   const [username, setUsername] = useState('')
@@ -54,7 +55,7 @@ const RegisterPage: React.FC = () => {
           id="regUser"
           label="用户名"
           type="text"
-          placeholder="您的昵称"
+          placeholder={FORM_NICKNAME_PLACEHOLDER}
           value={username}
           onChange={(e) => setUsername(e.target.value)}
           required
@@ -65,7 +66,7 @@ const RegisterPage: React.FC = () => {
           id="regEmail"
           label="邮箱地址"
           type="email"
-          placeholder="your@email.com"
+          placeholder={FORM_EMAIL_EXAMPLE}
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
@@ -76,7 +77,7 @@ const RegisterPage: React.FC = () => {
           <PasswordField
             id="regPass"
             label="密码"
-            placeholder="至少6位"
+            placeholder={FORM_PASSWORD_MIN_SHORT}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
@@ -85,7 +86,7 @@ const RegisterPage: React.FC = () => {
           <PasswordField
             id="regPass2"
             label="确认密码"
-            placeholder="再次输入"
+            placeholder={FORM_PASSWORD_CONFIRM_PLACEHOLDER}
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
             required

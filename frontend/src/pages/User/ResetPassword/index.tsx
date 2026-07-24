@@ -12,6 +12,7 @@ import {
   validatePasswordMatch,
   validatePasswordMinLength,
 } from '../../../utils/validation'
+import { FORM_PASSWORD_MIN_ALPHA_NUM, FORM_PASSWORD_CONFIRM_PLACEHOLDER } from '../../../utils/formCopy'
 
 const ResetPassword: React.FC = () => {
   const [searchParams] = useSearchParams()
@@ -93,7 +94,7 @@ const ResetPassword: React.FC = () => {
           <PasswordField
             id="resetNewPass"
             label="新密码"
-            placeholder="至少6位，含字母和数字"
+            placeholder={FORM_PASSWORD_MIN_ALPHA_NUM}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
@@ -103,7 +104,7 @@ const ResetPassword: React.FC = () => {
           <PasswordField
             id="resetNewPass2"
             label="确认密码"
-            placeholder="再次输入"
+            placeholder={FORM_PASSWORD_CONFIRM_PLACEHOLDER}
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
             required

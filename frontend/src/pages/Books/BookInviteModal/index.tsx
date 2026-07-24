@@ -13,6 +13,7 @@ import { queryKeys } from '../../../utils/queryKeys'
 import { INVITE_CODE_HELP_LABEL, INVITE_CODE_HELP_BODY } from '../../../utils/inviteCopy'
 import { SUCCESS_JOINED } from '../../../utils/successCopy'
 import { validateInviteCode, normalizeInviteCode } from '../../../utils/validation'
+import { FORM_INVITE_CODE_EXAMPLE } from '../../../utils/formCopy'
 
 interface BookInviteModalProps {
   open: boolean;
@@ -98,7 +99,7 @@ export const BookInviteModal: React.FC<BookInviteModalProps> = ({ open, onClose,
           type="text"
           value={inviteCode}
           onChange={(e) => setInviteCode(e.target.value.toUpperCase())}
-          placeholder="例如 A3F8K2"
+          placeholder={FORM_INVITE_CODE_EXAMPLE}
           maxLength={32}
           autoFocus
           required

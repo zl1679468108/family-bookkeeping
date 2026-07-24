@@ -15,7 +15,7 @@ import { toastSuccess, toastInfo } from "../../../utils/toast";
 import { validatePasswordMatch, validatePasswordMinLength } from "../../../utils/validation";
 import { ERROR_SEND_FAILED, ERROR_RESET_FAILED } from "../../../utils/errorCopy";
 import { SUCCESS_CODE_SENT, SUCCESS_PASSWORD_RESET, SUCCESS_CODE_RESENT } from "../../../utils/successCopy";
-import { FORM_BACK, FORM_BACK_LOGIN } from "../../../utils/formCopy";
+import { FORM_BACK, FORM_BACK_LOGIN, FORM_REGISTERED_EMAIL_PLACEHOLDER, FORM_CAPTCHA_DIGITS_PLACEHOLDER, FORM_PASSWORD_MIN_SHORT, FORM_PASSWORD_CONFIRM_PLACEHOLDER } from "../../../utils/formCopy"
 
 type Step = "email" | "code" | "success";
 
@@ -153,7 +153,7 @@ export default function ForgotPassword() {
                 className="forgot-input"
                 value={email}
                 onInput={(e) => setEmail(e.detail.value)}
-                placeholder="注册时使用的邮箱"
+                placeholder={FORM_REGISTERED_EMAIL_PLACEHOLDER}
                 placeholderClass="text-hint"
                 confirmType="done"
                 onConfirm={handleSendCode}
@@ -188,7 +188,7 @@ export default function ForgotPassword() {
                   className="forgot-input forgot-captcha-input"
                   value={code}
                   onInput={(e) => setCode(e.detail.value)}
-                  placeholder="6位数字"
+                  placeholder={FORM_CAPTCHA_DIGITS_PLACEHOLDER}
                   placeholderClass="text-hint"
                   maxlength={6}
                   type="number"
@@ -210,7 +210,7 @@ export default function ForgotPassword() {
                 className="forgot-input"
                 value={password}
                 onInput={(e) => setPassword(e.detail.value)}
-                placeholder="至少6位"
+                placeholder={FORM_PASSWORD_MIN_SHORT}
                 placeholderClass="text-hint"
                 password
               />
@@ -222,7 +222,7 @@ export default function ForgotPassword() {
                 className="forgot-input"
                 value={confirmPassword}
                 onInput={(e) => setConfirmPassword(e.detail.value)}
-                placeholder="再次输入"
+                placeholder={FORM_PASSWORD_CONFIRM_PLACEHOLDER}
                 placeholderClass="text-hint"
                 password
                 onConfirm={handleReset}

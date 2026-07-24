@@ -14,6 +14,7 @@ import { toastSuccess } from "../../../utils/toast";
 import { validatePasswordMatch, validatePasswordMinLength } from "../../../utils/validation";
 import { SUCCESS_REGISTER } from "../../../utils/successCopy";
 import { ERROR_REGISTER_FAILED } from "../../../utils/errorCopy";
+import { FORM_NICKNAME_PLACEHOLDER, FORM_EMAIL_EXAMPLE, FORM_PASSWORD_MIN_SHORT, FORM_PASSWORD_CONFIRM_PLACEHOLDER } from "../../../utils/formCopy";
 
 export default function Register() {
   const { isDark } = useTheme();
@@ -71,7 +72,7 @@ export default function Register() {
             className="register-input"
             value={username}
             onInput={(e) => setUsername(e.detail.value)}
-            placeholder="您的昵称"
+            placeholder={FORM_NICKNAME_PLACEHOLDER}
             placeholderClass="text-hint"
             confirmType="next"
           />
@@ -83,7 +84,7 @@ export default function Register() {
             className="register-input"
             value={email}
             onInput={(e) => setEmail(e.detail.value)}
-            placeholder="your@email.com"
+            placeholder={FORM_EMAIL_EXAMPLE}
             placeholderClass="text-hint"
             confirmType="next"
           />
@@ -95,7 +96,7 @@ export default function Register() {
             className="register-input"
             value={password}
             onInput={(e) => setPassword(e.detail.value)}
-            placeholder="至少6位"
+            placeholder={FORM_PASSWORD_MIN_SHORT}
             placeholderClass="text-hint"
             password
             confirmType="next"
@@ -108,7 +109,7 @@ export default function Register() {
             className="register-input"
             value={confirmPassword}
             onInput={(e) => setConfirmPassword(e.detail.value)}
-            placeholder="再次输入"
+            placeholder={FORM_PASSWORD_CONFIRM_PLACEHOLDER}
             placeholderClass="text-hint"
             password
             confirmType="done"

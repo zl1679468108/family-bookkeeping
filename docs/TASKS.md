@@ -85,6 +85,11 @@
 
 ### ✅ 已完成
 
+#### 2026-07-24 PC 暗色全站硬编码色再扫 + 鉴权/version shared 化
+- **PC 暗色硬编码色再扫**：业务 SCSS/TSX 已无残留浅色硬编码；仅保留有意固定色（design-tokens 定义、Auth/年报插画、地图热力色带、头像压缩画布白底、图表多系列扩展色）。图表 chrome 已走 `getThemeColors/getEchartsChrome`。
+- **version shared 化**：`shared-utils/src/version.ts`，双端 `config/version.ts` facade。
+- **formCopy 鉴权/账本/模板占位接线**：Login/Register/Forgot/Reset/Profile、Taro BookSettings/TemplateEdit、PC BookCreate/BookInvite 统一常量（邮箱示例、昵称、密码强度、验证码位数、账本名描述等）。
+
 #### 2026-07-24 shared-utils 双端纯函数/文案包
 - 新增 `@family-bookkeeping/shared-utils`：form/success/error/action/confirm/empty/entity/sort/invite/frequency/roles/userDisplay/validation/upload/errorMessage/emoji/transactionType/date/month/budget 等同源实现。
 - `frontend/src/utils/*` 与 `taro/src/utils/*` 对应文件改为 re-export 门面，消除双端漂移。

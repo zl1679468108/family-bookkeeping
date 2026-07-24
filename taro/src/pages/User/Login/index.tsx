@@ -12,9 +12,9 @@ import { useSubmit, toastError } from "../../../hooks/useSubmit";
 import { getCaptcha } from "../../../services/authApi";
 import "./index.scss";
 import { toastSuccess } from "../../../utils/toast";
-import { FORM_EMAIL_PASSWORD_REQUIRED, FORM_CAPTCHA_REQUIRED, FORM_CAPTCHA_PLACEHOLDER, FORM_PASSWORD_PLACEHOLDER } from "../../../utils/formCopy";
 import { SUCCESS_LOGIN } from "../../../utils/successCopy";
 import { ERROR_LOGIN_FAILED } from "../../../utils/errorCopy";
+import { FORM_EMAIL_PASSWORD_REQUIRED, FORM_CAPTCHA_REQUIRED, FORM_CAPTCHA_PLACEHOLDER, FORM_PASSWORD_PLACEHOLDER, FORM_EMAIL_EXAMPLE } from "../../../utils/formCopy";
 
 export default function Login() {
   const { isDark } = useTheme();
@@ -98,7 +98,7 @@ export default function Login() {
             className="login-input"
             value={email}
             onInput={(e) => setEmail(e.detail.value)}
-            placeholder="your@email.com"
+            placeholder={FORM_EMAIL_EXAMPLE}
             placeholderClass="text-hint"
             confirmType="next"
           />

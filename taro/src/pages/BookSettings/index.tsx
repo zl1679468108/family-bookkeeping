@@ -41,7 +41,7 @@ import {
   CONFIRM_DELETE_TEXT,
   CONFIRM_DELETE_BOOK_GENERIC,
 } from "../../utils/confirmCopy";
-import { FORM_PRIVACY_REQUIRED, FORM_OWNER_EMAIL_REQUIRED, FORM_PASSWORD_VERIFY, FORM_MEMBER_EMAIL_PLACEHOLDER } from "../../utils/formCopy";
+import { FORM_PRIVACY_REQUIRED, FORM_OWNER_EMAIL_REQUIRED, FORM_PASSWORD_VERIFY, FORM_MEMBER_EMAIL_PLACEHOLDER, FORM_BOOK_NAME_EXAMPLE, FORM_BOOK_DESC_EXAMPLE, FORM_PASSWORD_VERIFY_IDENTITY } from "../../utils/formCopy"
 import { validateEmail } from "../../utils/validation";
 import { SUCCESS_BOOK_CREATED, SUCCESS_CUSTOM_ICON_ADDED, SUCCESS_DELETED, SUCCESS_OWNERSHIP_TRANSFERRED, SUCCESS_UPDATED, successEntityDeleted } from "../../utils/successCopy";
 import { entityFormTitle, ENTITY_BOOK } from "../../utils/entityCopy";
@@ -298,7 +298,7 @@ export default function BookSettings() {
             <Text className="bs-form-label"><Text className="bs-required">*</Text> 账本名称</Text>
             <Input
               className="bs-form-input"
-              placeholder="如：家庭账本"
+              placeholder={FORM_BOOK_NAME_EXAMPLE}
               maxlength={50}
               value={addName}
               onInput={(e: any) => setAddName(e.detail.value)}
@@ -310,7 +310,7 @@ export default function BookSettings() {
             <Text className="bs-form-label">描述（可选）</Text>
             <Input
               className="bs-form-input bs-form-textarea"
-              placeholder="简单介绍一下这个账本"
+              placeholder={FORM_BOOK_DESC_EXAMPLE}
               maxlength={200}
               value={addDescription}
               onInput={(e: any) => setAddDescription(e.detail.value)}
@@ -408,7 +408,7 @@ export default function BookSettings() {
             <Text className="bs-form-label"><Text className="bs-required">*</Text> 账本名称</Text>
             <Input
               className="bs-form-input"
-              placeholder="如：家庭账本"
+              placeholder={FORM_BOOK_NAME_EXAMPLE}
               maxlength={50}
               value={editName}
               onInput={(e: any) => setEditName(e.detail.value)}
@@ -420,7 +420,7 @@ export default function BookSettings() {
             <Text className="bs-form-label">描述（可选）</Text>
             <Input
               className="bs-form-input bs-form-textarea"
-              placeholder="简单介绍一下这个账本"
+              placeholder={FORM_BOOK_DESC_EXAMPLE}
               maxlength={200}
             value={editDescription}
             onInput={(e: any) => setEditDescription(e.detail.value)}
@@ -585,7 +585,7 @@ export default function BookSettings() {
                 <Input
                   className="bs-form-input"
                   password
-                  placeholder="输入密码以验证身份"
+                  placeholder={FORM_PASSWORD_VERIFY_IDENTITY}
                   value={transferPassword}
                   onInput={(e: any) => setTransferPassword(e.detail.value)}
                 />

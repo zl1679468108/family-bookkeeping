@@ -54,7 +54,8 @@
     "./sectionCopy": "./src/sectionCopy.ts",
     "./memberPresence": "./src/memberPresence.ts",
     "./uploadReceipts": "./src/uploadReceipts.ts",
-    "./monthState": "./src/monthState.ts"
+    "./monthState": "./src/monthState.ts",
+    "./version": "./src/version.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit"

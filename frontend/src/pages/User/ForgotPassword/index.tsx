@@ -9,6 +9,7 @@ import { PasswordField } from '../../../components/ui/PasswordField'
 import { FormField } from '../../../components/ui/FormField'
 import { validatePasswordMatch, validatePasswordMinLength } from '../../../utils/validation'
 import { SUCCESS_CODE_RESENT } from '../../../utils/successCopy'
+import { FORM_REGISTERED_EMAIL_PLACEHOLDER, FORM_CAPTCHA_DIGITS_PLACEHOLDER, FORM_PASSWORD_MIN_SHORT, FORM_PASSWORD_CONFIRM_PLACEHOLDER } from '../../../utils/formCopy'
 
 const ForgotPassword: React.FC = () => {
   const [email, setEmail] = useState('')
@@ -119,7 +120,7 @@ const ForgotPassword: React.FC = () => {
             id="forgotEmail"
             label="邮箱地址"
             type="email"
-            placeholder="注册时使用的邮箱"
+            placeholder={FORM_REGISTERED_EMAIL_PLACEHOLDER}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
@@ -154,7 +155,7 @@ const ForgotPassword: React.FC = () => {
               <input
                 id="forgotCode"
                 type="text"
-                placeholder="6位数字"
+                placeholder={FORM_CAPTCHA_DIGITS_PLACEHOLDER}
                 maxLength={6}
                 value={code}
                 onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
@@ -179,7 +180,7 @@ const ForgotPassword: React.FC = () => {
           <PasswordField
             id="forgotNewPass"
             label="新密码"
-            placeholder="至少6位"
+            placeholder={FORM_PASSWORD_MIN_SHORT}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
@@ -189,7 +190,7 @@ const ForgotPassword: React.FC = () => {
           <PasswordField
             id="forgotNewPass2"
             label="确认密码"
-            placeholder="再次输入"
+            placeholder={FORM_PASSWORD_CONFIRM_PLACEHOLDER}
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
             required

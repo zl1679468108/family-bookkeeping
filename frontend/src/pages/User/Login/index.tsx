@@ -10,7 +10,7 @@ import { getCaptcha } from '../../../services/api'
 import { Button } from '../../../components/ui/Button'
 import { PasswordField } from '../../../components/ui/PasswordField'
 import { FormField } from '../../../components/ui/FormField'
-import { FORM_CAPTCHA_PLACEHOLDER } from '../../../utils/formCopy'
+import { FORM_CAPTCHA_PLACEHOLDER, FORM_EMAIL_EXAMPLE, FORM_PASSWORD_PLACEHOLDER } from '../../../utils/formCopy'
 
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('')
@@ -69,7 +69,7 @@ const LoginPage: React.FC = () => {
           id="loginEmail"
           label="邮箱地址"
           type="email"
-          placeholder="your@email.com"
+          placeholder={FORM_EMAIL_EXAMPLE}
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
@@ -79,7 +79,7 @@ const LoginPage: React.FC = () => {
         <PasswordField
           id="loginPass"
           label="密码"
-          placeholder="输入密码"
+          placeholder={FORM_PASSWORD_PLACEHOLDER}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required

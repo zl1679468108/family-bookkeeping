@@ -21,6 +21,7 @@ import { SUCCESS_BOOK_CREATED, SUCCESS_ICON_DELETED, SUCCESS_ICON_UPLOADED, SUCC
 import { entityFormTitle, ENTITY_BOOK } from '../../../utils/entityCopy'
 import { failEntityUpsert } from '../../../utils/errorCopy'
 import { processingLabel } from '../../../utils/actionCopy';
+import { FORM_BOOK_NAME_EXAMPLE, FORM_BOOK_DESC_EXAMPLE } from '../../../utils/formCopy'
 
 interface BookCreateModalProps {
   open: boolean;
@@ -132,7 +133,7 @@ export const BookCreateModal: React.FC<BookCreateModalProps> = ({ open, onClose,
           type="text"
           value={bookName}
           onChange={(e) => setBookName(e.target.value)}
-          placeholder="如：家庭账本"
+          placeholder={FORM_BOOK_NAME_EXAMPLE}
           maxLength={50}
           autoFocus
           required
@@ -142,7 +143,7 @@ export const BookCreateModal: React.FC<BookCreateModalProps> = ({ open, onClose,
           label="描述（可选）"
           value={bookDesc}
           onChange={(e) => setBookDesc(e.target.value)}
-          placeholder="简单介绍一下这个账本"
+          placeholder={FORM_BOOK_DESC_EXAMPLE}
           maxLength={200}
           rows={3}
         />

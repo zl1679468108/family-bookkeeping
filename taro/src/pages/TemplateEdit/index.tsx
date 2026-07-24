@@ -44,6 +44,7 @@ import { DELETE_FAILED } from "../../utils/uploadCopy";
 import { failEntityUpsert } from "../../utils/errorCopy";
 import { EMPTY_NO_CATEGORIES_SHORT } from "../../utils/emptyCopy";
 import { SECTION_TEMPLATE_INFO } from "../../utils/sectionCopy";
+import { FORM_TEMPLATE_NAME_EXAMPLE, FORM_AMOUNT_PLACEHOLDER, FORM_NOTE_OPTIONAL } from "../../utils/formCopy";
 
 type TplType = "expense" | "income";
 
@@ -172,7 +173,7 @@ export default function TemplateEdit() {
           <Text className="tpl-label tpl-label--required">模板名称</Text>
           <Input
             className="tpl-input"
-            placeholder="如：公司食堂午餐"
+            placeholder={FORM_TEMPLATE_NAME_EXAMPLE}
             maxlength={20}
             value={form.name}
             onInput={(e: any) => setForm((p) => ({ ...p, name: e.detail.value }))}
@@ -278,7 +279,7 @@ export default function TemplateEdit() {
             <Text className="tpl-input-prefix">¥</Text>
             <Input
               className="tpl-input--amount"
-              placeholder="0.00"
+              placeholder={FORM_AMOUNT_PLACEHOLDER}
               type="digit"
               value={form.amount}
               onInput={(e: any) => setForm((p) => ({ ...p, amount: e.detail.value }))}
@@ -290,7 +291,7 @@ export default function TemplateEdit() {
           <Text className="tpl-label">备注</Text>
           <Input
             className="tpl-input"
-            placeholder="添加备注（可选）"
+            placeholder={FORM_NOTE_OPTIONAL}
             value={form.note}
             onInput={(e: any) => setForm((p) => ({ ...p, note: e.detail.value }))}
           />
