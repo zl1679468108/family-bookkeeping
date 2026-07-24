@@ -167,6 +167,10 @@
 - 邀请/转移邮箱：FE InviteMemberModal、Taro Books/BookMembers/BookSettings 改用 `validateEmail`（空+格式）
 - 验证：frontend / taro `tsc --noEmit`
 
+#### 2026-07-24 实体详情标题 + 月份导航文案 shared 化
+- `entityDetailTitle` / `DETAIL_*`：分类/模板/预算/交易/账本详情标题双端接线
+- `NAV_PREV_MONTH` / `NAV_NEXT_MONTH`：PC 日历导航 aria 文案
+
 #### 2026-07-24 表单占位/图片缩放/账本删除标题 shared 化
 - formCopy 补验证码/用户名/邮箱/密码确认/成员邮箱 placeholder；双端登录/资料/邀请/设置接线
 - 新增 `imageSize`：`fitWithinMaxWidth` / `fitWithinMaxSide`；PC 压缩与头像缩放接线

@@ -5,6 +5,7 @@ import { renderCategoryIcon } from '../../../utils/renderCategoryIcon'
 import type { Category } from '@family-bookkeeping/shared-types'
 import { transactionTypeLabel } from '../../../utils/transactionType'
 import { formatDateTimeMinute } from '../../../utils/date'
+import { DETAIL_CATEGORY } from '../../../utils/entityCopy'
 
 interface CategoryDetailModalProps {
   selectedCategory: Category | null
@@ -33,7 +34,7 @@ export const CategoryDetailModal: React.FC<CategoryDetailModalProps> = ({
         setShowDetail(false)
         setSelectedCategory(null)
       }}
-      title="分类详情"
+      title={DETAIL_CATEGORY}
       footer={
         <Space size="sm">
           {!selectedCategory.is_default && (

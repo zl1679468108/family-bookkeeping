@@ -52,7 +52,7 @@ import {
 import { SUCCESS_DELETED, SUCCESS_ICON_UPLOADED, successEntityUpsert } from "../../utils/successCopy";
 import { buildCategoryPayload, validateCategoryName } from "../../utils/categoryPayload";
 import { emptyCategories } from "../../utils/emptyCopy";
-import { entityCreateButton, ENTITY_CATEGORY } from "../../utils/entityCopy";
+import { entityCreateButton, ENTITY_CATEGORY, DETAIL_CATEGORY } from "../../utils/entityCopy";
 import { UPLOAD_FAILED, DELETE_FAILED } from "../../utils/uploadCopy";
 import { failEntityUpsert } from "../../utils/errorCopy";
 import { buildCategoryIconOptionSpecs } from "../../utils/categories";
@@ -397,7 +397,7 @@ export default function CategoriesPage() {
       {/* ========== 截图2：分类详情弹窗 ========== */}
       {!!detailCat && (
         <BottomSheet
-          title="分类详情"
+          title={DETAIL_CATEGORY}
           onClose={closeDetail}
           footer={
             !detailCat.is_default ? (

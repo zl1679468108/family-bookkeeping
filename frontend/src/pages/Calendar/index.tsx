@@ -13,6 +13,7 @@ import type { DailySummaryItem } from '@family-bookkeeping/shared-types';
 import { formatMoney } from '../../utils/budget';
 import { Icon } from '../../components/ui/Icon'
 import { formatDateYMD } from '../../utils/date'
+import { NAV_PREV_MONTH, NAV_NEXT_MONTH } from '../../utils/actionCopy'
 
 const Calendar: React.FC = () => {
   const { currentBook } = useBook();
@@ -103,10 +104,10 @@ const Calendar: React.FC = () => {
     <div className="page-container">
       <div className="dash-card">
         <div className="cal-header-row">
-          <button type="button" className="cal-nav-btn cal-nav-btn--prev" onClick={goPrevMonth} title="上一月" aria-label="上一月">
+          <button type="button" className="cal-nav-btn cal-nav-btn--prev" onClick={goPrevMonth} title={NAV_PREV_MONTH} aria-label={NAV_PREV_MONTH}>
             <Icon name="chevron-left" size={16} />
           </button>
-          <button type="button" className="cal-nav-btn cal-nav-btn--next" onClick={goNextMonth} title="下一月" aria-label="下一月">
+          <button type="button" className="cal-nav-btn cal-nav-btn--next" onClick={goNextMonth} title={NAV_NEXT_MONTH} aria-label={NAV_NEXT_MONTH}>
             <Icon name="chevron-right" size={16} />
           </button>
           {summaryLoading ? (

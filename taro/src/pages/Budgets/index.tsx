@@ -33,6 +33,7 @@ import { SUCCESS_BUDGET_SAVED, successBudgetCopiedFromLastMonth } from "../../ut
 import { EMPTY_BUDGET_NO_EXPENSE_CATEGORIES } from "../../utils/emptyCopy";
 import { FORM_BUDGET_NONE, FORM_BUDGET_NO_LAST_MONTH } from "../../utils/formCopy";
 import { ERROR_BUDGET_SAVE_FAILED, ERROR_COPY_FAILED } from "../../utils/errorCopy";
+import { DETAIL_BUDGET } from "../../utils/entityCopy";
 
 /* ---------- 类型 ---------- */
 interface BudgetDetail {
@@ -410,7 +411,7 @@ export default function BudgetsPage() {
       {/* ========== 预算详情弹窗（对齐 PC 截图）========== */}
       {!!detailCat && !showEditForm && !showDeleteConfirm && (
         <BottomSheet
-          title="预算详情"
+          title={DETAIL_BUDGET}
           onClose={closeDetail}
           footer={
             <View className="bgds-footer">

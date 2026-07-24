@@ -42,6 +42,7 @@ import { SUCCESS_BUDGET_SAVED, SUCCESS_BUDGET_DELETED, successBudgetCopiedFromLa
 import { FORM_BUDGET_NONE, FORM_BUDGET_NO_LAST_MONTH } from '../../utils/formCopy'
 import { EMPTY_BUDGET_NO_EXPENSE_CATEGORIES } from '../../utils/emptyCopy'
 import { ERROR_BUDGET_SAVE_FAILED, ERROR_COPY_BUDGET_FAILED } from '../../utils/errorCopy'
+import { DETAIL_BUDGET } from '../../utils/entityCopy'
 
 const Budgets: React.FC = () => {
   const navigate = useNavigate()
@@ -371,7 +372,7 @@ const Budgets: React.FC = () => {
             setShowDetail(false)
             setSelectedBudget(null)
           }}
-          title="预算详情"
+          title={DETAIL_BUDGET}
           footer={
             <Space size="sm">
               <Button

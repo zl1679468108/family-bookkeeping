@@ -7,6 +7,7 @@ import { formatFrequency } from '../../../utils/frequency'
 import { getNextExecutionDate } from '../../../utils/templateRecurring'
 import { transactionTypeLabel } from '../../../utils/transactionType'
 import { formatDateTimeMinute } from '../../../utils/date'
+import { DETAIL_TEMPLATE } from '../../../utils/entityCopy'
 
 interface TemplateDetailModalProps {
   template: any
@@ -34,7 +35,7 @@ export const TemplateDetailModal: React.FC<TemplateDetailModalProps> = ({
       type="detail"
       open={open}
       onClose={onClose}
-      title="模板详情"
+      title={DETAIL_TEMPLATE}
       footer={
         <Space size="sm">
           <Button variant="secondary" onClick={() => onEdit(template)}>

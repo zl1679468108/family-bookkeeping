@@ -4,6 +4,7 @@ import { Button } from '../../../components/ui/Button';
 import { getBookIconByKey } from '../../../utils/bookIcons';
 import { BookMemberList } from './BookMemberList';
 import { formatDateTimeMinute } from '../../../utils/date'
+import { DETAIL_BOOK } from '../../../utils/entityCopy'
 
 const DEFAULT_BOOK_NAME = '默认账本';
 
@@ -47,7 +48,7 @@ export const BookDetailModal: React.FC<BookDetailModalProps> = ({
       type="detail"
       open={open}
       onClose={onClose}
-      title="账本详情"
+      title={DETAIL_BOOK}
       width={520}
       footer={
         <Space size="sm">

@@ -13,6 +13,8 @@ export const ACTION_PROCESSING = '处理中...'
 /** 部分场景用中文省略号 */
 export const ACTION_PROCESSING_ELLIPSIS = '处理中…'
 export const ACTION_SWITCHING = '切换中...'
+export const NAV_PREV_MONTH = '上一月'
+export const NAV_NEXT_MONTH = '下一月'
 
 /** busy ? busyText : idleText */
 export function busyLabel(busy: boolean, busyText: string, idleText: string): string {

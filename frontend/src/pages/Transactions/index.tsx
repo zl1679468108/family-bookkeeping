@@ -32,7 +32,7 @@ import {
   sumTransactionsByType,
 } from '../../utils/transactionList'
 import { successEntityDeleted } from '../../utils/successCopy'
-import { ENTITY_TRANSACTION } from '../../utils/entityCopy'
+import { ENTITY_TRANSACTION, DETAIL_TRANSACTION } from '../../utils/entityCopy'
 import { ERROR_DELETE_FAILED } from '../../utils/errorCopy'
 import { EMPTY_TRANSACTIONS } from '../../utils/emptyCopy'
 import {
@@ -391,7 +391,7 @@ const Transactions: React.FC = () => {
           type="detail"
           open={showDetail}
           onClose={() => setShowDetail(false)}
-          title="交易详情"
+          title={DETAIL_TRANSACTION}
           footer={
             <Space size="sm">
               <Button variant="secondary" onClick={() => { navigate(`/add?edit=${selectedTransaction.id}`); setShowDetail(false) }}>

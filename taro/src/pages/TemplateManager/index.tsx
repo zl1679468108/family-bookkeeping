@@ -53,7 +53,7 @@ import {
   emptyTemplateFormFields,
 } from "../../utils/templatePayload";
 import { EMPTY_TEMPLATES, EMPTY_NO_CATEGORIES_SHORT } from "../../utils/emptyCopy";
-import { entityCreateButton, entityFormTitle, ENTITY_TEMPLATE } from "../../utils/entityCopy";
+import { entityCreateButton, entityFormTitle, ENTITY_TEMPLATE, DETAIL_TEMPLATE } from "../../utils/entityCopy";
 import { ERROR_DELETE_FAILED, ERROR_OP_FAILED, ERROR_EXECUTE_FAILED } from "../../utils/errorCopy";
 import Icon, { ICON_COLOR } from "../../components/Icon";
 
@@ -364,7 +364,7 @@ export default function TemplateManager() {
       {/* ========== 详情弹窗（对齐PC截图2） ========== */}
       {showDetail && selectedTemplate && (
         <BottomSheet
-          title="模板详情"
+          title={DETAIL_TEMPLATE}
           onClose={closeDetail}
           maxHeight="85vh"
           bodyClassName="tpl-detail-pad"

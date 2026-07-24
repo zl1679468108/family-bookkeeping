@@ -25,3 +25,14 @@ export function entityFormTitle(entity: string, isEdit: boolean, createVerb = '�
 export function entityCreateButton(entity: string, plus = '+'): string {
   return `${plus} 新建${entity}`
 }
+
+/** 详情弹窗标题：分类详情 / 模板详情 */
+export function entityDetailTitle(entity: string): string {
+  return `${entity}详情`
+}
+
+export const DETAIL_CATEGORY = entityDetailTitle(ENTITY_CATEGORY)
+export const DETAIL_TEMPLATE = entityDetailTitle(ENTITY_TEMPLATE)
+export const DETAIL_BOOK = entityDetailTitle(ENTITY_BOOK)
+export const DETAIL_TRANSACTION = entityDetailTitle(ENTITY_TRANSACTION)
+export const DETAIL_BUDGET = entityDetailTitle(ENTITY_BUDGET)
