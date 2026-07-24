@@ -89,6 +89,7 @@
 - `formatMoney` 双端新增 `wan`（≥1万 → X.X万）；负数统一 `-¥…` 语义。
 - Admin 看板/交易、PC 模板详情、Taro Home/流水/预算/模板/记一笔金额统一走 formatMoney。
 - `fmtAmount` 保留为无货币符简写，文档指向 formatMoney。
+- 新增 `notifyInfo`、`formatDateTime`；校验文案与 Admin 注册时间收口。
 - 验证：frontend/taro `tsc --noEmit` 通过。
 
 

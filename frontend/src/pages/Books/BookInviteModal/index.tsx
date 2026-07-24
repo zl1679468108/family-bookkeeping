@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { joinByInvitation } from '../../../services/booksApi';
-import { notify } from '../../../utils/notifications';
+import { notify } from '../../../utils/notifications'
+import { notifyInfo } from '../../../utils/notifyError';
 import { GlobalModal } from '../../../components/ui';
 import { Button } from '../../../components/ui/Button';
 import { FooterActions } from '../../../components/ui/FooterActions';
@@ -38,7 +39,7 @@ export const BookInviteModal: React.FC<BookInviteModalProps> = ({ open, onClose,
   const handleSubmit = () => {
     const code = inviteCode.trim();
     if (code.length < 4) {
-      notify({ type: 'error', message: '邀请码至少需要4位' });
+      notifyInfo('邀请码至少需要4位');
       return;
     }
     if (joiningRef.current) return;

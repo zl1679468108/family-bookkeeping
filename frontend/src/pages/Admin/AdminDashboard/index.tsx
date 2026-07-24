@@ -6,6 +6,7 @@ import { getAdminStats, PlatformStats } from '../../../services/adminApi';
 import { StatCardsSkeleton, TableRowsSkeleton } from '../../../components/ui/Skeleton';
 import { EmptyState } from '../../../components/ui/EmptyState';
 import { formatMoney } from '../../../utils/budget';
+import { formatDateTime } from '../../../utils/date';
 
 const AdminDashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -131,7 +132,7 @@ const AdminDashboard: React.FC = () => {
                       </span>
                     </td>
                     <td className="data-table__cell--muted">
-                      {new Date(user.created_at).toLocaleString('zh-CN')}
+                      {formatDateTime(user.created_at)}
                     </td>
                   </tr>
                 ))}

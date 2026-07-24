@@ -41,12 +41,13 @@ export {
   formatDate,
   formatDateYMD,
   formatFriendlyDate,
+  formatDateTime,
   todayBeijing,
   parseDateInput,
 } from './date'
 
 export { getErrorMessage } from './errorMessage'
 
-export { notifyError, notifySuccess } from './notifyError'
+export { notifyError, notifySuccess, notifyInfo } from './notifyError'
 
 export { monthDateRange, toMonthKey, parseMonthKey } from './month'

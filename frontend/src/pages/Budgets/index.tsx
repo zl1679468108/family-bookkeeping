@@ -10,7 +10,7 @@ import { useFocusItem } from '../../hooks/useFocusItem'
 import { useMonthRangeOptions } from '../../hooks/useMonthRangeOptions'
 import type { BudgetRecord, UpsertBudgetInput } from '@family-bookkeeping/shared-types';
 import { notify } from '../../utils/notifications'
-import { notifyError } from '../../utils/notifyError'
+import { notifyError, notifyInfo } from '../../utils/notifyError'
 import { Skeleton } from '../../components/ui/Skeleton'
 import { GlobalModal, DetailItem, Space } from '../../components/ui'
 import { Card } from '../../components/ui/Card'
@@ -144,7 +144,7 @@ const Budgets: React.FC = () => {
     const budgetsArray = buildBudgetPayload(editValues)
 
     if (budgetsArray.length === 0) {
-      notify({ type: 'error', message: '请至少设置一个分类的预算金额' })
+      notifyInfo('请至少设置一个分类的预算金额')
       return
     }
 
@@ -158,7 +158,7 @@ const Budgets: React.FC = () => {
     try {
       const result = await copyBudgets({ targetMonth: selectedMonth })
       if (!result || result.length === 0) {
-        notify({ type: 'error', message: '上月暂无预算可复制' })
+        notifyInfo('上月暂无预算可复制')
         return
       }
       notify({ type: 'success', message: `已复制上月 ${result.length} 条预算` })

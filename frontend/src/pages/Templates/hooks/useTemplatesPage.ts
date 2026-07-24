@@ -5,6 +5,7 @@ import { useCategories } from '../../../hooks/useCategories'
 import { useSort } from '../../../hooks/useSort'
 import { useMutationAction } from '../../../hooks/useMutationAction'
 import { notify } from '../../../utils/notifications'
+import { notifyInfo } from '../../../utils/notifyError'
 import type { CreateTemplateInput } from '@family-bookkeeping/shared-types';
 import type { LocationResult } from '@family-bookkeeping/shared-types'
 
@@ -103,7 +104,7 @@ export function useTemplatesPage() {
 
   const { run: handleSave, isRunning: saveLoading } = useMutationAction(async () => {
     if (!form.name.trim()) {
-      notify({ type: 'error', message: '请输入模板名称' })
+      notifyInfo('请输入模板名称')
       return
     }
     const data: CreateTemplateInput = {

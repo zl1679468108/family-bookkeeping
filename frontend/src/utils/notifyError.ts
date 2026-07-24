@@ -10,3 +10,8 @@ export function notifyError(err: unknown, fallback = '操作失败'): void {
 export function notifySuccess(message: string): void {
   notify({ type: 'success', message })
 }
+
+/** 统一信息通知（校验提示等） */
+export function notifyInfo(message: string): void {
+  notify({ type: 'info', message })
+}

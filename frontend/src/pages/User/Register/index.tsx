@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../../../utils/auth'
 import { useDebouncedAction } from '../../../hooks/useDebouncedAction'
 import { notify } from '../../../utils/notifications'
+import { notifyInfo } from '../../../utils/notifyError'
 import AuthLayout from '../../../components/AuthLayout'
 import { RegisterIllustration } from '../../../components/AuthLayout/AuthIllustrations'
 import { Button } from '../../../components/ui/Button'
@@ -19,11 +20,11 @@ const RegisterPage: React.FC = () => {
 
   const { run: handleSubmit, isRunning: loading } = useDebouncedAction(async () => {
     if (password !== confirmPassword) {
-      notify({ type: 'error', message: '两次输入的密码不一致' })
+      notifyInfo('两次输入的密码不一致')
       return
     }
     if (password.length < 6) {
-      notify({ type: 'error', message: '密码长度至少为6位' })
+      notifyInfo('密码长度至少为6位')
       return
     }
     try {

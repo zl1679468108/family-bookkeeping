@@ -62,3 +62,11 @@ export function formatDate(dateStr: string, mode: 'full' | 'dashboard' = 'full')
   if (mode === 'dashboard') return formatFriendlyDate(dateStr)
   return formatDateYMD(dateStr)
 }
+
+/** 日期时间展示（本地/浏览器；用于管理端等非业务流水时间） */
+export function formatDateTime(input: string | Date | null | undefined): string {
+  if (!input) return '-'
+  const d = input instanceof Date ? input : new Date(input)
+  if (Number.isNaN(d.getTime())) return String(input)
+  return d.toLocaleString('zh-CN')
+}

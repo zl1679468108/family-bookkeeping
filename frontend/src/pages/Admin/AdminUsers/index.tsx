@@ -13,6 +13,7 @@ import { Button } from '../../../components/ui/Button'
 import { Pagination } from '../../../components/ui/Pagination'
 import { EmptyState } from '../../../components/ui/EmptyState'
 import { TableRowsSkeleton } from '../../../components/ui/Skeleton'
+import { formatDateTime } from '../../../utils/date';
 
 const AdminUsers: React.FC = () => {
   const queryClient = useQueryClient();
@@ -213,7 +214,7 @@ const AdminUsers: React.FC = () => {
                         </span>
                       </td>
                       <td className="data-table__cell--muted">
-                        {new Date(user.created_at).toLocaleString('zh-CN')}
+                        {formatDateTime(user.created_at)}
                       </td>
                       <td className="data-table__col--fixed">
                         <div className="action-buttons">

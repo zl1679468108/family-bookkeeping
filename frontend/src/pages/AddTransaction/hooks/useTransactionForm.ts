@@ -9,7 +9,7 @@ import { renderCategoryIcon } from '../../../utils/renderCategoryIcon'
 import type { DropdownOption } from '../../../components/ui/Dropdown'
 import { useDebouncedAction } from '../../../hooks/useDebouncedAction'
 import { notify } from '../../../utils/notifications'
-import { notifyError } from '../../../utils/notifyError'
+import { notifyError, notifyInfo } from '../../../utils/notifyError'
 import { parseImageList } from '../../../utils/parseImageList'
 import { compressImage } from '../../../utils/imageCompress'
 import type { LocationResult } from '@family-bookkeeping/shared-types'
@@ -175,11 +175,11 @@ export function useTransactionForm() {
   const { run: handleSubmit, isRunning: submitInProgress } = useDebouncedAction(async () => {
     const amountNum = parseFloat(formData.amount)
     if (!formData.amount || isNaN(amountNum) || amountNum <= 0) {
-      notify({ type: 'error', message: '请输入有效金额' })
+      notifyInfo('请输入有效金额')
       return
     }
     if (!formData.category) {
-      notify({ type: 'error', message: '请选择分类' })
+      notifyInfo('请选择分类')
       return
     }
 

@@ -4,7 +4,8 @@ import { useMutationAction } from '../../../hooks/useMutationAction';
 import { createBook, updateBook } from '../../../services/booksApi';
 import { fetchCustomIcons, uploadIcon, deleteIcon } from '../../../services/iconsApi';
 import { BOOK_ICONS, getBookIconByKey } from '../../../utils/bookIcons';
-import { notify } from '../../../utils/notifications';
+import { notify } from '../../../utils/notifications'
+import { notifyInfo } from '../../../utils/notifyError';
 import { GlobalModal } from '../../../components/ui';
 import { Button } from '../../../components/ui/Button';
 import { FooterActions } from '../../../components/ui/FooterActions';
@@ -66,7 +67,7 @@ export const BookCreateModal: React.FC<BookCreateModalProps> = ({ open, onClose,
 
   const handleSubmit = () => {
     if (!bookName.trim()) {
-      notify({ type: 'error', message: '请输入名称' });
+      notifyInfo('请输入名称');
       return;
     }
     mutation.run();
