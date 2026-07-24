@@ -28,3 +28,22 @@ export function yearMonthDateRange(year: number, month: number): { start: string
 export function yearMonthKey(year: number, month: number): string {
   return toMonthKey(year, month)
 }
+
+/** 月份加减（delta 可为负），自动跨年 */
+export function shiftYearMonth(year: number, month: number, delta = 1): YearMonth {
+  const idx = year * 12 + (month - 1) + delta
+  const y = Math.floor(idx / 12)
+  const m = (idx % 12) + 1
+  return { year: y, month: m }
+}
+
+/** 解析 YYYY-MM / YYYY-M key */
+export function parseYearMonthKey(key: string): YearMonth | null {
+  if (!key) return null
+  const parts = String(key).split('-').map(Number)
+  if (parts.length < 2 || !parts[0] || !parts[1]) return null
+  const year = parts[0]
+  const month = parts[1]
+  if (month < 1 || month > 12) return null
+  return { year, month }
+}

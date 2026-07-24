@@ -23,7 +23,7 @@ import { STALE } from '../../utils/cachePolicy';
 import { FILTER_ALL_CATEGORIES, FILTER_VIEW, FILTER_ALL_MEMBERS, FILTER_ALL } from '../../utils/transactionType'
 import { ACTION_LOADING } from '../../utils/actionCopy';
 import { TITLE_MERCHANT_FOOTPRINT } from '../../utils/sectionCopy'
-import { FORM_SELECT_MONTH } from '../../utils/formCopy'
+import { FORM_SELECT_MONTH, FORM_SEARCH_MONTH } from '../../utils/formCopy'
 
 type ViewMode = 'footprints' | 'heatmap';
 
@@ -236,7 +236,7 @@ const MapPage: React.FC = () => {
             placeholder={FORM_SELECT_MONTH}
             allowClear={false}
             showSearch
-            searchPlaceholder="搜索月份..."
+            searchPlaceholder={FORM_SEARCH_MONTH}
           />
 
           {/* 类型 */}

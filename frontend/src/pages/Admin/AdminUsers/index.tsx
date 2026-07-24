@@ -26,7 +26,8 @@ import {
   platformUserStatusActionLabel,
 } from '../../../utils/userStatus'
 import { FILTER_ALL_ROLES, FILTER_ALL_STATUS } from '../../../utils/transactionType'
-import { FORM_ADMIN_PASSWORD_PLACEHOLDER } from '../../../utils/formCopy'
+import { FORM_ADMIN_PASSWORD_PLACEHOLDER, FORM_SEARCH_USER } from '../../../utils/formCopy'
+import { CONFIRM_UPDATE_ROLE_TITLE, CONFIRM_UPDATE_STATUS_TITLE, CONFIRM_UPDATE_TEXT } from '../../../utils/confirmCopy'
 
 const AdminUsers: React.FC = () => {
   const queryClient = useQueryClient();
@@ -159,7 +160,7 @@ const AdminUsers: React.FC = () => {
           <SearchInput
             value={search}
             onChange={handleSearchChange}
-            placeholder="搜索用户名/邮箱..."
+            placeholder={FORM_SEARCH_USER}
           />
         </FilterBar>
       </div>
@@ -253,11 +254,11 @@ const AdminUsers: React.FC = () => {
       <GlobalModal
         type="confirm"
         open={actionType === 'role'}
-        title="修改用户角色"
+        title={CONFIRM_UPDATE_ROLE_TITLE}
         onClose={() => { setActionType(null); setPassword(''); setErrorMsg(''); }}
         onConfirm={handleRoleSubmit}
         loading={roleMutation.isPending}
-        confirmText="确认修改"
+        confirmText={CONFIRM_UPDATE_TEXT}
       >
         <div>
           <p className="global-modal-dialog__message">
@@ -281,11 +282,11 @@ const AdminUsers: React.FC = () => {
       <GlobalModal
         type="confirm"
         open={actionType === 'status'}
-        title="修改用户状态"
+        title={CONFIRM_UPDATE_STATUS_TITLE}
         onClose={() => { setActionType(null); setPassword(''); setErrorMsg(''); }}
         onConfirm={handleStatusSubmit}
         loading={statusMutation.isPending}
-        confirmText="确认修改"
+        confirmText={CONFIRM_UPDATE_TEXT}
       >
         <div>
           <p className="global-modal-dialog__message">

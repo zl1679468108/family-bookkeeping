@@ -14,6 +14,8 @@ import { formatMoney } from '../../utils/budget';
 import { Icon } from '../../components/ui/Icon'
 import { formatDateYMD } from '../../utils/date'
 import { NAV_PREV_MONTH, NAV_NEXT_MONTH } from '../../utils/actionCopy'
+import { shiftYearMonth, parseYearMonthKey } from '../../utils/monthState'
+import { FORM_SEARCH_MONTH } from '../../utils/formCopy'
 
 const Calendar: React.FC = () => {
   const { currentBook } = useBook();
@@ -75,22 +77,24 @@ const Calendar: React.FC = () => {
   }, [startDow, totalDays, viewYear, viewMonth, dateMap]);
 
   const goPrevMonth = useCallback(() => {
-    if (viewMonth === 1) { setViewYear((y) => y - 1); setViewMonth(12); }
-    else setViewMonth((m) => m - 1);
+    const next = shiftYearMonth(viewYear, viewMonth, -1);
+    setViewYear(next.year);
+    setViewMonth(next.month);
     setSelectedDate(null);
-  }, [viewMonth]);
+  }, [viewYear, viewMonth]);
 
   const goNextMonth = useCallback(() => {
-    if (viewMonth === 12) { setViewYear((y) => y + 1); setViewMonth(1); }
-    else setViewMonth((m) => m + 1);
+    const next = shiftYearMonth(viewYear, viewMonth, 1);
+    setViewYear(next.year);
+    setViewMonth(next.month);
     setSelectedDate(null);
-  }, [viewMonth]);
+  }, [viewYear, viewMonth]);
 
   const handleMonthChange = useCallback((key: string) => {
-    if (!key) return;
-    const [y, m] = key.split('-').map(Number);
-    setViewYear(y);
-    setViewMonth(m);
+    const parsed = parseYearMonthKey(key);
+    if (!parsed) return;
+    setViewYear(parsed.year);
+    setViewMonth(parsed.month);
     setSelectedDate(null);
   }, []);
 
@@ -120,7 +124,7 @@ const Calendar: React.FC = () => {
               allowClear={false}
               width="auto"
               showSearch
-              searchPlaceholder="搜索月份..."
+              searchPlaceholder={FORM_SEARCH_MONTH}
             />
           )}
         </div>

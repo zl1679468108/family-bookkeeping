@@ -18,6 +18,7 @@ import { formatAmount } from '../../utils/common'
 import { formatMonthDisplay } from '../../utils/month'
 import { EMPTY_NO_CATEGORY_DATA, EMPTY_NO_TRANSACTIONS_PERIOD, EMPTY_MEMBER_COMPARE_NEED_MULTI, EMPTY_SELECT_BOOK } from '../../utils/emptyCopy'
 import { TITLE_CATEGORY_RATIO, reportChartTitle } from '../../utils/sectionCopy'
+import { FORM_SEARCH_MONTH, FORM_SEARCH_YEAR } from '../../utils/formCopy'
 
 const Reports: React.FC = () => {
   const navigate = useNavigate()
@@ -154,13 +155,13 @@ const Reports: React.FC = () => {
                     <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                       <span style={{ padding: '4px 8px', fontSize: '12px', fontWeight: 600, color: 'var(--fg)' }}>{formatMonthDisplay(now)}</span>
                       <span style={{ fontSize: '12px', color: 'var(--fg3)' }}>vs</span>
-                      <DropdownSelect options={monthOptions} value={monthCompareTarget} onChange={(k) => k && setMonthCompareTarget(k)} showSearch searchPlaceholder="搜索月份..." />
+                      <DropdownSelect options={monthOptions} value={monthCompareTarget} onChange={(k) => k && setMonthCompareTarget(k)} showSearch searchPlaceholder={FORM_SEARCH_MONTH} />
                     </div>
                   ) : isYearCompare ? (
                     <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                       <span style={{ padding: '4px 8px', fontSize: '12px', fontWeight: 600, color: 'var(--fg)' }}>{currentYear}年</span>
                       <span style={{ fontSize: '12px', color: 'var(--fg3)' }}>vs</span>
-                      <DropdownSelect options={yearOptions} value={String(yearCompareTarget)} onChange={(k) => k && setYearCompareTarget(Number(k))} showSearch searchPlaceholder="搜索年份..." />
+                      <DropdownSelect options={yearOptions} value={String(yearCompareTarget)} onChange={(k) => k && setYearCompareTarget(Number(k))} showSearch searchPlaceholder={FORM_SEARCH_YEAR} />
                     </div>
                   ) : null
                 } />
@@ -192,9 +193,9 @@ const Reports: React.FC = () => {
             <>
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '14px' }}>
                 <span style={{ fontSize: '13px', color: 'var(--fg2)' }}>时间范围</span>
-                <DropdownSelect options={monthOptions} value={memberStartMonth} onChange={(k) => k && setMemberStartMonth(k)} showSearch searchPlaceholder="搜索月份..." />
+                <DropdownSelect options={monthOptions} value={memberStartMonth} onChange={(k) => k && setMemberStartMonth(k)} showSearch searchPlaceholder={FORM_SEARCH_MONTH} />
                 <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--fg3)' }}>至</span>
-                <DropdownSelect options={monthOptions} value={memberEndMonth} onChange={(k) => k && setMemberEndMonth(k)} showSearch searchPlaceholder="搜索月份..." />
+                <DropdownSelect options={monthOptions} value={memberEndMonth} onChange={(k) => k && setMemberEndMonth(k)} showSearch searchPlaceholder={FORM_SEARCH_MONTH} />
               </div>
               {currentBook?.id ? (
                 <MemberComparison monthFrom={memberStartMonth} monthTo={memberEndMonth} />

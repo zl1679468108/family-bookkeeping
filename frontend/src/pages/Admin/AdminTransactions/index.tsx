@@ -25,6 +25,7 @@ import { STALE } from '../../../utils/cachePolicy'
 import { transactionTypeLabel, transactionTypeStatusClass, transactionTypeAmountClass, isIncomeType, FILTER_ALL_BOOKS, FILTER_ALL_USERS, FILTER_ALL_TYPES } from '../../../utils/transactionType'
 import { formatAmountByType } from '../../../utils/common'
 import { EMPTY_LOAD_FAILED_RETRY, EMPTY_TRANSACTIONS } from '../../../utils/emptyCopy';
+import { FORM_SEARCH_TXN_DESC } from '../../../utils/formCopy'
 
 const AdminTransactions: React.FC = () => {
   const [page, setPage] = useState(1);
@@ -129,7 +130,7 @@ const AdminTransactions: React.FC = () => {
           <SearchInput
             value={search}
             onChange={handleSearchChange}
-            placeholder="搜索交易描述..."
+            placeholder={FORM_SEARCH_TXN_DESC}
           />
         </FilterBar>
       </div>

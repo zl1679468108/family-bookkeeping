@@ -46,3 +46,8 @@ export const CONFIRM_COPY_BUDGET_TITLE = '复制上月预算'
 export const CONFIRM_COPY_BUDGET_MESSAGE =
   '将上月预算复制到当前月份（已有金额会被覆盖），是否继续？'
 export const CONFIRM_COPY_BUDGET_TEXT = '确认复制'
+
+/** Admin：修改用户角色/状态 */
+export const CONFIRM_UPDATE_ROLE_TITLE = '修改用户角色'
+export const CONFIRM_UPDATE_STATUS_TITLE = '修改用户状态'
+export const CONFIRM_UPDATE_TEXT = '确认修改'

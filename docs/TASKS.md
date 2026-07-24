@@ -85,6 +85,11 @@
 
 ### ✅ 已完成
 
+#### 2026-07-24 月份导航 pure + 搜索/Admin 确认文案 shared
+- `monthState.shiftYearMonth` / `parseYearMonthKey`；PC 日历上下月与月份切换改用
+- `FORM_SEARCH_MONTH|YEAR|USER|TXN_DESC`：报表/年报/日历/地图/Admin 搜索占位统一
+- Admin 角色/状态确认标题与确认按钮文案入 `confirmCopy`
+
 #### 2026-07-24 筛选/地图 Marker shared 化 + 双端占位收口
 - **filter/form 常量**：`FILTER_ALL*` / `FORM_MIN/MAX_AMOUNT` / `FORM_SELECT_MONTH|FREQUENCY` / `FORM_SEARCH_MERCHANT` / `FORM_ADMIN_PASSWORD` / `ACTION_VIEW_ALL`
 - **接线**：流水筛选、地图筛选、Admin 用户/交易、Dropdown 默认、Dashboard/Home「全部」、Taro 记一笔品牌与 NoteField 备注

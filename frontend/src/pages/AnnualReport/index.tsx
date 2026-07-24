@@ -20,6 +20,7 @@ import { notifySuccess, notifyError } from '../../utils/notifyError'
 import { Button } from '../../components/ui/Button'
 import { ERROR_REPORT_NOT_LOADED, ERROR_SAVE_IMAGE } from '../../utils/errorCopy';
 import { SUCCESS_REPORT_SAVED } from '../../utils/successCopy';
+import { FORM_SEARCH_YEAR } from '../../utils/formCopy'
 
 const CURRENT_YEAR = new Date().getFullYear();
 
@@ -99,7 +100,7 @@ const AnnualReport: React.FC = () => {
           allowClear={false}
           width="auto"
           showSearch
-          searchPlaceholder="搜索年份..."
+          searchPlaceholder={FORM_SEARCH_YEAR}
         />
       </div>
 
