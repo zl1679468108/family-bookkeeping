@@ -28,6 +28,7 @@ import { FIELD_BOOK_NAME, FIELD_DESC_OPTIONAL, FIELD_ICON, FIELD_INVITE_CODE } f
 import { TITLE_JOIN_BY_INVITE, ONBOARDING_CREATE_TITLE, ONBOARDING_CREATE_DESC, ONBOARDING_JOIN_DESC } from "../../utils/sectionCopy"
 import { ACTION_CREATE_BOOK, ACTION_CREATING_ELLIPSIS, ACTION_JOINING_ELLIPSIS, ACTION_JOIN_BOOK } from "../../utils/actionCopy"
 import { getThemeTokenHex } from "../../utils/themeTokens"
+import { appWelcomeTitle } from "../../config/version";
 
 type Mode = "choice" | "create" | "join";
 
@@ -96,7 +97,7 @@ export default function Onboarding() {
         <View className="ob-logo">
           <Text className="ob-logo-text">静</Text>
         </View>
-        <Text className="ob-title">欢迎来到静记</Text>
+        <Text className="ob-title">{appWelcomeTitle()}</Text>
         <Text className="ob-subtitle">
           创建属于你自己的账本，或通过邀请码加入他人的账本
         </Text>

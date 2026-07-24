@@ -8,6 +8,7 @@ import {
   hasDropdownValue,
 } from '../../../utils/dropdownHelpers'
 import { cx } from '../../../utils/cx'
+import { fieldRequiredClassName } from '../../../utils/inputHelpers'
 
 /**
  * 通用下拉选择组件 —— 取代各页面手写的 <select> 和自定义下拉
@@ -145,7 +146,7 @@ export const DropdownSelect: React.FC<DropdownSelectProps> = ({
         className="dd-select__btn"
         onClick={() => setOpen((v) => !v)}
       >
-        {label && <span className={`dd-select__label${required ? ' field-required' : ''}`}>{label}</span>}
+        {label && <span className={fieldRequiredClassName('dd-select__label', required)}>{label}</span>}
         {currentOption?.icon && <span className="dd-select__icon">{currentOption.icon}</span>}
         <span className="dd-select__value">{currentOption ? currentOption.label : placeholder}</span>
         {allowClear && hasValue && (

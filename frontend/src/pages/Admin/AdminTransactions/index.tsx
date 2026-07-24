@@ -22,7 +22,7 @@ import { GlobalModal } from '../../../components/ui';
 import { renderCategoryIcon } from '../../../utils/renderCategoryIcon';
 import { queryKeys } from '../../../utils/queryKeys'
 import { STALE } from '../../../utils/cachePolicy'
-import { transactionTypeLabel, transactionTypeStatusClass, transactionTypeAmountClass, isIncomeType, FILTER_ALL_BOOKS, FILTER_ALL_USERS, FILTER_ALL_TYPES } from '../../../utils/transactionType'
+import { transactionTypeLabel, transactionTypeStatusClass, transactionTypeAmountClass, isIncomeType, FILTER_ALL_BOOKS, FILTER_ALL_USERS, FILTER_ALL_TYPES, TRANSACTION_TYPE_OPTIONS } from '../../../utils/transactionType'
 import { formatAmountByType } from '../../../utils/common'
 import { EMPTY_LOAD_FAILED_RETRY, EMPTY_TRANSACTIONS } from '../../../utils/emptyCopy';
 import { FORM_SEARCH_TXN_DESC } from '../../../utils/formCopy'
@@ -80,10 +80,7 @@ const AdminTransactions: React.FC = () => {
 
   const bookOptions = booksForSelect.map((b) => ({ key: b.id, label: b.name }));
   const userOptions = usersForSelect.map((u) => ({ key: u.id, label: u.username }));
-  const typeOptions = [
-    { key: 'income', label: '收入' },
-    { key: 'expense', label: '支出' },
-  ];
+  const typeOptions = TRANSACTION_TYPE_OPTIONS.map((o) => ({ key: o.key, label: o.label }));
 
   const handleBookChange = (key: string) => {
     setBookFilter(key);

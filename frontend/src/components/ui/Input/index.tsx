@@ -1,5 +1,5 @@
 import React, { InputHTMLAttributes, useState, useEffect, useRef, useId } from 'react'
-import { shouldShowInputClear, resolvePasswordInputType } from '../../../utils/inputHelpers'
+import { shouldShowInputClear, resolvePasswordInputType, FIELD_REQUIRED_CLASS } from '../../../utils/inputHelpers'
 import { cx } from '../../../utils/cx'
 import { Icon } from '../Icon'
 import { ACTION_CLEAR, ACTION_SEARCH_ELLIPSIS,
@@ -75,7 +75,7 @@ export const Input: React.FC<InputProps> = ({
   return (
     <div className={cx('ui-input-wrap', wrapperClassName)}>
       {label && (
-        <label htmlFor={inputId} className={cx('ui-input-label', required && 'field-required')}>
+        <label htmlFor={inputId} className={cx('ui-input-label', required && FIELD_REQUIRED_CLASS)}>
           {label}
         </label>
       )}
@@ -218,7 +218,7 @@ export const NumberInput: React.FC<NumberInputProps> = ({
 }) => {
   return (
     <div className={cx('ui-input-wrap', wrapperClassName)}>
-      {label && <label className={cx('ui-input-label', required && 'field-required')}>{label}</label>}
+      {label && <label className={cx('ui-input-label', required && FIELD_REQUIRED_CLASS)}>{label}</label>}
       <div className={`ui-input ${disabled ? 'is-disabled' : ''}`.trim()}>
         {prefix && <span className="ui-input-prefix">{prefix}</span>}
         <input

@@ -20,7 +20,7 @@ import { getThemeColors } from '../../utils/themeColors'
 import { formatAmount } from '../../utils/common';
 import { queryKeys } from '../../utils/queryKeys';
 import { STALE } from '../../utils/cachePolicy';
-import { FILTER_ALL_CATEGORIES, FILTER_VIEW, FILTER_ALL_MEMBERS, FILTER_ALL } from '../../utils/transactionType'
+import { FILTER_ALL_CATEGORIES, FILTER_VIEW, FILTER_ALL_MEMBERS, FILTER_ALL, TRANSACTION_TYPE_OPTIONS_WITH_ICONS } from '../../utils/transactionType'
 import { ACTION_LOADING } from '../../utils/actionCopy';
 import { TITLE_MERCHANT_FOOTPRINT,
   MAP_VIEW_FOOTPRINTS,
@@ -119,10 +119,11 @@ const MapPage: React.FC = () => {
   // ---- 下拉选项 ----
 
   // 类型选项
-  const typeOptions: DropdownOption[] = [
-    { key: 'expense', label: '支出', icon: '📤' },
-    { key: 'income', label: '收入', icon: '📥' },
-  ];
+  const typeOptions: DropdownOption[] = TRANSACTION_TYPE_OPTIONS_WITH_ICONS.map((o) => ({
+    key: o.key,
+    label: o.label,
+    icon: o.icon,
+  }));
 
   // 分类选项：使用 renderCategoryIcon 渲染自定义分类图标
   const categoryOptions: DropdownOption[] = useMemo(() => {

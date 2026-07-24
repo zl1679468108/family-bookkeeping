@@ -26,3 +26,8 @@ export const NAV_CATEGORIES_DESC = '自定义收支分类与图标'
 export const NAV_TEMPLATES_DESC = '快捷记账模板'
 export const NAV_BUDGETS_DESC = '设置月度分类预算'
 export const NAV_WORKBENCH_META = '账本、分类、模板与预算，一站管理'
+
+
+/** 侧栏分区标题 */
+export const NAV_SECTION_MAIN = '主菜单'
+export const NAV_SECTION_ADMIN = '管理后台'

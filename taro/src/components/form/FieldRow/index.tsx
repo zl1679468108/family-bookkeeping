@@ -8,7 +8,7 @@ import { ReactNode } from "react";
 import { View, Text, Input } from "@tarojs/components";
 import "./index.scss";
 import { FORM_SELECT_PLACEHOLDER } from "../../../utils/formCopy";
-import { fieldDisplayText, hasFieldText } from "../../../utils/inputHelpers";
+import { fieldDisplayText, hasFieldText, FIELD_REQUIRED_MARK } from "../../../utils/inputHelpers";
 import { cx } from "../../../utils/cx";
 import Icon, { ICON_COLOR } from "../../Icon";
 
@@ -47,7 +47,7 @@ export default function FieldRow({
     <View className="ft-field-left">
       <Text className="ft-field-label">
         {label}
-        {required && <Text className="ft-field-required"> *</Text>}
+        {required && <Text className="ft-field-required">{FIELD_REQUIRED_MARK}</Text>}
       </Text>
     </View>
   );

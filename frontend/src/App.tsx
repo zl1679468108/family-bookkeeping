@@ -9,30 +9,30 @@ import { BookProvider, useBook } from './hooks/useBook'
 import { hasToken } from './services/api'
 import { PageProgressBar } from './components/PageProgressBar'
 import { ACTION_LOADING } from './utils/actionCopy'
+import { APP_NAME, appPageTitle } from './config/version'
 
-const PROJECT_NAME = '静记'
 
 // 路由 → 页面标题映射（F-L2）
 const PAGE_TITLES: Record<string, string> = {
-  '/': `首页 - ${PROJECT_NAME}`,
-  '/transactions': `交易流水 - ${PROJECT_NAME}`,
-  '/add': `记一笔 - ${PROJECT_NAME}`,
-  '/reports': `报表 - ${PROJECT_NAME}`,
-  '/calendar': `日历 - ${PROJECT_NAME}`,
-  '/map': `地图 - ${PROJECT_NAME}`,
-  '/annual-report': `年度账单 - ${PROJECT_NAME}`,
-  '/books': `账本 - ${PROJECT_NAME}`,
-  '/categories': `分类 - ${PROJECT_NAME}`,
-  '/templates': `模板 - ${PROJECT_NAME}`,
-  '/budgets': `预算 - ${PROJECT_NAME}`,
-  '/profile': `个人中心 - ${PROJECT_NAME}`,
-  '/onboarding': `开始使用 - ${PROJECT_NAME}`,
-  '/admin': `管理后台 - ${PROJECT_NAME}`,
-  '/admin/users': `用户管理 - ${PROJECT_NAME}`,
-  '/admin/transactions': `交易监控 - ${PROJECT_NAME}`,
-  '/login': `登录 - ${PROJECT_NAME}`,
-  '/register': `注册 - ${PROJECT_NAME}`,
-  '/forgot-password': `找回密码 - ${PROJECT_NAME}`,
+  '/': appPageTitle('首页'),
+  '/transactions': appPageTitle('交易流水'),
+  '/add': appPageTitle('记一笔'),
+  '/reports': appPageTitle('报表'),
+  '/calendar': appPageTitle('日历'),
+  '/map': appPageTitle('地图'),
+  '/annual-report': appPageTitle('年度账单'),
+  '/books': appPageTitle('账本'),
+  '/categories': appPageTitle('分类'),
+  '/templates': appPageTitle('模板'),
+  '/budgets': appPageTitle('预算'),
+  '/profile': appPageTitle('个人中心'),
+  '/onboarding': appPageTitle('开始使用'),
+  '/admin': appPageTitle('管理后台'),
+  '/admin/users': appPageTitle('用户管理'),
+  '/admin/transactions': appPageTitle('交易监控'),
+  '/login': appPageTitle('登录'),
+  '/register': appPageTitle('注册'),
+  '/forgot-password': appPageTitle('找回密码'),
 }
 
 // 当用户已登录但没有账本时允许访问的路由（引导性页面）
@@ -75,7 +75,7 @@ const AppLayout: React.FC = () => {
   const location = useLocation()
 
   useEffect(() => {
-    document.title = PAGE_TITLES[location.pathname] || PROJECT_NAME
+    document.title = PAGE_TITLES[location.pathname] || APP_NAME
   }, [location.pathname])
 
   const isAuthPage = AUTH_ROUTES.includes(location.pathname)

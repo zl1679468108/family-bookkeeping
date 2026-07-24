@@ -9,6 +9,7 @@ import { Button } from '../../components/ui/Button'
 import { Icon } from '../../components/ui/Icon'
 import { ACTION_LOGOUT } from '../../utils/actionCopy'
 import { TITLE_JOIN_BY_INVITE, ONBOARDING_CREATE_TITLE, ONBOARDING_CREATE_DESC, ONBOARDING_JOIN_DESC } from '../../utils/sectionCopy'
+import { appWelcomeTitle } from '../../config/version'
 
 const OnboardingPage: React.FC = () => {
   const navigate = useNavigate();
@@ -46,7 +47,7 @@ const OnboardingPage: React.FC = () => {
       <div className="onboarding-card">
         <div className="onboarding-hero">
           <div className="onboarding-logo">📒</div>
-          <h1>欢迎来到静记</h1>
+          <h1>{appWelcomeTitle()}</h1>
           <p>创建属于你自己的账本，或通过邀请码加入他人的账本</p>
         </div>
 

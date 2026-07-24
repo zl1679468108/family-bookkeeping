@@ -94,7 +94,7 @@ export default function LocationField({ value, onChange }: LocationFieldProps) {
     <View className="ft-section">
       <View className="ft-field" onClick={() => setVisible(true)}>
         <View className="ft-field-left">
-          <Text className="ft-field-label">位置</Text>
+          <Text className="ft-field-label">{FIELD_LOCATION}</Text>
         </View>
         <View className="ft-field-right">
           <Text className="ft-field-placeholder">{ACTION_SELECT_LOCATION}</Text>

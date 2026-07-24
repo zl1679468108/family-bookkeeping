@@ -1,6 +1,6 @@
 import { Icon } from '../Icon'
 import React, { TextareaHTMLAttributes, useState, useEffect, useRef, useId } from 'react'
-import { shouldShowInputClear, formatCharCount } from '../../../utils/inputHelpers'
+import { shouldShowInputClear, formatCharCount, FIELD_REQUIRED_CLASS} from '../../../utils/inputHelpers'
 import { cx } from '../../../utils/cx'
 import { ACTION_CLEAR } from '../../../utils/actionCopy'
 
@@ -74,7 +74,7 @@ export const Textarea: React.FC<TextareaProps> = ({
   return (
     <div className={cx('ui-textarea-wrap', wrapperClassName)}>
       {label && (
-        <label htmlFor={textareaId} className={cx('ui-input-label', required && 'field-required')}>
+        <label htmlFor={textareaId} className={cx('ui-input-label', required && FIELD_REQUIRED_CLASS)}>
           {label}
         </label>
       )}

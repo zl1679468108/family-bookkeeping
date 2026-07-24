@@ -17,6 +17,7 @@ import {
   hasDropdownValue,
 } from "../../../utils/dropdownHelpers";
 import { cx } from "../../../utils/cx";
+import { FIELD_REQUIRED_MARK } from "../../../utils/inputHelpers";
 
 export interface DropdownOption {
   key: string;
@@ -64,7 +65,7 @@ export function DropdownSelect({
     <View className={cx("ui-dropdown", className)}>
       {label ? (
         <Text className="ui-dropdown__label">
-          {required ? <Text className="ui-dropdown__required">*</Text> : null}
+          {required ? <Text className="ui-dropdown__required">{FIELD_REQUIRED_MARK.trim()}</Text> : null}
           {label}
         </Text>
       ) : null}

@@ -10,6 +10,18 @@ export interface VersionChange {
 }
 
 export const APP_NAME = '静记'
+/** Logo 单字标 */
+export const APP_BRAND_MARK = '静'
+
+/** 欢迎来到{APP_NAME} */
+export function appWelcomeTitle(name: string = APP_NAME): string {
+  return `欢迎来到${name}`
+}
+
+/** 浏览器标题：页面 - 应用名 */
+export function appPageTitle(page: string, name: string = APP_NAME): string {
+  return `${page} - ${name}`
+}
 export const APP_SLOGAN = '安静记录每一笔'
 export const APP_VERSION = '1.0.1'
 export const APP_BUILD_DATE = '2026-07-18'

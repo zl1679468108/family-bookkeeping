@@ -17,6 +17,7 @@ import { ERROR_REGISTER_FAILED } from "../../../utils/errorCopy";
 import { FORM_NICKNAME_PLACEHOLDER, FORM_EMAIL_EXAMPLE, FORM_PASSWORD_MIN_SHORT, FORM_PASSWORD_CONFIRM_PLACEHOLDER, FORM_ALL_REQUIRED, FORM_AGREE_TERMS_PRIVACY } from "../../../utils/formCopy"
 import { FIELD_USERNAME, FIELD_EMAIL, FIELD_PASSWORD, FIELD_CONFIRM_PASSWORD } from "../../../utils/fieldCopy";
 import { ACTION_REGISTERING_ELLIPSIS } from "../../../utils/authCopy";
+import { APP_NAME, APP_BRAND_MARK } from "../../../config/version";
 
 export default function Register() {
   const { isDark } = useTheme();
@@ -61,9 +62,9 @@ export default function Register() {
       {/* 品牌区 */}
       <View className="register-hero">
         <View className="register-brand-mark">
-          <Text className="register-brand-text">静</Text>
+          <Text className="register-brand-text">{APP_BRAND_MARK}</Text>
         </View>
-        <Text className="register-brand-name">静记</Text>
+        <Text className="register-brand-name">{APP_NAME}</Text>
       </View>
 
       {/* 表单 */}

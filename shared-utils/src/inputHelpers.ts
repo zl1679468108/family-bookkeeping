@@ -48,3 +48,20 @@ export function fieldDisplayText(
 export function hasFieldText(value: string | null | undefined): boolean {
   return String(value ?? '').trim().length > 0
 }
+
+
+/** PC 表单必填 class（::before 星号） */
+export const FIELD_REQUIRED_CLASS = 'field-required'
+
+/** Taro FieldRow 必填标记文本（含前导空格） */
+export const FIELD_REQUIRED_MARK = ' *'
+
+/** 拼接 label class：base + 可选 field-required */
+export function fieldRequiredClassName(
+  baseClass: string,
+  required?: boolean,
+): string {
+  const base = String(baseClass || '').trim()
+  if (!required) return base
+  return base ? `${base} ${FIELD_REQUIRED_CLASS}` : FIELD_REQUIRED_CLASS
+}

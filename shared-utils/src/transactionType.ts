@@ -28,6 +28,23 @@ export const TRANSACTION_TYPE_OPTIONS: ReadonlyArray<{
   { key: 'income', label: '收入' },
 ]
 
+/** 地图筛选等场景的类型 emoji */
+export function transactionTypeOptionIcon(type?: string | null): string {
+  if (type === 'income') return '📥'
+  if (type === 'expense') return '📤'
+  return ''
+}
+
+/** 带 icon 的类型选项（Map 筛选等） */
+export const TRANSACTION_TYPE_OPTIONS_WITH_ICONS: ReadonlyArray<{
+  key: TransactionTypeCode
+  label: string
+  icon: string
+}> = TRANSACTION_TYPE_OPTIONS.map((o) => ({
+  ...o,
+  icon: transactionTypeOptionIcon(o.key),
+}))
+
 /** 流水筛选：全部 + 支出 + 收入 */
 export const FILTER_ALL_TYPES = '全部类型'
 export const FILTER_ALL_CATEGORIES = '全部分类'

@@ -18,6 +18,7 @@ import { SUCCESS_CODE_SENT, SUCCESS_PASSWORD_RESET, SUCCESS_CODE_RESENT } from "
 import { FORM_BACK, FORM_BACK_LOGIN, FORM_REGISTERED_EMAIL_PLACEHOLDER, FORM_CAPTCHA_DIGITS_PLACEHOLDER, FORM_PASSWORD_MIN_SHORT, FORM_PASSWORD_CONFIRM_PLACEHOLDER, FORM_EMAIL_VALID_REQUIRED, FORM_CAPTCHA_DIGITS_REQUIRED, MAX_RESET_CODE_LENGTH } from "../../../utils/formCopy"
 import { FIELD_EMAIL, FIELD_CAPTCHA, FIELD_NEW_PASSWORD, FIELD_CONFIRM_PASSWORD } from "../../../utils/fieldCopy";
 import { ACTION_SEND_CODE, ACTION_RESEND_CODE, ACTION_RESET_PASSWORD, AUTH_TITLE_PASSWORD_RESET_DONE, AUTH_DESC_PASSWORD_RESET_DONE, AUTH_SEND_FAILED_CHECK_EMAIL, ACTION_SENDING_ELLIPSIS, ACTION_RESETTING_ELLIPSIS } from "../../../utils/authCopy"
+import { APP_NAME, APP_BRAND_MARK } from "../../../config/version";
 
 type Step = "email" | "code" | "success";
 
@@ -131,9 +132,9 @@ export default function ForgotPassword() {
       {/* 品牌区 */}
       <View className="forgot-hero">
         <View className="forgot-brand-mark">
-          <Text className="forgot-brand-text">静</Text>
+          <Text className="forgot-brand-text">{APP_BRAND_MARK}</Text>
         </View>
-        <Text className="forgot-brand-name">静记</Text>
+        <Text className="forgot-brand-name">{APP_NAME}</Text>
       </View>
 
       {/* 步骤指示器 */}

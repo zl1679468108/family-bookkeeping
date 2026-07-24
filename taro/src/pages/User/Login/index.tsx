@@ -17,6 +17,7 @@ import { ERROR_LOGIN_FAILED } from "../../../utils/errorCopy";
 import { FORM_EMAIL_PASSWORD_REQUIRED, FORM_CAPTCHA_REQUIRED, FORM_CAPTCHA_PLACEHOLDER, FORM_PASSWORD_PLACEHOLDER, FORM_EMAIL_EXAMPLE, ERROR_CAPTCHA_LOAD, MAX_CAPTCHA_LENGTH } from "../../../utils/formCopy"
 import { FIELD_EMAIL, FIELD_PASSWORD, FIELD_CAPTCHA } from "../../../utils/fieldCopy";
 import { AUTH_FORGOT_LINK, ACTION_LOGGING_IN_ELLIPSIS } from "../../../utils/authCopy"
+import { APP_NAME, APP_BRAND_MARK } from "../../../config/version";
 
 export default function Login() {
   const { isDark } = useTheme();
@@ -87,9 +88,9 @@ export default function Login() {
       {/* 品牌区 */}
       <View className="login-hero">
         <View className="login-brand-mark">
-          <Text className="login-brand-text">静</Text>
+          <Text className="login-brand-text">{APP_BRAND_MARK}</Text>
         </View>
-        <Text className="login-brand-name">静记</Text>
+        <Text className="login-brand-name">{APP_NAME}</Text>
       </View>
 
       {/* 表单 */}

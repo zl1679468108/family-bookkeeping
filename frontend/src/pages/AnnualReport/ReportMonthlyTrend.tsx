@@ -4,6 +4,7 @@ import { echarts } from '../../utils/echarts';
 import type { ECharts } from '../../utils/echarts';
 import { getThemeColors } from '../../utils/themeColors'
 import { formatMoney } from '../../utils/budget'
+import { transactionTypeLabel } from '../../utils/transactionType'
 
 interface MonthlyItem {
   month: number;
@@ -56,7 +57,7 @@ export const ReportMonthlyTrend: React.FC<ReportMonthlyTrendProps> = ({ data }) 
         },
       },
       legend: {
-        data: ['收入', '支出'],
+        data: [transactionTypeLabel('income'), transactionTypeLabel('expense')],
         bottom: 0,
         textStyle: { color: textColor, fontSize: 12 },
         icon: 'circle',
@@ -94,7 +95,7 @@ export const ReportMonthlyTrend: React.FC<ReportMonthlyTrendProps> = ({ data }) 
       },
       series: [
         {
-          name: '收入',
+          name: transactionTypeLabel('income'),
           type: 'line',
           data: incomes,
           smooth: true,
@@ -110,7 +111,7 @@ export const ReportMonthlyTrend: React.FC<ReportMonthlyTrendProps> = ({ data }) 
           },
         },
         {
-          name: '支出',
+          name: transactionTypeLabel('expense'),
           type: 'line',
           data: expenses,
           smooth: true,

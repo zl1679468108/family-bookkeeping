@@ -1,6 +1,7 @@
 import React from 'react'
 import './index.scss'
 import { AUTH_BRAND_TAGLINE } from '../../utils/authCopy'
+import { APP_NAME, APP_BRAND_MARK } from '../../config/version'
 
 interface AuthLayoutProps {
   illustration: React.ReactNode
@@ -41,8 +42,8 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({
         <div className="form-inner">
           {/* Logo */}
           <div className="form-logo">
-            <div className="fl-icon">静</div>
-            <span className="fl-text">静记</span>
+            <div className="fl-icon">{APP_BRAND_MARK}</div>
+            <span className="fl-text">{APP_NAME}</span>
           </div>
 
           {children}

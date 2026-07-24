@@ -216,6 +216,12 @@
 - 分类表单 meta helper；TemplateEdit 用 `transactionTypeLabel`；`confirmDeleteThis(ENTITY_*)` 收口
 - 验证：frontend / taro `tsc --noEmit`
 
+#### 2026-07-24 品牌/类型选项/必填标记/导航分区 shared 化
+- version：`APP_BRAND_MARK` / `appWelcomeTitle` / `appPageTitle`；AuthLayout/Sidebar/登录注册/引导/App 标题接线
+- transactionType：`TRANSACTION_TYPE_OPTIONS_WITH_ICONS`；Map/Admin/年报趋势同源
+- nav：`NAV_SECTION_MAIN|ADMIN`；inputHelpers：`FIELD_REQUIRED_*` / `fieldRequiredClassName`；FieldRow/Dropdown/Input/LocationField 接线
+- 验证：frontend / taro `tsc --noEmit`
+
 #### 2026-07-24 分页/附件/加载更多/月份展示 shared 收口
 - pagination：`paginationPageOfLabel` / `PAGINATION_PER_PAGE_LABEL`；PC Pagination 接线
 - action：`ACTION_PULL_LOAD_MORE` / `ACTION_LIST_END` / `ACTION_ADD_IMAGE`；PageLayout 上拉文案

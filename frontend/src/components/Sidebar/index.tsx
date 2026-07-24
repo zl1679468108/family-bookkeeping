@@ -15,11 +15,12 @@ import './index.scss'
 import { queryKeys } from '../../utils/queryKeys'
 import { prefetchRoute as prefetchBookRoute } from '../../utils/prefetchRoute'
 import { STALE } from '../../utils/cachePolicy'
-import { NAV_HOME, NAV_TRANSACTIONS, NAV_ADD, NAV_REPORTS, NAV_CALENDAR, NAV_MAP, NAV_ANNUAL_REPORT, NAV_BOOKS, NAV_CATEGORIES, NAV_TEMPLATES, NAV_BUDGETS, NAV_ADMIN_DASHBOARD, NAV_ADMIN_USERS, NAV_ADMIN_TRANSACTIONS } from '../../utils/navCopy'
+import { NAV_HOME, NAV_TRANSACTIONS, NAV_ADD, NAV_REPORTS, NAV_CALENDAR, NAV_MAP, NAV_ANNUAL_REPORT, NAV_BOOKS, NAV_CATEGORIES, NAV_TEMPLATES, NAV_BUDGETS, NAV_ADMIN_DASHBOARD, NAV_ADMIN_USERS, NAV_ADMIN_TRANSACTIONS, NAV_SECTION_MAIN, NAV_SECTION_ADMIN } from '../../utils/navCopy'
 import { ACTION_LOGOUT, ACTION_LOGGING_OUT, ACTION_SWITCH_ACCOUNT,
   collapseToggleLabel,
 } from '../../utils/actionCopy'
 import { TITLE_ABOUT } from '../../utils/sectionCopy'
+import { APP_NAME, APP_BRAND_MARK } from '../../config/version'
 
 const NAV_ITEMS = [
   { id: 'dashboard', name: NAV_HOME, path: '/', type: 'normal', group: 'main' as const },
@@ -122,8 +123,8 @@ export const Sidebar: React.FC = () => {
     <aside className={`app-sidebar${collapsed ? ' collapsed' : ''}`}>
       {/* Logo — 静记 */}
       <div className="sidebar-logo">
-        <div className="sidebar-logo-icon">静</div>
-        {!collapsed && <span className="sidebar-logo-text">静记</span>}
+        <div className="sidebar-logo-icon">{APP_BRAND_MARK}</div>
+        {!collapsed && <span className="sidebar-logo-text">{APP_NAME}</span>}
       </div>
 
       {/* 折叠按钮 */}
@@ -134,7 +135,7 @@ export const Sidebar: React.FC = () => {
 
       {/* 导航 */}
       <nav className="sidebar-nav">
-        {!collapsed && <div className="sidebar-nav-sep">主菜单</div>}
+        {!collapsed && <div className="sidebar-nav-sep">{NAV_SECTION_MAIN}</div>}
         {NAV_ITEMS.map((item) => (
           <button key={item.id}
             className={`sidebar-nav-item${activeId === item.id ? ' active' : ''}${item.type === 'add' ? ' sidebar-nav-item--add' : ''}`}
@@ -154,7 +155,7 @@ export const Sidebar: React.FC = () => {
         {/* 管理员菜单 */}
         {user?.role === 'admin' && (
           <>
-            {!collapsed && <div className="sidebar-nav-sep">管理后台</div>}
+            {!collapsed && <div className="sidebar-nav-sep">{NAV_SECTION_ADMIN}</div>}
             {ADMIN_ITEMS.map((item) => (
               <button key={item.id}
                 className={`sidebar-nav-item${activeId === item.id ? ' active' : ''}`}
