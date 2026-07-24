@@ -88,3 +88,8 @@ export function fieldAttachmentCount(count: number): string {
 export function fieldAttachmentCapacity(current: number, max: number): string {
   return `附件 (${Number(current) || 0} / ${Number(max) || 0})`
 }
+
+/** 位置/详情回显：商户ID: xxx（保持历史无空格文案） */
+export function merchantIdDisplay(poiId: string | number): string {
+  return `商户ID: ${poiId}`
+}

@@ -6,6 +6,7 @@ import { View, Text, Input } from "@tarojs/components";
 import { sanitizeAmountInput } from "../../../utils/budget";
 import { FIELD_AMOUNT } from "../../../utils/fieldCopy";
 import { FORM_AMOUNT_PLACEHOLDER } from "../../../utils/formCopy";
+import { buildAmountCardClassName } from "../../../utils/formSection";
 import "./index.scss";
 
 export interface AmountCardProps {
@@ -15,7 +16,7 @@ export interface AmountCardProps {
 
 export default function AmountCard({ value, onChange }: AmountCardProps) {
   return (
-    <View className="ft-amt-card">
+    <View className={buildAmountCardClassName()}>
       <Text className="ft-amt-label">{FIELD_AMOUNT}</Text>
       <View className="ft-amt-row">
         <Text className="ft-amt-symbol">¥</Text>

@@ -7,6 +7,7 @@ import { FORM_DESC_EXAMPLE } from "../../../utils/formCopy";
 import { FIELD_NOTE } from "../../../utils/fieldCopy";
 import { MAX_NOTE_LENGTH } from "../../../utils/formCopy";
 import { formatCharCount } from "../../../utils/inputHelpers";
+import { buildNoteSectionClassName } from "../../../utils/formSection";
 
 export interface NoteFieldProps {
   value: string;
@@ -20,7 +21,7 @@ export default function NoteField({
   maxLength = MAX_NOTE_LENGTH,
 }: NoteFieldProps) {
   return (
-    <View className="ft-section ft-note">
+    <View className={buildNoteSectionClassName()}>
       <View className="ft-note-head">
         <Text className="ft-note-label">{FIELD_NOTE}</Text>
         <Text className="ft-note-counter">

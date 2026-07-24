@@ -37,7 +37,7 @@ import { toastSuccess, toastInfo } from "../../utils/toast";
 import { formatMoney } from "../../utils/format";
 import { formatDateTime } from "../../utils/date";
 import { sanitizeAmountInput } from "../../utils/budget";
-import {  ACTION_DELETING, ACTION_LOADING, ACTION_SAVING, ACTION_EDIT, ACTION_COPY, ACTION_DELETE, ACTION_EXECUTE, updateOrCreateLabel } from "../../utils/actionCopy"
+import { ACTION_DELETING, ACTION_LOADING, ACTION_SAVING, ACTION_EDIT, ACTION_COPY, ACTION_DELETE, ACTION_EXECUTE, updateOrCreateLabel, ACTION_CLICK_TO_EDIT } from "../../utils/actionCopy";
 import { sortModeLabel, SORT_SAVE } from "../../utils/sortCopy";
 import {
   CONFIRM_DELETE_TITLE,
@@ -57,7 +57,7 @@ import { entityCreateButton, entityFormTitle, ENTITY_TEMPLATE, DETAIL_TEMPLATE }
 import { ERROR_DELETE_FAILED, ERROR_OP_FAILED, ERROR_EXECUTE_FAILED } from "../../utils/errorCopy";
 import Icon, { ICON_COLOR } from "../../components/Icon";
 import { FORM_TEMPLATE_NAME_EXAMPLE, FORM_AMOUNT_PLACEHOLDER, FORM_NOTE_OPTIONAL, FORM_SELECT_CATEGORY, MAX_TEMPLATE_NAME_LENGTH } from "../../utils/formCopy";
-import { FIELD_NOTE, FIELD_LOCATION, FIELD_ADDRESS, FIELD_MERCHANT_ID, FIELD_MERCHANT_NAME, FIELD_BOOK_ID, FIELD_SORT, FIELD_CYCLE, FIELD_START_DATE, FIELD_END_DATE, FIELD_LAST_EXECUTED, FIELD_NEXT_EXECUTED, FIELD_CREATED_AT, FIELD_TEMPLATE_NAME, FIELD_TYPE, FIELD_CATEGORY, FIELD_AMOUNT, FIELD_LOCATION_INFO, sortOrderLabel } from "../../utils/fieldCopy";
+import { FIELD_NOTE, FIELD_LOCATION, FIELD_ADDRESS, FIELD_MERCHANT_ID, FIELD_MERCHANT_NAME, FIELD_BOOK_ID, FIELD_SORT, FIELD_CYCLE, FIELD_START_DATE, FIELD_END_DATE, FIELD_LAST_EXECUTED, FIELD_NEXT_EXECUTED, FIELD_CREATED_AT, FIELD_TEMPLATE_NAME, FIELD_TYPE, FIELD_CATEGORY, FIELD_AMOUNT, FIELD_LOCATION_INFO, sortOrderLabel, merchantIdDisplay } from "../../utils/fieldCopy";
 import { TITLE_SELECT_LOCATION } from "../../utils/sectionCopy"
 import { queryKeys } from "../../utils/queryKeys"
 
@@ -623,13 +623,13 @@ export default function TemplateManager() {
                   </Text>
                   {form.poi_id && (
                     <Text className="tpl-location-block__poi">
-                      商户ID: {form.poi_id}
+                      {merchantIdDisplay(form.poi_id)}
                     </Text>
                   )}
                 </View>
                 <View className="tpl-location-block__actions">
                   <Text className="tpl-location-block__modify" onClick={() => setShowLocationPicker(true)}>
-                    点击修改
+                    {ACTION_CLICK_TO_EDIT}
                   </Text>
                   <Text
                     className="tpl-location-block__clear"

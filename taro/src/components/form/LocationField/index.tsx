@@ -12,6 +12,7 @@ import Icon, { ICON_COLOR } from "../../Icon";
 import { FORM_LOCATION_SELECTED } from "../../../utils/formCopy";
 import { ACTION_CLEAR_SELECTION, ACTION_SELECT_LOCATION } from "../../../utils/actionCopy";
 import { hasLocationValue, formatCoords } from "../../../utils/locationHelpers";
+import { buildLocationSectionClassName } from "../../../utils/formSection";
 import { FIELD_LOCATION } from "../../../utils/fieldCopy";
 
 export interface LocationResult {
@@ -49,7 +50,7 @@ export default function LocationField({ value, onChange }: LocationFieldProps) {
     return (
       <>
         <View
-          className="ft-section ft-loc"
+          className={buildLocationSectionClassName()}
           onClick={() => setVisible(true)}
         >
           <View className="ft-loc-info">

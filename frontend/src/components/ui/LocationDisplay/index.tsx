@@ -1,7 +1,11 @@
 import React from 'react'
 import { hasLocationValue, formatCoords } from '../../../utils/locationHelpers'
-import { ACTION_SELECT_LOCATION } from '../../../utils/actionCopy'
-import { cx } from '../../../utils/cx'
+import { ACTION_SELECT_LOCATION, ACTION_CLICK_TO_EDIT, ACTION_CLOSE } from '../../../utils/actionCopy'
+import { merchantIdDisplay } from '../../../utils/fieldCopy'
+import {
+  buildLocationDisplayClassName,
+  buildLocationDisplayBtnClassName,
+} from '../../../utils/locationDisplay'
 
 interface LocationDisplayProps {
   locationName?: string
@@ -27,7 +31,7 @@ export const LocationDisplay: React.FC<LocationDisplayProps> = ({
   if (!hasLocation) {
     if (showButton && onClick) {
       return (
-        <button className="loc-display-btn" onClick={onClick}>
+        <button className={buildLocationDisplayBtnClassName()} onClick={onClick}>
           {ACTION_SELECT_LOCATION}
         </button>
       )
@@ -38,7 +42,7 @@ export const LocationDisplay: React.FC<LocationDisplayProps> = ({
   const coords = formatCoords(latitude, longitude, 6)
 
   return (
-    <div className={cx('loc-display')}>
+    <div className={buildLocationDisplayClassName()}>
       <div className="loc-display-name">{locationName}</div>
       <div className="loc-display-body">
         {coords && (
@@ -48,7 +52,7 @@ export const LocationDisplay: React.FC<LocationDisplayProps> = ({
         )}
         {poiId && (
           <div className="loc-display-poi">
-            商户ID: {poiId}
+            {merchantIdDisplay(poiId)}
           </div>
         )}
       </div>
@@ -56,12 +60,12 @@ export const LocationDisplay: React.FC<LocationDisplayProps> = ({
         <div className="loc-display-footer">
           {onClick && (
             <span className="loc-display-edit" onClick={onClick}>
-              点击修改
+              {ACTION_CLICK_TO_EDIT}
             </span>
           )}
           {onClear && (
             <span className="loc-display-clear" onClick={onClear}>
-              关闭
+              {ACTION_CLOSE}
             </span>
           )}
         </div>

@@ -85,6 +85,12 @@
 
 ### ✅ 已完成
 
+#### 2026-07-24 位置文案与记一笔表单 class shared 化
+- `ACTION_CLICK_TO_EDIT` / `merchantIdDisplay`；PC LocationDisplay 接线
+- `formSection` / `locationDisplay` class；Taro SectionCard/TypeTabs/AmountCard/NoteField/FieldRow/LocationField 接线
+- TemplateManager 商户ID/点击修改文案 shared 化
+- 验证：frontend / taro `tsc --noEmit`
+
 #### 2026-07-24 Skeleton/IconGrid/SheetHeader class shared 化
 - skeleton：PC/Taro 根 class 与 grid/stats/row 构建
 - iconGrid：根/item/delete class（pc/bem）；双端 IconGrid 接线

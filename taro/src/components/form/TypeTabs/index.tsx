@@ -7,7 +7,10 @@ import {
   TRANSACTION_TYPE_OPTIONS,
   type TransactionTypeCode,
 } from "../../../utils/transactionType";
-import { cx } from "../../../utils/cx";
+import {
+  buildTypeTabsClassName,
+  buildTypeTabClassName,
+} from "../../../utils/formSection";
 import "./index.scss";
 
 export type TxnType = TransactionTypeCode;
@@ -19,17 +22,13 @@ export interface TypeTabsProps {
 
 export default function TypeTabs({ value, onChange }: TypeTabsProps) {
   return (
-    <View className="ft-tabs">
+    <View className={buildTypeTabsClassName()}>
       {TRANSACTION_TYPE_OPTIONS.map((opt) => {
         const active = value === opt.key;
         return (
           <View
             key={opt.key}
-            className={cx(
-              "ft-tab",
-              active && "ft-tab--active",
-              active && `ft-tab--${opt.key}`,
-            )}
+            className={buildTypeTabClassName({ active, type: opt.key })}
             onClick={() => onChange(opt.key)}
           >
             <Text className="ft-tab-text">{opt.label}</Text>

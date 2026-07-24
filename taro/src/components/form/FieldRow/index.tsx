@@ -9,7 +9,10 @@ import { View, Text, Input } from "@tarojs/components";
 import "./index.scss";
 import { FORM_SELECT_PLACEHOLDER } from "../../../utils/formCopy";
 import { fieldDisplayText, hasFieldText, FIELD_REQUIRED_MARK } from "../../../utils/inputHelpers";
-import { cx } from "../../../utils/cx";
+import {
+  buildFormFieldClassName,
+  buildFormFieldValueClassName,
+} from "../../../utils/formSection";
 import Icon, { ICON_COLOR } from "../../Icon";
 
 export interface FieldRowProps {
@@ -55,7 +58,7 @@ export default function FieldRow({
   // variant: picker — 包装 children（外部 Picker）或简单行
   if (variant === "picker" && children) {
     return (
-      <View className="ft-field">
+      <View className={buildFormFieldClassName()}>
         {labelEl}
         {children}
       </View>
@@ -65,7 +68,7 @@ export default function FieldRow({
   // variant: input — 输入框
   if (variant === "input") {
     return (
-      <View className="ft-field">
+      <View className={buildFormFieldClassName()}>
         {labelEl}
         <Input
           className="ft-field-input"
@@ -80,10 +83,10 @@ export default function FieldRow({
 
   // variant: row — 展示 + 点击
   return (
-    <View className="ft-field" onClick={onClick}>
+    <View className={buildFormFieldClassName()} onClick={onClick}>
       {labelEl}
       <View className="ft-field-right">
-        <Text className={cx(hasFieldText(value) ? "ft-field-value" : "ft-field-placeholder")}>
+        <Text className={buildFormFieldValueClassName({ hasValue: hasFieldText(value) })}>
           {fieldDisplayText(value, placeholder)}
         </Text>
         <Icon name="chevron-right" size={28} color={ICON_COLOR.muted} className="ft-field-arrow" />
