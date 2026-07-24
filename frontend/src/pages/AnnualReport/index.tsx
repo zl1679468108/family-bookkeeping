@@ -3,7 +3,6 @@ import { useAnnualReport } from '../../hooks/useAnnualReport';
 import { useBook } from '../../hooks/useBook';
 import { useAuth } from '../../utils/auth';
 import { captureLongImage } from '../../utils/exportImage';
-;
 import { Skeleton } from '../../components/ui/Skeleton';
 import { DropdownSelect } from '../../components/ui/Dropdown';
 import ReportCover from './ReportCover';
