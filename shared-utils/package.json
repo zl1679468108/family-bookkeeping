@@ -38,7 +38,8 @@
     "./categoryColors": "./src/categoryColors.ts",
     "./templatePayload": "./src/templatePayload.ts",
     "./addTransactionDraft": "./src/addTransactionDraft.ts",
-    "./bookPayload": "./src/bookPayload.ts"
+    "./bookPayload": "./src/bookPayload.ts",
+    "./categoryPayload": "./src/categoryPayload.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit"

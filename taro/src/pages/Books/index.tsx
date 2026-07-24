@@ -37,6 +37,7 @@ import {
   confirmRemoveMember,
 } from "../../utils/confirmCopy";
 import { FORM_ALREADY_CURRENT_BOOK, FORM_EMAIL_REQUIRED, FORM_PEER_EMAIL_PLACEHOLDER } from "../../utils/formCopy";
+import { validateEmail } from "../../utils/validation";
 import { validateInviteCode } from "../../utils/validation";
 import {
   SUCCESS_JOINED,
@@ -193,11 +194,12 @@ export default function BooksPage() {
   const [inviteEmail, setInviteEmail] = useState("");
 
   const handleInviteSubmit = () => {
-    const email = inviteEmail.trim();
-    if (!email) {
-      toastInfo(FORM_EMAIL_REQUIRED);
+    const emailErr = validateEmail(inviteEmail, { emptyMessage: FORM_EMAIL_REQUIRED });
+    if (emailErr) {
+      toastInfo(emailErr);
       return;
     }
+    const email = inviteEmail.trim();
     run(async () => {
       await inviteMember(detailBook!.id, email);
       toastSuccess(SUCCESS_INVITE_SENT);

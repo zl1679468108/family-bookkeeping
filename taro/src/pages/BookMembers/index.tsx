@@ -16,7 +16,7 @@ import {
 } from "../../services/booksApi";
 import ConfirmDialog from "../../components/ConfirmDialog";
 import PageContainer from "../../components/PageContainer";
-import { toastSuccess } from "../../utils/toast";
+import { toastSuccess, toastInfo } from "../../utils/toast";
 import { bookMemberRoleLabel, isBookOwnerRole } from "../../utils/roles";
 import { userDisplayName, userInitial } from "../../utils/userDisplay";
 import { ACTION_LOADING } from "../../utils/actionCopy";
@@ -26,7 +26,8 @@ import {
   confirmRemoveMember,
 } from "../../utils/confirmCopy";
 import { SUCCESS_INVITE_COPIED, SUCCESS_INVITE_SENT, SUCCESS_MEMBER_REMOVED } from "../../utils/successCopy";
-import { FORM_PEER_EMAIL_PLACEHOLDER } from "../../utils/formCopy";
+import { FORM_PEER_EMAIL_PLACEHOLDER, FORM_EMAIL_REQUIRED } from "../../utils/formCopy";
+import { validateEmail } from "../../utils/validation";
 import { copyToClipboard } from "../../utils/clipboard";
 import { ERROR_GENERATE_FAILED, ERROR_REMOVE_FAILED, ERROR_INVITE_FAILED } from "../../utils/errorCopy";
 
@@ -100,7 +101,11 @@ export default function BookMembers() {
   };
 
   const handleInvite = () => {
-    if (!inviteEmail.trim()) return;
+    const emailErr = validateEmail(inviteEmail, { emptyMessage: FORM_EMAIL_REQUIRED });
+    if (emailErr) {
+      toastInfo(emailErr);
+      return;
+    }
     run(async () => {
       await inviteMember(bookId, inviteEmail.trim());
       toastSuccess(SUCCESS_INVITE_SENT);

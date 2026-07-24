@@ -136,6 +136,12 @@
 - `fmtAmount` 并入 shared budget；双端 `renderCategoryIcon` 统一 `isIconUrl/isPlatformIcon/isBookIconKey` 判定
 - 附：PC 暗色第六轮与 sortOrder 已在上一提交
 
+#### 2026-07-24 分类 payload + 邀请邮箱校验 shared 化
+- 新增 `shared-utils/src/categoryPayload`：`validateCategoryName` / `buildCategoryPayload`（icon vs icon_id 与 bookPayload 对齐）
+- 接线：PC `useCategoriesPage`；Taro Categories Sheet + CategoryEdit
+- 邀请/转移邮箱：FE InviteMemberModal、Taro Books/BookMembers/BookSettings 改用 `validateEmail`（空+格式）
+- 验证：frontend / taro `tsc --noEmit`
+
 #### 2026-07-24 PC 暗色第七轮（令牌/对比度/原生控件）
 - `--prGr` 暗色覆盖；`color-scheme` 随 `data-theme`（含 index 启动脚本防 FOUC）
 - nav-tip 反色文字 `on-pr`→`bg`；模板位置勾 `prGr`→`pr`；`--danger`→`--exp`

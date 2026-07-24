@@ -52,7 +52,7 @@ import {
   confirmDeleteCategory,
 } from "../../utils/confirmCopy";
 import { SUCCESS_DELETED, SUCCESS_ICON_UPLOADED, successEntityUpsert } from "../../utils/successCopy";
-import { FORM_NAME_REQUIRED } from "../../utils/formCopy";
+import { buildCategoryPayload, validateCategoryName } from "../../utils/categoryPayload";
 import { emptyCategories } from "../../utils/emptyCopy";
 import { entityCreateButton, ENTITY_CATEGORY } from "../../utils/entityCopy";
 import { UPLOAD_FAILED, DELETE_FAILED } from "../../utils/uploadCopy";
@@ -210,17 +210,20 @@ export default function CategoriesPage() {
 
   // ---- 表单提交（手动 Promise 链，规避 Taro 下 useMutation 卡死）----
   const handleFormSubmit = () => {
-    if (!formName.trim()) {
-      toastInfo(FORM_NAME_REQUIRED);
+    const nameErr = validateCategoryName(formName);
+    if (nameErr) {
+      toastInfo(nameErr);
       return;
     }
-    const name = formName.trim();
-    const icon = formIcon;
     const isEdit = formMode === "edit" && !!editingId;
+    const payload = buildCategoryPayload(
+      { name: formName, icon: formIcon, type: catType },
+      { includeType: !isEdit },
+    );
     run(async () => {
       const apiCall = isEdit
-        ? updateCategory(editingId as string, { name, icon })
-        : createCategory({ name, icon, type: catType });
+        ? updateCategory(editingId as string, payload)
+        : createCategory(payload as import("@family-bookkeeping/shared-types").CreateCategoryInput);
       await apiCall;
       qc.invalidateQueries({ queryKey: ["categories"] });
       toastSuccess(successEntityUpsert(ENTITY_CATEGORY, isEdit));

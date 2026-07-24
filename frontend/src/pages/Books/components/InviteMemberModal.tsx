@@ -3,8 +3,8 @@ import { GlobalModal } from '../../../components/ui';
 import { Button } from '../../../components/ui/Button';
 import { FooterActions } from '../../../components/ui/FooterActions';
 import { Input } from '../../../components/ui/Input';
-;
 import { notifyError } from '../../../utils/notifyError'
+import { validateEmail } from '../../../utils/validation'
 import { FORM_EMAIL_REQUIRED } from '../../../utils/formCopy'
 
 interface InviteMemberModalProps {
@@ -27,8 +27,9 @@ export const InviteMemberModal: React.FC<InviteMemberModalProps> = ({
   isPending,
 }) => {
   const handleInvite = () => {
-    if (!inviteEmail.trim()) {
-      notifyError(FORM_EMAIL_REQUIRED);
+    const emailErr = validateEmail(inviteEmail, { emptyMessage: FORM_EMAIL_REQUIRED });
+    if (emailErr) {
+      notifyError(emailErr);
       return;
     }
     if (selectedBook) {

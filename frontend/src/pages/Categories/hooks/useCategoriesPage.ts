@@ -25,6 +25,7 @@ import {
 } from '../../../utils/successCopy'
 import { ENTITY_CATEGORY } from '../../../utils/entityCopy'
 import { filterCategoriesByType, sortCategoriesByOrder } from '../../../utils/categories'
+import { buildCategoryPayload, validateCategoryName } from '../../../utils/categoryPayload'
 
 export function useCategoriesPage() {
   const { currentBook } = useBook()
@@ -145,24 +146,17 @@ export function useCategoriesPage() {
   }, [])
 
   const handleModalConfirm = useCallback(async () => {
-    const trimmedName = modalName.trim()
-    if (!trimmedName || !modalIcon) return
-
-    // Check if custom icon (UUID length is 36)
-    const isCustomIcon = modalIcon.length === 36 && modalIcon.includes('-')
+    if (validateCategoryName(modalName) || !modalIcon) return
 
     if (modalMode === 'add') {
-      if (isCustomIcon) {
-        await createMutation.run({ name: trimmedName, icon_id: modalIcon, type: activeTab })
-      } else {
-        await createMutation.run({ name: trimmedName, icon: modalIcon, type: activeTab })
-      }
+      const payload = buildCategoryPayload(
+        { name: modalName, icon: modalIcon, type: activeTab },
+        { includeType: true },
+      )
+      await createMutation.run(payload as CreateCategoryInput)
     } else if (modalMode === 'edit' && editingCategory) {
-      if (isCustomIcon) {
-        await updateMutation.run({ id: editingCategory.id, name: trimmedName, icon_id: modalIcon })
-      } else {
-        await updateMutation.run({ id: editingCategory.id, name: trimmedName, icon: modalIcon })
-      }
+      const payload = buildCategoryPayload({ name: modalName, icon: modalIcon })
+      await updateMutation.run({ id: editingCategory.id, ...payload })
     }
   }, [modalMode, modalName, modalIcon, editingCategory, activeTab, createMutation, updateMutation])
 

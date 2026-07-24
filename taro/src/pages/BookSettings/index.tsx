@@ -42,6 +42,7 @@ import {
   CONFIRM_DELETE_BOOK_GENERIC,
 } from "../../utils/confirmCopy";
 import { FORM_PRIVACY_REQUIRED, FORM_OWNER_EMAIL_REQUIRED, FORM_PASSWORD_VERIFY } from "../../utils/formCopy";
+import { validateEmail } from "../../utils/validation";
 import { SUCCESS_BOOK_CREATED, SUCCESS_CUSTOM_ICON_ADDED, SUCCESS_DELETED, SUCCESS_OWNERSHIP_TRANSFERRED, SUCCESS_UPDATED, successEntityDeleted } from "../../utils/successCopy";
 import { entityFormTitle, ENTITY_BOOK } from "../../utils/entityCopy";
 import { IMAGE_SELECT_FAILED, DELETE_FAILED, UPLOAD_FAILED } from "../../utils/uploadCopy";
@@ -244,8 +245,9 @@ export default function BookSettings() {
   };
 
   const handleSubmitTransfer = () => {
-    if (!transferEmail.trim()) {
-      toastInfo(FORM_OWNER_EMAIL_REQUIRED);
+    const emailErr = validateEmail(transferEmail, { emptyMessage: FORM_OWNER_EMAIL_REQUIRED });
+    if (emailErr) {
+      toastInfo(emailErr);
       return;
     }
     if (!transferPassword) {
