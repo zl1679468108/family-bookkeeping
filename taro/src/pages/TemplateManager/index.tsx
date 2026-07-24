@@ -57,6 +57,7 @@ import { entityCreateButton, entityFormTitle, ENTITY_TEMPLATE, DETAIL_TEMPLATE }
 import { ERROR_DELETE_FAILED, ERROR_OP_FAILED, ERROR_EXECUTE_FAILED } from "../../utils/errorCopy";
 import Icon, { ICON_COLOR } from "../../components/Icon";
 import { FORM_TEMPLATE_NAME_EXAMPLE, FORM_AMOUNT_PLACEHOLDER, FORM_NOTE_OPTIONAL, FORM_SELECT_CATEGORY } from "../../utils/formCopy";
+import { FIELD_NOTE, FIELD_LOCATION, FIELD_ADDRESS, FIELD_MERCHANT_ID, FIELD_MERCHANT_NAME, FIELD_BOOK_ID, FIELD_SORT, FIELD_CYCLE, FIELD_START_DATE, FIELD_END_DATE, FIELD_LAST_EXECUTED, FIELD_NEXT_EXECUTED, FIELD_CREATED_AT, FIELD_TEMPLATE_NAME, FIELD_TYPE, FIELD_CATEGORY, FIELD_AMOUNT, FIELD_LOCATION_INFO, sortOrderLabel } from "../../utils/fieldCopy";
 
 /* ---------- 空表单初始态 ---------- */
 
@@ -415,13 +416,13 @@ export default function TemplateManager() {
           <View className="tpl-detail-grid">
             {selectedTemplate.note && (
               <View className="tpl-detail-item">
-                <Text className="tpl-detail-item__label">备注</Text>
+                <Text className="tpl-detail-item__label">{FIELD_NOTE}</Text>
                 <Text className="tpl-detail-item__value">{selectedTemplate.note}</Text>
               </View>
             )}
             {selectedTemplate.latitude && selectedTemplate.longitude && (
               <View className="tpl-detail-item">
-                <Text className="tpl-detail-item__label">位置</Text>
+                <Text className="tpl-detail-item__label">{FIELD_LOCATION}</Text>
                 <Text className="tpl-detail-item__value">
                   {selectedTemplate.latitude}, {selectedTemplate.longitude}
                 </Text>
@@ -429,37 +430,37 @@ export default function TemplateManager() {
             )}
             {selectedTemplate.location_name && (
               <View className="tpl-detail-item tpl-detail-item--full">
-                <Text className="tpl-detail-item__label">地址</Text>
+                <Text className="tpl-detail-item__label">{FIELD_ADDRESS}</Text>
                 <Text className="tpl-detail-item__value">{selectedTemplate.location_name}</Text>
               </View>
             )}
             {selectedTemplate.poi_id && (
               <View className="tpl-detail-item">
-                <Text className="tpl-detail-item__label">商户 ID</Text>
+                <Text className="tpl-detail-item__label">{FIELD_MERCHANT_ID}</Text>
                 <Text className="tpl-detail-item__value">{selectedTemplate.poi_id}</Text>
               </View>
             )}
             {selectedTemplate.merchant_name && (
               <View className="tpl-detail-item">
-                <Text className="tpl-detail-item__label">商户名称</Text>
+                <Text className="tpl-detail-item__label">{FIELD_MERCHANT_NAME}</Text>
                 <Text className="tpl-detail-item__value">{selectedTemplate.merchant_name}</Text>
               </View>
             )}
             {selectedTemplate.book_id && (
               <View className="tpl-detail-item">
-                <Text className="tpl-detail-item__label">账本 ID</Text>
+                <Text className="tpl-detail-item__label">{FIELD_BOOK_ID}</Text>
                 <Text className="tpl-detail-item__value">{selectedTemplate.book_id}</Text>
               </View>
             )}
             {selectedTemplate.sort_order !== undefined && (
               <View className="tpl-detail-item">
-                <Text className="tpl-detail-item__label">排序</Text>
-                <Text className="tpl-detail-item__value">第 {(selectedTemplate.sort_order ?? 0) + 1} 位</Text>
+                <Text className="tpl-detail-item__label">{FIELD_SORT}</Text>
+                <Text className="tpl-detail-item__value">{sortOrderLabel(selectedTemplate.sort_order ?? 0)}</Text>
               </View>
             )}
             {selectedTemplate.frequency && (
               <View className="tpl-detail-item">
-                <Text className="tpl-detail-item__label">周期</Text>
+                <Text className="tpl-detail-item__label">{FIELD_CYCLE}</Text>
                 <Text className="tpl-detail-item__value">
                   {FREQUENCY_LABELS[selectedTemplate.frequency] || selectedTemplate.frequency}
                 </Text>
@@ -467,19 +468,19 @@ export default function TemplateManager() {
             )}
             {selectedTemplate.start_date && (
               <View className="tpl-detail-item">
-                <Text className="tpl-detail-item__label">开始日期</Text>
+                <Text className="tpl-detail-item__label">{FIELD_START_DATE}</Text>
                 <Text className="tpl-detail-item__value">{selectedTemplate.start_date}</Text>
               </View>
             )}
             {selectedTemplate.end_date && (
               <View className="tpl-detail-item">
-                <Text className="tpl-detail-item__label">结束日期</Text>
+                <Text className="tpl-detail-item__label">{FIELD_END_DATE}</Text>
                 <Text className="tpl-detail-item__value">{selectedTemplate.end_date}</Text>
               </View>
             )}
             {selectedTemplate.last_executed_at && (
               <View className="tpl-detail-item">
-                <Text className="tpl-detail-item__label">上次执行</Text>
+                <Text className="tpl-detail-item__label">{FIELD_LAST_EXECUTED}</Text>
                 <Text className="tpl-detail-item__value">
                   {formatDateTime(selectedTemplate.last_executed_at)}
                 </Text>
@@ -487,7 +488,7 @@ export default function TemplateManager() {
             )}
             {selectedTemplate.frequency && (
               <View className="tpl-detail-item">
-                <Text className="tpl-detail-item__label">下次执行</Text>
+                <Text className="tpl-detail-item__label">{FIELD_NEXT_EXECUTED}</Text>
                 <Text className="tpl-detail-item__value">
                   {getNextExecutionDate(selectedTemplate)}
                 </Text>
@@ -495,7 +496,7 @@ export default function TemplateManager() {
             )}
             {selectedTemplate.created_at && (
               <View className="tpl-detail-item">
-                <Text className="tpl-detail-item__label">创建时间</Text>
+                <Text className="tpl-detail-item__label">{FIELD_CREATED_AT}</Text>
                 <Text className="tpl-detail-item__value">{formatDateTime(selectedTemplate.created_at)}</Text>
               </View>
             )}
@@ -518,7 +519,7 @@ export default function TemplateManager() {
         >
           {/* 模板名称 */}
           <View className="tpl-fg">
-            <Text className="tpl-fg__label tpl-fg__label--req">模板名称</Text>
+            <Text className="tpl-fg__label tpl-fg__label--req">{FIELD_TEMPLATE_NAME}</Text>
             <Input
               className="tpl-fg__input"
               placeholder={FORM_TEMPLATE_NAME_EXAMPLE}
@@ -531,7 +532,7 @@ export default function TemplateManager() {
           {/* 类型 + 分类 并排 */}
           <View className="tpl-fg-row">
             <View className="tpl-fg tpl-fg--half">
-              <Text className="tpl-fg__label tpl-fg__label--req">类型</Text>
+              <Text className="tpl-fg__label tpl-fg__label--req">{FIELD_TYPE}</Text>
               <Picker
                 mode="selector"
                 range={TRANSACTION_TYPE_OPTIONS.map((o) => ({ label: o.label, value: o.key }))}
@@ -559,7 +560,7 @@ export default function TemplateManager() {
               </Picker>
             </View>
             <View className="tpl-fg tpl-fg--half">
-              <Text className="tpl-fg__label tpl-fg__label--req">分类</Text>
+              <Text className="tpl-fg__label tpl-fg__label--req">{FIELD_CATEGORY}</Text>
               <Picker
                 mode="selector"
                 range={
@@ -590,7 +591,7 @@ export default function TemplateManager() {
 
           {/* 金额 */}
           <View className="tpl-fg">
-            <Text className="tpl-fg__label">金额</Text>
+            <Text className="tpl-fg__label">{FIELD_AMOUNT}</Text>
             <View className="tpl-fg__input-wrap">
               <Text className="tpl-fg__yen">¥</Text>
               <Input
@@ -605,7 +606,7 @@ export default function TemplateManager() {
 
           {/* 备注 */}
           <View className="tpl-fg">
-            <Text className="tpl-fg__label">备注</Text>
+            <Text className="tpl-fg__label">{FIELD_NOTE}</Text>
             <Input
               className="tpl-fg__input"
               placeholder={FORM_NOTE_OPTIONAL}
@@ -616,7 +617,7 @@ export default function TemplateManager() {
 
           {/* 位置信息 */}
           <View className="tpl-fg">
-            <Text className="tpl-fg__label">位置信息</Text>
+            <Text className="tpl-fg__label">{FIELD_LOCATION_INFO}</Text>
             {form.location_name ? (
               <View className="tpl-location-block" onClick={() => setShowLocationPicker(true)}>
                 <Text className="tpl-location-block__addr">{form.location_name}</Text>
@@ -653,7 +654,7 @@ export default function TemplateManager() {
 
           {/* 排序 */}
           <View className="tpl-fg">
-            <Text className="tpl-fg__label">排序</Text>
+            <Text className="tpl-fg__label">{FIELD_SORT}</Text>
             <Input
               className="tpl-fg__input tpl-fg__input--num"
               type="number"

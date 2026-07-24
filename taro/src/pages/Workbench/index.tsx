@@ -13,37 +13,38 @@ import PageContainer from "../../components/PageContainer";
 import { MenuList, PageHero } from "../../components/ui";
 import "./index.scss";
 import { TITLE_WORKBENCH } from "../../utils/sectionCopy";
+import { NAV_ADD, NAV_ADD_DESC, NAV_BOOKS, NAV_CATEGORIES, NAV_TEMPLATES, NAV_BUDGETS, NAV_BOOKS_DESC, NAV_CATEGORIES_DESC, NAV_TEMPLATES_DESC, NAV_BUDGETS_DESC, NAV_WORKBENCH_META } from "../../utils/navCopy";
 
 export default function Workbench() {
   const entries = [
     {
       icon: "add" as const,
-      label: "记一笔",
-      desc: "快速记录一笔收支",
+      label: NAV_ADD,
+      desc: NAV_ADD_DESC,
       url: "/pages/AddTransaction/index",
     },
     {
       icon: "books" as const,
-      label: "账本",
-      desc: "管理家庭账本与成员",
+      label: NAV_BOOKS,
+      desc: NAV_BOOKS_DESC,
       url: "/pages/Books/index",
     },
     {
       icon: "categories" as const,
-      label: "分类",
-      desc: "自定义收支分类与图标",
+      label: NAV_CATEGORIES,
+      desc: NAV_CATEGORIES_DESC,
       url: "/pages/Categories/index",
     },
     {
       icon: "templates" as const,
-      label: "模板",
-      desc: "快捷记账模板",
+      label: NAV_TEMPLATES,
+      desc: NAV_TEMPLATES_DESC,
       url: "/pages/TemplateManager/index",
     },
     {
       icon: "budgets" as const,
-      label: "预算",
-      desc: "设置月度分类预算",
+      label: NAV_BUDGETS,
+      desc: NAV_BUDGETS_DESC,
       url: "/pages/Budgets/index",
     },
   ];
@@ -52,7 +53,7 @@ export default function Workbench() {
     <PageContainer>
       <PageHero
         title={TITLE_WORKBENCH}
-        meta="账本、分类、模板与预算，一站管理"
+        meta={NAV_WORKBENCH_META}
         tone="surface"
       />
       <MenuList

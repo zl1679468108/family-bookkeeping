@@ -28,6 +28,7 @@ import {
   IMAGE_FILE_REQUIRED,
   IMAGE_ACCEPT_WILDCARD,
 } from '../../../utils/uploadCopy'
+import { FIELD_CURRENT_PASSWORD, FIELD_NEW_PASSWORD, FIELD_CONFIRM_NEW_PASSWORD, FIELD_USERNAME, FIELD_EMAIL } from '../../../utils/fieldCopy'
 
 const compressImage = (file: File, maxSize = 128): Promise<string> =>
   new Promise((resolve, reject) => {
@@ -98,7 +99,7 @@ const PasswordModal: React.FC<PasswordModalProps> = ({ visible, onClose }) => {
         <h3 className="modal-title">修改密码</h3>
         <form onSubmit={(e) => { e.preventDefault(); handleSubmit() }} className="modal-form">
           <PasswordField
-            label="当前密码"
+            label={FIELD_CURRENT_PASSWORD}
             labelClassName="form-label field-required"
             value={oldPassword}
             onChange={e => setOldPassword(e.target.value)}
@@ -106,7 +107,7 @@ const PasswordModal: React.FC<PasswordModalProps> = ({ visible, onClose }) => {
             autoComplete="current-password"
           />
           <PasswordField
-            label="新密码"
+            label={FIELD_NEW_PASSWORD}
             labelClassName="form-label field-required"
             value={newPassword}
             onChange={e => setNewPassword(e.target.value)}
@@ -114,7 +115,7 @@ const PasswordModal: React.FC<PasswordModalProps> = ({ visible, onClose }) => {
             autoComplete="new-password"
           />
           <PasswordField
-            label="确认新密码"
+            label={FIELD_CONFIRM_NEW_PASSWORD}
             labelClassName="form-label field-required"
             value={confirmPassword}
             onChange={e => setConfirmPassword(e.target.value)}
@@ -266,7 +267,7 @@ const ProfilePage: React.FC = () => {
           <div className="profile-info">
             <form className="profile-form" onSubmit={(e) => { e.preventDefault(); handleSubmit() }}>
               <FormField
-                label="用户名"
+                label={FIELD_USERNAME}
                 labelClassName="form-label field-required"
                 type="text"
                 className="form-input"
@@ -277,7 +278,7 @@ const ProfilePage: React.FC = () => {
               />
 
               <FormField
-                label="邮箱"
+                label={FIELD_EMAIL}
                 labelClassName="form-label field-required"
                 type="email"
                 className="form-input"

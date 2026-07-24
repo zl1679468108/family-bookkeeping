@@ -43,6 +43,7 @@ import { FORM_BUDGET_NONE, FORM_BUDGET_NO_LAST_MONTH } from '../../utils/formCop
 import { EMPTY_BUDGET_NO_EXPENSE_CATEGORIES } from '../../utils/emptyCopy'
 import { ERROR_BUDGET_SAVE_FAILED, ERROR_COPY_BUDGET_FAILED } from '../../utils/errorCopy'
 import { DETAIL_BUDGET } from '../../utils/entityCopy'
+import { FIELD_PROGRESS, FIELD_SPENT, FIELD_BUDGET_AMOUNT, FIELD_REMAINING, FIELD_STATUS, FIELD_MONTH } from '../../utils/fieldCopy'
 
 const Budgets: React.FC = () => {
   const navigate = useNavigate()
@@ -395,16 +396,16 @@ const Budgets: React.FC = () => {
           </div>
           <div className="detail-divider" />
           <div className="detail-grid">
-            <DetailItem label="使用进度" value={`${selectedBudget.progress}%`} />
-            <DetailItem label="已使用" value={formatMoney(selectedBudget.spent)} />
-            <DetailItem label="预算" value={formatMoney(selectedBudget.budget)} />
-            <DetailItem label="剩余" value={formatMoney(selectedBudget.remaining)} />
+            <DetailItem label={FIELD_PROGRESS} value={`${selectedBudget.progress}%`} />
+            <DetailItem label={FIELD_SPENT} value={formatMoney(selectedBudget.spent)} />
+            <DetailItem label={FIELD_BUDGET_AMOUNT} value={formatMoney(selectedBudget.budget)} />
+            <DetailItem label={FIELD_REMAINING} value={formatMoney(selectedBudget.remaining)} />
             <DetailItem
-              label="状态"
+              label={FIELD_STATUS}
               value={budgetVariantLabel(budgetStatusToVariant(selectedBudget.status))}
             />
             {selectedBudget.month && (
-              <DetailItem label="月份" value={formatMonthDisplay(selectedBudget.month)} />
+              <DetailItem label={FIELD_MONTH} value={formatMonthDisplay(selectedBudget.month)} />
             )}
           </div>
         </GlobalModal>

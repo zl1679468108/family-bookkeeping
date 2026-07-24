@@ -85,6 +85,11 @@
 
 ### ✅ 已完成
 
+#### 2026-07-24 navCopy 导航文案 + 详情/表单字段扩展
+- 新增 `shared-utils/navCopy`：首页/流水/工作台/记一笔/账本/分类/模板/预算等导航与工作台描述
+- 接线 PC Sidebar、Taro TabBar/`app.config`/Workbench；`ACTION_LOGOUT`/`PROMOTE`/`DEMOTE`
+- `fieldCopy` 扩展：描述/地点/坐标/账本名/密码/进度/预算状态等；流水/预算/资料/模板/分类/账本设置/Onboarding/LocationPicker 双端接线
+
 #### 2026-07-24 fieldCopy 字段标签双端统一
 - 新增 `shared-utils/fieldCopy`：金额/分类/日期/品牌/备注/排序/商户/周期/时间等字段标签 + `sortOrderLabel`
 - 接线 PC 记一笔/模板/分类/地图/流水详情，Taro 记一笔/NoteField/TemplateEdit

@@ -16,6 +16,10 @@ export const ACTION_PROCESSING_ELLIPSIS = '处理中…'
 export const ACTION_SWITCHING = '切换中...'
 export const NAV_PREV_MONTH = '上一月'
 export const NAV_NEXT_MONTH = '下一月'
+export const ACTION_LOGOUT = '退出登录'
+export const ACTION_LOGGING_OUT = '退出中...'
+export const ACTION_PROMOTE = '升级'
+export const ACTION_DEMOTE = '降级'
 
 /** busy ? busyText : idleText */
 export function busyLabel(busy: boolean, busyText: string, idleText: string): string {

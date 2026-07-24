@@ -28,6 +28,7 @@ import {
 import { FILTER_ALL_ROLES, FILTER_ALL_STATUS } from '../../../utils/transactionType'
 import { FORM_ADMIN_PASSWORD_PLACEHOLDER, FORM_SEARCH_USER } from '../../../utils/formCopy'
 import { CONFIRM_UPDATE_ROLE_TITLE, CONFIRM_UPDATE_STATUS_TITLE, CONFIRM_UPDATE_TEXT } from '../../../utils/confirmCopy'
+import { ACTION_PROMOTE, ACTION_DEMOTE } from '../../../utils/actionCopy'
 
 const AdminUsers: React.FC = () => {
   const queryClient = useQueryClient();
@@ -223,7 +224,7 @@ const AdminUsers: React.FC = () => {
                       <td className="data-table__col--fixed">
                         <div className="action-buttons">
                           <Button variant="outline" size="sm" onClick={() => openRoleDialog(user)}>
-                            {isPlatformAdmin(user.role) ? '降级' : '升级'}
+                            {isPlatformAdmin(user.role) ? ACTION_DEMOTE : ACTION_PROMOTE}
                           </Button>
                           <Button
                             variant={user.status === 'active' ? 'danger' : 'secondary'}

@@ -1,3 +1,4 @@
+import { NAV_HOME, NAV_TRANSACTIONS, NAV_WORKBENCH, NAV_PROFILE } from './utils/navCopy'
 export default defineAppConfig({
   pages: [
     "pages/Home/index",
@@ -48,10 +49,10 @@ export default defineAppConfig({
     backgroundColor: "#FFFFFF",
     borderStyle: "white",
     list: [
-      { pagePath: "pages/Home/index", text: "首页" },
-      { pagePath: "pages/Transactions/index", text: "流水" },
-      { pagePath: "pages/Workbench/index", text: "工作台" },
-      { pagePath: "pages/Profile/index", text: "我的" },
+      { pagePath: "pages/Home/index", text: NAV_HOME },
+      { pagePath: "pages/Transactions/index", text: NAV_TRANSACTIONS },
+      { pagePath: "pages/Workbench/index", text: NAV_WORKBENCH },
+      { pagePath: "pages/Profile/index", text: NAV_PROFILE },
     ],
   },
 });

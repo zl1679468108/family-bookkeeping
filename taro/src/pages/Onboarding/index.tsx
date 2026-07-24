@@ -24,6 +24,8 @@ import { FORM_INVITE_CODE_PLACEHOLDER, FORM_BACK, FORM_BOOK_NAME_EXAMPLE, FORM_B
 import { validateInviteCode, normalizeInviteCode } from "../../utils/validation";
 import { ERROR_CREATE_FAILED_RETRY, ERROR_INVALID_INVITE } from "../../utils/errorCopy";
 import Icon, { ICON_COLOR } from "../../components/Icon";
+import { FIELD_BOOK_NAME, FIELD_DESC_OPTIONAL, FIELD_ICON, FIELD_INVITE_CODE } from "../../utils/fieldCopy";
+import { TITLE_JOIN_BY_INVITE } from "../../utils/sectionCopy";
 
 type Mode = "choice" | "create" | "join";
 
@@ -118,7 +120,7 @@ export default function Onboarding() {
               <Text className="ob-opt__invite">邀</Text>
             </View>
             <View className="ob-opt__text">
-              <Text className="ob-opt__title">使用邀请码加入</Text>
+              <Text className="ob-opt__title">{TITLE_JOIN_BY_INVITE}</Text>
               <Text className="ob-opt__desc">
                 输入他人分享的邀请码，加入已有账本
               </Text>
@@ -139,7 +141,7 @@ export default function Onboarding() {
           </View>
 
           <View className="ob-row">
-            <Text className="ob-label">账本名称</Text>
+            <Text className="ob-label">{FIELD_BOOK_NAME}</Text>
             <Input
               className="ob-input"
               placeholder={FORM_BOOK_NAME_EXAMPLE}
@@ -150,7 +152,7 @@ export default function Onboarding() {
           </View>
 
           <View className="ob-row">
-            <Text className="ob-label">描述（可选）</Text>
+            <Text className="ob-label">{FIELD_DESC_OPTIONAL}</Text>
             <Input
               className="ob-input"
               placeholder={FORM_BOOK_DESC_EXAMPLE}
@@ -160,7 +162,7 @@ export default function Onboarding() {
             />
           </View>
 
-          <Text className="ob-section-label">图标</Text>
+          <Text className="ob-section-label">{FIELD_ICON}</Text>
           <View className="ob-grid">
             {BOOK_ICONS.map((item) => {
               const selected = icon === item.key;
@@ -211,7 +213,7 @@ export default function Onboarding() {
           </View>
 
           <View className="ob-row">
-            <Text className="ob-label">邀请码</Text>
+            <Text className="ob-label">{FIELD_INVITE_CODE}</Text>
             <Input
               className="ob-input ob-input--code"
               placeholder={FORM_INVITE_CODE_PLACEHOLDER}

@@ -15,25 +15,27 @@ import './index.scss'
 import { queryKeys } from '../../utils/queryKeys'
 import { prefetchRoute as prefetchBookRoute } from '../../utils/prefetchRoute'
 import { STALE } from '../../utils/cachePolicy'
+import { NAV_HOME, NAV_TRANSACTIONS, NAV_ADD, NAV_REPORTS, NAV_CALENDAR, NAV_MAP, NAV_ANNUAL_REPORT, NAV_BOOKS, NAV_CATEGORIES, NAV_TEMPLATES, NAV_BUDGETS, NAV_ADMIN_DASHBOARD, NAV_ADMIN_USERS, NAV_ADMIN_TRANSACTIONS } from '../../utils/navCopy'
+import { ACTION_LOGOUT, ACTION_LOGGING_OUT } from '../../utils/actionCopy'
 
 const NAV_ITEMS = [
-  { id: 'dashboard', name: '首页', path: '/', type: 'normal', group: 'main' as const },
-  { id: 'transactions', name: '流水', path: '/transactions', type: 'normal', group: 'main' as const },
-  { id: 'add', name: '记一笔', path: '/add', type: 'add', group: 'main' as const },
-  { id: 'reports', name: '报表', path: '/reports', type: 'normal', group: 'main' as const },
-  { id: 'calendar', name: '日历', path: '/calendar', type: 'normal', group: 'main' as const },
-  { id: 'map', name: '地图', path: '/map', type: 'normal', group: 'main' as const },
-  { id: 'annual-report', name: '年报', path: '/annual-report', type: 'normal', group: 'main' as const },
-  { id: 'books', name: '账本', path: '/books', type: 'normal', group: 'main' as const },
-  { id: 'categories', name: '分类', path: '/categories', type: 'normal', group: 'main' as const },
-  { id: 'templates', name: '模板', path: '/templates', type: 'normal', group: 'main' as const },
-  { id: 'budgets', name: '预算', path: '/budgets', type: 'normal', group: 'main' as const },
+  { id: 'dashboard', name: NAV_HOME, path: '/', type: 'normal', group: 'main' as const },
+  { id: 'transactions', name: NAV_TRANSACTIONS, path: '/transactions', type: 'normal', group: 'main' as const },
+  { id: 'add', name: NAV_ADD, path: '/add', type: 'add', group: 'main' as const },
+  { id: 'reports', name: NAV_REPORTS, path: '/reports', type: 'normal', group: 'main' as const },
+  { id: 'calendar', name: NAV_CALENDAR, path: '/calendar', type: 'normal', group: 'main' as const },
+  { id: 'map', name: NAV_MAP, path: '/map', type: 'normal', group: 'main' as const },
+  { id: 'annual-report', name: NAV_ANNUAL_REPORT, path: '/annual-report', type: 'normal', group: 'main' as const },
+  { id: 'books', name: NAV_BOOKS, path: '/books', type: 'normal', group: 'main' as const },
+  { id: 'categories', name: NAV_CATEGORIES, path: '/categories', type: 'normal', group: 'main' as const },
+  { id: 'templates', name: NAV_TEMPLATES, path: '/templates', type: 'normal', group: 'main' as const },
+  { id: 'budgets', name: NAV_BUDGETS, path: '/budgets', type: 'normal', group: 'main' as const },
 ];
 
 const ADMIN_ITEMS = [
-  { id: 'admin-dashboard', name: '数据看板', path: '/admin', type: 'normal' },
-  { id: 'admin-users', name: '用户管理', path: '/admin/users', type: 'normal' },
-  { id: 'admin-transactions', name: '交易监控', path: '/admin/transactions', type: 'normal' },
+  { id: 'admin-dashboard', name: NAV_ADMIN_DASHBOARD, path: '/admin', type: 'normal' },
+  { id: 'admin-users', name: NAV_ADMIN_USERS, path: '/admin/users', type: 'normal' },
+  { id: 'admin-transactions', name: NAV_ADMIN_TRANSACTIONS, path: '/admin/transactions', type: 'normal' },
 ]
 
 const COLLAPSED_KEY = 'sidebar_collapsed'
@@ -241,7 +243,7 @@ export const Sidebar: React.FC = () => {
             <div className="user-menu-divider" />
             <button className="user-menu-item user-menu-item--danger" onClick={handleLogout} disabled={logoutLoading}>
               <Icon name="logout" size={16} />
-              {logoutLoading ? '退出中...' : '退出登录'}
+              {logoutLoading ? ACTION_LOGGING_OUT : ACTION_LOGOUT}
             </button>
           </div>
         )}

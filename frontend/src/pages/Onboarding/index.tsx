@@ -7,6 +7,8 @@ import { BookInviteModal } from '../Books/BookInviteModal';
 import './index.scss';
 import { Button } from '../../components/ui/Button'
 import { Icon } from '../../components/ui/Icon'
+import { ACTION_LOGOUT } from '../../utils/actionCopy'
+import { TITLE_JOIN_BY_INVITE } from '../../utils/sectionCopy'
 
 const OnboardingPage: React.FC = () => {
   const navigate = useNavigate();
@@ -69,7 +71,7 @@ const OnboardingPage: React.FC = () => {
           >
             <span className="onboarding-btn-icon">✉️</span>
             <div className="onboarding-btn-content">
-              <span className="onboarding-btn-title">使用邀请码加入</span>
+              <span className="onboarding-btn-title">{TITLE_JOIN_BY_INVITE}</span>
               <span className="onboarding-btn-desc">输入他人分享的邀请码，加入已有账本</span>
             </div>
             <span className="onboarding-btn-arrow"><Icon name="chevron-right" size={18} /></span>
@@ -80,7 +82,7 @@ const OnboardingPage: React.FC = () => {
           <Button type="button" variant="ghost" className="onboarding-logout-btn" onClick={handleLogout} icon={
             <Icon name="logout" size={16} />
           }>
-            退出登录
+            {ACTION_LOGOUT}
           </Button>
         </div>
       </div>

@@ -49,6 +49,7 @@ import { UPLOAD_FAILED, DELETE_FAILED, IMAGE_SELECT_FAILED } from "../../utils/u
 import { failEntityUpsert } from "../../utils/errorCopy";
 import Icon, { ICON_COLOR } from "../../components/Icon";
 import { SECTION_CATEGORY_TYPE, SECTION_BASIC_INFO, SECTION_EMOJI_ICONS, SECTION_SHOPPING_ICONS, SECTION_CUSTOM_ICONS } from "../../utils/sectionCopy";
+import { FIELD_NAME, FIELD_ICON } from "../../utils/fieldCopy";
 
 interface CustomIconItem {
   id: string;
@@ -214,7 +215,7 @@ export default function CategoryEdit() {
 
       <AppSection title={SECTION_BASIC_INFO} compact>
         <View className="catedit-form-row">
-          <Text className="catedit-form-label">名称</Text>
+          <Text className="catedit-form-label">{FIELD_NAME}</Text>
           <Input
             className="catedit-form-input"
             placeholder={FORM_CATEGORY_NAME_PLACEHOLDER}
@@ -224,7 +225,7 @@ export default function CategoryEdit() {
           />
         </View>
         <View className="catedit-form-row catedit-form-row--icon">
-          <Text className="catedit-form-label">图标</Text>
+          <Text className="catedit-form-label">{FIELD_ICON}</Text>
           <View className="catedit-form-emoji-current">
             <CategoryIcon icon={form.icon} size={28} className="catedit-form-emoji-current__icon" />
           </View>

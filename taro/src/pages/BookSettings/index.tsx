@@ -48,7 +48,8 @@ import { entityFormTitle, ENTITY_BOOK } from "../../utils/entityCopy";
 import { IMAGE_SELECT_FAILED, DELETE_FAILED, UPLOAD_FAILED } from "../../utils/uploadCopy";
 import { ERROR_CREATE_FAILED, ERROR_SAVE_FAILED, ERROR_TRANSFER_FAILED } from "../../utils/errorCopy";
 import Icon, { ICON_COLOR } from "../../components/Icon";
-import { TITLE_TRANSFER_OWNERSHIP } from "../../utils/sectionCopy";
+import { TITLE_TRANSFER_OWNERSHIP } from "../../utils/sectionCopy"
+import { FIELD_DESC_OPTIONAL, FIELD_ICON, FIELD_CUSTOM, FIELD_OWNER_EMAIL, FIELD_YOUR_PASSWORD, FIELD_BOOK_NAME } from "../../utils/fieldCopy";
 
 interface Member {
   id: string;
@@ -295,7 +296,7 @@ export default function BookSettings() {
         <AppSection compact>
           {/* 名称 */}
           <View className="bs-form-row">
-            <Text className="bs-form-label"><Text className="bs-required">*</Text> 账本名称</Text>
+            <Text className="bs-form-label"><Text className="bs-required">*</Text> {FIELD_BOOK_NAME}</Text>
             <Input
               className="bs-form-input"
               placeholder={FORM_BOOK_NAME_EXAMPLE}
@@ -307,7 +308,7 @@ export default function BookSettings() {
 
           {/* 描述 */}
           <View className="bs-form-row bs-form-row--stack">
-            <Text className="bs-form-label">描述（可选）</Text>
+            <Text className="bs-form-label">{FIELD_DESC_OPTIONAL}</Text>
             <Input
               className="bs-form-input bs-form-textarea"
               placeholder={FORM_BOOK_DESC_EXAMPLE}
@@ -319,7 +320,7 @@ export default function BookSettings() {
 
           {/* 图标 */}
           <View className="bs-form-row bs-form-row--stack">
-            <Text className="bs-form-label">图标</Text>
+            <Text className="bs-form-label">{FIELD_ICON}</Text>
             <View className="bs-emoji-grid">
               {BOOK_ICONS.map((item: any) => {
                 const isSelected = addIcon === item.key;
@@ -357,7 +358,7 @@ export default function BookSettings() {
 
           {/* 自定义图标 */}
           <View className="bs-form-row bs-form-row--stack">
-            <Text className="bs-form-label">自定义</Text>
+            <Text className="bs-form-label">{FIELD_CUSTOM}</Text>
             <View className="bs-custom-icons">
               <View
                 className="bs-custom-icon-upload"
@@ -405,7 +406,7 @@ export default function BookSettings() {
       <AppSection compact>
         {/* 名称 */}
           <View className="bs-form-row">
-            <Text className="bs-form-label"><Text className="bs-required">*</Text> 账本名称</Text>
+            <Text className="bs-form-label"><Text className="bs-required">*</Text> {FIELD_BOOK_NAME}</Text>
             <Input
               className="bs-form-input"
               placeholder={FORM_BOOK_NAME_EXAMPLE}
@@ -417,7 +418,7 @@ export default function BookSettings() {
 
           {/* 描述 */}
           <View className="bs-form-row bs-form-row--stack">
-            <Text className="bs-form-label">描述（可选）</Text>
+            <Text className="bs-form-label">{FIELD_DESC_OPTIONAL}</Text>
             <Input
               className="bs-form-input bs-form-textarea"
               placeholder={FORM_BOOK_DESC_EXAMPLE}
@@ -429,7 +430,7 @@ export default function BookSettings() {
 
           {/* 图标 */}
           <View className="bs-form-row bs-form-row--stack">
-            <Text className="bs-form-label">图标</Text>
+            <Text className="bs-form-label">{FIELD_ICON}</Text>
             <View className="bs-emoji-grid">
               {BOOK_ICONS.map((item: any) => {
                 const isSelected = editIcon === item.key;
@@ -467,7 +468,7 @@ export default function BookSettings() {
 
           {/* 自定义图标 */}
           <View className="bs-form-row bs-form-row--stack">
-            <Text className="bs-form-label">自定义</Text>
+            <Text className="bs-form-label">{FIELD_CUSTOM}</Text>
             <View className="bs-custom-icons">
               <View
                 className="bs-custom-icon-upload"
@@ -529,7 +530,7 @@ export default function BookSettings() {
                         }),
                     },
                     {
-                      label: "转移所有权",
+                      label: TITLE_TRANSFER_OWNERSHIP,
                       icon: "profile",
                       onClick: () => setShowTransfer(true),
                     },
@@ -571,7 +572,7 @@ export default function BookSettings() {
               </View>
 
               <View className="bs-form-row">
-                <Text className="bs-form-label">新拥有者邮箱</Text>
+                <Text className="bs-form-label">{FIELD_OWNER_EMAIL}</Text>
                 <Input
                   className="bs-form-input"
                   placeholder={FORM_MEMBER_EMAIL_PLACEHOLDER}
@@ -581,7 +582,7 @@ export default function BookSettings() {
               </View>
 
               <View className="bs-form-row">
-                <Text className="bs-form-label">您的密码</Text>
+                <Text className="bs-form-label">{FIELD_YOUR_PASSWORD}</Text>
                 <Input
                   className="bs-form-input"
                   password

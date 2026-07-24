@@ -57,7 +57,8 @@
     "./monthState": "./src/monthState.ts",
     "./version": "./src/version.ts",
     "./mapMarkerHtml": "./src/mapMarkerHtml.ts",
-    "./fieldCopy": "./src/fieldCopy.ts"
+    "./fieldCopy": "./src/fieldCopy.ts",
+    "./navCopy": "./src/navCopy.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit"

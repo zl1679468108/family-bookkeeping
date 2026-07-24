@@ -14,6 +14,7 @@ import { INVITE_CODE_HELP_LABEL, INVITE_CODE_HELP_BODY } from '../../../utils/in
 import { SUCCESS_JOINED } from '../../../utils/successCopy'
 import { validateInviteCode, normalizeInviteCode } from '../../../utils/validation'
 import { FORM_INVITE_CODE_EXAMPLE } from '../../../utils/formCopy'
+import { TITLE_JOIN_BY_INVITE } from '../../../utils/sectionCopy'
 
 interface BookInviteModalProps {
   open: boolean;
@@ -78,7 +79,7 @@ export const BookInviteModal: React.FC<BookInviteModalProps> = ({ open, onClose,
     <GlobalModal
       open={open}
       onClose={onClose}
-      title="使用邀请码加入"
+      title={TITLE_JOIN_BY_INVITE}
       width={440}
       footer={
         <FooterActions align="end" className="global-modal-dialog__footer-inner">

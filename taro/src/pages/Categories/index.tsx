@@ -57,6 +57,7 @@ import { UPLOAD_FAILED, DELETE_FAILED } from "../../utils/uploadCopy";
 import { failEntityUpsert } from "../../utils/errorCopy";
 import { buildCategoryIconOptionSpecs } from "../../utils/categories";
 import { FORM_CATEGORY_NAME_PLACEHOLDER } from "../../utils/formCopy";
+import { FIELD_CATEGORY_ID, FIELD_SORT, FIELD_CREATED_AT, FIELD_UPDATED_AT, FIELD_NAME, FIELD_ICON, sortOrderLabel } from "../../utils/fieldCopy";
 
 /* ---------- 类型 ---------- */
 interface Category {
@@ -447,23 +448,23 @@ export default function CategoriesPage() {
             {/* 信息字段（PC 同款 2 列网格） */}
             <View className="catds-grid">
               <View className="catds-item">
-                <Text className="catds-item__label">分类 ID</Text>
+                <Text className="catds-item__label">{FIELD_CATEGORY_ID}</Text>
                 <Text className="catds-item__value catds-item__value--mono">{detailCat.id}</Text>
               </View>
               <View className="catds-item">
-                <Text className="catds-item__label">排序</Text>
+                <Text className="catds-item__label">{FIELD_SORT}</Text>
                 <Text className="catds-item__value">
-                  第 {detailCat.sort_order + 1} 位
+                  {sortOrderLabel(detailCat.sort_order)}
                 </Text>
               </View>
               <View className="catds-item">
-                <Text className="catds-item__label">创建时间</Text>
+                <Text className="catds-item__label">{FIELD_CREATED_AT}</Text>
                 <Text className="catds-item__value">
                   {detailCat.created_at ? detailCat.created_at.slice(0, 16) : "-"}
                 </Text>
               </View>
               <View className="catds-item">
-                <Text className="catds-item__label">更新时间</Text>
+                <Text className="catds-item__label">{FIELD_UPDATED_AT}</Text>
                 <Text className="catds-item__value">
                   {detailCat.updated_at ? detailCat.updated_at.slice(0, 16) : "-"}
                 </Text>
@@ -495,7 +496,7 @@ export default function CategoriesPage() {
             {/* 名称 */}
             <View className="catfs-form-group">
               <Text className="catfs-label">
-                <Text className="catfs-label__req">*</Text>名称
+                <Text className="catfs-label__req">*</Text>{FIELD_NAME}
               </Text>
               <Input
                 className="catfs-input"
@@ -508,7 +509,7 @@ export default function CategoriesPage() {
 
             {/* 图标 */}
             <View className="catfs-form-group">
-              <Text className="catfs-label">图标</Text>
+              <Text className="catfs-label">{FIELD_ICON}</Text>
               <IconGrid
                 options={iconOptions}
                 value={formIcon}

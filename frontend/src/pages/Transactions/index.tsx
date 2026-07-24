@@ -41,7 +41,7 @@ import {
   CONFIRM_DELETE_TRANSACTION,
 } from '../../utils/confirmCopy'
 import { FORM_SEARCH_TXN, FORM_MIN_AMOUNT, FORM_MAX_AMOUNT } from '../../utils/formCopy'
-import { FIELD_BRAND } from '../../utils/fieldCopy'
+import { FIELD_BRAND, FIELD_DESCRIPTION, FIELD_PLACE, FIELD_COORDINATES, FIELD_CREATED_AT } from '../../utils/fieldCopy'
 
 const PAGE_SIZE = 20
 
@@ -427,17 +427,17 @@ const Transactions: React.FC = () => {
             {selectedTransaction.brand && <DetailItem label={FIELD_BRAND} value={selectedTransaction.brand} />}
             {selectedTransaction.description && (
               <DetailItem
-                label="描述"
+                label={FIELD_DESCRIPTION}
                 value={<span style={{ whiteSpace: 'pre-wrap' }}>{selectedTransaction.description}</span>}
                 className="full-width"
               />
             )}
-            {selectedTransaction.location_name && <DetailItem label="地点" value={selectedTransaction.location_name} />}
+            {selectedTransaction.location_name && <DetailItem label={FIELD_PLACE} value={selectedTransaction.location_name} />}
             {selectedTransaction.latitude && selectedTransaction.longitude && (
-              <DetailItem label="坐标" value={`${selectedTransaction.latitude}, ${selectedTransaction.longitude}`} />
+              <DetailItem label={FIELD_COORDINATES} value={`${selectedTransaction.latitude}, ${selectedTransaction.longitude}`} />
             )}
             {selectedTransaction.created_at && (
-              <DetailItem label="创建时间" value={selectedTransaction.created_at} />
+              <DetailItem label={FIELD_CREATED_AT} value={selectedTransaction.created_at} />
             )}
           </div>
 

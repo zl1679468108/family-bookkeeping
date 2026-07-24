@@ -43,6 +43,7 @@ import { FORM_PASSWORD_CURRENT, FORM_PRIVACY_REQUIRED, FORM_USERNAME_REQUIRED, F
 import { IMAGE_SELECT_FAILED } from "../../utils/uploadCopy";
 import { ERROR_SAVE_FAILED_RETRY, ERROR_MODIFY_FAILED_RETRY } from "../../utils/errorCopy";
 import Icon, { ICON_COLOR } from "../../components/Icon";
+import { FIELD_USERNAME, FIELD_EMAIL, FIELD_CURRENT_PASSWORD, FIELD_NEW_PASSWORD, FIELD_CONFIRM_NEW_PASSWORD } from "../../utils/fieldCopy";
 
 export default function EditProfile() {
   const { user, refreshUser } = useAuth();
@@ -209,7 +210,7 @@ export default function EditProfile() {
       {/* ===== 资料表单 ===== */}
       <View className="edit-form">
         <View className="edit-row">
-          <Text className="edit-label">用户名</Text>
+          <Text className="edit-label">{FIELD_USERNAME}</Text>
           <Input
             className="edit-input"
             value={username}
@@ -220,7 +221,7 @@ export default function EditProfile() {
           />
         </View>
         <View className="edit-row">
-          <Text className="edit-label">邮箱</Text>
+          <Text className="edit-label">{FIELD_EMAIL}</Text>
           <Input
             className="edit-input"
             value={email}
@@ -256,7 +257,7 @@ export default function EditProfile() {
             <Text className="pwd-title">修改密码</Text>
 
             <View className="pwd-row">
-              <Text className="pwd-label">当前密码</Text>
+              <Text className="pwd-label">{FIELD_CURRENT_PASSWORD}</Text>
               <Input
                 className="pwd-input"
                 password
@@ -268,7 +269,7 @@ export default function EditProfile() {
             </View>
 
             <View className="pwd-row">
-              <Text className="pwd-label">新密码</Text>
+              <Text className="pwd-label">{FIELD_NEW_PASSWORD}</Text>
               <Input
                 className="pwd-input"
                 password
@@ -280,7 +281,7 @@ export default function EditProfile() {
             </View>
 
             <View className="pwd-row">
-              <Text className="pwd-label">确认新密码</Text>
+              <Text className="pwd-label">{FIELD_CONFIRM_NEW_PASSWORD}</Text>
               <Input
                 className="pwd-input"
                 password

@@ -18,6 +18,7 @@ import { Spinner, Button } from "../ui";
 import "./index.scss";
 import { toastInfo } from "../../utils/toast";
 import { FORM_PRIVACY_LOCATION, FORM_LOCATION_REQUIRED, FORM_LOCATION_UNAVAILABLE, FORM_LOCATION_DENIED, FORM_PRIVACY_REQUIRED, FORM_LOCATION_TIMEOUT, FORM_LOCATION_MANUAL_HINT } from "../../utils/formCopy";
+import { TITLE_SELECT_LOCATION } from "../../utils/sectionCopy";
 
 export interface LocationResult {
   latitude: number;
@@ -276,7 +277,7 @@ export default function LocationPicker({
     <View className="lp-overlay">
       <View className="lp-panel">
         {/* Header */}
-        <SheetHeader title="选择消费位置" onClose={onClose} />
+        <SheetHeader title={TITLE_SELECT_LOCATION} onClose={onClose} />
 
         {/* Search */}
         <View className="lp-search">

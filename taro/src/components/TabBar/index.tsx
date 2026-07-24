@@ -41,10 +41,10 @@ function iconColor(isActive: boolean, isDark: boolean): string {
 }
 
 const ITEMS: { path: string; label: string; icon: IconName }[] = [
-  { path: "/pages/Home/index", label: "首页", icon: "home" },
-  { path: "/pages/Transactions/index", label: "流水", icon: "transactions" },
-  { path: "/pages/Workbench/index", label: "工作台", icon: "workbench" },
-  { path: "/pages/Profile/index", label: "我的", icon: "profile" },
+  { path: "/pages/Home/index", label: NAV_HOME, icon: "home" },
+  { path: "/pages/Transactions/index", label: NAV_TRANSACTIONS, icon: "transactions" },
+  { path: "/pages/Workbench/index", label: NAV_WORKBENCH, icon: "workbench" },
+  { path: "/pages/Profile/index", label: NAV_PROFILE, icon: "profile" },
 ];
 
 export default function TabBar() {
@@ -90,3 +90,4 @@ export default function TabBar() {
     </View>
   );
 }
+import { NAV_HOME, NAV_TRANSACTIONS, NAV_WORKBENCH, NAV_PROFILE } from "../../utils/navCopy";

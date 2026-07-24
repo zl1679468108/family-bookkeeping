@@ -25,7 +25,7 @@ import { toastSuccess, toastInfo } from "../../utils/toast";
 import { userDisplayName, userInitial } from "../../utils/userDisplay";
 import { SUCCESS_ACCOUNT_SWITCHED, SUCCESS_ACCOUNT_DEACTIVATED, SUCCESS_SWITCHED } from "../../utils/successCopy";
 import { FORM_ALREADY_CURRENT_ACCOUNT, FORM_CAPTCHA_REQUIRED, FORM_EMAIL_PASSWORD_REQUIRED, FORM_DEACTIVATE_PASSWORD, FORM_PASSWORD_LOGIN_PLACEHOLDER, FORM_EMAIL_PLACEHOLDER, FORM_PASSWORD_PLACEHOLDER, FORM_CAPTCHA_PLACEHOLDER } from "../../utils/formCopy";
-import { ACTION_SWITCHING } from "../../utils/actionCopy";
+import { ACTION_SWITCHING, ACTION_LOGOUT } from "../../utils/actionCopy"
 
 export default function Profile() {
   const { user, signOut, signIn, switchByToken } = useAuth();
@@ -244,7 +244,7 @@ export default function Profile() {
             onClick: handleOpenDeactivate,
           },
           {
-            label: "退出登录",
+            label: ACTION_LOGOUT,
             icon: "logout",
             danger: true,
             onClick: () => setLogoutConfirm(true),
