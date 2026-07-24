@@ -6,7 +6,7 @@ import { AmapManager } from '../../../../services/amapManager';
 import './index.scss';
 import { getThemeColors } from '../../../../utils/themeColors'
 import { useTheme } from '../../../../utils/theme'
-import { merchantBalanceColor } from '../../../../utils/color'
+import { merchantBalanceColor, blendHexColors } from '../../../../utils/color'
 import { createFootprintMarkerHtml, merchantShortLabel } from '../../../../utils/mapMarkerHtml'
 import { ERROR_LOCATION_UNAVAILABLE, ERROR_MAP_UNAVAILABLE, ERROR_MAP_NETWORK_HINT } from '../../../../utils/errorCopy'
 import { ACTION_LOCATING_CURRENT_ELLIPSIS } from '../../../../utils/actionCopy'
@@ -370,15 +370,17 @@ const _MapCanvas: React.ForwardRefRenderFunction<MapCanvasHandle, MapCanvasProps
       lat: t.latitude,
       count: Math.max(1, Math.floor(Number(t.amount) / 10)),
     }));
+    // 热力色带随主题语义色（绿→黄→橙→红），暗色下自动提亮
+    const theme = getThemeColors();
     const heatmap = new AMap.HeatMap(map, {
       radius: 30,
       opacity: [0.15, 0.95],
       gradient: {
-        0.2: 'rgb(0,200,0)',
-        0.4: 'rgb(255,255,0)',
-        0.6: 'rgb(255,140,0)',
-        0.8: 'rgb(255,0,0)',
-        1.0: 'rgb(150,0,0)',
+        0.2: theme.inc,
+        0.4: theme.warn,
+        0.6: blendHexColors(theme.warn, theme.exp, 0.45),
+        0.8: theme.exp,
+        1.0: blendHexColors(theme.exp, '#1A1C19', 0.4), // 峰值压暗（与主题无关的混合锚点）
       },
     });
     heatmap.setDataSet({ data: heatmapData, max: 100 });
@@ -390,7 +392,7 @@ const _MapCanvas: React.ForwardRefRenderFunction<MapCanvasHandle, MapCanvasProps
         heatmapRef.current = null;
       }
     };
-  }, [viewMode, data, map, clearHeatmap, clearMarkers]);
+  }, [viewMode, data, map, clearHeatmap, clearMarkers, resolvedTheme]);
 
   /* ====== Footprint markers — 只管理自己的图层，切换筛选时先清后建 ====== */
   useEffect(() => {

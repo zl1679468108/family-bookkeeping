@@ -139,7 +139,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: color-mix(in srgb, var(--srf) 55%, transparent);
+  background: color-mix(in srgb, var(--bg) 62%, transparent);
   backdrop-filter: blur(2px);
   -webkit-backdrop-filter: blur(2px);
   z-index: 20;
@@ -170,7 +170,7 @@
 .map-loading-bar {
   width: 200px;
   height: 4px;
-  background: var(--bg);
+  background: var(--bdL);
   border-radius: 999px;
   overflow: hidden;
 }
@@ -190,14 +190,6 @@
 @keyframes map-progress {
   0%   { transform: translateX(-100%); }
   100% { transform: translateX(300%); }
-}
-
-/* 深色模式下 loading overlay 反色 */
-[data-theme="dark"] .map-loading-overlay {
-  background: var(--ov);
-}
-[data-theme="dark"] .map-loading-bar {
-  background: color-mix(in srgb, var(--srf) 8%, transparent);
 }
 
 /* ── 响应式 ── */

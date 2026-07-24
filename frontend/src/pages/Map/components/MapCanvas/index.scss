@@ -54,7 +54,7 @@
   align-items: center;
   justify-content: center;
   gap: 12px;
-  background: color-mix(in srgb, var(--srf) 85%, transparent);
+  background: color-mix(in srgb, var(--bg) 82%, transparent);
   backdrop-filter: blur(2px);
   -webkit-backdrop-filter: blur(2px);
 }
@@ -109,19 +109,6 @@
   text-align: center;
   max-width: 280px;
   line-height: 1.5;
-}
-
-[data-theme="dark"] .map-locating-overlay {
-  background: color-mix(in srgb, var(--fg) 85%, transparent);
-}
-
-[data-theme="dark"] .map-locating-text {
-  color: var(--fg3);
-}
-
-[data-theme="dark"] .map-locating-spinner {
-  border-color: color-mix(in srgb, var(--on-pr) 15%, transparent);
-  border-top-color: var(--pr);
 }
 
 /* POI 搜索覆盖层 */

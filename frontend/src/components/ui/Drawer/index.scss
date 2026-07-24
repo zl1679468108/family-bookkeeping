@@ -99,11 +99,6 @@
   min-height: 0;
 }
 
-/* 深色模式 */
-[data-theme='dark'] .ui-drawer-mask {
-  background: var(--ov);
-}
-
 /* 响应式 */
 @media (max-width: 768px) {
   .ui-drawer-panel {

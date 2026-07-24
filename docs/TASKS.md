@@ -216,6 +216,13 @@
 - 分类表单 meta helper；TemplateEdit 用 `transactionTypeLabel`；`confirmDeleteThis(ENTITY_*)` 收口
 - 验证：frontend / taro `tsc --noEmit`
 
+#### 2026-07-24 PC 暗色第十一轮（残留硬编码 / 冗余 dark 覆盖）
+- 全站再扫：业务 SCSS 无残留浅色 hex/rgba；Tailwind 色板均映射 CSS 变量
+- 去掉失效/重复 `[data-theme=dark]`：Drawer mask、地图 locating/loading 反色 hack、MerchantDrawer hover 双份阴影
+- 地图遮罩/进度条底改用 `var(--bg)`/`var(--bdL)` 自适应；鉴权插画 `#fff/#FFD700` → `var(--on-pr)/var(--warn)/var(--prD)`
+- 热力图色带改读 `getThemeColors` + `blendHexColors`，切主题重建；头像 JPEG 白底收为有意常量
+- 验证：frontend `tsc --noEmit`
+
 #### 2026-07-24 PC 暗色第十轮（图表联动 / 地图样式 / 残留硬编码）
 - 年报图表/色条：`getChartPalette` 空依赖改为 `resolvedTheme`；`ReportMonthlyTrend` 切主题重绘
 - 扩展色随暗色提亮；年报封面亮色 `white`/`rgba(255,255,255,*)` → `onPr` / color-mix

@@ -219,7 +219,7 @@
 
 .merchant-drawer__item:hover {
   border-color: var(--pr);
-  box-shadow: 0 2px 8px color-mix(in srgb, var(--pr) 10%, transparent);
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--pr) 16%, transparent);
   transform: translateY(-1px);
 }
 
@@ -368,11 +368,6 @@
 .merchant-drawer__page-info strong {
   color: var(--fg);
   font-weight: 600;
-}
-
-/* ---- 深色模式 ---- */
-[data-theme='dark'] .merchant-drawer__item:hover {
-  box-shadow: 0 2px 8px color-mix(in srgb, var(--pr) 22%, transparent);
 }
 
 /* ---- 响应式 ---- */
