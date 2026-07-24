@@ -85,6 +85,12 @@
 
 ### ✅ 已完成
 
+#### 2026-07-24 Skeleton/IconGrid/SheetHeader class shared 化
+- skeleton：PC/Taro 根 class 与 grid/stats/row 构建
+- iconGrid：根/item/delete class（pc/bem）；双端 IconGrid 接线
+- sheetHeader：标题栏/左右侧 class；Taro SheetHeader 接线
+- 验证：frontend / taro `tsc --noEmit`
+
 #### 2026-07-24 UI kit class 大面积 shared 化
 - 新增/扩展：space、switchControl、list、appSection、menuList、loadingOverlay、pageHero、floatingAction、filterBar、uiIcon
 - dropdownHelpers 增 PC/Taro dropdown class；segControl 增 option class

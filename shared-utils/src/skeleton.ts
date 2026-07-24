@@ -1,3 +1,5 @@
+import { cx, type ClassValue } from './cx'
+
 /**
  * Skeleton 尺寸预设 — PC / Taro 共用默认值
  * 端侧组件仍可覆盖 props
@@ -30,3 +32,46 @@ export function skeletonTextLineWidth(index: number): string {
   if (index >= widths.length) return widths[widths.length - 1]
   return widths[index]
 }
+
+/** PC skeleton-shimmer 根 */
+export function buildSkeletonClassName(opts: {
+  className?: ClassValue
+  prefix?: string
+} = {}): string {
+  const prefix = opts.prefix || 'skeleton-shimmer'
+  return cx(prefix, opts.className)
+}
+
+/** Taro ui-skeleton 根 */
+export function buildUiSkeletonClassName(opts: {
+  className?: ClassValue
+  prefix?: string
+} = {}): string {
+  const prefix = opts.prefix || 'ui-skeleton'
+  return cx(prefix, opts.className)
+}
+
+export function buildUiSkeletonGridClassName(opts: {
+  className?: ClassValue
+  prefix?: string
+} = {}): string {
+  const prefix = opts.prefix || 'ui-skeleton-grid'
+  return cx(prefix, opts.className)
+}
+
+export function buildUiSkeletonStatsClassName(opts: {
+  className?: ClassValue
+  prefix?: string
+} = {}): string {
+  const prefix = opts.prefix || 'ui-skeleton-stats'
+  return cx(prefix, opts.className)
+}
+
+export function buildUiSkeletonRowClassName(opts: {
+  className?: ClassValue
+  prefix?: string
+} = {}): string {
+  const prefix = opts.prefix || 'ui-skeleton-row'
+  return cx(prefix, opts.className)
+}
+

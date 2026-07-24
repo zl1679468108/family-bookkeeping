@@ -1,5 +1,4 @@
 import React from 'react'
-import { cx } from '../../../utils/cx'
 import {
   SKELETON_DEFAULT_WIDTH,
   SKELETON_DEFAULT_HEIGHT,
@@ -13,6 +12,7 @@ import {
   SKELETON_TEXT_LINE_GAP,
   skeletonDim,
   skeletonTextLineWidth,
+  buildSkeletonClassName
 } from '../../../utils/skeleton'
 
 /**
@@ -36,7 +36,7 @@ export const Skeleton: React.FC<SkeletonProps> = ({
   style,
 }) => (
   <div
-    className={cx('skeleton-shimmer', className)}
+    className={buildSkeletonClassName({ className })}
     style={{
       width: skeletonDim(width),
       height: skeletonDim(height),

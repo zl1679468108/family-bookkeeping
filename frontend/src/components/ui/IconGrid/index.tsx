@@ -3,12 +3,14 @@ import { Icon } from '../Icon'
 
 import { notifyError } from '../../../utils/notifyError'
 import { busyLabel, ACTION_UPLOADING, ACTION_UPLOAD } from '../../../utils/actionCopy'
-import { cx } from '../../../utils/cx'
 import {
   isIconOptionActive,
   isCustomIconActive,
   hasCustomIconSection,
   iconGridTemplateColumns,
+  buildIconGridRootClassName,
+  buildIconGridItemClassName,
+  buildIconGridDeleteClassName,
 } from '../../../utils/iconGrid'
 import { SECTION_CUSTOM_ICONS } from '../../../utils/sectionCopy'
 import {
@@ -134,7 +136,7 @@ export const IconGrid: React.FC<IconGridProps> = ({
   const hasCustomSection = hasCustomIconSection(Boolean(onUpload), customIcons.length)
 
   return (
-    <div className={cx('icon-grid-wrapper', className)}>
+    <div className={buildIconGridRootClassName({ className, mode: 'pc' })}>
       {/* 预设图标区 */}
       <div
         className="icon-grid"
@@ -146,7 +148,7 @@ export const IconGrid: React.FC<IconGridProps> = ({
             <button
               key={opt.value}
               type="button"
-              className={`icon-btn ${active ? 'active' : ''}`}
+              className={buildIconGridItemClassName({ active, mode: 'pc' })}
               onClick={() => onChange?.(opt.value)}
             >
               {opt.isImage ? (
@@ -178,7 +180,7 @@ export const IconGrid: React.FC<IconGridProps> = ({
                 <button
                   key={ci.id}
                   type="button"
-                  className={`icon-btn ${active ? 'active' : ''}`}
+                  className={buildIconGridItemClassName({ active, mode: 'pc' })}
                   onClick={() => onChange?.(ci.id)}
                 >
                   <img
@@ -189,7 +191,7 @@ export const IconGrid: React.FC<IconGridProps> = ({
                   {/* 删除按钮 */}
                   {onDelete && (
                     <span
-                      className={`icon-btn-delete ${deletingId === ci.id ? 'icon-btn-delete--loading' : ''}`}
+                      className={buildIconGridDeleteClassName({ loading: deletingId === ci.id })}
                       onClick={(e) => handleDelete(e, ci.id)}
                     >
                       {deletingId === ci.id ? '…' : <Icon name="close" size={10} />}
@@ -202,7 +204,7 @@ export const IconGrid: React.FC<IconGridProps> = ({
             {onUpload && (
               <button
                 type="button"
-                className="icon-btn icon-btn-upload"
+                className={buildIconGridItemClassName({ upload: true, mode: 'pc' })}
                 onClick={handleUploadClick}
                 disabled={uploading}
               >

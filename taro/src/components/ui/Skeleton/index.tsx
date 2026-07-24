@@ -3,8 +3,14 @@
  */
 import { View } from "@tarojs/components";
 import "./index.scss";
-import { cx } from "../../../utils/cx";
-import { skeletonDim, skeletonTextLineWidth } from "../../../utils/skeleton";
+import {
+  skeletonDim,
+  skeletonTextLineWidth,
+  buildUiSkeletonClassName,
+  buildUiSkeletonGridClassName,
+  buildUiSkeletonStatsClassName,
+  buildUiSkeletonRowClassName,
+} from "../../../utils/skeleton";
 
 export interface SkeletonProps {
   width?: string | number;
@@ -23,7 +29,7 @@ export function Skeleton({
 }: SkeletonProps) {
   return (
     <View
-      className={cx("ui-skeleton", className)}
+      className={buildUiSkeletonClassName({ className })}
       style={{
         width: skeletonDim(width),
         height: skeletonDim(height),
@@ -58,7 +64,7 @@ export function TextParagraphSkeleton({ lines = 3 }: { lines?: number }) {
 }
 export function CardGridSkeleton({ count = 2 }: { count?: number }) {
   return (
-    <View className="ui-skeleton-grid">
+    <View className={buildUiSkeletonGridClassName()}>
       {Array.from({ length: count }).map((_, i) => (
         <View key={i} className="ui-skeleton-grid__item">
           <Skeleton height="120rpx" marginBottom="16rpx" />
@@ -70,7 +76,7 @@ export function CardGridSkeleton({ count = 2 }: { count?: number }) {
 }
 export function StatCardsSkeleton({ count = 3 }: { count?: number }) {
   return (
-    <View className="ui-skeleton-stats">
+    <View className={buildUiSkeletonStatsClassName()}>
       {Array.from({ length: count }).map((_, i) => (
         <View key={i} className="ui-skeleton-stats__item">
           <Skeleton width="80rpx" height="24rpx" marginBottom="12rpx" />
@@ -84,7 +90,7 @@ export function TableRowsSkeleton({ rows = 5 }: { rows?: number }) {
   return (
     <View>
       {Array.from({ length: rows }).map((_, i) => (
-        <View key={i} className="ui-skeleton-row">
+        <View key={i} className={buildUiSkeletonRowClassName()}>
           <Skeleton width="80rpx" height="80rpx" borderRadius="50%" />
           <View className="ui-skeleton-row__text">
             <Skeleton width="40%" height="28rpx" marginBottom="12rpx" />

@@ -17,12 +17,13 @@ import Icon, { ICON_COLOR } from "../../Icon";
 import { FORM_PRIVACY_REQUIRED } from "../../../utils/formCopy";
 import { IMAGE_SELECT_FAILED_SHORT, PRIVACY_ALBUM_FOR_ICON } from "../../../utils/uploadCopy";
 import { ACTION_UPLOAD } from "../../../utils/actionCopy";
-import { cx } from "../../../utils/cx";
 import {
   isIconOptionActive,
   isCustomIconActive,
   hasCustomIconSection,
   iconGridTemplateColumns,
+  buildIconGridRootClassName,
+  buildIconGridItemClassName,
 } from "../../../utils/iconGrid";
 
 export interface IconGridOption {
@@ -90,14 +91,14 @@ export function IconGrid({
   const colStyle = { gridTemplateColumns: iconGridTemplateColumns(columns) } as React.CSSProperties;
 
   return (
-    <View className={cx("ui-icon-grid", className)}>
+    <View className={buildIconGridRootClassName({ className, mode: "bem" })}>
       <View className="ui-icon-grid__section" style={colStyle}>
         {options.map((opt) => {
           const active = isIconOptionActive(value, opt.value);
           return (
             <View
               key={opt.value}
-              className={cx("ui-icon-grid__item", active && "ui-icon-grid__item--active", opt.label && "ui-icon-grid__item--labeled")}
+              className={buildIconGridItemClassName({ active, labeled: !!opt.label, mode: "bem" })}
               onClick={() => onChange?.(opt.value)}
             >
               {opt.isImage ? (
@@ -120,7 +121,7 @@ export function IconGrid({
             return (
               <View
                 key={c.id}
-                className={cx("ui-icon-grid__item", active && "ui-icon-grid__item--active")}
+                className={buildIconGridItemClassName({ active, mode: "bem" })}
                 onClick={() => onChange?.(c.icon_url)}
               >
                 <Image className="ui-icon-grid__img" src={c.icon_url} mode="aspectFit" />
@@ -138,7 +139,7 @@ export function IconGrid({
             );
           })}
           {onUpload ? (
-            <View className="ui-icon-grid__item ui-icon-grid__upload" onClick={handleUpload}>
+            <View className={buildIconGridItemClassName({ upload: true, mode: "bem" })} onClick={handleUpload}>
               <Text className="ui-icon-grid__upload-icon">+</Text>
               <Text className="ui-icon-grid__upload-text">{ACTION_UPLOAD}</Text>
             </View>
