@@ -23,23 +23,36 @@ export function isBudgetOver(progress: number): boolean {
  * 金额展示（¥ + 本地化数字）
  * - compact: 整数优先（0~2 位小数），适合卡片摘要
  * - full: 固定 2 位小数，适合流水/报表
+ * - wan: ≥1 万显示为 X.X万（小屏/指标卡）
  */
 export function formatMoney(
   amount: number | string,
-  options: { compact?: boolean; showSign?: boolean; sign?: '+' | '-' } = {},
+  options: { compact?: boolean; wan?: boolean; showSign?: boolean; sign?: '+' | '-' } = {},
 ): string {
-  const { compact = false, showSign = false, sign = '+' } = options
+  const { compact = false, wan = false, showSign = false, sign = '+' } = options
   const num = typeof amount === 'string' ? parseFloat(amount) : amount
   if (Number.isNaN(num)) {
-    return compact ? '¥0' : '¥ 0.00'
+    return compact || wan ? '¥0' : '¥ 0.00'
   }
-  const formatted = num.toLocaleString('zh-CN', {
-    minimumFractionDigits: compact ? 0 : 2,
-    maximumFractionDigits: 2,
-  })
-  const body = compact ? `¥${formatted}` : `¥ ${formatted}`
-  return showSign ? `${sign}${body.replace(/^¥\s?/, '¥')}` : body
+  const abs = Math.abs(num)
+  let body: string
+  if (wan && abs >= 10000) {
+    const wanVal = abs / 10000
+    const wanText = wanVal.toFixed(abs % 10000 === 0 ? 0 : 1)
+    body = `¥${wanText}万`
+  } else {
+    const formatted = abs.toLocaleString('zh-CN', {
+      minimumFractionDigits: compact || wan ? 0 : 2,
+      maximumFractionDigits: 2,
+    })
+    body = compact || wan ? `¥${formatted}` : `¥ ${formatted}`
+  }
+  if (showSign) return `${sign}${body}`
+  // 保留负数语义（未显式 showSign 时）
+  if (num < 0) return `-${body}`
+  return body
 }
+
 
 export interface BudgetCategoryLike {
   budget: number

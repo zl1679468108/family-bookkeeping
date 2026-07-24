@@ -5,6 +5,7 @@ import AdminLayout from '../AdminLayout';
 import { getAdminStats, PlatformStats } from '../../../services/adminApi';
 import { StatCardsSkeleton, TableRowsSkeleton } from '../../../components/ui/Skeleton';
 import { EmptyState } from '../../../components/ui/EmptyState';
+import { formatMoney } from '../../../utils/budget';
 
 const AdminDashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -62,22 +63,24 @@ const AdminDashboard: React.FC = () => {
             <div className="stat-card__label">本月结余</div>
             <div
               className={`stat-card__value ${(stats?.monthNet || 0) >= 0 ? 'stat-card__value--success' : 'stat-card__value--danger'}`}>
-              {(stats?.monthNet || 0) >= 0 ? '+' : ''}
-              {stats?.monthNet.toFixed(2)}
+              {formatMoney(stats?.monthNet ?? 0, {
+                showSign: true,
+                sign: (stats?.monthNet || 0) >= 0 ? '+' : '-',
+              })}
             </div>
           </div>
 
           <div className="stat-card stat-card--income">
             <div className="stat-card__label">本月收入</div>
             <div className="stat-card__value stat-card__value--success">
-              +{stats?.monthIncome.toFixed(2)}
+              {formatMoney(stats?.monthIncome ?? 0, { showSign: true, sign: '+' })}
             </div>
           </div>
 
           <div className="stat-card stat-card--expense">
             <div className="stat-card__label">本月支出</div>
             <div className="stat-card__value stat-card__value--danger">
-              -{stats?.monthExpense.toFixed(2)}
+              {formatMoney(stats?.monthExpense ?? 0, { showSign: true, sign: '-' })}
             </div>
           </div>
         </div>

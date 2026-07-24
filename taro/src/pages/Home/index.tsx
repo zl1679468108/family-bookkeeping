@@ -17,7 +17,7 @@ import { fetchBudgetStatus } from "../../services/budgetsApi";
 import { useCategoryLookup } from "../../hooks/useCategories";
 import { useAuth } from "../../context/AuthContext";
 import { useBookContext } from "../../context/BookContext";
-import { fmtAmount } from "../../utils/format";
+import { formatMoney } from "../../utils/format";
 import { getBudgetVariant } from "../../utils/budget";
 import { renderCategoryIcon } from "../../utils/renderCategoryIcon";
 import "./index.scss";
@@ -120,19 +120,19 @@ export default function Home() {
   const metricItems = [
     {
       label: "本月结余",
-      value: `¥ ${fmtAmount(balance)}`,
+      value: formatMoney(balance, { wan: true }),
       tone: (balance >= 0 ? "default" as const : "expense" as const),
       meta: `共 ${totalCount} 笔`,
     },
     {
       label: "本月收入",
-      value: `¥${fmtAmount(income)}`,
+      value: formatMoney(income, { wan: true }),
       tone: "income" as const,
       meta: summary?.incomeCount != null ? `${summary.incomeCount} 笔` : "0 笔",
     },
     {
       label: "本月支出",
-      value: `¥${fmtAmount(expense)}`,
+      value: formatMoney(expense, { wan: true }),
       tone: "expense" as const,
       meta: summary?.expenseCount != null ? `${summary.expenseCount} 笔` : "0 笔",
     },
@@ -200,7 +200,7 @@ export default function Home() {
 
                   {/* 金额 */}
                   <Text className={`home-txn-amt ${isExpense ? "home-txn-amt--exp" : "home-txn-amt--inc"}`}>
-                    {isExpense ? "−" : "+"}¥{fmtAmount(t.amount)}
+                    {formatMoney(Number(t.amount), { wan: true, showSign: true, sign: isExpense ? "-" : "+" })}
                   </Text>
                 </View>
               );
@@ -214,9 +214,9 @@ export default function Home() {
         <View className="budget-card__header">
           <Text className="budget-card__title">本月预算</Text>
           <Text className="budget-card__total">
-            ¥{fmtAmount(totalSpent)}
+            {formatMoney(totalSpent, { wan: true })}
             <Text className="budget-card__total-sep"> / </Text>
-            ¥{fmtAmount(totalBudget)}
+            {formatMoney(totalBudget, { wan: true })}
           </Text>
         </View>
 
@@ -246,7 +246,7 @@ export default function Home() {
                   <Text
                     className={`budget-card__row-amt ${b.is_over_budget ? "budget-card__row-amt--over" : ""}`}
                   >
-                    ¥{fmtAmount(b.spent_amount)} / ¥{fmtAmount(b.budget_amount)}
+                    {formatMoney(b.spent_amount, { wan: true })} / {formatMoney(b.budget_amount, { wan: true })}
                   </Text>
                 </View>
                 <View className="budget-card__row-bar-wrap">

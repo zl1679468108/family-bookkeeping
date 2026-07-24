@@ -31,6 +31,7 @@ import { isIconUrl } from "../../utils/renderCategoryIcon";
 import type { Template } from "../../types";
 import "./index.scss";
 import { toastSuccess, toastInfo } from "../../utils/toast";
+import { formatMoney } from "../../utils/format";
 
 /* ---------- 空表单初始态 ---------- */
 const EMPTY_FORM = {
@@ -352,7 +353,7 @@ export default function TemplateManager() {
                     )}
                     {t.amount != null && t.amount > 0 && (
                       <Text className={`tpl-card__amount tpl-card__amount--${t.type}`}>
-                        ¥{Number(t.amount).toFixed(2)}
+                        {formatMoney(Number(t.amount), { compact: false })}
                       </Text>
                     )}
                   </View>
@@ -386,7 +387,7 @@ export default function TemplateManager() {
                     )}
                     {t.amount != null && t.amount > 0 && (
                       <Text className={`tpl-card__amount tpl-card__amount--${t.type}`}>
-                        ¥{Number(t.amount).toFixed(2)}
+                        {formatMoney(Number(t.amount), { compact: false })}
                       </Text>
                     )}
                   </View>
@@ -433,7 +434,7 @@ export default function TemplateManager() {
               </View>
               {selectedTemplate.amount != null && (
                 <View className={`tpl-tag tpl-tag--amount tpl-tag--${selectedTemplate.type}`}>
-                  <Text>¥{Number(selectedTemplate.amount).toFixed(2)}</Text>
+                  <Text>{formatMoney(Number(selectedTemplate.amount), { compact: false })}</Text>
                 </View>
               )}
               {findCat(selectedTemplate.category_id) && (

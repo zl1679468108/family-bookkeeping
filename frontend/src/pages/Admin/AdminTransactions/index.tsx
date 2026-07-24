@@ -20,6 +20,7 @@ import { EmptyState } from '../../../components/ui/EmptyState'
 import { TableRowsSkeleton } from '../../../components/ui/Skeleton'
 import { GlobalModal } from '../../../components/ui';
 import { renderCategoryIcon } from '../../../utils/renderCategoryIcon';
+import { formatMoney } from '../../../utils/budget';
 
 const AdminTransactions: React.FC = () => {
   const [page, setPage] = useState(1);
@@ -186,8 +187,10 @@ const AdminTransactions: React.FC = () => {
                         <span
                           className={`amount ${t.type === 'income' ? 'amount--income' : 'amount--expense'}`}
                         >
-                          {t.type === 'income' ? '+' : '-'}
-                          {Number(t.amount).toFixed(2)}
+                          {formatMoney(Number(t.amount), {
+                            showSign: true,
+                            sign: t.type === 'income' ? '+' : '-',
+                          })}
                         </span>
                       </td>
                       <td className="data-table__cell--muted">{t.books?.name || '-'}</td>

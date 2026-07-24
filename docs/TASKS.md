@@ -85,6 +85,13 @@
 
 ### ✅ 已完成
 
+#### 2026-07-24 formatMoney 增强与 Admin/Taro 金额收口
+- `formatMoney` 双端新增 `wan`（≥1万 → X.X万）；负数统一 `-¥…` 语义。
+- Admin 看板/交易、PC 模板详情、Taro Home/流水/预算/模板/记一笔金额统一走 formatMoney。
+- `fmtAmount` 保留为无货币符简写，文档指向 formatMoney。
+- 验证：frontend/taro `tsc --noEmit` 通过。
+
+
 #### 2026-07-24 金额格式 + Taro toast 统一
 - 扩展 `taro/src/utils/toast.ts`（toastSuccess/Info/Warn/Error），页面几乎全部迁离直接 `Taro.showToast`；`useSubmit` re-export `toastError`。
 - PC 地图/日历/年报金额改用 `formatAmount` / `formatMoney`，删除日历与年报本地 format 函数。

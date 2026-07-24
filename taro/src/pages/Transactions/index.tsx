@@ -14,7 +14,7 @@ import { useCategoryLookup } from "../../hooks/useCategories";
 import { useCategoryList } from "../../hooks/useCategories";
 import { useAuth } from "../../context/AuthContext";
 import { useBookContext } from "../../context/BookContext";
-import { fmtAmount } from "../../utils/format";
+import { formatMoney } from "../../utils/format";
 import "./index.scss";
 
 const FILTER_OPTIONS = ["全部类型", "支出", "收入"];
@@ -314,7 +314,7 @@ export default function Transactions() {
           {txn.length > 0 && (
             <View className="stats-summary">
               <Text className="stats-text">
-                本页{txn.length}笔 · 支出{fmtAmount(stats.expense)} · 收入{fmtAmount(stats.income)}
+                本页{txn.length}笔 · 支出{formatMoney(stats.expense, { wan: true })} · 收入{formatMoney(stats.income, { wan: true })}
               </Text>
             </View>
           )}

@@ -16,22 +16,38 @@ export function isBudgetOver(progress: number): boolean {
   return progress >= BUDGET_OVER_AT;
 }
 
+/**
+ * 金额展示（与 PC formatMoney API 对齐）
+ * - compact 默认 true（小程序卡片更紧凑）
+ * - wan: ≥1 万显示 X.X万
+ */
 export function formatMoney(
   amount: number | string,
-  options: { compact?: boolean; showSign?: boolean; sign?: "+" | "-" } = {},
+  options: { compact?: boolean; wan?: boolean; showSign?: boolean; sign?: "+" | "-" } = {},
 ): string {
-  const { compact = true, showSign = false, sign = "+" } = options;
+  const { compact = true, wan = false, showSign = false, sign = "+" } = options;
   const num = typeof amount === "string" ? parseFloat(amount) : amount;
   if (Number.isNaN(num)) {
-    return compact ? "¥0" : "¥ 0.00";
+    return compact || wan ? "¥0" : "¥ 0.00";
   }
-  const formatted = num.toLocaleString("zh-CN", {
-    minimumFractionDigits: compact ? 0 : 2,
-    maximumFractionDigits: 2,
-  });
-  const body = compact ? `¥${formatted}` : `¥ ${formatted}`;
-  return showSign ? `${sign}${body}` : body;
+  const abs = Math.abs(num);
+  let body: string;
+  if (wan && abs >= 10000) {
+    const wanVal = abs / 10000;
+    const wanText = wanVal.toFixed(abs % 10000 === 0 ? 0 : 1);
+    body = `¥${wanText}万`;
+  } else {
+    const formatted = abs.toLocaleString("zh-CN", {
+      minimumFractionDigits: compact || wan ? 0 : 2,
+      maximumFractionDigits: 2,
+    });
+    body = compact || wan ? `¥${formatted}` : `¥ ${formatted}`;
+  }
+  if (showSign) return `${sign}${body}`;
+  if (num < 0) return `-${body}`;
+  return body;
 }
+
 
 export interface BudgetCategoryLike {
   budget: number;

@@ -3,6 +3,7 @@ import { format } from 'date-fns'
 import { GlobalModal, DetailItem, Space } from '../../../components/ui'
 import { Button } from '../../../components/ui/Button'
 import { renderCategoryIcon } from '../../../utils/renderCategoryIcon'
+import { formatAmount } from '../../../utils/common'
 
 interface TemplateDetailModalProps {
   template: any
@@ -55,7 +56,7 @@ export const TemplateDetailModal: React.FC<TemplateDetailModalProps> = ({
             </span>
             {template.amount && (
               <span className={`tpl-tag tpl-tag-amount tpl-tag-${template.type}`}>
-                ¥{template.amount.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                {formatAmount(template.amount)}
               </span>
             )}
             <span className="tpl-tag tpl-tag-cat">

@@ -17,7 +17,7 @@ import { useSubmit, toastError } from "../../hooks/useSubmit";
 import { fetchBudgets, fetchBudgetStatus, upsertBudgets, copyBudgets } from "../../services/budgetsApi";
 import { fetchCategories } from "../../services/categoriesApi";
 import "./index.scss";
-import { budgetStatusToVariant, budgetVariantLabel } from "../../utils/budget";
+import { budgetStatusToVariant, budgetVariantLabel, formatMoney } from "../../utils/budget";
 import { toastSuccess, toastInfo } from "../../utils/toast";
 
 /* ---------- 类型 ---------- */
@@ -261,8 +261,6 @@ export default function BudgetsPage() {
 
   const statusLabel = (status: string) => budgetVariantLabel(budgetStatusToVariant(status));
 
-  const fmt = (n: number) => (n >= 0 ? n.toFixed(2) : "0.00");
-
   const closeDetail = () => setDetailCat(null);
   const closeEditForm = () => setShowEditForm(false);
 
@@ -371,8 +369,8 @@ export default function BudgetsPage() {
                         <Text className="bdg-card__currency">¥</Text>
                         <Text className="bdg-card__value">
                           {hasBudget
-                            ? `${fmt(spent)} / ${fmt(budget)}`
-                            : fmt(spent)}
+                            ? `${formatMoney(spent, { compact: false })} / ${formatMoney(budget, { compact: false })}`
+                            : formatMoney(spent, { compact: false })}
                         </Text>
                       </>
                     )}
@@ -393,7 +391,7 @@ export default function BudgetsPage() {
                         />
                       </View>
                       <Text className="bdg-bar-meta">
-                        {Math.round(progress)}%　剩余 ¥{remaining.toFixed(0)}
+                        {Math.round(progress)}%　剩余 {formatMoney(remaining, { compact: true })}
                       </Text>
                     </>
                   ) : (
@@ -456,7 +454,7 @@ export default function BudgetsPage() {
               <View className="bgds-cell">
                 <Text className="bgds-cell__label">已使用</Text>
                 <Text className="bgds-cell__value">
-                  ¥{detailCat.spent.toLocaleString('zh-CN')}
+                  {formatMoney(detailCat.spent, { compact: true })}
                 </Text>
               </View>
 
@@ -464,7 +462,7 @@ export default function BudgetsPage() {
               <View className="bgds-cell">
                 <Text className="bgds-cell__label">预算</Text>
                 <Text className="bgds-cell__value">
-                  ¥{detailCat.budget.toLocaleString('zh-CN')}
+                  {formatMoney(detailCat.budget, { compact: true })}
                 </Text>
               </View>
 
@@ -472,7 +470,7 @@ export default function BudgetsPage() {
               <View className="bgds-cell">
                 <Text className="bgds-cell__label">剩余</Text>
                 <Text className="bgds-cell__value">
-                  ¥{detailCat.remaining.toLocaleString('zh-CN')}
+                  {formatMoney(detailCat.remaining, { compact: true })}
                 </Text>
               </View>
 

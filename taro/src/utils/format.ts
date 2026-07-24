@@ -2,11 +2,15 @@
  * 通用格式化工具
  */
 
-/** 金额简写（≥1万显示为 X.X万） */
+/**
+ * 金额数字简写（无货币符；≥1万 → X.X万）
+ * 需要带 ¥ 时优先用 formatMoney(v, { wan: true })。
+ */
 export function fmtAmount(v: number): string {
   const abs = Math.abs(v);
-  if (abs >= 10000)
+  if (abs >= 10000) {
     return (abs / 10000).toFixed(abs % 10000 === 0 ? 0 : 1) + "万";
+  }
   return abs.toLocaleString("zh-CN");
 }
 

@@ -24,7 +24,7 @@ import LocationField, {
   LocationResult,
 } from "../../components/form/LocationField";
 import ImageUpload from "../../components/form/ImageUpload";
-import { todayBeijing, toastSuccess, toastInfo } from "../../utils/format";
+import { todayBeijing, toastSuccess, toastInfo, formatMoney } from "../../utils/format";
 import "./index.scss";
 
 interface Template {
@@ -442,7 +442,7 @@ export default function AddTransaction() {
                   </View>
                   <View className="template-amount">
                     <Text className={template.type === "income" ? "income" : "expense"}>
-                      {template.type === "income" ? "+" : "-"}¥{Number(template.amount ?? 0).toFixed(2)}
+                      {formatMoney(Number(template.amount ?? 0), { compact: false, showSign: true, sign: template.type === "income" ? "+" : "-" })}
                     </Text>
                   </View>
                 </View>
