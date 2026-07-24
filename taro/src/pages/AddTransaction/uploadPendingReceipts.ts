@@ -1,10 +1,12 @@
 import Taro from "@tarojs/taro";
 import { uploadReceipt } from "../../services/transactionsApi";
+import {
+  emptyUploadPendingResult,
+  uploadImagesProgressTitle,
+  type UploadPendingResult,
+} from "../../utils/uploadReceipts";
 
-export interface UploadPendingResult {
-  uploadedUrls: string[];
-  failedCount: number;
-}
+export type { UploadPendingResult };
 
 /**
  * 串行上传本地待传图片，带进度 showLoading。
@@ -15,13 +17,13 @@ export async function uploadPendingReceipts(
   pendingPaths: string[],
 ): Promise<UploadPendingResult> {
   if (!transactionId || pendingPaths.length === 0) {
-    return { uploadedUrls: [], failedCount: 0 };
+    return emptyUploadPendingResult();
   }
 
   const uploadedUrls: string[] = [];
   let failedCount = 0;
 
-  Taro.showLoading({ title: `上传图片 0/${pendingPaths.length}...` });
+  Taro.showLoading({ title: uploadImagesProgressTitle(0, pendingPaths.length) });
   try {
     for (let i = 0; i < pendingPaths.length; i++) {
       const filePath = pendingPaths[i];
@@ -34,7 +36,7 @@ export async function uploadPendingReceipts(
           console.error("图片上传无返回 URL:", filePath);
         }
         Taro.showLoading({
-          title: `上传图片 ${i + 1}/${pendingPaths.length}...`,
+          title: uploadImagesProgressTitle(i + 1, pendingPaths.length),
         });
       } catch (err) {
         failedCount++;

@@ -2,10 +2,14 @@
  * useMonthSelector — 统一月份选择状态
  *
  * 返回 year/month 状态、dateRange、monthKey 等。
- * 在 Home/Transactions/Budgets 等页面使用。
+ * 纯计算见 shared-utils/monthState；端侧仅保留 useState。
  */
 import { useState, useMemo } from "react";
-import { monthDateRange, toMonthKey } from "../utils/month";
+import {
+  resolveYearMonth,
+  yearMonthDateRange,
+  yearMonthKey,
+} from "../utils/monthState";
 
 interface UseMonthSelectorOptions {
   /** 初始月份（默认当前月） */
@@ -14,15 +18,15 @@ interface UseMonthSelectorOptions {
 }
 
 export function useMonthSelector(options: UseMonthSelectorOptions = {}) {
-  const now = new Date();
-  const [year, setYear] = useState(options.initialYear ?? now.getFullYear());
-  const [month, setMonth] = useState(
-    options.initialMonth ?? now.getMonth() + 1,
-  );
+  const initial = resolveYearMonth({
+    initialYear: options.initialYear,
+    initialMonth: options.initialMonth,
+  });
+  const [year, setYear] = useState(initial.year);
+  const [month, setMonth] = useState(initial.month);
 
-  const dateRange = useMemo(() => monthDateRange(year, month), [year, month]);
-
-  const monthKey = useMemo(() => toMonthKey(year, month), [year, month]);
+  const dateRange = useMemo(() => yearMonthDateRange(year, month), [year, month]);
+  const monthKey = useMemo(() => yearMonthKey(year, month), [year, month]);
 
   return {
     year,

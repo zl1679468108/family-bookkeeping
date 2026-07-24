@@ -14,6 +14,7 @@ import { applyTemplateToTransactionForm } from '../../../utils/templatePayload'
 import { validateTransactionFormFields } from '../../../utils/validation'
 import { parseImageList } from '../../../utils/parseImageList'
 import { compressImage } from '../../../utils/imageCompress'
+import { mergeImageUrls, summarizeUploadResults } from '../../../utils/uploadReceipts'
 import type { LocationResult } from '@family-bookkeeping/shared-types'
 import type { Template } from '@family-bookkeeping/shared-types'
 import { useBook } from '../../../hooks/useBook'
@@ -211,8 +212,8 @@ export function useTransactionForm() {
     const results = await Promise.all(
       pendingImages.map((p) => uploadReceipt(transactionId, p.blob)),
     )
-    const newUrls = results.map((r) => r?.image_url).filter((url): url is string => Boolean(url))
-    return newUrls.length > 0 ? [...baseUrls, ...newUrls] : baseUrls
+    const { uploadedUrls } = summarizeUploadResults(results)
+    return mergeImageUrls(baseUrls, uploadedUrls)
   }
 
   type SubmitResult = 'updated' | 'created' | 'invalid'

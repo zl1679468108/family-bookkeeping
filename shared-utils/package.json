@@ -51,7 +51,10 @@
     "./rankProgress": "./src/rankProgress.ts",
     "./reportPeriod": "./src/reportPeriod.ts",
     "./imageSize": "./src/imageSize.ts",
-    "./sectionCopy": "./src/sectionCopy.ts"
+    "./sectionCopy": "./src/sectionCopy.ts",
+    "./memberPresence": "./src/memberPresence.ts",
+    "./uploadReceipts": "./src/uploadReceipts.ts",
+    "./monthState": "./src/monthState.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit"

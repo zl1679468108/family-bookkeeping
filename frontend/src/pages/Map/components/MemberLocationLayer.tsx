@@ -4,9 +4,7 @@ import { fetchMemberLocations } from '../../../services/mapApi';
 import type { MemberLocation } from '@family-bookkeeping/shared-types'
 import { getThemeColors } from '../../../utils/themeColors'
 import { queryKeys } from '../../../utils/queryKeys'
-
-/** 离线判定阈值：2 分钟 */
-const OFFLINE_THRESHOLD_MS = 120_000;
+import { isMemberOffline } from '../../../utils/memberPresence'
 
 interface MemberLocationLayerProps {
   /** 当前账本 ID，undefined 时不渲染任何内容 */
@@ -89,8 +87,7 @@ export const MemberLocationLayer: React.FC<MemberLocationLayerProps> = ({
     const newMarkers: any[] = [];
 
     for (const loc of locations) {
-      const elapsed = now - new Date(loc.updatedAt).getTime();
-      const isOffline = elapsed > OFFLINE_THRESHOLD_MS;
+      const isOffline = isMemberOffline(loc.updatedAt, now);
 
       const content = createBubbleContent(loc, isOffline);
 
