@@ -8,7 +8,7 @@
     "dev": "vite --host 127.0.0.1 --port 3001",
     "start": "vite --host 127.0.0.1 --port 3001",
     "build": "tsc && vite build",
-    "build:prod": "cross-env NODE_ENV=production tsc && vite build",
+    "build:prod": "tsc && vite build",
     "preview": "vite preview --host 127.0.0.1 --port 3002",
     "start:prod": "vite preview --host 127.0.0.1 --port 3002",
     "lint": "eslint src --ext .js,.jsx,.ts,.tsx",
