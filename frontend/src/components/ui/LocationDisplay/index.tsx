@@ -1,5 +1,6 @@
 import React from 'react'
 import { hasLocationValue, formatCoords } from '../../../utils/locationHelpers'
+import { ACTION_SELECT_LOCATION } from '../../../utils/actionCopy'
 import { cx } from '../../../utils/cx'
 
 interface LocationDisplayProps {
@@ -27,7 +28,7 @@ export const LocationDisplay: React.FC<LocationDisplayProps> = ({
     if (showButton && onClick) {
       return (
         <button className="loc-display-btn" onClick={onClick}>
-          选择地点
+          {ACTION_SELECT_LOCATION}
         </button>
       )
     }

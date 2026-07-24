@@ -10,7 +10,7 @@ import type { LocationResult as PickerResult } from "../../LocationPicker";
 import "./index.scss";
 import Icon, { ICON_COLOR } from "../../Icon";
 import { FORM_LOCATION_SELECTED } from "../../../utils/formCopy";
-import { ACTION_CLEAR_SELECTION } from "../../../utils/actionCopy";
+import { ACTION_CLEAR_SELECTION, ACTION_SELECT_LOCATION } from "../../../utils/actionCopy";
 import { hasLocationValue, formatCoords } from "../../../utils/locationHelpers";
 import { FIELD_LOCATION } from "../../../utils/fieldCopy";
 
@@ -97,7 +97,7 @@ export default function LocationField({ value, onChange }: LocationFieldProps) {
           <Text className="ft-field-label">位置</Text>
         </View>
         <View className="ft-field-right">
-          <Text className="ft-field-placeholder">选择地点</Text>
+          <Text className="ft-field-placeholder">{ACTION_SELECT_LOCATION}</Text>
           <Icon name="chevron-right" size={28} color={ICON_COLOR.muted} className="ft-field-arrow" />
         </View>
       </View>
