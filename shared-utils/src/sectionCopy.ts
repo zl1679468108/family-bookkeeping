@@ -87,3 +87,7 @@ export const ONBOARDING_CREATE_DESC = '新建一个空账本，开始记录收�
 export const ONBOARDING_JOIN_DESC = '输入他人分享的邀请码，加入已有账本'
 
 export const TITLE_EDIT_PROFILE = '编辑资料'
+
+/** 地图视图 */
+export const MAP_VIEW_FOOTPRINTS = '足迹'
+export const MAP_VIEW_HEATMAP = '热力图'

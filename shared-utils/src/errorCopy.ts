@@ -1,6 +1,7 @@
 /** 操作失败 / 业务错误高频文案 */
 
 export const ERROR_OP_FAILED = '操作失败'
+export const ERROR_UNKNOWN = '未知错误'
 export const ERROR_SAVE_FAILED = '保存失败'
 export const ERROR_SAVE_FAILED_RETRY = '保存失败，请重试'
 export const ERROR_CREATE_FAILED = '创建失败'

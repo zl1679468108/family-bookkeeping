@@ -6,6 +6,7 @@ import { SHOPPING_PLATFORM_ICONS } from './platformIcons'
  */
 
 export const UNKNOWN_CATEGORY_NAME = '未知'
+export const CATEGORY_FALLBACK_OTHER = '其他'
 export const DEFAULT_CATEGORY_ICON = '📌'
 
 export type CategoryLike = {

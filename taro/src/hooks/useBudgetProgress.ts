@@ -1,10 +1,10 @@
 /**
  * useBudgetProgress — 与 PC hooks/useBudgetProgress API 对齐
+ * 纯计算见 shared-utils selectBudgetProgressView
  */
 import { useMemo } from "react";
 import {
-  getBudgetVariant,
-  sortBudgetCategoriesByRisk,
+  selectBudgetProgressView,
   type BudgetCategoryLike,
   type BudgetVariant,
 } from "../utils/budget";
@@ -14,10 +14,8 @@ export function useBudgetProgress<T extends BudgetCategoryLike>(
   categories: T[] | undefined,
   topN = 4,
 ) {
-  const overallVariant: BudgetVariant = getBudgetVariant(overallProgress ?? 0);
-  const topCategories = useMemo(
-    () => (categories?.length ? sortBudgetCategoriesByRisk(categories, topN) : ([] as T[])),
-    [categories, topN],
-  );
-  return { overallVariant, topCategories };
+  return useMemo(
+    () => selectBudgetProgressView(overallProgress, categories, topN),
+    [overallProgress, categories, topN],
+  ) as { overallVariant: BudgetVariant; topCategories: T[] };
 }

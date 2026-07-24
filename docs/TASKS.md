@@ -111,6 +111,13 @@
 - `TITLE_DATA_ANALYSIS` / `TITLE_MEMBER_COMPARE` 报表 Tab
 - 验证：frontend / taro `tsc --noEmit`
 
+#### 2026-07-24 预算进度视图/频率/分类兜底 shared 化
+- `selectBudgetProgressView`：双端 `useBudgetProgress` 共用纯计算
+- `FREQUENCY_NONE` / `FREQUENCY_OPTIONS_WITH_NONE`；模板表单接线
+- `CATEGORY_FALLBACK_OTHER`、`ERROR_UNKNOWN`、地图视图标签、日历班休后缀
+- Taro `renderCategoryIcon` 统一 `isIconUrl`
+- 验证：frontend / taro `tsc --noEmit`
+
 #### 2026-07-24 网络错误/预算标签/主题与资料文案 shared 化
 - API：`ERROR_REQUEST_FAILED` / `ERROR_NETWORK*` / 冷启动超时；PC+Taro `services/api.ts` 接线
 - 预算：`BUDGET_LABEL_OVER|REMAINING|OVER_BANG`；Dashboard / RankList 接线

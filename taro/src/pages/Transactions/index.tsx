@@ -29,6 +29,7 @@ import {
   sortedTransactionDateKeys,
   formatTransactionDateLabel,
 } from "../../utils/transactionList";
+import { CATEGORY_FALLBACK_OTHER } from "../../utils/categories";
 
 const FILTER_OPTIONS = [...TRANSACTION_TYPE_FILTER_LABELS];
 const TIME_OPTIONS = [...TRANSACTION_TIME_FILTER_LABELS];
@@ -295,7 +296,7 @@ export default function Transactions() {
                     <Text className="date-label">{formatTransactionDateLabel(date)}</Text>
                   </View>
                   {groupedTxns[date].map((t: any) => {
-                    const catName = getCategoryName(t.category) || "其他";
+                    const catName = getCategoryName(t.category) || CATEGORY_FALLBACK_OTHER;
                     const catIcon = getCategoryIcon(t.category) || "📌";
 
                     return (

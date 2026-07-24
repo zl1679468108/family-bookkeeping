@@ -216,3 +216,19 @@ export function buildSingleBudgetItem(
 ): BudgetUpsertItem {
   return { category: categoryId, amount: parseNonNegativeAmount(amount) }
 }
+
+/** 预算进度视图：整体变体 + 风险优先 topN（hooks 共用） */
+export function selectBudgetProgressView<
+  T extends BudgetCategoryLike,
+>(
+  overallProgress: number | undefined,
+  categories: T[] | undefined,
+  topN = 4,
+): { overallVariant: BudgetVariant; topCategories: T[] } {
+  return {
+    overallVariant: getBudgetVariant(overallProgress ?? 0),
+    topCategories: categories?.length
+      ? sortBudgetCategoriesByRisk(categories, topN)
+      : ([] as T[]),
+  }
+}

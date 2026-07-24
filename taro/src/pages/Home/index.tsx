@@ -26,6 +26,7 @@ import { ACTION_LOADING, ACTION_VIEW_ALL, ACTION_GO_SET_BUDGET } from "../../uti
 import { EMPTY_TRANSACTIONS_HOME, EMPTY_NO_BUDGET } from "../../utils/emptyCopy";
 import { TITLE_RECENT_TXN_MONTH, TITLE_BUDGET_MONTH } from "../../utils/sectionCopy";
 import { FIELD_MONTH_BALANCE, FIELD_MONTH_INCOME, FIELD_MONTH_EXPENSE } from "../../utils/fieldCopy"
+import { CATEGORY_FALLBACK_OTHER } from "../../utils/categories"
 
 interface BudgetStatus {
   category_id: string;
@@ -172,7 +173,7 @@ export default function Home() {
         ) : (
           <View className="home-txn-list">
             {txn.map((t: any) => {
-              const catName = getCategoryName(t.category) || "其他";
+              const catName = getCategoryName(t.category) || CATEGORY_FALLBACK_OTHER;
               const catIcon = getCategoryIcon(t.category) || "";
               const isExpense = t.type === "expense";
               return (

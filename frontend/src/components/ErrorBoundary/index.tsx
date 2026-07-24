@@ -1,5 +1,6 @@
 import React from 'react';
 import { Button } from '../ui/Button';
+import { ERROR_UNKNOWN } from '../../utils/errorCopy';
 
 interface Props {
   children: React.ReactNode;
@@ -53,7 +54,7 @@ export class ErrorBoundary extends React.Component<Props, State> {
             页面出错了
           </h2>
           <p style={{ color: 'var(--fg3)', marginBottom: '16px' }}>
-            {this.state.error?.message || '未知错误'}
+            {this.state.error?.message || ERROR_UNKNOWN}
           </p>
           <Button
             type="button"

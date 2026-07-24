@@ -7,7 +7,7 @@ import { DropdownSelect } from '../../../components/ui/Dropdown'
 import { LocationDisplay } from '../../../components/ui/LocationDisplay'
 import { LocationPicker } from '../../AddTransaction/components/LocationPicker'
 import type { LocationResult } from '@family-bookkeeping/shared-types'
-import { FREQUENCY_OPTIONS } from '../../../utils/frequency'
+import { FREQUENCY_OPTIONS_WITH_NONE } from '../../../utils/frequency'
 import { TRANSACTION_TYPE_OPTIONS } from '../../../utils/transactionType'
 import {  busyLabel, ACTION_SAVING, ACTION_CANCEL, updateOrCreateLabel } from '../../../utils/actionCopy'
 import { entityFormTitle, ENTITY_TEMPLATE } from '../../../utils/entityCopy'
@@ -153,7 +153,7 @@ export const TemplateFormModal: React.FC<TemplateFormProps> = ({
                 label={FIELD_FREQUENCY}
                 value={form.frequency || ''}
                 onChange={(v) => setForm((prev: any) => ({ ...prev, frequency: v || undefined }))}
-                options={[{ key: '', label: '不重复' }, ...FREQUENCY_OPTIONS]}
+                options={[...FREQUENCY_OPTIONS_WITH_NONE]}
                 placeholder={FORM_SELECT_FREQUENCY}
               />
             </div>

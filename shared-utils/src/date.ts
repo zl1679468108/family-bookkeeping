@@ -118,3 +118,10 @@ export function formatDateTimeMinute(input: string | Date | null | undefined): s
 export const fmtDate = (d: Date): string => formatDateYMD(d)
 export const fmtFriendlyDate = (ds: string): string => formatFriendlyDate(ds)
 
+/** 日历：调休上班 / 放假 */
+export const HOLIDAY_WORK_SUFFIX = '（班）'
+export const HOLIDAY_REST_SUFFIX = '（休）'
+
+export function holidayWorkRestSuffix(isWork: boolean): string {
+  return isWork ? HOLIDAY_WORK_SUFFIX : HOLIDAY_REST_SUFFIX
+}

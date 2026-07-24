@@ -22,7 +22,10 @@ import { queryKeys } from '../../utils/queryKeys';
 import { STALE } from '../../utils/cachePolicy';
 import { FILTER_ALL_CATEGORIES, FILTER_VIEW, FILTER_ALL_MEMBERS, FILTER_ALL } from '../../utils/transactionType'
 import { ACTION_LOADING } from '../../utils/actionCopy';
-import { TITLE_MERCHANT_FOOTPRINT } from '../../utils/sectionCopy'
+import { TITLE_MERCHANT_FOOTPRINT,
+  MAP_VIEW_FOOTPRINTS,
+  MAP_VIEW_HEATMAP,
+} from '../../utils/sectionCopy'
 import { FORM_SELECT_MONTH, FORM_SEARCH_MONTH } from '../../utils/formCopy'
 import { FIELD_TYPE, FIELD_CATEGORY, FIELD_VIEW, FIELD_MEMBER, FIELD_MONTH } from '../../utils/fieldCopy'
 
@@ -147,8 +150,8 @@ const MapPage: React.FC = () => {
 
   // 视图选项
   const viewOptions: DropdownOption[] = [
-    { key: 'footprints', label: '足迹', icon: '👣' },
-    { key: 'heatmap', label: '热力图', icon: '🔥' },
+    { key: 'footprints', label: MAP_VIEW_FOOTPRINTS, icon: '👣' },
+    { key: 'heatmap', label: MAP_VIEW_HEATMAP, icon: '🔥' },
   ];
 
   // ---- 汇总统计 ----

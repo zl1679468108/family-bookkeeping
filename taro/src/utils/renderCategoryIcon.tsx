@@ -14,6 +14,7 @@ import { renderBookIconSvg, isBookIconKey } from "./bookIcons";
 import {
   renderPlatformIconSvg,
   isPlatformIcon,
+  isIconUrl,
 } from "./platformIcons";
 
 interface RenderCategoryIconOptions {
@@ -34,7 +35,7 @@ export const renderCategoryIcon = (
   const { size = 24, className = "", fontScale = 1 } = options;
 
   // 1. URL → <Image>
-  if (icon.startsWith("http://") || icon.startsWith("https://")) {
+  if (isIconUrl(icon)) {
     return (
       <Image
         src={icon}

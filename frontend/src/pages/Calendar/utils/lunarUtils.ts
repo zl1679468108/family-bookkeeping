@@ -4,6 +4,7 @@ import {
 } from '../../../utils/month'
 
 import { Solar, HolidayUtil } from 'lunar-javascript';
+import { holidayWorkRestSuffix } from '../../../utils/date';
 
 export interface LunarInfo {
   lunarMonth: string;
@@ -40,12 +41,12 @@ export const getLunarInfo = (dateStr: string): LunarInfo => {
   if (isFestivalDay) {
     subText = (lunarFestivals[0] || solarFestivals[0]);
   } else if (holiday) {
-    subText = holiday.getName() + (holiday.isWork() ? '（班）' : '（休）');
+    subText = holiday.getName() + holidayWorkRestSuffix(holiday.isWork());
   }
 
   let holidayInfo = '';
   if (holiday) {
-    holidayInfo = holiday.getName() + (holiday.isWork() ? '（班）' : '（休）');
+    holidayInfo = holiday.getName() + holidayWorkRestSuffix(holiday.isWork());
   }
 
   return {

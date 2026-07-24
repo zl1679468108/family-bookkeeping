@@ -7,6 +7,9 @@ export const FREQUENCY_LABELS: Record<string, string> = {
   yearly: '每年',
 }
 
+/** 非周期 / 不重复 */
+export const FREQUENCY_NONE = '不重复'
+
 export const FREQUENCY_OPTIONS = [
   { key: 'daily', label: '每天' },
   { key: 'weekly', label: '每周' },
@@ -19,3 +22,9 @@ export function formatFrequency(freq?: string | null): string {
   if (!freq) return ''
   return FREQUENCY_LABELS[freq] || freq
 }
+
+/** 含「不重复」的下拉选项（key 空串表示无频率） */
+export const FREQUENCY_OPTIONS_WITH_NONE: ReadonlyArray<{ key: string; label: string }> = [
+  { key: '', label: FREQUENCY_NONE },
+  ...FREQUENCY_OPTIONS,
+]
