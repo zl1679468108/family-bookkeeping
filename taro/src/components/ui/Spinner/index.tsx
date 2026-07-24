@@ -6,6 +6,7 @@
  */
 import { View } from "@tarojs/components";
 import "./index.scss";
+import { cx } from "../../../utils/cx";
 
 export interface SpinnerProps {
   size?: "sm" | "md";
@@ -13,5 +14,5 @@ export interface SpinnerProps {
 }
 
 export default function Spinner({ size = "sm", className = "" }: SpinnerProps) {
-  return <View className={`ui-spin ui-spin--${size} ${className}`.trim()} />;
+  return <View className={cx("ui-spin", `ui-spin--${size}`, className)} />;
 }

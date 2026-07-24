@@ -160,6 +160,16 @@ export function formatAmount(amount: number | string, showSign = false, sign: '+
   return formatMoney(amount, { showSign, sign })
 }
 
+/** 进度行金额对：`1,234.00 / 5,000.00` */
+export function formatAmountPair(
+  amount: number,
+  totalAmount: number,
+  format: (n: number) => string = formatAmount,
+): string {
+  return `${format(amount)} / ${format(totalAmount)}`
+}
+
+
 export function formatAmountWithType(amount: number | string, isIncome: boolean): string {
   return formatMoney(amount, { showSign: true, sign: isIncome ? '+' : '-' })
 }

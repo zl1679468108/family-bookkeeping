@@ -5,6 +5,7 @@ export {
   formatAmount,
   formatAmountWithType,
   formatAmountByType,
+  formatAmountPair,
   formatMoney,
   formatMoneyByType,
 } from './budget'

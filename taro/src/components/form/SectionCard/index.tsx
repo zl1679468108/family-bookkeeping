@@ -5,6 +5,7 @@
 import { ReactNode } from "react";
 import { View } from "@tarojs/components";
 import "./index.scss";
+import { cx } from "../../../utils/cx";
 
 export interface SectionCardProps {
   children: ReactNode;
@@ -18,7 +19,7 @@ export default function SectionCard({
   className = "",
 }: SectionCardProps) {
   return (
-    <View className={`ft-section ${className}`}>
+    <View className={cx("ft-section", className)}>
       {title ? <View className="ft-section-title">{title}</View> : null}
       {children}
     </View>

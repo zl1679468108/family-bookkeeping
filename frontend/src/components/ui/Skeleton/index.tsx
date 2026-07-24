@@ -1,4 +1,5 @@
 import React from 'react'
+import { cx } from '../../../utils/cx'
 
 /**
  * 通用骨架屏组件
@@ -21,7 +22,7 @@ export const Skeleton: React.FC<SkeletonProps> = ({
   style,
 }) => (
   <div
-    className={`skeleton-shimmer ${className}`.trim()}
+    className={cx('skeleton-shimmer', className)}
     style={{
       width: typeof width === 'number' ? `${width}px` : width,
       height: typeof height === 'number' ? `${height}px` : height,

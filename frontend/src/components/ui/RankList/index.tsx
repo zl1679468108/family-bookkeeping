@@ -1,5 +1,6 @@
 import * as React from 'react'
-import { formatAmount } from '../../../utils/common'
+import { cx } from '../../../utils/cx'
+import { formatAmount, formatAmountPair } from '../../../utils/common'
 import { resolveRankProgress, clampPercent, rankFillTone } from '../../../utils/rankProgress'
 import { BUDGET_LABEL_OVER_BANG } from '../../../utils/budget'
 
@@ -47,7 +48,7 @@ export const RankRow: React.FC<RankRowItem> = ({
         {amount !== undefined && (
           <span className="rank-row__amount">
             {totalAmount !== undefined
-              ? `${formatAmount(amount)} / ${formatAmount(totalAmount)}`
+              ? `${formatAmountPair(amount, totalAmount)}`
               : formatAmount(amount)}
           </span>
         )}
