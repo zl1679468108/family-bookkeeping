@@ -85,6 +85,11 @@
 
 ### ✅ 已完成
 
+#### 2026-07-24 选点/Toast/模板标签等 class shared 化
+- locationPicker / toastUi / monthPicker / segmented / bottomSheet
+- typeTag：分类详情与模板类型/金额标签；TemplateManager 接线
+- 验证：frontend / taro `tsc --noEmit`
+
 #### 2026-07-24 页面展示 class 与 Taro 壳组件 shared 化
 - timeline / transactionDisplay / budgetDisplay / listCard：About、Dashboard、流水、预算卡、list-card
 - tabBar / progressBar / dragSortList / pageLayout / Rank fill·amount；Taro Home/TransactionItem 接线

@@ -4,6 +4,7 @@
  */
 import { useEffect, useRef, useState } from "react";
 import { View, Text } from "@tarojs/components";
+import { buildToastContentClassName } from "../../utils/toastUi";
 
 export interface ToastProps {
   visible: boolean;
@@ -52,7 +53,7 @@ export default function Toast({
       className="toast-overlay fixed inset-x-0 z-100 flex justify-center"
       style={{ top: "30%" }}
     >
-      <View className={`toast-content ${animating ? "toast-show" : ""}`}>
+      <View className={buildToastContentClassName({ animating })}>
         <Text className="toast-message">{message}</Text>
       </View>
     </View>

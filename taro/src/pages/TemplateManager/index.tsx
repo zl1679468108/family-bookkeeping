@@ -60,6 +60,10 @@ import { FORM_TEMPLATE_NAME_EXAMPLE, FORM_AMOUNT_PLACEHOLDER, FORM_NOTE_OPTIONAL
 import { FIELD_NOTE, FIELD_LOCATION, FIELD_ADDRESS, FIELD_MERCHANT_ID, FIELD_MERCHANT_NAME, FIELD_BOOK_ID, FIELD_SORT, FIELD_CYCLE, FIELD_START_DATE, FIELD_END_DATE, FIELD_LAST_EXECUTED, FIELD_NEXT_EXECUTED, FIELD_CREATED_AT, FIELD_TEMPLATE_NAME, FIELD_TYPE, FIELD_CATEGORY, FIELD_AMOUNT, FIELD_LOCATION_INFO, sortOrderLabel, merchantIdDisplay } from "../../utils/fieldCopy";
 import { TITLE_SELECT_LOCATION } from "../../utils/sectionCopy"
 import { queryKeys } from "../../utils/queryKeys"
+import {
+  buildTemplateCardTypeClassName,
+  buildTemplateCardAmountClassName,
+} from "../../utils/typeTag";
 
 /* ---------- 空表单初始态 ---------- */
 
@@ -313,14 +317,14 @@ export default function TemplateManager() {
                     <Text className="tpl-card__drag-handle">⋮⋮</Text>
                   </View>
                   <View className="tpl-card__body">
-                    <View className={`tpl-card__type tpl-card__type--${t.type}`}>
+                    <View className={buildTemplateCardTypeClassName({ type: t.type })}>
                       <Text>{transactionTypeLabel(t.type)}</Text>
                     </View>
                     {cat && (
                       <Text className="tpl-card__cat">{cat.name}</Text>
                     )}
                     {t.amount != null && t.amount > 0 && (
-                      <Text className={`tpl-card__amount tpl-card__amount--${t.type}`}>
+                      <Text className={buildTemplateCardAmountClassName({ type: t.type })}>
                         {formatMoney(Number(t.amount), { compact: false })}
                       </Text>
                     )}
@@ -347,14 +351,14 @@ export default function TemplateManager() {
                   </View>
                   {/* 卡片内容：类型标签 + 分类 + 金额 */}
                   <View className="tpl-card__body">
-                    <View className={`tpl-card__type tpl-card__type--${t.type}`}>
+                    <View className={buildTemplateCardTypeClassName({ type: t.type })}>
                       <Text>{transactionTypeLabel(t.type)}</Text>
                     </View>
                     {cat && (
                       <Text className="tpl-card__cat">{cat.name}</Text>
                     )}
                     {t.amount != null && t.amount > 0 && (
-                      <Text className={`tpl-card__amount tpl-card__amount--${t.type}`}>
+                      <Text className={buildTemplateCardAmountClassName({ type: t.type })}>
                         {formatMoney(Number(t.amount), { compact: false })}
                       </Text>
                     )}

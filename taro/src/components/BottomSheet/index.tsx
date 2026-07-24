@@ -4,6 +4,7 @@ import SheetHeader from "../SheetHeader";
 import Spinner from "../ui/Spinner";
 import "./index.scss";
 import { ACTION_LOADING } from "../../utils/actionCopy";
+import { buildBottomSheetBodyClassName } from "../../utils/bottomSheet";
 
 export interface BottomSheetProps {
   /** 是否显示（可选：父组件通常用 {cond && <BottomSheet/>} 控制挂载，传 false 也可强制隐藏） */
@@ -60,7 +61,7 @@ export default function BottomSheet({
             <Text className="bs-sheet__loading-text">{loadingText}</Text>
           </View>
         ) : (
-          <View className={`bs-sheet__body ${bodyClassName || ""}`}>{children}</View>
+          <View className={buildBottomSheetBodyClassName({ className: bodyClassName || "" })}>{children}</View>
         )}
         {footer !== null && footer !== undefined && (
           <View className="bs-sheet__footer">{footer}</View>

@@ -10,6 +10,10 @@ import { formatDateTimeMinute } from '../../../utils/date'
 import { DETAIL_TEMPLATE } from '../../../utils/entityCopy'
 import { FIELD_NOTE, FIELD_LOCATION, FIELD_SORT, FIELD_START_DATE, sortOrderLabel, FIELD_MERCHANT, FIELD_CYCLE, FIELD_END_DATE, FIELD_LAST_EXECUTED, FIELD_NEXT_EXECUTED, FIELD_CREATED_AT } from '../../../utils/fieldCopy'
 import { ACTION_DELETE, ACTION_EDIT, ACTION_COPY } from '../../../utils/actionCopy'
+import {
+  buildTemplateTypeTagClassName,
+  buildTemplateAmountTagClassName,
+} from '../../../utils/typeTag'
 
 interface TemplateDetailModalProps {
   template: any
@@ -55,11 +59,11 @@ export const TemplateDetailModal: React.FC<TemplateDetailModalProps> = ({
         <div className="detail-content">
           <div className="detail-title">{template.name}</div>
           <div className="detail-subtitle">
-            <span className={`tpl-tag tpl-tag-type tpl-tag-${template.type}`}>
+            <span className={buildTemplateTypeTagClassName({ type: template.type })}>
               {transactionTypeLabel(template.type)}
             </span>
             {template.amount && (
-              <span className={`tpl-tag tpl-tag-amount tpl-tag-${template.type}`}>
+              <span className={buildTemplateAmountTagClassName({ type: template.type })}>
                 {formatMoney(template.amount)}
               </span>
             )}

@@ -1,5 +1,6 @@
 import { View, Text } from "@tarojs/components";
 import "./index.scss";
+import { buildSegmentedItemClassName } from "../../utils/segmented";
 
 interface SegmentedControlProps {
   options: string[];
@@ -17,7 +18,7 @@ export default function SegmentedControl({
       {options.map((opt, i) => (
         <Text
           key={i}
-          className={`segmented-item ${i === value ? "segmented-item-active" : ""}`}
+          className={buildSegmentedItemClassName({ active: i === value })}
           onClick={() => onChange(i)}
         >
           {opt}

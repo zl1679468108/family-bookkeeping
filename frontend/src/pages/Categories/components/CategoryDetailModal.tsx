@@ -8,6 +8,10 @@ import { formatDateTimeMinute } from '../../../utils/date'
 import { DETAIL_CATEGORY } from '../../../utils/entityCopy'
 import { FIELD_SORT, sortOrderLabel, FIELD_CATEGORY_ID, FIELD_CREATED_AT, FIELD_UPDATED_AT, FIELD_DEFAULT, FIELD_CUSTOM } from '../../../utils/fieldCopy'
 import { ACTION_EDIT, ACTION_DELETE } from '../../../utils/actionCopy'
+import {
+  buildDetailTypeTagClassName,
+  buildDetailDefaultTagClassName,
+} from '../../../utils/typeTag'
 
 interface CategoryDetailModalProps {
   selectedCategory: Category | null
@@ -59,10 +63,10 @@ export const CategoryDetailModal: React.FC<CategoryDetailModalProps> = ({
         <div className="detail-content">
           <div className="detail-title">{selectedCategory.name}</div>
           <div className="detail-tags">
-            <span className={`detail-tag ${selectedCategory.type === 'expense' ? 'type-expense' : 'type-income'}`}>
+            <span className={buildDetailTypeTagClassName({ type: selectedCategory.type })}>
               {transactionTypeLabel(selectedCategory.type)}
             </span>
-            <span className={`detail-tag ${selectedCategory.is_default ? 'tag-default' : 'tag-custom'}`}>
+            <span className={buildDetailDefaultTagClassName({ isDefault: selectedCategory.is_default })}>
               {selectedCategory.is_default ? FIELD_DEFAULT : FIELD_CUSTOM}
             </span>
           </div>

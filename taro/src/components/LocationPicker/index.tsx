@@ -21,6 +21,10 @@ import { FORM_PRIVACY_LOCATION, FORM_LOCATION_REQUIRED, FORM_LOCATION_UNAVAILABL
 import { TITLE_SELECT_LOCATION } from "../../utils/sectionCopy";
 import { ACTION_SEARCHING_ELLIPSIS, ACTION_LOCATING, ACTION_LOCATE, ACTION_GO_SETTINGS, ACTION_DECLINE } from "../../utils/actionCopy";
 import { EMPTY_SEARCH_RESULTS } from "../../utils/emptyCopy";
+import {
+  buildLocateBtnClassName,
+  buildAccuracyClassName,
+} from "../../utils/locationPicker";
 
 export interface LocationResult {
   latitude: number;
@@ -290,7 +294,7 @@ export default function LocationPicker({
             onInput={(e: any) => setSearchText(e.detail.value)}
           />
           <Text
-            className={`lp-locate ${locating ? "lp-locate--loading" : ""}`}
+            className={buildLocateBtnClassName({ loading: locating })}
             onClick={handleLocate}
           >
             {locating ? ACTION_LOCATING : ACTION_LOCATE}
@@ -384,7 +388,7 @@ export default function LocationPicker({
 
         {/* 定位精度提示 */}
         {locAccuracy != null && (
-          <View className={`lp-accuracy ${locAccuracy > 100 ? "lp-accuracy--low" : ""}`}>
+          <View className={buildAccuracyClassName({ low: locAccuracy > 100 })}>
             {formLocationAccuracyHint(locAccuracy, locAccuracy > 100)}
           </View>
         )}
