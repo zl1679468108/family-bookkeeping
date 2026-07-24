@@ -1,28 +1,16 @@
+import { formatMoney } from './budget'
+
+/**
+ * 金额展示（固定 2 位小数）— 兼容旧调用。
+ * 新代码优先用 formatMoney；需要 +/- 前缀用 formatAmountWithType。
+ */
 export function formatAmount(amount: number | string, showSign = false, sign: '+' | '-' = '+'): string {
-  const num = typeof amount === 'string' ? parseFloat(amount) : amount
-
-  if (Number.isNaN(num)) {
-    return '¥ 0.00'
-  }
-
-  const formatted = num.toLocaleString('zh-CN', {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2
-  })
-
-  if (showSign) {
-    return `${sign}¥ ${formatted}`
-  }
-
-  return `¥ ${formatted}`
+  return formatMoney(amount, { showSign, sign })
 }
 
 export function formatAmountWithType(amount: number | string, isIncome: boolean): string {
-  const sign = isIncome ? '+' : '-'
-  return formatAmount(amount, true, sign as '+' | '-')
+  return formatMoney(amount, { showSign: true, sign: isIncome ? '+' : '-' })
 }
-
-
 // 预算语义（进度阈值 / 金额）— 详见 ./budget
 export {
   getBudgetVariant,

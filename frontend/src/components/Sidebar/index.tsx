@@ -11,6 +11,7 @@ import { format, startOfMonth } from 'date-fns'
 import { useDebouncedAction } from '../../hooks/useDebouncedAction'
 import './index.scss'
 import { queryKeys } from '../../utils/queryKeys'
+import { prefetchRoute as prefetchBookRoute } from '../../utils/prefetchRoute'
 import { STALE } from '../../utils/cachePolicy'
 
 // SVG 图标组件 - 直接定义SVG元素，与设计稿一致
@@ -184,6 +185,12 @@ export const Sidebar: React.FC = () => {
     enabled: !collapsed && hasBooks && !!bookId,
     staleTime: STALE.budgets,
   })
+
+  const prefetchRoute = (path: string) => {
+    if (!bookId || !hasBooks) return
+    prefetchBookRoute(path, bookId)
+  }
+
   const overBudgetCount = budgetStatus?.categories?.filter(c => c.status === 'over').length || 0
 
   return (
@@ -213,6 +220,8 @@ export const Sidebar: React.FC = () => {
           <button key={item.id}
             className={`sidebar-nav-item${activeId === item.id ? ' active' : ''}${item.type === 'add' ? ' sidebar-nav-item--add' : ''}`}
             onClick={() => navigate(item.path)}
+            onMouseEnter={() => prefetchRoute(item.path)}
+            onFocus={() => prefetchRoute(item.path)}
             title={collapsed ? item.name : undefined}>
             <span className="sidebar-nav-icon">
               {Icons[item.id as keyof typeof Icons]}

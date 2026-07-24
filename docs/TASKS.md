@@ -85,6 +85,12 @@
 
 ### ✅ 已完成
 
+#### 2026-07-24 KeepAlive / 预取 / 金额格式复用
+- 接入 `KeepAliveHost`：地图/日历访问后隐藏保留；`key={userId}` 切账号卸载；配套 SCSS。
+- 抽取 `utils/prefetchRoute.ts`：侧栏 hover/focus 统一 query 预取 + 页面 chunk 预加载。
+- `formatAmount`/`formatAmountWithType` 薄封装 `formatMoney`，单一金额格式实现。
+- 记一笔保存成功清除草稿；frontend `tsc --noEmit` 通过。
+
 #### 2026-07-24 React Query 缓存复用：queryKeys / cachePolicy / queryClient
 - 新增 `utils/queryKeys.ts`：全站 key 工厂 + book 维度隔离 + `BOOK_SCOPED`/`USER_SCOPED`/`TRANSACTION_IMPACT` 根 key 与 invalidate/remove 助手。
 - 新增 `cachePolicy.ts`（STALE/GC）、`queryClient.ts` 单例；`main.tsx` 共用。

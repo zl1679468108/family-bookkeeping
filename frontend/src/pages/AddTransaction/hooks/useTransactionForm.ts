@@ -249,6 +249,7 @@ export function useTransactionForm() {
         }
 
         invalidateQueryRoots(queryClient, TRANSACTION_IMPACT_ROOT_KEYS)
+        if (bookId) clearAddTransactionDraft(bookId)
         notifySuccess('交易已更新')
       } else {
         const result = await createMutation.mutateAsync()
@@ -266,6 +267,7 @@ export function useTransactionForm() {
         }
 
         invalidateQueryRoots(queryClient, TRANSACTION_IMPACT_ROOT_KEYS)
+        if (bookId) clearAddTransactionDraft(bookId)
         notifySuccess('交易已保存')
       }
       handleReset()

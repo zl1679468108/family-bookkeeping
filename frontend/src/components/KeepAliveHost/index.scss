@@ -1,0 +1,13 @@
+/* 路由级 KeepAlive：隐藏时不占流，激活时撑满主内容区 */
+.keep-alive-page {
+  width: 100%;
+}
+
+.keep-alive-page--hidden {
+  display: none !important;
+}
+
+.keep-alive-page--active {
+  display: block;
+  min-height: calc(100vh - 40px);
+}
