@@ -36,7 +36,7 @@ import {
   confirmDeleteBook,
   confirmRemoveMember,
 } from "../../utils/confirmCopy";
-import { FORM_EMAIL_REQUIRED, FORM_PEER_EMAIL_PLACEHOLDER } from "../../utils/formCopy";
+import { FORM_ALREADY_CURRENT_BOOK, FORM_EMAIL_REQUIRED, FORM_INVITE_CODE_MIN, FORM_PEER_EMAIL_PLACEHOLDER } from "../../utils/formCopy";
 import {
   SUCCESS_JOINED,
   SUCCESS_INVITE_SENT,
@@ -47,6 +47,8 @@ import {
   successSwitchedBook,
 } from "../../utils/successCopy";
 import { copyToClipboard } from "../../utils/clipboard";
+import { entityCreateButton } from "../../utils/entityCopy";
+import { DELETE_FAILED } from "../../utils/uploadCopy";
 
 type BookRow = Book & { is_default?: boolean };
 
@@ -90,7 +92,7 @@ export default function BooksPage() {
   const handleJoinSubmit = () => {
     const code = joinCode.trim();
     if (code.length < 4) {
-      toastInfo("邀请码至少需要4位");
+      toastInfo(FORM_INVITE_CODE_MIN);
       return;
     }
     run(async () => {
@@ -245,7 +247,7 @@ export default function BooksPage() {
       closeDetail();
       refetch();
     }, ACTION_DELETING).catch((err: any) => {
-      toastError(err, "删除失败");
+      toastError(err, DELETE_FAILED);
       setDeletingBook(null);
     });
   };
@@ -269,7 +271,7 @@ export default function BooksPage() {
   // --- 切换 / 新建 ---
   const handleSwitch = (book: BookRow) => {
     if (currentBook && String(currentBook.id) === String(book.id)) {
-      toastInfo("当前已是该账本");
+      toastInfo(FORM_ALREADY_CURRENT_BOOK);
       return;
     }
     switchBook(book);
@@ -319,7 +321,7 @@ export default function BooksPage() {
             使用邀请码加入
           </Button>
           <Button variant="primary" size="sm" onClick={handleAdd}>
-            + 新建账本
+            {entityCreateButton("账本", "+")}
           </Button>
         </View>
       </View>

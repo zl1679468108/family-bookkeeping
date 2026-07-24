@@ -38,6 +38,7 @@ import {
 } from "../../utils/confirmCopy";
 import { successEntityDeleted, successTemplateApplied, successTransactionSaved } from "../../utils/successCopy";
 import { FORM_AMOUNT_INVALID, FORM_CATEGORY_REQUIRED } from "../../utils/formCopy";
+import { MAX_RECEIPT_IMAGES, DELETE_FAILED } from "../../utils/uploadCopy";
 
 interface Template {
   id: string;
@@ -56,7 +57,7 @@ interface Template {
 }
 
 const MAX_NOTE_LENGTH = 500;
-const MAX_IMAGES = 10; // 与 PC 端记一笔保持一致
+const MAX_IMAGES = MAX_RECEIPT_IMAGES; // 与 PC 端记一笔保持一致
 
 export default function AddTransaction() {
   const router = Taro.useRouter();
@@ -208,7 +209,7 @@ export default function AddTransaction() {
             setTimeout(() => Taro.navigateBack(), 500);
           } catch {
             Taro.hideLoading();
-            toastInfo("删除失败");
+            toastInfo(DELETE_FAILED);
           }
         }
       },

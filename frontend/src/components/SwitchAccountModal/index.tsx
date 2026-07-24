@@ -20,6 +20,7 @@ import { FooterActions } from '../ui/FooterActions'
 import { notifySuccess, notifyInfo } from '../../utils/notifyError'
 import { userDisplayName, userInitial } from '../../utils/userDisplay'
 import { SUCCESS_ACCOUNT_SWITCHED } from '../../utils/successCopy'
+import { FORM_ALREADY_CURRENT_ACCOUNT } from '../../utils/formCopy'
 
 interface SwitchAccountModalProps {
   visible: boolean
@@ -37,7 +38,7 @@ const SwitchAccountModal: React.FC<SwitchAccountModalProps> = ({ visible, onClos
   const { run: handleSwitch, isRunning: switchLoading } = useDebouncedAction(
     async (account: SavedAccount) => {
       if (account.email === accounts.find(a => a.email === user?.email)?.email) {
-        notifyInfo('当前已是该账号')
+        notifyInfo(FORM_ALREADY_CURRENT_ACCOUNT)
         return
       }
       setSwitchingEmail(account.email)

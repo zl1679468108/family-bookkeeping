@@ -54,6 +54,8 @@ import {
 import { SUCCESS_DELETED, SUCCESS_ICON_UPLOADED, successEntityUpsert } from "../../utils/successCopy";
 import { FORM_NAME_REQUIRED } from "../../utils/formCopy";
 import { emptyCategories } from "../../utils/emptyCopy";
+import { entityCreateButton } from "../../utils/entityCopy";
+import { UPLOAD_FAILED, DELETE_FAILED } from "../../utils/uploadCopy";
 
 /* ---------- 类型 ---------- */
 interface Category {
@@ -245,10 +247,10 @@ export default function CategoriesPage() {
         setCustomIcons(list || []);
         toastSuccess(SUCCESS_ICON_UPLOADED);
       } else {
-        toastInfo("上传失败");
+        toastInfo(UPLOAD_FAILED);
       }
     } catch {
-      toastInfo("上传失败");
+      toastInfo(UPLOAD_FAILED);
     }
   };
 
@@ -259,7 +261,7 @@ export default function CategoriesPage() {
       setCustomIcons(list || []);
       toastSuccess(SUCCESS_DELETED);
     } catch {
-      toastInfo("删除失败");
+      toastInfo(DELETE_FAILED);
     }
   };
 
@@ -314,7 +316,7 @@ export default function CategoriesPage() {
                 </Button>
               )}
               <Button variant="primary" size="sm" onClick={handleAdd}>
-                ＋ 新建分类
+                {entityCreateButton("分类")}
               </Button>
             </>
           )}
@@ -549,7 +551,7 @@ export default function CategoriesPage() {
             setDeletingCat(null);
             refetch();
           }, ACTION_DELETING).catch((err: any) => {
-            toastError(err, "删除失败");
+            toastError(err, DELETE_FAILED);
             setShowDeleteConfirm(false);
             setDeletingCat(null);
           });

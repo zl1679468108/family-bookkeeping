@@ -1,0 +1,19 @@
+/** 实体新建/编辑标题与按钮文案 — 与 PC 对齐 */
+
+export function entityCreateTitle(entity: string, verb = "新建"): string {
+  return `${verb}${entity}`;
+}
+
+export function entityEditTitle(entity: string): string {
+  return `编辑${entity}`;
+}
+
+/** 弹窗/页标题：编辑模板 / 新建模板 */
+export function entityFormTitle(entity: string, isEdit: boolean, createVerb = "新建"): string {
+  return isEdit ? entityEditTitle(entity) : entityCreateTitle(entity, createVerb);
+}
+
+/** 列表主操作：＋ 新建分类（小程序常用全角加号） */
+export function entityCreateButton(entity: string, plus = "＋"): string {
+  return `${plus} 新建${entity}`;
+}

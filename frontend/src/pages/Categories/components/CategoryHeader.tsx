@@ -5,6 +5,7 @@ import { CardHeader } from '../../../components/ui/Card'
 import { notifySuccess } from '../../../utils/notifyError'
 import { busyLabel, ACTION_SAVING } from '../../../utils/actionCopy'
 import { sortModeLabel, SORT_SAVED } from '../../../utils/sortCopy'
+import { entityCreateButton } from '../../../utils/entityCopy'
 
 interface CategoryHeaderProps {
   sortingMode: boolean
@@ -42,7 +43,7 @@ export const CategoryHeader: React.FC<CategoryHeaderProps> = ({
             {busyLabel(isSaving, ACTION_SAVING, sortModeLabel(sortingMode))}
           </Button>
           <Button variant="primary" size="sm" onClick={handleOpenAdd}>
-            + 新建分类
+            {entityCreateButton("分类")}
           </Button>
         </div>
       }

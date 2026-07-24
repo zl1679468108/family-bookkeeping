@@ -24,9 +24,10 @@ import {
 } from '../../../utils/addTransactionDraft'
 import { successTemplateApplied } from '../../../utils/successCopy'
 import { FORM_AMOUNT_INVALID, FORM_CATEGORY_REQUIRED } from '../../../utils/formCopy'
+import { maxImagesMessage, IMAGE_PROCESS_FAILED, MAX_RECEIPT_IMAGES } from '../../../utils/uploadCopy'
 
 export const MAX_NOTE_LENGTH = 500
-export const MAX_IMAGES = 10
+export const MAX_IMAGES = MAX_RECEIPT_IMAGES
 
 export interface PendingImage {
   localUrl: string
@@ -288,7 +289,7 @@ export function useTransactionForm() {
 
     const remaining = MAX_IMAGES - allImageUrls.length
     if (remaining <= 0) {
-      notifyError(`最多只能上传 ${MAX_IMAGES} 张图片`)
+      notifyError(maxImagesMessage(MAX_IMAGES))
       e.target.value = ''
       return
     }
@@ -304,7 +305,7 @@ export function useTransactionForm() {
       }
       setPendingImages((prev) => [...prev, ...newPending])
     } catch {
-      notifyError('图片处理失败')
+      notifyError(IMAGE_PROCESS_FAILED)
     }
     e.target.value = ''
   }

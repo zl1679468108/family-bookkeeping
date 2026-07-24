@@ -39,7 +39,7 @@ import {
 } from '../../utils/confirmCopy'
 import { formatMonthDisplay } from '../../utils/month'
 import { SUCCESS_BUDGET_SAVED, SUCCESS_BUDGET_DELETED } from '../../utils/successCopy'
-import { FORM_BUDGET_NONE } from '../../utils/formCopy'
+import { FORM_BUDGET_NONE, FORM_BUDGET_NO_LAST_MONTH } from '../../utils/formCopy'
 import { EMPTY_BUDGET_NO_EXPENSE_CATEGORIES } from '../../utils/emptyCopy'
 
 const progressFillClass = (variant: 'safe' | 'warn' | 'danger'): string => {
@@ -172,7 +172,7 @@ const Budgets: React.FC = () => {
     async () => {
       const result = await copyBudgets({ targetMonth: selectedMonth })
       if (!result || result.length === 0) {
-        notifyInfo('上月暂无预算可复制')
+        notifyInfo(FORM_BUDGET_NO_LAST_MONTH)
         return null
       }
       return result

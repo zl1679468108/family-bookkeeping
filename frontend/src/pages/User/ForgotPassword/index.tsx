@@ -129,7 +129,7 @@ const ForgotPassword: React.FC = () => {
             variant="primary"
             block
             size="lg"
-            className="btn-submit"
+           
             onClick={handleSendCode}
             disabled={sendLoading}
           >
@@ -197,7 +197,7 @@ const ForgotPassword: React.FC = () => {
           />
           </div>
 
-          <Button type="submit" variant="primary" block size="lg" className="btn-submit" disabled={submitLoading}>
+          <Button type="submit" variant="primary" block size="lg" disabled={submitLoading}>
             {submitLoading ? '重置中...' : '重置密码'}
           </Button>
         </form>
@@ -211,7 +211,7 @@ const ForgotPassword: React.FC = () => {
             <p>请使用新密码登录账户</p>
           </div>
           <Link to="/login">
-            <Button type="button" variant="primary" block size="lg" className="btn-submit" style={{ marginTop: 16 }}>
+            <Button type="button" variant="primary" block size="lg" style={{ marginTop: 16 }}>
               返回登录
             </Button>
           </Link>

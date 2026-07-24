@@ -24,7 +24,7 @@ import "./index.scss";
 import { toastSuccess, toastInfo } from "../../utils/toast";
 import { userDisplayName, userInitial } from "../../utils/userDisplay";
 import { SUCCESS_ACCOUNT_SWITCHED } from "../../utils/successCopy";
-import { FORM_EMAIL_PASSWORD_REQUIRED, FORM_CAPTCHA_REQUIRED } from "../../utils/formCopy";
+import { FORM_ALREADY_CURRENT_ACCOUNT, FORM_CAPTCHA_REQUIRED, FORM_EMAIL_PASSWORD_REQUIRED } from "../../utils/formCopy";
 
 export default function Profile() {
   const { user, signOut, signIn, switchByToken } = useAuth();
@@ -106,7 +106,7 @@ export default function Profile() {
   // 切换到已有账号
   const handleSwitchAccount = async (account: SavedAccount) => {
     if (account.email === user?.email) {
-      toastInfo("当前已是该账号");
+      toastInfo(FORM_ALREADY_CURRENT_ACCOUNT);
       return;
     }
     const token = getAccountToken(account.email);

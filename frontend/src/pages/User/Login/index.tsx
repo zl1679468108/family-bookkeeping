@@ -109,7 +109,7 @@ const LoginPage: React.FC = () => {
           </div>
         </FormField>
 
-        <Button type="submit" variant="primary" block size="lg" className="btn-submit" disabled={loading}>
+        <Button type="submit" variant="primary" block size="lg" disabled={loading}>
           {loading ? '登录中...' : '登 录'}
         </Button>
       </form>

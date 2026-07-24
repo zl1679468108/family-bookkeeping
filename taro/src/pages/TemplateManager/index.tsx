@@ -43,9 +43,10 @@ import {
   CONFIRM_DELETE_TEXT,
   confirmDeleteThis,
 } from "../../utils/confirmCopy";
-import { successEntityDeleted, successEntityUpsert } from "../../utils/successCopy";
+import { SUCCESS_TEMPLATE_APPLIED, successEntityDeleted, successEntityUpsert } from "../../utils/successCopy";
 import { FORM_TEMPLATE_NAME_REQUIRED } from "../../utils/formCopy";
 import { EMPTY_TEMPLATES } from "../../utils/emptyCopy";
+import { entityCreateButton, entityFormTitle } from "../../utils/entityCopy";
 
 /* ---------- 空表单初始态 ---------- */
 const EMPTY_FORM = {
@@ -281,7 +282,7 @@ export default function TemplateManager() {
         merchant_name: result.merchant_name || "",
         type: result.type,
       });
-      toastSuccess("模板已应用");
+      toastSuccess(SUCCESS_TEMPLATE_APPLIED);
       setTimeout(() => Taro.navigateTo({ url: "/pages/AddTransaction/index" }), 600);
     } catch (err: any) {
       Taro.hideLoading();
@@ -312,7 +313,7 @@ export default function TemplateManager() {
           </Button>
         )}
         <Button variant="primary" size="sm" onClick={openCreateForm}>
-          ＋ 新建模板
+          {entityCreateButton("模板")}
         </Button>
       </View>
 
@@ -536,7 +537,7 @@ export default function TemplateManager() {
       {/* ========== 表单弹窗（对齐PC截图） ========== */}
       {showForm && (
         <BottomSheet
-          title={editingId ? "编辑模板" : "新建模板"}
+          title={entityFormTitle("模板", Boolean(editingId))}
           onClose={closeForm}
           maxHeight="90vh"
           bodyClassName="tpl-form-pad"

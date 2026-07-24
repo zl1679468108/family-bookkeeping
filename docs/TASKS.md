@@ -85,6 +85,12 @@
 
 ### ✅ 已完成
 
+#### 2026-07-24 上传限制/实体标题/鉴权按钮复用
+- 双端 `uploadCopy`：5MB/MIME/失败文案与 `isAllowedImageMime`/`isWithinUploadSize`/`maxImagesMessage`；IconGrid/头像/记一笔附件收口。
+- 双端 `entityCopy`：新建/编辑标题与「+ 新建X」按钮文案；分类/模板/账本列表与表单。
+- `formCopy`/`successCopy` 补上月预算、当前账号/账本、隐私协议、头像/模板应用等；Auth 主按钮样式收敛到 `ui-btn--primary lg block`，去掉 `btn-submit` class。
+- 验证：frontend / taro `tsc --noEmit` 通过。
+
 #### 2026-07-24 表单/空态/成功文案扩展与剪贴板复用
 - 双端 `formCopy`：名称/金额/分类/模板/邮箱/验证码等高频校验与 placeholder。
 - 双端 `emptyCopy`：模板/账本/分类/预算/报表空态描述统一。

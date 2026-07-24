@@ -3,6 +3,7 @@ import { MAX_IMAGES } from '../hooks/useTransactionForm'
 import type { PendingImage } from '../hooks/useTransactionForm'
 import { Button } from '../../../components/ui/Button'
 import { Icon } from '../../../components/ui/Icon'
+import { IMAGE_ACCEPT_WILDCARD } from '../../../utils/uploadCopy'
 
 interface ImageUploadSectionProps {
   savedImageUrls: string[]
@@ -54,7 +55,7 @@ export const ImageUploadSection: React.FC<ImageUploadSectionProps> = ({
       <input
         ref={fileInputRef}
         type="file"
-        accept="image/*"
+        accept={IMAGE_ACCEPT_WILDCARD}
         multiple
         capture="environment"
         style={{ display: 'none' }}

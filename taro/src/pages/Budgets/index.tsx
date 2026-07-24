@@ -31,6 +31,7 @@ import {
 } from "../../utils/confirmCopy";
 import { SUCCESS_BUDGET_SAVED, successCopiedCount } from "../../utils/successCopy";
 import { EMPTY_BUDGET_NO_EXPENSE_CATEGORIES } from "../../utils/emptyCopy";
+import { FORM_BUDGET_NONE, FORM_BUDGET_NO_LAST_MONTH } from "../../utils/formCopy";
 
 /* ---------- 类型 ---------- */
 interface BudgetDetail {
@@ -164,7 +165,7 @@ export default function BudgetsPage() {
       })
       .filter(Boolean) as Array<{ category: string; amount: number }>;
     if (items.length > 0) handleUpsert(items);
-    else toastInfo("请至少设置一个分类的预算金额");
+    else toastInfo(FORM_BUDGET_NONE);
   };
 
   const [showCopyConfirm, setShowCopyConfirm] = useState(false);
@@ -173,7 +174,7 @@ export default function BudgetsPage() {
     run(async () => {
       const result = await copyBudgets({ targetMonth: monthKey });
       if (!result || result.length === 0) {
-        toastInfo("上月暂无预算可复制");
+        toastInfo(FORM_BUDGET_NO_LAST_MONTH);
         return;
       }
       toastSuccess(successCopiedCount(result.length));

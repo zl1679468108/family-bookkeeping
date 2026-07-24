@@ -38,8 +38,9 @@ import {
   validatePasswordMinLength,
   validatePasswordStrength,
 } from "../../utils/validation";
-import { SUCCESS_PASSWORD_CHANGED, SUCCESS_SAVED } from "../../utils/successCopy";
-import { FORM_USERNAME_REQUIRED, FORM_PASSWORD_CURRENT } from "../../utils/formCopy";
+import { SUCCESS_AVATAR_UPDATED, SUCCESS_IMAGE_SELECTED, SUCCESS_PASSWORD_CHANGED, SUCCESS_SAVED } from "../../utils/successCopy";
+import { FORM_PASSWORD_CURRENT, FORM_PRIVACY_REQUIRED, FORM_USERNAME_REQUIRED } from "../../utils/formCopy";
+import { IMAGE_SELECT_FAILED } from "../../utils/uploadCopy";
 
 export default function EditProfile() {
   const { user, refreshUser } = useAuth();
@@ -94,25 +95,25 @@ export default function EditProfile() {
           if (iconUrl) {
             setAvatarUrl(iconUrl);
             setAvatarPreview(iconUrl);
-            toastSuccess("头像已更新");
+            toastSuccess(SUCCESS_AVATAR_UPDATED);
           } else {
             setAvatarUrl(path); // fallback：临时路径
-            toastSuccess("已选择图片");
+            toastSuccess(SUCCESS_IMAGE_SELECTED);
           }
         }, "上传中…").catch(() => {
           setAvatarUrl(path); // fallback
-          toastSuccess("已选择图片");
+          toastSuccess(SUCCESS_IMAGE_SELECTED);
         });
       })
       .catch((err: any) => {
         const msg = getErrorMessage(err, "");
         if (msg.indexOf("cancel") !== -1) return;
         if (isPrivacyError(err)) {
-          toastInfo("请先同意隐私协议");
+          toastInfo(FORM_PRIVACY_REQUIRED);
           openPrivacySetting();
           return;
         }
-        toastInfo(msg || "选择图片失败");
+        toastInfo(msg || IMAGE_SELECT_FAILED);
       });
   }, []);
 

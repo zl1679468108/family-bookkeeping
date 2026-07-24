@@ -233,7 +233,8 @@
 
 /* ── 按钮 ── */
 .auth-form .btn-submit,
-.auth-form .ui-btn.btn-submit {
+.auth-form .ui-btn.btn-submit,
+.auth-form .ui-btn.ui-btn--primary.ui-btn--lg.ui-btn--block {
   width: 100%;
   padding: 13px 24px;
   background: var(--prGr);
@@ -251,19 +252,22 @@
 }
 
 .auth-form .btn-submit:hover:not(:disabled),
-.auth-form .ui-btn.btn-submit:hover:not(:disabled) {
+.auth-form .ui-btn.btn-submit:hover:not(:disabled),
+.auth-form .ui-btn.ui-btn--primary.ui-btn--lg.ui-btn--block:hover:not(:disabled) {
   transform: translateY(-1px);
   box-shadow: 0 6px 20px color-mix(in srgb, var(--pr) 32%, transparent);
 }
 
 .auth-form .btn-submit:active:not(:disabled),
-.auth-form .ui-btn.btn-submit:active:not(:disabled) {
+.auth-form .ui-btn.btn-submit:active:not(:disabled),
+.auth-form .ui-btn.ui-btn--primary.ui-btn--lg.ui-btn--block:active:not(:disabled) {
   transform: translateY(0);
   box-shadow: 0 2px 8px color-mix(in srgb, var(--pr) 28%, transparent);
 }
 
 .auth-form .btn-submit:disabled,
-.auth-form .ui-btn.btn-submit:disabled {
+.auth-form .ui-btn.btn-submit:disabled,
+.auth-form .ui-btn.ui-btn--primary.ui-btn--lg.ui-btn--block:disabled {
   opacity: 0.55;
   cursor: not-allowed;
   transform: none;

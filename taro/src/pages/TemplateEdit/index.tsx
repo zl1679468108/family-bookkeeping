@@ -34,6 +34,8 @@ import {
 } from "../../utils/confirmCopy";
 import { successEntityDeleted, successEntityUpsert } from "../../utils/successCopy";
 import { FORM_TEMPLATE_NAME_REQUIRED, FORM_CATEGORY_REQUIRED } from "../../utils/formCopy";
+import { entityFormTitle } from "../../utils/entityCopy";
+import { DELETE_FAILED } from "../../utils/uploadCopy";
 
 type TplType = "expense" | "income";
 
@@ -139,7 +141,7 @@ export default function TemplateEdit() {
       toastSuccess(successEntityDeleted("模板"));
       setTimeout(() => Taro.navigateBack(), 500);
     }, ACTION_DELETING).catch((err: any) => {
-      toastError(err, "删除失败");
+      toastError(err, DELETE_FAILED);
       setShowDelete(false);
     });
   };
@@ -169,7 +171,7 @@ export default function TemplateEdit() {
       poi_id: "",
     }));
 
-  const title = isEdit ? "编辑模板" : "新建模板";
+  const title = entityFormTitle("模板", isEdit);
 
   const formatCategoryLabel = (cat: any) => {
     if (!cat) return "选择分类";

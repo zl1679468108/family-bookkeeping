@@ -15,3 +15,8 @@ export const FORM_BUDGET_NONE = '请至少设置一个分类的预算金额'
 export const FORM_SELECT_PLACEHOLDER = '请选择'
 export const FORM_PEER_EMAIL_PLACEHOLDER = '请输入对方的邮箱'
 export const FORM_INVITE_CODE_PLACEHOLDER = '请输入邀请码'
+
+export const FORM_BUDGET_NO_LAST_MONTH = '上月暂无预算可复制'
+export const FORM_ALREADY_CURRENT_ACCOUNT = '当前已是该账号'
+export const FORM_ALREADY_CURRENT_BOOK = '当前已是该账本'
+export const FORM_PRIVACY_REQUIRED = '请先同意隐私协议'

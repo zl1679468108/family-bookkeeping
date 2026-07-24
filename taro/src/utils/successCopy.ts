@@ -48,3 +48,9 @@ export function successSwitchedBook(name: string): string {
 export function successCopiedCount(count: number, noun = "条"): string {
   return `已复制 ${count} ${noun}`;
 }
+
+export const SUCCESS_IMAGE_SELECTED = "已选择图片";
+export const SUCCESS_AVATAR_UPDATED = "头像已更新";
+export const SUCCESS_AVATAR_SELECTED_HINT = "头像已选择，点击保存生效";
+export const SUCCESS_TEMPLATE_APPLIED = "模板已应用";
+export const SUCCESS_CUSTOM_ICON_ADDED = "已添加自定义图标";

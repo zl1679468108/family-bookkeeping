@@ -93,7 +93,7 @@ const RegisterPage: React.FC = () => {
           />
         </div>
 
-        <Button type="submit" variant="primary" block size="lg" className="btn-submit" disabled={loading}>
+        <Button type="submit" variant="primary" block size="lg" disabled={loading}>
           {loading ? '注册中...' : '注 册'}
         </Button>
       </form>

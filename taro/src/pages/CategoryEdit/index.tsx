@@ -43,6 +43,8 @@ import {
 import { SUCCESS_DELETED, successEntityUpsert } from "../../utils/successCopy";
 import { categoryTypeTabLabel } from "../../utils/transactionType";
 import { FORM_NAME_REQUIRED } from "../../utils/formCopy";
+import { entityFormTitle } from "../../utils/entityCopy";
+import { UPLOAD_FAILED, DELETE_FAILED, IMAGE_SELECT_FAILED } from "../../utils/uploadCopy";
 
 interface CustomIconItem {
   id: string;
@@ -113,10 +115,10 @@ export default function CategoryEdit() {
             refreshCustomIcons();
             toastSuccess("已添加到自定义");
           } else {
-            toastInfo("上传失败");
+            toastInfo(UPLOAD_FAILED);
           }
         }, "上传中…").catch((err: any) => {
-      toastError(err, "上传失败");
+      toastError(err, UPLOAD_FAILED);
     });
       })
       .catch((err: any) => {
@@ -127,7 +129,7 @@ export default function CategoryEdit() {
           openPrivacySetting();
           return;
         }
-        toastInfo(msg || "选择图片失败");
+        toastInfo(msg || IMAGE_SELECT_FAILED);
       });
   };
 
@@ -138,7 +140,7 @@ export default function CategoryEdit() {
         refreshCustomIcons();
         toastSuccess(SUCCESS_DELETED);
       })
-      .catch(() => toastInfo("删除失败"));
+      .catch(() => toastInfo(DELETE_FAILED));
   };
 
   // --- 提交/删除（手动 Promise 链，规避 Taro 下 useMutation 卡死）---
@@ -168,12 +170,12 @@ export default function CategoryEdit() {
       toastSuccess(SUCCESS_DELETED);
       setTimeout(() => Taro.navigateBack(), 500);
     }, ACTION_DELETING).catch((err: any) => {
-      toastError(err, "删除失败");
+      toastError(err, DELETE_FAILED);
       setShowDelete(false);
     });
   };
 
-  const title = isEdit ? "编辑分类" : "新建分类";
+  const title = entityFormTitle("分类", isEdit);
 
   return (
     <PageContainer bottomSpace={180} loading={isLoading} loadingText={ACTION_LOADING}>

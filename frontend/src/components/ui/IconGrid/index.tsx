@@ -2,6 +2,15 @@ import React, { useState } from 'react'
 import { Icon } from '../Icon'
 
 import { notifyError } from '../../../utils/notifyError'
+import {
+  IMAGE_ACCEPT_ATTR,
+  isAllowedImageMime,
+  isWithinUploadSize,
+  UPLOAD_FORMAT_LIMIT,
+  UPLOAD_SIZE_LIMIT,
+  UPLOAD_FAILED_RETRY,
+  DELETE_FAILED_RETRY,
+} from '../../../utils/uploadCopy'
 
 /**
  * 通用图标网格选择器
@@ -69,20 +78,20 @@ export const IconGrid: React.FC<IconGridProps> = ({
 
     const input = document.createElement('input')
     input.type = 'file'
-    input.accept = 'image/png,image/jpeg,image/webp'
+    input.accept = IMAGE_ACCEPT_ATTR
     input.onchange = async (e) => {
       const file = (e.target as HTMLInputElement).files?.[0]
       if (!file) return
 
       // 验证文件类型
-      if (!['image/png', 'image/jpeg', 'image/webp'].includes(file.type)) {
-        notifyError('仅支持 PNG/JPG/WebP 格式')
+      if (!isAllowedImageMime(file.type)) {
+        notifyError(UPLOAD_FORMAT_LIMIT)
         return
       }
 
       // 验证文件大小 (5MB)
-      if (file.size > 5 * 1024 * 1024) {
-        notifyError('文件大小不能超过 5MB')
+      if (!isWithinUploadSize(file.size)) {
+        notifyError(UPLOAD_SIZE_LIMIT)
         return
       }
 
@@ -90,7 +99,7 @@ export const IconGrid: React.FC<IconGridProps> = ({
       try {
         await onUpload(file, iconType)
       } catch (error) {
-        notifyError('上传失败，请重试')
+        notifyError(UPLOAD_FAILED_RETRY)
       } finally {
         setUploading(false)
       }
@@ -107,7 +116,7 @@ export const IconGrid: React.FC<IconGridProps> = ({
     try {
       await onDelete(iconId)
     } catch (error) {
-      notifyError('删除失败，请重试')
+      notifyError(DELETE_FAILED_RETRY)
     } finally {
       setDeletingId(null)
     }

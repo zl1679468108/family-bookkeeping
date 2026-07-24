@@ -18,7 +18,14 @@ import {
   validatePasswordMinLength,
   validatePasswordStrength,
 } from '../../../utils/validation'
-import { SUCCESS_PASSWORD_CHANGED, SUCCESS_SAVED } from '../../../utils/successCopy'
+import { SUCCESS_AVATAR_SELECTED_HINT, SUCCESS_PASSWORD_CHANGED, SUCCESS_SAVED } from '../../../utils/successCopy'
+import {
+  isWithinUploadSize,
+  UPLOAD_IMAGE_SIZE_LIMIT,
+  IMAGE_PROCESS_FAILED,
+  IMAGE_FILE_REQUIRED,
+  IMAGE_ACCEPT_WILDCARD,
+} from '../../../utils/uploadCopy'
 
 const compressImage = (file: File, maxSize = 128): Promise<string> =>
   new Promise((resolve, reject) => {
@@ -174,11 +181,11 @@ const ProfilePage: React.FC = () => {
     if (!file) return
 
     if (!file.type.startsWith('image/')) {
-      notifyError('请选择图片文件')
+      notifyError(IMAGE_FILE_REQUIRED)
       return
     }
-    if (file.size > 5 * 1024 * 1024) {
-      notifyError('图片大小不能超过 5MB')
+    if (!isWithinUploadSize(file.size)) {
+      notifyError(UPLOAD_IMAGE_SIZE_LIMIT)
       return
     }
 
@@ -186,9 +193,9 @@ const ProfilePage: React.FC = () => {
       const base64 = await compressImage(file)
       setAvatarPreview(base64)
       setAvatarUrl(base64)
-      notifySuccess('头像已选择，点击保存生效')
+      notifySuccess(SUCCESS_AVATAR_SELECTED_HINT)
     } catch {
-      notifyError('图片处理失败')
+      notifyError(IMAGE_PROCESS_FAILED)
     } finally {
       if (fileInputRef.current) fileInputRef.current.value = ''
     }
@@ -252,7 +259,7 @@ const ProfilePage: React.FC = () => {
             <input
               ref={fileInputRef}
               type="file"
-              accept="image/*"
+              accept={IMAGE_ACCEPT_WILDCARD}
               onChange={handleAvatarChange}
               style={{ display: 'none' }}
             />

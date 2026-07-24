@@ -9,6 +9,7 @@ import { transactionTypeLabel } from '../../../utils/transactionType'
 import { busyLabel, ACTION_SAVING } from '../../../utils/actionCopy'
 import { sortModeLabel } from '../../../utils/sortCopy'
 import { EMPTY_TEMPLATES } from '../../../utils/emptyCopy'
+import { entityCreateButton } from '../../../utils/entityCopy'
 
 interface TemplateGridProps {
   isLoading: boolean
@@ -87,7 +88,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
               {busyLabel(isSaving, ACTION_SAVING, sortModeLabel(sortingMode))}
             </Button>
             <Button variant="primary" size="sm" onClick={onNew}>
-              + 新建模板
+              {entityCreateButton("模板")}
             </Button>
           </div>
         }

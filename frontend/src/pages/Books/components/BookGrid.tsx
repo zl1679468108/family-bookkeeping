@@ -5,6 +5,7 @@ import { Skeleton } from '../../../components/ui/Skeleton';
 import { EmptyState } from '../../../components/ui/EmptyState';
 import { getBookIconByKey } from '../../../utils/bookIcons';
 import { EMPTY_BOOKS } from '../../../utils/emptyCopy'
+import { entityCreateButton } from '../../../utils/entityCopy'
 
 interface BookGridProps {
   loading: boolean;
@@ -63,7 +64,7 @@ export const BookGrid: React.FC<BookGridProps> = ({
               使用邀请码加入
             </Button>
             <Button variant="primary" size="sm" onClick={onCreateNew}>
-              + 新建账本
+              {entityCreateButton("账本")}
             </Button>
           </div>
         }

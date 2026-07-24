@@ -40,14 +40,10 @@ import {
   CONFIRM_DELETE_TEXT,
   CONFIRM_DELETE_BOOK_GENERIC,
 } from "../../utils/confirmCopy";
-import { FORM_NAME_REQUIRED } from "../../utils/formCopy";
-import {
-  SUCCESS_BOOK_CREATED,
-  SUCCESS_UPDATED,
-  SUCCESS_OWNERSHIP_TRANSFERRED,
-  SUCCESS_DELETED,
-  successEntityDeleted,
-} from "../../utils/successCopy";
+import { FORM_NAME_REQUIRED, FORM_PRIVACY_REQUIRED } from "../../utils/formCopy";
+import { SUCCESS_BOOK_CREATED, SUCCESS_CUSTOM_ICON_ADDED, SUCCESS_DELETED, SUCCESS_OWNERSHIP_TRANSFERRED, SUCCESS_UPDATED, successEntityDeleted } from "../../utils/successCopy";
+import { entityFormTitle } from "../../utils/entityCopy";
+import { IMAGE_SELECT_FAILED, DELETE_FAILED, UPLOAD_FAILED } from "../../utils/uploadCopy";
 
 interface Member {
   id: string;
@@ -64,7 +60,7 @@ export default function BookSettings() {
 
   // 设置原生导航栏标题（避免自定义 NavHeader 产生双层导航）
   useEffect(() => {
-    Taro.setNavigationBarTitle({ title: isAdd ? "新建账本" : "编辑账本" });
+    Taro.setNavigationBarTitle({ title: entityFormTitle("账本", !isAdd) });
   }, [isAdd]);
 
   // ===== UI 状态 — 编辑表单 =====
@@ -163,24 +159,24 @@ export default function BookSettings() {
         run(async () => {
           const result: any = await uploadIcon(path, "book");
           const iconUrl = result?.icon_url || result?.url || "";
-          if (!iconUrl) throw new Error("上传失败");
+          if (!iconUrl) throw new Error(UPLOAD_FAILED);
           if (isAdd) setAddIcon(iconUrl);
           else setEditIcon(iconUrl);
           refreshCustomIcons();
-          toastSuccess("已添加自定义图标");
+          toastSuccess(SUCCESS_CUSTOM_ICON_ADDED);
         }, "上传中…").catch((err: any) => {
-      toastError(err, "上传失败");
+      toastError(err, UPLOAD_FAILED);
     });
       })
       .catch((err: any) => {
         const msg = getErrorMessage(err, "");
         if (msg.indexOf("cancel") !== -1) return;
         if (isPrivacyError(err)) {
-          toastInfo("请先同意隐私协议");
+          toastInfo(FORM_PRIVACY_REQUIRED);
           openPrivacySetting();
           return;
         }
-        toastInfo(msg || "选择图片失败");
+        toastInfo(msg || IMAGE_SELECT_FAILED);
       });
   };
 
@@ -191,7 +187,7 @@ export default function BookSettings() {
         refreshCustomIcons();
         toastSuccess(SUCCESS_DELETED);
       })
-      .catch(() => toastInfo("删除失败"));
+      .catch(() => toastInfo(DELETE_FAILED));
   };
 
   // ===== 新增模式 =====
@@ -266,7 +262,7 @@ export default function BookSettings() {
       toastSuccess(successEntityDeleted("账本"));
       setTimeout(() => Taro.navigateBack(), 500);
     }, ACTION_DELETING).catch((err: any) => {
-      toastError(err, "删除失败");
+      toastError(err, DELETE_FAILED);
     });
   };
 

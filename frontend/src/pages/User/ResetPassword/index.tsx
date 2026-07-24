@@ -58,7 +58,7 @@ const ResetPassword: React.FC = () => {
       >
         <div className="auth-message error">重置链接缺少必要的令牌参数</div>
         <Link to="/forgot-password">
-          <Button type="button" variant="primary" block size="lg" className="btn-submit">
+          <Button type="button" variant="primary" block size="lg">
             去申请重置
           </Button>
         </Link>
@@ -112,7 +112,7 @@ const ResetPassword: React.FC = () => {
           />
           </div>
 
-          <Button type="submit" variant="primary" block size="lg" className="btn-submit" disabled={submitLoading}>
+          <Button type="submit" variant="primary" block size="lg" disabled={submitLoading}>
             {submitLoading ? '重置中...' : '重置密码'}
           </Button>
         </form>
@@ -124,7 +124,7 @@ const ResetPassword: React.FC = () => {
             <p>请使用新密码登录账户</p>
           </div>
           <Link to="/login">
-            <Button type="button" variant="primary" block size="lg" className="btn-submit" style={{ marginTop: 16 }}>
+            <Button type="button" variant="primary" block size="lg" style={{ marginTop: 16 }}>
               返回登录
             </Button>
           </Link>
