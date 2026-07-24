@@ -6,6 +6,9 @@ import {
   parseAddTransactionDraft,
   serializeAddTransactionDraft,
   listAddTransactionDraftKeys,
+  isAddTransactionDraftEmpty,
+  toAddTransactionDraftLocation,
+  restoreAddTransactionFormData,
   type AddTransactionDraft,
   type AddTransactionDraftForm,
 } from '../../../shared-utils/src/addTransactionDraft'
@@ -14,7 +17,18 @@ export type {
   AddTransactionDraft,
   AddTransactionDraftForm,
   AddTransactionDraftLocation,
+  DraftLocationInput,
 } from '../../../shared-utils/src/addTransactionDraft'
+
+export {
+  addTransactionDraftKey,
+  parseAddTransactionDraft,
+  serializeAddTransactionDraft,
+  listAddTransactionDraftKeys,
+  isAddTransactionDraftEmpty,
+  toAddTransactionDraftLocation,
+  restoreAddTransactionFormData,
+}
 
 export function loadAddTransactionDraft(bookId: string): AddTransactionDraft | null {
   if (!bookId || typeof sessionStorage === 'undefined') return null

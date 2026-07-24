@@ -23,7 +23,11 @@ import {
   clearAddTransactionDraft,
   loadAddTransactionDraft,
   saveAddTransactionDraft,
+  isAddTransactionDraftEmpty,
+  toAddTransactionDraftLocation,
+  restoreAddTransactionFormData,
 } from '../../../utils/addTransactionDraft'
+import { todayBeijing } from '../../../utils/common'
 import { successTemplateApplied, SUCCESS_OCR } from '../../../utils/successCopy'
 import { maxImagesMessage, IMAGE_PROCESS_FAILED, MAX_RECEIPT_IMAGES } from '../../../utils/uploadCopy'
 import { failUpdateOrSave, ERROR_OCR_FAILED } from '../../../utils/errorCopy'
@@ -60,7 +64,7 @@ export function useTransactionForm() {
   const isEditMode = !isNaN(editIdNum) && editIdNum > 0
 
   // todayStr 不缓存：保证用户跨午夜停留页面时日期会更新到当天（F-L6）
-  const todayStr = new Date().toLocaleDateString('sv-SE', { timeZone: 'Asia/Shanghai' })
+  const todayStr = todayBeijing()
 
   const [formData, setFormData] = useState<FormData>({
     amount: '',
@@ -122,14 +126,8 @@ export function useTransactionForm() {
     draftRestoredRef.current = true
     const draft = loadAddTransactionDraft(bookId)
     if (!draft) return
-    setFormData({
-      amount: draft.formData.amount || '',
-      category: draft.formData.category || '',
-      type: draft.formData.type === 'income' ? 'income' : 'expense',
-      date: draft.formData.date || todayStr,
-      brand: draft.formData.brand || '',
-      note: draft.formData.note || '',
-    })
+    const restored = restoreAddTransactionFormData(draft, todayStr)
+    if (restored) setFormData(restored)
     setLocation(
       draft.location
         ? {
@@ -145,13 +143,8 @@ export function useTransactionForm() {
   // 新建模式：表单变更时自动保存草稿
   useEffect(() => {
     if (isEditMode || !bookId || !draftRestoredRef.current) return
-    const isEmpty =
-      !formData.amount &&
-      !formData.category &&
-      !formData.brand &&
-      !formData.note &&
-      !location
-    if (isEmpty) {
+    const draftLocation = toAddTransactionDraftLocation(location)
+    if (isAddTransactionDraftEmpty(formData, draftLocation)) {
       clearAddTransactionDraft(bookId)
       return
     }
@@ -164,7 +157,7 @@ export function useTransactionForm() {
         brand: formData.brand,
         note: formData.note,
       },
-      location,
+      location: draftLocation,
     })
   }, [formData, location, bookId, isEditMode])
 

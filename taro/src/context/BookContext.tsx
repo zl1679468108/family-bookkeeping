@@ -16,6 +16,7 @@ import { setCurrentBook as setCurrentBookApi } from "../services/authApi";
 import { getStoredBookId, setStoredBookId } from "../services/api";
 import { useAuth } from "./AuthContext";
 import type { Book } from "../types";
+import { clearAddTransactionDraft } from "../utils/addTransactionDraft";
 
 interface BookContextType {
   currentBook: Book | null;
@@ -113,7 +114,12 @@ export const BookProvider: React.FC<{ children: React.ReactNode }> = ({
   }, [books, currentBook]);
 
   const switchBook = useCallback((book: Book | null) => {
-    setCurrentBook(book);
+    setCurrentBook((prev) => {
+      if (prev?.id && prev.id !== book?.id) {
+        clearAddTransactionDraft(prev.id);
+      }
+      return book;
+    });
     setStoredBookId(book?.id ?? null);
     if (book?.id) {
       setCurrentBookApi(book.id).catch((err) =>

@@ -3,7 +3,7 @@
  * 参考 PC 端结构：类型 / 金额 / 分类 / 日期 / 品牌 / 备注 / 位置 / 图片 / 模板
  * 必填字段：金额(*) / 分类(*) / 日期(*)
  */
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { View, ScrollView, Picker, Text } from "@tarojs/components";
 import Taro from "@tarojs/taro";
 import PageContainer from "../../components/PageContainer";
@@ -43,6 +43,15 @@ import { MAX_RECEIPT_IMAGES, DELETE_FAILED } from "../../utils/uploadCopy";
 import { ERROR_SAVE_FAILED, ERROR_RECEIPTS_PARTIAL, ERROR_RECEIPTS_ALL } from "../../utils/errorCopy";
 import Icon, { ICON_COLOR } from "../../components/Icon";
 import { ENTITY_TRANSACTION } from "../../utils/entityCopy";
+import { useBookContext } from "../../context/BookContext";
+import {
+  clearAddTransactionDraft,
+  loadAddTransactionDraft,
+  saveAddTransactionDraft,
+  isAddTransactionDraftEmpty,
+  toAddTransactionDraftLocation,
+  restoreAddTransactionFormData,
+} from "../../utils/addTransactionDraft";
 
 interface Template {
   id: string;
@@ -70,6 +79,9 @@ export default function AddTransaction() {
   const isEdit = !!editId;
   const urlType: "expense" | "income" =
     params.type === "income" ? "income" : "expense";
+  const { currentBook } = useBookContext();
+  const bookId = currentBook?.id || "";
+  const draftRestoredRef = useRef(false);
 
   // 旧版本用 Storage 传 editId，现已改为 URL query；清掉旧数据避免误进编辑模式
   useEffect(() => {
@@ -88,6 +100,62 @@ export default function AddTransaction() {
   const [templates, setTemplates] = useState<Template[]>([]);
   const [showTemplates, setShowTemplates] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
+
+
+  // 新建模式：从本地草稿恢复（按账本隔离，与 PC 对齐）
+  useEffect(() => {
+    if (isEdit) {
+      draftRestoredRef.current = false;
+      return;
+    }
+    if (!bookId || draftRestoredRef.current) return;
+    draftRestoredRef.current = true;
+    const draft = loadAddTransactionDraft(bookId);
+    if (!draft) return;
+    const restored = restoreAddTransactionFormData(draft, todayBeijing());
+    if (restored) {
+      setAmount(restored.amount);
+      setCategoryId(restored.category);
+      setType(restored.type);
+      setDate(restored.date);
+      setBrand(restored.brand);
+      setNote(restored.note);
+    }
+    if (draft.location) {
+      setLocation({
+        name: draft.location.locationName || "",
+        latitude: draft.location.latitude,
+        longitude: draft.location.longitude,
+      });
+    }
+  }, [bookId, isEdit]);
+
+  // 新建模式：表单变更时自动保存草稿
+  useEffect(() => {
+    if (isEdit || !bookId || !draftRestoredRef.current) return;
+    const formData = {
+      amount,
+      category: String(categoryId || ""),
+      type,
+      date,
+      brand,
+      note,
+    };
+    const draftLocation = toAddTransactionDraftLocation(
+      location
+        ? {
+            name: location.name,
+            latitude: location.latitude,
+            longitude: location.longitude,
+          }
+        : null,
+    );
+    if (isAddTransactionDraftEmpty(formData, draftLocation)) {
+      clearAddTransactionDraft(bookId);
+      return;
+    }
+    saveAddTransactionDraft(bookId, { formData, location: draftLocation });
+  }, [amount, categoryId, type, date, brand, note, location, bookId, isEdit]);
 
   const { categories = [] } = useCategoryList(type);
   const currentCategory: any = categories.find(
@@ -280,6 +348,7 @@ export default function AddTransaction() {
         setPendingImages([]);
       }
 
+      if (!isEdit && bookId) clearAddTransactionDraft(bookId);
       toastSuccess(successTransactionSaved(isEdit));
       setTimeout(() => Taro.navigateBack(), 600);
     }, ACTION_SAVING).catch((err: any) => {

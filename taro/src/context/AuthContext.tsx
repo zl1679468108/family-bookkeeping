@@ -30,6 +30,7 @@ import {
   setAccountRefreshToken,
 } from "../utils/savedAccounts";
 import type { UserProfile } from "../types";
+import { clearAddTransactionDraft } from "../utils/addTransactionDraft";
 
 interface AuthContextType {
   user: UserProfile | null;
@@ -153,6 +154,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         await apiLogout().catch(() => {});
       }
     } finally {
+      clearAddTransactionDraft();
       clearStoredToken();
       setUser(null);
     }

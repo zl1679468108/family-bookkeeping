@@ -136,6 +136,12 @@
 - `fmtAmount` 并入 shared budget；双端 `renderCategoryIcon` 统一 `isIconUrl/isPlatformIcon/isBookIconKey` 判定
 - 附：PC 暗色第六轮与 sortOrder 已在上一提交
 
+#### 2026-07-24 记一笔草稿 shared 化 + Taro 接线
+- `addTransactionDraft` 增补：`isAddTransactionDraftEmpty` / `toAddTransactionDraftLocation` / `restoreAddTransactionFormData`
+- PC 适配复用纯函数；`todayBeijing` 替换手写时区
+- Taro 新增 Storage 适配，AddTransaction 恢复/自动保存草稿；Book 切换与登出清理
+- 验证：frontend / taro `tsc --noEmit`
+
 #### 2026-07-24 分类 payload + 邀请邮箱校验 shared 化
 - 新增 `shared-utils/src/categoryPayload`：`validateCategoryName` / `buildCategoryPayload`（icon vs icon_id 与 bookPayload 对齐）
 - 接线：PC `useCategoriesPage`；Taro Categories Sheet + CategoryEdit
