@@ -12,7 +12,7 @@ import { getErrorMessage } from '../../../utils/errorMessage'
 import { queryKeys } from '../../../utils/queryKeys'
 import { INVITE_CODE_HELP_LABEL, INVITE_CODE_HELP_BODY } from '../../../utils/inviteCopy'
 import { SUCCESS_JOINED } from '../../../utils/successCopy'
-import { FORM_INVITE_CODE_MIN } from '../../../utils/formCopy'
+import { validateInviteCode } from '../../../utils/validation'
 
 interface BookInviteModalProps {
   open: boolean;
@@ -42,8 +42,9 @@ export const BookInviteModal: React.FC<BookInviteModalProps> = ({ open, onClose,
 
   const handleSubmit = () => {
     const code = inviteCode.trim();
-    if (code.length < 4) {
-      notifyInfo(FORM_INVITE_CODE_MIN);
+    const inviteErr = validateInviteCode(code);
+    if (inviteErr) {
+      notifyInfo(inviteErr);
       return;
     }
     if (joiningRef.current) return;

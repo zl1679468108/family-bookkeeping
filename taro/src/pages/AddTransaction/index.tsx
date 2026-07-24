@@ -26,7 +26,8 @@ import LocationField, {
 } from "../../components/form/LocationField";
 import ImageUpload from "../../components/form/ImageUpload";
 import { todayBeijing, toastSuccess, toastInfo } from "../../utils/format";
-import { formatMoneyByType, isValidPositiveAmount, sanitizeAmountInput } from "../../utils/budget";
+import { formatMoneyByType, sanitizeAmountInput } from "../../utils/budget";
+import { validateTransactionFormFields } from "../../utils/validation";
 import { transactionTypeLabel, TRANSACTION_TYPE_OPTIONS } from "../../utils/transactionType";
 import { parseImageList } from "../../utils/parseImageList";
 import "./index.scss";
@@ -37,7 +38,6 @@ import {
   CONFIRM_DELETE_LOADING,
 } from "../../utils/confirmCopy";
 import { successEntityDeleted, successTemplateApplied, successTransactionSaved } from "../../utils/successCopy";
-import { FORM_AMOUNT_INVALID, FORM_CATEGORY_REQUIRED } from "../../utils/formCopy";
 import { MAX_RECEIPT_IMAGES, DELETE_FAILED } from "../../utils/uploadCopy";
 import { ERROR_SAVE_FAILED, ERROR_RECEIPTS_PARTIAL, ERROR_RECEIPTS_ALL } from "../../utils/errorCopy";
 import Icon, { ICON_COLOR } from "../../components/Icon";
@@ -221,12 +221,9 @@ export default function AddTransaction() {
 
   // 提交
   const handleSubmit = () => {
-    if (!isValidPositiveAmount(amount)) {
-      toastInfo(FORM_AMOUNT_INVALID);
-      return;
-    }
-    if (!categoryId) {
-      toastInfo(FORM_CATEGORY_REQUIRED);
+    const fieldCheck = validateTransactionFormFields({ amount, categoryId });
+    if (!fieldCheck.ok) {
+      toastInfo(fieldCheck.message);
       return;
     }
 

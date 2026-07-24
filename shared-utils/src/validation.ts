@@ -10,7 +10,12 @@ import {
   FORM_PASSWORD_ALPHA_NUMERIC,
   FORM_EMAIL_EMPTY,
   FORM_EMAIL_INVALID,
+  FORM_INVITE_CODE_REQUIRED,
+  FORM_INVITE_CODE_MIN,
+  FORM_AMOUNT_INVALID,
+  FORM_CATEGORY_REQUIRED,
 } from './formCopy'
+import { isValidPositiveAmount } from './budget'
 
 export function validatePasswordMinLength(
   password: string,
@@ -67,4 +72,38 @@ export function validateEmail(
     return options?.invalidMessage ?? FORM_EMAIL_INVALID
   }
   return null
+}
+
+/** 邀请码：去空白后至少 min 位（默认 4） */
+export function validateInviteCode(
+  code: string,
+  options?: { min?: number; requiredMessage?: string; minMessage?: string },
+): string | null {
+  const min = options?.min ?? 4
+  const trimmed = String(code ?? '').trim()
+  if (!trimmed) return options?.requiredMessage ?? FORM_INVITE_CODE_REQUIRED
+  if (trimmed.length < min) return options?.minMessage ?? FORM_INVITE_CODE_MIN
+  return null
+}
+
+export type TransactionFormFieldError = {
+  ok: false
+  field: 'amount' | 'category'
+  message: string
+}
+
+export type TransactionFormFieldOk = { ok: true }
+
+/** 记一笔金额 + 分类必填校验（文案与 formCopy 对齐） */
+export function validateTransactionFormFields(input: {
+  amount: string | number
+  categoryId?: string | number | null
+}): TransactionFormFieldOk | TransactionFormFieldError {
+  if (!isValidPositiveAmount(input.amount)) {
+    return { ok: false, field: 'amount', message: FORM_AMOUNT_INVALID }
+  }
+  if (input.categoryId === null || input.categoryId === undefined || input.categoryId === '') {
+    return { ok: false, field: 'category', message: FORM_CATEGORY_REQUIRED }
+  }
+  return { ok: true }
 }

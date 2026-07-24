@@ -9,7 +9,8 @@ import { renderCategoryIcon } from '../../../utils/renderCategoryIcon'
 import type { DropdownOption } from '../../../components/ui/Dropdown'
 import { useMutationAction } from '../../../hooks/useMutationAction'
 import { notifyError, notifyInfo, notifySuccess } from '../../../utils/notifyError'
-import { isValidPositiveAmount } from '../../../utils/budget'
+import { buildTransactionPayload } from '../../../utils/transactionPayload'
+import { validateTransactionFormFields } from '../../../utils/validation'
 import { parseImageList } from '../../../utils/parseImageList'
 import { compressImage } from '../../../utils/imageCompress'
 import type { LocationResult } from '@family-bookkeeping/shared-types'
@@ -23,7 +24,6 @@ import {
   saveAddTransactionDraft,
 } from '../../../utils/addTransactionDraft'
 import { successTemplateApplied, SUCCESS_OCR } from '../../../utils/successCopy'
-import { FORM_AMOUNT_INVALID, FORM_CATEGORY_REQUIRED } from '../../../utils/formCopy'
 import { maxImagesMessage, IMAGE_PROCESS_FAILED, MAX_RECEIPT_IMAGES } from '../../../utils/uploadCopy'
 import { failUpdateOrSave, ERROR_OCR_FAILED } from '../../../utils/errorCopy'
 
@@ -181,19 +181,25 @@ export function useTransactionForm() {
   }, [formData.type, categories])
 
   /** 表单 → 交易 payload（新建/编辑共用） */
-  const buildTransactionPayload = (withSavedImages: boolean) => ({
-    amount: parseFloat(formData.amount),
-    category: formData.category,
-    type: formData.type,
-    date: formData.date,
-    description: formData.note || undefined,
-    brand: formData.brand || undefined,
-    latitude: location?.latitude,
-    longitude: location?.longitude,
-    location_name: location?.locationName,
-    poi_id: location?.poiId,
-    ...(withSavedImages && imageUrlsJson ? { image_urls: imageUrlsJson } : {}),
-  })
+  const toPayload = (withSavedImages: boolean) =>
+    buildTransactionPayload({
+      type: formData.type,
+      amount: formData.amount,
+      categoryId: formData.category,
+      date: formData.date,
+      brand: formData.brand,
+      note: formData.note,
+      location: location
+        ? {
+            locationName: location.locationName,
+            latitude: location.latitude,
+            longitude: location.longitude,
+            poiId: location.poiId,
+          }
+        : null,
+      imageUrlsJson: withSavedImages ? imageUrlsJson : undefined,
+      withSavedImages,
+    })
 
   /** 并行上传待传图片，返回合并后的 URL 列表 */
   const uploadPendingImages = async (transactionId: number, baseUrls: string[] = []) => {
@@ -210,17 +216,17 @@ export function useTransactionForm() {
   // 统一提交：校验 + 创建/更新 + 图片上传 + 缓存失效
   const { run: handleSubmit, isRunning: submitInProgress } = useMutationAction(
     async (): Promise<SubmitResult> => {
-      if (!isValidPositiveAmount(formData.amount)) {
-        notifyInfo(FORM_AMOUNT_INVALID)
-        return 'invalid'
-      }
-      if (!formData.category) {
-        notifyInfo(FORM_CATEGORY_REQUIRED)
+      const fieldCheck = validateTransactionFormFields({
+        amount: formData.amount,
+        categoryId: formData.category,
+      })
+      if (!fieldCheck.ok) {
+        notifyInfo(fieldCheck.message)
         return 'invalid'
       }
 
       if (isEditMode) {
-        await updateTransaction(editIdNum, buildTransactionPayload(true))
+        await updateTransaction(editIdNum, toPayload(true))
         if (pendingImages.length > 0 && editIdNum) {
           const merged = await uploadPendingImages(editIdNum, savedImageUrls)
           if (merged.length > savedImageUrls.length) {
@@ -230,7 +236,7 @@ export function useTransactionForm() {
         return 'updated'
       }
 
-      const result = await createTransaction(buildTransactionPayload(false))
+      const result = await createTransaction(toPayload(false))
       const newTransactionId = result?.id
       if (pendingImages.length > 0 && newTransactionId) {
         const uploadedUrls = await uploadPendingImages(newTransactionId)

@@ -36,7 +36,8 @@ import {
   confirmDeleteBook,
   confirmRemoveMember,
 } from "../../utils/confirmCopy";
-import { FORM_ALREADY_CURRENT_BOOK, FORM_EMAIL_REQUIRED, FORM_INVITE_CODE_MIN, FORM_PEER_EMAIL_PLACEHOLDER } from "../../utils/formCopy";
+import { FORM_ALREADY_CURRENT_BOOK, FORM_EMAIL_REQUIRED, FORM_PEER_EMAIL_PLACEHOLDER } from "../../utils/formCopy";
+import { validateInviteCode } from "../../utils/validation";
 import {
   SUCCESS_JOINED,
   SUCCESS_INVITE_SENT,
@@ -94,8 +95,9 @@ export default function BooksPage() {
 
   const handleJoinSubmit = () => {
     const code = joinCode.trim();
-    if (code.length < 4) {
-      toastInfo(FORM_INVITE_CODE_MIN);
+    const inviteErr = validateInviteCode(code);
+    if (inviteErr) {
+      toastInfo(inviteErr);
       return;
     }
     run(async () => {
