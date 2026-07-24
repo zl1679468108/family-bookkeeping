@@ -10,6 +10,7 @@ import { Input } from '../../../components/ui/Input';
 import './index.scss';
 import { getErrorMessage } from '../../../utils/errorMessage'
 import { queryKeys } from '../../../utils/queryKeys'
+import { INVITE_CODE_HELP_LABEL, INVITE_CODE_HELP_BODY } from '../../../utils/inviteCopy'
 
 interface BookInviteModalProps {
   open: boolean;
@@ -100,7 +101,7 @@ export const BookInviteModal: React.FC<BookInviteModalProps> = ({ open, onClose,
           required
         />
         <p style={{ fontSize: '12px', color: 'var(--fg3)', margin: 0 }}>
-          <strong>邀请码获取方式：</strong>由账主在「账本详情 → 生成邀请码」中生成，有效期为 7 天。
+          <strong>{INVITE_CODE_HELP_LABEL}</strong>{INVITE_CODE_HELP_BODY}
         </p>
       </div>
     </GlobalModal>

@@ -17,6 +17,7 @@ import { Button } from '../ui/Button'
 import { Icon } from '../ui/Icon'
 import { FooterActions } from '../ui/FooterActions'
 import { notifySuccess, notifyInfo } from '../../utils/notifyError'
+import { userDisplayName, userInitial } from '../../utils/userDisplay'
 
 interface SwitchAccountModalProps {
   visible: boolean
@@ -91,7 +92,7 @@ const SwitchAccountModal: React.FC<SwitchAccountModalProps> = ({ visible, onClos
             <div className="account-list">
               {accounts.map((account) => {
                 const isCurrent = account.email === currentEmail
-                const initial = (account.username || account.email).charAt(0).toUpperCase()
+                const initial = userInitial(account)
                 return (
                   <div
                     key={account.email}
@@ -107,7 +108,7 @@ const SwitchAccountModal: React.FC<SwitchAccountModalProps> = ({ visible, onClos
                     </div>
                     <div className="account-item-info">
                       <div className="account-item-name">
-                        {account.username || account.email}
+                        {userDisplayName(account)}
                         {isCurrent && <span className="current-badge">当前</span>}
                       </div>
                       <div className="account-item-email">{account.email}</div>

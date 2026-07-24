@@ -4,6 +4,7 @@ import { Icon } from '../../../components/ui/Icon';
 import { bookMemberRoleLabel, isBookOwnerRole } from '../../../utils/roles'
 import { ListRowsSkeleton } from '../../../components/ui/Skeleton';
 import { EmptyState } from '../../../components/ui/EmptyState';
+import { userDisplayName } from '../../../utils/userDisplay'
 
 interface BookMemberListProps {
   members: any[];
@@ -45,7 +46,7 @@ export const BookMemberList: React.FC<BookMemberListProps> = ({
         {members.map((member: any) => (
           <div key={member.id} className="member-item">
             <div className="member-info">
-              <div className="member-name">{member.username || member.email}</div>
+              <div className="member-name">{userDisplayName(member)}</div>
               <div className="member-email">{member.email}</div>
             </div>
             <div className="member-role">

@@ -13,6 +13,7 @@ import "./index.scss";
 import { toastError } from "../../../../hooks/useSubmit";
 import { toastSuccess } from "../../../../utils/toast";
 import { isBookOwnerRole, bookMemberRoleLabel } from "../../../../utils/roles";
+import { userDisplayName } from "../../../../utils/userDisplay";
 
 interface BookCardProps {
   book: Book;
@@ -181,7 +182,7 @@ export default function BookCard({
             members.map((m: any) => (
               <View key={m.id} className="book-card__member">
                 <Text className="book-card__member-name">
-                  {m.username || m.email}
+                  {userDisplayName(m)}
                 </Text>
                 {isBookOwnerRole(m.role) && (
                   <View className="book-card__badge book-card__badge--current">

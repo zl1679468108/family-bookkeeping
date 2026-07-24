@@ -22,6 +22,7 @@ import {
 } from "../../utils/savedAccounts";
 import "./index.scss";
 import { toastSuccess, toastInfo } from "../../utils/toast";
+import { userDisplayName, userInitial } from "../../utils/userDisplay";
 
 export default function Profile() {
   const { user, signOut, signIn, switchByToken } = useAuth();
@@ -341,7 +342,7 @@ export default function Profile() {
                   <View className="switch-account-list">
                     {accounts.map((account) => {
                       const isCurrent = account.email === user?.email;
-                      const accInitial = (account.username || account.email).charAt(0).toUpperCase();
+                      const accInitial = userInitial(account);
                       return (
                         <View
                           key={account.email}
@@ -357,7 +358,7 @@ export default function Profile() {
                           </View>
                           <View className="switch-account-info">
                             <Text className="switch-account-name">
-                              {account.username || account.email}
+                              {userDisplayName(account)}
                               {isCurrent && <Text className="switch-current-badge">当前</Text>}
                             </Text>
                             <Text className="switch-account-email">{account.email}</Text>

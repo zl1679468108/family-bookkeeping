@@ -98,6 +98,12 @@
 - `formatAmount`/`formatAmountWithType` 薄封装 `formatMoney`，单一金额格式实现。
 - 记一笔保存成功清除草稿；frontend `tsc --noEmit` 通过。
 
+#### 2026-07-24 用户展示名 + 邀请码文案复用
+- 双端新增 `utils/userDisplay.ts`：`userDisplayName` / `userInitial`（含中文首字）。
+- 双端新增 `utils/inviteCopy.ts`：邀请码获取说明常量。
+- 侧栏/切换账号/账本成员/Profile 展示名；Books 邀请提示与 Onboarding 文案收口。
+- 验证：frontend/taro `tsc --noEmit` 通过。
+
 #### 2026-07-24 角色文案 + formatDateTime 复用
 - 双端新增 `utils/roles.ts`：`bookMemberRoleLabel` / `isBookOwnerRole` / `platformUserRoleLabel` / `isPlatformAdmin`；统一 owner → 账主。
 - PC 账本成员列表、Admin 用户角色；Taro Books/BookMembers/BookCard 角色展示收口。

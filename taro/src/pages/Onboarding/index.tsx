@@ -17,6 +17,7 @@ import { useSubmit, toastError } from "../../hooks/useSubmit";
 import { BOOK_ICONS, renderBookIconSvg } from "../../utils/bookIcons";
 import "./index.scss";
 import { toastSuccess, toastInfo } from "../../utils/toast";
+import { INVITE_CODE_HELP } from "../../utils/inviteCopy";
 
 type Mode = "choice" | "create" | "join";
 
@@ -213,7 +214,7 @@ export default function Onboarding() {
           </View>
 
           <Text className="ob-hint">
-            邀请码获取方式：由账主在「账本详情 → 生成邀请码」中生成，有效期为 7 天。
+            {INVITE_CODE_HELP}
           </Text>
 
           <Button variant="primary" block size="lg" onClick={handleJoin}>

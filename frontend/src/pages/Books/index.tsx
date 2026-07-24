@@ -8,6 +8,7 @@ import { InviteMemberModal } from './components/InviteMemberModal';
 import { InviteCodeModal } from './components/InviteCodeModal';
 import { GlobalModal } from '../../components/ui';
 import './index.scss';
+import { userDisplayName } from '../../utils/userDisplay'
 
 const BooksPage: React.FC = () => {
   const {
@@ -68,7 +69,7 @@ const BooksPage: React.FC = () => {
         type="confirm"
         open={showMemberConfirm}
         title="确认移除"
-        children={`确定要移除成员 ${removingMember?.username || removingMember?.email}？`}
+        children={`确定要移除成员 ${userDisplayName(removingMember)}？`}
         onConfirm={() => {
           if (removingMember && selectedBook) {
             removeMemberMutation.run({ bookId: selectedBook.id, userId: removingMember.id });

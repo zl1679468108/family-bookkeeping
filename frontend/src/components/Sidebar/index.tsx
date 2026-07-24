@@ -4,6 +4,7 @@ import { useAuth } from '../../utils/auth'
 import { ThemeToggle } from '../../utils/theme'
 import { Skeleton } from '../ui/Skeleton'
 import { Icon, type IconName } from '../ui/Icon'
+import { userDisplayName, userInitial } from '../../utils/userDisplay'
 import SwitchAccountModal from '../SwitchAccountModal'
 import { useQuery } from '@tanstack/react-query'
 import { fetchBudgetStatus } from '../../services/budgetsApi'
@@ -89,14 +90,9 @@ export const Sidebar: React.FC = () => {
     navigate('/profile')
   }
 
-  const displayName = user?.username || '用户'
+  const displayName = userDisplayName(user)
   const displayEmail = user?.email || ''
-  const avatarChar = (() => {
-    const name = user?.username || user?.email || '用户'
-    const chineseChar = name.match(/[\u4e00-\u9fa5]/)
-    if (chineseChar) return chineseChar[0]
-    return name.charAt(0).toUpperCase() || 'U'
-  })()
+  const avatarChar = userInitial(user, 'U')
 
   // 获取预算状态，计算超预算数量
   const currentMonth = format(startOfMonth(new Date()), 'yyyy-MM-dd')

@@ -28,6 +28,8 @@ import type { Book } from "../../types";
 import "./index.scss";
 import { toastSuccess, toastInfo } from "../../utils/toast";
 import { bookMemberRoleLabel, isBookOwnerRole } from "../../utils/roles";
+import { INVITE_CODE_HELP_LABEL, INVITE_CODE_HELP_BODY } from "../../utils/inviteCopy";
+import { userDisplayName } from "../../utils/userDisplay";
 
 type BookRow = Book & { is_default?: boolean };
 
@@ -377,8 +379,8 @@ export default function BooksPage() {
               </View>
               <View className="bk-join-hint">
                 <Text>
-                  <Text className="bk-join-hint__bold">邀请码获取方式：</Text>
-                  由账主在「账本详情 → 生成邀请码」中生成，有效期为 7 天。
+                  <Text className="bk-join-hint__bold">{INVITE_CODE_HELP_LABEL}</Text>
+                  {INVITE_CODE_HELP_BODY}
                 </Text>
               </View>
             </View>
@@ -495,7 +497,7 @@ export default function BooksPage() {
                       {(members as Member[]).map((m) => (
                         <View key={m.id} className="bk-member-item">
                           <View className="bk-member-info">
-                            <Text className="bk-member-name">{m.username || m.email}</Text>
+                            <Text className="bk-member-name">{userDisplayName(m)}</Text>
                             <Text className="bk-member-email">{m.email}</Text>
                           </View>
                           <View className="bk-member-role">
@@ -706,7 +708,7 @@ export default function BooksPage() {
       <ConfirmDialog
         visible={showRemoveConfirm}
         title="确认移除"
-        message={`确定要移除成员 ${removingMember?.username || removingMember?.email} 吗？`}
+        message={`确定要移除成员 ${userDisplayName(removingMember)} 吗？`}
         confirmText="移除"
         danger
         onConfirm={handleRemoveMember}

@@ -30,6 +30,7 @@ import {
 import "./index.scss";
 import { getErrorMessage } from "../../utils/errorMessage";
 import { toastSuccess, toastInfo } from "../../utils/toast";
+import { userInitial } from "../../utils/userDisplay";
 import {
   validateEmail,
   validatePasswordMatch,
@@ -52,7 +53,7 @@ export default function EditProfile() {
   const [confirmPwd, setConfirmPwd] = useState("");
 
   // 首字母占位：取 username 首字母大写；如果没有 username 取 email 首字母大写。
-  const initial = (user?.username || user?.email || "U")
+  const initial = userInitial(user, "U")
     .charAt(0)
     .toUpperCase();
 

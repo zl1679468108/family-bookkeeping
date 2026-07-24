@@ -18,6 +18,7 @@ import ConfirmDialog from "../../components/ConfirmDialog";
 import PageContainer from "../../components/PageContainer";
 import { toastSuccess } from "../../utils/toast";
 import { bookMemberRoleLabel, isBookOwnerRole } from "../../utils/roles";
+import { userDisplayName, userInitial } from "../../utils/userDisplay";
 
 interface Member {
   id: string;
@@ -329,7 +330,7 @@ export default function BookMembers() {
                     }}
                   >
                     <Text style={{ color: "#fff", fontSize: "32rpx", fontWeight: 600 }}>
-                      {(m.username || m.email || "?").charAt(0).toUpperCase()}
+                      {userInitial(m)}
                     </Text>
                   </View>
                   <View>
@@ -377,7 +378,7 @@ export default function BookMembers() {
                     onClick={() =>
                       setRemoveTarget({
                         userId: m.userId,
-                        name: m.username || m.email,
+                        name: userDisplayName(m),
                       })
                     }
                   >
