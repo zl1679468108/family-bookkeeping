@@ -167,6 +167,11 @@
 - 邀请/转移邮箱：FE InviteMemberModal、Taro Books/BookMembers/BookSettings 改用 `validateEmail`（空+格式）
 - 验证：frontend / taro `tsc --noEmit`
 
+#### 2026-07-24 分类图标规格 / 成员空态 / 账本日期 shared 化
+- `buildCategoryIconOptionSpecs` 入 categories：PC/Taro 分类表单图标网格同源
+- `EMPTY_NO_MEMBERS` 入 emptyCopy；Taro Books/BookCard/BookMembers 接线
+- Taro Books 自定义图标/时间展示改用 `isCustomIconUrl` + `formatDateTimeMinute`
+
 #### 2026-07-24 年报归一 / 月份枚举 / 金额别名 shared 化
 - 新增 `shared-utils/src/annualReport`：`normalizeAnnualReport` + 年报安全结构类型；PC 年报页接线
 - `generateMonthKeysBetween` 入 `month`：成员对比月份轴复用

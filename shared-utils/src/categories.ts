@@ -1,3 +1,6 @@
+import { EMOJI_PRESETS } from './emojiPresets'
+import { SHOPPING_PLATFORM_ICONS } from './platformIcons'
+
 /**
  * 分类列表纯函数 — 双端 useCategories / 下拉选项 / 查找表共用
  */
@@ -81,4 +84,28 @@ export function sortCategoriesByOrder<T extends { sort_order?: number }>(
   categories: readonly T[],
 ): T[] {
   return categories.slice().sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))
+}
+
+/** 分类图标选择器规格（端侧再映射为 ReactNode / dataURL） */
+export type CategoryIconOptionSpec = {
+  value: string
+  kind: 'emoji' | 'platform'
+  /** kind=platform 时的平台 key（不含 platform_ 前缀） */
+  platformKey?: string
+  label?: string
+}
+
+export function buildCategoryIconOptionSpecs(): CategoryIconOptionSpec[] {
+  return [
+    ...EMOJI_PRESETS.map((emoji) => ({
+      value: emoji,
+      kind: 'emoji' as const,
+    })),
+    ...SHOPPING_PLATFORM_ICONS.map((item) => ({
+      value: `platform_${item.key}`,
+      kind: 'platform' as const,
+      platformKey: item.key,
+      label: item.label,
+    })),
+  ]
 }

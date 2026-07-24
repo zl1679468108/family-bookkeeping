@@ -54,6 +54,9 @@ import { DELETE_FAILED } from "../../utils/uploadCopy";
 import { ERROR_JOIN_FAILED, ERROR_INVITE_EMAIL, ERROR_GENERATE_FAILED, ERROR_REMOVE_FAILED } from "../../utils/errorCopy";
 import Icon, { ICON_COLOR } from "../../components/Icon";
 import { EMPTY_BOOKS_SHORT } from "../../utils/emptyCopy";
+import { formatDateTimeMinute } from "../../utils/date";
+import { isCustomIconUrl } from "../../utils/bookIcons";
+import { EMPTY_NO_MEMBERS } from "../../utils/emptyCopy";
 
 type BookRow = Book & { is_default?: boolean };
 
@@ -63,25 +66,6 @@ interface Member {
   username?: string;
   role: "owner" | "member";
 }
-
-const isCustomIcon = (val: string | undefined): boolean =>
-  !!val && (val.startsWith("http://") || val.startsWith("https://"));
-
-// 格式化北京时间字符串为可读日期
-const fmtDate = (s: string) => {
-  if (!s) return "";
-  try {
-    const d = new Date(s);
-    const y = d.getFullYear();
-    const m = String(d.getMonth() + 1).padStart(2, "0");
-    const day = String(d.getDate()).padStart(2, "0");
-    const h = String(d.getHours()).padStart(2, "0");
-    const min = String(d.getMinutes()).padStart(2, "0");
-    return `${y}-${m}-${day} ${h}:${min}`;
-  } catch {
-    return s;
-  }
-};
 
 export default function BooksPage() {
   const { currentBook, switchBook } = useBookContext();
@@ -352,7 +336,7 @@ export default function BooksPage() {
                 {/* 图标 + 名称 */}
                 <View className="bk-card__head">
                   <View className="bk-card__icon-wrap">
-                    {isCustomIcon(book.icon) ? (
+                    {isCustomIconUrl(book.icon) ? (
                       <Text>图</Text>
                     ) : (
                       <Image
@@ -460,7 +444,7 @@ export default function BooksPage() {
                   {/* 账本信息头部 */}
                   <View className="bk-detail-info">
                     <View className="bk-detail-emoji">
-                      {isCustomIcon(detailBook.icon) ? (
+                      {isCustomIconUrl(detailBook.icon) ? (
                         <Text style={{ fontSize: "36rpx" }}>图</Text>
                       ) : (
                         <Image
@@ -492,11 +476,11 @@ export default function BooksPage() {
                   <View className="bk-detail-stats">
                     <View className="bk-detail-stat-item">
                       <Text className="bk-detail-stat-label">创建时间</Text>
-                      <Text className="bk-detail-stat-value">{fmtDate(detailBook.created_at)}</Text>
+                      <Text className="bk-detail-stat-value">{formatDateTimeMinute(detailBook.created_at)}</Text>
                     </View>
                     <View className="bk-detail-stat-item">
                       <Text className="bk-detail-stat-label">更新时间</Text>
-                      <Text className="bk-detail-stat-value">{fmtDate(detailBook.updated_at)}</Text>
+                      <Text className="bk-detail-stat-value">{formatDateTimeMinute(detailBook.updated_at)}</Text>
                     </View>
                   </View>
                   <View className="bk-detail-stats">
@@ -518,7 +502,7 @@ export default function BooksPage() {
                       <View className="bk-member-skeleton__item" />
                     </View>
                   ) : !members || members.length === 0 ? (
-                    <Text className="bk-detail-empty">暂无成员</Text>
+                    <Text className="bk-detail-empty">{EMPTY_NO_MEMBERS}</Text>
                   ) : (
                     <View className="bk-member-list">
                       {(members as Member[]).map((m) => (
@@ -596,7 +580,7 @@ export default function BooksPage() {
                           </View>
                         </View>
                         <Text className="bk-invite-hint">
-                          有效期至：{fmtDate(inviteCodeData.expires_at)}
+                          有效期至：{formatDateTimeMinute(inviteCodeData.expires_at)}
                         </Text>
                         <Text className="bk-invite-tip">
                           将以下邀请码分享给他人，对方在「加入账本」中输入邀请码即可加入账本

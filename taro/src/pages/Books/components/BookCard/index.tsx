@@ -16,6 +16,7 @@ import { isBookOwnerRole, bookMemberRoleLabel } from "../../../../utils/roles";
 import { userDisplayName } from "../../../../utils/userDisplay";
 import { SUCCESS_INVITE_SENT } from "../../../../utils/successCopy";
 import { ERROR_INVITE_FAILED } from "../../../../utils/errorCopy";
+import { EMPTY_NO_MEMBERS } from "../../../../utils/emptyCopy";
 
 interface BookCardProps {
   book: Book;
@@ -179,7 +180,7 @@ export default function BookCard({
       {showMembers && (
         <View className="book-card__members">
           {members.length === 0 ? (
-            <Text className="book-card__members-empty">暂无成员</Text>
+            <Text className="book-card__members-empty">{EMPTY_NO_MEMBERS}</Text>
           ) : (
             members.map((m: any) => (
               <View key={m.id} className="book-card__member">

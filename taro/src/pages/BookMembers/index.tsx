@@ -30,6 +30,7 @@ import { FORM_PEER_EMAIL_PLACEHOLDER, FORM_EMAIL_REQUIRED } from "../../utils/fo
 import { validateEmail } from "../../utils/validation";
 import { copyToClipboard } from "../../utils/clipboard";
 import { ERROR_GENERATE_FAILED, ERROR_REMOVE_FAILED, ERROR_INVITE_FAILED } from "../../utils/errorCopy";
+import { EMPTY_NO_MEMBERS } from "../../utils/emptyCopy";
 
 interface Member {
   id: string;
@@ -419,7 +420,7 @@ export default function BookMembers() {
                   color: "var(--fg3)",
                 }}
               >
-                <Text>暂无成员</Text>
+                <Text>{EMPTY_NO_MEMBERS}</Text>
               </View>
             )}
           </View>

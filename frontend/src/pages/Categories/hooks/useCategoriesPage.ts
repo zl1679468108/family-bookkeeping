@@ -2,8 +2,8 @@ import React, { useState, useCallback } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { createCategory, updateCategory, deleteCategory, reorderCategories } from '../../../services/categoriesApi'
 import { fetchCustomIcons, uploadIcon, deleteIcon } from '../../../services/iconsApi'
-import { EMOJI_PRESETS } from '../../../utils/emojiPresets'
-import { SHOPPING_PLATFORM_ICONS, getPlatformIconByKey } from '../../../utils/shoppingPlatformIcons'
+import { buildCategoryIconOptionSpecs } from '../../../utils/categories'
+import { getPlatformIconByKey } from '../../../utils/shoppingPlatformIcons'
 
 import { useSort } from '../../../hooks/useSort'
 import type { SortSaveResult } from '../../../hooks/useSort'
@@ -170,16 +170,16 @@ export function useCategoriesPage() {
   const modalTitle = modalMode === 'add' ? `新增${typeLabel}分类` : `编辑${typeLabel}分类`
 
   const iconOptions = React.useMemo(
-    () => [
-      // Emoji presets
-      ...EMOJI_PRESETS.map((emoji) => ({ value: emoji, icon: emoji as React.ReactNode })),
-      // Shopping platform SVG presets
-      ...SHOPPING_PLATFORM_ICONS.map((item) => ({
-        value: `platform_${item.key}`,
-        icon: getPlatformIconByKey(item.key) as React.ReactNode,
-        label: item.label,
-      })),
-    ],
+    () =>
+      buildCategoryIconOptionSpecs().map((spec) =>
+        spec.kind === 'platform'
+          ? {
+              value: spec.value,
+              icon: getPlatformIconByKey(spec.platformKey || '') as React.ReactNode,
+              label: spec.label,
+            }
+          : { value: spec.value, icon: spec.value as React.ReactNode },
+      ),
     [],
   )
 

@@ -31,10 +31,8 @@ import {
   uploadIcon,
   deleteIcon,
 } from "../../services/iconsApi";
-import { EMOJI_PRESETS } from "../../utils/emojiPresets";
 import {
-  SHOPPING_PLATFORM_ICONS,
-  getPlatformIconSvgDataUrl,
+    getPlatformIconSvgDataUrl,
 } from "../../utils/platformIcons";
 import { useManualQuery } from "../../hooks/useManualQuery";
 import { useSubmit, toastError } from "../../hooks/useSubmit";
@@ -57,6 +55,7 @@ import { emptyCategories } from "../../utils/emptyCopy";
 import { entityCreateButton, ENTITY_CATEGORY } from "../../utils/entityCopy";
 import { UPLOAD_FAILED, DELETE_FAILED } from "../../utils/uploadCopy";
 import { failEntityUpsert } from "../../utils/errorCopy";
+import { buildCategoryIconOptionSpecs } from "../../utils/categories";
 
 /* ---------- 类型 ---------- */
 interface Category {
@@ -75,15 +74,16 @@ type FormMode = "add" | "edit";
 
 /* ---------- 图标选项（与 PC 一致）---------- */
 function buildIconOptions() {
-  return [
-    ...EMOJI_PRESETS.map((e) => ({ value: e, icon: e })),
-    ...SHOPPING_PLATFORM_ICONS.map((item) => ({
-      value: `platform_${item.key}`,
-      icon: getPlatformIconSvgDataUrl(item.key),
-      label: item.label,
-      isImage: true,
-    })),
-  ];
+  return buildCategoryIconOptionSpecs().map((spec) =>
+    spec.kind === "platform"
+      ? {
+          value: spec.value,
+          icon: getPlatformIconSvgDataUrl(spec.platformKey || ""),
+          label: spec.label,
+          isImage: true,
+        }
+      : { value: spec.value, icon: spec.value },
+  );
 }
 
 /* ================================================================
