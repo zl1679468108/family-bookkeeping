@@ -106,6 +106,20 @@ export function useMapInstance(
         setReady(true);
         acquiredRef.current = true;
 
+        // 布局稳定后强制 resize，避免容器初始 0 尺寸导致空白瓦片
+        const forceResize = () => {
+          try {
+            if (m && typeof m.resize === 'function') m.resize();
+          } catch { /* ignore */ }
+        };
+        requestAnimationFrame(() => {
+          forceResize();
+          requestAnimationFrame(forceResize);
+        });
+        // 再兜底一次（字体/侧栏动画后）
+        const lateTimer = window.setTimeout(forceResize, 200);
+        (parentEl as any).__amapLateResizeTimer = lateTimer;
+
         // ResizeObserver — optional, skipped when component handles resize itself
         if (!skipResizeObserver) {
           let resizeTimer: ReturnType<typeof setTimeout> | undefined;
@@ -140,6 +154,10 @@ export function useMapInstance(
       if (parentEl && (parentEl as any).__amapResizeTimer) {
         clearTimeout((parentEl as any).__amapResizeTimer);
         delete (parentEl as any).__amapResizeTimer;
+      }
+      if (parentEl && (parentEl as any).__amapLateResizeTimer) {
+        clearTimeout((parentEl as any).__amapLateResizeTimer);
+        delete (parentEl as any).__amapLateResizeTimer;
       }
       if (acquiredRef.current) {
         manager.release(id);

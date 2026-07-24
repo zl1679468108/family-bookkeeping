@@ -192,7 +192,14 @@ class AmapManager {
         delete (m as any).__amapMarkers;
         delete (m as any).__amapHeatmap;
       } catch {}
-      // No resize here — let the ResizeObserver in the hook handle it
+      // 容器重新挂到真实 DOM 后补一次 resize（双 rAF）
+      const m = pooled.map;
+      requestAnimationFrame(() => {
+        try { if (m && typeof m.resize === 'function') m.resize(); } catch {}
+        requestAnimationFrame(() => {
+          try { if (m && typeof m.resize === 'function') m.resize(); } catch {}
+        });
+      });
       return pooled.map;
     }
 

@@ -9,6 +9,7 @@ import { renderCategoryIcon } from '../../../utils/renderCategoryIcon'
 import type { DropdownOption } from '../../../components/ui/Dropdown'
 import { useMutationAction } from '../../../hooks/useMutationAction'
 import { notifyError, notifyInfo, notifySuccess } from '../../../utils/notifyError'
+import { isValidPositiveAmount } from '../../../utils/budget'
 import { parseImageList } from '../../../utils/parseImageList'
 import { compressImage } from '../../../utils/imageCompress'
 import type { LocationResult } from '@family-bookkeeping/shared-types'
@@ -205,8 +206,7 @@ export function useTransactionForm() {
   // 统一提交：校验 + 创建/更新 + 图片上传 + 缓存失效
   const { run: handleSubmit, isRunning: submitInProgress } = useMutationAction(
     async (): Promise<SubmitResult> => {
-      const amountNum = parseFloat(formData.amount)
-      if (!formData.amount || isNaN(amountNum) || amountNum <= 0) {
+      if (!isValidPositiveAmount(formData.amount)) {
         notifyInfo('请输入有效金额')
         return 'invalid'
       }

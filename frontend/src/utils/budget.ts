@@ -89,3 +89,18 @@ export function budgetVariantLabel(variant: BudgetVariant): string {
   return '正常'
 }
 
+/** 清理金额输入：仅保留数字与一个小数点，默认最多 2 位小数 */
+export function sanitizeAmountInput(raw: string, maxDecimals = 2): string {
+  const v = String(raw ?? '').replace(/[^0-9.]/g, '')
+  const parts = v.split('.')
+  if (parts.length === 1) return parts[0]
+  return parts[0] + '.' + (parts[1] || '').slice(0, maxDecimals)
+}
+
+/** 是否为有效正数金额 */
+export function isValidPositiveAmount(amount: string | number | null | undefined): boolean {
+  if (amount === null || amount === undefined || amount === '') return false
+  const num = typeof amount === 'string' ? parseFloat(amount) : amount
+  return Number.isFinite(num) && num > 0
+}
+

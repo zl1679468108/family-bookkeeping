@@ -119,7 +119,8 @@ const _MapCanvas: React.ForwardRefRenderFunction<MapCanvasHandle, MapCanvasProps
 
   // ---- Map instance via pool ----
   const { mapContainerRef, map: rawMap, ready, error: mapError } = useMapInstance('map-canvas', {
-    skipResizeObserver: true,
+    // 开启 ResizeObserver：容器尺寸变化（侧栏折叠/窗口变化）时补 resize，避免空白瓦片
+    skipResizeObserver: false,
   });
   const map = rawMap as any;
 
@@ -173,6 +174,26 @@ const _MapCanvas: React.ForwardRefRenderFunction<MapCanvasHandle, MapCanvasProps
       onMapReady(map);
     }
   }, [ready, map, onMapReady]);
+
+  // 地图 ready 后强制 resize + 兜底显示，避免 opacity:0 一直卡住
+  useEffect(() => {
+    if (!ready || !map) return;
+    const doResize = () => {
+      try {
+        if (typeof map.resize === 'function') map.resize();
+      } catch { /* ignore */ }
+    };
+    doResize();
+    const t1 = window.setTimeout(doResize, 50);
+    const t2 = window.setTimeout(doResize, 300);
+    // 最晚 1.5s 强制显示（定位/拟合失败时也不至于一直遮罩）
+    const showTimer = window.setTimeout(() => setMapVisible(true), 1500);
+    return () => {
+      window.clearTimeout(t1);
+      window.clearTimeout(t2);
+      window.clearTimeout(showTimer);
+    };
+  }, [ready, map]);
 
   // 多成员且已选择成员时启用成员着色
   const useMemberColor = (colorMap?.size ?? 0) >= 2 && selectedMemberId !== null;
@@ -343,12 +364,12 @@ const _MapCanvas: React.ForwardRefRenderFunction<MapCanvasHandle, MapCanvasProps
       setMapVisible(true);
     });
 
-    // 超时兜底：定位 SDK 异常未回调时，10s 后强制显示地图
+    // 超时兜底：定位 SDK 异常未回调时，3s 后强制显示地图
     const fallback = setTimeout(() => {
       if (!locateDone.current) {
         setMapVisible(true);
       }
-    }, 10000);
+    }, 3000);
     return () => clearTimeout(fallback);
   }, [map]);
 

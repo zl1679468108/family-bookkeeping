@@ -3,6 +3,7 @@
  * 参考 PC 端 amt input：大号数字 + 货币符号
  */
 import { View, Text, Input } from "@tarojs/components";
+import { sanitizeAmountInput } from "../../../utils/budget";
 import "./index.scss";
 
 export interface AmountCardProps {
@@ -22,12 +23,7 @@ export default function AmountCard({ value, onChange }: AmountCardProps) {
           placeholder="0.00"
           value={value}
           onInput={(e: any) => {
-            const v = (e.detail.value as string).replace(/[^0-9.]/g, "");
-            const parts = v.split(".");
-            const cleaned =
-              parts[0] +
-              (parts.length > 1 ? "." + (parts[1] || "").slice(0, 2) : "");
-            onChange(cleaned);
+            onChange(sanitizeAmountInput(e.detail.value as string));
           }}
         />
       </View>

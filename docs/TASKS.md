@@ -98,6 +98,12 @@
 - `formatAmount`/`formatAmountWithType` 薄封装 `formatMoney`，单一金额格式实现。
 - 记一笔保存成功清除草稿；frontend `tsc --noEmit` 通过。
 
+#### 2026-07-24 金额工具 + 记一笔表单字段复用
+- 双端 `sanitizeAmountInput` / `isValidPositiveAmount`（budget.ts）；PC/Taro 记一笔与 AmountCard 收口。
+- PC `TransactionForm`：金额/日期/品牌走 `FormField`，备注走 `Textarea`；校验统一 isValidPositiveAmount。
+- Onboarding 退出、账本成员移除按钮图标改 `Icon`。
+- 验证：frontend/taro `tsc --noEmit` 通过。
+
 #### 2026-07-24 FormField + Icon 关闭收口 + Taro 上传 helper
 - PC 新增 `FormField`：Login/Register/Forgot/Profile 文本字段统一 form-group+label；验证码行走 children。
 - Textarea/Dropdown 清空、SwitchAccount 移除/过期、Calendar 月份导航、模板选择/商家历史关闭 → `Icon`。

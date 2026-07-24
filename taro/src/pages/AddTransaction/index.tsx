@@ -26,6 +26,7 @@ import LocationField, {
 } from "../../components/form/LocationField";
 import ImageUpload from "../../components/form/ImageUpload";
 import { todayBeijing, toastSuccess, toastInfo, formatMoney } from "../../utils/format";
+import { sanitizeAmountInput, isValidPositiveAmount } from "../../utils/budget";
 import { parseImageList } from "../../utils/parseImageList";
 import "./index.scss";
 
@@ -207,7 +208,7 @@ export default function AddTransaction() {
 
   // 提交
   const handleSubmit = () => {
-    if (!amount || parseFloat(amount) <= 0) {
+    if (!isValidPositiveAmount(amount)) {
       toastInfo("请输入有效金额");
       return;
     }
@@ -308,7 +309,7 @@ export default function AddTransaction() {
           inputValue={amount}
           inputPlaceholder="0.00"
           onInput={(v: string) => {
-            const cleaned = v.replace(/[^0-9.]/g, "");
+            const cleaned = sanitizeAmountInput(v);
             const parts = cleaned.split(".");
             setAmount(
               parts[0] + (parts.length > 1 ? "." + (parts[1] || "").slice(0, 2) : "")

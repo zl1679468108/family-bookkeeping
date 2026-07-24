@@ -1,5 +1,6 @@
 import React from 'react';
-import { Button } from '../../../components/ui/Button';
+import { Button } from '../../../components/ui/Button'
+import { Icon } from '../../../components/ui/Icon';
 import { ListRowsSkeleton } from '../../../components/ui/Skeleton';
 import { EmptyState } from '../../../components/ui/EmptyState';
 
@@ -57,7 +58,7 @@ export const BookMemberList: React.FC<BookMemberListProps> = ({
                   onClick={() => onRemoveMember(member)}
                   title="移除成员"
                 >
-                  ✕
+                  <Icon name="close" size={14} />
                 </Button>
               )}
             </div>

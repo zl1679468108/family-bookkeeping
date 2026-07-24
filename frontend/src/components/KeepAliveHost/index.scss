@@ -1,4 +1,3 @@
-/* 路由级 KeepAlive：隐藏时不占流，激活时撑满主内容区 */
 .keep-alive-page {
   width: 100%;
   box-sizing: border-box;
@@ -12,9 +11,4 @@
   display: block;
   width: 100%;
   min-height: calc(100vh - 40px);
-}
-
-/* 地图页需要占满可用高度，避免 KeepAlive 父级无高度导致 canvas 为 0 */
-.keep-alive-page--active .map-page {
-  min-height: calc(100vh - 80px);
 }

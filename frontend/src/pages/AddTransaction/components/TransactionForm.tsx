@@ -1,5 +1,8 @@
 import React from 'react'
 import { DropdownSelect } from '../../../components/ui/Dropdown'
+import { FormField } from '../../../components/ui/FormField'
+import { Textarea } from '../../../components/ui/Textarea'
+import { sanitizeAmountInput } from '../../../utils/budget'
 import { MAX_NOTE_LENGTH } from '../hooks/useTransactionForm'
 import type { FormData } from '../hooks/useTransactionForm'
 import type { DropdownOption } from '../../../components/ui/Dropdown'
@@ -15,15 +18,17 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({
 }) => {
   return (
     <>
-      {/* 类型切换 Tab */}
+      {/* 类型切换 Tab（页内专用 form-tabs 样式） */}
       <div className="form-tabs">
         <button
+          type="button"
           className={formData.type !== 'income' ? 'active' : ''}
           onClick={() => setFormData((prev) => ({ ...prev, type: 'expense', category: '' }))}
         >
           支出
         </button>
         <button
+          type="button"
           className={formData.type === 'income' ? 'active' : ''}
           onClick={() => setFormData((prev) => ({ ...prev, type: 'income', category: '' }))}
         >
@@ -31,24 +36,22 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({
         </button>
       </div>
 
-      {/* 金额 */}
-      <div className="form-group">
-        <label className="field-required">金额</label>
-        <input
-          type="text"
-          className="form-input amt"
-          placeholder="0.00"
-          value={formData.amount}
-          onChange={(e) => {
-            const v = e.target.value.replace(/[^0-9.]/g, '')
-            setFormData((prev) => ({ ...prev, amount: v }))
-          }}
-        />
-      </div>
+      <FormField
+        label="金额"
+        labelClassName="field-required"
+        type="text"
+        className="form-input amt"
+        placeholder="0.00"
+        value={formData.amount}
+        onChange={(e) => {
+          const v = sanitizeAmountInput(e.target.value)
+          setFormData((prev) => ({ ...prev, amount: v }))
+        }}
+        inputMode="decimal"
+      />
 
       <div className="form-row">
         <div className="form-group">
-          <label className="field-required">分类</label>
           <DropdownSelect
             label="分类"
             options={categoryOptions}
@@ -59,48 +62,38 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({
             width="100%"
           />
         </div>
-        <div className="form-group">
-          <label className="field-required">日期</label>
-          <input
-            type="date"
-            className="form-input"
-            value={formData.date}
-            onChange={(e) => setFormData((prev) => ({ ...prev, date: e.target.value }))}
-          />
-        </div>
-      </div>
-
-      {/* 品牌 */}
-      <div className="form-group">
-        <label>品牌</label>
-        <input
-          type="text"
+        <FormField
+          label="日期"
+          labelClassName="field-required"
+          type="date"
           className="form-input"
-          placeholder="例如：雅诗兰黛、苹果"
-          value={formData.brand}
-          onChange={(e) => setFormData((prev) => ({ ...prev, brand: e.target.value }))}
-          maxLength={100}
+          value={formData.date}
+          onChange={(e) => setFormData((prev) => ({ ...prev, date: e.target.value }))}
         />
       </div>
 
-      {/* 备注 */}
-      <div className="form-group">
-        <label>备注</label>
-        <textarea
-          className="form-input textarea"
-          placeholder="例如：小棕瓶 50ml，给妈妈买的礼物"
-          value={formData.note}
-          onChange={(e) => {
-            const v = e.target.value.slice(0, MAX_NOTE_LENGTH)
-            setFormData((prev) => ({ ...prev, note: v }))
-          }}
-          maxLength={MAX_NOTE_LENGTH}
-          rows={4}
-        />
-        <div className="char-counter">
-          {formData.note.length} / {MAX_NOTE_LENGTH}
-        </div>
-      </div>
+      <FormField
+        label="品牌"
+        type="text"
+        className="form-input"
+        placeholder="例如：雅诗兰黛、苹果"
+        value={formData.brand}
+        onChange={(e) => setFormData((prev) => ({ ...prev, brand: e.target.value }))}
+        maxLength={100}
+      />
+
+      <Textarea
+        label="备注"
+        placeholder="例如：小棕瓶 50ml，给妈妈买的礼物"
+        value={formData.note}
+        onChange={(e) => {
+          const v = e.target.value.slice(0, MAX_NOTE_LENGTH)
+          setFormData((prev) => ({ ...prev, note: v }))
+        }}
+        maxLength={MAX_NOTE_LENGTH}
+        showCount
+        rows={4}
+      />
     </>
   )
 }
