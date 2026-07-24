@@ -59,8 +59,36 @@ export const FORM_SELECT_TYPE = '选择类型'
 export const FORM_TEMPLATE_NAME_EXAMPLE = '如：公司食堂午餐'
 export const FORM_NOTE_OPTIONAL = '添加备注（可选）'
 
+
 /** 备注最大长度（记一笔 / NoteField 双端一致） */
 export const MAX_NOTE_LENGTH = 500
+
+/** 分类名称 */
+export const MAX_CATEGORY_NAME_LENGTH = 10
+
+/** 模板名称 */
+export const MAX_TEMPLATE_NAME_LENGTH = 20
+
+/** 账本名称 */
+export const MAX_BOOK_NAME_LENGTH = 50
+
+/** 账本描述 */
+export const MAX_BOOK_DESCRIPTION_LENGTH = 200
+
+/** 邀请码输入框 */
+export const MAX_INVITE_CODE_LENGTH = 32
+
+/** 商户/品牌名（记一笔） */
+export const MAX_MERCHANT_NAME_LENGTH = 100
+
+/** 用户名（PC 资料） */
+export const MAX_USERNAME_LENGTH = 100
+
+/** 图形验证码 */
+export const MAX_CAPTCHA_LENGTH = 4
+
+/** 邮箱重置验证码 */
+export const MAX_RESET_CODE_LENGTH = 6
 export const FORM_CATEGORY_NAME_PLACEHOLDER = '输入分类名称'
 export const FORM_BRAND_EXAMPLE = '例如：雅诗兰黛、苹果'
 export const FORM_DESC_EXAMPLE = '例如：小棕瓶 50ml，给妈妈买的礼物'

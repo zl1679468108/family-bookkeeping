@@ -85,6 +85,11 @@
 
 ### ✅ 已完成
 
+#### 2026-07-24 表单字段长度上限 shared 化
+- formCopy 补分类/模板/账本/邀请码/商户/用户名/验证码长度常量
+- PC + Taro 表单 maxlength 接线；Taro ImageUpload 默认张数对齐 MAX_RECEIPT_IMAGES
+- 验证：frontend / taro `tsc --noEmit`
+
 #### 2026-07-24 modalZIndex 动态层级 shared 化
 - `shared-utils/modalZIndex`：MODAL_BASE_Z_INDEX + acquire/release；PC util 改 facade
 - Taro GlobalModal/Drawer/DropdownSelect 的 useModalZIndex 对齐 PC 语义（open 开关配对 release）

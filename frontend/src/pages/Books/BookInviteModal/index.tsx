@@ -13,7 +13,7 @@ import { queryKeys } from '../../../utils/queryKeys'
 import { INVITE_CODE_HELP_LABEL, INVITE_CODE_HELP_BODY } from '../../../utils/inviteCopy'
 import { SUCCESS_JOINED } from '../../../utils/successCopy'
 import { validateInviteCode, normalizeInviteCode } from '../../../utils/validation'
-import { FORM_INVITE_CODE_EXAMPLE } from '../../../utils/formCopy'
+import { FORM_INVITE_CODE_EXAMPLE, MAX_INVITE_CODE_LENGTH } from '../../../utils/formCopy'
 import { TITLE_JOIN_BY_INVITE } from '../../../utils/sectionCopy'
 import { FIELD_INVITE_CODE } from '../../../utils/fieldCopy'
 import { ACTION_CANCEL, joiningLabel } from '../../../utils/actionCopy'
@@ -104,7 +104,7 @@ export const BookInviteModal: React.FC<BookInviteModalProps> = ({ open, onClose,
           value={inviteCode}
           onChange={(e) => setInviteCode(e.target.value.toUpperCase())}
           placeholder={FORM_INVITE_CODE_EXAMPLE}
-          maxLength={32}
+          maxLength={MAX_INVITE_CODE_LENGTH}
           autoFocus
           required
         />

@@ -11,7 +11,7 @@ import { FREQUENCY_OPTIONS_WITH_NONE } from '../../../utils/frequency'
 import { TRANSACTION_TYPE_OPTIONS } from '../../../utils/transactionType'
 import {  busyLabel, ACTION_SAVING, ACTION_CANCEL, updateOrCreateLabel } from '../../../utils/actionCopy'
 import { entityFormTitle, ENTITY_TEMPLATE } from '../../../utils/entityCopy'
-import { FORM_TEMPLATE_NAME_EXAMPLE, FORM_SELECT_TYPE, FORM_SELECT_CATEGORY, FORM_AMOUNT_PLACEHOLDER, FORM_NOTE_OPTIONAL, FORM_SELECT_FREQUENCY } from '../../../utils/formCopy'
+import { FORM_TEMPLATE_NAME_EXAMPLE, FORM_SELECT_TYPE, FORM_SELECT_CATEGORY, FORM_AMOUNT_PLACEHOLDER, FORM_NOTE_OPTIONAL, FORM_SELECT_FREQUENCY, MAX_TEMPLATE_NAME_LENGTH } from '../../../utils/formCopy'
 import { FIELD_TYPE, FIELD_CATEGORY, FIELD_AMOUNT, FIELD_NOTE, FIELD_SORT, FIELD_FREQUENCY, FIELD_START_DATE, FIELD_TEMPLATE_NAME, FIELD_END_DATE_OPTIONAL } from '../../../utils/fieldCopy'
 
 interface TemplateFormProps {
@@ -81,7 +81,7 @@ export const TemplateFormModal: React.FC<TemplateFormProps> = ({
             value={form.name}
             onChange={(e) => setForm((prev: any) => ({ ...prev, name: e.target.value.slice(0, 20) }))}
             autoFocus
-            maxLength={20}
+            maxLength={MAX_TEMPLATE_NAME_LENGTH}
             required
           />
           <div className="tpl-form-row">

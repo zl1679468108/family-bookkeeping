@@ -56,7 +56,7 @@ import { entityCreateButton, ENTITY_CATEGORY, DETAIL_CATEGORY } from "../../util
 import { UPLOAD_FAILED, DELETE_FAILED } from "../../utils/uploadCopy";
 import { failEntityUpsert } from "../../utils/errorCopy";
 import { buildCategoryIconOptionSpecs } from "../../utils/categories";
-import { FORM_CATEGORY_NAME_PLACEHOLDER } from "../../utils/formCopy";
+import { FORM_CATEGORY_NAME_PLACEHOLDER, MAX_CATEGORY_NAME_LENGTH } from "../../utils/formCopy";
 import { FIELD_CATEGORY_ID, FIELD_SORT, FIELD_CREATED_AT, FIELD_UPDATED_AT, FIELD_NAME, FIELD_ICON, sortOrderLabel, FIELD_DEFAULT, FIELD_CUSTOM } from "../../utils/fieldCopy";
 import { queryKeys } from "../../utils/queryKeys";
 
@@ -502,7 +502,7 @@ export default function CategoriesPage() {
               <Input
                 className="catfs-input"
                 placeholder={FORM_CATEGORY_NAME_PLACEHOLDER}
-                maxlength={10}
+                maxlength={MAX_CATEGORY_NAME_LENGTH}
                 value={formName}
                 onInput={(e: any) => setFormName(e.detail.value)}
               />

@@ -16,6 +16,7 @@ import { toastInfo } from "../../../utils/toast";
 import Icon, { ICON_COLOR } from "../../Icon";
 import { FORM_PRIVACY_REQUIRED } from "../../../utils/formCopy";
 import { IMAGE_SELECT_FAILED, PRIVACY_ALBUM_FOR_IMAGE } from "../../../utils/uploadCopy";
+import { MAX_RECEIPT_IMAGES } from "../../../utils/uploadCopy";
 
 export interface ImageUploadProps {
   /** 已上传的图片 URL（从服务器获取） */
@@ -39,7 +40,7 @@ export default function ImageUpload({
   onPendingChange,
   images: legacyImages,
   onChange: legacyOnChange,
-  maxImages = 5,
+  maxImages = MAX_RECEIPT_IMAGES,
 }: ImageUploadProps) {
   // 兼容旧模式：如果传了 images/onChange，则合并到 savedImages/onSavedChange
   const allSaved = legacyImages ?? savedImages;

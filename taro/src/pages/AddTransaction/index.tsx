@@ -45,7 +45,7 @@ import Icon, { ICON_COLOR } from "../../components/Icon";
 import { ENTITY_TRANSACTION } from "../../utils/entityCopy";
 import { useBookContext } from "../../context/BookContext";
 import { EMPTY_NO_TEMPLATES_SHORT } from "../../utils/emptyCopy";
-import { FORM_TEMPLATE_SELECT, FORM_SELECT_CATEGORY, FORM_AMOUNT_PLACEHOLDER, FORM_BRAND_EXAMPLE, MAX_NOTE_LENGTH } from "../../utils/formCopy";
+import { FORM_TEMPLATE_SELECT, FORM_SELECT_CATEGORY, FORM_AMOUNT_PLACEHOLDER, FORM_BRAND_EXAMPLE, MAX_NOTE_LENGTH} from "../../utils/formCopy";
 import { SECTION_SHORTCUTS, SECTION_BILL_INFO } from "../../utils/sectionCopy";
 import {
   clearAddTransactionDraft,
@@ -432,7 +432,7 @@ export default function AddTransaction() {
         />
       </SectionCard>
 
-      <NoteField value={note} onChange={setNote} maxLength={MAX_NOTE_LENGTH } />
+      <NoteField value={note} onChange={setNote} maxLength={MAX_NOTE_LENGTH} />
 
       <LocationField value={location} onChange={setLocation} />
 

@@ -8,7 +8,7 @@ import { SegControl } from '../../../components/ui/SegControl'
 import { MAX_NOTE_LENGTH } from '../hooks/useTransactionForm'
 import type { FormData } from '../hooks/useTransactionForm'
 import type { DropdownOption } from '../../../components/ui/Dropdown'
-import { FORM_AMOUNT_PLACEHOLDER, FORM_SELECT_CATEGORY, FORM_BRAND_EXAMPLE, FORM_DESC_EXAMPLE } from '../../../utils/formCopy'
+import { FORM_AMOUNT_PLACEHOLDER, FORM_SELECT_CATEGORY, FORM_BRAND_EXAMPLE, FORM_DESC_EXAMPLE, MAX_MERCHANT_NAME_LENGTH } from '../../../utils/formCopy'
 import { FIELD_AMOUNT, FIELD_CATEGORY, FIELD_DATE, FIELD_BRAND, FIELD_NOTE } from '../../../utils/fieldCopy'
 
 interface TransactionFormProps {
@@ -73,7 +73,7 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({
         placeholder={FORM_BRAND_EXAMPLE}
         value={formData.brand}
         onChange={(e) => setFormData((prev) => ({ ...prev, brand: e.target.value }))}
-        maxLength={100}
+        maxLength={MAX_MERCHANT_NAME_LENGTH}
       />
 
       <Textarea

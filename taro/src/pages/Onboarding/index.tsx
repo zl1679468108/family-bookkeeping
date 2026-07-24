@@ -20,7 +20,7 @@ import "./index.scss";
 import { toastSuccess, toastInfo } from "../../utils/toast";
 import { INVITE_CODE_HELP } from "../../utils/inviteCopy";
 import { SUCCESS_CREATED, SUCCESS_JOINED } from "../../utils/successCopy";
-import { FORM_INVITE_CODE_PLACEHOLDER, FORM_BACK, FORM_BOOK_NAME_EXAMPLE, FORM_BOOK_DESC_EXAMPLE } from "../../utils/formCopy";
+import { FORM_INVITE_CODE_PLACEHOLDER, FORM_BACK, FORM_BOOK_NAME_EXAMPLE, FORM_BOOK_DESC_EXAMPLE, MAX_BOOK_NAME_LENGTH, MAX_BOOK_DESCRIPTION_LENGTH, MAX_INVITE_CODE_LENGTH } from "../../utils/formCopy";
 import { validateInviteCode, normalizeInviteCode } from "../../utils/validation";
 import { ERROR_CREATE_FAILED_RETRY, ERROR_INVALID_INVITE } from "../../utils/errorCopy";
 import Icon, { ICON_COLOR } from "../../components/Icon";
@@ -148,7 +148,7 @@ export default function Onboarding() {
             <Input
               className="ob-input"
               placeholder={FORM_BOOK_NAME_EXAMPLE}
-              maxlength={50}
+              maxlength={MAX_BOOK_NAME_LENGTH}
               value={name}
               onInput={(e: any) => setName(e.detail.value)}
             />
@@ -159,7 +159,7 @@ export default function Onboarding() {
             <Input
               className="ob-input"
               placeholder={FORM_BOOK_DESC_EXAMPLE}
-              maxlength={200}
+              maxlength={MAX_BOOK_DESCRIPTION_LENGTH}
               value={description}
               onInput={(e: any) => setDescription(e.detail.value)}
             />
@@ -220,7 +220,7 @@ export default function Onboarding() {
             <Input
               className="ob-input ob-input--code"
               placeholder={FORM_INVITE_CODE_PLACEHOLDER}
-              maxlength={32}
+              maxlength={MAX_INVITE_CODE_LENGTH}
               value={code}
               onInput={(e: any) => setCode(e.detail.value.toUpperCase())}
             />

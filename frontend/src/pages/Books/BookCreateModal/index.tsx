@@ -21,7 +21,7 @@ import { SUCCESS_BOOK_CREATED, SUCCESS_ICON_DELETED, SUCCESS_ICON_UPLOADED, SUCC
 import { entityFormTitle, ENTITY_BOOK } from '../../../utils/entityCopy'
 import { failEntityUpsert } from '../../../utils/errorCopy'
 import { processingLabel, ACTION_CANCEL, ACTION_SAVE, ACTION_CREATE_BOOK } from '../../../utils/actionCopy'
-import { FORM_BOOK_NAME_EXAMPLE, FORM_BOOK_DESC_EXAMPLE } from '../../../utils/formCopy'
+import { FORM_BOOK_NAME_EXAMPLE, FORM_BOOK_DESC_EXAMPLE, MAX_BOOK_NAME_LENGTH, MAX_BOOK_DESCRIPTION_LENGTH } from '../../../utils/formCopy'
 import { FIELD_BOOK_NAME, FIELD_DESC_OPTIONAL } from '../../../utils/fieldCopy'
 
 interface BookCreateModalProps {
@@ -135,7 +135,7 @@ export const BookCreateModal: React.FC<BookCreateModalProps> = ({ open, onClose,
           value={bookName}
           onChange={(e) => setBookName(e.target.value)}
           placeholder={FORM_BOOK_NAME_EXAMPLE}
-          maxLength={50}
+          maxLength={MAX_BOOK_NAME_LENGTH}
           autoFocus
           required
         />
@@ -145,7 +145,7 @@ export const BookCreateModal: React.FC<BookCreateModalProps> = ({ open, onClose,
           value={bookDesc}
           onChange={(e) => setBookDesc(e.target.value)}
           placeholder={FORM_BOOK_DESC_EXAMPLE}
-          maxLength={200}
+          maxLength={MAX_BOOK_DESCRIPTION_LENGTH}
           rows={3}
         />
 

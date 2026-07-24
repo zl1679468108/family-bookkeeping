@@ -32,7 +32,7 @@ import { INVITE_CODE_HELP_LABEL, INVITE_CODE_HELP_BODY, ACTION_GENERATE_INVITE_C
 import { userDisplayName } from "../../utils/userDisplay";
 import { ACTION_DELETING, ACTION_LOADING, ACTION_JOINING_ELLIPSIS, ACTION_GENERATING_ELLIPSIS, ACTION_REMOVING_ELLIPSIS, ACTION_JOIN_BOOK, ACTION_DELETE, ACTION_EDIT, ACTION_INVITE_MEMBER, ACTION_SWITCH_TO_BOOK, ACTION_SWITCH_BOOK, ACTION_CONFIRM_SWITCH, ACTION_REMOVE } from "../../utils/actionCopy";
 import { CONFIRM_REMOVE_TITLE, confirmDeleteBook, confirmRemoveMember, CONFIRM_DELETE_BOOK_TITLE } from "../../utils/confirmCopy";
-import { FORM_ALREADY_CURRENT_BOOK, FORM_EMAIL_REQUIRED, FORM_PEER_EMAIL_PLACEHOLDER, FORM_INVITE_CODE_EXAMPLE } from "../../utils/formCopy";
+import { FORM_ALREADY_CURRENT_BOOK, FORM_EMAIL_REQUIRED, FORM_PEER_EMAIL_PLACEHOLDER, FORM_INVITE_CODE_EXAMPLE, MAX_INVITE_CODE_LENGTH } from "../../utils/formCopy";
 import { validateEmail } from "../../utils/validation";
 import { validateInviteCode, normalizeInviteCode } from "../../utils/validation";
 import {
@@ -386,7 +386,7 @@ export default function BooksPage() {
                 <Input
                   className="bk-form-input"
                   placeholder={FORM_INVITE_CODE_EXAMPLE}
-                  maxlength={32}
+                  maxlength={MAX_INVITE_CODE_LENGTH}
                   value={joinCode}
                   onInput={(e: any) => setJoinCode(e.detail.value.toUpperCase())}
                 />

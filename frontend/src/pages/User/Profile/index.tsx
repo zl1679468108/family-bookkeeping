@@ -19,7 +19,7 @@ import {
   validatePasswordStrength,
 } from '../../../utils/validation'
 import { SUCCESS_AVATAR_SELECTED_HINT, SUCCESS_PASSWORD_CHANGED, SUCCESS_SAVED } from '../../../utils/successCopy'
-import { FORM_PASSWORD_MIN_NEW, FORM_PASSWORD_MISMATCH_NEW, FORM_PASSWORD_CURRENT, FORM_PASSWORD_CONFIRM_NEW_PLACEHOLDER, FORM_USERNAME_PLACEHOLDER, FORM_EMAIL_PLACEHOLDER, FORM_PASSWORD_STRENGTH_HINT, FORM_USERNAME_REQUIRED } from '../../../utils/formCopy'
+import { FORM_PASSWORD_MIN_NEW, FORM_PASSWORD_MISMATCH_NEW, FORM_PASSWORD_CURRENT, FORM_PASSWORD_CONFIRM_NEW_PLACEHOLDER, FORM_USERNAME_PLACEHOLDER, FORM_EMAIL_PLACEHOLDER, FORM_PASSWORD_STRENGTH_HINT, FORM_USERNAME_REQUIRED, MAX_USERNAME_LENGTH } from '../../../utils/formCopy'
 import { fitWithinMaxSide } from '../../../utils/imageSize'
 import {
   isWithinUploadSize,
@@ -277,7 +277,7 @@ const ProfilePage: React.FC = () => {
                 value={username}
                 onChange={e => setUsername(e.target.value)}
                 placeholder={FORM_USERNAME_PLACEHOLDER}
-                maxLength={100}
+                maxLength={MAX_USERNAME_LENGTH}
               />
 
               <FormField

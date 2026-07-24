@@ -14,7 +14,7 @@ import "./index.scss";
 import { toastSuccess } from "../../../utils/toast";
 import { SUCCESS_LOGIN } from "../../../utils/successCopy";
 import { ERROR_LOGIN_FAILED } from "../../../utils/errorCopy";
-import { FORM_EMAIL_PASSWORD_REQUIRED, FORM_CAPTCHA_REQUIRED, FORM_CAPTCHA_PLACEHOLDER, FORM_PASSWORD_PLACEHOLDER, FORM_EMAIL_EXAMPLE, ERROR_CAPTCHA_LOAD } from "../../../utils/formCopy"
+import { FORM_EMAIL_PASSWORD_REQUIRED, FORM_CAPTCHA_REQUIRED, FORM_CAPTCHA_PLACEHOLDER, FORM_PASSWORD_PLACEHOLDER, FORM_EMAIL_EXAMPLE, ERROR_CAPTCHA_LOAD, MAX_CAPTCHA_LENGTH } from "../../../utils/formCopy"
 import { FIELD_EMAIL, FIELD_PASSWORD, FIELD_CAPTCHA } from "../../../utils/fieldCopy";
 import { AUTH_FORGOT_LINK, ACTION_LOGGING_IN_ELLIPSIS } from "../../../utils/authCopy"
 
@@ -129,7 +129,7 @@ export default function Login() {
               placeholder={FORM_CAPTCHA_PLACEHOLDER}
               placeholderClass="text-hint"
               confirmType="done"
-              maxlength={4}
+              maxlength={MAX_CAPTCHA_LENGTH}
               onConfirm={handleSubmit}
             />
             <Image

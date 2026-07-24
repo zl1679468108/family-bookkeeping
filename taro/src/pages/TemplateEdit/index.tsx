@@ -44,7 +44,7 @@ import { DELETE_FAILED } from "../../utils/uploadCopy";
 import { failEntityUpsert } from "../../utils/errorCopy";
 import { EMPTY_NO_CATEGORIES_SHORT } from "../../utils/emptyCopy";
 import { SECTION_TEMPLATE_INFO, TITLE_SELECT_LOCATION } from "../../utils/sectionCopy";
-import { FORM_TEMPLATE_NAME_EXAMPLE, FORM_AMOUNT_PLACEHOLDER, FORM_NOTE_OPTIONAL, FORM_SELECT_TYPE, FORM_SELECT_CATEGORY, templateFormMeta } from "../../utils/formCopy";
+import { FORM_TEMPLATE_NAME_EXAMPLE, FORM_AMOUNT_PLACEHOLDER, FORM_NOTE_OPTIONAL, FORM_SELECT_TYPE, FORM_SELECT_CATEGORY, templateFormMeta, MAX_TEMPLATE_NAME_LENGTH } from "../../utils/formCopy";
 import { FIELD_TYPE, FIELD_CATEGORY, FIELD_AMOUNT, FIELD_NOTE, FIELD_TEMPLATE_NAME, FIELD_LOCATION_INFO, FIELD_SORT } from "../../utils/fieldCopy";
 import { queryKeys } from "../../utils/queryKeys";
 
@@ -171,7 +171,7 @@ export default function TemplateEdit() {
           <Input
             className="tpl-input"
             placeholder={FORM_TEMPLATE_NAME_EXAMPLE}
-            maxlength={20}
+            maxlength={MAX_TEMPLATE_NAME_LENGTH}
             value={form.name}
             onInput={(e: any) => setForm((p) => ({ ...p, name: e.detail.value }))}
           />

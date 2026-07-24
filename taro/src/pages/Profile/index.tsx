@@ -24,7 +24,7 @@ import "./index.scss";
 import { toastSuccess, toastInfo } from "../../utils/toast";
 import { userDisplayName, userInitial } from "../../utils/userDisplay";
 import { SUCCESS_ACCOUNT_SWITCHED, SUCCESS_ACCOUNT_DEACTIVATED, SUCCESS_SWITCHED } from "../../utils/successCopy";
-import { FORM_ALREADY_CURRENT_ACCOUNT, FORM_CAPTCHA_REQUIRED, FORM_EMAIL_PASSWORD_REQUIRED, FORM_DEACTIVATE_PASSWORD, FORM_PASSWORD_LOGIN_PLACEHOLDER, FORM_EMAIL_PLACEHOLDER, FORM_PASSWORD_PLACEHOLDER, FORM_CAPTCHA_PLACEHOLDER } from "../../utils/formCopy";
+import { FORM_ALREADY_CURRENT_ACCOUNT, FORM_CAPTCHA_REQUIRED, FORM_EMAIL_PASSWORD_REQUIRED, FORM_DEACTIVATE_PASSWORD, FORM_PASSWORD_LOGIN_PLACEHOLDER, FORM_EMAIL_PLACEHOLDER, FORM_PASSWORD_PLACEHOLDER, FORM_CAPTCHA_PLACEHOLDER, MAX_CAPTCHA_LENGTH } from "../../utils/formCopy";
 import { ACTION_SWITCHING, ACTION_LOGOUT, ACTION_DEACTIVATING, ACTION_CONFIRM_DEACTIVATE, ACTION_SWITCH_THEME, THEME_DARK_MODE, THEME_LIGHT_MODE, ACTION_SWITCH_ACCOUNT, ACTION_DEACTIVATE_ACCOUNT } from "../../utils/actionCopy"
 import { ACTION_LOGGING_IN, ACTION_LOGIN, AUTH_LOGIN_EXPIRED_REENTER, AUTH_ADD_NEW_ACCOUNT_LOGIN,
   AUTH_CAPTCHA_FETCH_FAILED,
@@ -432,7 +432,7 @@ export default function Profile() {
                         value={captchaCode}
                         onInput={(e) => setCaptchaCode(e.detail.value)}
                         placeholder={FORM_CAPTCHA_PLACEHOLDER}
-                        maxlength={4}
+                        maxlength={MAX_CAPTCHA_LENGTH}
                       />
                       <Image
                         className="switch-captcha-img"

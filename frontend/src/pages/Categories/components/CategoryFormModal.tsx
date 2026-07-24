@@ -6,7 +6,7 @@ import { Input } from '../../../components/ui/Input'
 import { IconGrid } from '../../../components/ui/IconGrid'
 import type { CustomIconItem } from '../../../components/ui/IconGrid'
 import { busyLabel, ACTION_SAVING } from '../../../utils/actionCopy'
-import { FORM_CATEGORY_NAME_PLACEHOLDER } from '../../../utils/formCopy'
+import { FORM_CATEGORY_NAME_PLACEHOLDER, MAX_CATEGORY_NAME_LENGTH } from '../../../utils/formCopy'
 import { FIELD_NAME } from '../../../utils/fieldCopy'
 
 interface CategoryFormModalProps {
@@ -77,7 +77,7 @@ export const CategoryFormModal: React.FC<CategoryFormModalProps> = ({
         <Input
           label={FIELD_NAME}
           placeholder={FORM_CATEGORY_NAME_PLACEHOLDER}
-          maxLength={10}
+          maxLength={MAX_CATEGORY_NAME_LENGTH}
           value={modalName}
           onChange={(e) => setModalName(e.target.value)}
           autoFocus

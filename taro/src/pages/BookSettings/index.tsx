@@ -41,7 +41,7 @@ import {
   CONFIRM_DELETE_TEXT,
   CONFIRM_DELETE_BOOK_GENERIC,
 } from "../../utils/confirmCopy";
-import { FORM_PRIVACY_REQUIRED, FORM_OWNER_EMAIL_REQUIRED, FORM_PASSWORD_VERIFY, FORM_MEMBER_EMAIL_PLACEHOLDER, FORM_BOOK_NAME_EXAMPLE, FORM_BOOK_DESC_EXAMPLE, FORM_PASSWORD_VERIFY_IDENTITY } from "../../utils/formCopy"
+import { FORM_PRIVACY_REQUIRED, FORM_OWNER_EMAIL_REQUIRED, FORM_PASSWORD_VERIFY, FORM_MEMBER_EMAIL_PLACEHOLDER, FORM_BOOK_NAME_EXAMPLE, FORM_BOOK_DESC_EXAMPLE, FORM_PASSWORD_VERIFY_IDENTITY, MAX_BOOK_NAME_LENGTH, MAX_BOOK_DESCRIPTION_LENGTH } from "../../utils/formCopy"
 import { validateEmail } from "../../utils/validation";
 import { SUCCESS_BOOK_CREATED, SUCCESS_CUSTOM_ICON_ADDED, SUCCESS_DELETED, SUCCESS_OWNERSHIP_TRANSFERRED, SUCCESS_UPDATED, successEntityDeleted } from "../../utils/successCopy";
 import { entityFormTitle, ENTITY_BOOK } from "../../utils/entityCopy";
@@ -305,7 +305,7 @@ export default function BookSettings() {
             <Input
               className="bs-form-input"
               placeholder={FORM_BOOK_NAME_EXAMPLE}
-              maxlength={50}
+              maxlength={MAX_BOOK_NAME_LENGTH}
               value={addName}
               onInput={(e: any) => setAddName(e.detail.value)}
             />
@@ -317,7 +317,7 @@ export default function BookSettings() {
             <Input
               className="bs-form-input bs-form-textarea"
               placeholder={FORM_BOOK_DESC_EXAMPLE}
-              maxlength={200}
+              maxlength={MAX_BOOK_DESCRIPTION_LENGTH}
               value={addDescription}
               onInput={(e: any) => setAddDescription(e.detail.value)}
             />
@@ -415,7 +415,7 @@ export default function BookSettings() {
             <Input
               className="bs-form-input"
               placeholder={FORM_BOOK_NAME_EXAMPLE}
-              maxlength={50}
+              maxlength={MAX_BOOK_NAME_LENGTH}
               value={editName}
               onInput={(e: any) => setEditName(e.detail.value)}
             />
@@ -427,7 +427,7 @@ export default function BookSettings() {
             <Input
               className="bs-form-input bs-form-textarea"
               placeholder={FORM_BOOK_DESC_EXAMPLE}
-              maxlength={200}
+              maxlength={MAX_BOOK_DESCRIPTION_LENGTH}
             value={editDescription}
             onInput={(e: any) => setEditDescription(e.detail.value)}
           />

@@ -15,7 +15,7 @@ import { toastSuccess, toastInfo } from "../../../utils/toast";
 import { validatePasswordMatch, validatePasswordMinLength } from "../../../utils/validation";
 import { ERROR_SEND_FAILED, ERROR_RESET_FAILED } from "../../../utils/errorCopy";
 import { SUCCESS_CODE_SENT, SUCCESS_PASSWORD_RESET, SUCCESS_CODE_RESENT } from "../../../utils/successCopy";
-import { FORM_BACK, FORM_BACK_LOGIN, FORM_REGISTERED_EMAIL_PLACEHOLDER, FORM_CAPTCHA_DIGITS_PLACEHOLDER, FORM_PASSWORD_MIN_SHORT, FORM_PASSWORD_CONFIRM_PLACEHOLDER, FORM_EMAIL_VALID_REQUIRED, FORM_CAPTCHA_DIGITS_REQUIRED } from "../../../utils/formCopy"
+import { FORM_BACK, FORM_BACK_LOGIN, FORM_REGISTERED_EMAIL_PLACEHOLDER, FORM_CAPTCHA_DIGITS_PLACEHOLDER, FORM_PASSWORD_MIN_SHORT, FORM_PASSWORD_CONFIRM_PLACEHOLDER, FORM_EMAIL_VALID_REQUIRED, FORM_CAPTCHA_DIGITS_REQUIRED, MAX_RESET_CODE_LENGTH } from "../../../utils/formCopy"
 import { FIELD_EMAIL, FIELD_CAPTCHA, FIELD_NEW_PASSWORD, FIELD_CONFIRM_PASSWORD } from "../../../utils/fieldCopy";
 import { ACTION_SEND_CODE, ACTION_RESEND_CODE, ACTION_RESET_PASSWORD, AUTH_TITLE_PASSWORD_RESET_DONE, AUTH_DESC_PASSWORD_RESET_DONE, AUTH_SEND_FAILED_CHECK_EMAIL, ACTION_SENDING_ELLIPSIS, ACTION_RESETTING_ELLIPSIS } from "../../../utils/authCopy"
 
@@ -192,7 +192,7 @@ export default function ForgotPassword() {
                   onInput={(e) => setCode(e.detail.value)}
                   placeholder={FORM_CAPTCHA_DIGITS_PLACEHOLDER}
                   placeholderClass="text-hint"
-                  maxlength={6}
+                  maxlength={MAX_RESET_CODE_LENGTH}
                   type="number"
                 />
                 <Button

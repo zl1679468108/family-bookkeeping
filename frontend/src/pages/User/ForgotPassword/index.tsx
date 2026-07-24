@@ -9,7 +9,7 @@ import { PasswordField } from '../../../components/ui/PasswordField'
 import { FormField } from '../../../components/ui/FormField'
 import { validatePasswordMatch, validatePasswordMinLength } from '../../../utils/validation'
 import { SUCCESS_CODE_RESENT } from '../../../utils/successCopy'
-import { FORM_REGISTERED_EMAIL_PLACEHOLDER, FORM_CAPTCHA_DIGITS_PLACEHOLDER, FORM_PASSWORD_MIN_SHORT, FORM_PASSWORD_CONFIRM_PLACEHOLDER, FORM_EMAIL_VALID_REQUIRED, FORM_CAPTCHA_DIGITS_REQUIRED } from '../../../utils/formCopy'
+import { FORM_REGISTERED_EMAIL_PLACEHOLDER, FORM_CAPTCHA_DIGITS_PLACEHOLDER, FORM_PASSWORD_MIN_SHORT, FORM_PASSWORD_CONFIRM_PLACEHOLDER, FORM_EMAIL_VALID_REQUIRED, FORM_CAPTCHA_DIGITS_REQUIRED, MAX_RESET_CODE_LENGTH } from '../../../utils/formCopy'
 import { FIELD_EMAIL_ADDRESS, FIELD_CAPTCHA, FIELD_NEW_PASSWORD, FIELD_CONFIRM_PASSWORD } from '../../../utils/fieldCopy'
 import { AUTH_TITLE_FORGOT, AUTH_TITLE_RESET, AUTH_TITLE_RESET_SUCCESS, AUTH_TITLE_RECOVER, AUTH_DESC_CODE_SENT, ACTION_SEND_CODE, ACTION_SENDING, ACTION_RESEND_CODE, ACTION_RESET_PASSWORD, ACTION_RESETTING, AUTH_SUB_FORGOT_EMAIL, AUTH_SUB_PASSWORD_UPDATED, AUTH_SUB_RECOVER_LINE1, AUTH_SUB_RECOVER_LINE2, AUTH_TITLE_PASSWORD_RESET_SUCCESS, AUTH_CODE_SENT_TO_PREFIX, AUTH_SEND_FAILED_CHECK_EMAIL } from '../../../utils/authCopy'
 
@@ -158,7 +158,7 @@ const ForgotPassword: React.FC = () => {
                 id="forgotCode"
                 type="text"
                 placeholder={FORM_CAPTCHA_DIGITS_PLACEHOLDER}
-                maxLength={6}
+                maxLength={MAX_RESET_CODE_LENGTH}
                 value={code}
                 onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
                 required
