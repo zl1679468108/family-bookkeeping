@@ -38,7 +38,7 @@
   right: 0;
   height: 100%;
   max-width: 90vw;
-  background: var(--srf, #ffffff);
+  background: var(--srf);
   box-shadow: -8px 0 24px rgba(0, 0, 0, 0.12);
   display: flex;
   flex-direction: column;
@@ -63,14 +63,14 @@
   align-items: center;
   justify-content: space-between;
   padding: 16px 20px;
-  border-bottom: 1px solid var(--bd, #e5e7eb);
+  border-bottom: 1px solid var(--bd);
   flex-shrink: 0;
 }
 
 .ui-drawer-title {
   font-size: 16px;
   font-weight: 700;
-  color: var(--fg, #1f2937);
+  color: var(--fg);
 }
 
 .ui-drawer-close {
@@ -78,7 +78,7 @@
   height: 32px;
   border: none;
   background: transparent;
-  color: var(--fg2, #4b5563);
+  color: var(--fg2);
   border-radius: 8px;
   cursor: pointer;
   display: flex;
@@ -88,8 +88,8 @@
 }
 
 .ui-drawer-close:hover {
-  background: var(--bg, #f9fafb);
-  color: var(--fg, #1f2937);
+  background: var(--bg);
+  color: var(--fg);
 }
 
 /* 内容区 */
@@ -101,7 +101,7 @@
 
 /* 深色模式 */
 [data-theme='dark'] .ui-drawer-mask {
-  background: rgba(0, 0, 0, 0.6);
+  background: var(--ov);
 }
 
 /* 响应式 */

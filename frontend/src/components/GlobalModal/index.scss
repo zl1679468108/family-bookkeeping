@@ -13,7 +13,7 @@
 
 /* 确认对话框遮罩 */
 .global-modal-overlay--confirm {
-  background: rgba(0, 0, 0, 0.4);
+  background: var(--ov);
   backdrop-filter: blur(2px);
 }
 

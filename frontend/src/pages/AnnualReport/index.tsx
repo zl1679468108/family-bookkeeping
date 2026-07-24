@@ -253,7 +253,7 @@ const AnnualReport: React.FC = () => {
           gap: '12px',
           alignItems: 'center',
           background: 'var(--bg)',
-          borderBottom: '1px solid var(--border)',
+          borderBottom: '1px solid var(--bd)',
         }}
       >
         {/* 账本信息 */}
@@ -263,7 +263,7 @@ const AnnualReport: React.FC = () => {
             alignItems: 'center',
             gap: '8px',
             padding: '8px 12px',
-            background: 'var(--surface)',
+            background: 'var(--srf)',
             borderRadius: '8px',
             fontSize: '13px',
             color: 'var(--fg)',
@@ -297,7 +297,7 @@ const AnnualReport: React.FC = () => {
             {/* 总览卡片骨架 */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '12px', marginBottom: '32px' }}>
               {[1, 2, 3, 4].map(i => (
-                <div key={i} style={{ padding: '16px', borderRadius: '12px', background: 'var(--surface, #fff)' }}>
+                <div key={i} style={{ padding: '16px', borderRadius: '12px', background: 'var(--srf)' }}>
                   <Skeleton width="60%" height="12px" marginBottom="8px" />
                   <Skeleton width="80%" height="24px" />
                 </div>
@@ -308,7 +308,7 @@ const AnnualReport: React.FC = () => {
             <Skeleton width="100%" height="200px" borderRadius="12px" marginBottom="24px" />
             {/* 列表骨架 */}
             {[1, 2, 3].map(i => (
-              <div key={i} style={{ display: 'flex', alignItems: 'center', padding: '12px 0', borderBottom: '1px solid var(--border, #f0f0f0)' }}>
+              <div key={i} style={{ display: 'flex', alignItems: 'center', padding: '12px 0', borderBottom: '1px solid var(--bdL)' }}>
                 <Skeleton width="40px" height="40px" borderRadius="8px" />
                 <div style={{ flex: 1, marginLeft: '12px', marginRight: '12px' }}>
                   <Skeleton width="55%" height="14px" marginBottom="6px" />
@@ -382,21 +382,21 @@ const AnnualReport: React.FC = () => {
                 padding: '14px 40px',
                 borderRadius: '12px',
                 border: 'none',
-                background: 'linear-gradient(135deg, #4CAF50 0%, #45B74A 100%)',
+                background: 'var(--prGr)',
                 color: '#fff',
                 fontSize: '16px',
                 fontWeight: 600,
                 cursor: 'pointer',
-                boxShadow: '0 6px 20px rgba(76, 175, 80, 0.4)',
+                boxShadow: 'var(--sh3)',
                 transition: 'all 0.3s ease',
               }}
               onMouseOver={(e) => {
                 e.currentTarget.style.transform = 'translateY(-2px)';
-                e.currentTarget.style.boxShadow = '0 8px 24px rgba(76, 175, 80, 0.5)';
+                e.currentTarget.style.boxShadow = 'var(--sh4)';
               }}
               onMouseOut={(e) => {
                 e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = '0 6px 20px rgba(76, 175, 80, 0.4)';
+                e.currentTarget.style.boxShadow = 'var(--sh3)';
               }}
             >
               📷 保存为图片

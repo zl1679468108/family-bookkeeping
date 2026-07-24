@@ -45,13 +45,13 @@ const ReportFunFact: React.FC<Props> = ({ data }) => {
               <span className="text-4xl">🧋</span>
             </div>
             <div>
-              <div style={{ fontSize: '14px', color: 'var(--muted)', marginBottom: '4px' }}>
+              <div style={{ fontSize: '14px', color: 'var(--fg3)', marginBottom: '4px' }}>
                 这一年，你为奶茶付出了...
               </div>
-              <div style={{ fontSize: '24px', fontWeight: 700, color: '#FF7043' }}>
+              <div style={{ fontSize: '24px', fontWeight: 700, color: 'var(--exp)' }}>
                 ¥{data.dining_total.toLocaleString('zh-CN', { minimumFractionDigits: 0 })}
               </div>
-              <div style={{ fontSize: '13px', color: '#FF9800', marginTop: '2px' }}>
+              <div style={{ fontSize: '13px', color: 'var(--warn)', marginTop: '2px' }}>
                 相当于 {milkTeaCups.toLocaleString()} 杯奶茶（¥15/杯）
               </div>
             </div>
@@ -61,9 +61,9 @@ const ReportFunFact: React.FC<Props> = ({ data }) => {
             <div className="flex-1 min-w-[140px] p-4 bg-white/60 rounded-xl backdrop-blur-sm">
               <div className="flex items-center gap-2 mb-2">
                 <span className="text-xl">💳</span>
-                <span style={{ fontSize: '12px', color: 'var(--muted)' }}>日均支出</span>
+                <span style={{ fontSize: '12px', color: 'var(--fg3)' }}>日均支出</span>
               </div>
-              <div style={{ fontSize: '18px', fontWeight: 700, color: '#1976D2' }}>
+              <div style={{ fontSize: '18px', fontWeight: 700, color: 'var(--info)' }}>
                 ¥{data.daily_avg_expense.toFixed(0)}
               </div>
             </div>
@@ -71,16 +71,16 @@ const ReportFunFact: React.FC<Props> = ({ data }) => {
             <div className="flex-1 min-w-[140px] p-4 bg-white/60 rounded-xl backdrop-blur-sm">
               <div className="flex items-center gap-2 mb-2">
                 <span className="text-xl">🔥</span>
-                <span style={{ fontSize: '12px', color: 'var(--muted)' }}>最长连续记账</span>
+                <span style={{ fontSize: '12px', color: 'var(--fg3)' }}>最长连续记账</span>
               </div>
-              <div style={{ fontSize: '18px', fontWeight: 700, color: '#4CAF50' }}>
+              <div style={{ fontSize: '18px', fontWeight: 700, color: 'var(--inc)' }}>
                 {data.max_continuous_days} 天
               </div>
             </div>
           </div>
           
           <div className="mt-4 p-3 bg-white/40 rounded-lg">
-            <div style={{ fontSize: '13px', color: '#FF5722' }}>
+            <div style={{ fontSize: '13px', color: 'var(--exp)' }}>
               ☕ <span style={{ fontWeight: 500 }}>小贴士：</span>少喝一杯奶茶，存下更多美好回忆吧！
             </div>
           </div>

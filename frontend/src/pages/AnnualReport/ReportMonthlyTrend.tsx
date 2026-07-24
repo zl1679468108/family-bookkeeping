@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { echarts } from '../../utils/echarts';
 import type { ECharts } from '../../utils/echarts';
+import { getThemeColors } from '../../utils/themeColors'
 
 interface MonthlyItem {
   month: number;
@@ -27,19 +28,18 @@ export const ReportMonthlyTrend: React.FC<ReportMonthlyTrendProps> = ({ data }) 
     const months = data.map((d) => `${d.month}月`);
     const incomes = data.map((d) => d.income);
     const expenses = data.map((d) => d.expense);
-
-    const isDark = document.documentElement.classList.contains('dark');
-    const textColor = isDark ? '#9ca3af' : '#6b7280';
-    const gridColor = isDark ? '#374151' : '#e5e7eb';
-    const bgColor = isDark ? '#1f2937' : '#ffffff';
+    const theme = getThemeColors();
+    const textColor = theme.fg3;
+    const gridColor = theme.bd;
+    const bgColor = theme.srf;
 
     instanceRef.current.setOption({
       backgroundColor: bgColor,
       tooltip: {
         trigger: 'axis',
-        backgroundColor: isDark ? '#374151' : '#ffffff',
+        backgroundColor: theme.srfH,
         borderColor: gridColor,
-        textStyle: { color: isDark ? '#f9fafb' : '#1f2937' },
+        textStyle: { color: theme.fg },
         formatter: (params: any) => {
           let result = `<div style="padding: 8px;">`;
           params.forEach((item: any) => {
@@ -97,11 +97,11 @@ export const ReportMonthlyTrend: React.FC<ReportMonthlyTrendProps> = ({ data }) 
           smooth: true,
           symbol: 'circle',
           symbolSize: 6,
-          lineStyle: { color: '#10b981', width: 3 },
-          itemStyle: { color: '#10b981', borderColor: bgColor, borderWidth: 2 },
+          lineStyle: { color: theme.inc, width: 3 },
+          itemStyle: { color: theme.inc, borderColor: bgColor, borderWidth: 2 },
           areaStyle: {
             color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-              { offset: 0, color: 'rgba(16, 185, 129, 0.3)' },
+              { offset: 0, color: 'rgba(59, 162, 114, 0.3)' },
               { offset: 1, color: 'rgba(16, 185, 129, 0.02)' },
             ]),
           },
@@ -157,10 +157,10 @@ export const ReportMonthlyTrend: React.FC<ReportMonthlyTrendProps> = ({ data }) 
         style={{
           height: '280px',
           width: '100%',
-          background: 'var(--surface)',
+          background: 'var(--srf)',
           borderRadius: '16px',
           padding: '16px',
-          border: '1px solid var(--border)',
+          border: '1px solid var(--bd)',
           boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
         }}
       />

@@ -312,7 +312,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #ffffff;
+  background: var(--srf);
   transition: all 0.2s;
   box-shadow: var(--sh1);
 }

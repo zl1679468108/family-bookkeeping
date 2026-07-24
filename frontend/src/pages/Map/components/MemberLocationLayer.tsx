@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { fetchMemberLocations } from '../../../services/mapApi';
 import type { MemberLocation } from '@family-bookkeeping/shared-types'
+import { getThemeColors } from '../../../utils/themeColors'
 
 /** 离线判定阈值：2 分钟 */
 const OFFLINE_THRESHOLD_MS = 120_000;
@@ -21,20 +22,21 @@ interface MemberLocationLayerProps {
  * @returns 用于 AMap.Marker content 的 HTML 字符串
  */
 function createBubbleContent(loc: MemberLocation, isOffline: boolean): string {
-  const bgColor = isOffline ? '#999999' : '#4A90D9';
+  const theme = getThemeColors();
+  const bgColor = isOffline ? theme.fg3 : theme.info;
   const initial = loc.username.charAt(0).toUpperCase();
   return `
     <div style="display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;">
       <div style="
         width:32px;height:32px;border-radius:50%;
         background:${bgColor};
-        border:2px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.3);
+        border:2px solid ${theme.srf};box-shadow:0 2px 8px rgba(0,0,0,0.3);
         display:flex;align-items:center;justify-content:center;
         color:white;font-size:14px;font-weight:700;
         ${isOffline ? 'opacity:0.6;' : ''}
       ">${initial}</div>
       <span style="
-        font-size:10px;color:#333;background:rgba(255,255,255,0.85);
+        font-size:10px;color:${theme.fg};background:${theme.srf};
         padding:1px 6px;border-radius:8px;white-space:nowrap;
         max-width:80px;overflow:hidden;text-overflow:ellipsis;
         text-shadow:0 0 2px white;

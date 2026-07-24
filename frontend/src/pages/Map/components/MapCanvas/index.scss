@@ -33,11 +33,11 @@
   left: 50%;
   transform: translateX(-50%);
   z-index: var(--z-10);
-  background: #fff2f0;
-  border: 1px solid #ffccc7;
+  background: var(--expBg);
+  border: 1px solid color-mix(in srgb, var(--exp) 35%, transparent);
   border-radius: 8px;
   padding: 6px 16px;
-  color: #ff4d4f;
+  color: var(--exp);
   font-size: 12px;
   white-space: nowrap;
   box-shadow: 0 2px 8px rgba(0,0,0,0.08);
@@ -53,7 +53,7 @@
   align-items: center;
   justify-content: center;
   gap: 12px;
-  background: rgba(255, 255, 255, 0.85);
+  background: color-mix(in srgb, var(--srf) 85%, transparent);
   backdrop-filter: blur(2px);
   -webkit-backdrop-filter: blur(2px);
 }
@@ -61,15 +61,15 @@
 .map-locating-spinner {
   width: 32px;
   height: 32px;
-  border: 3px solid #e5e7eb;
-  border-top-color: #2d9d8a;
+  border: 3px solid var(--bd);
+  border-top-color: var(--pr);
   border-radius: 50%;
   animation: map-locating-spin 0.8s linear infinite;
 }
 
 .map-locating-text {
   font-size: 13px;
-  color: #4b5563;
+  color: var(--fg2);
   font-weight: 500;
 }
 
@@ -111,16 +111,16 @@
 }
 
 [data-theme="dark"] .map-locating-overlay {
-  background: rgba(17, 24, 39, 0.85);
+  background: color-mix(in srgb, var(--fg) 85%, transparent);
 }
 
 [data-theme="dark"] .map-locating-text {
-  color: #d1d5db;
+  color: var(--fg3);
 }
 
 [data-theme="dark"] .map-locating-spinner {
   border-color: rgba(255, 255, 255, 0.15);
-  border-top-color: #2d9d8a;
+  border-top-color: var(--pr);
 }
 
 /* POI 搜索覆盖层 */
@@ -139,9 +139,9 @@
   flex: 1;
   height: 36px;
   padding: 0 12px;
-  border: 1px solid var(--border);
+  border: 1px solid var(--bd);
   border-radius: 8px;
-  background: var(--surface);
+  background: var(--srf);
   color: var(--fg);
   font-size: 13px;
   outline: none;
@@ -149,7 +149,7 @@
 }
 
 .map-search-input:focus {
-  border-color: var(--accent);
+  border-color: var(--pr);
 }
 
 .map-search-btn {
@@ -157,7 +157,7 @@
   height: 36px;
   border: none;
   border-radius: 8px;
-  background: var(--surface);
+  background: var(--srf);
   cursor: pointer;
   font-size: 16px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
@@ -170,9 +170,9 @@
   right: 0;
   max-height: 240px;
   overflow-y: auto;
-  background: var(--surface);
+  background: var(--srf);
   border-radius: 8px;
-  border: 1px solid var(--border);
+  border: 1px solid var(--bd);
   box-shadow: 0 4px 16px rgba(0,0,0,0.12);
   z-index: calc(var(--z-10) + 1);
 }
@@ -184,7 +184,7 @@
   padding: 8px 12px;
   cursor: pointer;
   font-size: 13px;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--bd);
 }
 
 .map-search-item:last-child {
@@ -196,12 +196,12 @@
 }
 
 .map-search-item.has-data {
-  background: #f0fdf4;
+  background: var(--incBg);
 }
 
 .map-search-addr {
   font-size: 11px;
-  color: var(--muted);
+  color: var(--fg3);
   margin-left: auto;
   white-space: nowrap;
   overflow: hidden;
@@ -215,7 +215,7 @@
   padding: 6px;
   border: none;
   background: var(--bg);
-  color: var(--muted);
+  color: var(--fg3);
   font-size: 12px;
   cursor: pointer;
   border-radius: 0 0 8px 8px;
@@ -224,7 +224,7 @@
 /* Info Window 基类 */
 .marker-info-window {
   padding: 4px;
-  color: #333;
+  color: var(--fg);
 }
 
 /* 足迹 InfoWindow */
@@ -239,7 +239,7 @@
   gap: 6px;
   margin-bottom: 8px;
   padding-bottom: 8px;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid var(--bdL);
 }
 
 .marker-info-icon {
@@ -262,7 +262,7 @@
   padding: 5px 8px;
   margin-bottom: 4px;
   border-radius: 6px;
-  background: #f8f8f8;
+  background: var(--bg);
   font-size: 12px;
   transition: background 0.15s;
 }
@@ -272,20 +272,20 @@
 }
 
 .footprint-info-row.clickable:hover {
-  background: #f0f0f0;
+  background: var(--srfH);
 }
 
 .footprint-info-row.expense {
-  border-left: 3px solid #EE6666;
+  border-left: 3px solid var(--exp);
 }
 
 .footprint-info-row.income {
-  border-left: 3px solid #91CC75;
+  border-left: 3px solid var(--inc);
 }
 
 .footprint-info-label {
   font-size: 11px;
-  color: #888;
+  color: var(--fg3);
   min-width: 28px;
 }
 
@@ -295,17 +295,17 @@
 }
 
 .footprint-info-amount.expense {
-  color: #EE6666;
+  color: var(--exp);
 }
 
 .footprint-info-amount.income {
-  color: #52c41a;
+  color: var(--inc);
 }
 
 .footprint-info-count {
   font-size: 12px;
-  color: var(--accent, #5470C6);
-  background: rgba(84, 112, 198, 0.08);
+  color: var(--pr);
+  background: var(--infoBg);
   padding: 1px 8px;
   border-radius: 10px;
   cursor: pointer;
@@ -313,13 +313,13 @@
 }
 
 .footprint-info-row.clickable:hover .footprint-info-count {
-  background: rgba(84, 112, 198, 0.15);
-  color: var(--accent, #5470C6);
+  background: var(--infoBg);
+  color: var(--pr);
 }
 
 .marker-info-date {
   font-size: 11px;
-  color: #999;
+  color: var(--fg3);
   margin-top: 6px;
   text-align: center;
 }
@@ -331,7 +331,7 @@
 
 .member-breakdown-divider {
   height: 1px;
-  background: #f0f0f0;
+  background: var(--srfH);
   margin: 6px 0;
 }
 
@@ -352,20 +352,20 @@
 }
 
 .member-breakdown-name {
-  color: #555;
+  color: var(--fg2);
   min-width: 36px;
   font-weight: 500;
 }
 
 .member-breakdown-amount {
-  color: #333;
+  color: var(--fg);
   font-weight: 600;
   min-width: 50px;
   text-align: right;
 }
 
 .member-breakdown-pct {
-  color: #999;
+  color: var(--fg3);
   font-size: 10px;
   min-width: 32px;
 }
@@ -373,7 +373,7 @@
 .member-breakdown-bar-track {
   width: 100%;
   height: 3px;
-  background: #f0f0f0;
+  background: var(--srfH);
   border-radius: 2px;
   margin-top: 1px;
 }

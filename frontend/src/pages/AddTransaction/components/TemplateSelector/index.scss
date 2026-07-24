@@ -11,7 +11,7 @@
 }
 
 .template-selector-modal {
-  background: var(--surface);
+  background: var(--srf);
   border-radius: 12px;
   width: 90vw;
   max-width: 480px;
@@ -28,7 +28,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 16px 20px;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--bd);
 }
 
 .template-selector-header h3 {
@@ -43,7 +43,7 @@
   border: none;
   font-size: 20px;
   cursor: pointer;
-  color: var(--muted);
+  color: var(--fg3);
   padding: 4px;
   line-height: 1;
 }
@@ -68,7 +68,7 @@
   align-items: center;
   justify-content: center;
   padding: 40px 20px;
-  color: var(--muted);
+  color: var(--fg3);
 }
 
 .empty-icon {
@@ -99,20 +99,20 @@
   gap: 12px;
   padding: 10px 14px;
   border-radius: 8px;
-  border: 1px solid var(--border);
+  border: 1px solid var(--bd);
   cursor: pointer;
   transition: all 0.15s ease;
-  background: var(--surface);
+  background: var(--srf);
 }
 
 .template-item:hover {
-  border-color: var(--accent);
-  background: var(--accent-light, #f0f5ff);
+  border-color: var(--pr);
+  background: var(--prBg);
 }
 
 .template-item.selected {
-  border-color: var(--accent);
-  background: var(--accent-light, #f0f5ff);
+  border-color: var(--pr);
+  background: var(--prBg);
 }
 
 .template-item-info {
@@ -146,12 +146,12 @@
 }
 
 .template-type.expense {
-  background: #fff1f0;
+  background: var(--expBg);
   color: #cf1322;
 }
 
 .template-type.income {
-  background: #f6ffed;
+  background: var(--incBg);
   color: #389e0d;
 }
 
@@ -165,7 +165,7 @@
 
 .template-note {
   font-size: 12px;
-  color: var(--muted);
+  color: var(--fg3);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -182,7 +182,7 @@
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  border: 2px solid var(--border);
+  border: 2px solid var(--bd);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -191,14 +191,14 @@
 }
 
 .template-item.selected .template-radio {
-  border-color: var(--accent);
+  border-color: var(--pr);
 }
 
 .radio-dot {
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background: var(--accent);
+  background: var(--pr);
 }
 
 /* 底部按钮 */
@@ -207,5 +207,5 @@
   justify-content: flex-end;
   gap: 8px;
   padding: 12px 20px;
-  border-top: 1px solid var(--border);
+  border-top: 1px solid var(--bd);
 }

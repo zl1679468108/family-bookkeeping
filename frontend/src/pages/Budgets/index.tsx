@@ -433,7 +433,7 @@ const Budgets: React.FC = () => {
         }
       >
         <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-          <label style={{ fontSize: '13px', color: 'var(--muted)' }} className="field-required">
+          <label style={{ fontSize: '13px', color: 'var(--fg3)' }} className="field-required">
             预算金额
           </label>
           <NumberInput

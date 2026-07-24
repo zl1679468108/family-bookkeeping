@@ -1,4 +1,5 @@
 import React from 'react';
+import { getChartPalette, getThemeColors } from '../../utils/themeColors'
 
 interface BookItem {
   book_id: string;
@@ -11,7 +12,7 @@ interface Props {
   data: BookItem[];
 }
 
-const COLORS = ['#2D9D8A', '#ef4444', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899'];
+const COLORS = getChartPalette();
 
 const ReportBookBreakdown: React.FC<Props> = ({ data }) => {
   if (!data || data.length <= 1) return null;

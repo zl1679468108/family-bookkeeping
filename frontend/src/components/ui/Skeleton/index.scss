@@ -1,12 +1,12 @@
 /* ═══ Skeleton —— 骨架屏样式 ═══ */
 
 .skeleton-shimmer {
-  background-color: var(--sk-base, #e9ebe6);
+  background-color: var(--sk-base);
   background-image: linear-gradient(
     90deg,
-    var(--sk-base, #e9ebe6) 0%,
-    var(--sk-hi, #f6f7f4) 50%,
-    var(--sk-base, #e9ebe6) 100%
+    var(--sk-base) 0%,
+    var(--sk-hi) 50%,
+    var(--sk-base) 100%
   );
   background-size: 200% 100%;
   animation: skeletonShimmer 1.5s ease-in-out infinite;

@@ -110,11 +110,11 @@ const Reports: React.FC = () => {
                 <div style={{ display: 'flex', gap: '14px' }}>
                   <div style={{ flex: 1, padding: '16px', textAlign: 'center' }}>
                     <div style={{ fontSize: '13px', color: 'var(--fg2)', marginBottom: '8px' }}>总收入</div>
-                    <div style={{ fontSize: '24px', fontWeight: 700, color: '#27ae60' }}>{formatAmount(totalIncome)}</div>
+                    <div style={{ fontSize: '24px', fontWeight: 700, color: 'var(--inc)' }}>{formatAmount(totalIncome)}</div>
                   </div>
                   <div style={{ flex: 1, padding: '16px', textAlign: 'center' }}>
                     <div style={{ fontSize: '13px', color: 'var(--fg2)', marginBottom: '8px' }}>总支出</div>
-                    <div style={{ fontSize: '24px', fontWeight: 700, color: '#e74c3c' }}>{formatAmount(totalExpense)}</div>
+                    <div style={{ fontSize: '24px', fontWeight: 700, color: 'var(--exp)' }}>{formatAmount(totalExpense)}</div>
                   </div>
                 </div>
               )}

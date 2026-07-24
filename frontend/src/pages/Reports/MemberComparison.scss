@@ -9,8 +9,8 @@
 }
 
 .mc-section {
-  background: var(--surface);
-  border: 1px solid var(--border);
+  background: var(--srf);
+  border: 1px solid var(--bd);
   border-radius: var(--radius-lg);
   padding: 24px;
 }
@@ -29,7 +29,7 @@
   align-items: center;
   justify-content: center;
   padding: 48px 24px;
-  color: var(--muted);
+  color: var(--fg3);
   font-size: 14px;
 }
 
@@ -50,7 +50,7 @@
 
 .mc-donut-label {
   font-size: 12px;
-  fill: var(--muted);
+  fill: var(--fg3);
 }
 
 .mc-donut-amount {
@@ -94,7 +94,7 @@
 }
 
 .mc-donut-legend-pct {
-  color: var(--muted);
+  color: var(--fg3);
   font-size: 12px;
   min-width: 44px;
   text-align: right;
@@ -115,7 +115,7 @@
 }
 
 .mc-cat-table thead {
-  border-bottom: 2px solid var(--border);
+  border-bottom: 2px solid var(--bd);
 }
 
 .mc-cat-th,
@@ -123,7 +123,7 @@
   padding: 10px 12px;
   text-align: left;
   font-weight: 600;
-  color: var(--muted);
+  color: var(--fg3);
   font-size: 13px;
   white-space: nowrap;
 }
@@ -135,7 +135,7 @@
 .mc-cat-td,
 .mc-cat-td-name {
   padding: 10px 12px;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--bd);
   transition: background-color 0.2s ease;
 }
 
@@ -155,7 +155,7 @@
   font-weight: 600;
   text-align: right;
   color: var(--fg);
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--bd);
   padding: 10px 12px;
 }
 
@@ -174,7 +174,7 @@
 }
 
 .mc-matrix-table thead {
-  border-bottom: 2px solid var(--border);
+  border-bottom: 2px solid var(--bd);
 }
 
 .mc-matrix-th,
@@ -182,7 +182,7 @@
   padding: 10px 12px;
   text-align: right;
   font-weight: 600;
-  color: var(--muted);
+  color: var(--fg3);
   font-size: 13px;
   white-space: nowrap;
 }
@@ -195,15 +195,15 @@
   padding: 10px 12px;
   font-weight: 500;
   color: var(--fg);
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--bd);
   white-space: nowrap;
 }
 
 .mc-matrix-td-empty {
   padding: 10px 12px;
   text-align: right;
-  color: var(--muted);
-  border-bottom: 1px solid var(--border);
+  color: var(--fg3);
+  border-bottom: 1px solid var(--bd);
   font-variant-numeric: tabular-nums;
 }
 
@@ -212,14 +212,14 @@
   text-align: right;
   font-weight: 600;
   color: var(--fg);
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--bd);
   font-variant-numeric: tabular-nums;
 }
 
 .mc-matrix-hint {
   margin: 0;
   font-size: 12px;
-  color: var(--muted);
+  color: var(--fg3);
   text-align: center;
 }
 

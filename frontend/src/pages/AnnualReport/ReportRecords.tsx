@@ -31,8 +31,8 @@ export const ReportRecords: React.FC<ReportRecordsProps> = ({ data }) => {
       value: data.max_expense && data.max_expense.amount > 0 ? formatAmount(data.max_expense.amount) : '无',
       sub: data.max_expense?.description || '',
       sub2: data.max_expense?.date || '',
-      bgColor: '#FFF3E0',
-      iconBg: '#FF9800',
+      bgColor: 'var(--warnBg)',
+      iconBg: 'var(--warn)',
     },
     {
       icon: '📅',
@@ -40,8 +40,8 @@ export const ReportRecords: React.FC<ReportRecordsProps> = ({ data }) => {
       value: data.max_expense_day?.count ? `${data.max_expense_day.count} 笔` : '无',
       sub: data.max_expense_day?.date || '',
       sub2: data.max_expense_day?.amount && data.max_expense_day.amount > 0 ? `当日支出 ${formatAmount(data.max_expense_day.amount)}` : '',
-      bgColor: '#E3F2FD',
-      iconBg: '#2196F3',
+      bgColor: 'var(--infoBg)',
+      iconBg: 'var(--info)',
     },
     {
       icon: '🏪',
@@ -53,8 +53,8 @@ export const ReportRecords: React.FC<ReportRecordsProps> = ({ data }) => {
       sub2: data.max_expense_merchant?.count
         ? `光顾 ${data.max_expense_merchant.count} 次`
         : '',
-      bgColor: '#E8F5E9',
-      iconBg: '#4CAF50',
+      bgColor: 'var(--incBg)',
+      iconBg: 'var(--inc)',
     },
   ];
 
@@ -83,7 +83,7 @@ export const ReportRecords: React.FC<ReportRecordsProps> = ({ data }) => {
             className="flex items-center gap-4 p-4 rounded-xl transition-all duration-300 hover:shadow-lg"
             style={{
               background: card.bgColor,
-              border: '1px solid rgba(0,0,0,0.05)',
+              border: '1px solid var(--bdL)',
             }}
           >
             <div
@@ -96,7 +96,7 @@ export const ReportRecords: React.FC<ReportRecordsProps> = ({ data }) => {
               <span style={{ fontSize: '24px' }}>{card.icon}</span>
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: '12px', color: 'var(--muted)', marginBottom: '4px' }}>
+              <div style={{ fontSize: '12px', color: 'var(--fg3)', marginBottom: '4px' }}>
                 {card.label}
               </div>
               <div
@@ -113,7 +113,7 @@ export const ReportRecords: React.FC<ReportRecordsProps> = ({ data }) => {
                 <div style={{ fontSize: '13px', color: 'var(--fg)', fontWeight: 500 }}>{card.sub}</div>
               )}
               {card.sub2 && (
-                <div style={{ fontSize: '12px', color: 'var(--muted)' }}>{card.sub2}</div>
+                <div style={{ fontSize: '12px', color: 'var(--fg3)' }}>{card.sub2}</div>
               )}
             </div>
           </div>

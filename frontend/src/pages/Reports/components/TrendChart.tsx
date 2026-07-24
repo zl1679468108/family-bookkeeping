@@ -4,6 +4,7 @@ import type { ECharts, EChartsOption } from '../../../utils/echarts'
 import { format, parseISO } from 'date-fns'
 import { formatAmount } from '../../../utils/common'
 import type { PeriodType } from '../hooks/useReportData'
+import { getThemeColors } from '../../../utils/themeColors'
 
 interface TrendChartProps {
   period: PeriodType
@@ -102,8 +103,8 @@ export const TrendChart: React.FC<TrendChartProps> = ({
         yAxis: { type: 'value', axisLabel: { formatter: (v: number) => formatAmount(v) } },
         legend: { data: ['总支出', '总收入'], top: 5 },
         series: [
-          { name: '总支出', type: 'bar', data: chartData.expenses, itemStyle: { color: '#e74c3c' } },
-          { name: '总收入', type: 'bar', data: chartData.incomes, itemStyle: { color: '#27ae60' } },
+          { name: '总支出', type: 'bar', data: chartData.expenses, itemStyle: { color: getThemeColors().exp } },
+          { name: '总收入', type: 'bar', data: chartData.incomes, itemStyle: { color: getThemeColors().inc } },
         ],
       }
     } else if (isMonthCompare) {
@@ -124,10 +125,10 @@ export const TrendChart: React.FC<TrendChartProps> = ({
         yAxis: { type: 'value', axisLabel: { formatter: (v: number) => formatAmount(v) } },
         legend: { top: 5 },
         series: [
-          { name: `${curLabel} 总支出`, type: 'bar', data: chartData.currExpenses, itemStyle: { color: '#c0392b' }, barGap: '20%' },
-          { name: `${curLabel} 总收入`, type: 'bar', data: chartData.currIncomes, itemStyle: { color: '#1e8449' } },
-          { name: `${tgtLabel} 总支出`, type: 'bar', data: chartData.targetExpenses, itemStyle: { color: '#e74c3c' } },
-          { name: `${tgtLabel} 总收入`, type: 'bar', data: chartData.targetIncomes, itemStyle: { color: '#27ae60' } },
+          { name: `${curLabel} 总支出`, type: 'bar', data: chartData.currExpenses, itemStyle: { color: getThemeColors().exp }, barGap: '20%' },
+          { name: `${curLabel} 总收入`, type: 'bar', data: chartData.currIncomes, itemStyle: { color: getThemeColors().inc } },
+          { name: `${tgtLabel} 总支出`, type: 'bar', data: chartData.targetExpenses, itemStyle: { color: getThemeColors().exp } },
+          { name: `${tgtLabel} 总收入`, type: 'bar', data: chartData.targetIncomes, itemStyle: { color: getThemeColors().inc } },
         ],
       }
     } else if (isYearCompare) {
@@ -146,10 +147,10 @@ export const TrendChart: React.FC<TrendChartProps> = ({
         yAxis: { type: 'value', axisLabel: { formatter: (v: number) => formatAmount(v) } },
         legend: { top: 5 },
         series: [
-          { name: `${currentYear}年 总支出`, type: 'bar', data: chartData.currentYearExpenses, itemStyle: { color: '#c0392b' }, barGap: '20%' },
-          { name: `${currentYear}年 总收入`, type: 'bar', data: chartData.currentYearIncomes, itemStyle: { color: '#1e8449' } },
-          { name: `${yearCompareTarget}年 总支出`, type: 'bar', data: chartData.targetYearExpenses, itemStyle: { color: '#e74c3c' } },
-          { name: `${yearCompareTarget}年 总收入`, type: 'bar', data: chartData.targetYearIncomes, itemStyle: { color: '#27ae60' } },
+          { name: `${currentYear}年 总支出`, type: 'bar', data: chartData.currentYearExpenses, itemStyle: { color: getThemeColors().exp }, barGap: '20%' },
+          { name: `${currentYear}年 总收入`, type: 'bar', data: chartData.currentYearIncomes, itemStyle: { color: getThemeColors().inc } },
+          { name: `${yearCompareTarget}年 总支出`, type: 'bar', data: chartData.targetYearExpenses, itemStyle: { color: getThemeColors().exp } },
+          { name: `${yearCompareTarget}年 总收入`, type: 'bar', data: chartData.targetYearIncomes, itemStyle: { color: getThemeColors().inc } },
         ],
       }
     } else {
@@ -166,8 +167,8 @@ export const TrendChart: React.FC<TrendChartProps> = ({
         yAxis: { type: 'value', axisLabel: { formatter: (v: number) => formatAmount(v) } },
         legend: { data: ['总支出', '总收入'], top: 5 },
         series: [
-          { name: '总支出', type: 'bar', data: chartData.expenses, itemStyle: { color: '#e74c3c' } },
-          { name: '总收入', type: 'bar', data: chartData.incomes, itemStyle: { color: '#27ae60' } },
+          { name: '总支出', type: 'bar', data: chartData.expenses, itemStyle: { color: getThemeColors().exp } },
+          { name: '总收入', type: 'bar', data: chartData.incomes, itemStyle: { color: getThemeColors().inc } },
         ],
       }
     }

@@ -84,7 +84,7 @@
   font-family: var(--fn);
 
   &:hover {
-    background: #D8E8F7;
+    background: var(--infoBg);
     border-style: solid;
   }
 }

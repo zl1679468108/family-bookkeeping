@@ -13,7 +13,7 @@ const ReportCover: React.FC<Props> = ({ year, nickname }) => {
         background: 'linear-gradient(180deg, #87CEEB 0%, #98D8AA 50%, #E8F5E9 100%)',
         borderRadius: '16px',
         marginBottom: '24px',
-        boxShadow: '0 4px 20px rgba(152, 216, 170, 0.3)',
+        boxShadow: 'var(--sh3)',
       }}
     >
       <svg className="absolute top-0 left-0 w-full h-full" viewBox="0 0 600 200" preserveAspectRatio="xMidYMid slice">

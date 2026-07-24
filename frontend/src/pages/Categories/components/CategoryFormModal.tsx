@@ -80,7 +80,7 @@ export const CategoryFormModal: React.FC<CategoryFormModalProps> = ({
           required
         />
         <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-          <label style={{ fontSize: '13px', color: 'var(--muted)' }}>图标</label>
+          <label style={{ fontSize: '13px', color: 'var(--fg3)' }}>图标</label>
           <IconGrid
             options={iconOptions}
             value={modalIcon}

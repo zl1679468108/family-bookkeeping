@@ -12,7 +12,7 @@
 /* ---- 工具栏（搜索 + 汇总） ---- */
 .merchant-drawer__toolbar {
   padding: 16px 20px 12px;
-  border-bottom: 1px solid var(--bd, #e5e7eb);
+  border-bottom: 1px solid var(--bd);
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -24,28 +24,28 @@
   align-items: center;
   gap: 14px;
   font-size: 13px;
-  color: var(--fg2, #4b5563);
+  color: var(--fg2);
   flex-wrap: wrap;
 }
 
 .merchant-drawer__summary-item strong {
-  color: var(--fg, #1f2937);
+  color: var(--fg);
   font-weight: 700;
 }
 
 .merchant-drawer__summary-item.expense strong {
-  color: var(--exp, #e06055);
+  color: var(--exp);
 }
 
 .merchant-drawer__summary-item.income strong {
-  color: var(--inc, #3ba272);
+  color: var(--inc);
 }
 
 /* ---- 多选工具栏 ---- */
 .merchant-drawer__multiselect {
   padding: 10px 20px;
-  background: var(--bg, #f9fafb);
-  border-bottom: 1px solid var(--bd, #e5e7eb);
+  background: var(--bg);
+  border-bottom: 1px solid var(--bd);
   flex-shrink: 0;
 }
 
@@ -54,7 +54,7 @@
   align-items: center;
   gap: 10px;
   font-size: 13px;
-  color: var(--fg2, #4b5563);
+  color: var(--fg2);
   cursor: pointer;
   user-select: none;
 }
@@ -81,9 +81,9 @@
 .merchant-drawer__checkbox-custom {
   width: 18px;
   height: 18px;
-  border: 2px solid var(--bd, #d1d5db);
+  border: 2px solid var(--bd);
   border-radius: 4px;
-  background: var(--srf, #ffffff);
+  background: var(--srf);
   transition: all 0.15s ease;
   display: flex;
   align-items: center;
@@ -93,9 +93,9 @@
 .merchant-drawer__checkbox-custom--sm {
   width: 16px;
   height: 16px;
-  border: 2px solid var(--bd, #d1d5db);
+  border: 2px solid var(--bd);
   border-radius: 4px;
-  background: var(--srf, #ffffff);
+  background: var(--srf);
   transition: all 0.15s ease;
   display: flex;
   align-items: center;
@@ -104,8 +104,8 @@
 
 .merchant-drawer__checkbox input:checked ~ .merchant-drawer__checkbox-custom,
 .merchant-drawer__item-checkbox input:checked ~ .merchant-drawer__checkbox-custom--sm {
-  background: var(--pr, #2d9d8a);
-  border-color: var(--pr, #2d9d8a);
+  background: var(--pr);
+  border-color: var(--pr);
 }
 
 .merchant-drawer__checkbox input:checked ~ .merchant-drawer__checkbox-custom::after,
@@ -125,7 +125,7 @@
 .merchant-drawer__checkbox-count {
   margin-left: 6px;
   padding: 2px 8px;
-  background: var(--pr, #2d9d8a);
+  background: var(--pr);
   color: white;
   border-radius: 999px;
   font-size: 12px;
@@ -134,8 +134,8 @@
 
 .merchant-drawer__clear-btn {
   background: transparent;
-  border: 1px solid var(--bd, #d1d5db);
-  color: var(--fg2, #4b5563);
+  border: 1px solid var(--bd);
+  color: var(--fg2);
   padding: 4px 10px;
   font-size: 12px;
   border-radius: 6px;
@@ -145,8 +145,8 @@
 }
 
 .merchant-drawer__clear-btn:hover {
-  border-color: var(--exp, #e06055);
-  color: var(--exp, #e06055);
+  border-color: var(--exp);
+  color: var(--exp);
 }
 
 /* ---- 列表主体 ---- */
@@ -169,8 +169,8 @@
 
 .merchant-drawer__skeleton-item {
   padding: 12px;
-  background: var(--bg, #f9fafb);
-  border: 1px solid var(--bd, #e5e7eb);
+  background: var(--bg);
+  border: 1px solid var(--bd);
   border-radius: 8px;
 }
 
@@ -195,12 +195,12 @@
 .merchant-drawer__empty-title {
   font-size: 15px;
   font-weight: 600;
-  color: var(--fg, #1f2937);
+  color: var(--fg);
 }
 
 .merchant-drawer__empty-desc {
   font-size: 12px;
-  color: var(--fg3, #9ca3af);
+  color: var(--fg3);
   max-width: 260px;
 }
 
@@ -210,22 +210,22 @@
   align-items: flex-start;
   gap: 12px;
   padding: 12px 14px;
-  background: var(--bg, #f9fafb);
-  border: 1px solid var(--bd, #e5e7eb);
+  background: var(--bg);
+  border: 1px solid var(--bd);
   border-radius: var(--rs, 10px);
   cursor: pointer;
   transition: all 0.15s ease;
 }
 
 .merchant-drawer__item:hover {
-  border-color: var(--pr, #2d9d8a);
+  border-color: var(--pr);
   box-shadow: 0 2px 8px rgba(45, 157, 138, 0.08);
   transform: translateY(-1px);
 }
 
 .merchant-drawer__item.is-selected {
   background: rgba(45, 157, 138, 0.08);
-  border-color: var(--pr, #2d9d8a);
+  border-color: var(--pr);
 }
 
 .merchant-drawer__item-checkbox {
@@ -238,7 +238,7 @@
   height: 24px;
   padding: 0 8px;
   border-radius: var(--rs, 6px);
-  background: var(--pr, #2d9d8a);
+  background: var(--pr);
   color: #ffffff;
   font-size: 12px;
   font-weight: 700;
@@ -259,7 +259,7 @@
 .merchant-drawer__item-name {
   font-size: 14px;
   font-weight: 600;
-  color: var(--fg, #1f2937);
+  color: var(--fg);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -278,21 +278,21 @@
   gap: 10px;
   padding: 6px 10px;
   border-radius: var(--rs, 6px);
-  background: var(--srf, #ffffff);
-  border-left: 3px solid var(--bd, #d1d5db);
+  background: var(--srf);
+  border-left: 3px solid var(--bd);
 }
 
 .merchant-drawer__stat-item.expense {
-  border-left-color: var(--exp, #e06055);
+  border-left-color: var(--exp);
 }
 
 .merchant-drawer__stat-item.income {
-  border-left-color: var(--inc, #3ba272);
+  border-left-color: var(--inc);
 }
 
 .merchant-drawer__stat-label {
   font-size: 11px;
-  color: var(--fg3, #9ca3af);
+  color: var(--fg3);
   font-weight: 500;
   min-width: 28px;
 }
@@ -300,22 +300,22 @@
 .merchant-drawer__stat-amount {
   font-size: 13px;
   font-weight: 700;
-  color: var(--fg, #1f2937);
+  color: var(--fg);
   flex: 1;
 }
 
 .merchant-drawer__stat-item.expense .merchant-drawer__stat-amount {
-  color: var(--exp, #e06055);
+  color: var(--exp);
 }
 
 .merchant-drawer__stat-item.income .merchant-drawer__stat-amount {
-  color: var(--inc, #3ba272);
+  color: var(--inc);
 }
 
 .merchant-drawer__stat-count {
   font-size: 11px;
-  color: var(--fg2, #4b5563);
-  background: var(--bg, #f9fafb);
+  color: var(--fg2);
+  background: var(--bg);
   padding: 2px 8px;
   border-radius: 999px;
   font-weight: 500;
@@ -323,27 +323,27 @@
 
 .merchant-drawer__item-date {
   font-size: 11px;
-  color: var(--fg3, #9ca3af);
+  color: var(--fg3);
 }
 
 /* ---- 分页 ---- */
 .merchant-drawer__pagination {
   padding: 12px 20px;
-  border-top: 1px solid var(--bd, #e5e7eb);
+  border-top: 1px solid var(--bd);
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 12px;
   flex-shrink: 0;
-  background: var(--srf, #ffffff);
+  background: var(--srf);
 }
 
 .merchant-drawer__page-btn {
   padding: 6px 14px;
   font-size: 12px;
-  background: var(--srf, #ffffff);
-  border: 1px solid var(--bd, #d1d5db);
-  color: var(--fg2, #4b5563);
+  background: var(--srf);
+  border: 1px solid var(--bd);
+  color: var(--fg2);
   border-radius: 6px;
   cursor: pointer;
   transition: all 0.15s ease;
@@ -351,8 +351,8 @@
 }
 
 .merchant-drawer__page-btn:hover:not(:disabled) {
-  border-color: var(--pr, #2d9d8a);
-  color: var(--pr, #2d9d8a);
+  border-color: var(--pr);
+  color: var(--pr);
 }
 
 .merchant-drawer__page-btn:disabled {
@@ -362,11 +362,11 @@
 
 .merchant-drawer__page-info {
   font-size: 12px;
-  color: var(--fg3, #9ca3af);
+  color: var(--fg3);
 }
 
 .merchant-drawer__page-info strong {
-  color: var(--fg, #1f2937);
+  color: var(--fg);
   font-weight: 600;
 }
 

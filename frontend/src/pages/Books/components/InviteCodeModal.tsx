@@ -55,7 +55,7 @@ export const InviteCodeModal: React.FC<InviteCodeModalProps> = ({
             borderRadius: '10px',
             cursor: 'pointer',
             userSelect: 'all',
-            color: 'var(--accent, #4f9cfd)',
+            color: 'var(--pr)',
           }}
         >
           {inviteCode?.code}

@@ -8,16 +8,14 @@ import { EmptyState } from '../../components/ui/EmptyState';
 import { Card, CardHeader } from '../../components/ui/Card';
 import './MemberComparison.scss';
 import { formatAmount } from '../../utils/common';
+import { getChartPalette } from '../../utils/themeColors'
 
 interface MemberComparisonProps {
   monthFrom: string;
   monthTo: string;
 }
 
-const MEMBER_COLORS: string[] = [
-  '#6366f1', '#f59e0b', '#10b981', '#ef4444', '#8b5cf6',
-  '#ec4899', '#06b6d4', '#f97316', '#84cc16', '#14b8a6',
-];
+const MEMBER_COLORS: string[] = getChartPalette();
 
 const formatMonth = (ym: string): string => {
   const parts = ym.split('-');

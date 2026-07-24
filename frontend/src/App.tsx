@@ -45,7 +45,7 @@ const PrivateRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => 
     // T-L11: 显示加载状态，避免白屏
     return (
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-        <div style={{ color: '#666' }}>加载中...</div>
+        <div style={{ color: 'var(--fg3)' }}>加载中...</div>
       </div>
     )
   }

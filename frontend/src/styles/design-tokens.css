@@ -103,6 +103,13 @@
   --accent-hover: var(--prH);
   --accent-light: var(--prBg);  /* 兼容旧代码 */
   --surface:      var(--srf);
+  --color-surface: var(--srf);
+  --color-bg:     var(--bg);
+  --color-border: var(--bd);
+  --color-fg:     var(--fg);
+  --color-muted:  var(--fg3);
+  --color-primary: var(--pr);
+  --on-pr:        #ffffff;
   --muted:        var(--fg2);
   --border:       var(--bd);
   --success:      var(--inc);

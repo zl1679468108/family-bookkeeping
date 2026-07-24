@@ -20,7 +20,7 @@ const Card: React.FC<{ label: string; value: string; color: string; bgColor: str
     className="rounded-xl p-4 text-center relative overflow-hidden"
     style={{
       background: bgColor,
-      boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
+      boxShadow: 'var(--sh2)',
     }}
   >
     <div
@@ -59,28 +59,28 @@ const ReportOverview: React.FC<Props> = ({ data }) => {
           label="年度总收入"
           value={formatNumber(data.total_income)}
           color="text-green-600"
-          bgColor="#E8F5E9"
+          bgColor="var(--incBg)"
           icon="📈"
         />
         <Card
           label="年度总支出"
           value={formatNumber(data.total_expense)}
           color="text-orange-500"
-          bgColor="#FFF3E0"
+          bgColor="var(--warnBg)"
           icon="💳"
         />
         <Card
           label="年度结余"
           value={formatNumber(data.balance)}
           color={data.balance >= 0 ? 'text-blue-600' : 'text-red-500'}
-          bgColor={data.balance >= 0 ? '#E3F2FD' : '#FFEBEE'}
+          bgColor={data.balance >= 0 ? 'var(--infoBg)' : 'var(--expBg)'}
           icon="💰"
         />
         <Card
           label="结余率"
           value={`${data.balance_rate}%`}
           color="text-purple-600"
-          bgColor="#F3E5F5"
+          bgColor="var(--prBg)"
           icon="📉"
         />
       </div>

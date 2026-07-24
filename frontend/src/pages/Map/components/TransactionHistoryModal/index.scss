@@ -5,7 +5,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.4);
+  background: var(--ov);
   z-index: var(--z-modal);
   display: flex;
   align-items: center;
@@ -14,7 +14,7 @@
 }
 
 .merchant-history-modal {
-  background: var(--surface, #fff);
+  background: var(--srf);
   border-radius: 16px;
   width: 90%;
   max-width: 520px;
@@ -30,13 +30,13 @@
   align-items: flex-start;
   justify-content: space-between;
   padding: 20px 24px 12px;
-  border-bottom: 1px solid var(--border, #eee);
+  border-bottom: 1px solid var(--bd);
 }
 
 .merchant-history-header h3 {
   margin: 0 0 6px 0;
   font-size: 17px;
-  color: var(--fg, #333);
+  color: var(--fg);
 }
 
 .merchant-history-summary {
@@ -52,13 +52,13 @@
 }
 
 .history-tag.expense {
-  background: rgba(238, 102, 102, 0.1);
-  color: #EE6666;
+  background: var(--expBg);
+  color: var(--exp);
 }
 
 .history-tag.income {
-  background: rgba(145, 204, 117, 0.1);
-  color: #52c41a;
+  background: var(--incBg);
+  color: var(--inc);
 }
 
 .merchant-history-close {
@@ -66,20 +66,20 @@
   width: 32px;
   height: 32px;
   border: none;
-  background: var(--bg, #f5f5f5);
+  background: var(--bg);
   border-radius: 50%;
   font-size: 14px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--muted, #999);
+  color: var(--fg3);
   transition: all 0.15s;
 }
 
 .merchant-history-close:hover {
-  background: #eee;
-  color: #333;
+  background: var(--bdL);
+  color: var(--fg);
 }
 
 /* 历史标签筛选 */
@@ -87,29 +87,29 @@
   display: flex;
   gap: 8px;
   padding: 12px 24px;
-  border-bottom: 1px solid var(--border, #eee);
+  border-bottom: 1px solid var(--bd);
 }
 
 /* 筛选 Chip 按钮 */
 .map-chip {
   padding: 4px 12px;
   border-radius: 16px;
-  border: 1px solid var(--border, #ddd);
-  background: var(--bg, #fafafa);
-  color: var(--fg, #555);
+  border: 1px solid var(--bd);
+  background: var(--bg);
+  color: var(--fg);
   font-size: 13px;
   cursor: pointer;
   transition: all 0.15s;
   white-space: nowrap;
 
   &:hover {
-    background: #f0f0f0;
+    background: var(--srfH);
   }
 
   &.active {
-    background: #2D9D8A;
+    background: var(--pr);
     color: #fff;
-    border-color: #2D9D8A;
+    border-color: var(--pr);
   }
 }
 
@@ -127,7 +127,7 @@
   align-items: center;
   justify-content: center;
   padding: 40px;
-  color: var(--muted, #999);
+  color: var(--fg3);
   font-size: 14px;
 }
 
@@ -136,7 +136,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 10px 0;
-  border-bottom: 1px solid var(--border, #f0f0f0);
+  border-bottom: 1px solid var(--bd);
 }
 
 .merchant-history-item:last-child {
@@ -165,11 +165,11 @@
 }
 
 .history-item-type.expense {
-  background: #EE6666;
+  background: var(--exp);
 }
 
 .history-item-type.income {
-  background: #91CC75;
+  background: var(--inc);
 }
 
 .history-item-info {
@@ -181,12 +181,12 @@
 
 .history-item-category {
   font-size: 13px;
-  color: var(--fg, #333);
+  color: var(--fg);
 }
 
 .history-item-desc {
   font-size: 11px;
-  color: var(--muted, #999);
+  color: var(--fg3);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -207,14 +207,14 @@
 }
 
 .history-item-amount.expense {
-  color: #EE6666;
+  color: var(--exp);
 }
 
 .history-item-amount.income {
-  color: #91CC75;
+  color: var(--inc);
 }
 
 .history-item-date {
   font-size: 11px;
-  color: var(--muted, #999);
+  color: var(--fg3);
 }

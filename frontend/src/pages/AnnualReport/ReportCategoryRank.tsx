@@ -1,5 +1,6 @@
 import React from 'react';
 import { renderCategoryIcon } from '../../utils/renderCategoryIcon';
+import { getChartPalette } from '../../utils/themeColors'
 
 interface CategoryItem {
   category_name: string;
@@ -13,7 +14,7 @@ interface ReportCategoryRankProps {
   data: CategoryItem[];
 }
 
-const colors = ['#FF7043', '#42A5F5', '#66BB6A', '#AB47BC', '#FFA726'];
+const colors = getChartPalette();
 
 export const ReportCategoryRank: React.FC<ReportCategoryRankProps> = ({ data }) => {
   const formatAmount = (n: number) => {
@@ -37,10 +38,10 @@ export const ReportCategoryRank: React.FC<ReportCategoryRankProps> = ({ data }) 
       </h2>
       <div
         style={{
-          background: 'var(--surface)',
+          background: 'var(--srf)',
           borderRadius: '12px',
           padding: '16px',
-          border: '1px solid var(--border)',
+          border: '1px solid var(--bd)',
         }}
       >
         <div className="space-y-4">
@@ -61,7 +62,7 @@ export const ReportCategoryRank: React.FC<ReportCategoryRankProps> = ({ data }) 
                     <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--fg)' }}>
                       {formatAmount(item.amount)}
                     </span>
-                    <span style={{ fontSize: '12px', color: 'var(--muted)' }}>
+                    <span style={{ fontSize: '12px', color: 'var(--fg3)' }}>
                       {item.percentage}%
                     </span>
                   </div>
