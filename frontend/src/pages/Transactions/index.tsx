@@ -26,6 +26,7 @@ import { SearchInput, NumberInput } from '../../components/ui/Input'
 import { parseImageList } from '../../utils/parseImageList'
 import { queryKeys, TRANSACTION_IMPACT_ROOT_KEYS } from '../../utils/queryKeys'
 import { STALE } from '../../utils/cachePolicy'
+import { transactionTypeLabel, TRANSACTION_TYPE_OPTIONS } from '../../utils/transactionType'
 
 const PAGE_SIZE = 20
 
@@ -205,10 +206,7 @@ const Transactions: React.FC = () => {
     .filter(t => t.type === 'income')
     .reduce((sum, t) => sum + Number(t.amount), 0)
 
-  const typeOptions = useMemo(() => [
-    { key: 'income', label: '收入' },
-    { key: 'expense', label: '支出' },
-  ], []);
+  const typeOptions = useMemo(() => [...TRANSACTION_TYPE_OPTIONS], [])
 
   const dateOptions = useMemo(() => [
     { key: 'week', label: '近 7 天' },
@@ -409,7 +407,7 @@ const Transactions: React.FC = () => {
             <div className="detail-content">
               <div className="detail-title">{getCategoryName(selectedTransaction.category)}</div>
               <div className="detail-subtitle">
-                {selectedTransaction.type === 'expense' ? '支出' : '收入'} · {format(new Date(selectedTransaction.date), 'yyyy-MM-dd')}
+                {transactionTypeLabel(selectedTransaction.type)} · {format(new Date(selectedTransaction.date), 'yyyy-MM-dd')}
               </div>
               <div className="detail-amount">
                 <div className={`detail-amount-value ${selectedTransaction.type === 'income' ? 'income' : ''}`}>

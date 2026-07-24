@@ -100,3 +100,10 @@ export function isValidPositiveAmount(
   return Number.isFinite(num) && num > 0;
 }
 
+/** 解析金额为 number，非法时返回 0 */
+export function parseAmount(amount: string | number | null | undefined): number {
+  if (amount === null || amount === undefined || amount === "") return 0;
+  const num = typeof amount === "string" ? parseFloat(amount) : amount;
+  return Number.isFinite(num) ? num : 0;
+}
+

@@ -20,6 +20,7 @@ import {
 import { useCategories } from "../../hooks/useCategories";
 import { useManualQuery } from "../../hooks/useManualQuery";
 import { useSubmit, toastError } from "../../hooks/useSubmit";
+import { transactionTypeLabel } from "../../utils/transactionType";
 import { isIconUrl } from "../../utils/renderCategoryIcon";
 import LocationPicker, { LocationResult } from "../../components/LocationPicker";
 import Icon, { ICON_COLOR } from "../../components/Icon";
@@ -136,7 +137,7 @@ export default function TemplateEdit() {
   };
 
   const typeOpts = ["expense", "income"];
-  const typeDisplayRange = ["选择类型", ...typeOpts.map((t) => (t === "expense" ? "支出" : "收入"))];
+  const typeDisplayRange = ["选择类型", ...typeOpts.map((t) => transactionTypeLabel(t))];
   const catOpts = (cats || []).filter((c: any) => c.type === form.type);
   const selectedCat = (cats || []).find((c: any) => c.id === form.category_id);
 
@@ -178,7 +179,7 @@ export default function TemplateEdit() {
   return (
     <PageContainer bottomSpace={180} loading={isLoading} loadingText="加载中…">
       <PageHero
-        eyebrow={form.type === "expense" ? "支出模板" : form.type === "income" ? "收入模板" : "模板"}
+        eyebrow={form.type ? `${transactionTypeLabel(form.type)}模板` : "模板"}
         title={title}
         meta={isEdit ? "修改后保存" : "填写模板信息"}
         tone="surface"

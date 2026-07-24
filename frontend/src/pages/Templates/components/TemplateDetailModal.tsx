@@ -5,6 +5,7 @@ import { Button } from '../../../components/ui/Button'
 import { renderCategoryIcon } from '../../../utils/renderCategoryIcon'
 import { formatMoney } from '../../../utils/budget'
 import { formatFrequency } from '../../../utils/frequency'
+import { transactionTypeLabel } from '../../../utils/transactionType'
 
 interface TemplateDetailModalProps {
   template: any
@@ -53,7 +54,7 @@ export const TemplateDetailModal: React.FC<TemplateDetailModalProps> = ({
           <div className="detail-title">{template.name}</div>
           <div className="detail-subtitle">
             <span className={`tpl-tag tpl-tag-type tpl-tag-${template.type}`}>
-              {template.type === 'expense' ? '支出' : '收入'}
+              {transactionTypeLabel(template.type)}
             </span>
             {template.amount && (
               <span className={`tpl-tag tpl-tag-amount tpl-tag-${template.type}`}>

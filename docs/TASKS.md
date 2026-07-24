@@ -98,6 +98,11 @@
 - `formatAmount`/`formatAmountWithType` 薄封装 `formatMoney`，单一金额格式实现。
 - 记一笔保存成功清除草稿；frontend `tsc --noEmit` 通过。
 
+#### 2026-07-24 收支类型文案 + parseAmount 复用
+- 双端新增 `utils/transactionType.ts`：`transactionTypeLabel` / `TRANSACTION_TYPE_OPTIONS` / `TRANSACTION_TYPE_FILTER_LABELS`。
+- 双端 `parseAmount`；模板/分类/流水/记一笔类型文案与 Taro 模板金额 sanitize 收口。
+- 验证：frontend/taro `tsc --noEmit` 通过。
+
 #### 2026-07-24 金额工具 + 记一笔表单字段复用
 - 双端 `sanitizeAmountInput` / `isValidPositiveAmount`（budget.ts）；PC/Taro 记一笔与 AmountCard 收口。
 - PC `TransactionForm`：金额/日期/品牌走 `FormField`，备注走 `Textarea`；校验统一 isValidPositiveAmount。

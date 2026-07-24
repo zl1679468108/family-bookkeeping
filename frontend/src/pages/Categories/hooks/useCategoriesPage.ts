@@ -14,6 +14,7 @@ import { notifySuccess } from '../../../utils/notifyError'
 import { useBook } from '../../../hooks/useBook'
 import { queryKeys } from '../../../utils/queryKeys'
 import { STALE } from '../../../utils/cachePolicy'
+import { transactionTypeLabel } from '../../../utils/transactionType'
 
 export function useCategoriesPage() {
   const { currentBook } = useBook()
@@ -161,7 +162,7 @@ export function useCategoriesPage() {
     }
   }, [deleteTarget, deleteMutation])
 
-  const typeLabel = activeTab === 'expense' ? '支出' : '收入'
+  const typeLabel = transactionTypeLabel(activeTab)
   const modalTitle = modalMode === 'add' ? `新增${typeLabel}分类` : `编辑${typeLabel}分类`
 
   const iconOptions = React.useMemo(

@@ -27,12 +27,14 @@ import { useCategories } from "../../hooks/useCategories";
 import { useManualQuery } from "../../hooks/useManualQuery";
 import { useSubmit, toastError } from "../../hooks/useSubmit";
 import { FREQUENCY_LABELS } from "../../utils/frequency";
+import { transactionTypeLabel, TRANSACTION_TYPE_OPTIONS } from "../../utils/transactionType";
 import { useReorder } from "../../hooks/useReorder";
 import { isIconUrl } from "../../utils/renderCategoryIcon";
 import type { Template } from "../../types";
 import "./index.scss";
 import { toastSuccess, toastInfo } from "../../utils/toast";
 import { formatMoney } from "../../utils/format";
+import { sanitizeAmountInput } from "../../utils/budget";
 
 /* ---------- 空表单初始态 ---------- */
 const EMPTY_FORM = {
@@ -338,7 +340,7 @@ export default function TemplateManager() {
                   </View>
                   <View className="tpl-card__body">
                     <View className={`tpl-card__type tpl-card__type--${t.type}`}>
-                      <Text>{t.type === "expense" ? "支出" : "收入"}</Text>
+                      <Text>{transactionTypeLabel(t.type)}</Text>
                     </View>
                     {cat && (
                       <Text className="tpl-card__cat">{cat.name}</Text>
@@ -372,7 +374,7 @@ export default function TemplateManager() {
                   {/* 卡片内容：类型标签 + 分类 + 金额 */}
                   <View className="tpl-card__body">
                     <View className={`tpl-card__type tpl-card__type--${t.type}`}>
-                      <Text>{t.type === "expense" ? "支出" : "收入"}</Text>
+                      <Text>{transactionTypeLabel(t.type)}</Text>
                     </View>
                     {cat && (
                       <Text className="tpl-card__cat">{cat.name}</Text>
@@ -422,7 +424,7 @@ export default function TemplateManager() {
             <Text className="tpl-detail-hero__name">{selectedTemplate.name}</Text>
             <View className="tpl-detail-hero__tags">
               <View className={`tpl-tag tpl-tag--type tpl-tag--${selectedTemplate.type}`}>
-                <Text>{selectedTemplate.type === "expense" ? "支出" : "收入"}</Text>
+                <Text>{transactionTypeLabel(selectedTemplate.type)}</Text>
               </View>
               {selectedTemplate.amount != null && (
                 <View className={`tpl-tag tpl-tag--amount tpl-tag--${selectedTemplate.type}`}>
@@ -553,7 +555,7 @@ export default function TemplateManager() {
               <Text className="tpl-fg__label tpl-fg__label--req">类型</Text>
               <Picker
                 mode="selector"
-                range={[{ label: "支出", value: "expense" }, { label: "收入", value: "income" }]}
+                range={TRANSACTION_TYPE_OPTIONS.map((o) => ({ label: o.label, value: o.key }))}
                 rangeKey="label"
                 value={form.type === "expense" ? 0 : 1}
                 onChange={(e: any) =>
@@ -562,7 +564,7 @@ export default function TemplateManager() {
               >
                 <View className="tpl-fg__select">
                   <Text className={`tpl-fg__select-val tpl-fg__select-val--${form.type}`}>
-                    {form.type === "expense" ? "支出" : "收入"}
+                    {transactionTypeLabel(form.type)}
                   </Text>
                   <Text
                     className="tpl-fg__select-cls"
@@ -615,7 +617,7 @@ export default function TemplateManager() {
                 placeholder="0.00"
                 type="digit"
                 value={form.amount}
-                onInput={(e: any) => setForm((p) => ({ ...p, amount: e.detail.value }))}
+                onInput={(e: any) => setForm((p) => ({ ...p, amount: sanitizeAmountInput(e.detail.value) }))}
               />
             </View>
           </View>

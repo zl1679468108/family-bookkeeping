@@ -38,6 +38,7 @@ import {
 } from "../../utils/platformIcons";
 import { useManualQuery } from "../../hooks/useManualQuery";
 import { useSubmit, toastError } from "../../hooks/useSubmit";
+import { transactionTypeLabel } from "../../utils/transactionType";
 import { useReorder } from "../../hooks/useReorder";
 import "./index.scss";
 import { toastSuccess, toastInfo } from "../../utils/toast";
@@ -320,7 +321,7 @@ export default function CategoriesPage() {
         {filtered.length === 0 ? (
           <View className="cats-empty">
             <EmptyState
-              description={`暂无${catType === "expense" ? "支出" : "收入"}分类，添加第一个让收支归类更清晰`}
+              description={`暂无${transactionTypeLabel(catType)}分类，添加第一个让收支归类更清晰`}
             />
           </View>
         ) : sortMode ? (
@@ -408,7 +409,7 @@ export default function CategoriesPage() {
                       detailCat.type === "expense" ? "catds-badge--expense" : "catds-badge--income"
                     }`}
                   >
-                    {detailCat.type === "expense" ? "支出" : "收入"}
+                    {transactionTypeLabel(detailCat.type)}
                   </Text>
                   <Text
                     className={`catds-badge catds-badge--origin ${
@@ -458,8 +459,8 @@ export default function CategoriesPage() {
         <BottomSheet
           title={
             formMode === "edit"
-              ? `编辑${formCatType === "expense" ? "支出" : "收入"}分类`
-              : `新增${catType === "expense" ? "支出" : "收入"}分类`
+              ? `编辑${transactionTypeLabel(formCatType)}分类`
+              : `新增${transactionTypeLabel(catType)}分类`
           }
           onClose={closeForm}
           footer={

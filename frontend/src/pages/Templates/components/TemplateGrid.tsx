@@ -5,6 +5,7 @@ import { Skeleton } from '../../../components/ui/Skeleton'
 import { EmptyState } from '../../../components/ui/EmptyState'
 import { renderCategoryIcon } from '../../../utils/renderCategoryIcon'
 import { formatAmount } from '../../../utils/common'
+import { transactionTypeLabel } from '../../../utils/transactionType'
 
 interface TemplateGridProps {
   isLoading: boolean
@@ -121,7 +122,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                 <span className="list-card__title">{t.name}</span>
               </div>
               <div className="list-card__content">
-                <span className={`list-card__badge list-card__badge--${t.type}`}>{t.type === 'expense' ? '支出' : '收入'}</span>
+                <span className={`list-card__badge list-card__badge--${t.type}`}>{transactionTypeLabel(t.type)}</span>
                 <span className="list-card__cat">{cat.name}</span>
                 {t.amount && (
                   <span className={`list-card__amt list-card__amt--${t.type}`}>{formatAmount(t.amount)}</span>

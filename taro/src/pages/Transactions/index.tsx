@@ -16,8 +16,10 @@ import { useAuth } from "../../context/AuthContext";
 import { useBookContext } from "../../context/BookContext";
 import { formatMoney } from "../../utils/format";
 import "./index.scss";
+import { TRANSACTION_TYPE_FILTER_LABELS } from "../../utils/transactionType";
+import { parseAmount } from "../../utils/budget";
 
-const FILTER_OPTIONS = ["全部类型", "支出", "收入"];
+const FILTER_OPTIONS = [...TRANSACTION_TYPE_FILTER_LABELS];
 const TIME_OPTIONS = ["全部时间", "近 7 天", "近 30 天"];
 
 const PAGE_SIZE = 20;
@@ -245,7 +247,7 @@ export default function Transactions() {
   const stats = useMemo(() => {
     return txn.reduce(
       (acc, t) => {
-        const amount = parseFloat(t.amount) || 0;
+        const amount = parseAmount(t.amount);
         if (t.type === "income") acc.income += amount;
         else acc.expense += amount;
         return acc;
@@ -350,7 +352,7 @@ export default function Transactions() {
                           categoryName={catName}
                           description={t.description}
                           brand={t.brand}
-                          amount={parseFloat(t.amount) || 0}
+                          amount={parseAmount(t.amount)}
                           type={t.type === "income" ? "income" : "expense"}
                           hasImage={t.image_url_list && t.image_url_list.length > 0}
                         />

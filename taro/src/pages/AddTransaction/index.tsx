@@ -27,6 +27,7 @@ import LocationField, {
 import ImageUpload from "../../components/form/ImageUpload";
 import { todayBeijing, toastSuccess, toastInfo, formatMoney } from "../../utils/format";
 import { sanitizeAmountInput, isValidPositiveAmount } from "../../utils/budget";
+import { transactionTypeLabel, TRANSACTION_TYPE_OPTIONS } from "../../utils/transactionType";
 import { parseImageList } from "../../utils/parseImageList";
 import "./index.scss";
 
@@ -294,11 +295,11 @@ export default function AddTransaction() {
         {/* 类型 */}
         <Picker
           mode="selector"
-          range={["支出", "收入"]}
+          range={TRANSACTION_TYPE_OPTIONS.map((o) => o.label)}
           value={type === "income" ? 1 : 0}
           onChange={(e: any) => setType(e.detail.value === 1 ? "income" : "expense")}
         >
-          <FieldRow label="类型" required variant="row" value={type === "income" ? "收入" : "支出"} />
+          <FieldRow label="类型" required variant="row" value={transactionTypeLabel(type)} />
         </Picker>
 
         {/* 金额 */}

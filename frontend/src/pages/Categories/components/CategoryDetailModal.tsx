@@ -4,6 +4,7 @@ import { GlobalModal, DetailItem, Space } from '../../../components/ui'
 import { Button } from '../../../components/ui/Button'
 import { renderCategoryIcon } from '../../../utils/renderCategoryIcon'
 import type { Category } from '@family-bookkeeping/shared-types'
+import { transactionTypeLabel } from '../../../utils/transactionType'
 
 interface CategoryDetailModalProps {
   selectedCategory: Category | null
@@ -60,7 +61,7 @@ export const CategoryDetailModal: React.FC<CategoryDetailModalProps> = ({
           <div className="detail-title">{selectedCategory.name}</div>
           <div className="detail-tags">
             <span className={`detail-tag ${selectedCategory.type === 'expense' ? 'type-expense' : 'type-income'}`}>
-              {selectedCategory.type === 'expense' ? '支出' : '收入'}
+              {transactionTypeLabel(selectedCategory.type)}
             </span>
             <span className={`detail-tag ${selectedCategory.is_default ? 'tag-default' : 'tag-custom'}`}>
               {selectedCategory.is_default ? '默认' : '自定义'}

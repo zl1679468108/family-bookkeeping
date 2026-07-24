@@ -8,6 +8,7 @@ import { LocationDisplay } from '../../../components/ui/LocationDisplay'
 import { LocationPicker } from '../../AddTransaction/components/LocationPicker'
 import type { LocationResult } from '@family-bookkeeping/shared-types'
 import { FREQUENCY_OPTIONS } from '../../../utils/frequency'
+import { TRANSACTION_TYPE_OPTIONS } from '../../../utils/transactionType'
 
 interface TemplateFormProps {
   open: boolean
@@ -84,10 +85,7 @@ export const TemplateFormModal: React.FC<TemplateFormProps> = ({
               label="类型"
               value={form.type}
               onChange={(v) => setForm((prev: any) => ({ ...prev, type: v as 'income' | 'expense', category_id: '' }))}
-              options={[
-                { key: 'expense', label: '支出' },
-                { key: 'income', label: '收入' },
-              ]}
+              options={[...TRANSACTION_TYPE_OPTIONS]}
               placeholder="选择类型"
               required
             />
