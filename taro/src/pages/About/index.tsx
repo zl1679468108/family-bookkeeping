@@ -9,11 +9,22 @@ import PageContainer from "../../components/PageContainer";
 import Icon, { ICON_COLOR } from "../../components/Icon";
 import {
   APP_NAME,
+  APP_BRAND_MARK,
   APP_SLOGAN,
   APP_VERSION,
   APP_BUILD_DATE,
   CHANGELOG,
+  LABEL_APP_VERSION,
+  LABEL_UPDATE_DATE,
+  LABEL_RUNTIME_ENV,
+  LABEL_RUNTIME_MINIPROGRAM,
+  SECTION_APP_INFO,
+  SECTION_CHANGELOG,
+  SECTION_LEGAL,
+  aboutReleasedLabel,
+  aboutFooterCopyright,
 } from "../../config/version";
+import { TITLE_USER_AGREEMENT, TITLE_PRIVACY_POLICY } from "../../utils/sectionCopy";
 import "./index.scss";
 
 export default function About() {
@@ -33,17 +44,12 @@ export default function About() {
     });
   };
 
-  const formatDate = (dateStr: string) => {
-    const [year, month, day] = dateStr.split("-");
-    return `${year} 年 ${parseInt(month)} 月 ${parseInt(day)} 日`;
-  };
-
   return (
     <PageContainer contentClassName="about-content">
       {/* Hero 区域 */}
       <View className="about-hero">
         <View className="about-logo">
-          <Text className="about-logo-text">静</Text>
+          <Text className="about-logo-text">{APP_BRAND_MARK}</Text>
         </View>
         <Text className="about-name">{APP_NAME}</Text>
         <Text className="about-slogan">{APP_SLOGAN}</Text>
@@ -54,14 +60,14 @@ export default function About() {
           <Text className="about-version-tag">v{APP_VERSION}</Text>
           <View className="about-version-line" />
         </View>
-        <Text className="about-date">{formatDate(APP_BUILD_DATE)} 发布</Text>
+        <Text className="about-date">{aboutReleasedLabel(APP_BUILD_DATE)}</Text>
       </View>
 
       {/* 更新日志 */}
       <View className="about-card">
         <View className="about-card-title">
           <Icon name="clock" size={40} />
-          <Text>更新日志</Text>
+          <Text>{SECTION_CHANGELOG}</Text>
         </View>
 
         <View className="about-timeline">
@@ -113,21 +119,21 @@ export default function About() {
       <View className="about-card">
         <View className="about-card-title">
           <Icon name="info" size={40} />
-          <Text>应用信息</Text>
+          <Text>{SECTION_APP_INFO}</Text>
         </View>
 
         <View className="about-info-list">
           <View className="about-info-row">
-            <Text className="about-info-label">应用版本</Text>
+            <Text className="about-info-label">{LABEL_APP_VERSION}</Text>
             <Text className="about-info-value">{APP_VERSION}</Text>
           </View>
           <View className="about-info-row">
-            <Text className="about-info-label">更新日期</Text>
+            <Text className="about-info-label">{LABEL_UPDATE_DATE}</Text>
             <Text className="about-info-value">{APP_BUILD_DATE}</Text>
           </View>
           <View className="about-info-row">
-            <Text className="about-info-label">运行环境</Text>
-            <Text className="about-info-value">小程序</Text>
+            <Text className="about-info-label">{LABEL_RUNTIME_ENV}</Text>
+            <Text className="about-info-value">{LABEL_RUNTIME_MINIPROGRAM}</Text>
           </View>
         </View>
       </View>
@@ -136,7 +142,7 @@ export default function About() {
       <View className="about-card">
         <View className="about-card-title">
           <Icon name="lock" size={40} />
-          <Text>法律与协议</Text>
+          <Text>{SECTION_LEGAL}</Text>
         </View>
 
         <View className="about-info-list">
@@ -144,14 +150,14 @@ export default function About() {
             className="about-info-row about-info-row--link"
             onClick={() => Taro.navigateTo({ url: "/pages/Terms/index" })}
           >
-            <Text className="about-info-label">用户协议</Text>
+            <Text className="about-info-label">{TITLE_USER_AGREEMENT}</Text>
             <Icon name="chevron-right" size={28} color={ICON_COLOR.muted} className="about-info-arrow" />
           </View>
           <View
             className="about-info-row about-info-row--link"
             onClick={() => Taro.navigateTo({ url: "/pages/Privacy/index" })}
           >
-            <Text className="about-info-label">隐私政策</Text>
+            <Text className="about-info-label">{TITLE_PRIVACY_POLICY}</Text>
             <Icon name="chevron-right" size={28} color={ICON_COLOR.muted} className="about-info-arrow" />
           </View>
         </View>
@@ -159,7 +165,7 @@ export default function About() {
 
       {/* 底部签名 */}
       <View className="about-footer">
-        <Text className="about-footer-text">© 2026 {APP_NAME} · {APP_SLOGAN}</Text>
+        <Text className="about-footer-text">{aboutFooterCopyright(2026)}</Text>
       </View>
     </PageContainer>
   );

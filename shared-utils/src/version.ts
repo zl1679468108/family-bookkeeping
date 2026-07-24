@@ -57,3 +57,34 @@ export const CHANGELOG: VersionChange[] = [
     ],
   },
 ]
+
+/** 应用信息字段标签 */
+export const LABEL_APP_VERSION = '应用版本'
+export const LABEL_UPDATE_DATE = '更新日期'
+export const LABEL_RUNTIME_ENV = '运行环境'
+export const LABEL_RUNTIME_WEB = 'Web'
+export const LABEL_RUNTIME_MINIPROGRAM = '小程序'
+export const SECTION_APP_INFO = '应用信息'
+export const SECTION_CHANGELOG = '更新日志'
+export const SECTION_LEGAL = '法律与协议'
+
+/** 2026 年 7 月 18 日 */
+export function formatVersionReleaseDate(dateStr: string): string {
+  const [year, month, day] = String(dateStr || '').split('-')
+  if (!year || !month || !day) return dateStr
+  return `${year} 年 ${parseInt(month, 10)} 月 ${parseInt(day, 10)} 日`
+}
+
+/** {date} 发布 */
+export function aboutReleasedLabel(dateStr: string): string {
+  return `${formatVersionReleaseDate(dateStr)} 发布`
+}
+
+/** © {year} {appName} · {slogan} */
+export function aboutFooterCopyright(
+  year: number,
+  appName: string = APP_NAME,
+  slogan: string = APP_SLOGAN,
+): string {
+  return `© ${year} ${appName} · ${slogan}`
+}

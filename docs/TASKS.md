@@ -85,6 +85,12 @@
 
 ### ✅ 已完成
 
+#### 2026-07-24 线框图标/按钮 class/关于页与选模板 shared 化
+- 新增 `shared-utils/lineIcons`：PC 线框 Icon 规格纯数据 + SVG/dataURL；PC Icon 改读规格渲染
+- 新增 `shared-utils/button.buildUiButtonClassName`；双端 Button 接线
+- About：应用信息/更新日志/运行环境/页脚/发布日格式化；`TITLE_SELECT_TEMPLATE` 记一笔接线
+- 验证：frontend / taro `tsc --noEmit`
+
 #### 2026-07-24 页标题/交易成功/定位城市/注销说明 shared 化
 - `successTransactionSaved` 接线记一笔；`LOCATION_SEARCH_CITY_NATIONWIDE`；`CONFIRM_DEACTIVATE_WARNING`
 - 页标题常量：`PAGE_TITLE_*` / `TITLE_BOOK_SETTINGS` / 隐私协议 / `AUTH_NAV_*`

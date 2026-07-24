@@ -9,6 +9,7 @@ import { Icon } from '../../../../components/ui/Icon'
 import { transactionTypeLabel } from '../../../../utils/transactionType'
 import { EMPTY_TEMPLATES_SELECTOR } from '../../../../utils/emptyCopy'
 import { ACTION_CLOSE, ACTION_CANCEL } from '../../../../utils/actionCopy'
+import { TITLE_SELECT_TEMPLATE } from '../../../../utils/sectionCopy'
 
 interface TemplateSelectorProps {
   visible: boolean
@@ -47,7 +48,7 @@ export const TemplateSelector: React.FC<TemplateSelectorProps> = ({
     <div className="template-selector-overlay" onClick={handleClose}>
       <div className="template-selector-modal" onClick={(e) => e.stopPropagation()}>
         <div className="template-selector-header">
-          <h3>选择模板</h3>
+          <h3>{TITLE_SELECT_TEMPLATE}</h3>
           <button type="button" className="template-selector-close" onClick={handleClose} aria-label={ACTION_CLOSE}><Icon name="close" size={16} /></button>
         </div>
 

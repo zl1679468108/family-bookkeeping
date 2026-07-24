@@ -46,7 +46,7 @@ import { ENTITY_TRANSACTION } from "../../utils/entityCopy";
 import { useBookContext } from "../../context/BookContext";
 import { EMPTY_NO_TEMPLATES_SHORT } from "../../utils/emptyCopy";
 import { FORM_TEMPLATE_SELECT, FORM_SELECT_CATEGORY, FORM_AMOUNT_PLACEHOLDER, FORM_BRAND_EXAMPLE, MAX_NOTE_LENGTH} from "../../utils/formCopy";
-import { SECTION_SHORTCUTS, SECTION_BILL_INFO } from "../../utils/sectionCopy";
+import { SECTION_SHORTCUTS, SECTION_BILL_INFO, TITLE_SELECT_TEMPLATE } from "../../utils/sectionCopy";
 import {
   clearAddTransactionDraft,
   loadAddTransactionDraft,
@@ -465,7 +465,7 @@ export default function AddTransaction() {
       <View className="template-mask" onClick={() => setShowTemplates(false)}>
         <View className="template-dialog" onClick={(e) => e.stopPropagation()}>
           <View className="template-header">
-            <Text className="template-title">选择模板</Text>
+            <Text className="template-title">{TITLE_SELECT_TEMPLATE}</Text>
             <View className="template-close" onClick={() => setShowTemplates(false)}><Icon name="close" size={32} color={ICON_COLOR.muted} /></View>
           </View>
           <ScrollView className="template-list" scrollY>

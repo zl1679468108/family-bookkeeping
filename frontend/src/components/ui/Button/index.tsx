@@ -1,5 +1,9 @@
 import React from 'react'
-import { cx } from '../../../utils/cx'
+import {
+  buildUiButtonClassName,
+  type ButtonVariant,
+  type ButtonSize,
+} from '../../../utils/button'
 
 /**
  * 通用按钮组件 —— 取代各页面手写的 button + 内联样式
@@ -11,8 +15,8 @@ import { cx } from '../../../utils/cx'
  *  <Button variant="ghost" size="sm">取消</Button>
  */
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary' | 'ghost' | 'danger' | 'outline' | 'default'
-  size?: 'sm' | 'md' | 'lg'
+  variant?: ButtonVariant
+  size?: ButtonSize
   icon?: React.ReactNode
   children?: React.ReactNode
   block?: boolean
@@ -28,13 +32,7 @@ export const Button: React.FC<ButtonProps> = ({
   style,
   ...props
 }) => {
-  const classes = cx(
-    'ui-btn',
-    `ui-btn--${variant}`,
-    `ui-btn--${size}`,
-    block && 'ui-btn--block',
-    className,
-  )
+  const classes = buildUiButtonClassName({ variant, size, block, className })
 
   return (
     <button className={classes} style={style} {...props}>

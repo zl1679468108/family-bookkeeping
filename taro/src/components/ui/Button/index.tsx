@@ -5,18 +5,15 @@
  * 适配：div/button → 可点击 View；hover → active；新增 loading 内置态
  */
 import { ReactNode } from "react";
-import { cx } from "../../../utils/cx";
+import {
+  buildUiButtonClassName,
+  type ButtonVariant,
+  type ButtonSize,
+} from "../../../utils/button";
 import { View, Text } from "@tarojs/components";
 import "./index.scss";
 
-export type ButtonVariant =
-  | "default"
-  | "primary"
-  | "secondary"
-  | "outline"
-  | "ghost"
-  | "danger";
-export type ButtonSize = "sm" | "md" | "lg";
+export type { ButtonVariant, ButtonSize };
 
 export interface ButtonProps {
   variant?: ButtonVariant;
@@ -41,15 +38,14 @@ export function Button({
   className = "",
   onClick,
 }: ButtonProps) {
-  const cls = cx(
-    "ui-btn",
-    `ui-btn--${variant}`,
-    `ui-btn--${size}`,
-    block && "ui-btn--block",
-    loading && "ui-btn--loading",
-    disabled && "ui-btn--disabled",
+  const cls = buildUiButtonClassName({
+    variant,
+    size,
+    block,
+    loading,
+    disabled,
     className,
-  );
+  });
 
   return (
     <View

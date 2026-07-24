@@ -1,10 +1,19 @@
 import React, { useState } from 'react'
 import {
   APP_NAME,
+  APP_BRAND_MARK,
   APP_SLOGAN,
   APP_VERSION,
   APP_BUILD_DATE,
   CHANGELOG,
+  LABEL_APP_VERSION,
+  LABEL_UPDATE_DATE,
+  LABEL_RUNTIME_ENV,
+  LABEL_RUNTIME_WEB,
+  SECTION_APP_INFO,
+  SECTION_CHANGELOG,
+  aboutReleasedLabel,
+  aboutFooterCopyright,
 } from '../../config/version'
 import { Icon } from '../../components/ui/Icon'
 import './index.scss'
@@ -26,11 +35,6 @@ const AboutPage: React.FC = () => {
     })
   }
 
-  const formatDate = (dateStr: string) => {
-    const [year, month, day] = dateStr.split('-')
-    return `${year} 年 ${parseInt(month)} 月 ${parseInt(day)} 日`
-  }
-
   return (
     <div className="page-container about-page">
       <div className="about-layout">
@@ -39,7 +43,7 @@ const AboutPage: React.FC = () => {
           {/* Hero */}
           <div className="about-hero">
             <div className="about-logo">
-              <span className="about-logo-text">静</span>
+              <span className="about-logo-text">{APP_BRAND_MARK}</span>
             </div>
             <h1 className="about-name">{APP_NAME}</h1>
             <p className="about-slogan">{APP_SLOGAN}</p>
@@ -49,35 +53,35 @@ const AboutPage: React.FC = () => {
               <span className="about-version-tag">v{APP_VERSION}</span>
               <span className="about-version-line" />
             </div>
-            <p className="about-date">{formatDate(APP_BUILD_DATE)} 发布</p>
+            <p className="about-date">{aboutReleasedLabel(APP_BUILD_DATE)}</p>
           </div>
 
           {/* 应用信息 */}
           <div className="about-card">
             <h2 className="about-card-title">
               <Icon name="info" size={16} />
-              应用信息
+              {SECTION_APP_INFO}
             </h2>
 
             <div className="about-info-list">
               <div className="about-info-row">
-                <span className="about-info-label">应用版本</span>
+                <span className="about-info-label">{LABEL_APP_VERSION}</span>
                 <span className="about-info-value mono">{APP_VERSION}</span>
               </div>
               <div className="about-info-row">
-                <span className="about-info-label">更新日期</span>
+                <span className="about-info-label">{LABEL_UPDATE_DATE}</span>
                 <span className="about-info-value">{APP_BUILD_DATE}</span>
               </div>
               <div className="about-info-row">
-                <span className="about-info-label">运行环境</span>
-                <span className="about-info-value">Web</span>
+                <span className="about-info-label">{LABEL_RUNTIME_ENV}</span>
+                <span className="about-info-value">{LABEL_RUNTIME_WEB}</span>
               </div>
             </div>
           </div>
 
           {/* 底部签名 */}
           <div className="about-footer">
-            <p>© 2026 {APP_NAME} · {APP_SLOGAN}</p>
+            <p>{aboutFooterCopyright(2026)}</p>
           </div>
         </div>
 
@@ -86,7 +90,7 @@ const AboutPage: React.FC = () => {
           <div className="about-card about-card--changelog">
             <h2 className="about-card-title">
               <Icon name="budgets" size={16} />
-              更新日志
+              {SECTION_CHANGELOG}
             </h2>
 
             <div className="about-timeline">

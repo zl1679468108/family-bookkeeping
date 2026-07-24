@@ -10,6 +10,7 @@ import { Button } from '../../components/ui/Button'
 import { FooterActions } from '../../components/ui/FooterActions'
 import { busyLabel, ACTION_SAVING, saveOrConfirmAddLabel, ocrLabel } from '../../utils/actionCopy'
 import { SECTION_SHORTCUTS } from '../../utils/sectionCopy'
+import { TITLE_SELECT_TEMPLATE } from '../../utils/sectionCopy'
 
 const AddTransaction: React.FC = () => {
   const {
@@ -101,7 +102,7 @@ const AddTransaction: React.FC = () => {
           <div className="sc-grid">
             <div className="sc-item" onClick={() => setShowTemplateSelector(true)}>
               <div className="sc-icon">📋</div>
-              <div className="sc-name">选择模板</div>
+              <div className="sc-name">{TITLE_SELECT_TEMPLATE}</div>
               <div className="sc-desc">一键填充表单</div>
             </div>
             <div
