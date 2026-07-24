@@ -14,6 +14,8 @@ import { TITLE_TRANSACTION_TEMPLATES } from "../../../utils/sectionCopy"
 import {
   buildListCardClassName,
   buildListCardGridClassName,
+  buildListCardBadgeClassName,
+  buildListCardAmountClassName,
 } from '../../../utils/listCard'
 
 interface TemplateGridProps {
@@ -131,10 +133,10 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                 <span className="list-card__title">{t.name}</span>
               </div>
               <div className="list-card__content">
-                <span className={`list-card__badge list-card__badge--${t.type}`}>{transactionTypeLabel(t.type)}</span>
+                <span className={buildListCardBadgeClassName({ type: t.type })}>{transactionTypeLabel(t.type)}</span>
                 <span className="list-card__cat">{cat.name}</span>
                 {t.amount && (
-                  <span className={`list-card__amt list-card__amt--${t.type}`}>{formatAmount(t.amount)}</span>
+                  <span className={buildListCardAmountClassName({ type: t.type })}>{formatAmount(t.amount)}</span>
                 )}
               </div>
             </div>

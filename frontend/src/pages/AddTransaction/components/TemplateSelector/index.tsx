@@ -10,6 +10,11 @@ import { transactionTypeLabel } from '../../../../utils/transactionType'
 import { EMPTY_TEMPLATES_SELECTOR } from '../../../../utils/emptyCopy'
 import { ACTION_CLOSE, ACTION_CANCEL } from '../../../../utils/actionCopy'
 import { TITLE_SELECT_TEMPLATE } from '../../../../utils/sectionCopy'
+import {
+  buildTemplateItemClassName,
+  buildTemplateTypeClassName,
+  buildTemplateRadioClassName,
+} from '../../../../utils/templateSelector'
 
 interface TemplateSelectorProps {
   visible: boolean
@@ -67,14 +72,14 @@ export const TemplateSelector: React.FC<TemplateSelectorProps> = ({
                 return (
                   <div
                     key={tpl.id}
-                    className={`template-item ${isSelected ? 'selected' : ''}`}
+                    className={buildTemplateItemClassName({ selected: isSelected })}
                     onClick={() => setSelectedId(String(tpl.id))}
                   >
                     <div className="template-item-info">
                       {/* 第一行：名称 + 类型 */}
                       <div className="template-item-top">
                         <span className="template-item-name">{tpl.name}</span>
-                        <span className={`template-type ${tpl.type}`}>
+                        <span className={buildTemplateTypeClassName({ type: tpl.type })}>
                           {transactionTypeLabel(tpl.type)}
                         </span>
                       </div>
@@ -89,7 +94,7 @@ export const TemplateSelector: React.FC<TemplateSelectorProps> = ({
                         )}
                       </div>
                     </div>
-                    <div className={`template-radio ${isSelected ? 'checked' : ''}`}>
+                    <div className={buildTemplateRadioClassName({ checked: isSelected })}>
                       {isSelected && <span className="radio-dot" />}
                     </div>
                   </div>

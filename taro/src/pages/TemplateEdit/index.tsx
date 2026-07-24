@@ -47,6 +47,7 @@ import { SECTION_TEMPLATE_INFO, TITLE_SELECT_LOCATION } from "../../utils/sectio
 import { FORM_TEMPLATE_NAME_EXAMPLE, FORM_AMOUNT_PLACEHOLDER, FORM_NOTE_OPTIONAL, FORM_SELECT_TYPE, FORM_SELECT_CATEGORY, templateFormMeta, MAX_TEMPLATE_NAME_LENGTH } from "../../utils/formCopy";
 import { FIELD_TYPE, FIELD_CATEGORY, FIELD_AMOUNT, FIELD_NOTE, FIELD_TEMPLATE_NAME, FIELD_LOCATION_INFO, FIELD_SORT } from "../../utils/fieldCopy";
 import { queryKeys } from "../../utils/queryKeys";
+import { buildTplPickerValueClassName } from "../../utils/templateEditUi";
 
 type TplType = "expense" | "income";
 
@@ -196,11 +197,7 @@ export default function TemplateEdit() {
               <View className="tpl-picker">
                 <View className="tpl-picker-value-wrap">
                   <Text
-                    className={`tpl-picker-value ${
-                      form.type
-                        ? `tpl-picker-value--${form.type}`
-                        : "tpl-picker-value--placeholder"
-                    }`}
+                    className={buildTplPickerValueClassName({ type: form.type })}
                   >
                     {transactionTypeLabel(form.type)}
                   </Text>
@@ -248,9 +245,7 @@ export default function TemplateEdit() {
               <View className="tpl-picker">
                 <View className="tpl-picker-value-wrap">
                   <Text
-                    className={`tpl-picker-value ${
-                      selectedCat ? "" : "tpl-picker-value--placeholder"
-                    }`}
+                    className={buildTplPickerValueClassName({ placeholder: !selectedCat })}
                   >
                     {formatCategoryLabel(selectedCat)}
                   </Text>

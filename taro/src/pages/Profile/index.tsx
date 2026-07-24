@@ -35,6 +35,11 @@ import { TITLE_ABOUT } from '../../utils/sectionCopy'
 import { ERROR_DEACTIVATE_FAILED } from '../../utils/errorCopy'
 import { appCustomerServiceTitle } from "../../config/version";
 import { CONFIRM_DEACTIVATE_WARNING } from "../../utils/confirmCopy";
+import {
+  buildThemeToggleLabelClassName,
+  buildThemeToggleSwitchClassName,
+  buildSwitchAccountItemClassName,
+} from "../../utils/booksUi";
 
 export default function Profile() {
   const { user, signOut, signIn, switchByToken } = useAuth();
@@ -226,10 +231,10 @@ export default function Profile() {
             icon: isDark ? "moon" : "sun",
             right: (
               <View className="theme-toggle" onClick={(e) => { e.stopPropagation(); toggleTheme(); }}>
-                <Text className={`theme-toggle__label ${isDark ? "theme-toggle__label--dark" : ""}`}>
+                <Text className={buildThemeToggleLabelClassName({ dark: isDark })}>
                   {isDark ? THEME_DARK_MODE : THEME_LIGHT_MODE}
                 </Text>
-                <View className={`theme-toggle__switch ${isDark ? "theme-toggle__switch--on" : ""}`}>
+                <View className={buildThemeToggleSwitchClassName({ on: isDark })}>
                   <View className="theme-toggle__knob" />
                 </View>
               </View>
@@ -358,7 +363,7 @@ export default function Profile() {
                       return (
                         <View
                           key={account.email}
-                          className={`switch-account-item${isCurrent ? " current" : ""}${switchingEmail === account.email ? " switching" : ""}`}
+                          className={buildSwitchAccountItemClassName({ current: isCurrent, switching: switchingEmail === account.email })}
                           onClick={() => !isCurrent && !switchingEmail && handleSwitchAccount(account)}
                         >
                           <View className="switch-account-avatar">

@@ -58,6 +58,10 @@ import { getThemeTokenHex } from "../../utils/themeTokens";
 import { useTheme } from "../../context/ThemeContext";
 import { ACTION_SENDING_ELLIPSIS } from '../../utils/authCopy'
 import { FIELD_INVITE_CODE } from '../../utils/fieldCopy'
+import {
+  buildBookCardClassName,
+  buildMemberRoleTagClassName,
+} from "../../utils/booksUi";
 
 type BookRow = Book & { is_default?: boolean };
 
@@ -333,7 +337,7 @@ export default function BooksPage() {
             return (
               <View
                 key={book.id}
-                className={`bk-card ${isActive ? "bk-card--active" : ""}`}
+                className={buildBookCardClassName({ active: isActive })}
                 onClick={() => handleCardTap(book)}
               >
                 {/* 图标 + 名称 */}
@@ -516,7 +520,7 @@ export default function BooksPage() {
                           </View>
                           <View className="bk-member-role">
                             <Text
-                              className={`bk-member-role-tag ${isBookOwnerRole(m.role) ? "bk-member-role-tag--owner" : ""}`}
+                              className={buildMemberRoleTagClassName({ owner: isBookOwnerRole(m.role) })}
                             >
                               {bookMemberRoleLabel(m.role)}
                             </Text>

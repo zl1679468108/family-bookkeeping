@@ -4,8 +4,10 @@ import { EmptyState } from '../../../components/ui/EmptyState'
 import { EmptyActionButton } from '../../../components/ui/EmptyState/emptyActions'
 import type { Category } from '@family-bookkeeping/shared-types'
 import { EMPTY_CATEGORIES_GENERIC } from '../../../utils/emptyCopy'
+import { FIELD_DEFAULT, FIELD_CUSTOM } from '../../../utils/fieldCopy'
 import {
   buildListCardClassName,
+  buildListCardBadgeClassName,
 } from '../../../utils/listCard'
 
 interface CategoryListProps {
@@ -77,8 +79,8 @@ export const CategoryList: React.FC<CategoryListProps> = ({
               <span className="list-card__title">{cat.name}</span>
             </div>
             <div className="list-card__content">
-              {cat.is_default && <span className="list-card__badge list-card__badge--default">默认</span>}
-              {!cat.is_default && <span className="list-card__badge list-card__badge--custom">自定义</span>}
+              {cat.is_default && <span className={buildListCardBadgeClassName({ kind: "default" })}>{FIELD_DEFAULT}</span>}
+              {!cat.is_default && <span className={buildListCardBadgeClassName({ kind: "custom" })}>{FIELD_CUSTOM}</span>}
             </div>
           </div>
         )

@@ -85,6 +85,11 @@
 
 ### ✅ 已完成
 
+#### 2026-07-24 模板选择/日历结余/账本设置 class shared 化
+- templateSelector / calendarDisplay / detailAmount / listCard badge·amt
+- bookSettingsUi / booksUi / templateEditUi；CategoryList 默认/自定义文案 shared
+- 验证：frontend / taro `tsc --noEmit`
+
 #### 2026-07-24 选点/Toast/模板标签等 class shared 化
 - locationPicker / toastUi / monthPicker / segmented / bottomSheet
 - typeTag：分类详情与模板类型/金额标签；TemplateManager 接线

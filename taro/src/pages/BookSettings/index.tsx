@@ -53,6 +53,12 @@ import Icon, { ICON_COLOR } from "../../components/Icon";
 import { TITLE_TRANSFER_OWNERSHIP, TITLE_MEMBER_MANAGE } from "../../utils/sectionCopy"
 import { FIELD_DESC_OPTIONAL, FIELD_ICON, FIELD_CUSTOM, FIELD_OWNER_EMAIL, FIELD_YOUR_PASSWORD, FIELD_BOOK_NAME } from "../../utils/fieldCopy";
 import { queryKeys } from "../../utils/queryKeys";
+import {
+  buildBookEmojiItemClassName,
+  buildBookEmojiLabelClassName,
+  buildBookCustomIconItemClassName,
+  buildBookMoreArrowClassName,
+} from "../../utils/bookSettingsUi";
 
 interface Member {
   id: string;
@@ -332,9 +338,7 @@ export default function BookSettings() {
                 return (
                   <View
                     key={item.key}
-                    className={`bs-emoji-item ${
-                      isSelected ? "bs-emoji-item--selected" : ""
-                    }`}
+                    className={buildBookEmojiItemClassName({ selected: isSelected })}
                     onClick={() => setAddIcon(item.key)}
                   >
                     <View className="bs-emoji-item__icon">
@@ -349,9 +353,7 @@ export default function BookSettings() {
                       />
                     </View>
                     <Text
-                      className={`bs-emoji-item__label ${
-                        isSelected ? "bs-emoji-item__label--selected" : ""
-                      }`}
+                      className={buildBookEmojiLabelClassName({ selected: isSelected })}
                     >
                       {item.label}
                     </Text>
@@ -374,9 +376,7 @@ export default function BookSettings() {
               {customIcons.map((item: any) => (
                 <View
                   key={item.id}
-                  className={`bs-custom-icon-item ${
-                    addIcon === item.icon_url ? "bs-custom-icon-item--selected" : ""
-                  }`}
+                  className={buildBookCustomIconItemClassName({ selected: addIcon === item.icon_url })}
                   onClick={() => setAddIcon(item.icon_url)}
                 >
                   <Image
@@ -442,9 +442,7 @@ export default function BookSettings() {
                 return (
                   <View
                     key={item.key}
-                    className={`bs-emoji-item ${
-                      isSelected ? "bs-emoji-item--selected" : ""
-                    }`}
+                    className={buildBookEmojiItemClassName({ selected: isSelected })}
                     onClick={() => setEditIcon(item.key)}
                   >
                     <View className="bs-emoji-item__icon">
@@ -459,9 +457,7 @@ export default function BookSettings() {
                       />
                     </View>
                     <Text
-                      className={`bs-emoji-item__label ${
-                        isSelected ? "bs-emoji-item__label--selected" : ""
-                      }`}
+                      className={buildBookEmojiLabelClassName({ selected: isSelected })}
                     >
                       {item.label}
                     </Text>
@@ -484,9 +480,7 @@ export default function BookSettings() {
               {customIcons.map((item: any) => (
                 <View
                   key={item.id}
-                  className={`bs-custom-icon-item ${
-                    editIcon === item.icon_url ? "bs-custom-icon-item--selected" : ""
-                  }`}
+                  className={buildBookCustomIconItemClassName({ selected: editIcon === item.icon_url })}
                   onClick={() => setEditIcon(item.icon_url)}
                 >
                   <Image
@@ -514,7 +508,7 @@ export default function BookSettings() {
               onClick={() => setShowMoreMenu(!showMoreMenu)}
             >
               <Text className="bs-more-row__text">更多操作</Text>
-              <Icon name="chevron-right" size={28} color={ICON_COLOR.muted} className={`bs-more-row__arrow ${showMoreMenu ? "bs-more-row__arrow--open" : ""}`} />
+              <Icon name="chevron-right" size={28} color={ICON_COLOR.muted} className={buildBookMoreArrowClassName({ open: showMoreMenu })} />
             </View>
 
             {showMoreMenu && (

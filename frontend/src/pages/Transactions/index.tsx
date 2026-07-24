@@ -44,9 +44,8 @@ import {
 import { FORM_SEARCH_TXN, FORM_MIN_AMOUNT, FORM_MAX_AMOUNT } from '../../utils/formCopy'
 import { FIELD_BRAND, FIELD_DESCRIPTION, FIELD_PLACE, FIELD_COORDINATES, FIELD_CREATED_AT, FIELD_ATTACHMENT, fieldAttachmentCount } from '../../utils/fieldCopy'
 import { attachmentImageAlt } from '../../utils/uploadCopy'
-import {
-  buildTxnAmountClassName,
-} from '../../utils/transactionDisplay'
+import { buildDetailAmountValueClassName } from '../../utils/detailAmount'
+import { buildTxnAmountClassName } from '../../utils/transactionDisplay'
 
 const PAGE_SIZE = 20
 
@@ -421,7 +420,7 @@ const Transactions: React.FC = () => {
                 {transactionTypeLabel(selectedTransaction.type)} · {formatDateYMD(selectedTransaction.date)}
               </div>
               <div className="detail-amount">
-                <div className={`detail-amount-value ${selectedTransaction.type === 'income' ? 'income' : ''}`}>
+                <div className={buildDetailAmountValueClassName({ type: selectedTransaction.type })}>
                   {formatAmountByType(selectedTransaction.amount, selectedTransaction.type)}
                 </div>
               </div>

@@ -31,6 +31,7 @@ import {
 } from "../../utils/transactionList";
 import { CATEGORY_FALLBACK_OTHER } from "../../utils/categories";
 import { DEFAULT_PAGE_SIZE } from "../../utils/pagination";
+import { buildFilterCardClassName } from "../../utils/booksUi";
 
 const FILTER_OPTIONS = [...TRANSACTION_TYPE_FILTER_LABELS];
 const TIME_OPTIONS = [...TRANSACTION_TIME_FILTER_LABELS];
@@ -227,7 +228,7 @@ export default function Transactions() {
         loadingMore={loadingMore}
         onScroll={handleScroll}
         header={
-          <View className={`filter-card ${scrolled ? "scrolled" : ""}`}>
+          <View className={buildFilterCardClassName({ scrolled })}>
           <View className="filter-card-surface">
           <View className="search-row">
             <Input

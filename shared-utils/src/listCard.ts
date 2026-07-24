@@ -29,3 +29,26 @@ export function buildListCardGridClassName(opts: {
   const prefix = opts.prefix || 'list-card-grid'
   return cx(prefix, opts.sortMode && 'sort-mode', opts.className)
 }
+
+export function buildListCardBadgeClassName(opts: {
+  type?: string | null
+  kind?: 'default' | 'custom' | string
+  className?: ClassValue
+  prefix?: string
+} = {}): string {
+  const prefix = opts.prefix || 'list-card__badge'
+  if (opts.kind) return cx(prefix, `${prefix}--${opts.kind}`, opts.className)
+  const type = opts.type || 'expense'
+  return cx(prefix, `${prefix}--${type}`, opts.className)
+}
+
+export function buildListCardAmountClassName(opts: {
+  type?: string | null
+  className?: ClassValue
+  prefix?: string
+} = {}): string {
+  const prefix = opts.prefix || 'list-card__amt'
+  const type = opts.type || 'expense'
+  return cx(prefix, `${prefix}--${type}`, opts.className)
+}
+

@@ -16,6 +16,7 @@ import { formatDateYMD } from '../../utils/date'
 import { NAV_PREV_MONTH, NAV_NEXT_MONTH } from '../../utils/actionCopy'
 import { shiftYearMonth, parseYearMonthKey, currentYearMonth } from '../../utils/monthState'
 import { FORM_SEARCH_MONTH } from '../../utils/formCopy'
+import { buildCalendarBalanceClassName } from '../../utils/calendarDisplay'
 
 const Calendar: React.FC = () => {
   const { currentBook } = useBook();
@@ -158,7 +159,7 @@ const Calendar: React.FC = () => {
               </div>
               <div className="cal-stat">
                 <div className="cs-lbl">结余</div>
-                <div className={`cs-val ${monthStats.totalIncome - monthStats.totalExpense >= 0 ? 'inc' : 'exp'}`}>
+                <div className={buildCalendarBalanceClassName({ nonNegative: monthStats.totalIncome - monthStats.totalExpense >= 0 })}>
                   {formatMoney(monthStats.totalIncome - monthStats.totalExpense, { compact: true })}
                 </div>
               </div>
