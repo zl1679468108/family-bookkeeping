@@ -31,11 +31,12 @@ import {
 import { todayBeijing } from '../../../utils/common'
 import { successTemplateApplied, SUCCESS_OCR } from '../../../utils/successCopy'
 import { maxImagesMessage, IMAGE_PROCESS_FAILED, MAX_RECEIPT_IMAGES } from '../../../utils/uploadCopy'
+import { MAX_NOTE_LENGTH } from '../../../utils/formCopy'
 import { failUpdateOrSave, ERROR_OCR_FAILED } from '../../../utils/errorCopy'
 import { applyOcrResultToForm, isOcrResultUseful } from '../../../utils/ocrForm'
 
-export const MAX_NOTE_LENGTH = 500
 export const MAX_IMAGES = MAX_RECEIPT_IMAGES
+export { MAX_NOTE_LENGTH }
 
 export interface PendingImage {
   localUrl: string

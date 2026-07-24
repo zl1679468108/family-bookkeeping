@@ -85,6 +85,12 @@
 
 ### ✅ 已完成
 
+#### 2026-07-24 备注上限 / 排序 moveItem / 成员色图 shared 化
+- `MAX_NOTE_LENGTH` 入 formCopy；PC 记一笔与 Taro NoteField/记一笔共用
+- `sortOrder.moveItem`：Taro useReorder 长按拖拽重排改用 shared
+- `memberColors.buildMemberColorMap/isMultiMember`：PC useMemberColors 接线
+- 验证：frontend / taro `tsc --noEmit`
+
 #### 2026-07-24 API 路径与存储键 shared 化
 - `shared-utils/apiPaths`：REST path 工厂；双端 services 统一接线
 - `shared-utils/storageKeys`：access/refresh/book/theme/report-year 键名；Web/Taro access 键历史差异保留

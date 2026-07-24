@@ -4,6 +4,7 @@ import { fetchBookMembers } from '../services/mapApi';
 import type { MapMember } from '@family-bookkeeping/shared-types'
 import { queryKeys } from '../utils/queryKeys';
 import { STALE } from '../utils/cachePolicy';
+import { buildMemberColorMap, isMultiMember } from '../utils/memberColors';
 
 export function useMemberColors(
   bookId: string | undefined,
@@ -20,16 +21,12 @@ export function useMemberColors(
     staleTime: STALE.mapMembers,
   });
 
-  const isMultiMember = members.length >= 2;
+  const multi = isMultiMember(members);
 
-  const colorMap = useMemo(() => {
-    const map = new Map<string, string>();
-    if (!isMultiMember) return map;
-    for (const member of members) {
-      map.set(member.userId, member.color);
-    }
-    return map;
-  }, [members, isMultiMember]);
+  const colorMap = useMemo(
+    () => buildMemberColorMap(members),
+    [members],
+  );
 
-  return { members, colorMap, isMultiMember, isLoading };
+  return { members, colorMap, isMultiMember: multi, isLoading };
 }

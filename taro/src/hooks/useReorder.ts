@@ -17,7 +17,7 @@ import { toastSuccess, toastInfo } from "../utils/toast";
 import { ACTION_SAVING } from "../utils/actionCopy";
 import { SORT_SAVED, SORT_NOTHING, SORT_UNCHANGED } from "../utils/sortCopy";
 import { ERROR_SORT_SAVE_FAILED } from "../utils/errorCopy";
-import { decideSortSave, swapAdjacent } from "../utils/sortOrder";
+import { decideSortSave, swapAdjacent, moveItem } from "../utils/sortOrder";
 
 export interface UseReorderOptions<T> {
   /** 非排序模式下的基准有序列表（已按 sort_order 排好） */
@@ -104,20 +104,9 @@ export function useReorder<T>({
 
   const moveTo = useCallback(
     (from: number, to: number) => {
-      if (
-        from === to ||
-        from < 0 ||
-        to < 0 ||
-        from >= sortOrder.length ||
-        to >= sortOrder.length
-      )
-        return;
-      const next = [...sortOrder];
-      const [moved] = next.splice(from, 1);
-      next.splice(to, 0, moved);
-      setSortOrder(next);
+      setSortOrder((prev) => moveItem(prev, from, to));
     },
-    [sortOrder],
+    [],
   );
 
   const save = useCallback(() => {

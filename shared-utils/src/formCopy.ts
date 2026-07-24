@@ -58,6 +58,9 @@ export const FORM_SELECT_CATEGORY = '选择分类'
 export const FORM_SELECT_TYPE = '选择类型'
 export const FORM_TEMPLATE_NAME_EXAMPLE = '如：公司食堂午餐'
 export const FORM_NOTE_OPTIONAL = '添加备注（可选）'
+
+/** 备注最大长度（记一笔 / NoteField 双端一致） */
+export const MAX_NOTE_LENGTH = 500
 export const FORM_CATEGORY_NAME_PLACEHOLDER = '输入分类名称'
 export const FORM_BRAND_EXAMPLE = '例如：雅诗兰黛、苹果'
 export const FORM_DESC_EXAMPLE = '例如：小棕瓶 50ml，给妈妈买的礼物'

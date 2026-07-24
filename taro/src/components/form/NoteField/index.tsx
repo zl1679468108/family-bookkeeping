@@ -5,6 +5,7 @@ import { View, Text, Textarea } from "@tarojs/components";
 import "./index.scss";
 import { FORM_DESC_EXAMPLE } from "../../../utils/formCopy";
 import { FIELD_NOTE } from "../../../utils/fieldCopy";
+import { MAX_NOTE_LENGTH } from "../../../utils/formCopy";
 
 export interface NoteFieldProps {
   value: string;
@@ -15,7 +16,7 @@ export interface NoteFieldProps {
 export default function NoteField({
   value,
   onChange,
-  maxLength = 500,
+  maxLength = MAX_NOTE_LENGTH,
 }: NoteFieldProps) {
   return (
     <View className="ft-section ft-note">
