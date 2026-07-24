@@ -111,6 +111,11 @@
 - Taro 公共 UI Icon 收口：Input 清除、IconGrid 删除、DropdownSelect、List/MenuList 箭头、FieldRow/LocationField、ImageUpload；页面级 Profile/Books/About/Onboarding/MonthPicker 等。
 - 验证：frontend / taro `tsc --noEmit` 通过。
 
+#### 2026-07-24 图标纯数据 shared + fmtAmount
+- `bookIcons` / `platformIcons` 纯数据与 SVG 工具抽入 `shared-utils`；PC 保留 React 渲染，Taro 保留 data URL 别名
+- `fmtAmount` 并入 shared budget；双端 `renderCategoryIcon` 统一 `isIconUrl/isPlatformIcon/isBookIconKey` 判定
+- 附：PC 暗色第六轮与 sortOrder 已在上一提交
+
 #### 2026-07-24 PC 暗色第六轮（硬编码色 + 图表 chrome）
 - 无效 token 收口：`--bg-card/--line/--bg-elevated/--bg-soft` → `--srf/--bd/--srfH`；补 `--expBd` 令牌
 - ECharts canvas 主题：新增 `getEchartsChrome()`，Trend/分类饼/成员对比坐标轴·图例·tooltip 随 `resolvedTheme` 刷新

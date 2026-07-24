@@ -1,18 +1,4 @@
-/**
- * 通用格式化工具
- */
-
-/**
- * 金额数字简写（无货币符；≥1万 → X.X万）
- * 需要带 ¥ 时优先用 formatMoney(v, { wan: true })。
- */
-export function fmtAmount(v: number): string {
-  const abs = Math.abs(v);
-  if (abs >= 10000) {
-    return (abs / 10000).toFixed(abs % 10000 === 0 ? 0 : 1) + "万";
-  }
-  return abs.toLocaleString("zh-CN");
-}
+export { fmtAmount } from "./budget";
 
 // 日期 — 与 PC 对齐，旧名保留为别名
 export {

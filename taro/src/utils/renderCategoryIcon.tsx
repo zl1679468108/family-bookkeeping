@@ -93,8 +93,5 @@ export const renderCategoryIcon = (
   );
 };
 
-/**
- * 判断 icon 是否为 URL（用于在 Picker / 仅支持文本的下拉里做降级）
- */
-export const isIconUrl = (icon: string | undefined): boolean =>
-  !!icon && (icon.startsWith("http://") || icon.startsWith("https://"));
+/** 判断 icon 是否为 URL（shared-utils） */
+export { isIconUrl } from "./platformIcons";

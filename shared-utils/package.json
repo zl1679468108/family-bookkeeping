@@ -28,7 +28,9 @@
     "./transactionType": "./src/transactionType.ts",
     "./uploadCopy": "./src/uploadCopy.ts",
     "./userDisplay": "./src/userDisplay.ts",
-    "./validation": "./src/validation.ts"
+    "./validation": "./src/validation.ts",
+    "./bookIcons": "./src/bookIcons.ts",
+    "./platformIcons": "./src/platformIcons.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit"
