@@ -222,26 +222,10 @@
   gap: 20rpx;
 }
 
-.bk-sheet__footer-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 84rpx;
-  border-radius: 20rpx;
-  background: var(--primary, var(--pr));
-  color: #fff;
-  font-size: 30rpx;
-  font-weight: 700;
+/* footer 内 Button 等分 */
+.bk-sheet__footer--dual .ui-btn {
   flex: 1;
-}
-
-.bk-sheet__footer-btn--secondary {
-  background: var(--bg, var(--bg));
-  color: var(--fg, var(--fg));
-}
-
-.bk-sheet__footer-btn--disabled {
-  opacity: 0.5;
+  min-width: 0;
 }
 
 /* Sheet 中的表单行 */
@@ -575,61 +559,14 @@
   background-color: var(--bg, var(--bg));
 }
 
-.bk-detail-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  height: 72rpx;
-  padding: 0 24rpx;
-  border-radius: var(--radius-md, 24rpx);
-  background-color: var(--surface, #ffffff);
-  border: 1rpx solid var(--border, var(--bd));
-  font-size: 24rpx;
-  font-weight: 700;
-  color: var(--fg, var(--fg));
-  text-align: center;
-  transition: opacity 0.15s ease, transform 0.15s ease, background-color 0.15s ease;
+/* 详情操作区使用 ui Button；单按钮场景拉满宽度 */
+.bk-detail-actions .ui-btn {
   flex: 0 0 auto;
 }
 
-.bk-detail-btn:active {
-  opacity: 0.8;
-  transform: scale(0.97);
-}
-
-.bk-detail-btn--pending {
-  opacity: 0.6;
-}
-
-.bk-detail-btn--primary {
-  background-color: var(--primary, var(--pr));
-  color: #fff;
-  border-color: var(--primary, var(--pr));
-}
-
-.bk-detail-btn--secondary {
-  background-color: var(--surface, #ffffff);
-  color: var(--fg, var(--fg));
-  border-color: var(--border, var(--bd));
-}
-
-.bk-detail-btn--danger {
-  background-color: var(--expense, var(--exp));
-  color: #fff;
-  border-color: var(--expense, var(--exp));
-}
-
-/* 切换到此账本按钮（主色填充） */
-.bk-detail-btn--switch {
-  background-color: var(--primary, var(--pr));
-  color: #fff;
-  border-color: var(--primary, var(--pr));
-}
-
-/* 禁用态 */
-.bk-detail-btn--disabled {
-  opacity: 0.4;
-  pointer-events: none;
+.bk-detail-actions--single .ui-btn {
+  flex: 1;
+  min-width: 0;
 }
 
 /* 成员列表区 */
@@ -818,11 +755,6 @@
   flex-wrap: nowrap;
 }
 
-.bk-detail-actions--single .bk-detail-btn {
-  flex: 1;
-  min-width: 0;
-}
-
 /* 邀请成员表单 */
 .bk-invite-form {
   padding: 8rpx 0;
@@ -871,8 +803,6 @@
 .bk-invite-generate__btn {
   width: 100%;
   max-width: 400rpx;
-  padding: 24rpx 0;
-  text-align: center;
 }
 
 /* 邀请码结果展示 */
@@ -1070,30 +1000,8 @@
   border-top: 1rpx solid var(--border-light, var(--bdL));
 }
 
-.bk-switch-btn {
+.bk-switch-actions .ui-btn {
   flex: 1;
-  height: 84rpx;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 20rpx;
-  font-size: 28rpx;
-  font-weight: 700;
-  transition: opacity 0.15s ease, transform 0.15s ease;
-}
-
-.bk-switch-btn:active {
-  opacity: 0.85;
-  transform: scale(0.97);
-}
-
-.bk-switch-btn--cancel {
-  background-color: var(--bg, var(--bg));
-  color: var(--fg, var(--fg));
-}
-
-.bk-switch-btn--confirm {
-  background-color: var(--primary, var(--pr));
-  color: #fff;
+  min-width: 0;
 }
 

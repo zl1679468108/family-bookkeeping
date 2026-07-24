@@ -1,6 +1,6 @@
 # TASKS.md — 任务清单
 
-> 更新日期：2026-07-23
+> 更新日期：2026-07-24
 > 状态说明：🔄 进行中 / ⏳ 待处理 / ✅ 已完成 / ❌ 阻塞
 > 当前重心：Taro 微信小程序功能完善与质量收尾。
 
@@ -113,6 +113,11 @@
 - **Books 详情**：`Book` 类型补 `txn_count`/`member_count`/`is_archived` 可选字段（后端 `/books` 已返回）；详情展示「N 人·M 笔交易·创建/更新时间」+ 已归档标签 ✅
 - Login / Register / ForgotPassword / EditProfile / About / Profile：与 PC 核心一致，无需改动（Profile 无主题切换，属可选差异）
 - 验证：`tsc --noEmit` 零错误；`build:weapp` 通过
+
+### ✅ 已完成（2026-07-24 续）
+- **PC Dashboard 预算卡**：总览进度 + 分类预警列表、超支优先排序、暗色令牌适配 ✅
+- **手写按钮收口（第二批）**：Taro Books 详情/加入/切换、BookSettings 底栏/转移、LocationPicker 底栏；PC 记一笔/流水详情/模板选择/个人资料 → `Button` ✅
+- **切换账本文案**：移除已下线模块（报表/日历/地图/年报），对齐当前 Tab（首页/流水/工作台/我的） ✅
 
 ### ⏳ 待处理（低优先级，非阻断，可延后）
 

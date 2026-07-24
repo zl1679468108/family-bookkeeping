@@ -4,6 +4,7 @@ import { useAuth } from '../../../utils/auth'
 import { updateProfile, changePassword } from '../../../services/api'
 import { useDebouncedAction } from '../../../hooks/useDebouncedAction'
 import { notify } from '../../../utils/notifications'
+import { Button } from '../../../components/ui/Button'
 import './index.scss'
 
 const compressImage = (file: File, maxSize = 128): Promise<string> =>
@@ -158,21 +159,21 @@ const PasswordModal: React.FC<PasswordModalProps> = ({ visible, onClose }) => {
           )}
 
           <div className="modal-actions">
-            <button
+            <Button
               type="button"
-              className="btn btn-secondary"
+              variant="secondary"
               onClick={onClose}
               disabled={loading}
             >
               取消
-            </button>
-            <button
+            </Button>
+            <Button
               type="submit"
-              className="btn btn-primary"
+              variant="primary"
               disabled={loading}
             >
               {loading ? '提交中...' : '确认'}
-            </button>
+            </Button>
           </div>
         </form>
       </div>
@@ -329,20 +330,20 @@ const ProfilePage: React.FC = () => {
 
               <div className="profile-actions">
                 {/* 修改密码按钮 */}
-                <button
+                <Button
                   type="button"
-                  className="btn btn-secondary"
+                  variant="secondary"
                   onClick={() => setShowPasswordModal(true)}
                 >
                   修改密码
-                </button>
-                <button
+                </Button>
+                <Button
                   type="submit"
-                  className="btn btn-primary"
+                  variant="primary"
                   disabled={loading}
                 >
                   {loading ? '更新中...' : '更新信息'}
-                </button>
+                </Button>
               </div>
             </form>
           </div>

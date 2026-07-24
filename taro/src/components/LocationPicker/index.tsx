@@ -12,7 +12,7 @@ import { apiGet } from "../../services/api";
 import { useManualQuery } from "../../hooks/useManualQuery";
 import { ensurePrivacyAuthorize, isPrivacyError } from "../../utils/privacy";
 import SheetHeader from "../SheetHeader";
-import { Spinner } from "../ui";
+import { Spinner, Button } from "../ui";
 import "./index.scss";
 
 export interface LocationResult {
@@ -399,12 +399,12 @@ export default function LocationPicker({
 
         {/* Actions */}
         <View className="lp-actions">
-          <View className="lp-btn lp-btn--ghost" onClick={handleClear}>
-            <Text className="lp-btn-text lp-btn-text--ghost">清除位置</Text>
-          </View>
-          <View className="lp-btn lp-btn--primary" onClick={handleConfirm}>
-            <Text className="lp-btn-text">确认位置</Text>
-          </View>
+          <Button variant="default" size="lg" block onClick={handleClear}>
+            清除位置
+          </Button>
+          <Button variant="primary" size="lg" block onClick={handleConfirm}>
+            确认位置
+          </Button>
         </View>
       </View>
     </View>

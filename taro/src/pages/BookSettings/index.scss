@@ -237,59 +237,26 @@
   z-index: 50;
 }
 
-/* 单按钮（新建模式） */
-.bs-actions__save {
+/* 底部操作：统一 ui Button */
+.bs-actions .ui-btn--lg {
   height: 92rpx;
   border-radius: 46rpx;
-  background: linear-gradient(135deg, var(--pr) 0%, var(--pr) 100%);
-  color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 31rpx;
   font-weight: 700;
-  letter-spacing: 2rpx;
+}
+
+.bs-actions .ui-btn--primary {
   box-shadow: 0 8rpx 24rpx rgba(45, 157, 138, 0.3),
     0 2rpx 6rpx rgba(45, 157, 138, 0.15);
-  transition: all 0.15s ease;
 }
 
-.bs-actions__save:active {
-  transform: scale(0.98);
-  opacity: 0.92;
-}
-
-.bs-actions__save--disabled {
-  opacity: 0.5;
-  pointer-events: none;
-}
-
-/* ========== 编辑模式：底部双按钮栏 ========== */
 .bs-actions__row {
   display: flex;
   gap: 20rpx;
 }
 
-.bs-actions__cancel {
+.bs-actions__row .ui-btn {
   flex: 1;
-  height: 92rpx;
-  border-radius: 46rpx;
-  border: 2rpx solid var(--border, var(--bd));
-  background: transparent;
-  color: var(--fg-2, var(--fg2));
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 30rpx;
-  font-weight: 600;
-}
-
-.bs-actions__cancel:active {
-  background-color: var(--bg, var(--bg));
-}
-
-.bs-actions__row .bs-actions__save {
-  flex: 1;
+  min-width: 0;
 }
 
 /* ========== 编辑模式：分隔线 ========== */
@@ -381,21 +348,7 @@
   border-top: 1rpx solid var(--border-light, var(--bdL));
 }
 
-.bs-sheet__footer-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 84rpx;
-  border-radius: 20rpx;
-  background: var(--primary, var(--pr));
-  color: #fff;
-  font-size: 30rpx;
-  font-weight: 700;
-}
-
-.bs-sheet__footer-btn--disabled {
-  opacity: 0.5;
-}
+/* sheet footer 使用 ui Button */
 
 /* Sheet 内警告框 */
 .bs-warn-box {

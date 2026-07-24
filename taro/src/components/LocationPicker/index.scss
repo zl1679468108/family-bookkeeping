@@ -195,35 +195,11 @@
   flex-shrink: 0;
 }
 
-.lp-btn {
+.lp-actions .ui-btn {
   flex: 1;
-  height: 88rpx;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 20rpx;
-  transition: opacity 0.15s ease;
+  min-width: 0;
 }
 
-.lp-btn:active {
-  opacity: 0.85;
-}
-
-.lp-btn--ghost {
-  background-color: var(--bg);
-}
-
-.lp-btn--primary {
-  background-color: var(--pr);
+.lp-actions .ui-btn--primary {
   box-shadow: 0 6rpx 20rpx rgba(45, 157, 138, 0.25);
-}
-
-.lp-btn-text {
-  font-size: 28rpx;
-  font-weight: 700;
-  color: var(--srf);
-}
-
-.lp-btn-text--ghost {
-  color: var(--fg);
 }

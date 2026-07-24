@@ -11,7 +11,7 @@ import Taro, { getCurrentInstance } from "@tarojs/taro";
 import { useQueryClient } from "@tanstack/react-query";
 import PageContainer from "../../components/PageContainer";
 import ConfirmDialog from "../../components/ConfirmDialog";
-import { AppSection, MenuList } from "../../components/ui";
+import { AppSection, MenuList, Button } from "../../components/ui";
 import SheetHeader from "../../components/SheetHeader";
 import { BOOK_ICONS, renderBookIconSvg } from "../../utils/bookIcons";
 import {
@@ -368,12 +368,9 @@ export default function BookSettings() {
         </AppSection>
 
         <View className="bs-actions">
-          <View
-            className="bs-actions__save"
-            onClick={handleCreate}
-          >
-            <Text>创建账本</Text>
-          </View>
+          <Button variant="primary" size="lg" block onClick={handleCreate}>
+            创建账本
+          </Button>
         </View>
       </PageContainer>
     );
@@ -531,21 +528,13 @@ export default function BookSettings() {
 
       {/* 底部按钮 */}
       <View className="bs-actions">
-        <View
-          className="bs-actions__row"
-        >
-          <View
-            className="bs-actions__cancel"
-            onClick={() => Taro.navigateBack()}
-          >
-            <Text>取消</Text>
-          </View>
-          <View
-            className="bs-actions__save"
-            onClick={handleSubmitEdit}
-          >
-            <Text>保存</Text>
-          </View>
+        <View className="bs-actions__row">
+          <Button variant="outline" size="lg" block onClick={() => Taro.navigateBack()}>
+            取消
+          </Button>
+          <Button variant="primary" size="lg" block onClick={handleSubmitEdit}>
+            保存
+          </Button>
         </View>
       </View>
 
@@ -584,12 +573,9 @@ export default function BookSettings() {
               </View>
 
               <View className="bs-sheet__footer">
-                <Text
-                  className="bs-sheet__footer-btn"
-                  onClick={handleSubmitTransfer}
-                >
+                <Button variant="primary" size="lg" block onClick={handleSubmitTransfer}>
                   确认转移
-                </Text>
+                </Button>
               </View>
             </View>
 

@@ -18,6 +18,7 @@ import { Card } from '../../components/ui/Card'
 import { DropdownSelect } from '../../components/ui/Dropdown'
 import { Pagination } from '../../components/ui/Pagination'
 import { EmptyState } from '../../components/ui/EmptyState'
+import { Button } from '../../components/ui/Button'
 import { FilterBar } from '../../components/ui/FilterBar'
 import { SearchInput, NumberInput } from '../../components/ui/Input'
 import { notify } from '../../utils/notifications'
@@ -250,9 +251,9 @@ const Transactions: React.FC = () => {
           <EmptyState
             title="暂无交易记录"
             action={
-              <button className="btn btn-primary" onClick={() => navigate('/add?type=expense')}>
+              <Button variant="primary" onClick={() => navigate('/add?type=expense')}>
                 添加第一笔交易
-              </button>
+              </Button>
             }
           />
         </Card>
@@ -332,15 +333,15 @@ const Transactions: React.FC = () => {
           title="交易详情"
           footer={
             <Space size="sm">
-              <button className="btn btn-secondary" onClick={() => { navigate(`/add?edit=${selectedTransaction.id}`); setShowDetail(false) }}>
+              <Button variant="secondary" onClick={() => { navigate(`/add?edit=${selectedTransaction.id}`); setShowDetail(false) }}>
                 编辑
-              </button>
-              <button
-                className="btn btn-danger"
+              </Button>
+              <Button
+                variant="danger"
                 onClick={() => setShowDeleteConfirm(true)}
               >
                 删除
-              </button>
+              </Button>
             </Space>
           }
         >

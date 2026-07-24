@@ -382,18 +382,12 @@ export default function BooksPage() {
             </View>
 
             <View className="bk-sheet__footer bk-sheet__footer--dual">
-              <Text
-                className="bk-sheet__footer-btn bk-sheet__footer-btn--secondary"
-                onClick={closeJoinSheet}
-              >
+              <Button variant="default" size="lg" block onClick={closeJoinSheet}>
                 取消
-              </Text>
-              <Text
-                className="bk-sheet__footer-btn"
-                onClick={handleJoinSubmit}
-              >
+              </Button>
+              <Button variant="primary" size="lg" block onClick={handleJoinSubmit}>
                 加入账本
-              </Text>
+              </Button>
             </View>
 
             <View className="bk-sheet__safe" />
@@ -549,12 +543,15 @@ export default function BooksPage() {
                       <Text className="bk-invite-generate__hint">
                         将以下邀请码分享给他人，对方在「加入账本」中输入邀请码即可加入账本
                       </Text>
-                      <View
-                        className="bk-detail-btn bk-detail-btn--primary bk-invite-generate__btn"
+                      <Button
+                        variant="primary"
+                        size="md"
+                        block
+                        className="bk-invite-generate__btn"
                         onClick={handleGenerateCode}
                       >
-                        <Text>生成邀请码</Text>
-                      </View>
+                        生成邀请码
+                      </Button>
                     </View>
                   ) : (
                     <View className="bk-invite-code-result">
@@ -583,24 +580,19 @@ export default function BooksPage() {
               <View className="bk-detail-actions bk-detail-actions--sticky">
                 {isOwner ? (
                   <>
-                    <View
-                      className="bk-detail-btn bk-detail-btn--secondary"
-                      onClick={() => setDetailMode("invite")}
-                    >
-                      <Text>邀请成员</Text>
-                    </View>
-                    <View
-                      className="bk-detail-btn bk-detail-btn--secondary"
-                      onClick={() => setDetailMode("inviteCode")}
-                    >
-                      <Text>生成邀请码</Text>
-                    </View>
-                    <View className="bk-detail-btn bk-detail-btn--secondary" onClick={handleEdit}>
-                      <Text>编辑</Text>
-                    </View>
+                    <Button variant="default" size="md" onClick={() => setDetailMode("invite")}>
+                      邀请成员
+                    </Button>
+                    <Button variant="default" size="md" onClick={() => setDetailMode("inviteCode")}>
+                      生成邀请码
+                    </Button>
+                    <Button variant="default" size="md" onClick={handleEdit}>
+                      编辑
+                    </Button>
                     {detailBook.name !== "默认账本" && (
-                      <View
-                        className="bk-detail-btn bk-detail-btn--danger"
+                      <Button
+                        variant="danger"
+                        size="md"
                         onClick={() => {
                           if (detailBook) {
                             setDeletingBook(detailBook);
@@ -609,37 +601,35 @@ export default function BooksPage() {
                           }
                         }}
                       >
-                        <Text>删除</Text>
-                      </View>
+                        删除
+                      </Button>
                     )}
                   </>
                 ) : (
-                  <View className="bk-detail-btn bk-detail-btn--secondary" onClick={handleEdit}>
-                    <Text>查看详情</Text>
-                  </View>
+                  <Button variant="default" size="md" onClick={handleEdit}>
+                    查看详情
+                  </Button>
                 )}
                 {currentBook && String(currentBook.id) !== String(detailBook?.id) && (
-                  <View
-                    className="bk-detail-btn bk-detail-btn--switch"
+                  <Button
+                    variant="primary"
+                    size="md"
                     onClick={() => {
                       setSwitchTarget(detailBook!);
                       closeDetail();
                     }}
                   >
-                    <Text>切换到此账本</Text>
-                  </View>
+                    切换到此账本
+                  </Button>
                 )}
               </View>
             )}
 
             {detailMode === "invite" && (
               <View className="bk-detail-actions bk-detail-actions--sticky bk-detail-actions--single">
-                <View
-                  className="bk-detail-btn bk-detail-btn--primary"
-                  onClick={handleInviteSubmit}
-                >
-                  <Text>发送邀请</Text>
-                </View>
+                <Button variant="primary" size="md" block onClick={handleInviteSubmit}>
+                  发送邀请
+                </Button>
               </View>
             )}
 
@@ -671,42 +661,22 @@ export default function BooksPage() {
                 <Text className="bk-switch-text"> — 交易记录列表</Text>
               </View>
               <View className="bk-switch-item">
-                <Text className="bk-switch-label">报表</Text>
-                <Text className="bk-switch-text"> — 统计图表与分类分析</Text>
+                <Text className="bk-switch-label">工作台</Text>
+                <Text className="bk-switch-text"> — 账本 / 分类 / 模板 / 预算</Text>
               </View>
               <View className="bk-switch-item">
-                <Text className="bk-switch-label">日历</Text>
-                <Text className="bk-switch-text"> — 日历视图中的交易</Text>
-              </View>
-              <View className="bk-switch-item">
-                <Text className="bk-switch-label">地图</Text>
-                <Text className="bk-switch-text"> — 交易位置与商户聚合</Text>
-              </View>
-              <View className="bk-switch-item">
-                <Text className="bk-switch-label">模板</Text>
-                <Text className="bk-switch-text"> — 快捷记账模板</Text>
-              </View>
-              <View className="bk-switch-item">
-                <Text className="bk-switch-label">预算</Text>
-                <Text className="bk-switch-text"> — 预算设置与消耗</Text>
-              </View>
-              <View className="bk-switch-item">
-                <Text className="bk-switch-label">年报</Text>
-                <Text className="bk-switch-text"> — 年度报告数据</Text>
-              </View>
-              <View className="bk-switch-item">
-                <Text className="bk-switch-label">导出</Text>
-                <Text className="bk-switch-text"> — 账单导出</Text>
+                <Text className="bk-switch-label">我的</Text>
+                <Text className="bk-switch-text"> — 个人设置与账本入口</Text>
               </View>
             </View>
             <Text className="bk-switch-current">当前账本：{currentBook?.name}</Text>
             <View className="bk-switch-actions">
-              <View className="bk-switch-btn bk-switch-btn--cancel" onClick={() => setSwitchTarget(null)}>
-                <Text>取消</Text>
-              </View>
-              <View className="bk-switch-btn bk-switch-btn--confirm" onClick={handleConfirmSwitch}>
-                <Text>确认切换</Text>
-              </View>
+              <Button variant="default" size="lg" block onClick={() => setSwitchTarget(null)}>
+                取消
+              </Button>
+              <Button variant="primary" size="lg" block onClick={handleConfirmSwitch}>
+                确认切换
+              </Button>
             </View>
           </View>
         </View>

@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { ListRowsSkeleton } from '../../../../components/ui/Skeleton'
 import { EmptyState } from '../../../../components/ui/EmptyState'
+import { Button } from '../../../../components/ui/Button'
 import './index.scss'
 
 interface TemplateSelectorProps {
@@ -93,14 +94,14 @@ export const TemplateSelector: React.FC<TemplateSelectorProps> = ({
         </div>
 
         <div className="template-selector-footer">
-          <button className="btn btn-secondary" onClick={handleClose}>取消</button>
-          <button
-            className="btn btn-primary"
+          <Button variant="secondary" onClick={handleClose}>取消</Button>
+          <Button
+            variant="primary"
             onClick={handleConfirm}
             disabled={!selectedId}
           >
             确认选择
-          </button>
+          </Button>
         </div>
       </div>
     </div>
