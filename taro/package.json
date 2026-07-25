@@ -1,6 +1,6 @@
 {
   "name": "family-bookkeeping-taro",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "private": true,
   "description": "家庭记账 Taro 多端应用",
   "templateInfo": {

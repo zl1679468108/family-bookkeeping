@@ -28,10 +28,22 @@ export function appCustomerServiceTitle(name: string = APP_NAME): string {
   return `${name}客服`
 }
 export const APP_SLOGAN = '安静记录每一笔'
-export const APP_VERSION = '1.0.1'
-export const APP_BUILD_DATE = '2026-07-18'
+export const APP_VERSION = '1.0.2'
+export const APP_BUILD_DATE = '2026-07-25'
 
 export const CHANGELOG: VersionChange[] = [
+  {
+    version: '1.0.2',
+    date: '2026-07-25',
+    highlights: '质量门与上线交付收口',
+    changes: [
+      '三端 shared-utils 展示逻辑与文案统一，降低双端漂移',
+      'CI 增加 source-quality / package exports / Taro 版本线校验与单测门禁',
+      '诊断日志收口与生产构建 warning 清理',
+      '部署流程强制同步 About 版本号与更新日志',
+      '修复若干交互与体验问题',
+    ],
+  },
   {
     version: '1.0.1',
     date: '2026-07-18',

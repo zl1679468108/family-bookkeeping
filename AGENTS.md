@@ -313,6 +313,11 @@ docs/
 - `renew-cert.sh` — Let's Encrypt 证书续期（DNS-01 验证，绕过 ICP 拦截）
 
 **关键约定**：
+- **部署前必须同步版本信息**（硬规则，不可跳过）：
+  1. 更新 `shared-utils/src/version.ts`：`APP_VERSION`、`APP_BUILD_DATE`，并在 `CHANGELOG` 顶部新增本版条目（highlights + changes）。
+  2. 同步应用包版本：`frontend/package.json`、`backend/package.json`、`taro/package.json` 的 `version` 与 `APP_VERSION` 一致。
+  3. About 页（PC/Taro）通过 `config/version` re-export 读取上述真相源，**不要**在页面内硬编码版本号或更新日志。
+  4. 部署后冒烟：打开 `/#/about`，确认版本徽章、发布日期、更新日志首条与本次发布一致。
 - 前端 API 基址用相对路径 `/api`（同源，IP / 域名通用）；不要写死域名。
 - Taro 的 `TARO_APP_API_BASE_URL` 在构建时固化，生产需设为 `https://zlspace.site/api`。
 - 后端 `.env` 真相源是 `backend/.env.production`，部署时复制为 `/opt/family-bookkeeping/backend/.env`。
