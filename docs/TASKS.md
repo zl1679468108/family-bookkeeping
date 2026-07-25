@@ -2,7 +2,17 @@
 
 > 更新日期：2026-07-25
 > 状态说明：🔄 进行中 / ⏳ 待处理 / ✅ 已完成 / ❌ 阻塞
-> 当前重心：代码侧已达约 90% 可上线交付；剩余为平台配置与部署同步。
+> 当前重心：CVM 与小程序产物已同步；剩余为微信后台审核与配置。
+
+---
+
+## 部署同步：CVM + 小程序产物（2026-07-25）
+
+- 提交：`74e61f4` chore: 收口质量门与上线交付评估
+- CVM 部署：`bash scripts/deploy-cvm.sh` 完成，PM2 `family-bookkeeping-api` online，健康检查 ok
+- 生产冒烟：`https://zlspace.site/bookkeeping/` 200；login/refresh 校验正常
+- 小程序：`TARGET=weapp bash scripts/deploy-taro.sh` 完成，产物 `taro/dist-prod/`（约 1.4M）
+- 用户侧仍需：微信开发者工具打开 `taro/dist-prod/` 上传审核；后台域名/类目/隐私指引/客服配置
 
 ---
 
