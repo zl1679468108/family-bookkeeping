@@ -11,7 +11,8 @@
 - 更新 `shared-utils/src/version.ts`：`APP_VERSION=1.0.2`、`APP_BUILD_DATE=2026-07-25`，CHANGELOG 新增质量门与上线交付收口条目
 - 同步 `frontend` / `backend` / `taro` package.json version 到 1.0.2
 - AGENTS 部署章节新增「部署前必须同步版本信息」硬规则
-- 重新部署 CVM 并冒烟 About 页版本徽章 / 更新日志
+- 提交：`009f917`；CVM 重新部署完成；生产 JS 含 `1.0.2` / 质量门与上线交付收口
+- 小程序：`TARGET=weapp bash scripts/deploy-taro.sh` 完成，产物 `taro/dist-prod/`（约 1.4M）
 
 ---
 
