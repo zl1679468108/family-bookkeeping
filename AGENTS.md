@@ -1,348 +1,147 @@
 # 静记 (Family Bookkeeping) Agent Guide
 
-新对话开始时，先读取本文件。
+新对话开始时先读本文件。本文件只保留 **硬规则、真坑、索引**；长篇说明见外链文档，不要回写到这里。
 
 ## 1. 文档优先级
 
-所有 AI 开发决策按以下优先级裁决：
-
 | 优先级 | 文档 | 用途 |
 |---|---|---|
-| 1 | [docs/PRD.md](./docs/PRD.md) | 产品需求规范：功能定义、模块边界、交互/视觉规范 |
-| 2 | [docs/TASKS.md](./docs/TASKS.md) | 当前任务状态：仅包含未完成的待办任务 |
-| 3 | [docs/database-init.sql](./docs/database-init.sql) | 数据库表结构：表名、字段、约束、索引 |
-| 4 | 当前代码 | 实现细节：以实际代码为准，先读代码再修改 |
+| 1 | [docs/PRD.md](./docs/PRD.md) | 功能定义、模块边界、交互/视觉 |
+| 2 | [docs/TASKS.md](./docs/TASKS.md) | 未完成任务 |
+| 3 | [docs/database-init.sql](./docs/database-init.sql) | 表结构唯一真相源 |
+| 4 | 当前代码 | 实现细节；先读再改 |
 
-不要把长篇部署步骤、产品说明或数据库 SQL 复制回 `AGENTS.md`。本文件只保留 agent 开发时必须遵守的规则和索引。
+补充文档：
 
-## 2. 项目概览
+- 部署手册：[docs/deployment.md](./docs/deployment.md)
+- 访问地址 / 总览：[README.md](./README.md)
 
-家庭记账应用「静记」，三端独立架构，共享同一 Supabase (PostgreSQL) 数据库。
+## 2. 架构硬约束
 
-| 子项目 | 路径 | 技术栈 | 开发端口 |
-|--------|------|--------|----------|
-| **frontend** | `frontend/` | React 18 + Vite + TypeScript + Tailwind + SCSS | 3001 |
-| **backend** | `backend/` | NestJS 10 + TypeScript + Supabase JS SDK | 3000 |
-| **taro** | `taro/` | Taro 4 + React 18 + TypeScript + SCSS + weapp-tailwindcss | weapp/H5 |
+家庭记账「静记」：三端独立工程，共享同一 Supabase PostgreSQL。**不是 monorepo / npm workspace**；包管理器用 npm；Node `>= 20`。
 
-**不是 monorepo / workspace**：三个应用子项目各自独立，有各自的 `package.json`、`node_modules`；`shared-types` / `shared-utils` 是本地 `file:../...` 依赖包，不使用 npm workspace。包管理器为 npm。
-
-**Node 要求**：>= 20.0.0
-
-### 数据流
-
-```
-[frontend / taro] → HTTP REST → [backend NestJS] → Supabase JS SDK (PostgREST) → Supabase PostgreSQL
-```
-
-前端不直接访问 Supabase，所有数据操作通过后端 API。
-
-### API 响应格式
-
-所有响应被 `ResponseInterceptor` 统一包装：
-
-```json
-{ "success": true, "message": "...", "data": ... }
-```
-
-时间戳字段（`created_at`、`updated_at`、`date` 等）被自动转换为北京时间格式 `YYYY-MM-DD HH:mm:ss.SSS`。
-
-前端的 `request<T>()` 函数会自动解包，直接返回 `data`。
-
-### 认证机制
-
-**不是 JWT**，是自定义双 token session 系统：
-
-- Access Token（请求携带，~2h）+ Refresh Token（仅 `/auth/refresh`，~14d）
-- Token：`crypto.randomBytes(32).toString('hex')` 生成 64 字符 hex
-- 存储：SHA-256 hash 存入 `user_sessions` 表，原始 token 发给客户端
-- 客户端用 `Authorization: Bearer <accessToken>` 传递；401 时用 refresh 换发（single-flight）
-- 后端 `TokenAuthGuard` 校验 access token，通过后 `@CurrentUser()` 装饰器取用户信息
-
-### 账本（Book）多租户
-
-- 用户可创建/加入多个账本，通过 `book_members` 表关联（role: owner | member）
-- `@BookId()` 装饰器从 `request.user.current_book_id` 取当前账本 ID
-- Owner 可见账本内所有成员的交易，member 仅可见自己的
-- 所有 API 请求自动携带 `x-book-id` 头（前端/Taro 自动附加）
-
-### 数据库
-
-**`docs/database-init.sql` 是数据库 schema 的唯一真相源**（12 张表）。无 ORM、无 migration 框架。
-
-表清单：`users`、`user_sessions`、`password_resets`、`categories`、`books`、`book_members`、`transactions`、`budgets`、`transaction_templates`、`member_locations`、`book_invitations`、`custom_icons`。
-
-DDL 变更必须手动在 Supabase SQL Editor 执行。直连 DB 和 Pooler 从本机均不可用，只能通过 REST API (PostgREST) 或 SQL Editor。
-
-**Supabase 区域**：Singapore (ap-southeast-1)。
-
-## 3. 常用命令
-
-```bash
-# 后端
-cd backend && npm run start          # 开发模式（watch）
-cd backend && npm run build:prod     # 生产构建
-
-# 前端（PC Web）
-cd frontend && npm run start         # 开发模式，端口 3001
-cd frontend && npm run build:prod    # 生产构建
-
-# 小程序
-cd taro && npm run dev:weapp         # 微信小程序开发构建（输出 dist/，微信开发者工具指向此目录）
-cd taro && npm run dev:h5            # H5 开发构建
-cd taro && npm run build:weapp       # 微信小程序生产构建（输出 dist-prod/，独立目录不与 dev 冲突）
-
-# ⚠️ 构建目录隔离约定（重要）
-# dev:* 输出到 dist/，build:* 输出到 dist-prod/，两者物理隔离。
-# 不要把 dev:weapp(watch) 和 build:weapp 同时跑——会争抢同一目录导致微信开发者工具读到残缺产物。
-# 正常开发用 dev:weapp，需干净生产构建/上传时才单独跑 build:weapp（产物在 dist-prod/）。
-
-# 类型检查
-cd frontend && npx tsc --noEmit
-cd backend && npx tsc --noEmit
-
-# 单元测试（不依赖外部 Supabase）
-cd backend && npm test
-cd taro && npm test
-```
-
-## 4. 目录索引
+| 子项目 | 路径 | 技术栈 | 端口 |
+|--------|------|--------|------|
+| frontend | `frontend/` | React 18 + Vite + TS + Tailwind + SCSS | 3001 |
+| backend | `backend/` | NestJS 10 + Supabase JS SDK | 3000 |
+| taro | `taro/` | Taro 4 + React 18 + TS + SCSS | weapp/H5 |
+| shared-types | `shared-types/` | 三端共享实体类型 | — |
+| shared-utils | `shared-utils/` | 双端共享纯函数 / 文案 | — |
 
 ```text
-frontend/
-  src/
-    pages/           页面（每个页面含 components/ hooks/ 子目录）
-    components/      共享组件（ui/ 为原子组件）
-    services/        API 服务层
-    hooks/           共享 hooks
-    utils/           工具函数 + Context Providers
-    types/           TypeScript 类型定义
-    styles/          全局样式、设计令牌、SCSS partials
-    routes/          路由配置
-
-backend/
-  src/
-    auth/            认证模块
-    transaction/     交易模块
-    books/           账本模块
-    categories/      分类模块
-    budgets/         预算模块
-    statistics/      统计模块
-    templates/       模板模块
-    reports/         报表模块
-    export/          导出模块
-    map/             地图模块
-    icons/           图标模块
-    admin/           管理员模块
-    mail/            邮件模块
-    supabase/         Supabase 客户端
-    common/          公共模块（interceptors / filters / pipes）
-
-taro/
-  src/
-    pages/           页面（18 页）
-    services/        API 服务层
-    components/      公共组件
-    context/         React Context
-    hooks/           自定义 Hooks
-    types/           TypeScript 类型
-    utils/           工具函数
-
-shared-types/
-  src/               三端共享 TypeScript 类型（@family-bookkeeping/shared-types）
-shared-utils/
-  src/               双端共享纯函数与文案常量（@family-bookkeeping/shared-utils）
-
-docs/
-  PRD.md             产品需求文档
-  TASKS.md           任务看板（仅未完成任务）
-  database-init.sql  数据库初始化脚本（权威建表基准）
+[frontend / taro] → HTTP REST /api → [backend NestJS] → Supabase JS SDK → PostgreSQL
 ```
 
-## 5. AI 工作分工
+必须遵守：
 
-### 5.1 跨文档协作规则
+1. **前端 / Taro 不直连 Supabase**，数据一律走后端 API。
+2. **认证不是 JWT**：自定义双 token（Access ~2h + Refresh ~14d）；hash 存 `user_sessions`，客户端带 `Authorization: Bearer <accessToken>`；401 用 refresh 单飞换发。
+3. **账本多租户**：`@BookId()` 取 `current_book_id`；请求自动带 `x-book-id`；owner 看全员交易，member 只看自己。
+4. **无 ORM / 无 migration**：DDL 只改 `docs/database-init.sql`，并提醒用户在 Supabase SQL Editor 手动执行。本机直连 DB / Pooler 不可用，只走 PostgREST 或 SQL Editor。
+5. **API 统一包装**：`{ success, message, data }`；前端 `request<T>()` 自动解包 `data`。
+6. **时间**：DB 存 UTC；响应经 `ResponseInterceptor` 转北京时间 `YYYY-MM-DD HH:mm:ss.SSS`。
+7. **共享包**：实体类型改 `shared-types/`；双端同构文案/纯函数改 `shared-utils/`（端侧多为 re-export）。改接口形状时检查三端调用处。
+8. **密钥**：只放各端 `.env.*`（已 gitignore）；模板改 `.env.example`，禁止硬编码。
 
-修改任何功能时，按以下顺序更新文档：
+## 3. 三端最小规则
 
-1. 先确认 `PRD.md` 中是否有该功能的定义
-2. 查看 `database-init.sql` 确认表结构
-3. 查看 `TASKS.md` 确认任务状态
-4. 读当前代码确认实现细节
-5. 修改代码后同步更新受影响的文档
+### Frontend（PC Web）
 
-### 5.2 代码修改分工
+- HashRouter + `React.lazy`；路由在 `frontend/src/routes/routes.tsx`
+- 服务端状态：React Query v5；客户端：Context（无 Redux/Zustand）
+- API：`frontend/src/services/api.ts` 原生 `fetch`；环境变量前缀 `VITE_`
+- UI：自研 `components/ui/` + SCSS/Tailwind；主色 `#2D9D8A`
 
-| 改动范围 | 需要修改的文件 |
-|---|---|
-| 新增/修改后端 API | controller + service + module + 注册到 app.module.ts |
-| 新增/修改数据库字段 | database-init.sql + `shared-types/` + 后端 service/controller + 前端/Taro API |
-| 新增/修改前端页面 | 页面文件 + routes/routes.tsx + services/ API 文件 |
-| 新增/修改 Taro 页面 | 页面文件 + app.config.ts 注册 + services/ API 文件 |
-| 新增/修改 UI 组件 | components/ui/ |
-| 新增/修改业务逻辑 | 对应 service/controller + 前端 hooks/ 或 services/ |
+### Taro（小程序）
 
-### 5.3 验证分工
+- 页面注册：`taro/src/app.config.ts`；自定义 TabBar 4 项
+- 读：`useManualQuery`（无缓存/无自动重取）；写：`useMutation`，`onSuccess` 手动 `refetch()`
+- API：`Taro.request`；环境变量前缀 `TARO_APP_`
+- Provider：`QueryClientProvider > AuthProvider > BookProvider > AuthGuard`
+- **构建隔离**：`dev:* → dist/`，`build:* → dist-prod/`；禁止 watch 与生产构建同时跑
+- 限制：无 `atob`/`btoa`、无 inline SVG；部分 WXSS 选择器不可用
 
-| 角色 | 负责验证 |
-|---|---|
-| TypeScript | `npx tsc --noEmit`（所有改动） |
-| 前端构建 | `npm run build:prod`（涉及前端） |
-| 后端构建 | `npm run build:prod`（涉及后端） |
-| 小程序构建 | `npm run build:weapp`（涉及 Taro） |
-| 关键接口 | 浏览器 Network 或 `curl` 验证响应结构 |
-| 数据库改动 | 先在 Supabase SQL Editor 验证 SQL 语法，再本地测试 |
+### Backend（NestJS）
 
-### 5.4 文档维护分工
+- 基础路径 `/api`；模块三件套 `controller + service + module`，注册到 `app.module.ts`
+- 全局：`ValidationPipe`（whitelist/transform/forbidNonWhitelisted）、`ResponseInterceptor`、`HttpExceptionFilter`
+- 鉴权：`TokenAuthGuard`；管理员加 `AdminGuard`；`@CurrentUser()` / `@BookId()`
+- DTO：`class-validator` + `class-transformer`；Query 数字用 `@Type(() => Number)`
+- 上传：`FileValidationPipe`（jpeg/png/webp，≤5MB）→ Supabase Storage
 
-| 文档 | 维护时机 | 维护内容 |
-|---|---|---|
-| PRD.md | 新增/修改功能后 | 同步更新功能详述、模块矩阵 |
-| TASKS.md | 任务开始/完成/阻塞时 | 更新任务状态 |
-| database-init.sql | 表结构变化后 | 同步增删改字段、索引 |
-| AGENTS.md | 项目规则/结构变化后 | 同步更新目录索引、规范、流程 |
+## 4. 改动速查
 
-## 6. Frontend（PC Web）规则
+| 改动 | 改哪里 |
+|------|--------|
+| 后端 API | module/controller/service + `app.module.ts` |
+| 表字段 | `database-init.sql` → shared-types → 后端 → frontend/Taro services |
+| 前端页面 | `pages/` + `routes/routes.tsx` + `services/` |
+| Taro 页面 | `pages/` + `app.config.ts` + `services/` |
+| 共享类型 / 文案 | `shared-types/` 或 `shared-utils/`，再检查 re-export 与调用方 |
+| UI 原子组件 | `frontend/src/components/ui/` |
 
-- 路由使用 `react-router-dom` v6 HashRouter，19 条路由，全部 `React.lazy()` 懒加载。路由配置在 `src/routes/routes.tsx`。
-- 状态管理：服务端用 `@tanstack/react-query` v5，客户端用 React Context。无 Redux / Zustand。
-- API 层：`src/services/api.ts` 导出 `request<T>()` 函数（基于原生 fetch），无 Axios。
-- 样式：SCSS + Tailwind CSS + CSS 设计令牌（`design-tokens.css`）。非 CSS Modules，所有样式为全局类名。主色调 green `#2D9D8A`。
-- 组件：全自研 UI 库（无 antd/MUI），在 `src/components/ui/`。
-- 环境变量前缀：`VITE_`（Vite 约定）；共享类型包 `@family-bookkeeping/shared-types`（`shared-types/`）。
+流程：确认 PRD → 看 SQL / TASKS → 读现有代码 → 改代码 → 同步受影响文档。  
+不要重构无关文件；共享模块（API、主题、路由、store）改前先看影响面。
 
-## 7. Taro（小程序）规则
+## 5. 常用命令
 
-- 构建：Webpack 5，设计宽度 375px，输出 rpx 单位。
-- 页面：18 页，配置在 `src/app.config.ts`。底部 TabBar 4 个 tab（首页/流水/报表/我的），自定义实现。
-- 数据获取：`useManualQuery`（自研 hook）替代 `useQuery`（Taro 兼容性问题）；写操作用 `useMutation`，需在 `onSuccess` 手动 `refetch()`。
-- API 层：`src/services/api.ts` 基于 `Taro.request`（非 fetch）。
-- 样式：SCSS 为主，`app.scss` 中定义了 Tailwind 风格的工具类（手写）。`weapp-tailwindcss` 提供部分 Tailwind 兼容。
-- 限制：不支持 `atob`/`btoa`、不支持 inline SVG、WXSS 不支持部分 CSS 选择器。
-- 环境变量前缀：`TARO_APP_`
-- Provider 层级：`QueryClientProvider > AuthProvider > BookProvider > AuthGuard > Pages`
-- **构建目录隔离**：`dev:*` → `dist/`，`build:*` → `dist-prod/`。两者不可同时运行（勿让 watch 与一次性构建争抢同一目录，否则微信开发者工具会读到残缺产物）。正常开发用 `dev:weapp`（微信开发者工具指向 `dist/`），生产构建/上传用 `build:weapp`（产物在 `dist-prod/`）。
+```bash
+cd backend && npm run start            # 后端 watch
+cd frontend && npm run start           # PC Web :3001
+cd taro && npm run dev:weapp           # 小程序 dev → dist/
+cd taro && npm run build:weapp         # 小程序 prod → dist-prod/
 
-## 8. Backend（NestJS）规则
+cd backend && npx tsc --noEmit && npm test
+cd frontend && npx tsc --noEmit
+cd taro && npx tsc --noEmit && npm test
+```
 
-- REST/业务模块：Auth、Transaction、Books、Categories、Budgets、Statistics、Templates、Reports、Export、Map、Icons、Admin、Ocr。
-- 内部支撑模块：Mail、Wechat、Supabase；`SupabaseModule` 与 `WechatModule` 为 `@Global()`。
-- REST API 基础路径为 `/api`。
-- 每个模块保持三件套：`controller`、`service`、`module`。
-- 全局中间件：
-  - `ValidationPipe`：whitelist + transform + forbidNonWhitelisted
-  - `ResponseInterceptor`：统一响应包装 + 时间戳转北京时间
-  - `HttpExceptionFilter`：统一错误处理
-- DTO 验证：`class-validator` + `class-transformer`。Query 参数用 `@Type(() => Number)` 做字符串→数字转换。
-- 认证装饰器：
-  - `@UseGuards(TokenAuthGuard)` — 校验 token
-  - `@UseGuards(TokenAuthGuard, AdminGuard)` — 管理员接口
-  - `@CurrentUser()` / `@CurrentUser('id')` — 取当前用户
-  - `@BookId()` — 取当前账本 ID
-- 文件上传：`FileValidationPipe` 校验 MIME（jpeg/png/webp）和大小（≤5MB）。Supabase Storage 存储。
-- TypeScript 配置：target ES2021, module CommonJS, `strictNullChecks: false`, `noImplicitAny: false`（较宽松）。
-- Prettier：singleQuote, trailingComma all, printWidth 100, tabWidth 2, semi, arrowParens always。
+验证按改动范围选：`tsc` / `build:prod` / `build:weapp` / Network 或 `curl`。  
+集成测试（依赖 Supabase）：`cd backend && npm run test:integration`（不进默认 `npm test`）。
 
-## 9. 时间规则
+## 6. 部署硬门禁
 
-项目所有时间字段遵循同一规则：
+完整步骤见 [docs/deployment.md](./docs/deployment.md)。生产：腾讯云 CVM + Nginx + PM2；地址以 [README.md](./README.md) 为准。
 
-- 后端 `ResponseInterceptor` 自动将所有时间戳转为北京时间字符串：`YYYY-MM-DD HH:mm:ss.SSS`
-- 前端如需 Date 对象做计算，注意解析北京时间字符串格式
-- 数据库存储使用 UTC
+脚本：
 
-## 10. 数据库规则
+- `scripts/deploy-cvm.sh` — 后端 + PC Web
+- `scripts/deploy-taro.sh` — 小程序 / 可选 H5
+- `scripts/renew-cert.sh` — 证书续期
 
-- 开发和生产共用 Supabase 表，修改表结构必须谨慎。
-- 初始化和迁移参考 [docs/database-init.sql](./docs/database-init.sql)。
-- DDL 变更必须手动在 Supabase SQL Editor 执行。
-- 修改表结构时，同步更新：
-  - `docs/database-init.sql`
-  - 前端 `src/types/`
-  - Taro `src/types/index.ts`
-  - 后端 service/controller
+**部署前（不可跳过）**
 
-## 11. 常见开发流程
+1. 更新 `shared-utils/src/version.ts`：`APP_VERSION`、`APP_BUILD_DATE`，`CHANGELOG` 顶部加本版条目
+2. `frontend` / `backend` / `taro` 的 `package.json#version` 与 `APP_VERSION` 一致
+3. About 页只从 `config/version` re-export 读版本，禁止页面内硬编码
+4. 前端 API 用相对路径 `/api`；Taro 生产 `TARO_APP_API_BASE_URL=https://zlspace.site/api`
+5. 后端生产 env 真相源：`backend/.env.production` → 服务器 `/opt/family-bookkeeping/backend/.env`
 
-新增业务模块：
+**部署后冒烟**
 
-1. 更新 PRD 或确认已有需求。
-2. 设计/更新数据库表（database-init.sql）。
-3. 后端新增 module/controller/service。
-4. 前端新增 types → services API → pages → routes。
-5. Taro 新增 pages → services API → app.config.ts 注册。
-6. 更新 `docs/TASKS.md`。
+- 打开 `/#/about`，确认版本徽章、发布日期、更新日志首条
+- 再按 `docs/deployment.md` 验证清单检查站点 / API / PM2
 
-新增 UI 组件：
+**部署成功后回填作品集（不可跳过）**
 
-1. 放到 `src/components/ui/`。
-2. 使用 SCSS + Tailwind 样式。
-3. 检查三端样式一致性。
+- 目标：`/Users/zhaolong/前端/vibe-coding-project/portfolio`（同级仓，非本仓子目录）
+- 仅公网部署真正成功后回填；本地构建 / 失败部署不回填
+- 必改：
+  1. `portfolio/src/data/projects.ts` → `id: 'family-bookkeeping'` 的 `status`、`version`（= `APP_VERSION`）、`lastDeployed`（北京时间 `YYYY-MM-DD HH:mm`）；必要时同步 `features` / `access` / `screenshots`
+  2. `portfolio/src/data/profile.ts` → `lastUpdated`（`YYYY-MM-DD`）
+  3. 状态/入口变化时同步 `portfolio/README.md`；素材待办变化时同步 `portfolio/docs/tasks.md`
+- 作品集上线需用户明确要求后再跑 portfolio 的 `npm run deploy`；不要在静记部署脚本里隐式改作品集
+- 禁止把密钥、服务器密码、内部运维细节写进 portfolio
 
-## 12. 验证要求
+CI（`.github/workflows/ci.yml`）只做质量检查与构建，**无自动部署**。
 
-改动完成后按风险选择验证：
+## 7. Gotchas
 
-- TypeScript：`npx tsc --noEmit`
-- 前端构建：`npm run build:prod`
-- 后端构建：`npm run build:prod`
-- 小程序构建：`npm run build:weapp`
-- 关键接口：用浏览器 Network 或 `curl` 验证请求次数和响应结构。
-
-如果验证失败，说明是本次改动导致还是项目已有问题。
-
-## 13. 注意事项
-
-- 敏感信息只放环境变量，不要硬编码。
-- 保持代码简洁，能用现有模式就不要造新抽象。
-- 不要重构无关文件。
-- 修改共享模块（store、API、主题、路由等）时要检查影响面。
-- 文档职责分明：产品写 PRD，任务写 TASKS，数据库写 SQL，本文件只写 agent 必读规则。
-
-## 14. 部署
-
-**生产平台**：腾讯云 CVM（上海二区，公网 `121.4.84.120`）+ Nginx + PM2。CloudBase 体验版已弃用（资源点限制跑不动常驻后端）。
-
-- **访问地址**（域名 / IP / API / 数据库 / DNS）：见根目录 **[README.md](./README.md)** 的「访问地址」章节——agent 改地址前先看那里，不要凭记忆写死。
-- **完整部署流程**（三端步骤、服务器初始化、HTTPS 续期、验证清单）：见 **[docs/deployment.md](./docs/deployment.md)**。本文件不复制长篇部署步骤（规则见第 1 节）。
-
-**部署脚本**（`scripts/` 目录）：
-- `cvm-setup.sh` — 服务器初始化（nginx / node / pm2 / certbot）
-- `deploy-cvm.sh` — 一键部署**后端 + 前端 PC Web** 到 CVM
-- `deploy-taro.sh` — 一键构建**小程序**（微信 `dist-prod/` + 可选 H5 上传 CVM）
-- `renew-cert.sh` — Let's Encrypt 证书续期（DNS-01 验证，绕过 ICP 拦截）
-
-**关键约定**：
-- **部署前必须同步版本信息**（硬规则，不可跳过）：
-  1. 更新 `shared-utils/src/version.ts`：`APP_VERSION`、`APP_BUILD_DATE`，并在 `CHANGELOG` 顶部新增本版条目（highlights + changes）。
-  2. 同步应用包版本：`frontend/package.json`、`backend/package.json`、`taro/package.json` 的 `version` 与 `APP_VERSION` 一致。
-  3. About 页（PC/Taro）通过 `config/version` re-export 读取上述真相源，**不要**在页面内硬编码版本号或更新日志。
-  4. 部署后冒烟：打开 `/#/about`，确认版本徽章、发布日期、更新日志首条与本次发布一致。
-- 前端 API 基址用相对路径 `/api`（同源，IP / 域名通用）；不要写死域名。
-- Taro 的 `TARO_APP_API_BASE_URL` 在构建时固化，生产需设为 `https://zlspace.site/api`。
-- 后端 `.env` 真相源是 `backend/.env.production`，部署时复制为 `/opt/family-bookkeeping/backend/.env`。
-
-**CI**：`.github/workflows/ci.yml` 包含 `source-quality`（源码热点、项目一致性、package-lock、Taro 版本线）与 `typecheck-and-build` 矩阵（backend / frontend / taro / shared-types / shared-utils）。矩阵执行 `tsc --noEmit`，backend/Taro 运行确定性单元测试，共享包校验 `exports`，backend 额外校验脚本类型并构建，frontend 构建生产包，taro 串行构建 weapp + H5；依赖外部 Supabase 的 `backend/src/app.spec.ts` 仅通过 `npm run test:integration` 显式运行；**无自动部署**（部署仍走 `scripts/deploy-*.sh`）。
-
-## 15. 重要注意事项（Gotchas）
-
-1. **数据库变更不能自动化**：无 migration 工具，DDL 必须手动在 Supabase SQL Editor 执行。修改 `docs/database-init.sql` 后提醒用户手动同步。
-
-2. **类型共享包**：实体类型优先改 `shared-types/`；后端 DTO 与端侧局部 UI 类型仍可能独立，改接口形状时检查三端调用处。
-2b. **工具共享包**：双端同构文案/纯函数优先改 `shared-utils/`（`frontend/src/utils` 与 `taro/src/utils` 对应文件为 re-export 门面）。
-
-3. **Taro 的 React Query 不完全兼容**：读操作用 `useManualQuery`（无缓存、无自动重取），写操作 `useMutation` 需在 `onSuccess` 手动调 `refetch()`。
-
-4. **时间戳格式**：后端 `ResponseInterceptor` 会自动将所有时间戳转为北京时间字符串。如果前端需要 Date 对象做计算，注意解析格式。
-
-5. **`switchByToken` 场景**：切换账号时必须用 `queryClient.removeQueries()` 而非 `queryClient.clear()`，否则 `clear()` 会触发 profile 自动重取与 `setQueryData` 产生竞态。
-
-6. **DNS 问题**：macOS 下 Node.js 默认 IPv6 DNS 解析有延迟，启动脚本已加 `NODE_OPTIONS=--dns-result-order=ipv4first`。
-
-7. **Supabase 冷启动**：Free Nano 实例有冷启动延迟，首次请求可能 pending 数秒。
-
-8. **小程序限制**：无 `atob`/`btoa`、无 inline SVG、WXSS 不支持部分 CSS 选择器（有自定义 PostCSS 插件处理）。
-
-9. **`.env` 文件**：各子项目的 `.env.development` / `.env.production` 包含实际密钥，已被 `.gitignore` 排除。修改配置时只改 `.env.example` 模板。
-
-10. **测试**：backend 与 Taro 的确定性单元测试由 CI 执行；`backend/src/app.spec.ts` 是依赖 Supabase/环境变量的集成测试，不纳入默认 `npm test`，需要显式运行 `npm run test:integration`。
+1. DDL 不能自动化；改 SQL 后必须提醒用户手动同步 Supabase。
+2. Taro 读操作用 `useManualQuery`；写后手动 `refetch()`。
+3. 切换账号 `switchByToken` 必须 `queryClient.removeQueries()`，禁止 `clear()`（会与 profile 重取竞态）。
+4. 前端解析时间戳时注意是北京时间字符串，不是 ISO UTC。
+5. macOS Node DNS 可能偏慢；启动脚本已加 `NODE_OPTIONS=--dns-result-order=ipv4first`。
+6. Supabase Free 有冷启动，首请求可能 pending 数秒。
+7. 小程序无 `atob`/`btoa`、无 inline SVG；部分 CSS 选择器不可用。
+8. `backend/src/app.spec.ts` 是集成测试，只走 `npm run test:integration`。

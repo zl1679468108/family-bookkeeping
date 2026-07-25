@@ -228,6 +228,11 @@ CVM 在上海（大陆机房），**HTTP-01 验证被腾讯云「域名未备案
 - [ ] 前端能注册 / 登录 / 记账 / 看报表
 - [ ] 小程序：`taro/dist-prod/` 已构建且 API 基址为 `https://zlspace.site/api`
 - [ ] 证书到期日：`openssl s_client -connect zlspace.site:443 -servername zlspace.site 2>/dev/null | openssl x509 -noout -dates`
+- [ ] 回填作品集部署信息（见根目录 `AGENTS.md` §14）：
+  - `portfolio/src/data/projects.ts` → 静记 `version` / `lastDeployed` / 状态与访问入口
+  - `portfolio/src/data/profile.ts` → `lastUpdated`
+  - 必要时同步 `portfolio/README.md`、`portfolio/docs/tasks.md`
+
 
 ---
 
