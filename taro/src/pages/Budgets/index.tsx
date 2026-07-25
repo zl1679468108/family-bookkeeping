@@ -8,7 +8,7 @@ import { View, Text, Input } from "@tarojs/components";
 import MonthPicker from "../../components/MonthPicker";
 import PageContainer from "../../components/PageContainer";
 import CategoryIcon from "../../components/CategoryIcon";
-import { EmptyState, Button } from "../../components/ui";
+import { Button, EmptyState, FooterActions } from "../../components/ui";
 import ConfirmDialog from "../../components/ConfirmDialog";
 import BottomSheet from "../../components/BottomSheet";
 import { useMonthSelector } from "../../hooks/useMonthSelector";
@@ -296,132 +296,22 @@ export default function BudgetsPage() {
           </View>
         </View>
       }
-    >
-      {/* 卡片列表 */}
-      {expenseCats.length === 0 ? (
-        <View className="bdg-empty">
-          <EmptyState
-            description={EMPTY_BUDGET_NO_EXPENSE_CATEGORIES}
-            action={
-              <Button
-                variant="primary"
-                size="sm"
-                onClick={() => Taro.navigateTo({ url: "/pages/Categories/index" })}
-              >
-                去添加分类
-              </Button>
-            }
-          />
-        </View>
-      ) : (
-        <View className="bdg-list">
-          {expenseCats.map((cat) => {
-            const budget = editValues[cat.id] || 0;
-            const st = sm.get(cat.id);
-            const spent = st?.spent || 0;
-            const progress = st?.progress || 0;
-            const status = st?.status || "safe";
-            const color = statusColor(status);
-            const remaining = budget - spent;
-            const hasBudget = budget > 0;
-            const isEditing = editingId === cat.id;
-
-            return (
-              <View
-                key={cat.id}
-                className="bdg-card"
-                onClick={() => handleCardTap(cat)}
-              >
-                {/* 主行：图标 + 名称 | 金额 */}
-                <View className="bdg-card__main">
-                  <View className="bdg-card__left">
-                    <CategoryIcon icon={cat.icon} size={32} />
-                    <Text className="bdg-card__name">{cat.name}</Text>
-                  </View>
-                  <View
-                    className="bdg-card__amount"
-                    onClick={(e: any) => {
-                      e.stopPropagation();
-                      handleTapAmount(cat.id);
-                    }}
-                  >
-                    {isEditing ? (
-                      <Input
-                        className="bdg-card__input"
-                        type="digit"
-                        focus
-                        value={
-                          editValues[cat.id] === 0
-                            ? ""
-                            : String(editValues[cat.id])
-                        }
-                        onInput={(e: any) => {
-                          const num = parseFloat(e.detail.value);
-                          setEditValues((p) => ({
-                            ...p,
-                            [cat.id]: isNaN(num) ? 0 : Math.max(0, num),
-                          }));
-                        }}
-                        onBlur={(e) => handleEditBlur(cat.id, e.detail.value)}
-                        onConfirm={(e) => handleEditConfirm(cat.id, e.detail.value)}
-                        placeholder={FORM_BUDGET_AMOUNT_PLACEHOLDER}
-                      />
-                    ) : (
-                      <>
-                        <Text className="bdg-card__currency">¥</Text>
-                        <Text className="bdg-card__value">
-                          {hasBudget
-                            ? `${formatMoney(spent, { compact: false })} / ${formatMoney(budget, { compact: false })}`
-                            : formatMoney(spent, { compact: false })}
-                        </Text>
-                      </>
-                    )}
-                  </View>
-                </View>
-
-                {/* 副行：进度条 + 状态文字 */}
-                <View className="bdg-card__sub">
-                  {hasBudget ? (
-                    <>
-                      <View className="bdg-bar-track">
-                        <View
-                          className="bdg-bar-fill"
-                          style={{
-                            width: `${Math.min(progress, 100)}%`,
-                            backgroundColor: color,
-                          }}
-                        />
-                      </View>
-                      <Text className="bdg-bar-meta">
-                        {Math.round(progress)}%　剩余 {formatMoney(remaining, { compact: true })}
-                      </Text>
-                    </>
-                  ) : (
-                    <Text className="bdg-bar-meta bdg-bar-meta--muted">
-                      未设置预算
-                    </Text>
-                  )}
-                </View>
-              </View>
-            );
-          })}
-        </View>
-      )}
-
+      overlay={
+        <>
       {/* ========== 预算详情弹窗（对齐 PC 截图）========== */}
       {!!detailCat && !showEditForm && !showDeleteConfirm && (
         <BottomSheet
           title={DETAIL_BUDGET}
           onClose={closeDetail}
           footer={
-            <View className="bgds-footer">
-              <Button variant="secondary" size="md" onClick={handleDetailEdit}>
+            <FooterActions align="stretch">
+              <Button variant="secondary" size="md" block onClick={handleDetailEdit}>
                 编辑预算
               </Button>
-              <Button variant="danger" size="md" onClick={() => setShowDeleteConfirm(true)}>
+              <Button variant="danger" size="md" block onClick={() => setShowDeleteConfirm(true)}>
                 删除预算
               </Button>
-            </View>
+            </FooterActions>
           }
         >
           {/* 内容区 */}
@@ -549,6 +439,116 @@ export default function BudgetsPage() {
           handleCopyLastMonth();
         }}
       />
+        </>
+      }
+    >
+      {/* 卡片列表 */}
+      {expenseCats.length === 0 ? (
+        <View className="bdg-empty">
+          <EmptyState
+            description={EMPTY_BUDGET_NO_EXPENSE_CATEGORIES}
+            action={
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={() => Taro.navigateTo({ url: "/pages/Categories/index" })}
+              >
+                去添加分类
+              </Button>
+            }
+          />
+        </View>
+      ) : (
+        <View className="bdg-list">
+          {expenseCats.map((cat) => {
+            const budget = editValues[cat.id] || 0;
+            const st = sm.get(cat.id);
+            const spent = st?.spent || 0;
+            const progress = st?.progress || 0;
+            const status = st?.status || "safe";
+            const color = statusColor(status);
+            const remaining = budget - spent;
+            const hasBudget = budget > 0;
+            const isEditing = editingId === cat.id;
+
+            return (
+              <View
+                key={cat.id}
+                className="bdg-card"
+                onClick={() => handleCardTap(cat)}
+              >
+                {/* 主行：图标 + 名称 | 金额 */}
+                <View className="bdg-card__main">
+                  <View className="bdg-card__left">
+                    <CategoryIcon icon={cat.icon} size={32} />
+                    <Text className="bdg-card__name">{cat.name}</Text>
+                  </View>
+                  <View
+                    className="bdg-card__amount"
+                    onClick={(e: any) => {
+                      e.stopPropagation();
+                      handleTapAmount(cat.id);
+                    }}
+                  >
+                    {isEditing ? (
+                      <Input
+                        className="bdg-card__input"
+                        type="digit"
+                        focus
+                        value={
+                          editValues[cat.id] === 0
+                            ? ""
+                            : String(editValues[cat.id])
+                        }
+                        onInput={(e: any) => {
+                          const num = parseFloat(e.detail.value);
+                          setEditValues((p) => ({
+                            ...p,
+                            [cat.id]: isNaN(num) ? 0 : Math.max(0, num),
+                          }));
+                        }}
+                        onBlur={(e) => handleEditBlur(cat.id, e.detail.value)}
+                        onConfirm={(e) => handleEditConfirm(cat.id, e.detail.value)}
+                        placeholder={FORM_BUDGET_AMOUNT_PLACEHOLDER}
+                      />
+                    ) : (
+                      <Text className="bdg-card__value">
+                        {hasBudget
+                          ? `${formatMoney(spent, { compact: false })} / ${formatMoney(budget, { compact: false })}`
+                          : formatMoney(spent, { compact: false })}
+                      </Text>
+                    )}
+                  </View>
+                </View>
+
+                {/* 副行：进度条 + 状态文字 */}
+                <View className="bdg-card__sub">
+                  {hasBudget ? (
+                    <>
+                      <View className="bdg-bar-track">
+                        <View
+                          className="bdg-bar-fill"
+                          style={{
+                            width: `${Math.min(progress, 100)}%`,
+                            backgroundColor: color,
+                          }}
+                        />
+                      </View>
+                      <Text className="bdg-bar-meta">
+                        {Math.round(progress)}%　剩余 {formatMoney(remaining, { compact: true })}
+                      </Text>
+                    </>
+                  ) : (
+                    <Text className="bdg-bar-meta bdg-bar-meta--muted">
+                      未设置预算
+                    </Text>
+                  )}
+                </View>
+              </View>
+            );
+          })}
+        </View>
+      )}
     </PageContainer>
   );
 }

@@ -1,18 +1,18 @@
 /**
  * Profile — 我的
- * 菜单：切换主题 / 切换账号 / 关于静记 / 注销账号 / 退出登录
+ * 菜单：切换主题 / 切换账号 / 关于静记 / 用户协议 / 隐私政策 / 注销账号 / 退出登录
  * （个人信息入口 = 顶部 Header 卡片点击）
  */
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { View, Text, Image, Input, Button as WxButton } from "@tarojs/components";
-import { Button } from "../../components/ui";
+import { Button, FooterActions, MenuList, Spinner } from "../../components/ui";
+import ConfirmDialog from "../../components/ConfirmDialog";
 import Taro from "@tarojs/taro";
 import { useAuth } from "../../context/AuthContext";
 import { useTheme } from "../../context/ThemeContext";
-import { getCaptcha, deactivateAccount } from "../../services/authApi";
+import { deactivateAccount } from "../../services/authApi";
 import PageContainer from "../../components/PageContainer";
 import Icon, { ICON_COLOR } from "../../components/Icon";
-import { MenuList } from "../../components/ui";
 import {
   getSavedAccounts,
   getAccountToken,
@@ -23,16 +23,27 @@ import {
 import "./index.scss";
 import { toastSuccess, toastInfo } from "../../utils/toast";
 import { userDisplayName, userInitial } from "../../utils/userDisplay";
-import { SUCCESS_ACCOUNT_SWITCHED, SUCCESS_ACCOUNT_DEACTIVATED, SUCCESS_SWITCHED } from "../../utils/successCopy";
-import { FORM_ALREADY_CURRENT_ACCOUNT, FORM_CAPTCHA_REQUIRED, FORM_EMAIL_PASSWORD_REQUIRED, FORM_DEACTIVATE_PASSWORD, FORM_PASSWORD_LOGIN_PLACEHOLDER, FORM_EMAIL_PLACEHOLDER, FORM_PASSWORD_PLACEHOLDER, FORM_CAPTCHA_PLACEHOLDER, MAX_CAPTCHA_LENGTH } from "../../utils/formCopy";
+import { SUCCESS_ACCOUNT_SWITCHED, SUCCESS_ACCOUNT_DEACTIVATED } from "../../utils/successCopy";
+import { FORM_ALREADY_CURRENT_ACCOUNT, FORM_DEACTIVATE_PASSWORD, FORM_PASSWORD_LOGIN_PLACEHOLDER } from "../../utils/formCopy";
 import { BADGE_CURRENT } from "../../utils/fieldCopy";
-import { ACTION_SWITCHING, ACTION_LOGOUT, ACTION_DEACTIVATING, ACTION_CONFIRM_DEACTIVATE, ACTION_SWITCH_THEME, THEME_DARK_MODE, THEME_LIGHT_MODE, ACTION_SWITCH_ACCOUNT, ACTION_DEACTIVATE_ACCOUNT, ACTION_CONTACT_SUPPORT } from "../../utils/actionCopy"
-import { ACTION_LOGGING_IN, ACTION_LOGIN, AUTH_LOGIN_EXPIRED_REENTER, AUTH_ADD_NEW_ACCOUNT_LOGIN,
-  AUTH_CAPTCHA_FETCH_FAILED,
-  AUTH_LOGIN_CHECK_CREDENTIALS,
-} from '../../utils/authCopy'
-import { TITLE_ABOUT } from '../../utils/sectionCopy'
-import { ERROR_DEACTIVATE_FAILED } from '../../utils/errorCopy'
+import {
+  ACTION_LOGOUT,
+  ACTION_DEACTIVATING,
+  ACTION_CONFIRM_DEACTIVATE,
+  ACTION_SWITCH_THEME,
+  THEME_DARK_MODE,
+  THEME_LIGHT_MODE,
+  ACTION_SWITCH_ACCOUNT,
+  ACTION_DEACTIVATE_ACCOUNT,
+  ACTION_CONTACT_SUPPORT,
+  ACTION_CLOSE,
+  ACTION_CANCEL,
+  ACTION_REMOVE_ACCOUNT,
+} from "../../utils/actionCopy";
+import { AUTH_LOGIN_EXPIRED, authLoginExpiredRelogin } from "../../utils/authCopy";
+import { EMPTY_NO_SAVED_ACCOUNTS } from "../../utils/emptyCopy";
+import { TITLE_ABOUT, TITLE_USER_AGREEMENT, TITLE_PRIVACY_POLICY } from "../../utils/sectionCopy";
+import { ERROR_DEACTIVATE_FAILED } from "../../utils/errorCopy";
 import { appCustomerServiceTitle } from "../../config/version";
 import { CONFIRM_DEACTIVATE_WARNING } from "../../utils/confirmCopy";
 import {
@@ -42,21 +53,13 @@ import {
 } from "../../utils/booksUi";
 
 export default function Profile() {
-  const { user, signOut, signIn, switchByToken } = useAuth();
+  const { user, signOut, switchByToken } = useAuth();
   const { isDark, toggleTheme } = useTheme();
   const [logoutConfirm, setLogoutConfirm] = useState(false);
   const [switchModal, setSwitchModal] = useState(false);
   const [accounts, setAccounts] = useState<SavedAccount[]>([]);
-  const [showLoginForm, setShowLoginForm] = useState(false);
-  const [loginEmail, setLoginEmail] = useState("");
-  const [loginPassword, setLoginPassword] = useState("");
-  const [loginError, setLoginError] = useState("");
-  const [loginLoading, setLoginLoading] = useState(false);
   const [switchingEmail, setSwitchingEmail] = useState<string | null>(null);
-  const [tokenExpiredEmail, setTokenExpiredEmail] = useState<string | null>(null);
-  const [captchaId, setCaptchaId] = useState("");
-  const [captchaCode, setCaptchaCode] = useState("");
-  const [captchaSrc, setCaptchaSrc] = useState("");
+  const [expiredEmail, setExpiredEmail] = useState<string | null>(null);
   // 注销账号相关
   const [deactivateModal, setDeactivateModal] = useState(false);
   const [deactivatePassword, setDeactivatePassword] = useState("");
@@ -107,48 +110,48 @@ export default function Profile() {
     }
   };
 
-  // 打开切换账号弹窗
+  // 打开切换账号弹窗（对齐 PC：仅展示已保存账号列表）
   const handleOpenSwitch = () => {
     setAccounts(getSavedAccounts());
     setSwitchModal(true);
-    setShowLoginForm(false);
-    setLoginEmail("");
-    setLoginPassword("");
-    setLoginError("");
     setSwitchingEmail(null);
+    setExpiredEmail(null);
   };
 
-  // 切换到已有账号
+  const handleCloseSwitch = () => {
+    setSwitchModal(false);
+    setSwitchingEmail(null);
+    setExpiredEmail(null);
+  };
+
+  // 切换到已有账号：用已保存 token 切换；失效则弹出过期提示并引导去登录（对齐 PC）
   const handleSwitchAccount = async (account: SavedAccount) => {
     if (account.email === user?.email) {
       toastInfo(FORM_ALREADY_CURRENT_ACCOUNT);
       return;
     }
-    const token = getAccountToken(account.email);
-    const refreshToken = getAccountRefreshToken(account.email);
-    if (token) {
-      setSwitchingEmail(account.email);
-      try {
+    setSwitchingEmail(account.email);
+    try {
+      const token = getAccountToken(account.email);
+      const refreshToken = getAccountRefreshToken(account.email);
+      if (token) {
         await switchByToken(account.email, token, refreshToken ?? undefined);
         toastSuccess(SUCCESS_ACCOUNT_SWITCHED);
         setAccounts(getSavedAccounts());
         setSwitchModal(false);
+        setExpiredEmail(null);
+        // 对齐 PC navigate('/')：清空页面栈并回首页，确保账本/数据按新账号重载
+        Taro.reLaunch({ url: "/pages/Home/index" });
         return;
-      } catch (err: unknown) {
-        const msg = err instanceof Error ? err.message : '';
-        if (msg === 'token_invalid') {
-          setTokenExpiredEmail(account.email);
-          setLoginEmail(account.email);
-          setLoginPassword('');
-          setShowLoginForm(true);
-          setSwitchingEmail(null);
-          return;
-        }
       }
+      // 无 token，弹出过期提示
+      setExpiredEmail(account.email);
+    } catch {
+      // token 失效，弹出过期提示
+      setExpiredEmail(account.email);
+    } finally {
       setSwitchingEmail(null);
     }
-    setTokenExpiredEmail(account.email);
-    setShowLoginForm(true);
   };
 
   const handleRemoveAccount = (email: string) => {
@@ -156,50 +159,11 @@ export default function Profile() {
     setAccounts(getSavedAccounts());
   };
 
-  const refreshCaptcha = async () => {
-    try {
-      const { captchaId: id, svg } = await getCaptcha();
-      setCaptchaId(id);
-      const encodedSvg = encodeURIComponent(svg);
-      setCaptchaSrc(`data:image/svg+xml,${encodedSvg}`);
-      setCaptchaCode("");
-    } catch {
-      setLoginError(AUTH_CAPTCHA_FETCH_FAILED);
-    }
-  };
-
-  useEffect(() => {
-    if (showLoginForm) refreshCaptcha();
-  }, [showLoginForm]);
-
-  const handleLogin = async () => {
-    if (!loginEmail.trim() || !loginPassword.trim()) {
-      setLoginError(FORM_EMAIL_PASSWORD_REQUIRED);
-      return;
-    }
-    if (!captchaCode.trim()) {
-      setLoginError(FORM_CAPTCHA_REQUIRED);
-      return;
-    }
-    setLoginError("");
-    setLoginLoading(true);
-    try {
-      await signIn(loginEmail.trim(), loginPassword, captchaId, captchaCode);
-      toastSuccess(SUCCESS_SWITCHED);
-      setAccounts(getSavedAccounts());
-      setSwitchModal(false);
-      setShowLoginForm(false);
-      setLoginEmail("");
-      setLoginPassword("");
-      setLoginError("");
-      setTokenExpiredEmail(null);
-      setCaptchaCode("");
-    } catch (err) {
-      setLoginError(AUTH_LOGIN_CHECK_CREDENTIALS);
-      refreshCaptcha();
-    } finally {
-      setLoginLoading(false);
-    }
+  // 过期账号 → 去登录页重新登录（对齐 PC）
+  const goLogin = () => {
+    setExpiredEmail(null);
+    setSwitchModal(false);
+    Taro.navigateTo({ url: "/pages/User/Login/index" });
   };
 
   return (
@@ -220,7 +184,12 @@ export default function Profile() {
           <Text className="profile-header__name">{userDisplayName(user)}</Text>
           <Text className="profile-header__email">{user?.email || ""}</Text>
         </View>
-        <Icon name="chevron-right" size={28} color={ICON_COLOR.muted} />
+        <Icon
+          name="chevron-right"
+          size={36}
+          color={ICON_COLOR.onPrimary}
+          className="profile-header__arrow"
+        />
       </View>
 
       {/* ===== 菜单列表（与 PC 端对齐） ===== */}
@@ -250,6 +219,16 @@ export default function Profile() {
             label: TITLE_ABOUT,
             icon: "info",
             onClick: () => Taro.navigateTo({ url: "/pages/About/index" }),
+          },
+          {
+            label: TITLE_USER_AGREEMENT,
+            icon: "note",
+            onClick: () => Taro.navigateTo({ url: "/pages/Terms/index" }),
+          },
+          {
+            label: TITLE_PRIVACY_POLICY,
+            icon: "lock",
+            onClick: () => Taro.navigateTo({ url: "/pages/Privacy/index" }),
           },
           {
             label: ACTION_DEACTIVATE_ACCOUNT,
@@ -284,22 +263,15 @@ export default function Profile() {
       </WxButton>
 
       {/* ===== 退出确认弹窗 ===== */}
-      {logoutConfirm && (
-        <View className="logout-mask" onClick={() => setLogoutConfirm(false)}>
-          <View className="logout-dialog" onClick={(e) => e.stopPropagation()}>
-            <Text className="logout-title">确认退出</Text>
-            <Text className="logout-desc">确定要退出当前账号吗？</Text>
-            <View className="logout-actions">
-              <Button variant="ghost" size="md" onClick={() => setLogoutConfirm(false)}>
-                取消
-              </Button>
-              <Button variant="danger" size="md" onClick={handleLogout}>
-                退出
-              </Button>
-            </View>
-          </View>
-        </View>
-      )}
+      <ConfirmDialog
+        visible={logoutConfirm}
+        title="确认退出"
+        message="确定要退出当前账号吗？"
+        confirmText={ACTION_LOGOUT}
+        danger
+        onConfirm={handleLogout}
+        onCancel={() => setLogoutConfirm(false)}
+      />
 
       {/* ===== 注销账号弹窗 ===== */}
       {deactivateModal && (
@@ -325,10 +297,11 @@ export default function Profile() {
             {deactivateError ? (
               <Text className="deactivate-error">{deactivateError}</Text>
             ) : null}
-            <View className="deactivate-actions">
+            <FooterActions align="stretch" className="deactivate-actions">
               <Button
-                variant="ghost"
-                size="md"
+                variant="default"
+                size="lg"
+                block
                 disabled={deactivateLoading}
                 onClick={() => !deactivateLoading && setDeactivateModal(false)}
               >
@@ -336,143 +309,116 @@ export default function Profile() {
               </Button>
               <Button
                 variant="danger"
-                size="md"
+                size="lg"
+                block
                 loading={deactivateLoading}
                 onClick={() => !deactivateLoading && handleConfirmDeactivate()}
               >
                 {deactivateLoading ? ACTION_DEACTIVATING : ACTION_CONFIRM_DEACTIVATE}
               </Button>
+            </FooterActions>
+          </View>
+        </View>
+      )}
+
+      {/* ===== 切换账号弹窗（对齐 PC SwitchAccountModal） ===== */}
+      {switchModal && (
+        <View className="switch-mask" onClick={handleCloseSwitch}>
+          <View className="switch-dialog" onClick={(e) => e.stopPropagation()}>
+            <View className="switch-header">
+              <Text className="switch-title">{ACTION_SWITCH_ACCOUNT}</Text>
+              <View className="switch-close" onClick={handleCloseSwitch} aria-label={ACTION_CLOSE}>
+                <Icon name="close" size={28} color={ICON_COLOR.muted} />
+              </View>
+            </View>
+
+            <View className="switch-body">
+              {accounts.length > 0 ? (
+                <View className="switch-account-list">
+                  {accounts.map((account) => {
+                    const isCurrent = account.email === user?.email;
+                    const accInitial = userInitial(account);
+                    return (
+                      <View
+                        key={account.email}
+                        className={buildSwitchAccountItemClassName({
+                          current: isCurrent,
+                          switching: switchingEmail === account.email,
+                        })}
+                        onClick={() => !isCurrent && !switchingEmail && handleSwitchAccount(account)}
+                      >
+                        <View className="switch-account-avatar">
+                          {account.avatar_url ? (
+                            <Image className="switch-account-avatar-img" src={account.avatar_url} mode="aspectFill" />
+                          ) : (
+                            <Text className="switch-account-avatar-text">{accInitial}</Text>
+                          )}
+                        </View>
+                        <View className="switch-account-info">
+                          <View className="switch-account-name">
+                            <Text className="switch-account-name-text">{userDisplayName(account)}</Text>
+                            {isCurrent && <Text className="switch-current-badge">{BADGE_CURRENT}</Text>}
+                          </View>
+                          <Text className="switch-account-email">{account.email}</Text>
+                        </View>
+                        {!isCurrent && switchingEmail === account.email && (
+                          <View className="switch-account-loading">
+                            <Spinner size="sm" />
+                          </View>
+                        )}
+                        {!isCurrent && switchingEmail !== account.email && (
+                          <View
+                            className="switch-account-remove"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleRemoveAccount(account.email);
+                            }}
+                            aria-label={ACTION_REMOVE_ACCOUNT}
+                          >
+                            <Icon name="close" size={28} color={ICON_COLOR.muted} />
+                          </View>
+                        )}
+                      </View>
+                    );
+                  })}
+                </View>
+              ) : (
+                <Text className="switch-empty-hint">{EMPTY_NO_SAVED_ACCOUNTS}</Text>
+              )}
             </View>
           </View>
         </View>
       )}
 
-      {/* ===== 切换账号弹窗 ===== */}
-      {switchModal && (
-        <View className="switch-mask" onClick={() => setSwitchModal(false)}>
-          <View className="switch-dialog" onClick={(e) => e.stopPropagation()}>
-            <Text className="switch-title">切换账号</Text>
-
-            {!showLoginForm ? (
-              <>
-                {accounts.length > 0 && (
-                  <View className="switch-account-list">
-                    {accounts.map((account) => {
-                      const isCurrent = account.email === user?.email;
-                      const accInitial = userInitial(account);
-                      return (
-                        <View
-                          key={account.email}
-                          className={buildSwitchAccountItemClassName({ current: isCurrent, switching: switchingEmail === account.email })}
-                          onClick={() => !isCurrent && !switchingEmail && handleSwitchAccount(account)}
-                        >
-                          <View className="switch-account-avatar">
-                            {account.avatar_url ? (
-                              <Image className="switch-account-avatar-img" src={account.avatar_url} mode="aspectFill" />
-                            ) : (
-                              <Text className="switch-account-avatar-text">{accInitial}</Text>
-                            )}
-                          </View>
-                          <View className="switch-account-info">
-                            <Text className="switch-account-name">
-                              {userDisplayName(account)}
-                              {isCurrent && <Text className="switch-current-badge">{BADGE_CURRENT}</Text>}
-                            </Text>
-                            <Text className="switch-account-email">{account.email}</Text>
-                          </View>
-                          {!isCurrent && switchingEmail === account.email && (
-                            <View className="switch-account-loading">
-                              <Text className="switch-account-loading-text">{ACTION_SWITCHING}</Text>
-                            </View>
-                          )}
-                          {!isCurrent && switchingEmail !== account.email && (
-                            <View
-                              className="switch-account-remove"
-                              onClick={(e) => { e.stopPropagation(); handleRemoveAccount(account.email); }}
-                            >
-                              <Icon name="close" size={28} color={ICON_COLOR.muted} />
-                            </View>
-                          )}
-                        </View>
-                      );
-                    })}
-                  </View>
-                )}
-
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => { setShowLoginForm(true); setLoginEmail(""); setLoginPassword(""); setLoginError(""); }}
-                >
-                  + 添加账号
-                </Button>
-              </>
-            ) : (
-              <>
-                <View className="switch-login-form">
-                  <Text className="switch-login-hint">
-                    {tokenExpiredEmail ? AUTH_LOGIN_EXPIRED_REENTER : AUTH_ADD_NEW_ACCOUNT_LOGIN}
-                  </Text>
-                  <View className="switch-form-group">
-                    <Text className="switch-form-label">邮箱地址</Text>
-                    <Input
-                      className="switch-form-input"
-                      value={loginEmail}
-                      onInput={(e) => setLoginEmail(e.detail.value)}
-                      placeholder={FORM_EMAIL_PLACEHOLDER}
-                    />
-                  </View>
-                  <View className="switch-form-group">
-                    <Text className="switch-form-label">密码</Text>
-                    <Input
-                      className="switch-form-input"
-                      value={loginPassword}
-                      onInput={(e) => setLoginPassword(e.detail.value)}
-                      placeholder={FORM_PASSWORD_PLACEHOLDER}
-                      password
-                    />
-                  </View>
-                  <View className="switch-form-group">
-                    <Text className="switch-form-label">验证码</Text>
-                    <View className="switch-captcha-row">
-                      <Input
-                        className="switch-form-input switch-captcha-input"
-                        value={captchaCode}
-                        onInput={(e) => setCaptchaCode(e.detail.value)}
-                        placeholder={FORM_CAPTCHA_PLACEHOLDER}
-                        maxlength={MAX_CAPTCHA_LENGTH}
-                      />
-                      <Image
-                        className="switch-captcha-img"
-                        src={captchaSrc}
-                        mode="widthFix"
-                        onClick={refreshCaptcha}
-                      />
-                    </View>
-                  </View>
-                  {loginError ? (
-                    <Text className="switch-login-error">{loginError}</Text>
-                  ) : null}
-                  <View className="switch-login-actions">
-                    <Button
-                      variant="ghost"
-                      size="md"
-                      onClick={() => { setShowLoginForm(false); setLoginError(""); setTokenExpiredEmail(null); }}
-                    >
-                      返回
-                    </Button>
-                    <Button
-                      variant="primary"
-                      size="md"
-                      loading={loginLoading}
-                      onClick={() => !loginLoading && handleLogin()}
-                    >
-                      {loginLoading ? ACTION_LOGGING_IN : ACTION_LOGIN}
-                    </Button>
-                  </View>
-                </View>
-              </>
-            )}
+      {/* 登录过期提示（对齐 PC SwitchAccountModal） */}
+      {expiredEmail && (
+        <View className="expired-mask" onClick={() => setExpiredEmail(null)}>
+          <View className="expired-dialog" onClick={(e) => e.stopPropagation()}>
+            <View className="expired-icon">
+              <Icon name="info" size={64} color={ICON_COLOR.warn} />
+            </View>
+            <Text className="expired-title">{AUTH_LOGIN_EXPIRED}</Text>
+            <Text className="expired-desc">{authLoginExpiredRelogin(expiredEmail)}</Text>
+            <FooterActions align="stretch" className="expired-actions">
+              <Button
+                variant="default"
+                size="md"
+                block
+                className="expired-btn expired-btn-cancel"
+                onClick={() => setExpiredEmail(null)}
+              >
+                {ACTION_CANCEL}
+              </Button>
+              <Button
+                variant="primary"
+                size="md"
+                block
+                className="expired-btn expired-btn-login"
+                onClick={goLogin}
+              >
+                去登录
+              </Button>
+            </FooterActions>
           </View>
         </View>
       )}

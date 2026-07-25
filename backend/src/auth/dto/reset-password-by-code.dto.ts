@@ -1,4 +1,4 @@
-import { IsEmail, IsString, MinLength, Matches } from 'class-validator';
+import { IsEmail, IsString, MinLength } from 'class-validator';
 
 export class ResetPasswordByCodeDto {
   @IsEmail({}, { message: '请输入有效的邮箱地址' })
@@ -9,9 +9,6 @@ export class ResetPasswordByCodeDto {
 
   @IsString()
   @MinLength(8, { message: '密码至少 8 位' })
-  @Matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/, {
-    message: '密码必须包含大小写字母和数字',
-  })
   password: string;
 
   @IsString({ message: '确认密码不能为空' })

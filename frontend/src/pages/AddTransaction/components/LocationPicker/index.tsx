@@ -12,7 +12,8 @@ import { FORM_SEARCH_LOCATION, FORM_LOCATION_GET_FAILED_HINT,
 import { TITLE_SELECT_LOCATION, TITLE_LOCATE_CURRENT } from '../../../../utils/sectionCopy'
 import { ACTION_CANCEL, searchingLabel } from '../../../../utils/actionCopy'
 import { ERROR_LOCATION_UNAVAILABLE, ERROR_LOCATION_NO_MATCH, ERROR_LOCATION_SEARCH_FAILED } from '../../../../utils/errorCopy'
-import { LOCATION_SEARCH_CITY_NATIONWIDE } from '../../../../utils/locationHelpers'
+import { LOCATION_SEARCH_CITY_NATIONWIDE, formatLocationLabel, formatPoiSearchLabel, formatCoords } from '../../../../utils/locationHelpers'
+import { merchantIdDisplay } from '../../../../utils/fieldCopy'
 
 interface LocationPickerProps {
   visible: boolean;
@@ -86,13 +87,12 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
     const geocoder = new AMap.Geocoder({ radius: 200, extensions: 'all' });
     geocoder.getAddress([lng, lat], (status: string, result: any) => {
       if (status === 'complete' && result.regeocode) {
-        const address = result.regeocode.formattedAddress || `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
-        setSelectedAddress(address);
-        if (result.regeocode.pois?.[0]) {
-          const p = result.regeocode.pois[0];
-          setPoiId(p.id || null);
-          if (p.name && p.name !== address) setSelectedAddress(p.name + ' ' + address);
-        }
+        const formatted = result.regeocode.formattedAddress || '';
+        const p = result.regeocode.pois?.[0];
+        setPoiId(p?.id || null);
+        setSelectedAddress(
+          formatLocationLabel(p?.name, formatted, { latitude: lat, longitude: lng }),
+        );
       }
     });
   }, []);
@@ -201,7 +201,7 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
         const lat = poi.location.lat ?? poi.location.getLat();
         const pos: [number, number] = [lng, lat];
         setSelectedPos(pos);
-        setSelectedAddress(poi.name + ' ' + (poi.address || ''));
+        setSelectedAddress(formatPoiSearchLabel(poi.name, poi.address || ''));
         setPoiId(poi.id || null);
         const m = mapRef.current;
         if (m) { m.setCenter(pos); m.setZoom(15); }
@@ -285,7 +285,19 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
       {selectedAddress ? (
         <div className="location-picker-info">
           <span className="location-picker-info-icon">📍</span>
-          <span className="location-picker-info-text">{selectedAddress}</span>
+          <div className="location-picker-info-body">
+            <span className="location-picker-info-text">{selectedAddress}</span>
+            {selectedPos && (
+              <span className="location-picker-info-meta">
+                {formatCoords(selectedPos[1], selectedPos[0], 6)}
+              </span>
+            )}
+            {poiId && (
+              <span className="location-picker-info-meta">
+                {merchantIdDisplay(poiId)}
+              </span>
+            )}
+          </div>
         </div>
       ) : (
         <div className="location-picker-hint">{FORM_LOCATION_MAP_HINT}</div>

@@ -270,108 +270,8 @@ export default function TemplateManager() {
       loadingVariant="list"
       onRefresh={handleRefresh}
       refreshing={refreshing}
-    >
-
-      {/* ====== 顶部工具栏（对齐 Categories/Budgets：无外层卡片） ====== */}
-      <View className="tpl-toolbar">
-        {!isLoading && orderedTemplates.length > 1 && (
-          <Button
-            variant={sortMode ? "primary" : "outline"}
-            size="sm"
-            onClick={sortMode ? handleCancelSortMode : handleEnterSortMode}
-          >
-            {sortModeLabel(sortMode)}
-          </Button>
-        )}
-        <Button variant="primary" size="sm" onClick={openCreateForm}>
-          {entityCreateButton(ENTITY_TEMPLATE)}
-        </Button>
-      </View>
-
-      {/* 排序提示 */}
-      {sortMode && (
-        <View className="tpl-sort-hint">
-          <Text>长按卡片拖动调整顺序，完成后点击保存</Text>
-          <Button variant="primary" size="sm" onClick={handleSaveSort}>{SORT_SAVE}</Button>
-        </View>
-      )}
-
-      {/* ====== 模板卡片列表 ====== */}
-      {orderedTemplates.length === 0 ? (
-        <View className="tpl-empty">
-          <EmptyState
-            description={EMPTY_TEMPLATES}
-          />
-        </View>
-      ) : sortMode ? (
-        <View className="tpl-drag-wrap">
-          <DragSortList
-            items={displayList}
-            getKey={(t) => t.id}
-            itemHeight={200}
-            onReorder={handleMoveTo}
-            renderItem={(t) => {
-              const cat = findCat(t.category_id);
-              return (
-                <View className="tpl-card tpl-card--sort tpl-card--drag">
-                  <View className="tpl-card__head">
-                    <CategoryIcon icon={cat?.icon} size={28} className="tpl-card__icon" />
-                    <Text className="tpl-card__name">{t.name}</Text>
-                    <Text className="tpl-card__drag-handle">⋮⋮</Text>
-                  </View>
-                  <View className="tpl-card__body">
-                    <View className={buildTemplateCardTypeClassName({ type: t.type })}>
-                      <Text>{transactionTypeLabel(t.type)}</Text>
-                    </View>
-                    {cat && (
-                      <Text className="tpl-card__cat">{cat.name}</Text>
-                    )}
-                    {t.amount != null && t.amount > 0 && (
-                      <Text className={buildTemplateCardAmountClassName({ type: t.type })}>
-                        {formatMoney(Number(t.amount), { compact: false })}
-                      </Text>
-                    )}
-                  </View>
-                </View>
-              );
-            }}
-          />
-        </View>
-      ) : (
-        <View className="tpl-grid">
-          {displayList.map((t) => {
-              const cat = findCat(t.category_id);
-              return (
-                <View
-                  key={t.id}
-                  className="tpl-card"
-                  onClick={() => openDetail(t)}
-                >
-                  {/* 卡片头部：图标 + 名称 */}
-                  <View className="tpl-card__head">
-                    <CategoryIcon icon={cat?.icon} size={28} className="tpl-card__icon" />
-                    <Text className="tpl-card__name">{t.name}</Text>
-                  </View>
-                  {/* 卡片内容：类型标签 + 分类 + 金额 */}
-                  <View className="tpl-card__body">
-                    <View className={buildTemplateCardTypeClassName({ type: t.type })}>
-                      <Text>{transactionTypeLabel(t.type)}</Text>
-                    </View>
-                    {cat && (
-                      <Text className="tpl-card__cat">{cat.name}</Text>
-                    )}
-                    {t.amount != null && t.amount > 0 && (
-                      <Text className={buildTemplateCardAmountClassName({ type: t.type })}>
-                        {formatMoney(Number(t.amount), { compact: false })}
-                      </Text>
-                    )}
-                  </View>
-                </View>
-              );
-            })}
-          </View>
-        )}
-
+      overlay={
+        <>
       {/* ========== 详情弹窗（对齐PC截图2） ========== */}
       {showDetail && selectedTemplate && (
         <BottomSheet
@@ -706,6 +606,109 @@ export default function TemplateManager() {
         onCancel={() => { setShowDelete(false); setDeleteId(null); }}
         onConfirm={handleDelete}
       />
+        </>
+      }
+    >
+
+      {/* ====== 顶部工具栏（对齐 Categories/Budgets：无外层卡片） ====== */}
+      <View className="tpl-toolbar">
+        {!isLoading && orderedTemplates.length > 1 && (
+          <Button
+            variant={sortMode ? "primary" : "outline"}
+            size="sm"
+            onClick={sortMode ? handleCancelSortMode : handleEnterSortMode}
+          >
+            {sortModeLabel(sortMode)}
+          </Button>
+        )}
+        <Button variant="primary" size="sm" onClick={openCreateForm}>
+          {entityCreateButton(ENTITY_TEMPLATE)}
+        </Button>
+      </View>
+
+      {/* 排序提示 */}
+      {sortMode && (
+        <View className="tpl-sort-hint">
+          <Text>长按卡片拖动调整顺序，完成后点击保存</Text>
+          <Button variant="primary" size="sm" onClick={handleSaveSort}>{SORT_SAVE}</Button>
+        </View>
+      )}
+
+      {/* ====== 模板卡片列表 ====== */}
+      {orderedTemplates.length === 0 ? (
+        <View className="tpl-empty">
+          <EmptyState
+            description={EMPTY_TEMPLATES}
+          />
+        </View>
+      ) : sortMode ? (
+        <View className="tpl-drag-wrap">
+          <DragSortList
+            items={displayList}
+            getKey={(t) => t.id}
+            itemHeight={200}
+            onReorder={handleMoveTo}
+            renderItem={(t) => {
+              const cat = findCat(t.category_id);
+              return (
+                <View className="tpl-card tpl-card--sort tpl-card--drag">
+                  <View className="tpl-card__head">
+                    <CategoryIcon icon={cat?.icon} size={28} className="tpl-card__icon" />
+                    <Text className="tpl-card__name">{t.name}</Text>
+                    <Text className="tpl-card__drag-handle">⋮⋮</Text>
+                  </View>
+                  <View className="tpl-card__body">
+                    <View className={buildTemplateCardTypeClassName({ type: t.type })}>
+                      <Text>{transactionTypeLabel(t.type)}</Text>
+                    </View>
+                    {cat && (
+                      <Text className="tpl-card__cat">{cat.name}</Text>
+                    )}
+                    {t.amount != null && t.amount > 0 && (
+                      <Text className={buildTemplateCardAmountClassName({ type: t.type })}>
+                        {formatMoney(Number(t.amount), { compact: false })}
+                      </Text>
+                    )}
+                  </View>
+                </View>
+              );
+            }}
+          />
+        </View>
+      ) : (
+        <View className="tpl-grid">
+          {displayList.map((t) => {
+              const cat = findCat(t.category_id);
+              return (
+                <View
+                  key={t.id}
+                  className="tpl-card"
+                  onClick={() => openDetail(t)}
+                >
+                  {/* 卡片头部：图标 + 名称 */}
+                  <View className="tpl-card__head">
+                    <CategoryIcon icon={cat?.icon} size={28} className="tpl-card__icon" />
+                    <Text className="tpl-card__name">{t.name}</Text>
+                  </View>
+                  {/* 卡片内容：类型标签 + 分类 + 金额 */}
+                  <View className="tpl-card__body">
+                    <View className={buildTemplateCardTypeClassName({ type: t.type })}>
+                      <Text>{transactionTypeLabel(t.type)}</Text>
+                    </View>
+                    {cat && (
+                      <Text className="tpl-card__cat">{cat.name}</Text>
+                    )}
+                    {t.amount != null && t.amount > 0 && (
+                      <Text className={buildTemplateCardAmountClassName({ type: t.type })}>
+                        {formatMoney(Number(t.amount), { compact: false })}
+                      </Text>
+                    )}
+                  </View>
+                </View>
+              );
+            })}
+          </View>
+        )}
     </PageContainer>
   );
 }

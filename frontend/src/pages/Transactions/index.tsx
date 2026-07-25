@@ -15,7 +15,7 @@ import { useFocusItem } from '../../hooks/useFocusItem'
 import { formatAmount, formatAmountByType } from '../../utils/common'
 import { formatDateYMD } from '../../utils/date'
 import { Skeleton } from '../../components/ui/Skeleton'
-import { GlobalModal, DetailItem, Space } from '../../components/ui'
+import { GlobalModal, DetailItem, FooterActions } from '../../components/ui'
 import { Card } from '../../components/ui/Card'
 import { DropdownSelect } from '../../components/ui/Dropdown'
 import { Pagination } from '../../components/ui/Pagination'
@@ -401,7 +401,7 @@ const Transactions: React.FC = () => {
           onClose={() => setShowDetail(false)}
           title={DETAIL_TRANSACTION}
           footer={
-            <Space size="sm">
+            <FooterActions align="end" className="global-modal-dialog__footer-inner">
               <Button variant="secondary" onClick={() => { navigate(addTransactionEditPath(selectedTransaction.id)); setShowDetail(false) }}>
                 编辑
               </Button>
@@ -411,7 +411,7 @@ const Transactions: React.FC = () => {
               >
                 删除
               </Button>
-            </Space>
+            </FooterActions>
           }
         >
           <div className="detail-content-wrapper">

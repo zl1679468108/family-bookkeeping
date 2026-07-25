@@ -59,29 +59,65 @@
   border-radius: 50%;
 }
 
-.picker-row {
+/* 三列均分，左右贴齐搜索框；勿复用全局 .picker-row */
+.filter-picker-row {
   display: flex;
-  gap: 14rpx;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0;
+  padding: 0;
+  margin: 0;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  min-height: 0;
+  width: 100%;
+  box-sizing: border-box;
 
-  /* 每个 Picker 撑满均等宽度 */
-  > Picker {
-    flex: 1;
+  &:active {
+    background: transparent;
   }
 }
 
+.filter-picker-col {
+  flex: 1 1 0;
+  width: 0;
+  min-width: 0;
+  max-width: 33.333%;
+  box-sizing: border-box;
+}
+
+/* picker 跟列宽 */
+.filter-picker-col picker {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+}
+
 .picker-chip {
-  flex: 1;
+  width: 100%;
   display: flex;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: center;
   gap: 6rpx;
   height: 64rpx;
-  padding-left: 28rpx;
+  padding: 0;
+  margin: 0;
   background-color: transparent;
+  box-sizing: border-box;
 
   &:active {
     opacity: 0.6;
   }
+}
+
+.picker-chip--start {
+  justify-content: flex-start;
+}
+
+.picker-chip--end {
+  justify-content: flex-end;
 }
 
 .picker-chip-text {

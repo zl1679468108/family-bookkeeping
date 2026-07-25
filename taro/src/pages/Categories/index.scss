@@ -357,10 +357,10 @@
   margin: 0 0 24rpx;
 }
 
-/* 信息字段：PC 同款 2 列网格 */
+/* 信息字段：PC 同款 2 列网格；长 ID 独占整行，避免挤进排序列 */
 .catds-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 24rpx 20rpx;
   padding-bottom: 32rpx;
 }
@@ -370,6 +370,11 @@
   flex-direction: column;
   gap: 8rpx;
   min-width: 0;
+  overflow: hidden;
+}
+
+.catds-item--full {
+  grid-column: 1 / -1;
 }
 
 .catds-item__label {
@@ -379,55 +384,21 @@
 }
 
 .catds-item__value {
+  display: block;
+  width: 100%;
   font-size: 26rpx;
   color: var(--fg, var(--fg));
   font-weight: 500;
   word-break: break-all;
+  overflow-wrap: anywhere;
   line-height: 1.4;
 }
 
 .catds-item__value--mono {
-  font-family: "DM Mono", SFMono-Regular, Consolas, monospace;
+  font-family: Menlo, Consolas, "Courier New", monospace;
   font-size: 22rpx;
   letter-spacing: -0.5rpx;
   line-height: 1.5;
-}
-
-/* 底部操作按钮 */
-/* 底部操作按钮（边框/安全区由 BottomSheet footer 统一提供） */
-.catds-footer {
-  display: flex;
-  gap: 20rpx;
-  flex: 1;
-}
-
-.catds-btn {
-  flex: 1;
-  height: 84rpx;
-  border-radius: 20rpx;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 28rpx;
-  font-weight: 700;
-  transition: all 0.15s ease;
-}
-
-.catds-btn:active {
-  opacity: 0.85;
-  transform: scale(0.98);
-}
-
-.catds-btn--edit {
-  background-color: var(--surface, #ffffff);
-  border: 2rpx solid var(--primary, var(--pr));
-  color: var(--primary, var(--pr));
-}
-
-.catds-btn--delete {
-  background-color: var(--surface, #ffffff);
-  border: 2rpx solid var(--expense, var(--exp));
-  color: var(--expense, var(--exp));
 }
 
 /* =========================================================

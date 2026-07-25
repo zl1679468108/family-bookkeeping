@@ -15,6 +15,8 @@ import {
   hasToken,
   storeTokens,
   clearStoredToken,
+  getToken,
+  getRefreshToken,
   apiGet,
 } from "../services/api";
 import {
@@ -90,7 +92,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   /** 通过已存储的 token 切换账号（token 有效则直接切换，失效则抛错由调用方处理） */
   const switchByToken = useCallback(async (email: string, accessToken: string, refreshToken?: string) => {
-    // 同时设置当前会话的 access + refresh；profile 401 时自动刷新会用 refresh 续期
+    // 先缓存当前会话，目标 token 校验失败时恢复，避免误登出当前账号
+    const prevAccess = getToken();
+    const prevRefresh = getRefreshToken() || "";
+    const prevUser = user;
+
+    // 同时设置目标会话的 access + refresh；profile 401 时自动刷新会用 refresh 续期
     if (accessToken) storeTokens(accessToken, refreshToken || "");
     try {
       // 用 silent 模式：401 不跳转登录页，错误直接抛出
@@ -104,12 +111,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         avatar_url: profile.avatar_url,
       });
     } catch {
-      // token 失效，清除并抛错
-      clearStoredToken();
-      setUser(null);
+      // 目标账号 token 失效：恢复当前会话并抛错，由 UI 引导去登录
+      if (prevAccess) {
+        storeTokens(prevAccess, prevRefresh);
+        setUser(prevUser);
+      } else {
+        clearStoredToken();
+        setUser(null);
+      }
       throw new Error("token_invalid");
     }
-  }, []);
+  }, [user]);
 
   const signIn = useCallback(async (email: string, _password: string, captchaId: string, captchaCode: string) => {
     const { user: userData, accessToken, refreshToken } = await apiLogin(email, _password, captchaId, captchaCode);

@@ -3,6 +3,7 @@
   align-items: center;
   gap: 16rpx;
   width: 100%;
+  box-sizing: border-box;
 
   &--end {
     justify-content: flex-end;
@@ -10,8 +11,12 @@
   &--start {
     justify-content: flex-start;
   }
-  &--stretch > .ui-btn {
-    flex: 1;
+  /* 微信小程序 WXSS 不支持 *；Button 根节点 class 为 ui-btn */
+  &--stretch > .ui-btn,
+  &--stretch > view {
+    flex: 1 1 0;
     min-width: 0;
+    width: auto;
+    box-sizing: border-box;
   }
 }

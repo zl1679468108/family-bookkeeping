@@ -1,4 +1,4 @@
-import { IsEmail, IsString, MinLength, Matches } from 'class-validator';
+import { IsEmail, IsString, MinLength } from 'class-validator';
 
 export class RegisterDto {
   @IsEmail({}, { message: '请输入有效的邮箱地址' })
@@ -6,9 +6,6 @@ export class RegisterDto {
 
   @IsString()
   @MinLength(6, { message: '密码长度至少为6位' })
-  @Matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/, {
-    message: '密码必须包含大小写字母和数字',
-  })
   password: string;
 
   @IsString()

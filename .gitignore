@@ -79,3 +79,16 @@ taro/.vercel/
 taro/.eslintcache
 taro/project.private.config.json
 .claude/worktrees/
+
+# =====================================================
+# 工具 / 调试残留
+# =====================================================
+.playwright-mcp/
+.code-review-graph/
+.mimocode/
+.trae/documents/
+supabase/
+
+# 小程序 e2e 截图目录（smoke 脚本会自动创建）
+taro/e2e/screenshots/
+taro/e2e/h5-screenshots/

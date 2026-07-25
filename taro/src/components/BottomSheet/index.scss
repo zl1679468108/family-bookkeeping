@@ -1,24 +1,35 @@
 /* ========== 通用底部弹窗 BottomSheet ========== */
+/* 注意：应放在 PageContainer overlay 插槽中渲染，避免被内容区 32rpx padding 限制 */
 .bs-mask {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: var(--ov);
+  width: 100vw;
+  height: 100vh;
+  /* 双写：确保 CSS 变量失效时仍有可见遮罩 */
+  background-color: rgba(0, 0, 0, 0.35);
+  background-color: var(--ov, rgba(0, 0, 0, 0.35));
   z-index: 1000;
   display: flex;
-  align-items: flex-end;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: stretch;
+  box-sizing: border-box;
 }
 
 .bs-sheet {
   width: 100%;
+  max-width: 100vw;
+  align-self: stretch;
   background-color: var(--surface, #ffffff);
   display: flex;
   flex-direction: column;
   overflow: hidden;
   border-top-left-radius: 28rpx;
   border-top-right-radius: 28rpx;
+  box-sizing: border-box;
   animation: bsSheetUp 0.25s cubic-bezier(0.25, 0, 0.2, 1);
 }
 
@@ -35,23 +46,37 @@
   flex: 1;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .bs-sheet__footer {
   flex-shrink: 0;
   display: flex;
-  align-items: center;
+  align-items: stretch;
   gap: 14rpx;
+  width: 100%;
+  box-sizing: border-box;
   padding: 20rpx 32rpx;
   padding-bottom: calc(20rpx + env(safe-area-inset-bottom, 0));
   border-top: 1rpx solid var(--border-light, var(--bdL));
   background-color: var(--surface, #ffffff);
+
+  /* 微信小程序 WXSS 不支持 * 选择器 */
+  > .ui-footer-actions,
+  > view {
+    flex: 1 1 auto;
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+  }
 }
 
 .bs-sheet__safe {
   height: env(safe-area-inset-bottom, 0);
   background-color: var(--surface, #ffffff);
   flex-shrink: 0;
+  width: 100%;
 }
 
 .bs-sheet__loading {
@@ -62,6 +87,7 @@
   justify-content: center;
   gap: 16rpx;
   padding: 80rpx 0;
+  width: 100%;
 }
 
 .bs-sheet__loading-text {

@@ -72,3 +72,28 @@ export class MerchantTransactionsQueryDto {
   @IsString()
   endDate?: string;
 }
+
+export class ReverseGeocodeQueryDto {
+  @Type(() => Number)
+  @IsNumber()
+  latitude!: number;
+
+  @Type(() => Number)
+  @IsNumber()
+  longitude!: number;
+}
+
+export class PoiSearchQueryDto {
+  @IsString()
+  keyword!: string;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  latitude?: number;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  longitude?: number;
+}

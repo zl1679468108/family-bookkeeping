@@ -4,7 +4,6 @@
  */
 import { useState } from "react";
 import { View, Text } from "@tarojs/components";
-import Taro from "@tarojs/taro";
 import PageContainer from "../../components/PageContainer";
 import Icon, { ICON_COLOR } from "../../components/Icon";
 import {
@@ -20,11 +19,9 @@ import {
   LABEL_RUNTIME_MINIPROGRAM,
   SECTION_APP_INFO,
   SECTION_CHANGELOG,
-  SECTION_LEGAL,
   aboutReleasedLabel,
   aboutFooterCopyright,
 } from "../../config/version";
-import { TITLE_USER_AGREEMENT, TITLE_PRIVACY_POLICY } from "../../utils/sectionCopy";
 import "./index.scss";
 import {
   buildTimelineItemClassName,
@@ -138,31 +135,6 @@ export default function About() {
           <View className="about-info-row">
             <Text className="about-info-label">{LABEL_RUNTIME_ENV}</Text>
             <Text className="about-info-value">{LABEL_RUNTIME_MINIPROGRAM}</Text>
-          </View>
-        </View>
-      </View>
-
-      {/* 法律文档 */}
-      <View className="about-card">
-        <View className="about-card-title">
-          <Icon name="lock" size={40} />
-          <Text>{SECTION_LEGAL}</Text>
-        </View>
-
-        <View className="about-info-list">
-          <View
-            className="about-info-row about-info-row--link"
-            onClick={() => Taro.navigateTo({ url: "/pages/Terms/index" })}
-          >
-            <Text className="about-info-label">{TITLE_USER_AGREEMENT}</Text>
-            <Icon name="chevron-right" size={28} color={ICON_COLOR.muted} className="about-info-arrow" />
-          </View>
-          <View
-            className="about-info-row about-info-row--link"
-            onClick={() => Taro.navigateTo({ url: "/pages/Privacy/index" })}
-          >
-            <Text className="about-info-label">{TITLE_PRIVACY_POLICY}</Text>
-            <Icon name="chevron-right" size={28} color={ICON_COLOR.muted} className="about-info-arrow" />
           </View>
         </View>
       </View>

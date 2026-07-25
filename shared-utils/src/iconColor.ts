@@ -7,6 +7,7 @@ export const ICON_COLOR = {
   muted: 'var(--fg3)',
   fg: 'var(--fg)',
   danger: 'var(--exp)',
+  warn: 'var(--warn)',
   onPrimary: 'var(--on-pr)',
 } as const
 

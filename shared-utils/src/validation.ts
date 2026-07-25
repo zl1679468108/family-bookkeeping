@@ -6,8 +6,6 @@
 import {
   FORM_PASSWORD_MIN,
   FORM_PASSWORD_MISMATCH,
-  FORM_PASSWORD_STRENGTH,
-  FORM_PASSWORD_ALPHA_NUMERIC,
   FORM_EMAIL_EMPTY,
   FORM_EMAIL_INVALID,
   FORM_INVITE_CODE_REQUIRED,
@@ -34,24 +32,6 @@ export function validatePasswordMatch(
   message = FORM_PASSWORD_MISMATCH,
 ): string | null {
   if (password !== confirm) return message
-  return null
-}
-
-/** 改密场景：大小写字母 + 数字 */
-export function validatePasswordStrength(
-  password: string,
-  message = FORM_PASSWORD_STRENGTH,
-): string | null {
-  if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(password)) return message
-  return null
-}
-
-/** 重置链接场景：字母 + 数字（不强制大小写） */
-export function validatePasswordAlphaNumeric(
-  password: string,
-  message = FORM_PASSWORD_ALPHA_NUMERIC,
-): string | null {
-  if (!/(?=.*[a-zA-Z])(?=.*\d)/.test(password)) return message
   return null
 }
 

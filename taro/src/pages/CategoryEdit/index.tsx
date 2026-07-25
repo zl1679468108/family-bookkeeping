@@ -29,7 +29,7 @@ import {
   SHOPPING_PLATFORM_ICONS,
   renderPlatformIconSvg,
 } from "../../utils/platformIcons";
-import { useManualQuery } from "../../hooks/useManualQuery";
+import { useManualQuery, invalidateManualQuery } from "../../hooks/useManualQuery";
 import { useSubmit, toastError } from "../../hooks/useSubmit";
 import "./index.scss";
 import { getErrorMessage } from "../../utils/errorMessage";
@@ -177,6 +177,7 @@ export default function CategoryEdit() {
         : createCategory(payload as import("@family-bookkeeping/shared-types").CreateCategoryInput);
       await apiCall;
       qc.invalidateQueries({ queryKey: queryKeys.categories.all });
+      invalidateManualQuery("categories");
       toastSuccess(successEntityUpsert(ENTITY_CATEGORY, isEdit));
       setTimeout(() => Taro.navigateBack(), 500);
     }, ACTION_SAVING).catch((err: any) => {
@@ -188,6 +189,7 @@ export default function CategoryEdit() {
     run(async () => {
       await deleteCategory(id);
       qc.invalidateQueries({ queryKey: queryKeys.categories.all });
+      invalidateManualQuery("categories");
       toastSuccess(SUCCESS_DELETED);
       setTimeout(() => Taro.navigateBack(), 500);
     }, ACTION_DELETING).catch((err: any) => {

@@ -5,7 +5,7 @@
  *  1. 顶部吸顶栏：返回按钮 + 「编辑资料」标题
  *  2. 头像区域：圆形头像容器（显示 avatar_url 或首字母占位），点击更换头像
  *  3. 用户名 / 邮箱输入框
- *  4. 修改密码入口：点击后弹出对话框，输入当前密码 + 新密码（至少 6 位，含大小写字母和数字）+ 确认密码
+ *  4. 修改密码入口：点击后弹出对话框，输入当前密码 + 新密码（至少 6 位）+ 确认密码
  *  5. 保存按钮：调用 updateProfile → toast 成功 → 刷新用户信息 → 延迟后 navigateBack
  *  6. 提交类 loading 由 useSubmit 统一处理（Taro.showLoading + 防重复）
  */
@@ -14,7 +14,7 @@ import { useState, useEffect, useCallback } from "react";
 import { View, Text, Input, Image } from "@tarojs/components";
 import Taro from "@tarojs/taro";
 import PageContainer from "../../components/PageContainer";
-import { Button, StickyActionBar } from "../../components/ui";
+import { Button, StickyActionBar, FooterActions } from "../../components/ui";
 import { useAuth } from "../../context/AuthContext";
 import {
   updateProfile as apiUpdateProfile,
@@ -36,10 +36,9 @@ import {
   validateEmail,
   validatePasswordMatch,
   validatePasswordMinLength,
-  validatePasswordStrength,
 } from "../../utils/validation";
 import { SUCCESS_AVATAR_UPDATED, SUCCESS_IMAGE_SELECTED, SUCCESS_PASSWORD_CHANGED, SUCCESS_SAVED } from "../../utils/successCopy";
-import { FORM_PASSWORD_CURRENT, FORM_PRIVACY_REQUIRED, FORM_USERNAME_REQUIRED, FORM_PASSWORD_MIN_NEW, FORM_PASSWORD_MISMATCH_NEW, FORM_USERNAME_PLACEHOLDER, FORM_EMAIL_PLACEHOLDER, FORM_PASSWORD_CONFIRM_NEW_PLACEHOLDER, FORM_PASSWORD_STRENGTH_HINT } from "../../utils/formCopy";
+import { FORM_PASSWORD_CURRENT, FORM_PRIVACY_REQUIRED, FORM_USERNAME_REQUIRED, FORM_PASSWORD_MIN_NEW, FORM_PASSWORD_MISMATCH_NEW, FORM_USERNAME_PLACEHOLDER, FORM_EMAIL_PLACEHOLDER, FORM_PASSWORD_CONFIRM_NEW_PLACEHOLDER, FORM_PASSWORD_MIN_SHORT } from "../../utils/formCopy";
 import { IMAGE_SELECT_FAILED, PRIVACY_ALBUM_FOR_AVATAR } from "../../utils/uploadCopy";
 import { ERROR_SAVE_FAILED_RETRY, ERROR_MODIFY_FAILED_RETRY } from "../../utils/errorCopy";
 import Icon, { ICON_COLOR } from "../../components/Icon";
@@ -166,8 +165,7 @@ export default function EditProfile() {
     }
     const pwdErr =
       validatePasswordMinLength(newPwd, { message: FORM_PASSWORD_MIN_NEW }) ||
-      validatePasswordMatch(newPwd, confirmPwd, FORM_PASSWORD_MISMATCH_NEW) ||
-      validatePasswordStrength(newPwd);
+      validatePasswordMatch(newPwd, confirmPwd, FORM_PASSWORD_MISMATCH_NEW);
     if (pwdErr) {
       return toastInfo(pwdErr);
     }
@@ -275,7 +273,7 @@ export default function EditProfile() {
                 className="pwd-input"
                 password
                 value={newPwd}
-                placeholder={FORM_PASSWORD_STRENGTH_HINT}
+                placeholder={FORM_PASSWORD_MIN_SHORT}
                 placeholderClass="pwd-input-placeholder"
                 onInput={(e: any) => setNewPwd(e.detail.value)}
               />
@@ -293,14 +291,14 @@ export default function EditProfile() {
               />
             </View>
 
-            <View className="pwd-actions">
-              <Button variant="ghost" size="md" onClick={closeChangePwd}>
+            <FooterActions align="stretch" className="pwd-actions">
+              <Button variant="default" size="lg" block onClick={closeChangePwd}>
                 取消
               </Button>
-              <Button variant="primary" size="md" onClick={handleChangePwd}>
+              <Button variant="primary" size="lg" block onClick={handleChangePwd}>
                 确认
               </Button>
-            </View>
+            </FooterActions>
           </View>
         </View>
       )}

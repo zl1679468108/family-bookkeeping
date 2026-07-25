@@ -10,8 +10,8 @@ import { API_PATHS } from "../utils/apiPaths";
 
 const DEFAULT_API_BASE_URL = "https://zlspace.site/api";
 // ⚠️ 编译期由 config/index.ts 的 defineConstants 将下方 token 直接替换为字面量字符串：
-//     开发环境 → "http://127.0.0.1:3000/api"
-//     生产环境 → "https://zlspace.site/api"
+//     开发环境 → TARO_APP_API_BASE_URL（默认 http://127.0.0.1:3000/api，真机可改局域网 IP）
+//     生产环境 → https://zlspace.site/api（或 .env.production）
 // 必须写成 process.env.TARO_APP_API_BASE_URL（无 ?. 可选链），否则 defineConstants 的纯文本替换匹配不到。
 // 小程序运行时没有 Node 的 process，绝不能依赖运行时 process.env，只能靠编译期替换。
 export const API_BASE_URL: string =

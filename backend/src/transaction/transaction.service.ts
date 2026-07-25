@@ -320,6 +320,13 @@ export class TransactionService {
       .single();
 
     if (error) {
+      this.logger.error(`创建交易失败: ${error.message}`, error.details || error.hint || '');
+      if (error.code === '23505' || /duplicate key|transactions_pkey/i.test(error.message || '')) {
+        throw new InternalServerErrorException(
+          '创建交易记录失败: 主键序列不同步（transactions_id_seq）。请在 Supabase SQL Editor 执行: '
+          + "SELECT setval(pg_get_serial_sequence('jj_transactions', 'id'), (SELECT COALESCE(MAX(id), 1) FROM jj_transactions));",
+        );
+      }
       throw new InternalServerErrorException(`创建交易记录失败: ${error.message}`);
     }
 

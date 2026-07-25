@@ -76,6 +76,8 @@ interface PageLayoutProps {
   onScroll?: (scrollTop: number) => void;
   /** 底部额外留白（rpx），用于页面底部有固定操作栏的场景 */
   bottomSpace?: number;
+  /** 遮罩/弹层插槽：渲染在滚动容器外，避免被 32rpx 左右 padding 限制宽度 */
+  overlay?: ReactNode;
 }
 
 export default function PageLayout({
@@ -96,6 +98,7 @@ export default function PageLayout({
   lowerThreshold = 100,
   onScroll,
   bottomSpace,
+  overlay,
 }: PageLayoutProps) {
   const { isDark } = useTheme();
   const themeClass = isDark ? "theme-dark" : "";
@@ -162,6 +165,7 @@ export default function PageLayout({
             skeletonBody
           )}
         </View>
+        {overlay}
       </View>
     );
   }
@@ -239,6 +243,7 @@ export default function PageLayout({
             )}
           </View>
         </ScrollView>
+        {overlay}
       </View>
     );
   }
@@ -254,6 +259,7 @@ export default function PageLayout({
         >
           {children}
         </View>
+        {overlay}
       </View>
     );
   }
@@ -264,6 +270,7 @@ export default function PageLayout({
       <View className={buildPageLayoutContentClassName({ className: contentClassName })} style={contentStyle}>
         {children}
       </View>
+      {overlay}
     </View>
   );
 }

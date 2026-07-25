@@ -92,6 +92,8 @@ export const API_PATHS = {
     members: '/map/members',
     memberLocations: '/map/members/locations',
     location: '/map/location',
+    reverseGeocode: (qs: string) => `/map/reverse-geocode?${qs}`,
+    poiSearch: (qs: string) => `/map/poi-search?${qs}`,
   },
 
   reports: {

@@ -174,3 +174,18 @@ interface MemberComparison {
 2. **新增字段时**：确保三端类型定义一致
 3. **删除字段时**：搜索三端代码确认无引用后再删除
 4. **同步检查**：每次修改后运行 `npx tsc --noEmit` 验证类型正确
+
+## 地图选点辅助（小程序）
+
+小程序无法使用高德 JS SDK，经后端转发 Web 服务：
+
+### `GET /map/reverse-geocode?latitude=&longitude=`
+- 鉴权：Bearer
+- 响应 `data`：`{ address, poiName?, poiId? }`
+- 地址展示格式与 PC 一致：有 POI 时为 `poiName + ' ' + address`
+
+### `GET /map/poi-search?keyword=&latitude?=&longitude?=`
+- 鉴权：Bearer
+- 响应 `data`：`Array<{ name, address, latitude, longitude, poiId }>`
+- 依赖后端环境变量 `AMAP_KEY`（高德 **Web服务** Key）
+

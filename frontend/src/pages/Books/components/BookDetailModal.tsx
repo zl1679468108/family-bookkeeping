@@ -1,5 +1,5 @@
 import React from 'react';
-import { GlobalModal, DetailItem, Space } from '../../../components/ui';
+import { GlobalModal, DetailItem, FooterActions } from '../../../components/ui';
 import { Button } from '../../../components/ui/Button';
 import { getBookIconByKey } from '../../../utils/bookIcons';
 import { BookMemberList } from './BookMemberList';
@@ -53,7 +53,7 @@ export const BookDetailModal: React.FC<BookDetailModalProps> = ({
       title={DETAIL_BOOK}
       width={520}
       footer={
-        <Space size="sm">
+        <FooterActions align="end" className="global-modal-dialog__footer-inner">
           <Button variant="secondary" onClick={onInviteMember}>
             {ACTION_INVITE_MEMBER}
           </Button>
@@ -73,7 +73,7 @@ export const BookDetailModal: React.FC<BookDetailModalProps> = ({
               {ACTION_SWITCH_TO_BOOK}
             </Button>
           )}
-        </Space>
+        </FooterActions>
       }
     >
       <div className="detail-content-wrapper">

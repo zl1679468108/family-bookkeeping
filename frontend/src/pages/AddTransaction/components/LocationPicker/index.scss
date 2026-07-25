@@ -99,3 +99,30 @@
   gap: 8px;
   width: 100%;
 }
+
+
+.location-picker-info {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.location-picker-info-body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  flex: 1;
+}
+
+.location-picker-info-text {
+  white-space: normal;
+  word-break: break-all;
+  line-height: 1.4;
+}
+
+.location-picker-info-meta {
+  font-size: 12px;
+  color: var(--fg3);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}

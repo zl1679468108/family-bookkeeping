@@ -13,7 +13,7 @@ import { View, Text, Input } from "@tarojs/components";
 import {  useDidShow  } from "@tarojs/taro";
 import { useQueryClient } from "@tanstack/react-query";
 import PageContainer from "../../components/PageContainer";
-import { Button, EmptyState, SegControl } from "../../components/ui";
+import { Button, EmptyState, FooterActions, SegControl } from "../../components/ui";
 import CategoryIcon from "../../components/CategoryIcon";
 import ConfirmDialog from "../../components/ConfirmDialog";
 import { IconGrid } from "../../components/ui/IconGrid";
@@ -34,12 +34,13 @@ import {
 import {
     getPlatformIconSvgDataUrl,
 } from "../../utils/platformIcons";
-import { useManualQuery } from "../../hooks/useManualQuery";
+import { useManualQuery, invalidateManualQuery } from "../../hooks/useManualQuery";
 import { useSubmit, toastError } from "../../hooks/useSubmit";
 import { transactionTypeLabel } from "../../utils/transactionType";
 import { useReorder } from "../../hooks/useReorder";
 import "./index.scss";
 import { toastSuccess, toastInfo } from "../../utils/toast";
+import { formatDateTimeMinute } from "../../utils/date";
 import { ACTION_DELETING, ACTION_LOADING, ACTION_SAVING } from "../../utils/actionCopy";
 import { SORT_DONE, SORT_EDIT } from "../../utils/sortCopy";
 import { categoryTypeTabLabel } from "../../utils/transactionType";
@@ -233,6 +234,7 @@ export default function CategoriesPage() {
         : createCategory(payload as import("@family-bookkeeping/shared-types").CreateCategoryInput);
       await apiCall;
       qc.invalidateQueries({ queryKey: [...queryKeys.categories.all] });
+      invalidateManualQuery("categories");
       toastSuccess(successEntityUpsert(ENTITY_CATEGORY, isEdit));
       closeForm();
       refetch();
@@ -293,6 +295,176 @@ export default function CategoriesPage() {
       loadingVariant="list"
       onRefresh={handleRefresh}
       refreshing={refreshing}
+      overlay={
+        <>
+      {/* ========== 截图2：分类详情弹窗 ========== */}
+      {!!detailCat && (
+        <BottomSheet
+          title={DETAIL_CATEGORY}
+          onClose={closeDetail}
+          footer={
+            !detailCat.is_default ? (
+              <FooterActions align="stretch">
+                <Button variant="secondary" size="md" block onClick={handleDetailEdit}>
+                  编辑
+                </Button>
+                <Button variant="danger" size="md" block onClick={handleDetailDelete}>
+                  删除
+                </Button>
+              </FooterActions>
+            ) : null
+          }
+        >
+          {/* 内容区 */}
+          <View className="catds-body">
+            {/* 图标 + 名称 + 标签（PC 同款左右布局） */}
+            <View className="catds-hero">
+              <View className="catds-hero__icon-wrap">
+                <CategoryIcon icon={detailCat.icon} size={56} fill className="catds-hero__icon" />
+              </View>
+              <View className="catds-hero__content">
+                <Text className="catds-hero__name">{detailCat.name}</Text>
+                <View className="catds-hero__badges">
+                  <Text
+                    className={buildCategoryDetailTypeBadgeClassName({ type: detailCat.type })}
+                  >
+                    {transactionTypeLabel(detailCat.type)}
+                  </Text>
+                  <Text
+                    className={buildCategoryDetailOriginBadgeClassName({
+                      isDefault: detailCat.is_default,
+                    })}
+                  >
+                    {detailCat.is_default ? FIELD_DEFAULT : FIELD_CUSTOM}
+                  </Text>
+                </View>
+              </View>
+            </View>
+
+            {/* 分隔线 */}
+            <View className="catds-divider" />
+
+            {/* 信息字段（PC 同款 2 列网格） */}
+            <View className="catds-grid">
+              <View className="catds-item catds-item--full">
+                <Text className="catds-item__label">{FIELD_CATEGORY_ID}</Text>
+                <Text className="catds-item__value catds-item__value--mono">{detailCat.id}</Text>
+              </View>
+              <View className="catds-item">
+                <Text className="catds-item__label">{FIELD_CREATED_AT}</Text>
+                <Text className="catds-item__value">
+                  {detailCat.created_at ? formatDateTimeMinute(detailCat.created_at) : "-"}
+                </Text>
+              </View>
+              <View className="catds-item">
+                <Text className="catds-item__label">{FIELD_UPDATED_AT}</Text>
+                <Text className="catds-item__value">
+                  {detailCat.updated_at ? formatDateTimeMinute(detailCat.updated_at) : "-"}
+                </Text>
+              </View>
+              <View className="catds-item">
+                <Text className="catds-item__label">{FIELD_SORT}</Text>
+                <Text className="catds-item__value">
+                  {sortOrderLabel(detailCat.sort_order)}
+                </Text>
+              </View>
+            </View>
+          </View>
+        </BottomSheet>
+      )}
+
+      {/* ========== 截图3：新建/编辑分类表单弹窗 ========== */}
+      {!!formMode && (
+        <BottomSheet
+          title={
+            formMode === "edit"
+              ? `编辑${transactionTypeLabel(formCatType)}分类`
+              : `新增${transactionTypeLabel(catType)}分类`
+          }
+          onClose={closeForm}
+          footer={
+            <View className="catfs-footer">
+              <Button variant="primary" block size="md" onClick={handleFormSubmit}>
+                确认
+              </Button>
+            </View>
+          }
+        >
+          {/* 表单体 */}
+          <View className="catfs-body">
+            {/* 名称 */}
+            <View className="catfs-form-group">
+              <Text className="catfs-label">
+                <Text className="catfs-label__req">*</Text>{FIELD_NAME}
+              </Text>
+              <Input
+                className="catfs-input"
+                placeholder={FORM_CATEGORY_NAME_PLACEHOLDER}
+                maxlength={MAX_CATEGORY_NAME_LENGTH}
+                value={formName}
+                onInput={(e: any) => setFormName(e.detail.value)}
+              />
+            </View>
+
+            {/* 图标 */}
+            <View className="catfs-form-group">
+              <Text className="catfs-label">{FIELD_ICON}</Text>
+              <IconGrid
+                options={iconOptions}
+                value={formIcon}
+                onChange={(val) => setFormIcon(val)}
+                customIcons={customIcons.map((c) => ({
+                  id: c.id,
+                  icon_url: c.icon_url,
+                  icon_type: "category" as const,
+                }))}
+                onUpload={handleIconUpload}
+                onDelete={handleIconDelete}
+                iconType="category"
+                columns={5}
+                className="catfs-icon-grid"
+              />
+            </View>
+          </View>
+        </BottomSheet>
+      )}
+
+      {/* 删除确认弹窗 */}
+      <ConfirmDialog
+        visible={showDeleteConfirm}
+        title={CONFIRM_DELETE_TITLE}
+        message={
+          deletingCat
+            ? confirmDeleteCategory(deletingCat.name)
+            : confirmDeleteThis(ENTITY_CATEGORY)
+        }
+        confirmText={CONFIRM_DELETE_TEXT}
+        danger
+        confirmLoading={false}
+        onCancel={() => {
+          setShowDeleteConfirm(false);
+          setDeletingCat(null);
+        }}
+        onConfirm={() => {
+          if (!deletingCat) return;
+          run(async () => {
+            await deleteCategory(deletingCat.id);
+            qc.invalidateQueries({ queryKey: [...queryKeys.categories.all] });
+      invalidateManualQuery("categories");
+            toastSuccess(SUCCESS_DELETED);
+            setShowDeleteConfirm(false);
+            setDetailCat(null);
+            setDeletingCat(null);
+            refetch();
+          }, ACTION_DELETING).catch((err: any) => {
+            toastError(err, DELETE_FAILED);
+            setShowDeleteConfirm(false);
+            setDeletingCat(null);
+          });
+        }}
+      />
+        </>
+      }
     >
       {/* Tab 切换 + 排序 + 添加按钮 */}
       <View className="cats-tabs-card">
@@ -400,172 +572,6 @@ export default function CategoriesPage() {
           </View>
         )}
       </View>
-
-      {/* ========== 截图2：分类详情弹窗 ========== */}
-      {!!detailCat && (
-        <BottomSheet
-          title={DETAIL_CATEGORY}
-          onClose={closeDetail}
-          footer={
-            !detailCat.is_default ? (
-              <View className="catds-footer">
-                <Button variant="secondary" size="md" onClick={handleDetailEdit}>
-                  编辑
-                </Button>
-                <Button variant="danger" size="md" onClick={handleDetailDelete}>
-                  删除
-                </Button>
-              </View>
-            ) : null
-          }
-        >
-          {/* 内容区 */}
-          <View className="catds-body">
-            {/* 图标 + 名称 + 标签（PC 同款左右布局） */}
-            <View className="catds-hero">
-              <View className="catds-hero__icon-wrap">
-                <CategoryIcon icon={detailCat.icon} size={56} fill className="catds-hero__icon" />
-              </View>
-              <View className="catds-hero__content">
-                <Text className="catds-hero__name">{detailCat.name}</Text>
-                <View className="catds-hero__badges">
-                  <Text
-                    className={buildCategoryDetailTypeBadgeClassName({ type: detailCat.type })}
-                  >
-                    {transactionTypeLabel(detailCat.type)}
-                  </Text>
-                  <Text
-                    className={buildCategoryDetailOriginBadgeClassName({
-                      isDefault: detailCat.is_default,
-                    })}
-                  >
-                    {detailCat.is_default ? FIELD_DEFAULT : FIELD_CUSTOM}
-                  </Text>
-                </View>
-              </View>
-            </View>
-
-            {/* 分隔线 */}
-            <View className="catds-divider" />
-
-            {/* 信息字段（PC 同款 2 列网格） */}
-            <View className="catds-grid">
-              <View className="catds-item">
-                <Text className="catds-item__label">{FIELD_CATEGORY_ID}</Text>
-                <Text className="catds-item__value catds-item__value--mono">{detailCat.id}</Text>
-              </View>
-              <View className="catds-item">
-                <Text className="catds-item__label">{FIELD_SORT}</Text>
-                <Text className="catds-item__value">
-                  {sortOrderLabel(detailCat.sort_order)}
-                </Text>
-              </View>
-              <View className="catds-item">
-                <Text className="catds-item__label">{FIELD_CREATED_AT}</Text>
-                <Text className="catds-item__value">
-                  {detailCat.created_at ? detailCat.created_at.slice(0, 16) : "-"}
-                </Text>
-              </View>
-              <View className="catds-item">
-                <Text className="catds-item__label">{FIELD_UPDATED_AT}</Text>
-                <Text className="catds-item__value">
-                  {detailCat.updated_at ? detailCat.updated_at.slice(0, 16) : "-"}
-                </Text>
-              </View>
-            </View>
-          </View>
-        </BottomSheet>
-      )}
-
-      {/* ========== 截图3：新建/编辑分类表单弹窗 ========== */}
-      {!!formMode && (
-        <BottomSheet
-          title={
-            formMode === "edit"
-              ? `编辑${transactionTypeLabel(formCatType)}分类`
-              : `新增${transactionTypeLabel(catType)}分类`
-          }
-          onClose={closeForm}
-          footer={
-            <View className="catfs-footer">
-              <Button variant="primary" block size="md" onClick={handleFormSubmit}>
-                确认
-              </Button>
-            </View>
-          }
-        >
-          {/* 表单体 */}
-          <View className="catfs-body">
-            {/* 名称 */}
-            <View className="catfs-form-group">
-              <Text className="catfs-label">
-                <Text className="catfs-label__req">*</Text>{FIELD_NAME}
-              </Text>
-              <Input
-                className="catfs-input"
-                placeholder={FORM_CATEGORY_NAME_PLACEHOLDER}
-                maxlength={MAX_CATEGORY_NAME_LENGTH}
-                value={formName}
-                onInput={(e: any) => setFormName(e.detail.value)}
-              />
-            </View>
-
-            {/* 图标 */}
-            <View className="catfs-form-group">
-              <Text className="catfs-label">{FIELD_ICON}</Text>
-              <IconGrid
-                options={iconOptions}
-                value={formIcon}
-                onChange={(val) => setFormIcon(val)}
-                customIcons={customIcons.map((c) => ({
-                  id: c.id,
-                  icon_url: c.icon_url,
-                  icon_type: "category" as const,
-                }))}
-                onUpload={handleIconUpload}
-                onDelete={handleIconDelete}
-                iconType="category"
-                columns={5}
-                className="catfs-icon-grid"
-              />
-            </View>
-          </View>
-        </BottomSheet>
-      )}
-
-      {/* 删除确认弹窗 */}
-      <ConfirmDialog
-        visible={showDeleteConfirm}
-        title={CONFIRM_DELETE_TITLE}
-        message={
-          deletingCat
-            ? confirmDeleteCategory(deletingCat.name)
-            : confirmDeleteThis(ENTITY_CATEGORY)
-        }
-        confirmText={CONFIRM_DELETE_TEXT}
-        danger
-        confirmLoading={false}
-        onCancel={() => {
-          setShowDeleteConfirm(false);
-          setDeletingCat(null);
-        }}
-        onConfirm={() => {
-          if (!deletingCat) return;
-          run(async () => {
-            await deleteCategory(deletingCat.id);
-            qc.invalidateQueries({ queryKey: [...queryKeys.categories.all] });
-            toastSuccess(SUCCESS_DELETED);
-            setShowDeleteConfirm(false);
-            setDetailCat(null);
-            setDeletingCat(null);
-            refetch();
-          }, ACTION_DELETING).catch((err: any) => {
-            toastError(err, DELETE_FAILED);
-            setShowDeleteConfirm(false);
-            setDeletingCat(null);
-          });
-        }}
-      />
     </PageContainer>
   );
 }

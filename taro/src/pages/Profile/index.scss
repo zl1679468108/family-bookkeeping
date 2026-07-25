@@ -105,11 +105,9 @@
 }
 
 .profile-header__arrow {
-  color: rgba(255, 255, 255, 0.8);
-  font-size: 40rpx;
-  font-weight: 300;
   flex-shrink: 0;
-  margin-left: 12rpx;
+  margin-left: 8rpx;
+  opacity: 0.95;
 }
 
 /* ========== 退出确认弹窗 ========== */
@@ -335,46 +333,15 @@
 
 .deactivate-actions {
   width: 100%;
-  display: flex;
-  gap: 16rpx;
   border-top: 1rpx solid var(--border-light, var(--bdL));
   padding-top: 20rpx;
   margin-top: 8rpx;
 }
 
-.deactivate-btn {
-  flex: 1;
-  height: 84rpx;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: var(--radius-sm, 16rpx);
-  font-size: 28rpx;
+.deactivate-actions .ui-btn {
+  min-width: 0;
+  height: 88rpx;
   font-weight: 600;
-  transition: opacity 0.15s ease, transform 0.15s ease;
-
-  &:active {
-    opacity: 0.85;
-    transform: scale(0.98);
-  }
-
-  &.disabled {
-    opacity: 0.5;
-  }
-}
-
-.deactivate-cancel {
-  background-color: var(--bg, var(--bg));
-  color: var(--fg, var(--fg));
-}
-
-.deactivate-ok {
-  background-color: var(--expense, var(--exp));
-  color: #fff;
-
-  &.loading {
-    opacity: 0.7;
-  }
 }
 
 /* ========== 主题切换开关 ========== */
@@ -420,6 +387,7 @@
 .theme-toggle__switch--on .theme-toggle__knob {
   transform: translateX(36rpx);
 }
+/* ========== 切换账号弹窗（对齐 PC SwitchAccountModal） ========== */
 .switch-mask {
   position: fixed;
   top: 0;
@@ -439,36 +407,59 @@
   max-height: 80vh;
   background-color: var(--surface, #ffffff);
   border-radius: var(--radius-lg, 32rpx);
-  padding: 40rpx 32rpx 24rpx;
+  padding: 0;
   display: flex;
   flex-direction: column;
   box-shadow: 0 20rpx 60rpx rgba(0, 0, 0, 0.2);
   animation: logoutScale 0.2s cubic-bezier(0.25, 0, 0.2, 1);
-  overflow-y: auto;
+  overflow: hidden;
+}
+
+.switch-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 32rpx 32rpx 24rpx;
+  border-bottom: 1rpx solid var(--border-light, var(--bdL));
 }
 
 .switch-title {
   font-size: 32rpx;
   font-weight: 700;
   color: var(--fg, var(--fg));
-  text-align: center;
-  margin-bottom: 28rpx;
+  text-align: left;
+  margin: 0;
+}
+
+.switch-close {
+  width: 48rpx;
+  height: 48rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12rpx;
+  flex-shrink: 0;
+}
+
+.switch-body {
+  padding: 24rpx 28rpx 32rpx;
+  overflow-y: auto;
 }
 
 /* 账号列表 */
 .switch-account-list {
   display: flex;
   flex-direction: column;
-  gap: 8rpx;
+  gap: 12rpx;
 }
 
 .switch-account-item {
   display: flex;
   align-items: center;
   gap: 20rpx;
-  padding: 20rpx 16rpx;
+  padding: 20rpx 20rpx;
   border-radius: var(--radius-md, 24rpx);
-  background-color: var(--bg, var(--bg));
+  background-color: transparent;
   transition: background-color 0.15s ease;
 
   &:active {
@@ -513,24 +504,35 @@
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 4rpx;
+  gap: 6rpx;
 }
 
 .switch-account-name {
-  font-size: 28rpx;
-  font-weight: 600;
-  color: var(--fg, var(--fg));
   display: flex;
   align-items: center;
   gap: 12rpx;
+  min-width: 0;
+}
+
+.switch-account-name-text {
+  flex: 1;
+  min-width: 0;
+  font-size: 28rpx;
+  font-weight: 600;
+  color: var(--fg, var(--fg));
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .switch-current-badge {
+  flex-shrink: 0;
   font-size: 20rpx;
   font-weight: 500;
+  line-height: 1.2;
   color: var(--pr);
   background: rgba(45, 157, 138, 0.12);
-  padding: 2rpx 12rpx;
+  padding: 4rpx 12rpx;
   border-radius: 8rpx;
 }
 
@@ -551,139 +553,104 @@
   flex-shrink: 0;
 }
 
-.switch-account-remove-text {
-  font-size: 24rpx;
-  color: var(--fg-3, var(--fg3));
-}
-
 .switch-account-loading {
   flex-shrink: 0;
-}
-
-.switch-account-loading-text {
-  font-size: 22rpx;
-  color: var(--pr);
-}
-
-/* 添加账号按钮 */
-.switch-add-btn {
-  margin-top: 20rpx;
-  padding: 20rpx;
-  border: 2rpx dashed var(--border, var(--bd));
-  border-radius: var(--radius-md, 24rpx);
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background-color 0.15s ease;
-
-  &:active {
-    background-color: rgba(45, 157, 138, 0.06);
-  }
 }
 
-.switch-add-btn-text {
-  font-size: 28rpx;
-  font-weight: 500;
-  color: var(--pr);
+.switch-empty-hint {
+  display: block;
+  font-size: 26rpx;
+  color: var(--fg-3, var(--fg3));
+  text-align: center;
+  padding: 48rpx 0 16rpx;
 }
 
-/* 登录表单 */
-.switch-login-form {
+/* 登录过期提示（对齐 PC SwitchAccountModal.expired-modal） */
+.expired-mask {
+  position: fixed;
+  inset: 0;
+  background: var(--ov);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: calc(var(--z-modal, 1500) + 10);
+  animation: logoutFadeIn 0.2s ease;
+  padding: 0 40rpx;
+}
+
+.expired-dialog {
+  width: 100%;
+  max-width: 680rpx;
+  background: var(--srf);
+  border-radius: 32rpx;
+  padding: 64rpx;
   display: flex;
   flex-direction: column;
-  gap: 16rpx;
+  align-items: center;
+  text-align: center;
+  box-shadow: var(--sh4);
+  animation: logoutScale 0.25s ease;
+  box-sizing: border-box;
 }
 
-.switch-login-hint {
-  font-size: 24rpx;
-  color: var(--fg-3, var(--fg3));
+.expired-icon {
+  width: 128rpx;
+  height: 128rpx;
+  margin: 0 auto 32rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--warnBg);
+  border-radius: 50%;
+  color: var(--warn);
+}
+
+.expired-title {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: var(--fg);
+  margin-bottom: 16rpx;
   text-align: center;
 }
 
-.switch-form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 8rpx;
+.expired-desc {
+  font-size: 28rpx;
+  color: var(--fg3);
+  text-align: center;
+  line-height: 1.5;
+  margin-bottom: 48rpx;
 }
 
-.switch-form-label {
-  font-size: 24rpx;
-  font-weight: 500;
-  color: var(--fg-2, #4b5563);
-}
-
-.switch-form-input {
+.expired-actions {
   width: 100%;
-  height: 76rpx;
-  padding: 0 20rpx;
-  border: 2rpx solid var(--border, var(--bd));
-  border-radius: var(--radius-sm, 16rpx);
-  font-size: 28rpx;
-  color: var(--fg, var(--fg));
-  background-color: var(--surface, #ffffff);
-  box-sizing: border-box;
-
-  &.switch-captcha-input {
-    flex: 1;
-  }
-}
-
-.switch-captcha-row {
   display: flex;
-  gap: 16rpx;
-  align-items: center;
+  gap: 24rpx;
 }
 
-.switch-captcha-img {
-  width: 260rpx;
-  height: 120rpx;
-  border-radius: var(--radius-sm, 16rpx);
-  background-color: var(--surface, #ffffff);
-  border: 2rpx solid var(--border, var(--bd));
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-}
-
-.switch-login-error {
-  font-size: 24rpx;
-  color: var(--expense, var(--exp));
-}
-
-.switch-login-actions {
-  display: flex;
-  gap: 16rpx;
-  margin-top: 12rpx;
-}
-
-.switch-login-btn {
+.expired-actions .expired-btn,
+.expired-actions .ui-btn.expired-btn {
   flex: 1;
+  min-width: 0;
   height: 80rpx;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: var(--radius-sm, 16rpx);
+  border-radius: 16rpx;
   font-size: 28rpx;
-  font-weight: 600;
-  transition: opacity 0.15s ease, transform 0.15s ease;
-
-  &:active {
-    opacity: 0.85;
-    transform: scale(0.98);
-  }
-
-  &.loading {
-    opacity: 0.6;
-  }
+  font-weight: 500;
 }
 
-.switch-login-cancel {
-  background-color: var(--bg, var(--bg));
-  color: var(--fg, var(--fg));
+.expired-actions .expired-btn-cancel,
+.expired-actions .ui-btn.expired-btn-cancel {
+  background: var(--srf);
+  color: var(--fg2);
+  border: 2rpx solid var(--bd);
 }
 
-.switch-login-ok {
-  background-color: var(--pr);
-  color: #fff;
+.expired-actions .expired-btn-login,
+.expired-actions .ui-btn.expired-btn-login {
+  background: var(--pr);
+  color: var(--on-pr);
+  border: 2rpx solid var(--pr);
 }
+

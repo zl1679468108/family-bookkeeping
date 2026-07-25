@@ -17,6 +17,7 @@ page {
   --prBg:  #E7F5F2;
   --prBd:  #C4E5DE;
   --prGr:  linear-gradient(135deg, #2D9D8A 0%, #45B7A7 100%);
+  --on-pr: #ffffff;
 
   /* ═══ 中性色 ═══ */
   --bg:      #F6F7F4;
@@ -1362,6 +1363,7 @@ page.theme-dark,
   --bd:    #3A3D39; --bdL: #303330; --bdH: #454845;
   --pr:    #45B7A7; --prH: #52C4B4; --prD: #2D9D8A;
   --prBg:  #1A3A35; --prBd: #2A5A52;
+  --on-pr: #ffffff;
   --inc:   #52C494; --incBg: #1A3528;
   --exp:   #F08075; --expBg: #3A2020;
   --warn:  #F0C040; --warnBg: #3A3020;

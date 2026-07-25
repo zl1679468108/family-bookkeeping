@@ -10,7 +10,7 @@ import { useMonthRangeOptions } from '../../hooks/useMonthRangeOptions'
 import type { BudgetRecord, UpsertBudgetInput } from '@family-bookkeeping/shared-types';
 import { notifyInfo, notifySuccess } from '../../utils/notifyError'
 import { Skeleton } from '../../components/ui/Skeleton'
-import { GlobalModal, DetailItem, Space } from '../../components/ui'
+import { GlobalModal, DetailItem } from '../../components/ui'
 import { Card } from '../../components/ui/Card'
 import { Button } from '../../components/ui/Button'
 import { FooterActions } from '../../components/ui/FooterActions'
@@ -373,7 +373,7 @@ const Budgets: React.FC = () => {
           }}
           title={DETAIL_BUDGET}
           footer={
-            <Space size="sm">
+            <FooterActions align="end" className="global-modal-dialog__footer-inner">
               <Button
                 variant="secondary"
                 onClick={() => handleOpenEditForm(selectedBudget)}
@@ -383,7 +383,7 @@ const Budgets: React.FC = () => {
               <Button variant="danger" onClick={() => setShowDeleteConfirm(true)}>
                 {ACTION_DELETE_BUDGET}
               </Button>
-            </Space>
+            </FooterActions>
           }
         >
           <div className="detail-content-wrapper">

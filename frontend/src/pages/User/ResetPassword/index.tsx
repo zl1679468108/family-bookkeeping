@@ -9,11 +9,10 @@ import { Button } from '../../../components/ui/Button'
 import { PasswordField } from '../../../components/ui/PasswordField'
 import { getErrorMessage } from '../../../utils/errorMessage'
 import {
-  validatePasswordAlphaNumeric,
   validatePasswordMatch,
   validatePasswordMinLength,
 } from '../../../utils/validation'
-import { FORM_PASSWORD_MIN_ALPHA_NUM, FORM_PASSWORD_CONFIRM_PLACEHOLDER } from '../../../utils/formCopy'
+import { FORM_PASSWORD_MIN_SHORT, FORM_PASSWORD_CONFIRM_PLACEHOLDER } from '../../../utils/formCopy'
 import { FIELD_NEW_PASSWORD, FIELD_CONFIRM_PASSWORD } from '../../../utils/fieldCopy'
 import { AUTH_TITLE_RESET, AUTH_TITLE_SET_NEW_PASSWORD, ACTION_RESET_PASSWORD, ACTION_RESETTING, AUTH_SUB_RESET_AFTER, AUTH_TITLE_PASSWORD_RESET_SUCCESS, AUTH_RESET_FAILED_RETRY } from '../../../utils/authCopy'
 
@@ -30,7 +29,6 @@ const ResetPassword: React.FC = () => {
   const { run: handleSubmit, isRunning: submitLoading } = useDebouncedAction(async () => {
     const pwdErr =
       validatePasswordMinLength(password) ||
-      validatePasswordAlphaNumeric(password) ||
       validatePasswordMatch(password, confirmPassword)
     if (pwdErr) {
       setMessage(pwdErr)
@@ -87,7 +85,7 @@ const ResetPassword: React.FC = () => {
       }
     >
       <h3>{AUTH_TITLE_RESET}</h3>
-      <p className="form-desc">请设置一个至少 6 位、且包含字母和数字的新密码</p>
+      <p className="form-desc">请设置一个至少 6 位的新密码</p>
 
       {message && (
         <div className={buildAuthMessageClassName({ type: messageType })}>{message}</div>
@@ -99,7 +97,7 @@ const ResetPassword: React.FC = () => {
           <PasswordField
             id="resetNewPass"
             label={FIELD_NEW_PASSWORD}
-            placeholder={FORM_PASSWORD_MIN_ALPHA_NUM}
+            placeholder={FORM_PASSWORD_MIN_SHORT}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required

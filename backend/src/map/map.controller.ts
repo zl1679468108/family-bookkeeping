@@ -3,13 +3,17 @@ import { TokenAuthGuard } from '../auth/token-auth.guard';
 import { CurrentUser } from '../auth/current-user.decorator';
 import { BookId } from '../books/book-id.decorator';
 import { MapService } from './map.service';
-import { MapTransactionsQueryDto, MerchantQueryDto, MerchantTransactionsQueryDto } from './dto/map-query.dto';
+import { MapTransactionsQueryDto, MerchantQueryDto, MerchantTransactionsQueryDto, ReverseGeocodeQueryDto, PoiSearchQueryDto } from './dto/map-query.dto';
 import { UpdateLocationDto } from './dto/location.dto';
+import { AmapService } from './amap.service';
 
 @Controller('map')
 @UseGuards(TokenAuthGuard)
 export class MapController {
-  constructor(private readonly mapService: MapService) {}
+  constructor(
+    private readonly mapService: MapService,
+    private readonly amapService: AmapService,
+  ) {}
 
   /**
    * GET /map/transactions
@@ -96,6 +100,27 @@ export class MapController {
   ) {
     const data = await this.mapService.getSharingMemberLocations(bookId);
     return { message: '获取成员位置成功', data };
+  }
+
+
+  /**
+   * GET /map/reverse-geocode
+   * 逆地理编码（高德 Web 服务），供小程序选点展示地址名 / POI。
+   */
+  @Get('reverse-geocode')
+  async reverseGeocode(@Query() query: ReverseGeocodeQueryDto) {
+    const data = await this.amapService.reverseGeocode(query.latitude, query.longitude);
+    return { message: '逆地理编码成功', data };
+  }
+
+  /**
+   * GET /map/poi-search
+   * POI 关键字搜索（高德 Web 服务），供小程序选点搜索。
+   */
+  @Get('poi-search')
+  async searchPois(@Query() query: PoiSearchQueryDto) {
+    const data = await this.amapService.searchPois(query.keyword, query.latitude, query.longitude);
+    return { message: '地点搜索成功', data };
   }
 
   /**

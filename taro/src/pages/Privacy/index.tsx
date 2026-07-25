@@ -111,7 +111,7 @@ const SECTIONS: Section[] = [
   {
     title: '十一、联系我们',
     body: [
-      '如对本政策有任何疑问、建议或投诉，可通过应用内"关于静记"页面与我们联系。我们将在 15 个工作日内回复。',
+      '如对本政策有任何疑问、建议或投诉，可通过应用内"我的—联系客服"与我们联系。我们将在 15 个工作日内回复。',
     ],
   },
 ];
@@ -142,7 +142,7 @@ export default function Privacy() {
       ))}
 
       <View className="legal-footer">
-        <Text>如对本政策有任何疑问，可通过应用内"关于静记"页面与我们联系。</Text>
+        <Text>如对本政策有任何疑问，可通过应用内"我的—联系客服"与我们联系。</Text>
       </View>
     </PageContainer>
   );

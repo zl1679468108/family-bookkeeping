@@ -117,7 +117,7 @@ export default function Terms() {
       ))}
 
       <View className="legal-footer">
-        <Text>如对本协议有任何疑问，可通过应用内"关于静记"页面与我们联系。</Text>
+        <Text>如对本协议有任何疑问，可通过应用内"我的—联系客服"与我们联系。</Text>
       </View>
     </PageContainer>
   );

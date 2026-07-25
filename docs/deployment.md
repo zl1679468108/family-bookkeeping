@@ -78,6 +78,7 @@ SERVER=121.4.84.120 USER=ubuntu ./scripts/deploy-cvm.sh
    - 前端：`cd frontend && VITE_API_BASE_URL=/bookkeeping/api npm run build:prod`
 2. **打包**：`backend` 打 `dist`+`package*.json`+`nest-cli.json`；前端打 `build/`
 3. **生成服务器 .env**：复制 `backend/.env.production`，把 `FRONTEND_URL` 改写为 `https://zlspace.site`
+   - 小程序选点逆地理 / POI 搜索依赖 `AMAP_KEY`（高德控制台 **Web服务** 类型 Key，不能复用前端 `VITE_AMAP_KEY`）
 4. **上传**到 `/tmp/`
 5. **远程部署**：解包后端 → `npm install --production` → `pm2 restart family-bookkeeping-api`；解包前端到 `/var/www/family-bookkeeping`
 

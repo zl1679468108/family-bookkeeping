@@ -167,8 +167,9 @@ export const LINE_ICON_SVG_MAP: Record<LineIconName, LineIconSpec> = {
     ...VB,
     children: [
       { tag: 'circle', attrs: { cx: 12, cy: 12, r: 10 } },
-      { tag: 'line', attrs: { x1: 12, y1: 16, x2: 12, y2: 12 } },
-      { tag: 'line', attrs: { x1: 12, y1: 8, x2: 12.01, y2: 8 } },
+      { tag: 'path', attrs: { d: 'M12 16v-4' } },
+      // 顶部圆点用实心圆，避免极短线在小程序 mask 中消失
+      { tag: 'circle', attrs: { cx: 12, cy: 8, r: 1, fill: 'currentColor', stroke: 'none' } },
     ],
   },
   'logout': {
@@ -374,22 +375,33 @@ const escapeXmlAttr = (v: string | number): string =>
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
 
+/** React 用 camelCase；SVG XML / data URL 必须 kebab-case，否则 stroke-linecap 等会失效 */
+const toSvgXmlAttrName = (key: string): string =>
+  key.replace(/[A-Z]/g, (ch) => `-${ch.toLowerCase()}`)
+
 export function buildLineIconSvgString(
   name: LineIconName,
   color: string = 'currentColor',
   strokeWidth = 2,
 ): string {
   const spec = getLineIconSpec(name)
-  const common = {
+  // 必须用 SVG 标准属性名：camelCase 在 data URL 中会被忽略，
+  // 导致 info 图标顶部圆点（依赖 stroke-linecap=round 的极短线）消失
+  const common: Record<string, string | number> = {
     fill: 'none',
     stroke: color,
-    strokeWidth,
-    strokeLinecap: 'round',
-    strokeLinejoin: 'round',
+    'stroke-width': strokeWidth,
+    'stroke-linecap': 'round',
+    'stroke-linejoin': 'round',
   }
   const childrenXml = spec.children
     .map((child) => {
-      const merged = { ...common, ...child.attrs }
+      const merged: Record<string, string | number> = { ...common }
+      for (const [k, v] of Object.entries(child.attrs)) {
+        const key = toSvgXmlAttrName(k)
+        // data URL 无法解析 currentColor，替换为实际着色
+        merged[key] = v === 'currentColor' ? color : (v as string | number)
+      }
       const attrStr = Object.entries(merged)
         .map(([k, v]) => `${k}="${escapeXmlAttr(v)}"`)
         .join(' ')
@@ -409,7 +421,8 @@ export function getLineIconSvgDataUrl(
 
 /**
  * Taro IconName → LineIconName 别名（仅几何可复用的线框图标）
- * workbench 等 Tab 专用资产仍走端侧本地 SVG
+ * 未列出的专用资产才回退端侧 /assets/icons/*.svg
+ * 注意：真机 custom-tab-bar 下 mask-image 用包内相对路径常失效，Tab 图标务必走 data URL 线框
  */
 export const TARO_LINE_ICON_ALIASES: Record<string, LineIconName> = {
   statistics: 'reports',
@@ -420,6 +433,8 @@ export const TARO_LINE_ICON_ALIASES: Record<string, LineIconName> = {
   budget: 'budgets',
   category: 'categories',
   template: 'templates',
+  // 四宫格：与 workbench.svg / dashboard 几何一致；避免 Tab 走本地 SVG mask（开发者工具可见、真机空白）
+  workbench: 'dashboard',
 }
 
 /**

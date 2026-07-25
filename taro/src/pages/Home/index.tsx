@@ -6,7 +6,7 @@
  *   .txn-list        — 最近交易（可点进编辑；空态引导记一笔）
  *   .budget-card     — 本月预算（大卡片 + 分类进度条）
  */
-import { useEffect, useMemo, useState, useCallback } from "react";
+import { useEffect, useMemo, useState, useCallback, useRef } from "react";
 import { View, Text } from "@tarojs/components";
 import Taro from "@tarojs/taro";
 import PageContainer from "../../components/PageContainer";
@@ -89,16 +89,44 @@ export default function Home() {
     }
   }, [user]);
 
+  const initialFetchDoneRef = useRef(false);
+  const lastBookIdRef = useRef<string | undefined>(undefined);
   useEffect(() => {
     if (loading) return;
-    if (!user) return;
-    setInitialLoading(true);
-    loadData()
-      .then(() => setInitialLoading(false))
-      .catch(() => {
-        setInitialLoading(false);
-      });
-  }, [loading, user, loadData, currentBook]);
+    if (!user) {
+      initialFetchDoneRef.current = false;
+      lastBookIdRef.current = undefined;
+      return;
+    }
+
+    const run = () => {
+      setInitialLoading(true);
+      loadData()
+        .then(() => setInitialLoading(false))
+        .catch(() => {
+          setInitialLoading(false);
+        });
+    };
+
+    const bookId = currentBook?.id;
+    if (!initialFetchDoneRef.current) {
+      initialFetchDoneRef.current = true;
+      lastBookIdRef.current = bookId;
+      run();
+      return;
+    }
+
+    // currentBook 从空灌入时只同步 id（首屏已用 storage 的 x-book-id 拉过）
+    if (lastBookIdRef.current === undefined && bookId) {
+      lastBookIdRef.current = bookId;
+      return;
+    }
+
+    if (bookId && bookId !== lastBookIdRef.current) {
+      lastBookIdRef.current = bookId;
+      run();
+    }
+  }, [loading, user, loadData, currentBook?.id]);
 
   const handleRefresh = useCallback(() => {
     return new Promise<void>((resolve) => {

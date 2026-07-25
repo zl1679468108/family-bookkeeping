@@ -283,42 +283,13 @@
 }
 
 .pwd-actions {
-  display: flex;
-  gap: 20rpx;
   margin-top: 32rpx;
   padding-top: 24rpx;
   border-top: 1rpx solid var(--border-light, var(--bdL));
 }
 
-.pwd-btn {
-  flex: 1;
+.pwd-actions .ui-btn {
+  min-width: 0;
   height: 88rpx;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: var(--radius-md, 24rpx);
-  font-size: 28rpx;
-  font-weight: 700;
-  transition: opacity 0.15s ease, transform 0.15s ease;
-}
-
-.pwd-btn:active {
-  opacity: 0.85;
-  transform: scale(0.98);
-}
-
-.pwd-btn.disabled {
-  opacity: 0.5;
-  pointer-events: none;
-}
-
-.pwd-cancel {
-  background-color: var(--bg, var(--bg));
-  color: var(--fg, var(--fg));
-}
-
-.pwd-ok {
-  background: var(--primary-grad, linear-gradient(135deg, var(--pr) 0%, var(--pr) 100%));
-  color: #fff;
-  box-shadow: 0 4rpx 16rpx rgba(45, 157, 138, 0.25);
+  font-weight: 600;
 }

@@ -1,5 +1,5 @@
 import React from 'react'
-import { GlobalModal, DetailItem, Space } from '../../../components/ui'
+import { GlobalModal, DetailItem, FooterActions } from '../../../components/ui'
 import { Button } from '../../../components/ui/Button'
 import { renderCategoryIcon } from '../../../utils/renderCategoryIcon'
 import { formatMoney } from '../../../utils/budget'
@@ -43,7 +43,7 @@ export const TemplateDetailModal: React.FC<TemplateDetailModalProps> = ({
       onClose={onClose}
       title={DETAIL_TEMPLATE}
       footer={
-        <Space size="sm">
+        <FooterActions align="end" className="global-modal-dialog__footer-inner">
           <Button variant="secondary" onClick={() => onEdit(template)}>
             {ACTION_EDIT}
           </Button>
@@ -51,7 +51,7 @@ export const TemplateDetailModal: React.FC<TemplateDetailModalProps> = ({
             {ACTION_COPY}
           </Button>
           <Button variant="danger" onClick={onDelete}>{ACTION_DELETE}</Button>
-        </Space>
+        </FooterActions>
       }
     >
       <div className="detail-content-wrapper">

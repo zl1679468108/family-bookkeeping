@@ -71,6 +71,8 @@ interface PageContainerProps {
   emptyIcon?: ReactNode;
   /** 空状态尺寸变体 */
   emptyVariant?: "default" | "compact" | "full";
+  /** 遮罩/弹层：渲染在滚动容器外，保证 BottomSheet 等全宽 */
+  overlay?: ReactNode;
 }
 
 export default function PageContainer({
@@ -97,6 +99,7 @@ export default function PageContainer({
   emptyAction,
   emptyIcon,
   emptyVariant = "default",
+  overlay,
 }: PageContainerProps) {
   const showEmpty = Boolean(empty) && !loading;
 
@@ -118,6 +121,7 @@ export default function PageContainer({
       lowerThreshold={lowerThreshold}
       onScroll={onScroll}
       bottomSpace={bottomSpace}
+      overlay={overlay}
     >
       {showEmpty ? (
         <EmptyState

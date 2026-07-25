@@ -3,7 +3,7 @@
  * 布局: 搜索栏(第1行) → 筛选 Picker(第2行) → 统计摘要 → 日期分组列表（卡片形式）
  * 交互: 点击列表项 → 直接跳转编辑页（AddTransaction），编辑页内含删除按钮
  */
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { View, Text, Input, Picker } from "@tarojs/components";
 import Taro from "@tarojs/taro";
 import PageContainer from "../../components/PageContainer";
@@ -12,7 +12,6 @@ import Icon, { ICON_COLOR } from "../../components/Icon";
 import TransactionItem from "../../components/TransactionItem";
 import { getTransactions } from "../../services/transactionsApi";
 import { useCategoryLookup } from "../../hooks/useCategories";
-import { useCategoryList } from "../../hooks/useCategories";
 import { useAuth } from "../../context/AuthContext";
 import { useBookContext } from "../../context/BookContext";
 import { formatMoney } from "../../utils/format";
@@ -60,8 +59,7 @@ export default function Transactions() {
   const [refreshing, setRefreshing] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const handleScroll = useCallback((top: number) => setScrolled(top > 4), []);
-  const { getCategoryName, getCategoryIcon } = useCategoryLookup();
-  const { categories } = useCategoryList();
+  const { categories, getCategoryName, getCategoryIcon } = useCategoryLookup();
 
   // 分类 Picker 数据源
   const categoryOptions = useMemo(() => {
@@ -133,11 +131,36 @@ export default function Transactions() {
     [typeIdx, timeIdx, catIdx, searchKeyword, filteredCategoriesForSelection],
   );
 
+  const initialFetchDoneRef = useRef(false);
+  const lastBookIdRef = useRef<string | undefined>(undefined);
   useEffect(() => {
-    if (authLoading || !user) return;
-    doFetch(1, [], true);
+    if (authLoading || !user) {
+      initialFetchDoneRef.current = false;
+      lastBookIdRef.current = undefined;
+      return;
+    }
+
+    const bookId = currentBook?.id;
+
+    if (!initialFetchDoneRef.current) {
+      initialFetchDoneRef.current = true;
+      lastBookIdRef.current = bookId;
+      doFetch(1, [], true);
+      return;
+    }
+
+    // currentBook 从空灌入时只同步 id（首屏已用 storage 的 x-book-id 拉过）
+    if (lastBookIdRef.current === undefined && bookId) {
+      lastBookIdRef.current = bookId;
+      return;
+    }
+
+    if (bookId && bookId !== lastBookIdRef.current) {
+      lastBookIdRef.current = bookId;
+      doFetch(1, [], true);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [authLoading, user, currentBook]);
+  }, [authLoading, user, currentBook?.id]);
 
   const handleRefresh = useCallback(() =>
     new Promise<void>((resolve) => {
@@ -245,25 +268,31 @@ export default function Transactions() {
           </View>
 
           {/* ═══ 第2行：筛选 Picker ═══ */}
-          <View className="picker-row">
-            <Picker mode="selector" range={FILTER_OPTIONS} value={typeIdx} onChange={handleTypeChange}>
-              <View className="picker-chip">
-                <Text className="picker-chip-text">{FILTER_OPTIONS[typeIdx]}</Text>
-                <Icon name="chevron-down" size={24} color={ICON_COLOR.muted} />
-              </View>
-            </Picker>
-            <Picker mode="selector" range={TIME_OPTIONS} value={timeIdx} onChange={handleTimeChange}>
-              <View className="picker-chip">
-                <Text className="picker-chip-text">{TIME_OPTIONS[timeIdx]}</Text>
-                <Icon name="chevron-down" size={24} color={ICON_COLOR.muted} />
-              </View>
-            </Picker>
-            <Picker mode="selector" range={categoryOptions} value={catIdx} onChange={handleCatChange}>
-              <View className="picker-chip">
-                <Text className="picker-chip-text">{categoryOptions[catIdx] || FILTER_ALL_CATEGORIES}</Text>
-                <Icon name="chevron-down" size={24} color={ICON_COLOR.muted} />
-              </View>
-            </Picker>
+          <View className="filter-picker-row">
+            <View className="filter-picker-col">
+              <Picker mode="selector" range={FILTER_OPTIONS} value={typeIdx} onChange={handleTypeChange}>
+                <View className="picker-chip picker-chip--start">
+                  <Text className="picker-chip-text">{FILTER_OPTIONS[typeIdx]}</Text>
+                  <Icon name="chevron-down" size={24} color={ICON_COLOR.muted} />
+                </View>
+              </Picker>
+            </View>
+            <View className="filter-picker-col">
+              <Picker mode="selector" range={TIME_OPTIONS} value={timeIdx} onChange={handleTimeChange}>
+                <View className="picker-chip">
+                  <Text className="picker-chip-text">{TIME_OPTIONS[timeIdx]}</Text>
+                  <Icon name="chevron-down" size={24} color={ICON_COLOR.muted} />
+                </View>
+              </Picker>
+            </View>
+            <View className="filter-picker-col">
+              <Picker mode="selector" range={categoryOptions} value={catIdx} onChange={handleCatChange}>
+                <View className="picker-chip picker-chip--end">
+                  <Text className="picker-chip-text">{categoryOptions[catIdx] || FILTER_ALL_CATEGORIES}</Text>
+                  <Icon name="chevron-down" size={24} color={ICON_COLOR.muted} />
+                </View>
+              </Picker>
+            </View>
           </View>
           </View>
 

@@ -16,10 +16,9 @@ import {
   validateEmail,
   validatePasswordMatch,
   validatePasswordMinLength,
-  validatePasswordStrength,
 } from '../../../utils/validation'
 import { SUCCESS_AVATAR_SELECTED_HINT, SUCCESS_PASSWORD_CHANGED, SUCCESS_SAVED } from '../../../utils/successCopy'
-import { FORM_PASSWORD_MIN_NEW, FORM_PASSWORD_MISMATCH_NEW, FORM_PASSWORD_CURRENT, FORM_PASSWORD_CONFIRM_NEW_PLACEHOLDER, FORM_USERNAME_PLACEHOLDER, FORM_EMAIL_PLACEHOLDER, FORM_PASSWORD_STRENGTH_HINT, FORM_USERNAME_REQUIRED, MAX_USERNAME_LENGTH } from '../../../utils/formCopy'
+import { FORM_PASSWORD_MIN_NEW, FORM_PASSWORD_MISMATCH_NEW, FORM_PASSWORD_CURRENT, FORM_PASSWORD_CONFIRM_NEW_PLACEHOLDER, FORM_USERNAME_PLACEHOLDER, FORM_EMAIL_PLACEHOLDER, FORM_PASSWORD_MIN_SHORT, FORM_USERNAME_REQUIRED, MAX_USERNAME_LENGTH } from '../../../utils/formCopy'
 import { fitWithinMaxSide } from '../../../utils/imageSize'
 import {
   isWithinUploadSize,
@@ -78,8 +77,7 @@ const PasswordModal: React.FC<PasswordModalProps> = ({ visible, onClose }) => {
 
     const pwdErr =
       validatePasswordMinLength(newPassword, { message: FORM_PASSWORD_MIN_NEW }) ||
-      validatePasswordMatch(newPassword, confirmPassword, FORM_PASSWORD_MISMATCH_NEW) ||
-      validatePasswordStrength(newPassword)
+      validatePasswordMatch(newPassword, confirmPassword, FORM_PASSWORD_MISMATCH_NEW)
     if (pwdErr) {
       setError(pwdErr)
       return
@@ -118,7 +116,7 @@ const PasswordModal: React.FC<PasswordModalProps> = ({ visible, onClose }) => {
             labelClassName="form-label field-required"
             value={newPassword}
             onChange={e => setNewPassword(e.target.value)}
-            placeholder={FORM_PASSWORD_STRENGTH_HINT}
+            placeholder={FORM_PASSWORD_MIN_SHORT}
             autoComplete="new-password"
           />
           <PasswordField

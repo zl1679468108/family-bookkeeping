@@ -10,6 +10,7 @@ import { View, Text, ScrollView } from "@tarojs/components";
 import { useModalZIndex } from "./useModalZIndex";
 import SheetHeader from "../../SheetHeader";
 import { Button } from "../Button";
+import { FooterActions } from "../FooterActions";
 import "./index.scss";
 import { ACTION_CONFIRM, ACTION_CANCEL } from '../../../utils/actionCopy'
 import {
@@ -86,7 +87,7 @@ export function GlobalModal({
             {title ? <Text className="ui-modal__confirm-title">{title}</Text> : null}
             {description ? <Text className="ui-modal__confirm-desc">{description}</Text> : null}
             {children}
-            <View className="ui-modal__confirm-actions">
+            <FooterActions align="stretch" className="ui-modal__confirm-actions">
               <Button variant="default" size="lg" block onClick={onClose}>
                 {cancelText}
               </Button>
@@ -99,7 +100,7 @@ export function GlobalModal({
               >
                 {confirmText}
               </Button>
-            </View>
+            </FooterActions>
           </View>
         </View>
       ) : (

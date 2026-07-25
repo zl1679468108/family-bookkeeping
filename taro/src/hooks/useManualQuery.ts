@@ -38,18 +38,27 @@ interface CacheEntry {
 /** 模块级短缓存：key → entry（按 user 隔离） */
 const queryCache = new Map<string, CacheEntry>();
 
+/** 进行中的请求：同 key 并发复用同一个 Promise，避免重复打接口 */
+const inflight = new Map<string, Promise<unknown>>();
+
 const DEFAULT_STALE_TIME = STALE.default;
 
 /** 使缓存失效：prefix 匹配 key 前缀，不传则清空当前用户相关全部 */
 export function invalidateManualQuery(prefix?: string): void {
   if (!prefix) {
     queryCache.clear();
+    inflight.clear();
     return;
   }
   for (const k of Array.from(queryCache.keys())) {
     // 支持完整 key / 前缀 / 业务 key 片段（缓存 key 形态为 `${userId}::${key}`）
     if (k === prefix || k.startsWith(prefix) || k.includes(`::${prefix}`) || k.includes(prefix)) {
       queryCache.delete(k);
+    }
+  }
+  for (const k of Array.from(inflight.keys())) {
+    if (k === prefix || k.startsWith(prefix) || k.includes(`::${prefix}`) || k.includes(prefix)) {
+      inflight.delete(k);
     }
   }
 }
@@ -123,13 +132,32 @@ export function useManualQuery<T>({
       setError(null);
       setIsLoading((prev) => (data === undefined ? true : prev));
 
-      queryFnRef
-        .current()
+      let request = inflight.get(cacheKey) as Promise<T> | undefined;
+      if (!request || opts?.force) {
+        request = queryFnRef
+          .current()
+          .then((res) => {
+            if (staleTime > 0 && userId) {
+              queryCache.set(cacheKey, { data: res, at: Date.now(), userId });
+            }
+            return res;
+          })
+          .then(
+            (res) => {
+              if (inflight.get(cacheKey) === request) inflight.delete(cacheKey);
+              return res;
+            },
+            (err) => {
+              if (inflight.get(cacheKey) === request) inflight.delete(cacheKey);
+              throw err;
+            },
+          );
+        inflight.set(cacheKey, request);
+      }
+
+      request
         .then((res) => {
           setData(res);
-          if (staleTime > 0 && userId) {
-            queryCache.set(cacheKey, { data: res, at: Date.now(), userId });
-          }
         })
         .catch((err) => {
           setError(err instanceof Error ? err : new Error(String(err)));

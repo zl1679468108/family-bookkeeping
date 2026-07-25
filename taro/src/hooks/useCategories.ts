@@ -1,13 +1,15 @@
 /**
  * Hook: fetch and lookup categories.
- * 使用手动 fetch 避免 React Query 在 Taro 中的兼容性问题。
+ * 走 useManualQuery 共享缓存 + 并发去重，避免多处 hook 各打一遍 /categories。
  *
  * ⚠️ 分类只拉取一次（不按 type 过滤请求后端），前端按 type 过滤。
  */
-import { useState, useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import { fetchCategories } from "../services/categoriesApi";
 import { useAuth } from "../context/AuthContext";
 import type { Category } from "../types";
+import { useManualQuery } from "./useManualQuery";
+import { STALE } from "../utils/cachePolicy";
 import {
   filterCategoriesByType,
   buildCategoryLookupMaps,
@@ -21,39 +23,34 @@ import {
 /** Fetch all categories once. Only fires when authenticated. */
 export function useCategories() {
   const { user } = useAuth();
-  const [data, setData] = useState<Category[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const { data, isLoading, refetch } = useManualQuery<Category[]>({
+    key: "categories",
+    queryFn: () => fetchCategories(),
+    enabled: !!user,
+    staleTime: STALE.categories,
+  });
 
-  useEffect(() => {
-    if (!user) {
-      setData([]);
-      return;
-    }
-    setIsLoading(true);
-    // ⚠️ 用 .then() 兜底复位而非 .finally()，规避微信 regenerator 下 .finally 偶发不执行
-    fetchCategories()
-      .then(setData)
-      .catch(() => setData([]))
-      .then(() => setIsLoading(false));
-  }, [user]);
-
-  return { data, isLoading };
+  return {
+    data: user ? data ?? [] : [],
+    isLoading: user ? isLoading : false,
+    refetch,
+  };
 }
 
 /** Alias — returns categories, optionally filtered by type on the frontend */
 export function useCategoryList(type?: CategoryTypeFilter) {
   const { user } = useAuth();
-  const { data, isLoading } = useCategories();
+  const { data, isLoading, refetch } = useCategories();
   const categories = useMemo(
     () => filterCategoriesByType(data, type),
     [data, type],
   );
-  return { categories: user ? categories : [], isLoading };
+  return { categories: user ? categories : [], isLoading, refetch };
 }
 
 /** Category lookup helpers */
 export function useCategoryLookup() {
-  const { data: categories } = useCategories();
+  const { data: categories, isLoading, refetch } = useCategories();
 
   const { byId: lookupMap, nameToId: nameToIdMap } = useMemo(
     () => buildCategoryLookupMaps(categories),
@@ -71,6 +68,8 @@ export function useCategoryLookup() {
 
   return {
     categories: categories || [],
+    isLoading,
+    refetch,
     lookupMap,
     nameToIdMap,
     getCategoryName,

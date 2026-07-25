@@ -28,11 +28,11 @@ export const EMPTY_ICON_SIZE_WEB: Record<EmptyStateVariant, number> = {
   full: 180,
 }
 
-/** Taro 默认插画尺寸（rpx） */
+/** Taro 默认插画尺寸（rpx）——比 Web 视觉略紧，避免卡片内空态过大 */
 export const EMPTY_ICON_SIZE_TARO: Record<EmptyStateVariant, number> = {
-  compact: 200,
-  default: 300,
-  full: 360,
+  compact: 160,
+  default: 220,
+  full: 280,
 }
 
 export function resolveEmptyIconSize(

@@ -3,7 +3,9 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import type { UserProfile } from '@family-bookkeeping/shared-types';
 import {
   clearStoredToken,
+  getAccessToken,
   getProfile,
+  getRefreshToken,
   hasToken,
   login as apiLogin,
   logout as apiLogout,
@@ -83,7 +85,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   /** 通过已存储的 token 切换账号（token 有效则直接切换，失效则抛错由调用方处理） */
   const switchByToken = useCallback(async (email: string, accessToken: string, refreshToken?: string) => {
-    // 同时设置当前会话的 access + refresh；profile 401 时自动刷新会用 refresh 续期
+    // 先缓存当前会话，目标 token 校验失败时恢复，避免误登出当前账号
+    const prevAccess = getAccessToken();
+    const prevRefresh = getRefreshToken() || '';
+    const prevProfile = queryClient.getQueryData(queryKeys.auth.profile);
+
+    // 同时设置目标会话的 access + refresh；profile 401 时自动刷新会用 refresh 续期
     if (accessToken) storeTokens(accessToken.trim(), (refreshToken || '').trim());
     try {
       // 先用新 token 验证并获取 profile（silent 模式：不显示 toast、不跳转）
@@ -109,9 +116,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // 强制刷新 profile query，确保各组件拿到最新 user 数据
       await refetch();
     } catch {
-      // token 失效，清除并抛错
-      clearStoredToken();
-      queryClient.removeQueries({ predicate: () => true });
+      // 目标账号 token 失效：恢复当前会话并抛错，由 UI 引导去登录
+      if (prevAccess) {
+        storeTokens(prevAccess, prevRefresh);
+        if (prevProfile !== undefined) {
+          queryClient.setQueryData(queryKeys.auth.profile, prevProfile);
+        }
+      } else {
+        clearStoredToken();
+        queryClient.removeQueries({ predicate: () => true });
+      }
       throw new Error('token_invalid');
     }
   }, [queryClient, refetch, resetUserCache]);

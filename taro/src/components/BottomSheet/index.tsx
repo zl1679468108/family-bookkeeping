@@ -31,8 +31,9 @@ export interface BottomSheetProps {
 
 /**
  * 统一底部弹窗（Bottom Sheet）。
- * 封装：遮罩 + 滑入动画 + SheetHeader（左返回 icon / 中标题 / 右关闭 icon）+ 内容区 + 底部操作区 + 安全区。
- * 工作台各模块（账本 / 分类 / 模板 / 预算）的详情与表单弹窗统一复用，确保交互一致。
+ * 封装：遮罩 + 滑入动画 + SheetHeader + 内容区 + 底部操作区 + 安全区。
+ * 使用方应通过 PageContainer 的 overlay 插槽渲染，避免被 ScrollView 左右 padding 限制宽度。
+ * 不要用 RootPortal：微信小程序页面样式对 portal 内节点不生效，会导致 mask/按钮样式丢失。
  */
 export default function BottomSheet({
   visible,
@@ -48,7 +49,7 @@ export default function BottomSheet({
 }: BottomSheetProps) {
   if (visible === false) return null;
   return (
-    <View className="bs-mask" onClick={onClose}>
+    <View className="bs-mask" catchMove onClick={onClose}>
       <View
         className="bs-sheet"
         style={{ maxHeight }}
@@ -61,12 +62,15 @@ export default function BottomSheet({
             <Text className="bs-sheet__loading-text">{loadingText}</Text>
           </View>
         ) : (
-          <View className={buildBottomSheetBodyClassName({ className: bodyClassName || "" })}>{children}</View>
+          <View className={buildBottomSheetBodyClassName({ className: bodyClassName || "" })}>
+            {children}
+          </View>
         )}
-        {footer !== null && footer !== undefined && (
+        {footer !== null && footer !== undefined ? (
           <View className="bs-sheet__footer">{footer}</View>
+        ) : (
+          <View className="bs-sheet__safe" />
         )}
-        <View className="bs-sheet__safe" />
       </View>
     </View>
   );

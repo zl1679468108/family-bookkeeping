@@ -1,6 +1,6 @@
 /**
  * AddTransaction — 记一笔（增强版）
- * 参考 PC 端结构：类型 / 金额 / 分类 / 日期 / 品牌 / 备注 / 位置 / 图片 / 模板
+ * 参考 PC 端结构：类型 / 金额 / 分类 / 日期 / 品牌 / 备注 / 图片 / 位置 / 模板
  * 必填字段：金额(*) / 分类(*) / 日期(*)
  */
 import { useState, useEffect, useRef } from "react";
@@ -132,6 +132,7 @@ export default function AddTransaction() {
         name: draft.location.locationName || "",
         latitude: draft.location.latitude,
         longitude: draft.location.longitude,
+        poiId: draft.location.poiId ?? null,
       });
     }
   }, [bookId, isEdit]);
@@ -153,6 +154,7 @@ export default function AddTransaction() {
             name: location.name,
             latitude: location.latitude,
             longitude: location.longitude,
+            poiId: location.poiId ?? null,
           }
         : null,
     );
@@ -191,6 +193,7 @@ export default function AddTransaction() {
               name: data.location_name || "",
               latitude: data.latitude,
               longitude: data.longitude,
+              poiId: data.poi_id ?? null,
             });
           }
           setSavedImages(parseImageList(data));
@@ -265,6 +268,7 @@ export default function AddTransaction() {
         name: patch.location.name,
         latitude: patch.location.latitude,
         longitude: patch.location.longitude,
+        poiId: patch.location.poiId ?? null,
       });
     }
     setSelectedTemplate(template);
@@ -437,8 +441,6 @@ export default function AddTransaction() {
 
       <NoteField value={note} onChange={setNote} maxLength={MAX_NOTE_LENGTH} />
 
-      <LocationField value={location} onChange={setLocation} />
-
       <ImageUpload
         savedImages={savedImages}
         pendingImages={pendingImages}
@@ -446,6 +448,8 @@ export default function AddTransaction() {
         onPendingChange={setPendingImages}
         maxImages={MAX_IMAGES}
       />
+
+      <LocationField value={location} onChange={setLocation} />
 
       {/* 底部操作栏：固定吸底，与工作台其它模块（分类/模板编辑）保持一致；有返回即无需取消按钮 */}
       <View className="addtx-actions">

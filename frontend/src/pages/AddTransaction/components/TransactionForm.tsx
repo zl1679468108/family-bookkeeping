@@ -45,17 +45,15 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({
       />
 
       <div className="form-row">
-        <div className="form-group">
+        <FormField label={FIELD_CATEGORY} labelClassName="field-required">
           <DropdownSelect
-            label={FIELD_CATEGORY}
             options={categoryOptions}
             value={formData.category}
             onChange={(key) => setFormData((prev) => ({ ...prev, category: key }))}
             placeholder={FORM_SELECT_CATEGORY}
-            required
             width="100%"
           />
-        </div>
+        </FormField>
         <FormField
           label={FIELD_DATE}
           labelClassName="field-required"

@@ -5,7 +5,8 @@
  * 1. 可映射到 shared lineIcons 的名称 → data URL（与 PC 几何一致）
  *    - 传入 color：CSS mask + backgroundColor（支持主题色/暗色）
  *    - 未传 color：Image 渲染描边色 SVG
- * 2. 无法映射的专用图标（workbench 等 Tab 资产）→ /assets/icons/*.svg
+ * 2. 无法映射的专用图标 → /assets/icons/*.svg
+ *    注意：真机 mask-image 对包内路径支持差；Tab/需要 color 的图标优先走 lineIcons data URL
  */
 import { View, Image } from "@tarojs/components";
 import "./index.scss";
@@ -204,6 +205,7 @@ export default function Icon({
 
   const svgPath = `/assets/icons/${resolveFile(name, Boolean(color))}.svg`;
 
+  // 本地 SVG + color：补齐 mask 属性；真机对包内路径 mask 仍可能空白，优先把图标收进 lineIcons
   if (color) {
     return (
       <View
@@ -212,8 +214,14 @@ export default function Icon({
           width: `${s}rpx`,
           height: `${s}rpx`,
           backgroundColor: color,
-          WebkitMaskImage: `url(${svgPath})`,
-          maskImage: `url(${svgPath})`,
+          WebkitMaskImage: `url("${svgPath}")`,
+          maskImage: `url("${svgPath}")`,
+          WebkitMaskSize: "contain",
+          maskSize: "contain",
+          WebkitMaskRepeat: "no-repeat",
+          maskRepeat: "no-repeat",
+          WebkitMaskPosition: "center",
+          maskPosition: "center",
           transform: rotate,
         }}
       />

@@ -35,10 +35,13 @@ export default defineConfig({
   outputRoot: OUTPUT_ROOT,
   plugins: [],
   defineConstants: {
-    // 编译期注入 API 基址：开发连本地后端，生产连公网域名。
+    // 编译期注入 API 基址：
+    // - 生产默认公网域名
+    // - 开发优先读 TARO_APP_API_BASE_URL（.env.development），便于真机连局域网 IP
     // 注意：小程序运行时无 Node process，此值必须在编译期由 defineConstants 替换为字面量字符串。
     "process.env.TARO_APP_API_BASE_URL": JSON.stringify(
-      isProd ? "https://zlspace.site/api" : "http://127.0.0.1:3000/api",
+      process.env.TARO_APP_API_BASE_URL ||
+        (isProd ? "https://zlspace.site/api" : "http://127.0.0.1:3000/api"),
     ),
   },
   copy: {

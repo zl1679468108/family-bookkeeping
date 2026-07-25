@@ -1,5 +1,5 @@
 import React from 'react'
-import { GlobalModal, DetailItem, Space } from '../../../components/ui'
+import { GlobalModal, DetailItem, FooterActions } from '../../../components/ui'
 import { Button } from '../../../components/ui/Button'
 import { renderCategoryIcon } from '../../../utils/renderCategoryIcon'
 import type { Category } from '@family-bookkeeping/shared-types'
@@ -42,7 +42,7 @@ export const CategoryDetailModal: React.FC<CategoryDetailModalProps> = ({
       }}
       title={DETAIL_CATEGORY}
       footer={
-        <Space size="sm">
+        <FooterActions align="end" className="global-modal-dialog__footer-inner">
           {!selectedCategory.is_default && (
             <Button
               variant="secondary"
@@ -55,7 +55,7 @@ export const CategoryDetailModal: React.FC<CategoryDetailModalProps> = ({
               onClick={() => setDeleteTarget(selectedCategory)}
             >{ACTION_DELETE}</Button>
           )}
-        </Space>
+        </FooterActions>
       }
     >
       <div className="detail-content-wrapper">

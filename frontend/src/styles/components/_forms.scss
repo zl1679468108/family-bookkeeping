@@ -54,6 +54,13 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 10px;
+  align-items: start;
+}
+
+/* 表单行内下拉默认铺满半列，避免与 FormField 输入框宽度不一致 */
+.form-row .dd-select {
+  display: flex;
+  width: 100%;
 }
 
 .form-error {

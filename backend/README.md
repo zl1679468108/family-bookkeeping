@@ -10,7 +10,7 @@
 - **认证**: JWT
 - **文件存储**: Supabase Storage
 - **邮件服务**: 邮件模板系统
-- **部署**: Docker 容器部署于腾讯云 CVM（Nginx 反代 `zlspace.site`）
+- **部署**: 腾讯云 CVM + Nginx + PM2（`zlspace.site`）
 
 ## 项目结构
 
@@ -33,10 +33,7 @@ backend/
 │   ├── icons/                      # 图标模块
 │   ├── export/                     # 导出模块
 │   ├── mail/                       # 邮件模块
-│   ├── health/                     # 健康检查模块
 │   └── supabase/                   # Supabase 服务
-├── Dockerfile
-├── docker-compose.yml
 ├── package.json
 ├── tsconfig.json
 └── .env.example
@@ -253,25 +250,6 @@ npm run start:prod
 
 ---
 
-## Docker 部署
-
-### 构建镜像
-
-```bash
-docker build -t family-bookkeeping-backend .
-```
-
-### 运行容器
-
-```bash
-docker run -p 3000:3000 --env-file .env family-bookkeeping-backend
-```
-
-### 使用 Docker Compose
-
-```bash
-docker-compose up -d
-```
 
 ## 部署（腾讯云 CVM）
 
@@ -346,25 +324,6 @@ npm run build
 npm run start:prod
 ```
 
-## Docker 部署
-
-### 构建镜像
-
-```bash
-docker build -t family-bookkeeping-backend .
-```
-
-### 运行容器
-
-```bash
-docker run -p 3000:3000 --env-file .env family-bookkeeping-backend
-```
-
-### 使用 Docker Compose
-
-```bash
-docker-compose up -d
-```
 
 ## API 接口
 

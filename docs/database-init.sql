@@ -195,7 +195,9 @@ COMMENT ON COLUMN jj_book_members.joined_at IS '加入账本的时间';
 -- 7. 交易记录表
 -- ==============================================
 CREATE TABLE IF NOT EXISTS jj_transactions (
-  id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  -- 生产现状为整数自增（历史表名 transactions → jj_transactions，序列仍可能叫 transactions_id_seq）
+  -- 与 shared-types / 后端 Transaction.id: number 对齐；勿改为 UUID 除非同步改代码与存量数据
+  id            SERIAL PRIMARY KEY,
   amount        DECIMAL(10, 2) NOT NULL,
   category      UUID REFERENCES jj_categories(id) ON DELETE SET NULL,
   type          VARCHAR(10) NOT NULL CHECK (type IN ('income', 'expense')),
@@ -511,3 +513,16 @@ $$ LANGUAGE plpgsql;
 CREATE INDEX IF NOT EXISTS idx_jj_user_sessions_expired
   ON jj_user_sessions(expires_at)
   WHERE expires_at < NOW();
+
+-- ==============================================
+-- 运维：修复自增序列落后（duplicate key / transactions_pkey）
+-- 现象：创建交易失败 duplicate key value violates unique constraint "transactions_pkey"
+-- 原因：序列 last_value < MAX(id)（手工导入 / 显式 id 插入后未 setval）
+-- 在 Supabase SQL Editor 执行下面语句（可重复执行）：
+-- ==============================================
+-- SELECT setval(
+--   pg_get_serial_sequence('jj_transactions', 'id'),
+--   (SELECT COALESCE(MAX(id), 1) FROM jj_transactions)
+-- );
+-- 邀请表若同样报 book_invitations_pkey，可对 jj_book_invitations 执行同类 setval。
+
