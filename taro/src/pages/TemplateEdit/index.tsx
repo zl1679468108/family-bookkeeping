@@ -5,6 +5,7 @@
  * 编辑模式下底部含「删除」按钮（ConfirmDialog 确认）
  */
 import { useState, useEffect, useMemo } from "react";
+import type { ComponentProps, ComponentType } from "react";
 import { View, Text, Input, Picker } from "@tarojs/components";
 import Taro, { getCurrentInstance } from "@tarojs/taro";
 import { useQueryClient } from "@tanstack/react-query";
@@ -50,6 +51,11 @@ import { queryKeys } from "../../utils/queryKeys";
 import { buildTplPickerValueClassName } from "../../utils/templateEditUi";
 
 type TplType = "expense" | "income";
+type CatchClickViewProps = ComponentProps<typeof View> & {
+  catchClick?: () => void;
+};
+
+const CatchClickView = View as ComponentType<CatchClickViewProps>;
 
 export default function TemplateEdit() {
   const router = getCurrentInstance().router;
@@ -203,15 +209,14 @@ export default function TemplateEdit() {
                   </Text>
                 </View>
                 {!!form.type && (
-                  <View
+                  <CatchClickView
                     className="tpl-picker-clear"
-                    // @ts-ignore
                     catchClick={() =>
                       setForm((p) => ({ ...p, type: "" as TplType, category_id: "" }))
                     }
                   >
                     <Icon name="close" size={28} color={ICON_COLOR.muted} />
-                  </View>
+                  </CatchClickView>
                 )}
                 <Icon name="chevron-down" size={24} color={ICON_COLOR.muted} className="tpl-picker-chevron" />
               </View>
@@ -251,13 +256,12 @@ export default function TemplateEdit() {
                   </Text>
                 </View>
                 {!!selectedCat && (
-                  <View
+                  <CatchClickView
                     className="tpl-picker-clear"
-                    // @ts-ignore
                     catchClick={() => setForm((p) => ({ ...p, category_id: "" }))}
                   >
                     <Icon name="close" size={28} color={ICON_COLOR.muted} />
-                  </View>
+                  </CatchClickView>
                 )}
                 <Icon name="chevron-down" size={24} color={ICON_COLOR.muted} className="tpl-picker-chevron" />
               </View>

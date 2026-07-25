@@ -76,6 +76,11 @@ export function transactionCountLabel(count: number): string {
   return `${Number(count) || 0} 笔`
 }
 
+/** N 人 */
+export function memberCountLabel(count: number): string {
+  return `${Number(count) || 0} 人`
+}
+
 /** 共 N 笔 */
 export function totalTransactionCountLabel(count: number): string {
   return `共 ${Number(count) || 0} 笔`

@@ -68,6 +68,51 @@ export type ReportTrendSeriesLoose = {
   targetYearIncomes?: number[]
 }
 
+export type ReportTrendTooltipPoint = {
+  name?: string
+  seriesName?: string
+  value?: number | string | null
+}
+
+export function reportTrendSeriesName(label: string | number, metricLabel: string): string {
+  return `${label} ${metricLabel}`
+}
+
+export function reportYearLabel(year: string | number): string {
+  return `${year}年`
+}
+
+function tooltipValue(
+  points: readonly ReportTrendTooltipPoint[],
+  seriesName: string,
+): number {
+  const value = points.find((p) => p.seriesName === seriesName)?.value
+  return Number(value || 0)
+}
+
+export function formatReportCompareTooltip(opts: {
+  points: readonly ReportTrendTooltipPoint[]
+  currentLabel: string | number
+  targetLabel: string | number
+  expenseLabel: string
+  incomeLabel: string
+  formatAmount: (value: number) => string
+}): string {
+  const currentExpenseName = reportTrendSeriesName(opts.currentLabel, opts.expenseLabel)
+  const currentIncomeName = reportTrendSeriesName(opts.currentLabel, opts.incomeLabel)
+  const targetExpenseName = reportTrendSeriesName(opts.targetLabel, opts.expenseLabel)
+  const targetIncomeName = reportTrendSeriesName(opts.targetLabel, opts.incomeLabel)
+  const title = opts.points[0]?.name || ''
+
+  return [
+    title,
+    `${currentExpenseName}：${opts.formatAmount(tooltipValue(opts.points, currentExpenseName))}`,
+    `${currentIncomeName}：${opts.formatAmount(tooltipValue(opts.points, currentIncomeName))}`,
+    `${targetExpenseName}：${opts.formatAmount(tooltipValue(opts.points, targetExpenseName))}`,
+    `${targetIncomeName}：${opts.formatAmount(tooltipValue(opts.points, targetIncomeName))}`,
+  ].join('<br/>')
+}
+
 function dayLabelFromYmd(date: string): string {
   const day = parseInt(String(date || '').slice(8, 10), 10)
   return Number.isFinite(day) ? `${day}日` : String(date || '')

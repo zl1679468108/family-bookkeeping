@@ -108,7 +108,10 @@
 | Admin | `/api/admin` | 平台统计、用户管理、交易监控 | TokenAuthGuard + AdminGuard |
 | Icons | `/api/icons` | 自定义图标上传、删除、列表 | TokenAuthGuard |
 | Export | `/api/export` | Excel 导出、PDF 导出 | TokenAuthGuard |
+| Ocr | `/api/ocr` | 收据图片识别、分类建议 | TokenAuthGuard |
 | Health | `/api/health` | 服务健康检查 | 公开 |
+
+内部支撑模块：Mail（邮件验证码/重置密码）、Wechat（小程序内容安全检测）、Supabase（全局数据库客户端）。
 
 ---
 
@@ -470,15 +473,16 @@
 ```
 family-bookkeeping/
 ├── frontend/              # PC Web 前端（React 18 + Vite + TypeScript）
-├── shared-types/          # 三端共享 TypeScript 类型包
 ├── backend/               # 后端服务（NestJS 10 + Supabase）
 ├── taro/                  # 微信小程序（Taro 4 + React）
+├── shared-types/          # 三端共享 TypeScript 类型包
+├── shared-utils/          # 双端共享纯函数与文案常量
 ├── config/                # 配置文件
 ├── scripts/               # 部署脚本
 └── docs/                  # 文档目录
 ```
 
-**三端独立架构**，共享同一 Supabase 数据库，非 monorepo。
+**三端独立架构**，共享同一 Supabase 数据库；非 monorepo / workspace，`shared-types` 与 `shared-utils` 通过本地 `file:../...` 依赖接入。
 
 ### 8.2 数据库约束
 - 所有表使用 `jj_` 前缀
@@ -503,9 +507,9 @@ family-bookkeeping/
 
 ### 8.6 部署约束
 - 平台：腾讯云 CVM（上海二区）+ Nginx + PM2
-- 后端：Docker 容器部署于 CVM，Nginx 反代 `zlspace.site/api`
+- 后端：NestJS 生产构建部署于 CVM，由 PM2 运行，Nginx 反代 `zlspace.site/api`
 - 前端：构建产物托管于 CVM Nginx 静态目录
-- 无 CI/CD，手动或脚本部署（`scripts/deploy-cvm.sh`）
+- CI：GitHub Actions 执行源码质量门、backend/Taro 确定性单元测试、五项目类型检查与生产构建；依赖外部 Supabase 的集成测试不在默认质量门内；无自动部署，发布仍走 `scripts/deploy-*.sh`
 
 ---
 

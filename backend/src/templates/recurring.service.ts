@@ -1,4 +1,10 @@
-import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { SupabaseService } from '../supabase/supabase.service';
 import { TemplatesService } from './templates.service';
 import { Template } from './templates.service';
@@ -6,6 +12,8 @@ import { getBeijingDate } from '../common/utils/time.util';
 
 @Injectable()
 export class RecurringService {
+  private readonly logger = new Logger(RecurringService.name);
+
   constructor(
     private readonly supabaseService: SupabaseService,
     private readonly templatesService: TemplatesService,
@@ -141,7 +149,10 @@ export class RecurringService {
           skipped++;
         }
       } catch (err) {
-        console.error(`recurring template ${template.id} failed:`, err);
+        this.logger.error(
+          `recurring template ${template.id} failed`,
+          err instanceof Error ? err.stack : String(err),
+        );
         skipped++;
       }
     }

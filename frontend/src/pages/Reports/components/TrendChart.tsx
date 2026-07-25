@@ -12,6 +12,9 @@ import {
   buildMonthCompareSeries,
   buildYearCompareSeries,
   buildMonthlyTrendSeries,
+  formatReportCompareTooltip,
+  reportYearLabel,
+  reportTrendSeriesName,
   type ReportTrendSeriesLoose,
 } from '../../../utils/reportChart'
 
@@ -102,47 +105,59 @@ export const TrendChart: React.FC<TrendChartProps> = ({
     } else if (isMonthCompare) {
       const curLabel = formatMonthDisplay(now)
       const tgtLabel = formatMonthDisplay(monthCompareTarget)
+      const curExpenseName = reportTrendSeriesName(curLabel, FIELD_TOTAL_EXPENSE)
+      const curIncomeName = reportTrendSeriesName(curLabel, FIELD_TOTAL_INCOME)
+      const targetExpenseName = reportTrendSeriesName(tgtLabel, FIELD_TOTAL_EXPENSE)
+      const targetIncomeName = reportTrendSeriesName(tgtLabel, FIELD_TOTAL_INCOME)
       option = {
         tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, ...chrome.tooltip,
-          formatter: (params: any) => {
-            const ce = params.find((p: any) => p.seriesName === `${curLabel} ${FIELD_TOTAL_EXPENSE}`)?.value || 0
-            const ci = params.find((p: any) => p.seriesName === `${curLabel} ${FIELD_TOTAL_INCOME}`)?.value || 0
-            const te = params.find((p: any) => p.seriesName === `${tgtLabel} ${FIELD_TOTAL_EXPENSE}`)?.value || 0
-            const ti = params.find((p: any) => p.seriesName === `${tgtLabel} ${FIELD_TOTAL_INCOME}`)?.value || 0
-            return `${params[0].name}<br/>${curLabel} ${FIELD_TOTAL_EXPENSE}：${formatAmount(ce)}<br/>${curLabel} ${FIELD_TOTAL_INCOME}：${formatAmount(ci)}<br/>${tgtLabel} ${FIELD_TOTAL_EXPENSE}：${formatAmount(te)}<br/>${tgtLabel} ${FIELD_TOTAL_INCOME}：${formatAmount(ti)}`
-          },
+          formatter: (params: any) => formatReportCompareTooltip({
+            points: params,
+            currentLabel: curLabel,
+            targetLabel: tgtLabel,
+            expenseLabel: FIELD_TOTAL_EXPENSE,
+            incomeLabel: FIELD_TOTAL_INCOME,
+            formatAmount,
+          }),
         },
         grid: { left: '3%', right: '4%', bottom: '3%', top: '15%', containLabel: true },
         xAxis: axisX,
         yAxis: axisY,
         legend: { top: 5, textStyle: chrome.legendText },
         series: [
-          { name: `${curLabel} ${FIELD_TOTAL_EXPENSE}`, type: 'bar', data: chartData.currExpenses, itemStyle: { color: getThemeColors().exp }, barGap: '20%' },
-          { name: `${curLabel} ${FIELD_TOTAL_INCOME}`, type: 'bar', data: chartData.currIncomes, itemStyle: { color: getThemeColors().inc } },
-          { name: `${tgtLabel} ${FIELD_TOTAL_EXPENSE}`, type: 'bar', data: chartData.targetExpenses, itemStyle: { color: getThemeColors().exp } },
-          { name: `${tgtLabel} ${FIELD_TOTAL_INCOME}`, type: 'bar', data: chartData.targetIncomes, itemStyle: { color: getThemeColors().inc } },
+          { name: curExpenseName, type: 'bar', data: chartData.currExpenses, itemStyle: { color: getThemeColors().exp }, barGap: '20%' },
+          { name: curIncomeName, type: 'bar', data: chartData.currIncomes, itemStyle: { color: getThemeColors().inc } },
+          { name: targetExpenseName, type: 'bar', data: chartData.targetExpenses, itemStyle: { color: getThemeColors().exp } },
+          { name: targetIncomeName, type: 'bar', data: chartData.targetIncomes, itemStyle: { color: getThemeColors().inc } },
         ],
       }
     } else if (isYearCompare) {
+      const curLabel = reportYearLabel(currentYear)
+      const tgtLabel = reportYearLabel(yearCompareTarget)
+      const curExpenseName = reportTrendSeriesName(curLabel, FIELD_TOTAL_EXPENSE)
+      const curIncomeName = reportTrendSeriesName(curLabel, FIELD_TOTAL_INCOME)
+      const targetExpenseName = reportTrendSeriesName(tgtLabel, FIELD_TOTAL_EXPENSE)
+      const targetIncomeName = reportTrendSeriesName(tgtLabel, FIELD_TOTAL_INCOME)
       option = {
         tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, ...chrome.tooltip,
-          formatter: (params: any) => {
-            const ce = params.find((p: any) => p.seriesName === `${currentYear}年 ${FIELD_TOTAL_EXPENSE}`)?.value || 0
-            const ci = params.find((p: any) => p.seriesName === `${currentYear}年 ${FIELD_TOTAL_INCOME}`)?.value || 0
-            const te = params.find((p: any) => p.seriesName === `${yearCompareTarget}年 ${FIELD_TOTAL_EXPENSE}`)?.value || 0
-            const ti = params.find((p: any) => p.seriesName === `${yearCompareTarget}年 ${FIELD_TOTAL_INCOME}`)?.value || 0
-            return `${params[0].name}<br/>${currentYear}年 ${FIELD_TOTAL_EXPENSE}：${formatAmount(ce)}<br/>${currentYear}年 ${FIELD_TOTAL_INCOME}：${formatAmount(ci)}<br/>${yearCompareTarget}年 ${FIELD_TOTAL_EXPENSE}：${formatAmount(te)}<br/>${yearCompareTarget}年 ${FIELD_TOTAL_INCOME}：${formatAmount(ti)}`
-          },
+          formatter: (params: any) => formatReportCompareTooltip({
+            points: params,
+            currentLabel: curLabel,
+            targetLabel: tgtLabel,
+            expenseLabel: FIELD_TOTAL_EXPENSE,
+            incomeLabel: FIELD_TOTAL_INCOME,
+            formatAmount,
+          }),
         },
         grid: { left: '3%', right: '4%', bottom: '3%', top: '15%', containLabel: true },
         xAxis: axisX,
         yAxis: axisY,
         legend: { top: 5, textStyle: chrome.legendText },
         series: [
-          { name: `${currentYear}年 ${FIELD_TOTAL_EXPENSE}`, type: 'bar', data: chartData.currentYearExpenses, itemStyle: { color: getThemeColors().exp }, barGap: '20%' },
-          { name: `${currentYear}年 ${FIELD_TOTAL_INCOME}`, type: 'bar', data: chartData.currentYearIncomes, itemStyle: { color: getThemeColors().inc } },
-          { name: `${yearCompareTarget}年 ${FIELD_TOTAL_EXPENSE}`, type: 'bar', data: chartData.targetYearExpenses, itemStyle: { color: getThemeColors().exp } },
-          { name: `${yearCompareTarget}年 ${FIELD_TOTAL_INCOME}`, type: 'bar', data: chartData.targetYearIncomes, itemStyle: { color: getThemeColors().inc } },
+          { name: curExpenseName, type: 'bar', data: chartData.currentYearExpenses, itemStyle: { color: getThemeColors().exp }, barGap: '20%' },
+          { name: curIncomeName, type: 'bar', data: chartData.currentYearIncomes, itemStyle: { color: getThemeColors().inc } },
+          { name: targetExpenseName, type: 'bar', data: chartData.targetYearExpenses, itemStyle: { color: getThemeColors().exp } },
+          { name: targetIncomeName, type: 'bar', data: chartData.targetYearIncomes, itemStyle: { color: getThemeColors().inc } },
         ],
       }
     } else {

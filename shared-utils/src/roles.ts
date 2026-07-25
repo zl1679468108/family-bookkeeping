@@ -22,3 +22,7 @@ export function platformUserRoleLabel(role?: string | null): string {
 export function isPlatformAdmin(role?: string | null): boolean {
   return role === 'admin'
 }
+
+export function buildPlatformRoleTagClassName(role?: string | null): string {
+  return isPlatformAdmin(role) ? 'tag tag--primary' : 'tag tag--default'
+}

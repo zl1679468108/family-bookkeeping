@@ -19,7 +19,7 @@ const distApp = path.resolve(PROJECT_PATH, 'dist', 'app.js')
 const prodApp = path.resolve(PROJECT_PATH, 'dist-prod', 'app.js')
 if (!fs.existsSync(distApp) && !fs.existsSync(prodApp)) {
   console.error(
-    '[错误] 未找到 dist/app.js 或 dist-prod/app.js。请先运行 `npm run start:weapp` 生成 dist，或 `npm run build:weapp` 生成 dist-prod。',
+    '[错误] 未找到 dist/app.js 或 dist-prod/app.js。请先运行 `npm run dev:weapp` 生成 dist，或 `npm run build:weapp` 生成 dist-prod。',
   )
   process.exit(3)
 }

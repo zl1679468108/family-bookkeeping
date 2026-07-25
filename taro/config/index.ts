@@ -1,9 +1,25 @@
 import { defineConfig } from "@tarojs/cli";
+import path from "path";
 
 // 开发构建(dev:*)输出到 dist/，生产构建(build:*)输出到 dist-prod/
 // 两个目录物理隔离，避免 watch 模式与一次性构建争抢同一目录导致产物残缺
 const isProd = process.env.NODE_ENV === "production";
 const OUTPUT_ROOT = isProd ? "dist-prod" : "dist";
+const SHARED_UTILS_SRC = path.resolve(__dirname, "../../shared-utils/src");
+const H5_PERFORMANCE_WARNING_LIMIT_BYTES = 512 * 1024;
+
+function includeSharedUtilsSource(chain: any) {
+  chain.module.rule("script").include.add(SHARED_UTILS_SRC);
+}
+
+function configureH5Webpack(chain: any) {
+  includeSharedUtilsSource(chain);
+  // H5 is already split into app/runtime/vendor/page chunks. Align Webpack's
+  // performance threshold with the current intentional chunk boundary.
+  chain.performance
+    .maxAssetSize(H5_PERFORMANCE_WARNING_LIMIT_BYTES)
+    .maxEntrypointSize(H5_PERFORMANCE_WARNING_LIMIT_BYTES);
+}
 
 export default defineConfig({
   projectName: "family-bookkeeping",
@@ -40,6 +56,7 @@ export default defineConfig({
   },
   cache: { enable: false },
   mini: {
+    webpackChain: includeSharedUtilsSource,
     miniCssExtractPluginOption: { ignoreOrder: true },
     postcss: {
       pxtransform: { enable: true, config: {} },
@@ -47,6 +64,7 @@ export default defineConfig({
     },
   },
   h5: {
+    webpackChain: configureH5Webpack,
     publicPath: "/",
     staticDirectory: "static",
     postcss: {

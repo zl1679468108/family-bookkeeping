@@ -24,3 +24,16 @@ export function buildStatCardClassName(opts: {
   const prefix = opts.prefix || 'stat-card'
   return cx(prefix, variant !== 'default' && variant, opts.className)
 }
+
+export function buildStatCardValueClassName(opts: {
+  tone?: 'success' | 'danger' | 'neutral'
+  className?: ClassValue
+  prefix?: string
+} = {}): string {
+  const prefix = opts.prefix || 'stat-card__value'
+  return cx(
+    prefix,
+    opts.tone && opts.tone !== 'neutral' && `${prefix}--${opts.tone}`,
+    opts.className,
+  )
+}

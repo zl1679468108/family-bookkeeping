@@ -1,9 +1,11 @@
 /**
  * API 集成测试脚本（简化版）
  * 需要后端服务运行在 http://localhost:3000
+ *
+ * 运行：npm run test:api
  */
 
-const API_BASE = 'http://localhost:3000/api';
+const API_BASE = process.env.API_BASE || 'http://localhost:3000/api';
 
 let authToken = '';
 let userId = '';
@@ -47,6 +49,10 @@ function assert(value: any) {
   };
 }
 
+function readAuthToken(data: any): string {
+  return data?.data?.accessToken || data?.data?.token || '';
+}
+
 async function runTests() {
   console.log('\n🔐 Auth 测试\n');
 
@@ -64,7 +70,7 @@ async function runTests() {
       username: '测试用户',
     });
     assert(data.success).toBe(true);
-    authToken = data.data.token;
+    authToken = readAuthToken(data);
     userId = data.data.user.id;
     console.log('    Token:', authToken.substring(0, 20) + '...');
   });
@@ -156,7 +162,10 @@ async function runTests() {
     const now = new Date();
     const startDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`;
     const endDate = now.toISOString().split('T')[0];
-    const { status, data } = await api('GET', `/statistics/summary?startDate=${startDate}&endDate=${endDate}`);
+    const { status, data } = await api(
+      'GET',
+      `/statistics/summary?startDate=${startDate}&endDate=${endDate}`,
+    );
     console.log('    Status:', status);
     if (!data.success) {
       console.log('    Error:', data.message);
@@ -176,7 +185,10 @@ async function runTests() {
     const now = new Date();
     const startDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`;
     const endDate = now.toISOString().split('T')[0];
-    const { status, data } = await api('GET', `/statistics/category-breakdown?startDate=${startDate}&endDate=${endDate}`);
+    const { status, data } = await api(
+      'GET',
+      `/statistics/category-breakdown?startDate=${startDate}&endDate=${endDate}`,
+    );
     console.log('    Status:', status);
     if (!data.success) {
       console.log('    Error:', data.message);
@@ -247,4 +259,7 @@ async function runTests() {
   console.log('\n✅ 所有测试完成！\n');
 }
 
-runTests().catch(console.error);
+runTests().catch((err) => {
+  console.error(err);
+  process.exitCode = 1;
+});

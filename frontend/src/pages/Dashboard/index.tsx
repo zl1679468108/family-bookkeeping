@@ -41,6 +41,7 @@ import {
   buildBudgetItemClassName,
   buildBudgetItemBadgeClassName,
   buildBudgetItemFillClassName,
+  buildBudgetRemainingClassName,
 } from '../../utils/budgetDisplay'
 
 const Dashboard: React.FC = () => {
@@ -258,7 +259,7 @@ const Dashboard: React.FC = () => {
                   预算 <strong>{formatMoney(budgetStatus.totalBudget, { compact: true })}</strong>
                 </span>
                 <span className="dash-budget-summary__dot">·</span>
-                <span className={budgetStatus.remaining < 0 ? 'is-over' : ''}>
+                <span className={buildBudgetRemainingClassName({ over: budgetStatus.remaining < 0 })}>
                   {budgetStatus.remaining < 0 ? BUDGET_LABEL_OVER : BUDGET_LABEL_REMAINING}{' '}
                   <strong>{formatMoney(Math.abs(budgetStatus.remaining), { compact: true })}</strong>
                 </span>

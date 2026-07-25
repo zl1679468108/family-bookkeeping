@@ -25,7 +25,7 @@
 | **backend** | `backend/` | NestJS 10 + TypeScript + Supabase JS SDK | 3000 |
 | **taro** | `taro/` | Taro 4 + React 18 + TypeScript + SCSS + weapp-tailwindcss | weapp/H5 |
 
-**不是 monorepo**：三个子项目各自独立，有各自的 `package.json`、`node_modules`，无共享包。包管理器为 npm。
+**不是 monorepo / workspace**：三个应用子项目各自独立，有各自的 `package.json`、`node_modules`；`shared-types` / `shared-utils` 是本地 `file:../...` 依赖包，不使用 npm workspace。包管理器为 npm。
 
 **Node 要求**：>= 20.0.0
 
@@ -100,6 +100,10 @@ cd taro && npm run build:weapp       # 微信小程序生产构建（输出 dist
 # 类型检查
 cd frontend && npx tsc --noEmit
 cd backend && npx tsc --noEmit
+
+# 单元测试（不依赖外部 Supabase）
+cd backend && npm test
+cd taro && npm test
 ```
 
 ## 4. 目录索引
@@ -221,7 +225,8 @@ docs/
 
 ## 8. Backend（NestJS）规则
 
-- 模块（13 个）：Auth、Transaction、Books、Categories、Budgets、Statistics、Templates、Reports、Export、Map、Icons、Admin、Mail。`SupabaseModule` 为 `@Global()`。
+- REST/业务模块：Auth、Transaction、Books、Categories、Budgets、Statistics、Templates、Reports、Export、Map、Icons、Admin、Ocr。
+- 内部支撑模块：Mail、Wechat、Supabase；`SupabaseModule` 与 `WechatModule` 为 `@Global()`。
 - REST API 基础路径为 `/api`。
 - 每个模块保持三件套：`controller`、`service`、`module`。
 - 全局中间件：
@@ -312,7 +317,7 @@ docs/
 - Taro 的 `TARO_APP_API_BASE_URL` 在构建时固化，生产需设为 `https://zlspace.site/api`。
 - 后端 `.env` 真相源是 `backend/.env.production`，部署时复制为 `/opt/family-bookkeeping/backend/.env`。
 
-**CI**：`.github/workflows/ci.yml` 对 backend/frontend/taro 跑 `tsc --noEmit` + 生产构建；**无自动部署**（部署仍走 `scripts/deploy-*.sh`）。
+**CI**：`.github/workflows/ci.yml` 包含 `source-quality`（源码热点、项目一致性、package-lock、Taro 版本线）与 `typecheck-and-build` 矩阵（backend / frontend / taro / shared-types / shared-utils）。矩阵执行 `tsc --noEmit`，backend/Taro 运行确定性单元测试，共享包校验 `exports`，backend 额外校验脚本类型并构建，frontend 构建生产包，taro 串行构建 weapp + H5；依赖外部 Supabase 的 `backend/src/app.spec.ts` 仅通过 `npm run test:integration` 显式运行；**无自动部署**（部署仍走 `scripts/deploy-*.sh`）。
 
 ## 15. 重要注意事项（Gotchas）
 
@@ -335,4 +340,4 @@ docs/
 
 9. **`.env` 文件**：各子项目的 `.env.development` / `.env.production` 包含实际密钥，已被 `.gitignore` 排除。修改配置时只改 `.env.example` 模板。
 
-10. **测试**：项目目前无自动化测试。后端配了 Jest 但未写测试用例。
+10. **测试**：backend 与 Taro 的确定性单元测试由 CI 执行；`backend/src/app.spec.ts` 是依赖 Supabase/环境变量的集成测试，不纳入默认 `npm test`，需要显式运行 `npm run test:integration`。

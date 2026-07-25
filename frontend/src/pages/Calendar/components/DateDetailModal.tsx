@@ -9,6 +9,8 @@ import { formatMoney } from '../../../utils/budget';
 import type { Transaction } from '../../../services/api';
 import type { DailySummaryItem } from '@family-bookkeeping/shared-types';
 import { EMPTY_DAY_TRANSACTIONS } from '../../../utils/emptyCopy';
+import { buildHolidayTagClassName } from '../../../utils/calendarDisplay';
+import { buildTxnAmountClassName } from '../../../utils/transactionDisplay';
 
 interface DateDetailModalProps {
   open: boolean;
@@ -43,7 +45,7 @@ export const DateDetailModal: React.FC<DateDetailModalProps> = ({
                 <div className="cal-detail-lunar-info">
                   <div className="cal-detail-lunar-text">{lunarInfo.lunarFull}</div>
                   {lunarInfo.holidayInfo && (
-                    <div className={`cal-detail-holiday${lunarInfo.isWork === true ? ' work' : lunarInfo.isWork === false ? ' rest' : ' normal'}`}>
+                    <div className={buildHolidayTagClassName({ isWork: lunarInfo.isWork })}>
                       {lunarInfo.holidayInfo}
                     </div>
                   )}
@@ -99,7 +101,7 @@ export const DateDetailModal: React.FC<DateDetailModalProps> = ({
                             <span>{item.created_at ? item.created_at.slice(11, 16) : ''}</span>
                           </div>
                         </div>
-                        <div className={`txn-amount ${isIncome ? 'credit' : 'debit'}`}>
+                        <div className={buildTxnAmountClassName({ type: item.type, prefix: 'txn-amount' })}>
                           {formatAmountWithType(parseFloat(String(item.amount)), isIncome)}
                         </div>
                       </div>

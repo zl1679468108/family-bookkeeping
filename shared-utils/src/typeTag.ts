@@ -24,6 +24,26 @@ export function buildDetailDefaultTagClassName(opts: {
   return cx(prefix, opts.isDefault ? 'tag-default' : 'tag-custom', opts.className)
 }
 
+export function buildCategoryDetailTypeBadgeClassName(opts: {
+  type?: string | null
+  className?: ClassValue
+  prefix?: string
+} = {}): string {
+  const prefix = opts.prefix || 'catds-badge'
+  const tone = isExpenseType(opts.type) ? `${prefix}--expense` : `${prefix}--income`
+  return cx(prefix, `${prefix}--type`, tone, opts.className)
+}
+
+export function buildCategoryDetailOriginBadgeClassName(opts: {
+  isDefault?: boolean
+  className?: ClassValue
+  prefix?: string
+} = {}): string {
+  const prefix = opts.prefix || 'catds-badge'
+  const tone = opts.isDefault ? `${prefix}--default` : `${prefix}--custom`
+  return cx(prefix, `${prefix}--origin`, tone, opts.className)
+}
+
 export function buildTemplateTypeTagClassName(opts: {
   type?: string | null
   className?: ClassValue
@@ -42,6 +62,26 @@ export function buildTemplateAmountTagClassName(opts: {
   const prefix = opts.prefix || 'tpl-tag'
   const type = opts.type || 'expense'
   return cx(prefix, 'tpl-tag-amount', `tpl-tag-${type}`, opts.className)
+}
+
+export function buildTemplateDetailTypeTagClassName(opts: {
+  type?: string | null
+  className?: ClassValue
+  prefix?: string
+} = {}): string {
+  const prefix = opts.prefix || 'tpl-tag'
+  const type = opts.type || 'expense'
+  return cx(prefix, `${prefix}--type`, `${prefix}--${type}`, opts.className)
+}
+
+export function buildTemplateDetailAmountTagClassName(opts: {
+  type?: string | null
+  className?: ClassValue
+  prefix?: string
+} = {}): string {
+  const prefix = opts.prefix || 'tpl-tag'
+  const type = opts.type || 'expense'
+  return cx(prefix, `${prefix}--amount`, `${prefix}--${type}`, opts.className)
 }
 
 export function buildTemplateCardTypeClassName(opts: {

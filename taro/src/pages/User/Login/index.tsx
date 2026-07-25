@@ -18,6 +18,11 @@ import { FORM_EMAIL_PASSWORD_REQUIRED, FORM_CAPTCHA_REQUIRED, FORM_CAPTCHA_PLACE
 import { FIELD_EMAIL, FIELD_PASSWORD, FIELD_CAPTCHA } from "../../../utils/fieldCopy";
 import { AUTH_FORGOT_LINK, ACTION_LOGGING_IN_ELLIPSIS } from "../../../utils/authCopy"
 import { APP_NAME, APP_BRAND_MARK } from "../../../config/version";
+import { buildAuthShellClassName } from "../../../utils/authFlow";
+import {
+  reportClientError,
+  reportClientWarning,
+} from "../../../utils/clientDiagnostics";
 
 export default function Login() {
   const { isDark } = useTheme();
@@ -72,19 +77,19 @@ export default function Login() {
             Taro.reLaunch({ url: "/pages/Home/index" });
           }
         } catch (navErr) {
-          console.warn("[Login] navigation failed, retrying reLaunch:", navErr);
+          reportClientWarning("Login.navigationFallback", navErr);
           Taro.reLaunch({ url: "/pages/Home/index" });
         }
       }, 600);
     }, ACTION_LOGGING_IN_ELLIPSIS).catch((err: any) => {
-      console.error("[Login] signIn failed:", err);
+      reportClientError("Login.signIn", err);
       toastError(err, ERROR_LOGIN_FAILED);
       refreshCaptcha();
     });
   };
 
   return (
-    <View className={`login-page min-h-screen bg-bg flex flex-col ${isDark ? "theme-dark" : ""}`}>
+    <View className={buildAuthShellClassName({ prefix: "login-page", dark: isDark })}>
       {/* 品牌区 */}
       <View className="login-hero">
         <View className="login-brand-mark">

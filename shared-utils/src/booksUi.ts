@@ -13,6 +13,24 @@ export function buildBookCardClassName(opts: {
   return cx(prefix, opts.active && `${prefix}--active`, opts.className)
 }
 
+export function buildBookCardActionClassName(opts: {
+  active?: boolean
+  className?: ClassValue
+  prefix?: string
+} = {}): string {
+  const prefix = opts.prefix || 'book-card__action'
+  return cx(prefix, opts.active && `${prefix}--active`, opts.className)
+}
+
+export function buildRoleBadgeClassName(opts: {
+  role?: string | null
+  className?: ClassValue
+  prefix?: string
+} = {}): string {
+  const prefix = opts.prefix || 'role-badge'
+  return cx(prefix, opts.role || null, opts.className)
+}
+
 export function buildMemberRoleTagClassName(opts: {
   owner?: boolean
   className?: ClassValue

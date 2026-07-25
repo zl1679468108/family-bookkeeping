@@ -27,9 +27,9 @@ describe('fmtDate', () => {
 });
 
 describe('fmtFriendlyDate', () => {
-  it('非今天/昨天返回 月日', () => {
-    expect(fmtFriendlyDate('2020-01-15')).toBe('1月15日');
-    expect(fmtFriendlyDate('2020-12-03')).toBe('12月3日');
+  it('跨年日期返回完整年月日', () => {
+    expect(fmtFriendlyDate('2020-01-15')).toBe('2020-01-15');
+    expect(fmtFriendlyDate('2020-12-03')).toBe('2020-12-03');
   });
 
   it('今天返回 今天', () => {

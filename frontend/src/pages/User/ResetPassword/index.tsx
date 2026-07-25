@@ -3,6 +3,7 @@ import { Link, useSearchParams } from 'react-router-dom'
 import { resetPasswordByToken } from '../../../services/api'
 import { useDebouncedAction } from '../../../hooks/useDebouncedAction'
 import AuthLayout from '../../../components/AuthLayout'
+import { buildAuthMessageClassName } from '../../../utils/authFlow'
 import { ForgotIllustration } from '../../../components/AuthLayout/AuthIllustrations'
 import { Button } from '../../../components/ui/Button'
 import { PasswordField } from '../../../components/ui/PasswordField'
@@ -59,7 +60,9 @@ const ResetPassword: React.FC = () => {
           </>
         }
       >
-        <div className="auth-message error">重置链接缺少必要的令牌参数</div>
+        <div className={buildAuthMessageClassName({ type: 'error' })}>
+          重置链接缺少必要的令牌参数
+        </div>
         <Link to="/forgot-password">
           <Button type="button" variant="primary" block size="lg">
             去申请重置
@@ -87,7 +90,7 @@ const ResetPassword: React.FC = () => {
       <p className="form-desc">请设置一个至少 6 位、且包含字母和数字的新密码</p>
 
       {message && (
-        <div className={`auth-message ${messageType}`}>{message}</div>
+        <div className={buildAuthMessageClassName({ type: messageType })}>{message}</div>
       )}
 
       {!done ? (

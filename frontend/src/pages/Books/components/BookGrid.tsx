@@ -7,6 +7,7 @@ import { getBookIconByKey } from '../../../utils/bookIcons';
 import { EMPTY_BOOKS } from '../../../utils/emptyCopy'
 import { entityCreateButton, ENTITY_BOOK } from '../../../utils/entityCopy'
 import { TITLE_JOIN_BY_INVITE, TITLE_MY_BOOKS } from '../../../utils/sectionCopy'
+import { buildListCardClassName } from '../../../utils/listCard';
 
 interface BookGridProps {
   loading: boolean;
@@ -81,7 +82,7 @@ export const BookGrid: React.FC<BookGridProps> = ({
             return (
               <div
                 key={book.id}
-                className={`list-card${isActive ? ' is-active' : ''}`}
+                className={buildListCardClassName({ active: isActive })}
                 onClick={() => onSelectBook(book)}
                 style={{ cursor: 'pointer' }}
               >

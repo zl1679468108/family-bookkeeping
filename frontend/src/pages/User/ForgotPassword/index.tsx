@@ -3,6 +3,14 @@ import { Link } from 'react-router-dom'
 import { resetPasswordByCode, sendResetCode } from '../../../services/api'
 import { useDebouncedAction } from '../../../hooks/useDebouncedAction'
 import AuthLayout from '../../../components/AuthLayout'
+import {
+  buildStepDotClassName,
+  buildStepLineClassName,
+  buildAuthMessageClassName,
+  isRecoverSecondStepReached,
+  recoverFirstStepDotState,
+  recoverSecondStepDotState,
+} from '../../../utils/authFlow'
 import { ForgotIllustration } from '../../../components/AuthLayout/AuthIllustrations'
 import { Button } from '../../../components/ui/Button'
 import { PasswordField } from '../../../components/ui/PasswordField'
@@ -106,14 +114,14 @@ const ForgotPassword: React.FC = () => {
 
       {step !== 3 && (
         <div className="step-indicator">
-          <div className={`step-dot ${step === 1 ? 'active' : 'done'}`} />
-          <div className={`step-line ${step >= 2 ? 'done' : ''}`} />
-          <div className={`step-dot ${step >= 2 ? 'active' : ''}`} />
+          <div className={buildStepDotClassName({ state: recoverFirstStepDotState(step) })} />
+          <div className={buildStepLineClassName({ done: isRecoverSecondStepReached(step) })} />
+          <div className={buildStepDotClassName({ state: recoverSecondStepDotState(step) })} />
         </div>
       )}
 
       {message && (
-        <div className={`auth-message ${messageType}`}>{message}</div>
+        <div className={buildAuthMessageClassName({ type: messageType })}>{message}</div>
       )}
 
       {step === 1 && (

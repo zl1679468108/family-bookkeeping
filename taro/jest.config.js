@@ -9,11 +9,12 @@ module.exports = {
   testMatch: ['**/*.test.ts'],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
+    '^@tarojs/taro$': '<rootDir>/tests/mocks/taro.ts',
   },
   transform: {
     '^.+\\.tsx?$': [
       'ts-jest',
-      { tsconfig: 'tsconfig.json', isolatedModules: true },
+      { tsconfig: 'tsconfig.json' },
     ],
   },
 };

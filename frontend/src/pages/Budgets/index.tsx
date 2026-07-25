@@ -18,7 +18,7 @@ import { EmptyActionButton } from '../../components/ui/EmptyState/emptyActions'
 import { NumberInput } from '../../components/ui/Input'
 import { EmptyState } from '../../components/ui/EmptyState'
 import { DropdownSelect } from '../../components/ui/Dropdown'
-import { budgetStatusToVariant, budgetVariantLabel, formatMoney, buildBudgetUpsertItems, parseNonNegativeAmount, buildSingleBudgetItem, budgetProgressFillClass } from '../../utils/budget'
+import { budgetStatusToVariant, budgetVariantLabel, formatMoney, buildBudgetUpsertItems, parseNonNegativeAmount, buildSingleBudgetItem } from '../../utils/budget'
 import { useBook } from '../../hooks/useBook'
 import { queryKeys } from '../../utils/queryKeys'
 import { STALE } from '../../utils/cachePolicy'
@@ -42,6 +42,7 @@ import { FIELD_PROGRESS, FIELD_SPENT, FIELD_BUDGET_AMOUNT, FIELD_REMAINING, FIEL
 import {
   buildListCardClassName,
 } from '../../utils/listCard'
+import { buildBudgetProgressFillClassName, formatPercent } from '../../utils/budgetDisplay'
 
 const Budgets: React.FC = () => {
   const navigate = useNavigate()
@@ -318,7 +319,6 @@ const Budgets: React.FC = () => {
               const isFocused = hasFocus && focusId === catKey
               const remaining = budget - spent
               const variant = budgetStatusToVariant(status)
-              const fillCls = budgetProgressFillClass(variant)
               const statusClass = variant === 'danger' ? ' budget-card--over' : variant === 'warn' ? ' budget-card--warn' : ''
 
               return (
@@ -349,11 +349,11 @@ const Budgets: React.FC = () => {
                     <div className="budget-card__progress">
                       <div className="budget-card__bar">
                         <div
-                          className={`budget-card__fill ${fillCls}`}
+                          className={buildBudgetProgressFillClassName({ variant })}
                           style={{ width: `${Math.min(progress, 100)}%` }}
                         />
                       </div>
-                      <span className="budget-card__percent">{progress}%</span>
+                      <span className="budget-card__percent">{formatPercent(progress)}</span>
                     </div>
                   )}
                 </div>
@@ -394,7 +394,7 @@ const Budgets: React.FC = () => {
           </div>
           <div className="detail-divider" />
           <div className="detail-grid">
-            <DetailItem label={FIELD_PROGRESS} value={`${selectedBudget.progress}%`} />
+            <DetailItem label={FIELD_PROGRESS} value={formatPercent(selectedBudget.progress)} />
             <DetailItem label={FIELD_SPENT} value={formatMoney(selectedBudget.spent)} />
             <DetailItem label={FIELD_BUDGET_AMOUNT} value={formatMoney(selectedBudget.budget)} />
             <DetailItem label={FIELD_REMAINING} value={formatMoney(selectedBudget.remaining)} />

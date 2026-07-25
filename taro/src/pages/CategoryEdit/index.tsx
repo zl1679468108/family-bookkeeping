@@ -55,6 +55,11 @@ import Icon, { ICON_COLOR } from "../../components/Icon";
 import { SECTION_CATEGORY_TYPE, SECTION_BASIC_INFO, SECTION_EMOJI_ICONS, SECTION_SHOPPING_ICONS, SECTION_CUSTOM_ICONS } from "../../utils/sectionCopy";
 import { FIELD_NAME, FIELD_ICON } from "../../utils/fieldCopy";
 import { queryKeys } from "../../utils/queryKeys";
+import {
+  buildCategoryEditChoiceClassName,
+  buildCategoryEditSaveClassName,
+  buildCategoryEditTypeTabClassName,
+} from "../../utils/categoryEditUi";
 
 interface CustomIconItem {
   id: string;
@@ -206,13 +211,13 @@ export default function CategoryEdit() {
       <AppSection title={SECTION_CATEGORY_TYPE} compact>
         <View className="catedit-type-tabs">
           <View
-            className={`catedit-type-tab ${catType === "expense" ? "catedit-type-tab--active" : ""}`}
+            className={buildCategoryEditTypeTabClassName({ active: catType === "expense" })}
             onClick={() => setCatType("expense")}
           >
             <Text>支出</Text>
           </View>
           <View
-            className={`catedit-type-tab ${catType === "income" ? "catedit-type-tab--active" : ""}`}
+            className={buildCategoryEditTypeTabClassName({ active: catType === "income" })}
             onClick={() => setCatType("income")}
           >
             <Text>收入</Text>
@@ -245,7 +250,10 @@ export default function CategoryEdit() {
           {EMOJI_PRESETS.map((e) => (
             <View
               key={e}
-              className={`catedit-emoji-item ${form.icon === e ? "catedit-emoji-item--selected" : ""}`}
+              className={buildCategoryEditChoiceClassName({
+                prefix: "catedit-emoji-item",
+                selected: form.icon === e,
+              })}
               onClick={() => setForm((p) => ({ ...p, icon: e }))}
             >
               <Text className="catedit-emoji-item__text">{e}</Text>
@@ -263,7 +271,10 @@ export default function CategoryEdit() {
             return (
               <View
                 key={val}
-                className={`catedit-platform-item ${selected ? "catedit-platform-item--selected" : ""}`}
+                className={buildCategoryEditChoiceClassName({
+                  prefix: "catedit-platform-item",
+                  selected,
+                })}
                 onClick={() => setForm((p) => ({ ...p, icon: val }))}
               >
                 <View className="catedit-platform-item__icon">
@@ -274,9 +285,10 @@ export default function CategoryEdit() {
                   />
                 </View>
                 <Text
-                  className={`catedit-platform-item__label ${
-                    selected ? "catedit-platform-item__label--selected" : ""
-                  }`}
+                  className={buildCategoryEditChoiceClassName({
+                    prefix: "catedit-platform-item__label",
+                    selected,
+                  })}
                 >
                   {item.label}
                 </Text>
@@ -298,7 +310,10 @@ export default function CategoryEdit() {
           {customIcons.map((item) => (
             <View
               key={item.id}
-              className={`catedit-custom-icon-item ${isCustomIconActive(form.icon, item.id, item.icon_url) ? "catedit-custom-icon-item--selected" : ""}`}
+              className={buildCategoryEditChoiceClassName({
+                prefix: "catedit-custom-icon-item",
+                selected: isCustomIconActive(form.icon, item.id, item.icon_url),
+              })}
               onClick={() => setForm((p) => ({ ...p, icon: item.icon_url }))}
             >
               <Image className="catedit-custom-icon-item__img" src={item.icon_url} mode="aspectFit" />
@@ -329,9 +344,7 @@ export default function CategoryEdit() {
           </View>
         )}
         <View
-          className={`catedit-actions__save ${
-            isEdit ? "" : "catedit-actions__save--full"
-          }`}
+          className={buildCategoryEditSaveClassName({ full: !isEdit })}
           onClick={handleSave}
         >
           <Text>{saveOrCreateLabel(isEdit, ACTION_CREATE_CATEGORY)}</Text>

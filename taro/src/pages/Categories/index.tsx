@@ -59,6 +59,10 @@ import { buildCategoryIconOptionSpecs } from "../../utils/categories";
 import { FORM_CATEGORY_NAME_PLACEHOLDER, MAX_CATEGORY_NAME_LENGTH } from "../../utils/formCopy";
 import { FIELD_CATEGORY_ID, FIELD_SORT, FIELD_CREATED_AT, FIELD_UPDATED_AT, FIELD_NAME, FIELD_ICON, sortOrderLabel, FIELD_DEFAULT, FIELD_CUSTOM } from "../../utils/fieldCopy";
 import { queryKeys } from "../../utils/queryKeys";
+import {
+  buildCategoryDetailOriginBadgeClassName,
+  buildCategoryDetailTypeBadgeClassName,
+} from "../../utils/typeTag";
 
 /* ---------- 类型 ---------- */
 interface Category {
@@ -426,16 +430,14 @@ export default function CategoriesPage() {
                 <Text className="catds-hero__name">{detailCat.name}</Text>
                 <View className="catds-hero__badges">
                   <Text
-                    className={`catds-badge catds-badge--type ${
-                      detailCat.type === "expense" ? "catds-badge--expense" : "catds-badge--income"
-                    }`}
+                    className={buildCategoryDetailTypeBadgeClassName({ type: detailCat.type })}
                   >
                     {transactionTypeLabel(detailCat.type)}
                   </Text>
                   <Text
-                    className={`catds-badge catds-badge--origin ${
-                      detailCat.is_default ? "catds-badge--default" : "catds-badge--custom"
-                    }`}
+                    className={buildCategoryDetailOriginBadgeClassName({
+                      isDefault: detailCat.is_default,
+                    })}
                   >
                     {detailCat.is_default ? FIELD_DEFAULT : FIELD_CUSTOM}
                   </Text>

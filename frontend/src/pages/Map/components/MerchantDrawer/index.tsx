@@ -10,6 +10,7 @@ import { Button } from '../../../../components/ui/Button'
 import { EMPTY_NO_MERCHANTS, EMPTY_NO_MERCHANT_MATCH } from '../../../../utils/emptyCopy';
 import { FORM_SEARCH_MERCHANT } from '../../../../utils/formCopy'
 import { filterByTextKeyword } from '../../../../utils/dropdownHelpers'
+import { buildMerchantDrawerItemClassName } from '../../../../utils/mapUi'
 
 interface MerchantDrawerProps {
   merchants: MerchantSummary[];
@@ -194,7 +195,7 @@ export const MerchantDrawer: React.FC<MerchantDrawerProps> = ({
             return (
               <div
                 key={key}
-                className={`merchant-drawer__item ${isChecked ? 'is-selected' : ''}`}
+                className={buildMerchantDrawerItemClassName({ selected: isChecked })}
                 onClick={() => onLocateMerchant?.(m)}
               >
                 {/* 多选 checkbox */}

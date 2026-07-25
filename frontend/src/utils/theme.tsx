@@ -3,6 +3,7 @@ import { Icon } from '../components/ui/Icon';
 import { THEME_MODE_LIGHT, THEME_MODE_DARK, THEME_MODE_SYSTEM } from './actionCopy';
 import { STORAGE_THEME_WEB } from './storageKeys';
 import { THEME_TOKEN_HEX } from './themeTokens'
+import { themeToggleAriaLabel, themeToggleTitle } from './themeUi'
 
 type ThemeMode = 'light' | 'dark' | 'system';
 type ResolvedTheme = 'light' | 'dark';
@@ -139,8 +140,8 @@ export const ThemeToggle: React.FC = () => {
     <button
       className="theme-toggle"
       onClick={handleClick}
-      title={`当前: ${currentMode.label}，点击切换为 ${nextMode.label}`}
-      aria-label={`切换主题，当前为${currentMode.label}`}
+      title={themeToggleTitle(currentMode.label, nextMode.label)}
+      aria-label={themeToggleAriaLabel(currentMode.label)}
     >
       {currentMode.icon}
       <span className="theme-toggle-label">{currentMode.label}</span>

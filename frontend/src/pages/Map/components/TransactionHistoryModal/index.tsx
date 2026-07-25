@@ -15,6 +15,12 @@ import { Icon } from '../../../../components/ui/Icon'
 import { transactionTypeShortLabel } from '../../../../utils/transactionType'
 import { EMPTY_TRANSACTIONS } from '../../../../utils/emptyCopy';
 import { ACTION_CLOSE } from '../../../../utils/actionCopy'
+import {
+  buildMerchantHistoryAmountClassName,
+  buildMerchantHistoryItemClassName,
+  buildMerchantHistoryTypeClassName,
+  merchantHistoryFilterLabel,
+} from '../../../../utils/mapUi'
 
 interface TransactionHistoryModalProps {
   merchant: MerchantSummary;
@@ -69,9 +75,9 @@ export const TransactionHistoryModal: React.FC<TransactionHistoryModalProps> = (
             value={filterType}
             onChange={setFilterType}
             options={[
-              { value: 'all', label: `全部 (${transactions.length})` },
-              { value: 'expense', label: `支出 (${merchant.expense_count})` },
-              { value: 'income', label: `收入 (${merchant.income_count})` },
+              { value: 'all', label: merchantHistoryFilterLabel('全部', transactions.length) },
+              { value: 'expense', label: merchantHistoryFilterLabel('支出', merchant.expense_count) },
+              { value: 'income', label: merchantHistoryFilterLabel('收入', merchant.income_count) },
             ]}
           />
         </div>
@@ -95,9 +101,9 @@ export const TransactionHistoryModal: React.FC<TransactionHistoryModalProps> = (
             <EmptyState variant="compact" description={EMPTY_TRANSACTIONS} />
           ) : (
             filtered.map((tx) => (
-              <div key={tx.id} className={`merchant-history-item ${tx.type}`}>
+              <div key={tx.id} className={buildMerchantHistoryItemClassName({ type: tx.type })}>
                 <div className="history-item-left">
-                  <span className={`history-item-type ${tx.type}`}>
+                  <span className={buildMerchantHistoryTypeClassName({ type: tx.type })}>
                     {transactionTypeShortLabel(tx.type)}
                   </span>
                   <div className="history-item-info">
@@ -110,7 +116,7 @@ export const TransactionHistoryModal: React.FC<TransactionHistoryModalProps> = (
                   </div>
                 </div>
                 <div className="history-item-right">
-                  <span className={`history-item-amount ${tx.type}`}>
+                  <span className={buildMerchantHistoryAmountClassName({ type: tx.type })}>
                     {formatAmountByType(tx.amount, tx.type)}
                   </span>
                   <span className="history-item-date">{tx.date}</span>

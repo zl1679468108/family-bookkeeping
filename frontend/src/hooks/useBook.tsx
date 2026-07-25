@@ -3,12 +3,13 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../utils/auth';
 import { setCurrentBook as setCurrentBookApi } from '../services/api';
 import { fetchBooks } from '../services/booksApi';
-import { Book } from '@family-bookkeeping/shared-types';
+import type { Book } from '@family-bookkeeping/shared-types';
 import { notifyError } from '../utils/notifyError'
 import { queryKeys, BOOK_SCOPED_ROOT_KEYS } from '../utils/queryKeys'
 import { STALE } from '../utils/cachePolicy'
 import { clearAddTransactionDraft } from '../utils/addTransactionDraft'
 import { ERROR_SWITCH_BOOK } from '../utils/errorCopy';
+import { reportClientError } from '../utils/clientDiagnostics';
 
 interface BookContextType {
   currentBook: Book | null;
@@ -48,7 +49,7 @@ export const BookProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       await refetch();
     } catch (e) {
-      console.error('刷新账本列表失败', e);
+      reportClientError('BookProvider.refetchBooks', e);
     }
   }, [refetch]);
 

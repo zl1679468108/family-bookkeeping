@@ -3,7 +3,7 @@
  */
 
 import { cx, type ClassValue } from './cx'
-import type { BudgetVariant } from './budget'
+import { budgetProgressFillClass, type BudgetVariant } from './budget'
 
 export function buildBudgetSummaryClassName(opts: {
   variant?: BudgetVariant | string
@@ -63,6 +63,28 @@ export function buildBudgetItemFillClassName(opts: {
   const prefix = opts.prefix || 'dash-budget-item__fill'
   const variant = opts.variant || 'safe'
   return cx(prefix, `${prefix}--${variant}`, opts.className)
+}
+
+export function formatPercent(value: number | string | null | undefined): string {
+  return `${Number(value) || 0}%`
+}
+
+export function buildBudgetRemainingClassName(opts: {
+  over?: boolean
+  className?: ClassValue
+  prefix?: string
+} = {}): string {
+  return cx(opts.prefix, opts.over && 'is-over', opts.className)
+}
+
+export function buildBudgetProgressFillClassName(opts: {
+  variant?: BudgetVariant
+  className?: ClassValue
+  prefix?: string
+} = {}): string {
+  const prefix = opts.prefix || 'budget-card__fill'
+  const variant = opts.variant || 'safe'
+  return cx(prefix, budgetProgressFillClass(variant), opts.className)
 }
 
 /** Taro Home budget card bar */

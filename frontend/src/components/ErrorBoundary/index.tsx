@@ -1,6 +1,7 @@
 import React from 'react';
 import { Button } from '../ui/Button';
 import { ERROR_UNKNOWN } from '../../utils/errorCopy';
+import { reportClientError } from '../../utils/clientDiagnostics';
 
 interface Props {
   children: React.ReactNode;
@@ -23,7 +24,7 @@ export class ErrorBoundary extends React.Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error('ErrorBoundary caught:', error, errorInfo);
+    reportClientError('ErrorBoundary.componentDidCatch', { error, errorInfo });
   }
 
   // 路由切换（children 变化）后重置错误状态，允许新组件重新尝试渲染

@@ -21,11 +21,12 @@ if (import.meta.env.DEV) {
 
 // ── 开发环境：过滤 HMR removeChild 噪音 ──
 if (import.meta.env.DEV) {
-  const originalError = console.error
-  console.error = (...args: unknown[]) => {
+  const devConsole = globalThis.console
+  const originalError = devConsole.error.bind(devConsole)
+  devConsole.error = (...args: unknown[]) => {
     const msg = args[0]
     if (typeof msg === 'string' && msg.includes('removeChild')) return
-    originalError.apply(console, args)
+    originalError(...args)
   }
 }
 

@@ -6,13 +6,16 @@
   "private": true,
   "license": "MIT",
   "scripts": {
-    "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
+    "format": "prettier --write \"src/**/*.ts\" \"scripts/**/*.ts\" \"test/**/*.ts\"",
     "start": "NODE_ENV=development NODE_OPTIONS=--dns-result-order=ipv4first sh -c 'lsof -ti:3000 | xargs kill -9 2>/dev/null; nest start --watch'",
     "start:prod": "NODE_ENV=production NODE_OPTIONS=--dns-result-order=ipv4first node dist/main",
     "build": "NODE_ENV=development nest build",
     "build:prod": "NODE_ENV=production nest build",
-    "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
-    "test": "jest",
+    "lint": "eslint \"{src,scripts,apps,libs,test}/**/*.ts\" --fix",
+    "test": "jest --runInBand",
+    "test:integration": "jest --config jest.integration.config.js --runInBand",
+    "typecheck:scripts": "tsc --noEmit -p tsconfig.scripts.json",
+    "test:api": "ts-node scripts/api-test.ts",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand"
@@ -77,7 +80,10 @@
       "**/*.(t|j)s"
     ],
     "coverageDirectory": "../coverage",
-    "testEnvironment": "node"
+    "testEnvironment": "node",
+    "testPathIgnorePatterns": [
+      "/app\\.spec\\.ts$"
+    ]
   },
   "engines": {
     "node": ">=20.0.0"

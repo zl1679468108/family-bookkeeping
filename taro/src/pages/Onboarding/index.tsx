@@ -29,6 +29,7 @@ import { TITLE_JOIN_BY_INVITE, ONBOARDING_CREATE_TITLE, ONBOARDING_CREATE_DESC, 
 import { ACTION_CREATE_BOOK, ACTION_CREATING_ELLIPSIS, ACTION_JOINING_ELLIPSIS, ACTION_JOIN_BOOK } from "../../utils/actionCopy"
 import { getThemeTokenHex } from "../../utils/themeTokens"
 import { appWelcomeTitle } from "../../config/version";
+import { buildAuthShellClassName, buildSelectedBemClassName } from "../../utils/authFlow";
 
 type Mode = "choice" | "create" | "join";
 
@@ -91,7 +92,7 @@ export default function Onboarding() {
   };
 
   return (
-    <View className={`ob-page ${isDark ? "theme-dark" : ""}`}>
+    <View className={buildAuthShellClassName({ prefix: "ob-page", base: "", dark: isDark })}>
       {/* 品牌区 */}
       <View className="ob-brand">
         <View className="ob-logo">
@@ -173,9 +174,10 @@ export default function Onboarding() {
               return (
                 <View
                   key={item.key}
-                  className={`ob-grid__item ${
-                    selected ? "ob-grid__item--selected" : ""
-                  }`}
+                  className={buildSelectedBemClassName({
+                    prefix: "ob-grid__item",
+                    selected,
+                  })}
                   onClick={() => setIcon(item.key)}
                 >
                   <Image
@@ -188,9 +190,10 @@ export default function Onboarding() {
                     style={{ width: "20px", height: "20px", display: "block" }}
                   />
                   <Text
-                    className={`ob-grid__label ${
-                      selected ? "ob-grid__label--selected" : ""
-                    }`}
+                    className={buildSelectedBemClassName({
+                      prefix: "ob-grid__label",
+                      selected,
+                    })}
                   >
                     {item.label}
                   </Text>

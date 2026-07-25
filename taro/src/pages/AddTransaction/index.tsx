@@ -56,6 +56,9 @@ import {
   restoreAddTransactionFormData,
 } from "../../utils/addTransactionDraft";
 import { FIELD_TYPE, FIELD_AMOUNT, FIELD_CATEGORY, FIELD_DATE, FIELD_BRAND, FIELD_TEMPLATE } from "../../utils/fieldCopy";
+import { buildAddTxSaveClassName } from "../../utils/addTransactionUi";
+import { buildTemplateItemClassName } from "../../utils/templateSelector";
+import { buildTransactionToneClassName } from "../../utils/transactionDisplay";
 
 interface Template {
   id: string;
@@ -452,7 +455,7 @@ export default function AddTransaction() {
           </View>
         )}
         <View
-          className={`addtx-actions__save ${isEdit ? "" : "addtx-actions__save--full"}`}
+          className={buildAddTxSaveClassName({ full: !isEdit })}
           onClick={handleSubmit}
         >
           <Text>{saveOrConfirmAddLabel(isEdit)}</Text>
@@ -477,7 +480,9 @@ export default function AddTransaction() {
               templates.map((template) => (
                 <View
                   key={template.id}
-                  className={`template-item ${selectedTemplate?.id === template.id ? "selected" : ""}`}
+                  className={buildTemplateItemClassName({
+                    selected: selectedTemplate?.id === template.id,
+                  })}
                   onClick={() => applyTemplate(template)}
                 >
                   <View className="template-info">
@@ -485,7 +490,7 @@ export default function AddTransaction() {
                     <Text className="template-category">{template.category_name}</Text>
                   </View>
                   <View className="template-amount">
-                    <Text className={template.type === "income" ? "income" : "expense"}>
+                    <Text className={buildTransactionToneClassName({ type: template.type })}>
                       {formatMoneyByType(Number(template.amount ?? 0), template.type, { compact: false })}
                     </Text>
                   </View>

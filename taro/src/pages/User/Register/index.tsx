@@ -18,6 +18,7 @@ import { FORM_NICKNAME_PLACEHOLDER, FORM_EMAIL_EXAMPLE, FORM_PASSWORD_MIN_SHORT,
 import { FIELD_USERNAME, FIELD_EMAIL, FIELD_PASSWORD, FIELD_CONFIRM_PASSWORD } from "../../../utils/fieldCopy";
 import { ACTION_REGISTERING_ELLIPSIS } from "../../../utils/authCopy";
 import { APP_NAME, APP_BRAND_MARK } from "../../../config/version";
+import { buildAgreementCheckboxClassName, buildAuthShellClassName } from "../../../utils/authFlow";
 
 export default function Register() {
   const { isDark } = useTheme();
@@ -58,7 +59,7 @@ export default function Register() {
   };
 
   return (
-    <View className={`register-page min-h-screen bg-bg flex flex-col ${isDark ? "theme-dark" : ""}`}>
+    <View className={buildAuthShellClassName({ prefix: "register-page", dark: isDark })}>
       {/* 品牌区 */}
       <View className="register-hero">
         <View className="register-brand-mark">
@@ -124,7 +125,7 @@ export default function Register() {
 
         <View className="register-agreement">
           <View
-            className={`register-checkbox ${agreed ? "checked" : ""}`}
+            className={buildAgreementCheckboxClassName({ checked: agreed })}
             onClick={() => setAgreed((v) => !v)}
           >
             <Text className="register-checkbox-mark">{agreed ? "✓" : ""}</Text>

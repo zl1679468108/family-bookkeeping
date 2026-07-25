@@ -13,6 +13,13 @@ import { ApiError } from "../../../services/api";
 import "./index.scss";
 import { toastSuccess, toastInfo } from "../../../utils/toast";
 import { validatePasswordMatch, validatePasswordMinLength } from "../../../utils/validation";
+import {
+  buildStepDotClassName,
+  buildStepLineClassName,
+  buildAuthShellClassName,
+  isResetStepAtLeast,
+  type ResetStep,
+} from "../../../utils/authFlow";
 import { ERROR_SEND_FAILED, ERROR_RESET_FAILED } from "../../../utils/errorCopy";
 import { SUCCESS_CODE_SENT, SUCCESS_PASSWORD_RESET, SUCCESS_CODE_RESENT } from "../../../utils/successCopy";
 import { FORM_BACK, FORM_BACK_LOGIN, FORM_REGISTERED_EMAIL_PLACEHOLDER, FORM_CAPTCHA_DIGITS_PLACEHOLDER, FORM_PASSWORD_MIN_SHORT, FORM_PASSWORD_CONFIRM_PLACEHOLDER, FORM_EMAIL_VALID_REQUIRED, FORM_CAPTCHA_DIGITS_REQUIRED, MAX_RESET_CODE_LENGTH } from "../../../utils/formCopy"
@@ -20,12 +27,10 @@ import { FIELD_EMAIL, FIELD_CAPTCHA, FIELD_NEW_PASSWORD, FIELD_CONFIRM_PASSWORD 
 import { ACTION_SEND_CODE, ACTION_RESEND_CODE, ACTION_RESET_PASSWORD, AUTH_TITLE_PASSWORD_RESET_DONE, AUTH_DESC_PASSWORD_RESET_DONE, AUTH_SEND_FAILED_CHECK_EMAIL, ACTION_SENDING_ELLIPSIS, ACTION_RESETTING_ELLIPSIS } from "../../../utils/authCopy"
 import { APP_NAME, APP_BRAND_MARK } from "../../../config/version";
 
-type Step = "email" | "code" | "success";
-
 export default function ForgotPassword() {
   const { isDark } = useTheme();
   useNavBarTheme();
-  const [step, setStep] = useState<Step>("email");
+  const [step, setStep] = useState<ResetStep>("email");
   const [email, setEmail] = useState("");
   const [code, setCode] = useState("");
   const [password, setPassword] = useState("");
@@ -128,7 +133,7 @@ export default function ForgotPassword() {
   };
 
   return (
-    <View className={`forgot-page min-h-screen bg-bg flex flex-col ${isDark ? "theme-dark" : ""}`}>
+    <View className={buildAuthShellClassName({ prefix: "forgot-page", dark: isDark })}>
       {/* 品牌区 */}
       <View className="forgot-hero">
         <View className="forgot-brand-mark">
@@ -139,11 +144,38 @@ export default function ForgotPassword() {
 
       {/* 步骤指示器 */}
       <View className="forgot-steps">
-        <View className={`fstep-dot ${step === "email" ? "active" : "done"}`} />
-        <View className={`fstep-line ${step >= "code" ? "done" : ""}`} />
-        <View className={`fstep-dot ${step >= "code" ? (step === "success" ? "done" : "active") : ""}`} />
-        <View className={`fstep-line ${step === "success" ? "done" : ""}`} />
-        <View className={`fstep-dot ${step === "success" ? "active" : ""}`} />
+        <View
+          className={buildStepDotClassName({
+            prefix: "fstep-dot",
+            state: step === "email" ? "active" : "done",
+          })}
+        />
+        <View
+          className={buildStepLineClassName({
+            prefix: "fstep-line",
+            done: isResetStepAtLeast(step, "code"),
+          })}
+        />
+        <View
+          className={buildStepDotClassName({
+            prefix: "fstep-dot",
+            state: isResetStepAtLeast(step, "code")
+              ? (step === "success" ? "done" : "active")
+              : "",
+          })}
+        />
+        <View
+          className={buildStepLineClassName({
+            prefix: "fstep-line",
+            done: step === "success",
+          })}
+        />
+        <View
+          className={buildStepDotClassName({
+            prefix: "fstep-dot",
+            state: step === "success" ? "active" : "",
+          })}
+        />
       </View>
 
       {/* 表单 */}

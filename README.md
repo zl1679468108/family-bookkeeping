@@ -6,13 +6,13 @@
 
 | 子项目 | 路径 | 技术栈 |
 |---|---|---|
-| 前端 PC Web | `frontend/` | React 18 + CRA + TypeScript + Tailwind + SCSS |
+| 前端 PC Web | `frontend/` | React 18 + Vite + TypeScript + Tailwind + SCSS |
 | 后端 API | `backend/` | NestJS 10 + TypeScript + Supabase JS SDK |
 | 小程序 | `taro/` | Taro 4 + React 18 + TypeScript + SCSS（微信 / H5） |
 | 数据库 | — | Supabase PostgreSQL（region: `ap-southeast-1` 新加坡） |
 | 生产托管 | — | 腾讯云 CVM + Nginx + PM2 + Let's Encrypt |
 
-不是 monorepo：三个子项目各自独立 `package.json` / `node_modules`，包管理器均为 npm。Node 要求 `>= 20`。
+不是 monorepo / workspace：三个应用子项目各自独立 `package.json` / `node_modules`；`shared-types` / `shared-utils` 是本地 `file:../...` 依赖包。包管理器均为 npm。Node 要求 `>= 20`。
 
 ## 访问地址
 
@@ -76,6 +76,8 @@
 frontend/   前端 PC Web
 backend/    后端 NestJS API
 taro/       小程序（微信 / H5）
+shared-types/ 三端共享 TypeScript 类型
+shared-utils/ 双端共享纯函数与文案常量
 docs/       PRD / TASKS / database-init.sql / deployment.md
 scripts/    部署与初始化脚本
 ```

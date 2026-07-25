@@ -15,7 +15,7 @@ import { Pagination } from '../../../components/ui/Pagination'
 import { EmptyState } from '../../../components/ui/EmptyState'
 import { TableRowsSkeleton } from '../../../components/ui/Skeleton'
 import { formatDateTime } from '../../../utils/date';
-import { platformUserRoleLabel, isPlatformAdmin } from '../../../utils/roles'
+import { buildPlatformRoleTagClassName, platformUserRoleLabel, isPlatformAdmin } from '../../../utils/roles'
 import { queryKeys } from '../../../utils/queryKeys'
 import { STALE } from '../../../utils/cachePolicy'
 import { ERROR_ROLE_UPDATE, ERROR_STATUS_UPDATE } from '../../../utils/errorCopy'
@@ -208,7 +208,7 @@ const AdminUsers: React.FC = () => {
                       <td className="data-table__cell--primary">{user.username}</td>
                       <td>{user.email}</td>
                       <td>
-                        <span className={`tag ${isPlatformAdmin(user.role) ? 'tag--primary' : 'tag--default'}`}>
+                        <span className={buildPlatformRoleTagClassName(user.role)}>
                           {platformUserRoleLabel(user.role)}
                         </span>
                       </td>

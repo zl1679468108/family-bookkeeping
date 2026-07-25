@@ -14,6 +14,7 @@ import { formatMonthDisplayCompact, generateMonthKeysBetween } from '../../utils
 import { EMPTY_MEMBER_SPEND_PERIOD, EMPTY_LOAD_FAILED } from '../../utils/emptyCopy';
 import { TITLE_MEMBER_SPEND, TITLE_CATEGORY_COMPARE, TITLE_MONTHLY_ESTIMATE, withPeriodLabel } from '../../utils/sectionCopy';
 import { FIELD_RATIO } from '../../utils/fieldCopy'
+import { formatErrorDescription } from '../../utils/errorMessage'
 
 interface MemberComparisonProps {
   monthFrom: string;
@@ -278,7 +279,7 @@ export const MemberComparison: React.FC<MemberComparisonProps> = ({
     return (
       <EmptyState
         icon="⚠️"
-        description={error instanceof Error ? `${EMPTY_LOAD_FAILED}：${error.message}` : EMPTY_LOAD_FAILED}
+        description={formatErrorDescription(error, EMPTY_LOAD_FAILED)}
       />
     );
   }

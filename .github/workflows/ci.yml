@@ -11,6 +11,31 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  source-quality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Check source hotspots
+        run: node scripts/check-source-hotspots.mjs
+
+      - name: Check project consistency
+        run: node scripts/check-project-consistency.mjs
+
+      - name: Check package locks
+        run: node scripts/check-package-locks.mjs
+
+      - name: Check Taro dependency versions
+        run: node scripts/check-taro-versions.mjs
+
   typecheck-and-build:
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -18,7 +43,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        project: [backend, frontend, taro]
+        project: [backend, frontend, taro, shared-types, shared-utils]
 
     defaults:
       run:
@@ -38,12 +63,7 @@ jobs:
             frontend/package-lock.json
             taro/package-lock.json
             shared-types/package-lock.json
-
-      - name: Install shared-types
-        if: matrix.project != 'backend'
-        working-directory: shared-types
-        run: |
-          if [ -f package-lock.json ]; then npm ci; else npm install; fi
+            shared-utils/package-lock.json
 
       - name: Install dependencies
         run: |
@@ -51,6 +71,22 @@ jobs:
 
       - name: Typecheck
         run: npx tsc --noEmit
+
+      - name: Check shared package exports
+        if: matrix.project == 'shared-types' || matrix.project == 'shared-utils'
+        run: npm run check:exports
+
+      - name: Typecheck backend scripts
+        if: matrix.project == 'backend'
+        run: npm run typecheck:scripts
+
+      - name: Run backend unit tests
+        if: matrix.project == 'backend'
+        run: npm test
+
+      - name: Run Taro unit tests
+        if: matrix.project == 'taro'
+        run: npm test
 
       - name: Build backend
         if: matrix.project == 'backend'
@@ -66,5 +102,11 @@ jobs:
       - name: Build taro weapp
         if: matrix.project == 'taro'
         run: npm run build:weapp
+        env:
+          TARO_APP_API_BASE_URL: https://zlspace.site/api
+
+      - name: Build taro h5
+        if: matrix.project == 'taro'
+        run: npm run build:h5
         env:
           TARO_APP_API_BASE_URL: https://zlspace.site/api

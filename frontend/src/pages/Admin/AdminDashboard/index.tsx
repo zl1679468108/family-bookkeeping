@@ -7,7 +7,7 @@ import { StatCardsSkeleton, TableRowsSkeleton } from '../../../components/ui/Ske
 import { EmptyState } from '../../../components/ui/EmptyState';
 import { formatMoney } from '../../../utils/budget';
 import { formatDateTime } from '../../../utils/date';
-import { platformUserRoleLabel, isPlatformAdmin } from '../../../utils/roles'
+import { buildPlatformRoleTagClassName, platformUserRoleLabel } from '../../../utils/roles'
 import { queryKeys } from '../../../utils/queryKeys'
 import { STALE } from '../../../utils/cachePolicy'
 import {
@@ -17,6 +17,7 @@ import {
 import { EMPTY_NO_PLATFORM_USERS } from '../../../utils/emptyCopy';
 import { FIELD_MONTH_BALANCE, FIELD_MONTH_INCOME, FIELD_MONTH_EXPENSE } from "../../../utils/fieldCopy"
 import { ERROR_LOAD_FAILED_RETRY } from '../../../utils/errorCopy'
+import { buildStatCardValueClassName } from '../../../utils/statCard';
 
 const AdminDashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -73,7 +74,10 @@ const AdminDashboard: React.FC = () => {
           <div className="stat-card stat-card--hero">
             <div className="stat-card__label">{FIELD_MONTH_BALANCE}</div>
             <div
-              className={`stat-card__value ${(stats?.monthNet || 0) >= 0 ? 'stat-card__value--success' : 'stat-card__value--danger'}`}>
+              className={buildStatCardValueClassName({
+                tone: (stats?.monthNet || 0) >= 0 ? 'success' : 'danger',
+              })}
+            >
               {formatMoney(stats?.monthNet ?? 0, {
                 showSign: true,
                 sign: (stats?.monthNet || 0) >= 0 ? '+' : '-',
@@ -124,7 +128,7 @@ const AdminDashboard: React.FC = () => {
                     <td className="data-table__cell--primary">{user.username}</td>
                     <td className="data-table__cell--muted">{user.email}</td>
                     <td>
-                      <span className={`tag ${isPlatformAdmin(user.role) ? 'tag--primary' : 'tag--default'}`}>
+                      <span className={buildPlatformRoleTagClassName(user.role)}>
                         {platformUserRoleLabel(user.role)}
                       </span>
                     </td>

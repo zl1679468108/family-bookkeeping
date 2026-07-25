@@ -10,11 +10,11 @@ test.describe('分类管理 - UI 与 CRUD 请求', () => {
     await page.goto('/#/categories');
 
     await expect(page.getByText('分类管理')).toBeVisible();
-    await expect(page.locator('.cat-card').filter({ hasText: '餐饮' })).toBeVisible();
+    await expect(page.locator('.list-card').filter({ hasText: '餐饮' })).toBeVisible();
 
     await page.getByRole('button', { name: '收入' }).click();
-    await expect(page.locator('.cat-card').filter({ hasText: '工资' })).toBeVisible();
-    await expect(page.locator('.cat-card').filter({ hasText: '餐饮' })).toBeHidden();
+    await expect(page.locator('.list-card').filter({ hasText: '工资' })).toBeVisible();
+    await expect(page.locator('.list-card').filter({ hasText: '餐饮' })).toBeHidden();
   });
 
   test('新建分类会提交名称、图标和类型', async ({ page }) => {
@@ -35,7 +35,7 @@ test.describe('分类管理 - UI 与 CRUD 请求', () => {
 
   test('编辑自定义分类会提交更新请求', async ({ page }) => {
     await page.goto('/#/categories');
-    await page.locator('.cat-card').filter({ hasText: '购物' }).click();
+    await page.locator('.list-card').filter({ hasText: '购物' }).click();
     await page.getByRole('button', { name: '编辑', exact: true }).click();
     await page.getByPlaceholder('输入分类名称').fill('E2E已修改分类');
 
@@ -48,7 +48,7 @@ test.describe('分类管理 - UI 与 CRUD 请求', () => {
 
   test('删除自定义分类会二次确认并发起 DELETE', async ({ page }) => {
     await page.goto('/#/categories');
-    await page.locator('.cat-card').filter({ hasText: '购物' }).click();
+    await page.locator('.list-card').filter({ hasText: '购物' }).click();
 
     await waitForRequest(page, 'DELETE', '/api/categories/cat-shopping', async () => {
       await page.getByRole('button', { name: '删除' }).click();

@@ -12,6 +12,7 @@ import {
   shouldShowInputClear,
   buildInputWrapClassName,
   buildInputClassName,
+  buildSearchInputClassName,
 } from "../../../utils/inputHelpers";
 
 export interface BaseInputProps {
@@ -107,7 +108,7 @@ export function SearchInput({ value, onChange, placeholder = ACTION_SEARCH, clas
       placeholder={placeholder}
       icon={<Text className="ui-input__search-icon">🔍</Text>}
       allowClear
-      className={`ui-input--search ${className}`.trim()}
+      className={buildSearchInputClassName({ className })}
       wrapperClassName="ui-input-wrap--search"
     />
   );

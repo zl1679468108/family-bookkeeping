@@ -64,8 +64,8 @@ describe('buildBookIconSvgString', () => {
     expect(svg).toContain('</svg>');
   });
 
-  it('默认颜色 #1a1c19', () => {
-    expect(buildBookIconSvgString('home')).toContain('stroke="#1a1c19"');
+  it('默认颜色使用浅色主题前景令牌', () => {
+    expect(buildBookIconSvgString('home')).toContain('stroke="#1A1C19"');
   });
 });
 

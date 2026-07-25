@@ -16,6 +16,7 @@ import { useRef, useEffect, useState, useCallback, useMemo } from 'react';
 import { AmapManager } from '../services/amapManager';
 import { ERROR_MAP_SDK_LOAD_FAILED } from '../utils/errorCopy'
 import { useTheme } from '../utils/theme'
+import { reportClientError } from '../utils/clientDiagnostics'
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -88,7 +89,7 @@ export function useMapInstance(
       .then(() => { if (!cancelled) setSdkReady(true); })
       .catch((err) => {
         if (!cancelled) {
-          console.error('[useMapInstance] SDK load failed:', err)
+          reportClientError('useMapInstance.ensureLoaded', err)
           setError(err instanceof Error ? err.message : ERROR_MAP_SDK_LOAD_FAILED)
         }
       });
@@ -160,7 +161,7 @@ export function useMapInstance(
       .catch((err: any) => {
         if (!cancelled) {
           const msg = err instanceof Error ? err.message : String(err)
-          console.error('[useMapInstance] acquire failed:', err)
+          reportClientError('useMapInstance.acquire', err)
           setError(msg)
         }
       });

@@ -63,7 +63,10 @@ import { queryKeys } from "../../utils/queryKeys"
 import {
   buildTemplateCardTypeClassName,
   buildTemplateCardAmountClassName,
+  buildTemplateDetailAmountTagClassName,
+  buildTemplateDetailTypeTagClassName,
 } from "../../utils/typeTag";
+import { buildTplPickerValueClassName } from "../../utils/templateEditUi";
 
 /* ---------- 空表单初始态 ---------- */
 
@@ -395,11 +398,11 @@ export default function TemplateManager() {
             />
             <Text className="tpl-detail-hero__name">{selectedTemplate.name}</Text>
             <View className="tpl-detail-hero__tags">
-              <View className={`tpl-tag tpl-tag--type tpl-tag--${selectedTemplate.type}`}>
+              <View className={buildTemplateDetailTypeTagClassName({ type: selectedTemplate.type })}>
                 <Text>{transactionTypeLabel(selectedTemplate.type)}</Text>
               </View>
               {selectedTemplate.amount != null && (
-                <View className={`tpl-tag tpl-tag--amount tpl-tag--${selectedTemplate.type}`}>
+                <View className={buildTemplateDetailAmountTagClassName({ type: selectedTemplate.type })}>
                   <Text>{formatMoney(Number(selectedTemplate.amount), { compact: false })}</Text>
                 </View>
               )}
@@ -543,7 +546,10 @@ export default function TemplateManager() {
                 }
               >
                 <View className="tpl-fg__select">
-                  <Text className={`tpl-fg__select-val tpl-fg__select-val--${form.type}`}>
+                  <Text className={buildTplPickerValueClassName({
+                    prefix: "tpl-fg__select-val",
+                    type: form.type,
+                  })}>
                     {transactionTypeLabel(form.type)}
                   </Text>
                   <View
@@ -580,7 +586,11 @@ export default function TemplateManager() {
                 }}
               >
                 <View className="tpl-fg__select">
-                  <Text className={`tpl-fg__select-val ${selectedCat ? "" : "tpl-fg__select-val--ph"}`}>
+                  <Text className={buildTplPickerValueClassName({
+                    prefix: "tpl-fg__select-val",
+                    placeholder: !selectedCat,
+                    placeholderClass: "tpl-fg__select-val--ph",
+                  })}>
                     {selectedCat ? selectedCat.name : FORM_SELECT_CATEGORY}
                   </Text>
                   <Text className="tpl-fg__select-arrow">·</Text>

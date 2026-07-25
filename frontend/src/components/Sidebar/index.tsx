@@ -27,6 +27,7 @@ import {
   buildUserMenuItemClassName,
 } from '../../utils/sidebar'
 import { APP_NAME, APP_BRAND_MARK } from '../../config/version'
+import { reportClientError } from '../../utils/clientDiagnostics'
 
 const NAV_ITEMS = [
   { id: 'dashboard', name: NAV_HOME, path: '/', type: 'normal', group: 'main' as const },
@@ -55,7 +56,12 @@ export const Sidebar: React.FC = () => {
   const location = useLocation()
   const { user, signOut, loading } = useAuth()
   const { run: handleLogout, isRunning: logoutLoading } = useDebouncedAction(async () => {
-    try { await signOut(); navigate('/login') } catch (e) { console.error(e) }
+    try {
+      await signOut()
+      navigate('/login')
+    } catch (e) {
+      reportClientError('Sidebar.signOut', e)
+    }
   })
   const [collapsed, setCollapsed] = useState(() => localStorage.getItem(COLLAPSED_KEY) === 'true')
   const [menuOpen, setMenuOpen] = useState(false)

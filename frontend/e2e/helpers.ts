@@ -2,7 +2,10 @@ import { expect, Page, Request, Route } from '@playwright/test';
 
 export const API_ORIGIN = 'http://localhost:3000';
 export const API_BASE = `${API_ORIGIN}/api`;
-export const TEST_TOKEN = 'e2e-token';
+export const TEST_ACCESS_TOKEN = 'e2e-access-token';
+export const TEST_REFRESH_TOKEN = 'e2e-refresh-token';
+/** 兼容旧测试命名；请求实际使用双 token。 */
+export const TEST_TOKEN = TEST_ACCESS_TOKEN;
 
 export interface CapturedRequest {
   method: string;
@@ -191,9 +194,10 @@ export async function installApiMocks(page: Page) {
 }
 
 export async function loginByStorage(page: Page) {
-  await page.addInitScript((token) => {
-    window.localStorage.setItem('auth_token', token);
-  }, TEST_TOKEN);
+  await page.addInitScript(({ accessToken, refreshToken }) => {
+    window.localStorage.setItem('auth_access_token', accessToken);
+    window.sessionStorage.setItem('auth_refresh_token', refreshToken);
+  }, { accessToken: TEST_ACCESS_TOKEN, refreshToken: TEST_REFRESH_TOKEN });
 }
 
 export async function setupAuthenticatedPage(page: Page) {
@@ -262,7 +266,11 @@ async function fulfillApi(route: Route, request: Request, url: URL, body: unknow
     return json(route, mockUser);
   }
   if (method === 'POST' && path === '/auth/login') {
-    return json(route, { user: mockUser, token: TEST_TOKEN });
+    return json(route, {
+      user: mockUser,
+      accessToken: TEST_ACCESS_TOKEN,
+      refreshToken: TEST_REFRESH_TOKEN,
+    });
   }
   if (method === 'POST' && path === '/auth/logout') {
     return json(route, null);

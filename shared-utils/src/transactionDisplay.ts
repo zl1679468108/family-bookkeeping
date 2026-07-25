@@ -20,6 +20,18 @@ export function buildTxnAmountClassName(opts: {
   return cx(prefix, tone, opts.className)
 }
 
+/** 仅输出收支 tone class：expense / income */
+export function buildTransactionToneClassName(opts: {
+  type?: string | null
+  className?: ClassValue
+  expenseClass?: string
+  incomeClass?: string
+} = {}): string {
+  const expenseClass = opts.expenseClass || 'expense'
+  const incomeClass = opts.incomeClass || 'income'
+  return cx(isExpenseType(opts.type) ? expenseClass : incomeClass, opts.className)
+}
+
 /** Taro 交易行金额：txi-amount--expense/income */
 export function buildTxiAmountClassName(opts: {
   type?: string | null

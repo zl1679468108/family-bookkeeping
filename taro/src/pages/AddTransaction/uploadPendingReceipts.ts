@@ -5,6 +5,7 @@ import {
   uploadImagesProgressTitle,
   type UploadPendingResult,
 } from "../../utils/uploadReceipts";
+import { reportClientError } from "../../utils/clientDiagnostics";
 
 export type { UploadPendingResult };
 
@@ -33,14 +34,17 @@ export async function uploadPendingReceipts(
           uploadedUrls.push(res.image_url);
         } else {
           failedCount++;
-          console.error("图片上传无返回 URL:", filePath);
+          reportClientError("AddTransaction.uploadReceipt.emptyUrl", filePath);
         }
         Taro.showLoading({
           title: uploadImagesProgressTitle(i + 1, pendingPaths.length),
         });
       } catch (err) {
         failedCount++;
-        console.error("图片上传失败:", filePath, err);
+        reportClientError("AddTransaction.uploadReceipt.failed", {
+          filePath,
+          err,
+        });
       }
     }
   } finally {

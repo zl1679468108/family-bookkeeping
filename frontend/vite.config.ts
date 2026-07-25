@@ -23,6 +23,16 @@ export default defineConfig(({ mode }) => {
     },
     css: {
       postcss: './postcss.config.js',
+      preprocessorOptions: {
+        scss: {
+          silenceDeprecations: ['legacy-js-api'],
+        },
+      },
+    },
+    build: {
+      // ECharts is already isolated into a lazy chart chunk; keep the warning
+      // threshold aligned with that intentional split instead of flagging it.
+      chunkSizeWarningLimit: 600,
     },
   }
 })

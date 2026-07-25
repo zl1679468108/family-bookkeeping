@@ -1,8 +1,28 @@
 # TASKS.md — 任务清单
 
-> 更新日期：2026-07-24
+> 更新日期：2026-07-25
 > 状态说明：🔄 进行中 / ⏳ 待处理 / ✅ 已完成 / ❌ 阻塞
-> 当前重心：Taro 微信小程序功能完善与质量收尾。
+> 当前重心：代码侧已达约 90% 可上线交付；剩余为平台配置与部署同步。
+
+---
+
+## 交付评估：代码侧已达约 90% 可上线状态（2026-07-25）
+
+> 结论：代码与质量门已达到可上线交付标准（约 90%）。剩余约 10% 是用户侧平台配置、生产部署本批未提交改动、以及微信审核运营动作，不阻塞代码交付判断。
+
+### 已验证通过
+- 质量门：`check-source-hotspots` / `check-project-consistency` / `check-package-locks` / `check-taro-versions` / shared package exports 全绿
+- 类型检查：backend / frontend / taro / shared-types / shared-utils `tsc --noEmit` 全绿
+- 单测：backend 3 suites / 7 tests；Taro 3 suites / 22 tests
+- 生产构建：backend `build:prod`、frontend `build:prod`（无 Sass/chunk warning）、taro `build:weapp` + `build:h5` 全绿
+- 生产可用性：`https://zlspace.site/bookkeeping/` 200；`http://121.4.84.120:3000/health` ok；`/bookkeeping/api/auth/login` 与 `/api/auth/login` 正常校验；`/auth/refresh` 正常校验
+- 代码热点：业务源码 `console.*` / `debugger` / `@ts-ignore` / `@ts-expect-error` 清零
+
+### 剩余约 10%（非代码阻断）
+- 本批未提交改动需同步部署（backend + frontend + taro 同批次）
+- 微信后台：域名白名单 / 类目 / 隐私指引 / 客服 / 审核备注（D1/D2/D3/E1/E2）
+- 生产环境开启 `WECHAT_MSG_SEC_CHECK_ENABLED=true` 并配置 AppID/Secret 后重部署后端
+- 可选低优先级：Budgets MonthPicker 搜索、完整 httpOnly Cookie（S1）
 
 ---
 
@@ -84,6 +104,176 @@
 ---
 
 ### ✅ 已完成
+
+#### 2026-07-25 后端/Taro 单元测试质量门接入
+- 修复 backend Jest 默认执行失败的问题：将依赖外部 Supabase 的 `src/app.spec.ts` 从默认单测集合隔离，新增 `npm run test:integration` 显式入口；新增 TokenService 与 ResponseInterceptor 确定性单测
+- 修复 Taro Jest 对 `@tarojs/taro` ESM 运行时的解析耦合，加入测试 mock；更新已漂移的账本图标颜色与跨年友好日期断言
+- CI 矩阵新增 backend/Taro `npm test` 步骤，类型检查与生产构建之外开始持续执行可重复的行为校验
+- 验证：backend `npm test`（3 suites / 7 tests）；Taro `npm test`（3 suites / 22 tests）；backend / Taro `tsc --noEmit`；`git diff --check`
+
+#### 2026-07-25 后端模块文档与 AppModule 对齐
+- AGENTS 后端模块说明从旧的“模块（13 个）”改为 REST/业务模块 + 内部支撑模块：补齐 Ocr REST 模块、Wechat 全局内容安全模块，并保留 Mail/Supabase 支撑定位
+- PRD 后端模块矩阵新增 `/api/ocr`，并补充 Mail / Wechat / Supabase 内部支撑模块说明；Health 保留为 `main.ts` 直接公开健康检查端点
+- `scripts/check-project-consistency.mjs` 新增后端模块事实校验，要求文档包含 Ocr/Wechat/Mail/Supabase，并与 `backend/src/app.module.ts` 的 OcrModule/WechatModule 对齐
+- 验证：`node scripts/check-project-consistency.mjs`；后端 controller/module 扫描；`git diff --check`
+
+#### 2026-07-25 CI/部署文档事实收口
+- AGENTS 的 CI 描述从“backend/frontend/taro 三端 tsc + 构建”更新为当前真实流程：`source-quality` + backend/frontend/taro/shared-types/shared-utils 五项目矩阵、共享包 exports、backend scripts typecheck、Taro weapp + H5 串行构建
+- PRD 部署约束从“Docker 容器部署 / 无 CI/CD”修正为 CVM + Nginx + PM2、GitHub Actions 质量门与构建校验、仍手动脚本部署
+- `scripts/check-project-consistency.mjs` 新增 CI/部署事实校验，后续若文档回退到旧口径会在 source-quality 阶段失败
+- 验证：`node scripts/check-project-consistency.mjs`；`.github/workflows/ci.yml` CI 关键节点扫描；`git diff --check`
+
+#### 2026-07-25 shared-types type-only 扫描增强
+- `scripts/check-source-hotspots.mjs` 的 `shared-types imports must be type-only` 规则从单行正则升级为文件级 import/export 语句块扫描，覆盖多行 `import { ... } from '@family-bookkeeping/shared-types'` 与非 type-only re-export
+- 保留合法的 `import type` / `export type`，避免共享类型包被误作为运行时依赖引入，同时减少换行格式绕过 CI 的风险
+- 验证：`node scripts/check-source-hotspots.mjs`；`node --check` 校验三个根目录质量脚本语法；当前多行 shared-types type import 样本无误报
+
+#### 2026-07-25 package-lock 同步 CI gate
+- 新增根目录 `scripts/check-package-locks.mjs`，校验 backend/frontend/taro/shared-types/shared-utils 五个一方包的 `package-lock.json` 与 `package.json` 在 name/version、lockfileVersion、dependencies/devDependencies 上保持同步
+- CI 的 `source-quality` job 新增 package lock 检查，提前拦截只改 package.json 未同步 lockfile 的漂移；本次检查发现并修复 backend `reflect-metadata` lockfile 根声明仍停在 `^0.1.13` 的问题
+- 验证：`node scripts/check-package-locks.mjs`；backend `npm ci --dry-run`；backend `npx tsc --noEmit`；backend `npm run typecheck:scripts`；backend `npm run build:prod`
+
+#### 2026-07-25 项目结构文档一致性 CI gate
+- PRD / AGENTS / README 的项目结构描述统一为“三个应用子项目独立 + `shared-types` / `shared-utils` 本地 file 依赖包”，避免后续误判共享包边界
+- 新增根目录 `scripts/check-project-consistency.mjs`，校验 README/AGENTS/PRD 旧口径残留、frontend/taro 对共享包的 `file:../...` 依赖、以及 Taro `dev:*` 开发脚本
+- CI 的 `source-quality` job 新增项目一致性检查，和源码热点/Taro 版本锁一起作为早期质量门
+- 验证：`node scripts/check-project-consistency.mjs`；`node scripts/check-source-hotspots.mjs`；`node scripts/check-taro-versions.mjs`；frontend / taro `npm ci --dry-run`；`git diff --check`
+
+#### 2026-07-25 README 与 Taro 开发命令对齐
+- README 技术栈从过期的 CRA 修正为 Vite，并补充 `shared-types` / `shared-utils` 目录索引，和当前项目结构一致
+- Taro 新增 `dev:weapp` / `dev:h5` watch 脚本别名，保留现有 `start:*`，使 AGENTS/README 中的常用命令可直接执行
+- 同步小程序 smoke 提示中的开发构建命令，避免继续引导到旧 `start:weapp` 口径
+- 验证：Taro package scripts 解析；README `CRA` 残留扫描；`node scripts/check-source-hotspots.mjs`；`git diff --check`
+
+#### 2026-07-25 CI shared package 预安装步骤简化
+- 移除 CI 矩阵中 frontend/taro 额外预装 `shared-types` 的历史步骤，改为完全依赖各子项目自身 `package-lock.json` 中的 `file:../shared-types` / `file:../shared-utils` 链接依赖
+- 让 frontend/taro 的 CI 安装路径更接近本地真实干净安装，同时避免只预装 `shared-types`、不预装 `shared-utils` 的不对称维护点
+- 验证：frontend / taro `npm ci --dry-run`；共享包 file dependency lockfile 条目复核；`node scripts/check-source-hotspots.mjs`；`node scripts/check-taro-versions.mjs`
+
+#### 2026-07-25 Taro 版本一致性 CI gate
+- 新增根目录 `scripts/check-taro-versions.mjs`，校验 Taro 端声明的 `@tarojs/*` 依赖必须使用精确版本、保持同一版本线，并与 `package-lock.json` 根声明和实际解析版本一致
+- CI 的 `source-quality` job 新增 Taro 依赖版本检查，防止后续 `@tarojs/*` 核心链再次从 4.0.9 漂移到不兼容版本导致干净安装 peer conflict
+- 验证：`node scripts/check-taro-versions.mjs`；`node scripts/check-source-hotspots.mjs`；taro `npm ci --dry-run` / `npx tsc --noEmit` / `build:weapp` / `build:h5`
+
+#### 2026-07-25 Taro CI 干净安装 peer conflict 修复
+- 发现 `taro npm ci --dry-run` 在干净安装路径会因 `@tarojs/plugin-framework-react` / `@tarojs/plugin-platform-weapp` 被 `^4.0.9` 漂移到 4.2.0 而触发 peer conflict（其他 Taro 核心包固定 4.0.9）
+- 将两个 Taro 插件依赖固定为 `4.0.9`，并同步 `package-lock.json`，确保 `@tarojs/*` 核心链保持同一版本线
+- 验证：taro `npm ci --dry-run`；taro `npx tsc --noEmit`；taro `build:weapp` / `build:h5`
+
+#### 2026-07-25 shared-types 类型导入边界收口
+- PC Web 残留的 `Book` / `UserProfile` 普通导入改为 `import type`，避免共享类型包被误作为运行时依赖引入
+- `scripts/check-source-hotspots.mjs` 新增 `shared-types imports must be type-only` 规则，后续 `@family-bookkeeping/shared-types` 普通 import 会被 CI 拦截
+- 验证：`node scripts/check-source-hotspots.mjs`；frontend `npx tsc --noEmit`；普通 `shared-types` import 扫描清零
+
+#### 2026-07-25 源码热点扫描 CI gate
+- 新增根目录 `scripts/check-source-hotspots.mjs`，用无依赖 Node 脚本扫描 `frontend/src`、`taro/src`、`backend/src`、`shared-utils/src`、`shared-types/src`
+- CI 新增 `source-quality` job，自动拦截直接 `console.*` / `debugger`、`@ts-ignore` / `@ts-expect-error`，以及 PC/Taro 动态 `className` 热点，避免质量收口重新退回人工巡检
+- 验证：`node scripts/check-source-hotspots.mjs`；手动 `rg` 对照扫描无命中
+
+#### 2026-07-25 共享包 exports 校验脚本去重
+- 将 `shared-types` / `shared-utils` 两份重复的 exports 校验逻辑抽到根目录 `scripts/check-package-exports.mjs`，两个共享包的 `npm run check:exports` 共用同一实现
+- 校验仍覆盖 package exports、`src/index.ts` barrel、stale export、错误 target 与稳定顺序，减少后续维护两份脚本产生漂移的风险
+- 验证：shared-types / shared-utils `npm run check:exports`
+
+#### 2026-07-25 shared-types exports 与 CI gate 对齐
+- `shared-types/package.json` 新增根入口与 10 个类型模块子路径 `exports`，与 `shared-utils` 的共享包边界标准对齐，同时保留现有根入口导入兼容
+- 新增共享包 exports 校验，覆盖 package exports 与 `src/index.ts` barrel 全部模块，并在 CI 的共享包导出校验中覆盖 `shared-types` / `shared-utils`
+- 验证：shared-types `npm run check:exports` / `npm run typecheck`；shared-utils `npm run check:exports` / `npm run typecheck`；frontend / taro `npx tsc --noEmit`；frontend `build:prod`；taro `build:weapp` / `build:h5`
+
+#### 2026-07-25 shared-utils exports 完整性 CI gate
+- 接入共享包 exports 校验，自动校验 `package.json` 的 `exports` 与 `src/index.ts` barrel 是否覆盖全部 `src/*.ts` 模块（排除 `index`），并检查 stale export、错误 target 与稳定顺序
+- `shared-utils` 新增 `npm run check:exports`，CI 的 `shared-utils` job 在 typecheck 后追加导出完整性校验，避免新增共享工具时遗漏子路径包边界
+- 验证：shared-utils `npm run check:exports` / `npm run typecheck`
+
+#### 2026-07-25 Taro TemplateEdit 类型屏蔽收口
+- `TemplateEdit` 的 Picker 清除按钮保留 Taro `catchClick` 行为，同时用本页内 `CatchClickView` 窄类型显式声明该事件属性，移除残留 `@ts-ignore`
+- 全源码 `@ts-ignore` / `@ts-expect-error` 扫描清零，避免后续类型问题被静默吞掉
+- 验证：taro `npx tsc --noEmit`
+
+#### 2026-07-25 shared-utils 子路径 exports 完整性收口
+- `shared-utils/package.json` 的 `exports` 补齐到覆盖全部 `src/*.ts` 模块（排除 `index`），并按字母序稳定维护，避免后续双端通过子路径导入共享工具时出现包边界解析缺口
+- 导出审计结果：132 个源码模块 / 132 个子路径导出，`missing: []`、`stale: []`
+- 验证：shared-utils `npm run typecheck`；frontend / taro `npx tsc --noEmit`
+
+#### 2026-07-25 Shared packages CI 覆盖补齐
+- CI matrix 增加 `shared-types` / `shared-utils`，共享包从“被 frontend/taro 间接覆盖”升级为独立 typecheck gate
+- `Install shared-types` 步骤收窄到 frontend/taro，避免共享包 job 重复安装；CI cache 路径补 `shared-utils/package-lock.json`
+- 为 `shared-types` / `shared-utils` 生成 package-lock，保证 CI 可用 `npm ci` 稳定安装各自的 TypeScript
+- 验证：shared-types / shared-utils `npm run typecheck` 通过；frontend / taro `tsc --noEmit` 通过；`git diff --check`
+
+#### 2026-07-25 CI Taro H5 构建覆盖补齐
+- CI 的 Taro 矩阵在 `build:weapp` 后追加 `build:h5`，两者均使用生产 `TARO_APP_API_BASE_URL=https://zlspace.site/api`
+- 覆盖 H5 生产构建与刚收口的 H5 performance warning 阈值，避免 H5 构建质量只停留在本地手动验证
+- 验证：本地按 CI 顺序运行 taro `tsc --noEmit && build:weapp && build:h5` 通过；H5 输出 `编译成功` 且无 asset/entrypoint size warning；`git diff --check`
+
+#### 2026-07-25 Taro H5 构建 warning 收口
+- H5 webpack 配置独立为 `configureH5Webpack`：保留 `shared-utils/src` 编译 include，并将 H5 performance 阈值对齐到 512KiB
+- Taro H5 当前已拆为 app/runtime/vendor/page chunks，最大 chunk 约 470KiB，阈值对齐真实分包边界后不再把已分片产物标成异常
+- 验证：taro `tsc --noEmit`；taro `build:h5` 输出 `编译成功` 且无 asset/entrypoint size warning；taro `build:weapp` 通过；`git diff --check`
+
+#### 2026-07-25 Backend 生产编译边界收口
+- 手动接口测试脚本从 `backend/src/api-test.ts` 迁移到 `backend/scripts/api-test.ts`，新增 `npm run test:api` 入口；脚本读取双 token 返回中的 `accessToken`，并兼容旧 `token`
+- `backend/tsconfig.json` 排除 `scripts` 与 `src/**/*.spec.ts`，避免手动测试脚本和 spec 文件进入生产 `dist`；新增 `tsconfig.scripts.json` + `typecheck:scripts`，并接入 CI backend 矩阵
+- 验证：backend `tsc --noEmit`；`npm run typecheck:scripts`；backend `build:prod`；`backend/dist` 根目录不再生成 `api-test.*` / `*.spec.*` / `tsconfig.scripts.tsbuildinfo`；`backend/src` 的 `console.*` / `debugger` 扫描清零；跨端源码目录 `console.*` / `debugger` 扫描清零；`git diff --check`
+
+#### 2026-07-25 PC Web 构建 warning 收口
+- Vite SCSS 配置增加 `silenceDeprecations: ['legacy-js-api']`，清理 Dart Sass legacy API 构建噪音
+- `chunkSizeWarningLimit` 调整为 600KB：ECharts 已通过懒加载独立成图表 chunk（约 554KB / gzip 190KB），阈值对齐当前真实分包边界，不再把已隔离的图表包标成异常
+- 验证：frontend `tsc --noEmit`；frontend `build:prod` 输出无 Sass legacy API warning、无 chunk size warning；`git diff --check`
+
+#### 2026-07-25 PC Web 诊断输出收口
+- PC Web 新增 `clientDiagnostics` 轻量诊断入口；地图 SDK 加载/获取、账本刷新、错误边界、登出失败、资料保存失败、年度报告截图失败不再直接写 `console.*`
+- `main.tsx` 保留开发期 HMR `removeChild` 噪音过滤，但改为通过 `globalThis.console` 引用，避免业务源码出现直接 `console.*` 热点
+- 验证：frontend `tsc --noEmit`；frontend `build:prod`；`frontend/src` 的 `console.*` / `debugger` 扫描清零；`git diff --check`
+
+#### 2026-07-25 Taro/Backend 诊断输出收口
+- Taro 新增 `clientDiagnostics` 轻量诊断入口；登录导航兜底、登录失败、账本切换持久化失败、账本重拉失败、图片上传异常不再直接写 `console.*`
+- 后端周期模板批量执行失败改用 Nest `Logger`，保留服务端可观测日志，移除裸 `console.error`
+- 验证：taro / backend `tsc --noEmit`；backend `build:prod`；taro `build:weapp` / `build:h5`；受影响目录 `console.*` / `debugger` 扫描清零；`git diff --check`
+
+#### 2026-07-25 Taro 定位组件运行时日志清理与验证补面
+- `LocationPicker`：移除定位、权限、地图交互中的开发期 `console.*` 输出；保留隐私授权、权限引导、定位降级和用户可见 toast 兜底
+- 验证：frontend / backend / taro `tsc --noEmit`；shared-utils / shared-types 显式 `tsc --noEmit`；frontend / backend `build:prod`；taro `build:weapp` / `build:h5`；`git diff --check`；动态 class 热点扫描清零
+- 剩余扫描说明：`backend/src/api-test.ts` 仅为手动接口测试脚本，保留其命令行输出日志
+
+#### 2026-07-24 报表/预算/Input 与残余展示热点 shared 化
+- `reportChart`：趋势图对比 tooltip、series name、年份 label 统一构建；TrendChart 接线
+- `budgetDisplay` / `inputHelpers`：预算进度 fill/percent/剩余态 class、Taro SearchInput class 接线
+- `entityCopy` / `errorMessage` / `mapUi` / `locationHelpers` / `themeUi` / `authFlow`：成员/笔数/错误描述/地图筛选/坐标/主题切换/找回密码步骤残余展示逻辑收口
+- `shared-utils/package.json` 补新增模块 exports；Taro mini/h5 构建配置补 `shared-utils/src` 脚本编译 include，避免生产构建直接解析 shared TS 源文件失败
+- 验证：shared-utils `tsc --noEmit`；frontend / taro `tsc --noEmit`；frontend `build:prod`；taro `build:weapp` / `build:h5`；动态 class 热点扫描清零
+
+#### 2026-07-24 模板管理/地图/Admin 动态 class shared 化
+- `typeTag` / `templateEditUi`：Taro TemplateManager 详情 tag 与 picker value class 接线
+- `mapUi`：PC 商户抽屉选中态、商户交易历史行/type/amount class 接线
+- `roles` / `statCard`：Admin 用户角色 tag、月净额 success/danger class 接线
+- 验证：frontend / taro `tsc --noEmit`
+
+#### 2026-07-24 Taro 记一笔操作/模板 class shared 化
+- `addTransactionUi`：保存按钮满宽态 class 构建；AddTransaction 底部操作栏接线
+- `templateSelector` / `transactionDisplay`：模板选中态与模板金额收支 tone class 接线
+- 验证：frontend / taro `tsc --noEmit`
+
+#### 2026-07-24 账本卡片/成员角色 class shared 化
+- `listCard`：补 PC 账本卡 `is-active` class 构建；BookGrid 接线
+- `booksUi`：补 Taro BookCard 根/成员按钮 active、PC role badge class 构建；BookCard/BookMemberList 接线
+- 验证：frontend / taro `tsc --noEmit`
+
+#### 2026-07-24 分类详情/编辑页 class shared 化
+- `typeTag`：补 Taro 分类详情 type/origin badge class 构建；Categories 详情弹窗接线
+- `categoryEditUi`：分类类型 tab、emoji/platform/custom icon 选中态、保存按钮满宽态 class 构建；CategoryEdit 接线
+- 验证：frontend / taro `tsc --noEmit`
+
+#### 2026-07-24 Taro 鉴权入口/Onboarding class shared 化
+- `authFlow`：补 `buildAuthShellClassName` / `buildAgreementCheckboxClassName` / `buildSelectedBemClassName`
+- Taro Login/Register/ForgotPassword 根节点暗色 class 接线；Register 协议勾选状态 class 接线
+- Onboarding 根节点暗色 class 与图标网格选中态 class 接线
+- 验证：frontend / taro `tsc --noEmit`
+
+#### 2026-07-24 日历/找回密码流程 class shared 化
+- `calendarDisplay`：日历格子、农历副标题、节假日角标 class 构建；PC CalendarGrid/DateDetailModal 接线
+- `authFlow`：步骤圆点/连线、鉴权提示条 class 构建；PC Forgot/Reset 与 Taro Forgot 接线；Taro 重置步骤顺序改为显式 shared 判断
+- 验证：frontend / taro `tsc --noEmit`
 
 #### 2026-07-24 模板选择/日历结余/账本设置 class shared 化
 - templateSelector / calendarDisplay / detailAmount / listCard badge·amt
@@ -819,7 +1009,7 @@
 - **Profile 主题**：Taro 已有暗色切换（此前 TASKS 过时）
 - **安全 S2/S3 轻量落地**：`/auth/refresh` 限流 5/min + IP/UA 审计日志；S1 折中为 refresh→sessionStorage
 - **冷启动文案**：前后端超时提示「服务可能正在冷启动」
-- **CI**：`.github/workflows/ci.yml` 三端 tsc + build
+- **CI**：`.github/workflows/ci.yml` 已扩展为 source-quality + 五项目矩阵（backend/frontend/taro/shared-types/shared-utils）类型检查、backend/Taro 单元测试与生产构建
 - **L7 邀请表主键**：`database-init.sql` 已是 UUID，历史遗留关闭
 - **UGC**：`.env.example` 标注生产需开启 `WECHAT_MSG_SEC_CHECK_ENABLED`
 

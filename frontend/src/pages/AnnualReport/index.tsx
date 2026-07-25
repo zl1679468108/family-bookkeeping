@@ -24,6 +24,7 @@ import { userDisplayName } from '../../utils/userDisplay'
 import { EMPTY_BOOK_UNSELECTED } from '../../utils/entityCopy'
 import { normalizeAnnualReport, annualReportFilename } from '../../utils/annualReport'
 import { ACTION_SAVE_AS_IMAGE } from '../../utils/actionCopy'
+import { reportClientError } from '../../utils/clientDiagnostics'
 
 const CURRENT_YEAR = new Date().getFullYear();
 
@@ -56,7 +57,7 @@ const AnnualReport: React.FC = () => {
       await captureLongImage(reportRef.current, annualReportFilename(year));
       notifySuccess(SUCCESS_REPORT_SAVED);
     } catch (err) {
-      console.error('AnnualReport captureLongImage error:', err);
+      reportClientError('AnnualReport.captureLongImage', err);
       notifyError(ERROR_SAVE_IMAGE);
     }
   };

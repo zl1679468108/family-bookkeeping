@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useCallback, useMemo } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { UserProfile } from '@family-bookkeeping/shared-types';
+import type { UserProfile } from '@family-bookkeeping/shared-types';
 import {
   clearStoredToken,
   getProfile,

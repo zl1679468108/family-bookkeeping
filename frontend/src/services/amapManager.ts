@@ -11,6 +11,7 @@
  *   amap.release(id);                  // keep-alive, not destroy
  *   amap.release(id, true);            // true = destroy immediately
  */
+import { reportClientWarning } from '../utils/clientDiagnostics';
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -213,7 +214,8 @@ class AmapManager {
 
     // --- Already in use (shouldn't happen) ---
     if (pooled && pooled.inUse) {
-      console.warn(
+      reportClientWarning(
+        'AmapManager.acquire.inUse',
         `[AmapManager] Map "${id}" already in use — creating fresh instance. ` +
         'Check that release() is called before re-acquiring with the same id.',
       );

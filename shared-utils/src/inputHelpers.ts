@@ -171,6 +171,15 @@ export function buildSearchFieldClassName(opts: {
   return cx(prefix, opts.className)
 }
 
+/** Taro SearchInput 本体 */
+export function buildSearchInputClassName(opts: {
+  className?: ClassValue
+  prefix?: string
+} = {}): string {
+  const prefix = opts.prefix || 'ui-input--search'
+  return cx(prefix, opts.className)
+}
+
 /** PC number field */
 export function buildNumberFieldClassName(opts: {
   className?: ClassValue
@@ -207,4 +216,3 @@ export function buildPcInputShellClassName(opts: {
   const prefix = opts.prefix || 'ui-input'
   return cx(prefix, opts.disabled && 'is-disabled', opts.className)
 }
-

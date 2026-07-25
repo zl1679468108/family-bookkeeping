@@ -5,6 +5,7 @@
 import { cx, type ClassValue } from './cx'
 
 export function buildListCardClassName(opts: {
+  active?: boolean
   dragging?: boolean
   focused?: boolean
   statusClass?: string
@@ -15,6 +16,7 @@ export function buildListCardClassName(opts: {
   return cx(
     prefix,
     opts.statusClass,
+    opts.active && 'is-active',
     opts.dragging && 'dragging',
     opts.focused && 'spotlight--focused',
     opts.className,
@@ -51,4 +53,3 @@ export function buildListCardAmountClassName(opts: {
   const type = opts.type || 'expense'
   return cx(prefix, `${prefix}--${type}`, opts.className)
 }
-

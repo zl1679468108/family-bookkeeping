@@ -7,6 +7,7 @@ import { EmptyState } from '../../../components/ui/EmptyState';
 import { userDisplayName } from '../../../utils/userDisplay'
 import { EMPTY_NO_OTHER_MEMBERS } from '../../../utils/emptyCopy';
 import { ACTION_REMOVE_MEMBER } from "../../../utils/actionCopy"
+import { buildRoleBadgeClassName } from '../../../utils/booksUi'
 
 interface BookMemberListProps {
   members: any[];
@@ -53,7 +54,7 @@ export const BookMemberList: React.FC<BookMemberListProps> = ({
             </div>
             <div className="member-role">
               {member.role && (
-                <span className={`role-badge ${member.role}`}>
+                <span className={buildRoleBadgeClassName({ role: member.role })}>
                   {bookMemberRoleLabel(member.role)}
                 </span>
               )}

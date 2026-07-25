@@ -19,6 +19,10 @@ import { ERROR_INVITE_FAILED } from "../../../../utils/errorCopy";
 import { EMPTY_NO_MEMBERS } from "../../../../utils/emptyCopy";
 import { FORM_MEMBER_EMAIL_SHORT } from "../../../../utils/formCopy";
 import { ACTION_CANCEL, ACTION_ADDING, ACTION_ADD } from "../../../../utils/actionCopy";
+import {
+  buildBookCardActionClassName,
+  buildBookCardClassName,
+} from "../../../../utils/booksUi";
 
 interface BookCardProps {
   book: Book;
@@ -73,7 +77,7 @@ export default function BookCard({
   };
 
   return (
-    <View className={`book-card ${isActive ? "book-card--active" : ""}`}>
+    <View className={buildBookCardClassName({ prefix: "book-card", active: isActive })}>
       <View className="book-card__body">
         <View className="book-card__row">
           <Text className="book-card__icon">📒</Text>
@@ -152,7 +156,7 @@ export default function BookCard({
               <Text className="book-card__action-text">重命名</Text>
             </View>
             <View
-              className={`book-card__action ${showMembers ? "book-card__action--active" : ""}`}
+              className={buildBookCardActionClassName({ active: showMembers })}
               onClick={() => setShowMembers((v) => !v)}
             >
               <Text className="book-card__action-text">成员</Text>

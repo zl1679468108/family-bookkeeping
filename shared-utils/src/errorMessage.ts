@@ -7,3 +7,8 @@ export function getErrorMessage(err: unknown, fallback = ERROR_OP_FAILED): strin
   const anyErr = err as { message?: string; errMsg?: string; error?: string; msg?: string }
   return anyErr?.message || anyErr?.errMsg || anyErr?.error || anyErr?.msg || fallback
 }
+
+export function formatErrorDescription(err: unknown, fallback = ERROR_OP_FAILED): string {
+  const message = getErrorMessage(err, '')
+  return message ? `${fallback}：${message}` : fallback
+}

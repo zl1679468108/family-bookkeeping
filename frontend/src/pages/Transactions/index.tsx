@@ -46,6 +46,8 @@ import { FIELD_BRAND, FIELD_DESCRIPTION, FIELD_PLACE, FIELD_COORDINATES, FIELD_C
 import { attachmentImageAlt } from '../../utils/uploadCopy'
 import { buildDetailAmountValueClassName } from '../../utils/detailAmount'
 import { buildTxnAmountClassName } from '../../utils/transactionDisplay'
+import { formatCoords } from '../../utils/locationHelpers'
+import { addTransactionEditPath } from '../../utils/addTransactionUi'
 
 const PAGE_SIZE = 20
 
@@ -400,7 +402,7 @@ const Transactions: React.FC = () => {
           title={DETAIL_TRANSACTION}
           footer={
             <Space size="sm">
-              <Button variant="secondary" onClick={() => { navigate(`/add?edit=${selectedTransaction.id}`); setShowDetail(false) }}>
+              <Button variant="secondary" onClick={() => { navigate(addTransactionEditPath(selectedTransaction.id)); setShowDetail(false) }}>
                 编辑
               </Button>
               <Button
@@ -438,7 +440,10 @@ const Transactions: React.FC = () => {
             )}
             {selectedTransaction.location_name && <DetailItem label={FIELD_PLACE} value={selectedTransaction.location_name} />}
             {selectedTransaction.latitude && selectedTransaction.longitude && (
-              <DetailItem label={FIELD_COORDINATES} value={`${selectedTransaction.latitude}, ${selectedTransaction.longitude}`} />
+              <DetailItem
+                label={FIELD_COORDINATES}
+                value={formatCoords(selectedTransaction.latitude, selectedTransaction.longitude)}
+              />
             )}
             {selectedTransaction.created_at && (
               <DetailItem label={FIELD_CREATED_AT} value={selectedTransaction.created_at} />

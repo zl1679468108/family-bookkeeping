@@ -18,6 +18,7 @@ import { useAuth } from "./AuthContext";
 import type { Book } from "../types";
 import { clearAddTransactionDraft } from "../utils/addTransactionDraft";
 import { DEFAULT_BOOK_NAME } from "../utils/entityCopy"
+import { reportClientError } from "../utils/clientDiagnostics";
 
 interface BookContextType {
   currentBook: Book | null;
@@ -124,7 +125,7 @@ export const BookProvider: React.FC<{ children: React.ReactNode }> = ({
     setStoredBookId(book?.id ?? null);
     if (book?.id) {
       setCurrentBookApi(book.id).catch((err) =>
-        console.error("[BookContext] 设置当前账本失败", err),
+        reportClientError("BookContext.setCurrentBook", err),
       );
     }
   }, []);
@@ -137,7 +138,7 @@ export const BookProvider: React.FC<{ children: React.ReactNode }> = ({
       setBooks(data);
       return data;
     } catch (err) {
-      console.error("[BookContext] 拉取账本失败", err);
+      reportClientError("BookContext.refetchBooks", err);
       return [];
     }
   }, [user]);

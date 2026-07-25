@@ -15,7 +15,7 @@ test.describe('仪表板 - 查询数据与快捷入口', () => {
     await expect(page.getByText('本月支出')).toBeVisible();
     await expect(page.getByText('本月最近交易')).toBeVisible();
     await expect(page.getByText('午餐')).toBeVisible();
-    await expect(page.getByText('预算进度')).toBeVisible();
+    await expect(page.getByText('本月预算')).toBeVisible();
     await expect(page.getByText(/餐饮/).first()).toBeVisible();
   });
 

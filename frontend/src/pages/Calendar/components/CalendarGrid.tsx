@@ -3,6 +3,7 @@ import { Skeleton } from '../../../components/ui/Skeleton';
 import { getLunarInfo, WEEKDAY_LABELS } from '../utils/lunarUtils';
 import { formatMoney } from '../../../utils/budget';
 import type { DailySummaryItem } from '@family-bookkeeping/shared-types';
+import { buildCalendarCellClassName, buildCalendarSubClassName } from '../../../utils/calendarDisplay';
 
 interface CalendarGridProps {
   cells: (DailySummaryItem | null)[];
@@ -22,7 +23,7 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
 
       {summaryLoading ? (
         Array.from({ length: 35 }).map((_, idx) => (
-          <div key={idx} className="cal-cell" style={{ pointerEvents: 'none' }}>
+          <div key={idx} className={buildCalendarCellClassName()} style={{ pointerEvents: 'none' }}>
             <div className="cd-top">
               <div className="cd-date-wrap">
                 <Skeleton width="24px" height="28px" borderRadius="3px" />
@@ -35,7 +36,12 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
       ) : (
         cells.map((cell, idx) => {
           if (!cell) {
-            return <div key={`empty-${idx}`} className="cal-cell other" />;
+            return (
+              <div
+                key={`empty-${idx}`}
+                className={buildCalendarCellClassName({ className: 'other' })}
+              />
+            );
           }
 
           const dayNum = parseInt(cell.date.slice(8, 10), 10);
@@ -48,12 +54,12 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
           return (
             <div
               key={cell.date}
-              className={`cal-cell${isToday ? ' today' : ''}${hasTransactions ? ' has-data' : ''}`}
+              className={buildCalendarCellClassName({ today: isToday, hasData: hasTransactions })}
               onClick={() => onDateClick(cell.date)}
             >
               <div className="cd-left">
                 <div className="cd-date">{dayNum}</div>
-                <div className={`cd-sub${isFestivalDay ? ' festival' : ''}`}>{subText}</div>
+                <div className={buildCalendarSubClassName({ festival: isFestivalDay })}>{subText}</div>
               </div>
               <div className="cd-mid">
                 <div className="cd-stats">

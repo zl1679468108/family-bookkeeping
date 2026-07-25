@@ -67,8 +67,7 @@ export default function LocationPicker({
       }>(`/map/reverse-geocode?latitude=${lat}&longitude=${lng}`);
       setAddress(res.poiName ? `${res.poiName} · ${res.address}` : res.address);
       setPoiId(res.poiId || null);
-    } catch (err) {
-      console.warn("[LocationPicker] 逆地理编码失败:", err);
+    } catch {
       setAddress(`${lat.toFixed(6)}, ${lng.toFixed(6)}`);
     }
   }, []);
@@ -78,14 +77,12 @@ export default function LocationPicker({
 
   // 定位（先尝试高精度，失败降级为普通精度）
   const handleLocate = useCallback(async () => {
-    console.log("[LocationPicker] 开始定位...");
     setLocating(true);
     setLocAccuracy(null);
 
     // 先触发隐私授权（getLocation 是隐私接口）
     const ok = await ensurePrivacyAuthorize(FORM_PRIVACY_LOCATION_ACCESS);
     if (!ok) {
-      console.warn("[LocationPicker] 隐私授权未通过");
       setLocating(false);
       toastInfo(FORM_PRIVACY_LOCATION);
       return;
@@ -95,7 +92,6 @@ export default function LocationPicker({
     try {
       const setting = await Taro.getSetting();
       const auth = setting.authSetting["scope.userLocation"];
-      console.log("[LocationPicker] 位置权限状态:", auth);
       if (auth === false) {
         // 明确拒绝过，引导去设置
         Taro.showModal({
@@ -112,19 +108,15 @@ export default function LocationPicker({
         setLocating(false);
         return;
       }
-    } catch (e) {
-      console.warn("[LocationPicker] getSetting 失败:", e);
-    }
+    } catch {}
 
     // 单次定位：先高精度，失败降级为普通精度
     const singleLocate = async (highAccuracy: boolean) => {
-      console.log(`[LocationPicker] 调用 getLocation(highAccuracy=${highAccuracy})`);
       const res: any = await Taro.getLocation({
         type: "gcj02",
         isHighAccuracy: highAccuracy,
         highAccuracyExpireTime: 8000,
       });
-      console.log("[LocationPicker] getLocation 成功:", res);
       return {
         lat: res.latitude,
         lng: res.longitude,
@@ -137,19 +129,16 @@ export default function LocationPicker({
       try {
         newPos = await singleLocate(true);
       } catch (e1: any) {
-        console.warn("[LocationPicker] 高精度定位失败，降级普通精度:", e1);
         if (isPrivacyError(e1)) {
           throw e1; // 隐私错误不降级，直接抛出
         }
         newPos = await singleLocate(false);
       }
 
-      console.log("[LocationPicker] 定位结果:", newPos);
       setPos(newPos);
       setLocAccuracy(newPos.acc);
       await reverseGeocodeRef.current(newPos.lat, newPos.lng);
     } catch (e: any) {
-      console.error("[LocationPicker] 定位失败:", e);
       const msg = e?.errMsg || e?.message || "";
       let title = FORM_LOCATION_UNAVAILABLE;
       if (msg.indexOf("auth deny") !== -1 || msg.indexOf("authDeny") !== -1) {
@@ -190,7 +179,6 @@ export default function LocationPicker({
   const handleMapTap = useCallback(
     (e: any) => {
       const { latitude, longitude } = e.detail;
-      console.log("[LocationPicker] 地图点击:", latitude, longitude);
       const newPos = { lat: latitude, lng: longitude };
       setPos(newPos);
       reverseGeocodeRef.current(latitude, longitude);
@@ -205,7 +193,6 @@ export default function LocationPicker({
     // 不同版本字段名不一，做兼容处理
     const lat = e?.detail?.latitude ?? e?.detail?.centerLatitude;
     const lng = e?.detail?.longitude ?? e?.detail?.centerLongitude;
-    console.log("[LocationPicker] 地图拖动结束:", lat, lng, e?.detail);
     if (typeof lat === "number" && typeof lng === "number") {
       const newPos = { lat, lng };
       setPos(newPos);
@@ -361,7 +348,7 @@ export default function LocationPicker({
             }
             onTap={handleMapTap}
             onRegionChange={handleRegionChange}
-            onError={(e: any) => console.warn("[LocationPicker] map error", e)}
+            onError={() => undefined}
             showLocation
             enable3D={false}
             showCompass={false}

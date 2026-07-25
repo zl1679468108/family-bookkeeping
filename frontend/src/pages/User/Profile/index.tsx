@@ -32,6 +32,7 @@ import { FIELD_CURRENT_PASSWORD, FIELD_NEW_PASSWORD, FIELD_CONFIRM_NEW_PASSWORD,
 import { ACTION_UPDATING, ACTION_UPDATE_INFO, AUTH_CHANGE_PASSWORD_FAILED, AUTH_SAVE_PROFILE_FAILED,
   ACTION_CHANGE_PASSWORD,
 } from '../../../utils/authCopy'
+import { reportClientError } from '../../../utils/clientDiagnostics'
 
 /** 头像 JPEG 压缩画布底色：有意固定白底，避免透明 PNG 转 JPEG 发黑（与主题无关） */
 const AVATAR_JPEG_BG = '#ffffff'
@@ -230,7 +231,7 @@ const ProfilePage: React.FC = () => {
       notifySuccess(SUCCESS_SAVED)
       navigate(-1)
     } catch (err: unknown) {
-      console.error('更新个人信息失败:', err)
+      reportClientError('Profile.updateProfile', err)
       const message = err instanceof Error ? err.message : AUTH_SAVE_PROFILE_FAILED
       setError(message)
     }
