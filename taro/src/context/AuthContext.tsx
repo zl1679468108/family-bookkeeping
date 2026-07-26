@@ -18,6 +18,8 @@ import {
   getToken,
   getRefreshToken,
   apiGet,
+  apiPost,
+  setStoredBookId,
 } from "../services/api";
 import {
   login as apiLogin,
@@ -33,6 +35,8 @@ import {
 } from "../utils/savedAccounts";
 import type { UserProfile } from "../types";
 import { clearAddTransactionDraft } from "../utils/addTransactionDraft";
+import { invalidateManualQuery } from "../hooks/manualQueryCache";
+import { API_PATHS } from "../utils/apiPaths";
 
 interface AuthContextType {
   user: UserProfile | null;
@@ -63,9 +67,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       try {
         if (hasToken()) {
           const userData = await getProfile();
-          // profile 获取成功后更新已保存账号的用户名和头像
+          // profile 成功后同步资料 + 当前会话令牌，避免切号时读到过期 access
           if (userData?.email) {
-            updateAccountInfo(userData.email, { username: userData.username, avatar_url: userData.avatar_url });
+            const liveAccess = getToken() || undefined;
+            const liveRefresh = getRefreshToken() || undefined;
+            updateAccountInfo(userData.email, {
+              username: userData.username,
+              avatar_url: userData.avatar_url,
+              ...(liveAccess ? { token: liveAccess, accessToken: liveAccess } : {}),
+              ...(liveRefresh ? { refreshToken: liveRefresh } : {}),
+            });
           }
           setUser(userData);
         }
@@ -92,26 +103,66 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   /** 通过已存储的 token 切换账号（token 有效则直接切换，失效则抛错由调用方处理） */
   const switchByToken = useCallback(async (email: string, accessToken: string, refreshToken?: string) => {
+    const targetAccess = (accessToken || "").trim();
+    const targetRefresh = (refreshToken || "").trim();
+    if (!targetAccess && !targetRefresh) {
+      throw new Error("token_invalid");
+    }
+
     // 先缓存当前会话，目标 token 校验失败时恢复，避免误登出当前账号
     const prevAccess = getToken();
     const prevRefresh = getRefreshToken() || "";
     const prevUser = user;
 
-    // 同时设置目标会话的 access + refresh；profile 401 时自动刷新会用 refresh 续期
-    if (accessToken) storeTokens(accessToken, refreshToken || "");
+    // 离开当前账号前，把内存中最新双 token 写回独立 key / 列表，保证下次切回可用
+    if (prevUser?.email && prevAccess) {
+      setAccountToken(prevUser.email, prevAccess);
+      if (prevRefresh) setAccountRefreshToken(prevUser.email, prevRefresh);
+      updateAccountInfo(prevUser.email, {
+        username: prevUser.username,
+        avatar_url: prevUser.avatar_url,
+      });
+    }
+
     try {
-      // 用 silent 模式：401 不跳转登录页，错误直接抛出
+      if (targetAccess) {
+        // 有 access：先写入；若已过期，profile 401 会走 refresh 单飞续期
+        storeTokens(targetAccess, targetRefresh);
+      } else {
+        // 仅 refresh：先换发 access，再拉 profile
+        const tokens = await apiPost<{ accessToken: string; refreshToken: string }>(
+          API_PATHS.auth.refresh,
+          {
+            data: { refreshToken: targetRefresh },
+            silent: true,
+            requiresAuth: false,
+            _internalRefresh: true,
+          },
+        );
+        storeTokens(tokens.accessToken, tokens.refreshToken || targetRefresh);
+      }
+
+      // silent：401 不跳登录页，错误直接抛出供回滚
       const profile = await apiGet<UserProfile>("/auth/profile", { silent: true });
+
+      // 校验成功后再清业务状态；后续步骤失败不再回滚会话
+      clearAddTransactionDraft();
+      setStoredBookId(null);
+      invalidateManualQuery(); // 清空模块级缓存，禁止 clear 以外的半残状态
       setUser(profile);
-      // 切换成功：token 独立持久化（T-C1），用户名/头像同步到 saved_accounts
-      if (accessToken) setAccountToken(email, accessToken);
-      if (refreshToken) setAccountRefreshToken(email, refreshToken);
+
+      const liveAccess = getToken() || targetAccess;
+      const liveRefresh = getRefreshToken() || targetRefresh;
+      if (liveAccess) setAccountToken(email, liveAccess);
+      if (liveRefresh) setAccountRefreshToken(email, liveRefresh);
       updateAccountInfo(email, {
         username: profile.username,
         avatar_url: profile.avatar_url,
+        ...(liveAccess ? { token: liveAccess, accessToken: liveAccess } : {}),
+        ...(liveRefresh ? { refreshToken: liveRefresh } : {}),
       });
     } catch {
-      // 目标账号 token 失效：恢复当前会话并抛错，由 UI 引导去登录
+      // 仅目标会话建立失败时恢复当前账号
       if (prevAccess) {
         storeTokens(prevAccess, prevRefresh);
         setUser(prevUser);

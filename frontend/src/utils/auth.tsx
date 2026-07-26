@@ -49,9 +49,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     queryFn: async () => {
       try {
         const profile = await getProfile();
-        // profile 获取成功后更新已保存账号的用户名和头像
+        // profile 成功后同步资料 + 当前会话令牌，避免切号时读到过期 access
         if (profile?.email) {
-          updateAccountInfo(profile.email, { username: profile.username, avatar_url: profile.avatar_url });
+          const liveAccess = getAccessToken() || undefined;
+          const liveRefresh = getRefreshToken() || undefined;
+          updateAccountInfo(profile.email, {
+            username: profile.username,
+            avatar_url: profile.avatar_url,
+            ...(liveAccess ? { token: liveAccess, accessToken: liveAccess } : {}),
+            ...(liveRefresh ? { refreshToken: liveRefresh } : {}),
+          });
         }
         return profile;
       } catch (error) {
@@ -85,38 +92,67 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   /** 通过已存储的 token 切换账号（token 有效则直接切换，失效则抛错由调用方处理） */
   const switchByToken = useCallback(async (email: string, accessToken: string, refreshToken?: string) => {
+    const targetAccess = (accessToken || '').trim();
+    const targetRefresh = (refreshToken || '').trim();
+    if (!targetAccess && !targetRefresh) {
+      throw new Error('token_invalid');
+    }
+
     // 先缓存当前会话，目标 token 校验失败时恢复，避免误登出当前账号
     const prevAccess = getAccessToken();
     const prevRefresh = getRefreshToken() || '';
-    const prevProfile = queryClient.getQueryData(queryKeys.auth.profile);
+    const prevProfile = queryClient.getQueryData<UserProfile | null>(queryKeys.auth.profile);
 
-    // 同时设置目标会话的 access + refresh；profile 401 时自动刷新会用 refresh 续期
-    if (accessToken) storeTokens(accessToken.trim(), (refreshToken || '').trim());
+    // 离开当前账号前，把内存中最新双 token 写回 savedAccounts，保证下次切回可用
+    if (prevProfile?.email && prevAccess) {
+      updateAccountInfo(prevProfile.email, {
+        token: prevAccess,
+        accessToken: prevAccess,
+        ...(prevRefresh ? { refreshToken: prevRefresh } : {}),
+      });
+    }
+
+    // 取消进行中的旧账号请求，避免切 token 后旧请求回调污染状态
+    await queryClient.cancelQueries();
+
     try {
-      // 先用新 token 验证并获取 profile（silent 模式：不显示 toast、不跳转）
+      if (targetAccess) {
+        // 有 access：先写入；若已过期，profile 401 会走 refresh 单飞续期
+        storeTokens(targetAccess, targetRefresh);
+      } else {
+        // 仅 refresh：先换发 access，再拉 profile
+        const tokens = await request<{ accessToken: string; refreshToken: string }>('/auth/refresh', {
+          method: 'POST',
+          body: { refreshToken: targetRefresh },
+          silent: true,
+          _internalRefresh: true,
+        });
+        storeTokens(tokens.accessToken.trim(), (tokens.refreshToken || targetRefresh).trim());
+      }
+
+      // 校验目标会话（silent：不 toast、不跳登录）
       const profile = await request<UserProfile>('/auth/profile', {
         requiresAuth: true,
         silent: true,
       });
 
-      // 与 signIn 保持一致：先清空所有缓存，再设置 profile 并 refetch
-      // 避免 removeQueries 触发级联 refetch 时旧 token 残留导致 token 被清
+      // 校验成功后再清业务缓存并写入 profile；后续步骤失败不再回滚会话
       resetUserCache();
       queryClient.setQueryData(queryKeys.auth.profile, profile);
 
-      // 切换成功：同步更新 savedAccounts 中该账号的 token、用户名、头像
+      const liveAccess = getAccessToken() || targetAccess;
+      const liveRefresh = getRefreshToken() || targetRefresh;
       updateAccountInfo(email, {
-        token: accessToken.trim(),
-        accessToken: accessToken.trim(),
-        refreshToken: (refreshToken || '').trim(),
+        ...(liveAccess ? { token: liveAccess, accessToken: liveAccess } : {}),
+        ...(liveRefresh ? { refreshToken: liveRefresh } : {}),
         username: profile.username,
         avatar_url: profile.avatar_url,
       });
 
-      // 强制刷新 profile query，确保各组件拿到最新 user 数据
-      await refetch();
+      // 二次拉取失败不回滚：本地 profile 已是目标账号
+      await refetch().catch(() => undefined);
     } catch {
-      // 目标账号 token 失效：恢复当前会话并抛错，由 UI 引导去登录
+      // 仅目标会话建立失败时恢复当前账号
       if (prevAccess) {
         storeTokens(prevAccess, prevRefresh);
         if (prevProfile !== undefined) {
@@ -124,6 +160,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
       } else {
         clearStoredToken();
+        // 禁止 clear()：会与 profile 重取竞态；按 key 移除即可
         queryClient.removeQueries({ predicate: () => true });
       }
       throw new Error('token_invalid');

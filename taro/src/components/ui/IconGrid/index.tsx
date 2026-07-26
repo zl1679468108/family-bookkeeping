@@ -3,7 +3,7 @@
  * 适配：document.createElement('input') 选文件 → Taro.chooseMedia；
  *       File → { tempFilePath, name, size }
  */
-import { ReactNode } from "react";
+import { ReactNode, useRef } from "react";
 import { View, Text, Image } from "@tarojs/components";
 import Taro from "@tarojs/taro";
 import {
@@ -59,11 +59,16 @@ export function IconGrid({
   customIcons = [], onUpload, onDelete,
   iconType = "category", columns = 5, className = "",
 }: IconGridProps) {
+  // 上传/删除共用锁，避免连点重复调接口
+  const busyRef = useRef(false);
+
   const handleUpload = async () => {
-    // 先触发微信隐私授权
-    const ok = await ensurePrivacyAuthorize(PRIVACY_ALBUM_FOR_ICON);
-    if (!ok) return;
+    if (busyRef.current) return;
+    busyRef.current = true;
     try {
+      // 先触发微信隐私授权
+      const ok = await ensurePrivacyAuthorize(PRIVACY_ALBUM_FOR_ICON);
+      if (!ok) return;
       const res = await Taro.chooseMedia({
         count: 1,
         mediaType: ["image"],
@@ -85,6 +90,18 @@ export function IconGrid({
         return;
       }
       toastInfo(msg || IMAGE_SELECT_FAILED_SHORT);
+    } finally {
+      busyRef.current = false;
+    }
+  };
+
+  const handleDelete = async (iconId: string) => {
+    if (busyRef.current || !onDelete) return;
+    busyRef.current = true;
+    try {
+      await onDelete(iconId);
+    } finally {
+      busyRef.current = false;
     }
   };
 
@@ -130,7 +147,7 @@ export function IconGrid({
                   <View
                     className="ui-icon-grid__del"
                     catchMove
-                    onClick={() => onDelete?.(c.id)}
+                    onClick={() => { void handleDelete(c.id); }}
                   >
                     <Icon name="close" size={24} color={ICON_COLOR.onPrimary} className="ui-icon-grid__del-icon" />
                   </View>

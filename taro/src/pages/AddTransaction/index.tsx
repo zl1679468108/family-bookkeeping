@@ -276,25 +276,21 @@ export default function AddTransaction() {
     toastSuccess(successTemplateApplied(template.name));
   };
 
-  // 删除
-  const handleDelete = async () => {
+  // 删除：确认后走 useSubmit 防连点
+  const handleDelete = () => {
     if (!editId) return;
     Taro.showModal({
       title: CONFIRM_DELETE_TITLE,
       content: CONFIRM_DELETE_TRANSACTION,
-      success: async (res) => {
-        if (res.confirm) {
-          try {
-            Taro.showLoading({ title: CONFIRM_DELETE_LOADING });
-            await deleteTransaction(Number(editId));
-            Taro.hideLoading();
-            toastSuccess(successEntityDeleted(ENTITY_TRANSACTION));
-            setTimeout(() => Taro.navigateBack(), 500);
-          } catch {
-            Taro.hideLoading();
-            toastInfo(DELETE_FAILED);
-          }
-        }
+      success: (res) => {
+        if (!res.confirm) return;
+        run(async () => {
+          await deleteTransaction(Number(editId));
+          toastSuccess(successEntityDeleted(ENTITY_TRANSACTION));
+          setTimeout(() => Taro.navigateBack(), 500);
+        }, CONFIRM_DELETE_LOADING).catch(() => {
+          toastInfo(DELETE_FAILED);
+        });
       },
     });
   };

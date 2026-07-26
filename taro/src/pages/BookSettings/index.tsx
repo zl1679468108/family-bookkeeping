@@ -199,12 +199,11 @@ export default function BookSettings() {
 
   const handleDeleteCustomIcon = (iconId: string, e?: any) => {
     if (e && e.stopPropagation) e.stopPropagation();
-    deleteIcon(iconId)
-      .then(() => {
-        refreshCustomIcons();
-        toastSuccess(SUCCESS_DELETED);
-      })
-      .catch(() => toastInfo(DELETE_FAILED));
+    run(async () => {
+      await deleteIcon(iconId);
+      refreshCustomIcons();
+      toastSuccess(SUCCESS_DELETED);
+    }, ACTION_DELETING).catch(() => toastInfo(DELETE_FAILED));
   };
 
   // ===== 新增模式 =====

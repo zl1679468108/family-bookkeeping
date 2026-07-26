@@ -41,7 +41,7 @@ import { useReorder } from "../../hooks/useReorder";
 import "./index.scss";
 import { toastSuccess, toastInfo } from "../../utils/toast";
 import { formatDateTimeMinute } from "../../utils/date";
-import { ACTION_DELETING, ACTION_LOADING, ACTION_SAVING } from "../../utils/actionCopy";
+import { ACTION_DELETING, ACTION_LOADING, ACTION_SAVING, ACTION_UPLOADING_ELLIPSIS } from "../../utils/actionCopy";
 import { SORT_DONE, SORT_EDIT } from "../../utils/sortCopy";
 import { categoryTypeTabLabel } from "../../utils/transactionType";
 import {
@@ -245,37 +245,36 @@ export default function CategoriesPage() {
     });
   };
 
-  // ---- 图标上传/删除 ----
+  // ---- 图标上传/删除：走 useSubmit 防连点 ----
   const handleIconUpload = async (
     file: { tempFilePath: string; name?: string; size?: number },
     iconType: "category" | "book" | "avatar"
   ) => {
-    try {
+    await run(async () => {
       const result: any = await uploadIcon(file.tempFilePath, iconType);
       const url = result?.icon_url || result?.url || "";
-      if (url) {
-        setFormIcon(url);
-        // 刷新自定义图标列表
-        const list = await fetchCustomIcons("category");
-        setCustomIcons(list || []);
-        toastSuccess(SUCCESS_ICON_UPLOADED);
-      } else {
+      if (!url) {
         toastInfo(UPLOAD_FAILED);
+        return;
       }
-    } catch {
+      setFormIcon(url);
+      const list = await fetchCustomIcons("category");
+      setCustomIcons(list || []);
+      toastSuccess(SUCCESS_ICON_UPLOADED);
+    }, ACTION_UPLOADING_ELLIPSIS).catch(() => {
       toastInfo(UPLOAD_FAILED);
-    }
+    });
   };
 
   const handleIconDelete = async (iconId: string) => {
-    try {
+    await run(async () => {
       await deleteIcon(iconId);
       const list = await fetchCustomIcons("category");
       setCustomIcons(list || []);
       toastSuccess(SUCCESS_DELETED);
-    } catch {
+    }, ACTION_DELETING).catch(() => {
       toastInfo(DELETE_FAILED);
-    }
+    });
   };
 
   // ---- 关闭弹窗 ----

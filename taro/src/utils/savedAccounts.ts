@@ -132,10 +132,18 @@ export const removeAccount = (email: string): void => {
   removeAccountRefreshToken(email);
 };
 
-/** 更新账号资料 */
+/** 更新账号资料（可选同步独立 token key） */
 export const updateAccountInfo = (
   email: string,
-  info: Pick<UpdateAccountInfoInput, "username" | "avatar_url">,
+  info: UpdateAccountInfoInput,
 ): void => {
-  saveAccounts(patchSavedAccount(getSavedAccounts(), email, info));
+  const accessToken = info.accessToken ?? info.token;
+  if (accessToken) setAccountToken(email, accessToken);
+  if (info.refreshToken) setAccountRefreshToken(email, info.refreshToken);
+  saveAccounts(
+    patchSavedAccount(getSavedAccounts(), email, {
+      username: info.username,
+      avatar_url: info.avatar_url,
+    }),
+  );
 };

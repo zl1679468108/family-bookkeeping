@@ -3,10 +3,11 @@
  * 菜单：切换主题 / 切换账号 / 关于静记 / 用户协议 / 隐私政策 / 注销账号 / 退出登录
  * （个人信息入口 = 顶部 Header 卡片点击）
  */
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { View, Text, Image, Input, Button as WxButton } from "@tarojs/components";
 import { Button, FooterActions, MenuList, Spinner } from "../../components/ui";
 import ConfirmDialog from "../../components/ConfirmDialog";
+import { useSubmit } from "../../hooks/useSubmit";
 import Taro from "@tarojs/taro";
 import { useAuth } from "../../context/AuthContext";
 import { useTheme } from "../../context/ThemeContext";
@@ -34,6 +35,7 @@ import {
   THEME_DARK_MODE,
   THEME_LIGHT_MODE,
   ACTION_SWITCH_ACCOUNT,
+  ACTION_SWITCHING,
   ACTION_DEACTIVATE_ACCOUNT,
   ACTION_CONTACT_SUPPORT,
   ACTION_CLOSE,
@@ -54,8 +56,11 @@ import {
 
 export default function Profile() {
   const { user, signOut, switchByToken } = useAuth();
+  const { run } = useSubmit();
   const { isDark, toggleTheme } = useTheme();
   const [logoutConfirm, setLogoutConfirm] = useState(false);
+  const [logoutLoading, setLogoutLoading] = useState(false);
+  const logoutLockRef = useRef(false);
   const [switchModal, setSwitchModal] = useState(false);
   const [accounts, setAccounts] = useState<SavedAccount[]>([]);
   const [switchingEmail, setSwitchingEmail] = useState<string | null>(null);
@@ -65,31 +70,43 @@ export default function Profile() {
   const [deactivatePassword, setDeactivatePassword] = useState("");
   const [deactivateError, setDeactivateError] = useState("");
   const [deactivateLoading, setDeactivateLoading] = useState(false);
+  const deactivateLockRef = useRef(false);
 
   const initial = userInitial(user);
   const hasAvatar = user?.avatar_url && user.avatar_url.startsWith('data:') || user?.avatar_url?.startsWith('http');
 
   const handleLogout = async () => {
+    // ref 锁：避免确认按钮连点在 setState 生效前重复调 signOut
+    if (logoutLockRef.current) return;
+    logoutLockRef.current = true;
+    setLogoutLoading(true);
     try {
       await signOut();
       Taro.navigateTo({ url: "/pages/User/Login/index" });
     } catch {
       // ignore
+    } finally {
+      logoutLockRef.current = false;
+      setLogoutLoading(false);
+      setLogoutConfirm(false);
     }
   };
 
   // 注销账号：二次确认 + 密码校验 → 调接口 → 清理本地账号 → 跳登录
   const handleOpenDeactivate = () => {
+    if (deactivateLoading || deactivateLockRef.current) return;
     setDeactivatePassword("");
     setDeactivateError("");
     setDeactivateModal(true);
   };
 
   const handleConfirmDeactivate = async () => {
+    if (deactivateLockRef.current) return;
     if (!deactivatePassword) {
       setDeactivateError(FORM_DEACTIVATE_PASSWORD);
       return;
     }
+    deactivateLockRef.current = true;
     setDeactivateError("");
     setDeactivateLoading(true);
     try {
@@ -105,7 +122,7 @@ export default function Profile() {
     } catch (err: unknown) {
       const e = err as { message?: string };
       setDeactivateError(e?.message || ERROR_DEACTIVATE_FAILED);
-    } finally {
+      deactivateLockRef.current = false;
       setDeactivateLoading(false);
     }
   };
@@ -124,34 +141,39 @@ export default function Profile() {
     setExpiredEmail(null);
   };
 
-  // 切换到已有账号：用已保存 token 切换；失效则弹出过期提示并引导去登录（对齐 PC）
-  const handleSwitchAccount = async (account: SavedAccount) => {
+  // 切换到已有账号：useSubmit 防连点；失效则弹出过期提示并引导去登录（对齐 PC）
+  const handleSwitchAccount = (account: SavedAccount) => {
     if (account.email === user?.email) {
       toastInfo(FORM_ALREADY_CURRENT_ACCOUNT);
       return;
     }
-    setSwitchingEmail(account.email);
-    try {
-      const token = getAccountToken(account.email);
-      const refreshToken = getAccountRefreshToken(account.email);
-      if (token) {
-        await switchByToken(account.email, token, refreshToken ?? undefined);
-        toastSuccess(SUCCESS_ACCOUNT_SWITCHED);
-        setAccounts(getSavedAccounts());
-        setSwitchModal(false);
-        setExpiredEmail(null);
-        // 对齐 PC navigate('/')：清空页面栈并回首页，确保账本/数据按新账号重载
-        Taro.reLaunch({ url: "/pages/Home/index" });
-        return;
+    if (switchingEmail) return;
+    run(async () => {
+      setSwitchingEmail(account.email);
+      try {
+        const token = (getAccountToken(account.email) || "").trim();
+        const refreshToken = (getAccountRefreshToken(account.email) || "").trim();
+        // access 或 refresh 任一可用即可切换；都没有才算登录过期
+        if (token || refreshToken) {
+          await switchByToken(account.email, token, refreshToken || undefined);
+          toastSuccess(SUCCESS_ACCOUNT_SWITCHED);
+          setAccounts(getSavedAccounts());
+          setSwitchModal(false);
+          setExpiredEmail(null);
+          // 对齐 PC navigate('/')：清空页面栈并回首页，确保账本/数据按新账号重载
+          Taro.reLaunch({ url: "/pages/Home/index" });
+          return;
+        }
+        setExpiredEmail(account.email);
+      } catch {
+        setExpiredEmail(account.email);
+      } finally {
+        setSwitchingEmail(null);
       }
-      // 无 token，弹出过期提示
-      setExpiredEmail(account.email);
-    } catch {
-      // token 失效，弹出过期提示
-      setExpiredEmail(account.email);
-    } finally {
+    }, ACTION_SWITCHING).catch(() => {
       setSwitchingEmail(null);
-    }
+      setExpiredEmail(account.email);
+    });
   };
 
   const handleRemoveAccount = (email: string) => {
@@ -268,9 +290,13 @@ export default function Profile() {
         title="确认退出"
         message="确定要退出当前账号吗？"
         confirmText={ACTION_LOGOUT}
+        confirmLoading={logoutLoading}
         danger
         onConfirm={handleLogout}
-        onCancel={() => setLogoutConfirm(false)}
+        onCancel={() => {
+          if (logoutLoading) return;
+          setLogoutConfirm(false);
+        }}
       />
 
       {/* ===== 注销账号弹窗 ===== */}

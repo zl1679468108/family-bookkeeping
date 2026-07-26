@@ -2,7 +2,7 @@
  * BookCard — 单个账本卡片
  * 三种状态：默认展示 / 重命名中 / 展开成员面板
  */
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { View, Text, Input } from "@tarojs/components";
 import Taro from "@tarojs/taro";
 import { fetchBookMembers, inviteMember } from "../../../../services/booksApi";
@@ -56,14 +56,15 @@ export default function BookCard({
   });
 
   const [inviting, setInviting] = useState(false);
+  const inviteLockRef = useRef(false);
   const handleInvite = () => {
-    if (!inviteEmail.trim() || inviting) return;
+    if (!inviteEmail.trim() || inviting || inviteLockRef.current) return;
+    inviteLockRef.current = true;
     Taro.hideKeyboard();
     setInviting(true);
     inviteMember(book.id, inviteEmail.trim())
       .then(() => {
         setInviteEmail("");
-        setInviting(false);
         toastSuccess(SUCCESS_INVITE_SENT);
       })
       .catch((err: any) => {
@@ -71,9 +72,11 @@ export default function BookCard({
         // 失败时关闭邀请输入，避免卡住
         setShowInvite(false);
         setInviteEmail("");
+      })
+      .finally(() => {
+        inviteLockRef.current = false;
         setInviting(false);
       });
-    setTimeout(() => { setInviting(false); setShowInvite(false); setInviteEmail(""); }, 4000);
   };
 
   return (

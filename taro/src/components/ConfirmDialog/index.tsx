@@ -39,8 +39,13 @@ export default function ConfirmDialog({
 }: ConfirmDialogProps) {
   if (!visible) return null;
 
+  const handleCancel = () => {
+    if (confirmLoading) return;
+    onCancel();
+  };
+
   return (
-    <View className={buildConfirmDialogMaskClassName()} onClick={onCancel}>
+    <View className={buildConfirmDialogMaskClassName()} onClick={handleCancel}>
       <View
         className={buildConfirmDialogClassName({ className })}
         onClick={(e: any) => e.stopPropagation()}
@@ -48,7 +53,13 @@ export default function ConfirmDialog({
         <Text className="cd-title">{title}</Text>
         <Text className="cd-message">{message}</Text>
         <FooterActions align="stretch" className="cd-actions">
-          <Button variant="default" size="lg" block onClick={onCancel}>
+          <Button
+            variant="default"
+            size="lg"
+            block
+            disabled={confirmLoading}
+            onClick={handleCancel}
+          >
             {cancelText}
           </Button>
           <Button

@@ -28,40 +28,11 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { useAuth } from "../context/AuthContext";
 import { STALE } from "../utils/cachePolicy";
+import { queryCache, inflight } from "./manualQueryCache";
 
-interface CacheEntry {
-  data: unknown;
-  at: number;
-  userId: string;
-}
-
-/** 模块级短缓存：key → entry（按 user 隔离） */
-const queryCache = new Map<string, CacheEntry>();
-
-/** 进行中的请求：同 key 并发复用同一个 Promise，避免重复打接口 */
-const inflight = new Map<string, Promise<unknown>>();
+export { invalidateManualQuery } from "./manualQueryCache";
 
 const DEFAULT_STALE_TIME = STALE.default;
-
-/** 使缓存失效：prefix 匹配 key 前缀，不传则清空当前用户相关全部 */
-export function invalidateManualQuery(prefix?: string): void {
-  if (!prefix) {
-    queryCache.clear();
-    inflight.clear();
-    return;
-  }
-  for (const k of Array.from(queryCache.keys())) {
-    // 支持完整 key / 前缀 / 业务 key 片段（缓存 key 形态为 `${userId}::${key}`）
-    if (k === prefix || k.startsWith(prefix) || k.includes(`::${prefix}`) || k.includes(prefix)) {
-      queryCache.delete(k);
-    }
-  }
-  for (const k of Array.from(inflight.keys())) {
-    if (k === prefix || k.startsWith(prefix) || k.includes(`::${prefix}`) || k.includes(prefix)) {
-      inflight.delete(k);
-    }
-  }
-}
 
 interface UseManualQueryOptions<T> {
   /** 查询标识，变化时重新请求（类似 queryKey 序列化后的字符串） */
@@ -107,6 +78,9 @@ export function useManualQuery<T>({
   const [isFetching, setIsFetching] = useState(false);
   const [error, setError] = useState<Error | null>(null);
   const lastKey = useRef("");
+  /** 当前生效的 cacheKey；用于丢弃切号/换 key 后的过期响应 */
+  const activeCacheKeyRef = useRef(cacheKey);
+  activeCacheKeyRef.current = cacheKey;
   const queryFnRef = useRef(queryFn);
   queryFnRef.current = queryFn;
 
@@ -155,14 +129,19 @@ export function useManualQuery<T>({
         inflight.set(cacheKey, request);
       }
 
+      const requestCacheKey = cacheKey;
       request
         .then((res) => {
+          // 账号切换 / key 变化后丢弃旧请求结果，避免写回错误用户数据
+          if (activeCacheKeyRef.current !== requestCacheKey) return;
           setData(res);
         })
         .catch((err) => {
+          if (activeCacheKeyRef.current !== requestCacheKey) return;
           setError(err instanceof Error ? err : new Error(String(err)));
         })
         .then(() => {
+          if (activeCacheKeyRef.current !== requestCacheKey) return;
           setIsLoading(false);
           setIsFetching(false);
         });

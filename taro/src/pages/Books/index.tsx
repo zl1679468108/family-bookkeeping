@@ -30,7 +30,7 @@ import { toastSuccess, toastInfo } from "../../utils/toast";
 import { bookMemberRoleLabel, isBookOwnerRole } from "../../utils/roles";
 import { INVITE_CODE_HELP_LABEL, INVITE_CODE_HELP_BODY, ACTION_GENERATE_INVITE_CODE, ACTION_SEND_INVITE, INVITE_CODE_SHARE_HINT, ACTION_COPY_INVITE_CODE } from "../../utils/inviteCopy";
 import { userDisplayName } from "../../utils/userDisplay";
-import { ACTION_DELETING, ACTION_LOADING, ACTION_JOINING_ELLIPSIS, ACTION_GENERATING_ELLIPSIS, ACTION_REMOVING_ELLIPSIS, ACTION_JOIN_BOOK, ACTION_DELETE, ACTION_EDIT, ACTION_INVITE_MEMBER, ACTION_SWITCH_TO_BOOK, ACTION_SWITCH_BOOK, ACTION_CONFIRM_SWITCH, ACTION_REMOVE, ACTION_CANCEL } from "../../utils/actionCopy";
+import { ACTION_DELETING, ACTION_LOADING, ACTION_JOINING_ELLIPSIS, ACTION_GENERATING_ELLIPSIS, ACTION_REMOVING_ELLIPSIS, ACTION_JOIN_BOOK, ACTION_DELETE, ACTION_EDIT, ACTION_INVITE_MEMBER, ACTION_SWITCH_TO_BOOK, ACTION_SWITCH_BOOK, ACTION_CONFIRM_SWITCH, ACTION_REMOVE, ACTION_CANCEL, ACTION_SWITCHING } from "../../utils/actionCopy";
 import { CONFIRM_REMOVE_TITLE, confirmDeleteBook, confirmRemoveMember, CONFIRM_DELETE_BOOK_TITLE, SWITCH_BOOK_IMPACT_PREFIX, SWITCH_BOOK_IMPACT_SUFFIX, SWITCH_BOOK_IMPACT_TARO, currentBookLabel } from "../../utils/confirmCopy";
 import { FORM_ALREADY_CURRENT_BOOK, FORM_EMAIL_REQUIRED, FORM_PEER_EMAIL_PLACEHOLDER, FORM_INVITE_CODE_EXAMPLE, MAX_INVITE_CODE_LENGTH } from "../../utils/formCopy";
 import { validateEmail } from "../../utils/validation";
@@ -47,7 +47,7 @@ import {
 import { copyToClipboard } from "../../utils/clipboard";
 import { entityCreateButton, ENTITY_BOOK, DETAIL_BOOK, DEFAULT_BOOK_NAME, ENTITY_BOOK_FALLBACK } from "../../utils/entityCopy";
 import { DELETE_FAILED } from "../../utils/uploadCopy";
-import { ERROR_JOIN_FAILED, ERROR_INVITE_EMAIL, ERROR_GENERATE_FAILED, ERROR_REMOVE_FAILED } from "../../utils/errorCopy";
+import { ERROR_JOIN_FAILED, ERROR_INVITE_EMAIL, ERROR_GENERATE_FAILED, ERROR_REMOVE_FAILED, ERROR_SWITCH_BOOK } from "../../utils/errorCopy";
 import Icon, { ICON_COLOR } from "../../components/Icon";
 import { EMPTY_BOOKS_SHORT } from "../../utils/emptyCopy";
 import { formatDateTimeMinute } from "../../utils/date";
@@ -267,21 +267,25 @@ export default function BooksPage() {
     });
   };
 
-  // --- 切换 / 新建 ---
+  // --- 切换 / 新建：走 useSubmit 防连点 ---
   const handleSwitch = (book: BookRow) => {
     if (currentBook && String(currentBook.id) === String(book.id)) {
       toastInfo(FORM_ALREADY_CURRENT_BOOK);
       return;
     }
-    switchBook(book);
-    toastSuccess(successSwitchedBook(book.name));
+    run(async () => {
+      await switchBook(book);
+      toastSuccess(successSwitchedBook(book.name));
+    }, ACTION_SWITCHING).catch((err: any) => {
+      toastError(err, ERROR_SWITCH_BOOK);
+    });
   };
 
   const handleConfirmSwitch = () => {
-    if (switchTarget) {
-      handleSwitch(switchTarget);
-      setSwitchTarget(null);
-    }
+    if (!switchTarget) return;
+    const target = switchTarget;
+    setSwitchTarget(null);
+    handleSwitch(target);
   };
 
   const handleAdd = () => {

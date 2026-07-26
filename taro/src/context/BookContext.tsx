@@ -23,7 +23,7 @@ import { reportClientError } from "../utils/clientDiagnostics";
 interface BookContextType {
   currentBook: Book | null;
   books: Book[];
-  switchBook: (book: Book | null) => void;
+  switchBook: (book: Book | null) => Promise<void>;
   /** 重新拉取账本列表（创建/加入后调用，避免缓存为空导致引导循环） */
   refetchBooks: () => Promise<Book[]>;
   loading: boolean;
@@ -32,7 +32,7 @@ interface BookContextType {
 const BookContext = createContext<BookContextType>({
   currentBook: null,
   books: [],
-  switchBook: () => {},
+  switchBook: async () => {},
   refetchBooks: async () => [],
   loading: false,
 });
@@ -49,10 +49,11 @@ export const BookProvider: React.FC<{ children: React.ReactNode }> = ({
   const [loading, setLoading] = useState(!!user);
   const initialized = useRef(false);
 
-  // 用户切换时重置账本状态，防止旧账本残留
+  // 用户切换时重置账本状态，防止旧账本 / x-book-id 残留
   useEffect(() => {
     setCurrentBook(null);
     setBooks([]);
+    setStoredBookId(null);
     initialized.current = false;
   }, [user?.id]);
 
@@ -115,7 +116,9 @@ export const BookProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   }, [books, currentBook]);
 
-  const switchBook = useCallback((book: Book | null) => {
+  // 切换请求序号：快速连点时只关心最后一次服务端同步结果
+  const switchReqRef = useRef(0);
+  const switchBook = useCallback(async (book: Book | null) => {
     setCurrentBook((prev) => {
       if (prev?.id && prev.id !== book?.id) {
         clearAddTransactionDraft(prev.id);
@@ -123,10 +126,14 @@ export const BookProvider: React.FC<{ children: React.ReactNode }> = ({
       return book;
     });
     setStoredBookId(book?.id ?? null);
-    if (book?.id) {
-      setCurrentBookApi(book.id).catch((err) =>
-        reportClientError("BookContext.setCurrentBook", err),
-      );
+    if (!book?.id) return;
+    const reqId = ++switchReqRef.current;
+    try {
+      await setCurrentBookApi(book.id);
+    } catch (err) {
+      if (reqId === switchReqRef.current) {
+        reportClientError("BookContext.setCurrentBook", err);
+      }
     }
   }, []);
 

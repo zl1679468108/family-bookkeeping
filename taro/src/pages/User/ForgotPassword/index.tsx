@@ -101,23 +101,24 @@ export default function ForgotPassword() {
     });
   }, [email, code, password, confirmPassword]);
 
-  const handleResendCode = useCallback(async () => {
+  const handleResendCode = useCallback(() => {
+    if (countdown > 0) return;
     if (!email.trim()) {
       setError(FORM_EMAIL_VALID_REQUIRED);
       return;
     }
     setError("");
-    try {
+    run(async () => {
       await sendResetCode(email.trim());
       setSuccess(SUCCESS_CODE_RESENT);
       toastSuccess(SUCCESS_CODE_RESENT);
       startCountdown();
-    } catch (err) {
+    }, ACTION_SENDING_ELLIPSIS).catch((err: unknown) => {
       const msg = err instanceof ApiError ? err.message : AUTH_SEND_FAILED_CHECK_EMAIL;
       setError(msg);
       toastInfo(msg);
-    }
-  }, [email]);
+    });
+  }, [countdown, email, run]);
 
   const handleGoBack = () => {
     if (step === "email") {

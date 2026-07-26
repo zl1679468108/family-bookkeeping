@@ -239,12 +239,10 @@ export default function TemplateManager() {
     setShowLocationPicker(false);
   };
 
-  /* 执行模板 */
-  const handleExecute = async (t: Template) => {
-    try {
-      Taro.showLoading({ title: ACTION_LOADING });
+  /* 执行模板：走 useSubmit，防连点重复执行 */
+  const handleExecute = (t: Template) => {
+    run(async () => {
       const result = await executeTemplate(t.id);
-      Taro.hideLoading();
       Taro.setStorageSync("templateExecuteResult", {
         category_id: result.category_id,
         amount: result.amount,
@@ -255,10 +253,9 @@ export default function TemplateManager() {
       });
       toastSuccess(SUCCESS_TEMPLATE_APPLIED);
       setTimeout(() => Taro.navigateTo({ url: "/pages/AddTransaction/index" }), 600);
-    } catch (err: any) {
-      Taro.hideLoading();
+    }, ACTION_LOADING).catch((err: any) => {
       toastError(err, ERROR_EXECUTE_FAILED);
-    }
+    });
   };
 
   /* ==================== 渲染 ==================== */

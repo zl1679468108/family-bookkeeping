@@ -54,19 +54,19 @@ const SwitchAccountModal: React.FC<SwitchAccountModalProps> = ({ visible, onClos
       }
       setSwitchingEmail(account.email)
       try {
-        const accessToken = account.accessToken ?? account.token
-        if (accessToken) {
-          await switchByToken(account.email, accessToken, account.refreshToken)
+        const accessToken = (account.accessToken ?? account.token ?? '').trim()
+        const refreshToken = (account.refreshToken ?? '').trim()
+        // access 或 refresh 任一可用即可切换；都没有才算登录过期
+        if (accessToken || refreshToken) {
+          await switchByToken(account.email, accessToken, refreshToken || undefined)
           notifySuccess(SUCCESS_ACCOUNT_SWITCHED)
           setAccounts(getSavedAccounts())
           onClose()
           navigate('/')
           return
         }
-        // 无 token，弹出过期提示
         setExpiredEmail(account.email)
       } catch {
-        // token 失效，弹出过期提示
         setExpiredEmail(account.email)
       } finally {
         setSwitchingEmail(null)
