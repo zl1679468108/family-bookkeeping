@@ -10,6 +10,7 @@ import { useEffect, useMemo, useState, useCallback, useRef } from "react";
 import { View, Text } from "@tarojs/components";
 import Taro from "@tarojs/taro";
 import PageContainer from "../../components/PageContainer";
+import { TAB_BAR_BOTTOM_SPACE_RPX } from "../../utils/pageLayout";
 import { AppSection, MetricGrid, EmptyState, EmptyAddTransactionAction, EmptyActionButton } from "../../components/ui";
 import { getTransactions } from "../../services/transactionsApi";
 import { fetchSummary } from "../../services/statisticsApi";
@@ -183,6 +184,7 @@ export default function Home() {
 
   return (
       <PageContainer
+      bottomSpace={TAB_BAR_BOTTOM_SPACE_RPX}
       loading={initialLoading}
       loadingText={ACTION_LOADING}
       loadingVariant="home"

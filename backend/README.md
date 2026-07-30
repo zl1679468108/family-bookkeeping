@@ -1,4 +1,4 @@
-# 静记后端
+# 财猫家庭记账后端
 
 基于 NestJS 10 + TypeScript 5 的家庭记账后端 API 服务，使用 Supabase (PostgreSQL) 作为数据库，部署在腾讯云 CVM（Nginx + PM2）。
 

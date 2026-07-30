@@ -1,6 +1,6 @@
 /**
  * Profile — 我的
- * 菜单：切换主题 / 切换账号 / 关于静记 / 用户协议 / 隐私政策 / 注销账号 / 退出登录
+ * 菜单：切换主题 / 切换账号 / 关于财猫家庭记账 / 用户协议 / 隐私政策 / 注销账号 / 退出登录
  * （个人信息入口 = 顶部 Header 卡片点击）
  */
 import { useRef, useState } from "react";
@@ -13,6 +13,7 @@ import { useAuth } from "../../context/AuthContext";
 import { useTheme } from "../../context/ThemeContext";
 import { deactivateAccount } from "../../services/authApi";
 import PageContainer from "../../components/PageContainer";
+import { TAB_BAR_BOTTOM_SPACE_RPX } from "../../utils/pageLayout";
 import Icon, { ICON_COLOR } from "../../components/Icon";
 import {
   getSavedAccounts,
@@ -189,7 +190,8 @@ export default function Profile() {
   };
 
   return (
-    <PageContainer contentClassName="profile-content">
+    <PageContainer
+      bottomSpace={TAB_BAR_BOTTOM_SPACE_RPX} contentClassName="profile-content">
       {/* ===== 用户 Header ===== */}
       <View
         className="profile-header"

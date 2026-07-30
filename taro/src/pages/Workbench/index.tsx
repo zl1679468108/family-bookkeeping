@@ -10,6 +10,7 @@
 import { Text } from "@tarojs/components";
 import Taro from "@tarojs/taro";
 import PageContainer from "../../components/PageContainer";
+import { TAB_BAR_BOTTOM_SPACE_RPX } from "../../utils/pageLayout";
 import { MenuList } from "../../components/ui";
 import "./index.scss";
 import { NAV_ADD, NAV_ADD_DESC, NAV_BOOKS, NAV_CATEGORIES, NAV_TEMPLATES, NAV_BUDGETS, NAV_BOOKS_DESC, NAV_CATEGORIES_DESC, NAV_TEMPLATES_DESC, NAV_BUDGETS_DESC } from "../../utils/navCopy";
@@ -49,7 +50,8 @@ export default function Workbench() {
   ];
 
   return (
-    <PageContainer>
+    <PageContainer
+      bottomSpace={TAB_BAR_BOTTOM_SPACE_RPX}>
       <MenuList
         items={entries.map((item) => ({
           key: item.label,

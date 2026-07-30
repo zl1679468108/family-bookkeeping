@@ -15,7 +15,7 @@ const SECTIONS: Section[] = [
   {
     title: '一、引言',
     body: [
-      '静记（以下简称"本服务"）尊重并保护用户的个人隐私。本政策说明我们在您使用本服务时收集、使用、存储、共享和保护您个人信息的方式。',
+      '财猫家庭记账（以下简称"本服务"）尊重并保护用户的个人隐私。本政策说明我们在您使用本服务时收集、使用、存储、共享和保护您个人信息的方式。',
       '请您在使用本服务前仔细阅读本政策。您注册或使用本服务即视为同意本政策所述的全部内容。',
       '本服务不面向 14 周岁以下儿童。若您是 14 周岁以下的儿童，请在监护人陪同下阅读本政策并使用本服务。',
     ],
@@ -120,13 +120,13 @@ export default function Privacy() {
   return (
     <PageContainer contentClassName="legal-content">
       <View className="legal-hero">
-        <Text className="legal-title">静记隐私政策</Text>
+        <Text className="legal-title">财猫家庭记账隐私政策</Text>
         <Text className="legal-update">最近更新：2026 年 7 月 18 日</Text>
       </View>
 
       <View className="legal-intro">
         <Text>
-          本政策说明静记在您使用本服务时收集、使用、存储、共享和保护您个人信息的方式。请在使用前仔细阅读。
+          本政策说明财猫家庭记账在您使用本服务时收集、使用、存储、共享和保护您个人信息的方式。请在使用前仔细阅读。
         </Text>
       </View>
 

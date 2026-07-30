@@ -1,7 +1,7 @@
 {
   "name": "family-bookkeeping-backend",
-  "version": "1.0.2",
-  "description": "静记后端 API",
+  "version": "1.0.3",
+  "description": "财猫家庭记账后端 API",
   "author": "",
   "private": true,
   "license": "MIT",

@@ -1,9 +1,10 @@
 /* PageLayout — 页面布局容器（使用系统默认导航栏） */
 .page-layout {
   width: 100%;
-  /* 关键：锁死高度（而非 min-height），让内部 ScrollView 拿到固定高度、在内部滚动。
+  /* 关键：锁死为页面可视高度（用 100% 而非 100vh）。
+     小程序里 100vh 常大于页面 webview，会裁掉底部，表现为可滚动区域变窄。
      否则容器被长列表撑开 → 退化成页面整体滚动 → header 吸顶失效、随列表滚走。 */
-  height: 100vh;
+  height: 100%;
   overflow: hidden;
   background-color: var(--bg);
   display: flex;

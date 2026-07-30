@@ -1,4 +1,4 @@
-# 静记 (Family Bookkeeping)
+# 财猫家庭记账 (Family Bookkeeping)
 
 家庭记账应用，三端独立架构，共享同一 Supabase (PostgreSQL) 数据库。
 
@@ -23,8 +23,8 @@
 | 用途 | 地址 | 说明 |
 |---|---|---|
 | 主站点（HTTPS） | `https://zlspace.site` | 根路径 301 → `/portfolio/`（作品集） |
-| 静记 PC Web | `https://zlspace.site/bookkeeping/` | Hash 路由，如 `#/transactions` |
-| 静记 API | `https://zlspace.site/bookkeeping/api/` | Nginx 反代 → NestJS `/api` |
+| 财猫家庭记账 PC Web | `https://zlspace.site/bookkeeping/` | Hash 路由，如 `#/transactions` |
+| 财猫家庭记账 API | `https://zlspace.site/bookkeeping/api/` | Nginx 反代 → NestJS `/api` |
 | 兼容旧 API | `https://zlspace.site/api` | 小程序等仍可用 |
 | 带 www | `https://www.zlspace.site` | 同上 |
 | HTTP（自动 301→HTTPS） | `http://zlspace.site` | 访问即跳转 |

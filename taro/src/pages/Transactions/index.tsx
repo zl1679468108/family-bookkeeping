@@ -7,6 +7,7 @@ import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { View, Text, Input, Picker } from "@tarojs/components";
 import Taro from "@tarojs/taro";
 import PageContainer from "../../components/PageContainer";
+import { TAB_BAR_BOTTOM_SPACE_RPX } from "../../utils/pageLayout";
 import { EmptyState, EmptyAddTransactionAction } from "../../components/ui";
 import Icon, { ICON_COLOR } from "../../components/Icon";
 import TransactionItem from "../../components/TransactionItem";
@@ -241,6 +242,7 @@ export default function Transactions() {
   return (
     <>
       <PageContainer
+      bottomSpace={TAB_BAR_BOTTOM_SPACE_RPX}
         loading={loading}
         loadingText={ACTION_LOADING}
       loadingVariant="list"

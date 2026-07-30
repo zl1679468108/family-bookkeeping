@@ -1,7 +1,7 @@
 {
   "miniprogramRoot": "dist/",
   "projectname": "family-bookkeeping",
-  "description": "家庭记账小程序",
+  "description": "财猫家庭记账小程序",
   "appid": "wx93c16508eff05096",
   "setting": {
     "urlCheck": false,

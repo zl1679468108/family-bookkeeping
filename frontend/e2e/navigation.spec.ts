@@ -12,7 +12,7 @@ const routes = [
   { path: '/calendar', title: '日历' },
   { path: '/annual-report', title: '保存为图片' },
   { path: '/profile', title: 'E2E用户' },
-  { path: '/about', title: '静记' },
+  { path: '/about', title: '财猫家庭记账' },
 ];
 
 test.describe('主路由 smoke - 用户可到达且无控制台错误', () => {

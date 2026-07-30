@@ -93,7 +93,7 @@ export class ExportService {
 
     // 创建工作簿
     const workbook = new ExcelJS.Workbook();
-    workbook.creator = '静记';
+    workbook.creator = '财猫家庭记账';
     workbook.created = new Date();
 
     // 创建工作表

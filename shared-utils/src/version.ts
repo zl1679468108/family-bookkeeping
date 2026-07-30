@@ -9,9 +9,9 @@ export interface VersionChange {
   changes: string[]
 }
 
-export const APP_NAME = '静记'
+export const APP_NAME = '财猫家庭记账'
 /** Logo 单字标 */
-export const APP_BRAND_MARK = '静'
+export const APP_BRAND_MARK = '财'
 
 /** 欢迎来到{APP_NAME} */
 export function appWelcomeTitle(name: string = APP_NAME): string {
@@ -27,11 +27,21 @@ export function appPageTitle(page: string, name: string = APP_NAME): string {
 export function appCustomerServiceTitle(name: string = APP_NAME): string {
   return `${name}客服`
 }
-export const APP_SLOGAN = '安静记录每一笔'
-export const APP_VERSION = '1.0.2'
-export const APP_BUILD_DATE = '2026-07-25'
+export const APP_SLOGAN = '记录家庭每一笔'
+export const APP_VERSION = '1.0.3'
+export const APP_BUILD_DATE = '2026-07-30'
 
 export const CHANGELOG: VersionChange[] = [
+  {
+    version: '1.0.3',
+    date: '2026-07-30',
+    highlights: '品牌更名与小程序布局修复',
+    changes: [
+      '应用品牌统一更名为「财猫家庭记账」，三端文案与标识同步',
+      '修复小程序 Tab 页底部被自定义 TabBar 遮挡问题',
+      '修复 PageLayout 使用 100vh 导致可视区域被裁切的问题',
+    ],
+  },
   {
     version: '1.0.2',
     date: '2026-07-25',

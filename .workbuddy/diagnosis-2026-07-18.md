@@ -39,4 +39,4 @@
 
 ## 事后验证（恢复后）
 - 后端：`curl https://family-bookkeeping-api-prod-259958-6-1305761531.sh.run.tcloudbase.com/health` 应返回 `200 {"status":"ok"}`
-- 前端：浏览器打开根域名应返回 200、标题「静记」、加载 `/static/js/main.*.js`
+- 前端：浏览器打开根域名应返回 200、标题「财猫家庭记账」、加载 `/static/js/main.*.js`

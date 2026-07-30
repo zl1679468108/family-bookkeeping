@@ -1,5 +1,5 @@
 /**
- * About — 关于静记
+ * About — 关于财猫家庭记账
  * 展示版本号、更新日志、应用信息
  */
 import { useState } from "react";

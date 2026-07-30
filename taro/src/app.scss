@@ -1,5 +1,5 @@
 /* =========================================================
-   静记 · 小程序 Design System v4
+   财猫家庭记账 · 小程序 Design System v4
    1:1 还原自 02-design-spec.html
    屏幕: iPhone 14 Pro (390×844pt)
    1px ≈ 2rpx
@@ -10,6 +10,9 @@
    单位：PC 用 px，小程序用 rpx（1px ≈ 2rpx）
    === */
 page {
+  /* 锁定页面高度，供 .page-layout height:100% 取基准（避免 100vh 裁切） */
+  height: 100%;
+
   /* ═══ 主色（绿色） ═══ */
   --pr:    #2D9D8A;
   --prH:   #248B78;

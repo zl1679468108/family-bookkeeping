@@ -62,6 +62,6 @@ export function authLoginExpiredRelogin(email: string): string {
   return `${email} 的登录状态已失效，请重新登录`
 }
 
-export const AUTH_BRAND_TAGLINE = '静记 · 让每一笔都清晰可见'
+export const AUTH_BRAND_TAGLINE = '财猫家庭记账 · 让每一笔都清晰可见'
 export const AUTH_CAPTCHA_FETCH_FAILED = '获取验证码失败'
 export const AUTH_LOGIN_CHECK_CREDENTIALS = '登录失败，请检查账号密码和验证码'

@@ -1,4 +1,4 @@
-# 静记 (Family Bookkeeping) Agent Guide
+# 财猫家庭记账 (Family Bookkeeping) Agent Guide
 
 新对话开始时先读本文件。本文件只保留 **硬规则、真坑、索引**；长篇说明见外链文档，不要回写到这里。
 
@@ -18,7 +18,7 @@
 
 ## 2. 架构硬约束
 
-家庭记账「静记」：三端独立工程，共享同一 Supabase PostgreSQL。**不是 monorepo / npm workspace**；包管理器用 npm；Node `>= 20`。
+家庭记账「财猫家庭记账」：三端独立工程，共享同一 Supabase PostgreSQL。**不是 monorepo / npm workspace**；包管理器用 npm；Node `>= 20`。
 
 | 子项目 | 路径 | 技术栈 | 端口 |
 |--------|------|--------|------|
@@ -130,7 +130,7 @@ cd taro && npx tsc --noEmit && npm test
   1. `portfolio/src/data/projects.ts` → `id: 'family-bookkeeping'` 的 `status`、`version`（= `APP_VERSION`）、`lastDeployed`（北京时间 `YYYY-MM-DD HH:mm`）；必要时同步 `features` / `access` / `screenshots`
   2. `portfolio/src/data/profile.ts` → `lastUpdated`（`YYYY-MM-DD`）
   3. 状态/入口变化时同步 `portfolio/README.md`；素材待办变化时同步 `portfolio/docs/tasks.md`
-- 作品集上线需用户明确要求后再跑 portfolio 的 `npm run deploy`；不要在静记部署脚本里隐式改作品集
+- 作品集上线需用户明确要求后再跑 portfolio 的 `npm run deploy`；不要在财猫家庭记账部署脚本里隐式改作品集
 - 禁止把密钥、服务器密码、内部运维细节写进 portfolio
 
 CI（`.github/workflows/ci.yml`）只做质量检查与构建，**无自动部署**。

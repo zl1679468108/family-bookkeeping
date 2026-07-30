@@ -15,7 +15,7 @@ const SECTIONS: Section[] = [
   {
     title: '一、服务说明',
     body: [
-      '静记（以下简称"本服务"）是一款面向个人及家庭用户的记账工具，提供收支记录、分类管理、预算控制、账本协作、报表统计等功能。',
+      '财猫家庭记账（以下简称"本服务"）是一款面向个人及家庭用户的记账工具，提供收支记录、分类管理、预算控制、账本协作、报表统计等功能。',
       '本服务由开发者（以下简称"我们"）独立运营，不涉及任何金融、理财、支付、借贷业务，不会代用户保管、流转或处置任何资金。',
     ],
   },
@@ -95,13 +95,13 @@ export default function Terms() {
   return (
     <PageContainer contentClassName="legal-content">
       <View className="legal-hero">
-        <Text className="legal-title">静记用户协议</Text>
+        <Text className="legal-title">财猫家庭记账用户协议</Text>
         <Text className="legal-update">最近更新：2026 年 7 月 18 日</Text>
       </View>
 
       <View className="legal-intro">
         <Text>
-          欢迎您使用静记（以下简称"本服务"）。请在使用前仔细阅读以下条款。您注册或使用本服务即视为已阅读并同意本协议全部内容。
+          欢迎您使用财猫家庭记账（以下简称"本服务"）。请在使用前仔细阅读以下条款。您注册或使用本服务即视为已阅读并同意本协议全部内容。
         </Text>
       </View>
 

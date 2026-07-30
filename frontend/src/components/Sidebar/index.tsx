@@ -133,7 +133,7 @@ export const Sidebar: React.FC = () => {
 
   return (
     <aside className={buildSidebarClassName({ collapsed })}>
-      {/* Logo — 静记 */}
+      {/* Logo — 财猫家庭记账 */}
       <div className="sidebar-logo">
         <div className="sidebar-logo-icon">{APP_BRAND_MARK}</div>
         {!collapsed && <span className="sidebar-logo-text">{APP_NAME}</span>}

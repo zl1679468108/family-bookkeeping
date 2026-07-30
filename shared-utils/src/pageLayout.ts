@@ -4,13 +4,16 @@
 
 import { cx, type ClassValue } from './cx'
 
+/** 自定义 TabBar 底部内容占位（rpx，不含 safe-area；PageLayout bottomSpace 会再叠加 safe-area） */
+export const TAB_BAR_BOTTOM_SPACE_RPX = 160
+
 export function buildPageLayoutClassName(opts: {
   themeClass?: string
   className?: ClassValue
   prefix?: string
   base?: string
 } = {}): string {
-  const base = opts.base || 'min-h-screen bg-bg flex flex-col page-layout'
+  const base = opts.base || 'bg-bg flex flex-col page-layout'
   return cx(base, opts.themeClass, opts.className)
 }
 

@@ -1,6 +1,6 @@
-# 静记 部署手册 (Deployment Runbook)
+# 财猫家庭记账 部署手册 (Deployment Runbook)
 
-本手册覆盖「静记」三端的部署：**后端 (NestJS)**、**前端 PC Web (React)**、**小程序 (Taro 微信 / H5)**。
+本手册覆盖「财猫家庭记账」三端的部署：**后端 (NestJS)**、**前端 PC Web (React)**、**小程序 (Taro 微信 / H5)**。
 生产环境统一跑在腾讯云 CVM（上海二区，公网 `121.4.84.120`），架构如下：
 
 ```
@@ -113,7 +113,7 @@ ssh ubuntu@121.4.84.120
 `/etc/nginx/sites-available/zlspace.site.conf`（已部署，记录备查）：
 
 - 监听 `80` 与 `443`
-- `/bookkeeping/` → 静记静态资源（`alias /var/www/family-bookkeeping/`）
+- `/bookkeeping/` → 财猫家庭记账静态资源（`alias /var/www/family-bookkeeping/`）
 - `/bookkeeping/api/` → `proxy_pass http://127.0.0.1:3000/api/`，并转发 `Host` / `Authorization` 等头
 - `/api` → 兼容旧路径 / 小程序，`proxy_pass http://127.0.0.1:3000`
 - 前端为 SPA（HashRouter）：`try_files $uri $uri/ /bookkeeping/index.html`
@@ -230,7 +230,7 @@ CVM 在上海（大陆机房），**HTTP-01 验证被腾讯云「域名未备案
 - [ ] 小程序：`taro/dist-prod/` 已构建且 API 基址为 `https://zlspace.site/api`
 - [ ] 证书到期日：`openssl s_client -connect zlspace.site:443 -servername zlspace.site 2>/dev/null | openssl x509 -noout -dates`
 - [ ] 回填作品集部署信息（见根目录 `AGENTS.md` §14）：
-  - `portfolio/src/data/projects.ts` → 静记 `version` / `lastDeployed` / 状态与访问入口
+  - `portfolio/src/data/projects.ts` → 财猫家庭记账 `version` / `lastDeployed` / 状态与访问入口
   - `portfolio/src/data/profile.ts` → `lastUpdated`
   - 必要时同步 `portfolio/README.md`、`portfolio/docs/tasks.md`
 

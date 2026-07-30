@@ -45,7 +45,7 @@ const RegisterPage: React.FC = () => {
       title={ACTION_START_BOOKKEEPING}
       subtitle={
         <>
-          <p>加入静记，开启智能记账之旅</p>
+          <p>加入财猫家庭记账，开启智能记账之旅</p>
           <p>让每一笔收支都一目了然</p>
         </>
       }
